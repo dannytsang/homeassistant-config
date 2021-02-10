@@ -1,0 +1,165 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Configure a default setup of Home Assistant (frontend, api, etc)
+default_config:
+homeassistant:
+  customize: !include customize.yaml
+
+# Text to speech
+tts:
+  - platform: google_translate
+
+automation: !include automations.yaml
+binary_sensor: !include binary_sensor.yaml
+group: !include groups.yaml
+input_boolean: !include input_boolean.yaml
+notify: !include notify.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml
+sensor: !include sensor.yaml
+device_tracker: !include device_tracker.yaml
+
+cloud:
+
+discovery:
+
+media_player:
+
+wake_on_lan:
+
+logger:
+  default: info
+  logs:
+    homeassistant.components.smartthings: debug
+    custom_components.switchbot-curtain: debug
+
+#cover:
+#  - platform: switchbot-curtain
+#    mac: !secret switchbot_curtain_right
+
+google:
+  client_id: !secret google_id
+  client_secret: !secret google
+  track_new_calendar: true
+
+recorder:
+  db_url: !secret recorderdb
+
+frontend:
+  themes: !include_dir_merge_named themes
+
+calendar:
+  - platform: todoist
+    token: !secret todoist
+    custom_projects:
+      - name: "Costco"
+        include_projects:
+          - Costco
+      - name: "Groceries"
+        include_projects:
+          - Groceries
+
+camera:
+  - platform: foscam
+    name: Conservatory
+    ip: !secret foscam_conservatory
+    username: !secret foscam_conservatory_username
+    password: !secret foscam_conservatory_password
+  - platform: foscam
+    name: Driveway
+    ip: !secret foscam_driveway
+    username: !secret foscam_driveway_username
+    password: !secret foscam_driveway_password
+  - platform: foscam
+    name: Lounge
+    ip: !secret foscam_lounge_address
+    username: !secret foscam_lounge_username
+    password: !secret foscam_lounge_password
+  - platform: foscam
+    name: Upstairs
+    ip: !secret foscam_upstairs
+    username: !secret foscam_upstairs_username
+    password: !secret foscam_upstairs_password
+
+#hive:
+#username: !secret hive_username
+#password: !secret hive
+
+octoprint:
+  host: !secret octoprint
+  api_key: !secret octoprint_api
+  bed: true
+  number_of_tools: 1
+
+ifttt:
+  key: !secret ifttt
+
+influxdb:
+  host: !secret influxdb_host
+  username: homeassistant
+  password: !secret influxdb
+  database: homeassistant
+  max_retries: 3
+
+lifx:
+  light:
+    - broadcast: !secret lifx_bathroom_ip
+    - broadcast: !secret lifx_leos_bedroom_ip
+    - broadcast: !secret lifx_lounge_left_ip
+    - broadcast: !secret lifx_lounge_right_ip
+    - broadcast: !secret lifx_office_1_ip
+    - broadcast: !secret lifx_office_2_ip
+    - broadcast: !secret lifx_office_3_ip
+    - broadcast: !secret lifx_office_4_ip
+    - broadcast: !secret lifx_porch_ip
+    - broadcast: !secret lifx_stairs_ip
+tplink:
+  discovery: true
+  switch:
+    - host: !secret tplink_fan
+
+remote:
+  - platform: harmony
+    name: Living Room
+    host: !secret harmony
+
+spotify:
+  client_id: !secret spotify_client
+  client_secret: !secret spotify_secret
+
+webostv:
+  host: !secret office_tv_address
+  name: Office TV
+  turn_on_action:
+    service: wake_on_lan.send_magic_packet
+    data:
+      mac: !secret office_tv_mac_address
+  customize:
+    sources:
+      - All 4
+      - Amazon Alexa
+      - Amazon Prime Video
+      - Apple TV
+      - BBC iPlayer
+      - Explore Freeview Play
+      - Gallery
+      - HDMI 1
+      - HDMI 2
+      - HDMI 3
+      - HDMI 4
+      - ITV Hub
+      - LG Content Store
+      - Live TV
+      - Music
+      - My5
+      - NOW TV
+      - Netflix
+      - Photo & Video
+      - Plex
+      - Spotify Music - Listen free on LG TV
+      - Web Browser
+      - YouTube
+
+withings:
+  client_id: !secret withings_client
+  client_secret: !secret withings_secret
+  use_webhook: true
