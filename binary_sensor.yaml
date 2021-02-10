@@ -1,0 +1,24 @@
+# Created by Danny Tsang <danny@tsang.uk>
+- platform: template
+  sensors:
+    ashlees_blind_state:
+      value_template: "{{ is_state('cover.ashlees_blind', 'open') }}"
+      friendly_name: "Ashlee's Blind"
+      device_class: opening
+      icon_template: "mdi:blinds{{ '-open' if is_state('cover.ashlees_blind','open') else '' }}"
+    # blind state helpers
+    bedroom_blind_state:
+      value_template: "{{ is_state('cover.bedroom_blind', 'open') }}"
+      friendly_name: "Bedroom Blind"
+      device_class: opening
+      icon_template: "mdi:blinds{{ '-open' if is_state('cover.bedroom_blind','open') else '' }}"
+    tv_powered_on:
+      value_template: "{{ state_attr('switch.tv_plug','current_power_w') | float > 45 }}"
+      friendly_name: "TV Powered On"
+      device_class: "power"
+      icon_template: "mdi:television-classic{{ '' if state_attr('switch.tv_plug','current_power_w') | float > 45 else '-off' }}"
+    monitor_powered_on:
+      value_template: "{{ state_attr('switch.monitor','current_power_w') | float > 15 }}"
+      friendly_name: "Monitor Powered On"
+      device_class: "power"
+      icon_template: "mdi:monitor{{ '' if state_attr('switch.monitor','current_power_w') | float > 15 else '-off' }}"
