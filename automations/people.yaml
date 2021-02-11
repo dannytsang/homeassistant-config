@@ -1,0 +1,37 @@
+- id: "1595524992208"
+  alias: "People: No One Home And Lock"
+  description: ""
+  trigger:
+    - entity_id: group.all_people
+      for: 00:02:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
+    - condition: state
+      entity_id: group.alarmed_doors_and_windows
+      state: "off"
+  action:
+    - service: alarm_control_panel.alarm_arm_away
+      data: {}
+      entity_id: alarm_control_panel.stevenage_alarm
+    - data:
+        message:
+          ":information_source: :house_with_garden: :bell: No one is home. Alarm
+          turned on with all sensors enabled."
+      service: script.post_to_home_log
+    - service: script.post_to_direct_notification
+      data:
+        message:
+          ":information_source: :house_with_garden: :bell: No one is home. Alarm
+          turned on with all sensors on."
+        title: No One Home
+    - service: script.1588939391030
+      data: {}
+  mode: single
