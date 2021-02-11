@@ -1,0 +1,262 @@
+# Created by Danny Tsang <danny@tsang.uk>
+"1583225375412":
+  alias: Flash Green
+  sequence:
+    - scene: scene.all_lights_on_and_green
+    - delay: "1"
+    - scene: scene.turn_off_downstairs_lights
+    - delay: "1"
+    - scene: scene.all_lights_on_and_green
+    - scene: scene.turn_off_downstairs_lights
+"1588857720303":
+  alias: Morning Script
+  sequence:
+    - data: {}
+      entity_id: input_boolean.morning_routine
+      service: input_boolean.turn_on
+    - data:
+        message:
+          ":feet: :sunrise: Motion detected in the Lounge in the morning. Running
+          morning routine"
+        target: "#home_log"
+      service: notify.slack_notify
+    - device_id: 0c892895ffe711eaabea492e9418f7a9
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.stevenage_alarm
+      type: disarm
+      code: ""
+    - data:
+        data:
+          attachments:
+            - color: "#36a64f"
+              text: Turning alarm off
+              title: ":no_bell:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+    - device_id: 8dece5066db945139d9c8f3b2b8a5314
+      domain: switch
+      entity_id: switch.magic_mirror_screen
+      type: turn_on
+    - data:
+        data:
+          attachments:
+            - color: "#36a64f"
+              text: Turning On Magic Mirror
+              title: ":white_large_square: :house:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+    - data:
+        message: ":clock9: :sunrise: Morning routine complete."
+        target: "#home_log"
+      service: notify.slack_notify
+  mode: single
+"1588939391030":
+  alias: Everybody Leave Home
+  sequence:
+    - data:
+        message:
+          "':running: :house: :dancer: Everyone has left the house. Running
+          the following:'"
+      service: script.post_to_home_log
+    - data:
+        message: "':running: :house: :black_large_square: Turning off Maggic Mirror.'"
+      service: script.post_to_home_log
+    - type: turn_off
+      device_id: 8dece5066db945139d9c8f3b2b8a5314
+      entity_id: switch.magic_mirror_screen
+      domain: switch
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off office lights.'"
+    - type: turn_off
+      device_id: 57fbb31d1d0148b09fa8cac02579ff92
+      entity_id: light.office_light
+      domain: light
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off office fan'"
+    - type: turn_off
+      device_id: 6670051512fe44daa725f099f661e23c
+      entity_id: switch.office_fan
+      domain: switch
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off kitchen lights.'"
+    - scene: scene.kitchen_lights_on_3
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off lounge lights.'"
+    - scene: scene.lounge_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off stairs light.'"
+    - type: turn_off
+      device_id: 9d5a2644cdf541248d79efc729c7b35c
+      entity_id: light.stairs
+      domain: light
+    - service: script.post_to_home_log
+      data:
+        message: "':running: :house: :bulb: Turning off conservatory light.'"
+    - type: turn_off
+      device_id: 28186b62f0274699bc8b73d59f0abd24
+      entity_id: light.conservatory_light
+      domain: light
+  mode: single
+"1589124084566":
+  alias: JD Computer Off
+  sequence:
+    - data:
+        data:
+          attachments:
+            - color: "#ab0000"
+              text: JD computer turned off. Running moringing routine
+              title: ":computer:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+    - type: turn_off
+      device_id: 5f30eea6f1b043fd91425d730912fa64
+      entity_id: switch.monitor
+      domain: switch
+    - data:
+        data:
+          attachments:
+            - color: "#ab0000"
+              text: Turning monitor off
+              title: ":tv:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+    - device_id: 02282691e7b14d4393f498bf81ebaee2
+      domain: light
+      entity_id: light.left_office_desk
+      type: turn_off
+    - device_id: 02282691e7b14d4393f498bf81ebaee2
+      domain: light
+      entity_id: light.left_office_desk
+      type: turn_off
+    - device_id: e8d107fbd2c84a3aa18fa117b34301a9
+      domain: light
+      entity_id: light.right_office_desk
+      type: turn_off
+    - device_id: 8185583f9d6c4f5484b9b803b41c6430
+      domain: light
+      entity_id: light.office_desk_top
+      type: turn_off
+    - data:
+        data:
+          attachments:
+            - color: "#ab0000"
+              text: Turning office lights off
+              title: ":bulb:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+  mode: single
+"1589652888991":
+  alias: Someone Arrives Home
+  sequence:
+    - data:
+        message: ":house: :running: Someone arrives home. Running the arive home routine:"
+        target: "#home_log"
+      service: notify.slack_notify
+    - data: {}
+      entity_id: alarm_control_panel.ring_alarm
+      service: alarm_control_panel.alarm_disarm
+    - data:
+        data:
+          attachments:
+            - color: "#1109ad"
+              text: Turning alarm off
+              title: ":no_bell:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+    - data:
+        data:
+          attachments:
+            - color: "#1109ad"
+              text: Turning On Magic Mirror
+              title: ":white_large_square: :house:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
+post_to_home_log:
+  alias: Post To Home Log
+  icon: mdi:slack
+  max: 10
+  mode: queued
+  sequence:
+    - condition: state
+      entity_id: input_boolean.enable_slack_notifications
+      state: "on"
+    - data:
+        message: "{{ message }}"
+        target: "#home_log"
+        data:
+          blocks: []
+      service: notify.slack_notify
+post_to_direct_notification:
+  alias: Post Direct Mesage
+  icon: mdi:slack
+  max: 10
+  mode: queued
+  sequence:
+    - condition: state
+      state: "on"
+      entity_id: input_boolean.enable_slack_direct_messages
+    - data:
+        message: "@danny @terina {{ message }}"
+        target: "#general"
+        data:
+          blocks: []
+      service: notify.slack_notify
+    - service: notify.mobile_app_dannys_phone
+      data:
+        message: "{{ message }}"
+    - service: notify.mobile_app_terina_s_phone
+      data:
+        message: "{{ message }}"
+flash_office_lights:
+  alias: Flash Office Lights
+  sequence:
+    - scene: scene.turn_office_light_green
+    - delay: 00:00:01
+    - scene: scene.turn_office_light_green
+    - delay: 00:00:01
+    - scene: scene.turn_office_light_green
+  mode: single
+test:
+  alias: Test
+  sequence:
+    - service: light.turn_on
+      data:
+        entity_id: light.office_light
+        data_template:
+          brightness: "{{ brightness | int +5 }}"
+    - delay:
+        seconds: 1
+    - service: script.test
+      data:
+        brightness: "{{state.attributes.brightness }}"
+  mode: single
+post_direct_message_to_danny:
+  alias: Post Direct Message to Danny
+  sequence:
+    - service: notify.mobile_app_dannys_phone
+      data:
+        message: "{{ message }}"
+  mode: single
+police_effect:
+  alias: Police Effect
+  sequence:
+    - repeat:
+        count: "10"
+        sequence:
+          - scene: scene.landing_set_light_to_blue
+          - scene: scene.landing_set_light_to_red
+    - scene: scene.landing_dim_light
+    - scene: scene.landing_turn_light_off
+  mode: single
