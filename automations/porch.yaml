@@ -1,0 +1,29 @@
+- id: "1606157753577"
+  alias: "Porch: Front Door Open Turn Light On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+      to: "on"
+  condition: []
+  action:
+    - scene: scene.porch_light_on
+    - service: script.post_to_home_log
+      data:
+        message: ":door: :bulb: Door opened. Turning porch light on."
+  mode: single
+- id: "1606157835544"
+  alias: "Porch: Front Door Closed Turn Off Porch Light"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+      to: "off"
+      for: 00:01:00
+  condition: []
+  action:
+    - scene: scene.porch_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: Front door closed for 1 minute. Turning off porch light.
+  mode: single

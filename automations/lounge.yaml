@@ -1,0 +1,24 @@
+- id: "1605567425876"
+  alias: "Lounge: No Motion After 10 Minutes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.lounge_motion
+      to: "off"
+      for: 00:10:00
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_lounge_motion_trigger
+      state: "on"
+    - condition: numeric_state
+      entity_id: switch.tv_plug
+      attribute: current_power_w
+      below: "10"
+  action:
+    - scene: scene.lounge_lights_off
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion detected in the lounge for 10 minutes and
+          TV is turned off. Turning lounge :bulb: lights off."
+  mode: single
