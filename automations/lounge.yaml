@@ -1,3 +1,41 @@
+- id: "1583956425622"
+  alias: "Lounge: Dark And Motion Detected"
+  description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
+  trigger:
+    - entity_id: group.lounge_motion
+      platform: state
+      to: "on"
+      from: "off"
+    - platform: state
+      entity_id: binary_sensor.lounge_motion
+      to: "on"
+    - platform: state
+      entity_id: binary_sensor.lounge_motion_2
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.enable_lounge_motion_trigger
+          state: "on"
+        - condition: or
+          conditions:
+            - below: "25"
+              condition: numeric_state
+              entity_id: sensor.lounge_light_level
+            - below: "20"
+              condition: numeric_state
+              entity_id: sensor.lounge_light_level_2
+  action:
+    - data:
+        message:
+          ":feet: :bulb: Motion detected in the lounge and it's dark {{ states('sensor.lounge_light_level')
+          }} and {{ states('sensor.lounge_light_level_2') }} lumens. Turning lounge
+          lights on"
+      service: script.post_to_home_log
+    - scene: scene.lounge_lights
+  mode: single
+  max: 10
 - id: "1605567425876"
   alias: "Lounge: No Motion After 10 Minutes"
   description: ""
@@ -21,4 +59,28 @@
         message:
           ":no_pedestrians: No motion detected in the lounge for 10 minutes and
           TV is turned off. Turning lounge :bulb: lights off."
+  mode: single
+- id: "1588859622571"
+  alias: "Lounge: Motion Detected In The Morning"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.lounge_motion
+      platform: state
+      to: "on"
+    - entity_id: binary_sensor.stairs_motion
+      platform: state
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.morning_routine
+      state: "off"
+    - condition: state
+      entity_id: group.all_people
+      state: home
+    - condition: state
+      entity_id: alarm_control_panel.stevenage_alarm
+      state: armed_home
+  action:
+    - data: {}
+      service: script.1588857720303
   mode: single

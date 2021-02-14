@@ -1,0 +1,97 @@
+- id: "1592062695452"
+  alias: "Stairs: Motion Detected And MagicMirror Is Off"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.lounge_motion
+      platform: state
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: switch.magic_mirror_screen
+      state: "off"
+  action:
+    - device_id: 8dece5066db945139d9c8f3b2b8a5314
+      domain: switch
+      entity_id: switch.magic_mirror_screen
+      type: turn_on
+    - data:
+        message:
+          ":paw_prints: :white_large_square: Motion detected in lounge. Turning
+          on Maggic Mirror :paw_prints: :white_large_square: "
+      service: script.post_to_home_log
+- id: "1587595659605"
+  alias: "Stairs: Dark And Motion Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.landing_motion
+      from: "off"
+      platform: state
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - below: "5"
+          condition: numeric_state
+          entity_id: sensor.stairs_light_level
+        - condition: state
+          entity_id: input_boolean.enable_stairs_motion_trigger
+          state: "on"
+        - after: "19:30:00"
+          before: 08:00:00
+          condition: time
+  action:
+    - scene: scene.landing_dim_light
+    - data:
+        message:
+          :feet:Motion detected on the landing and it''s dark. Turning stairs
+          lights on 10%
+      service: script.post_to_home_log
+  mode: single
+- id: "1587595847618"
+  alias: "Stairs: No Motion Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.landing_motion
+      for: 00:01:00
+      platform: state
+      to: "off"
+  condition: []
+  action:
+    - device_id: 9d5a2644cdf541248d79efc729c7b35c
+      domain: light
+      entity_id: light.stairs
+      type: turn_off
+    - data:
+        message:
+          ":no_pedestrians: No motion detected on landing for 1 minute. Turning
+          lounge light off."
+      service: script.post_to_home_log
+  mode: single
+- id: "1598726353326"
+  alias: "Stairs: Landing Dark, Before Kids Bed Time And Motion Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.landing_motion
+      from: "off"
+      platform: state
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - below: "5"
+          condition: numeric_state
+          entity_id: sensor.stairs_light_level
+        - condition: state
+          entity_id: input_boolean.enable_stairs_motion_trigger
+          state: "on"
+        - after: 08:00:00
+          before: "19:30:00"
+          condition: time
+  action:
+    - scene: scene.stairs_turn_light_on
+    - data:
+        message:
+          :feet:Motion detected on the landing and it's dark. Turning stairs
+          lights on at 60%
+      service: script.post_to_home_log
+  mode: single

@@ -1,0 +1,43 @@
+- id: "1606428361967"
+  alias: "Office: Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.office_motion
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - condition: numeric_state
+          entity_id: sensor.office_light_level
+          below: "100"
+        - condition: state
+          entity_id: input_boolean.enable_office_motion_trigger
+          state: "on"
+  action:
+    - scene: scene.office_turn_on_light
+    - data:
+        title: Office Motion Detected
+        message:
+          ":feet: :bulb: Motion detected in the office. Turning office lights
+          on"
+      service: script.post_to_home_log
+  mode: single
+- id: "1606170234725"
+  alias: "Office: No Motion After 5 Minutes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.office_motion
+      to: "off"
+      for: 00:05:00
+      from: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion detected in the office after 5 minutes.
+          Dimming lights."
+    - scene: scene.office_dim_main_lights
+  mode: single
