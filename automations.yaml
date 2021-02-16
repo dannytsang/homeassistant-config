@@ -303,11 +303,11 @@
     to: home
   condition:
   - condition: state
-    entity_id: alarm_control_panel.ring_alarm
+    entity_id: alarm_control_panel.stevenage_alarm
     state: armed_away
   action:
   - data: {}
-    entity_id: alarm_control_panel.ring_alarm
+    entity_id: alarm_control_panel.stevenage_alarm
     service: script.1589652888991
 - id: '1588856667889'
   alias: 'MagicMirror: Turn Off At Night'
@@ -341,7 +341,7 @@
   alias: 'Alarm: Triggered'
   description: ''
   trigger:
-  - entity_id: alarm_control_panel.ring_alarm
+  - entity_id: alarm_control_panel.stevenage_alarm
     platform: state
     to: triggered
   condition: []
@@ -1101,17 +1101,14 @@
   description: ''
   trigger:
   - platform: numeric_state
-    entity_id: sensor.octoprint_actual_bed_temp
-    below: '40'
-  condition:
-  - condition: numeric_state
-    entity_id: sensor.octoprint_target_bed_temp
-    below: '1'
+    entity_id: sensor.octoprint_actual_tool0_temp
+    below: '50'
+  condition: []
   action:
   - service: script.post_direct_message_to_danny
     data:
-      title: Print bed cooled sufficiently
-      message: Print bed below 40c
+      title: Print head cooled sufficiently
+      message: Print head below 50c
   mode: single
 - id: '1609598244704'
   alias: 'Kitchen: No Motion During Day 2'
@@ -1140,8 +1137,8 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.conservatory
     to: 'on'
+    entity_id: group.conservatory_motion
   condition:
   - condition: sun
     after: sunset
@@ -1156,9 +1153,9 @@
   description: ''
   trigger:
   - platform: state
-    entity_id: binary_sensor.conservatory
     to: 'off'
     for: 00:01:00
+    entity_id: group.conservatory_motion
   condition:
   - condition: state
     entity_id: light.conservatory
@@ -1472,11 +1469,8 @@
   - service: script.post_to_home_log
     data:
       message: Someone is home, notifying front door is open
-  - scene: scene.front_door_open_notification
-  - service: scene.create
-    data:
-      scene_id: door_open_revert
-      snapshot_entities: light.office
+  - service: script.front_door_open_notification
+    data: {}
   mode: single
 - id: '1611931640441'
   alias: 'Porch: Front Door Closed'
@@ -1608,20 +1602,6 @@
         5 minutes left :battery: :warning:'
     service: script.post_to_direct_notification
   mode: single
-- id: '1613246283969'
-  alias: 'Office: Computer UPS Fully Charged'
-  description: ''
-  trigger:
-  - entity_id: sensor.computer_ups_status_data
-    from: OL CHRG
-    platform: state
-    to: OL
-  condition: []
-  action:
-  - data:
-      message: ':battery: Office UPS battery is fully charged :battery:'
-    service: script.post_to_home_log
-  mode: single
 - id: '1613246359438'
   alias: 'Office: Computer UPS On Battery With Less Than 5 Minutes'
   description: ''
@@ -1643,4 +1623,125 @@
         :battery: :warning:'
       target: '#general'
     service: script.post_to_direct_notification
+  mode: single
+- id: '1613264719942'
+  alias: 'Office: Alarm Armed Home Mode & Motion Detected'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.office_motion
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.stevenage_alarm
+    state: armed_home
+  - condition: state
+    entity_id: group.jd_computer
+    state: 'off'
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: ':paw_prints: Motioned detected in the office!'
+  mode: single
+- id: '1613264961246'
+  alias: 'Kitchen: Alarm Armed Home Mode & Motion Detected'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.kitchen_motion
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: alarm_control_panel.stevenage_alarm
+    state: armed_home
+  - condition: state
+    entity_id: group.jd_computer
+    state: 'off'
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: ':paw_prints: Motioned detected in the kitchen!'
+  mode: single
+- id: '1613321560216'
+  alias: 3D Printer
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.octoprint_time_remaining
+    to: '0'
+  condition: []
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: ':printer: :white_check_mark: Completed 3D printing'
+  mode: single
+- id: '1613324300208'
+  alias: 'UPS: Computer UPS Unavailable'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: sensor.computer_ups_status
+    to: unavailable
+  condition: []
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: PC UPS is offline.
+  mode: single
+- id: '1613326798324'
+  alias: 'Bathroom: Door Closed And No Motion For 5 Minutes'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bathroom_door
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.bathroom_motion
+    state: 'off'
+    for: 00:05:00
+  action:
+  - service: script.post_direct_message_to_danny
+    data:
+      title: Bathroom door closed
+      message: Bathroom door is closed and there has been no motion for 5 minutes.
+        Should the door be open?
+  mode: single
+- id: '1613333442249'
+  alias: 'People: No One Home And 3D Printing'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: group.adult_people
+    to: not_home
+    for: 00:01:00
+  condition:
+  - condition: not
+    conditions:
+    - condition: state
+      entity_id: sensor.octoprint_time_remaining
+      state: unknown
+  action:
+  - service: script.post_to_direct_notification
+    data:
+      title: 3D Printing
+      message: 3D printer is printing and no one is home.
+  mode: single
+- id: '1613475468647'
+  alias: 'Front Garden: Motion Detected'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.front_garden_motion
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: script.post_direct_message_to_danny
+    data:
+      title: Front Garden
+      message: ':paw_prints: Motion detected in the front garden'
+  - service: script.post_to_home_log
+    data:
+      message: ':paw_prints: Motion detected in the front garden'
   mode: single
