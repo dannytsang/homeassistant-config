@@ -1183,8 +1183,8 @@
   action:
   - service: script.post_to_home_log
     data:
-      message: ':feet: Motion detected in the bathroom and door is open. Turning lights
-        on.'
+      message: ':feet: :bathtub: Motion detected in the bathroom and door is open.
+        Turning lights on.'
   - scene: scene.bathroom_light_on
   mode: single
 - id: '1610314564871'
@@ -1205,6 +1205,9 @@
   - condition: state
     entity_id: binary_sensor.bathroom_door
     state: 'on'
+  - condition: numeric_state
+    entity_id: counter.bathroom_door_counter
+    below: '2'
   action:
   - scene: scene.bathroom_dim_lights
   - service: script.post_to_home_log
@@ -1229,6 +1232,9 @@
   - condition: state
     entity_id: binary_sensor.bathroom_door
     state: 'on'
+  - condition: numeric_state
+    entity_id: counter.bathroom_door_counter
+    below: '2'
   action:
   - scene: scene.bathroom_turn_off_light
   - service: script.post_to_home_log
@@ -1367,7 +1373,7 @@
       message: Terina WFH Calendar event.
   mode: single
 - id: '1611164672680'
-  alias: 'Bathroom: Door Closed'
+  alias: 'Bathroom: Door Closed And It''s Dark'
   description: ''
   trigger:
   - platform: state
@@ -1468,7 +1474,7 @@
   action:
   - service: script.post_to_home_log
     data:
-      message: Someone is home, notifying front door is open
+      message: 'Someone is home, notifying front :door: door is open'
   - service: script.front_door_open_notification
     data: {}
   mode: single
@@ -1485,10 +1491,8 @@
   - service: script.post_to_home_log
     data:
       message: ':door: Front door closed.'
-  - type: turn_off
-    device_id: 57fbb31d1d0148b09fa8cac02579ff92
-    entity_id: light.office_light
-    domain: light
+  - service: script.front_door_closed_notification
+    data: {}
   mode: single
 - id: '1612997966835'
   alias: 'Bedroom: NowTv Playing'
@@ -1695,6 +1699,7 @@
   - platform: state
     entity_id: binary_sensor.bathroom_door
     to: 'off'
+    from: 'on'
   condition:
   - condition: state
     entity_id: binary_sensor.bathroom_motion
@@ -1735,7 +1740,16 @@
     entity_id: binary_sensor.front_garden_motion
     from: 'off'
     to: 'on'
-  condition: []
+  condition:
+  - condition: time
+    before: '19:00'
+    after: 09:00
+  - condition: state
+    entity_id: binary_sensor.front_door
+    state: 'off'
+  - condition: state
+    entity_id: group.adult_people
+    state: home
   action:
   - service: script.post_direct_message_to_danny
     data:
@@ -1744,4 +1758,103 @@
   - service: script.post_to_home_log
     data:
       message: ':paw_prints: Motion detected in the front garden'
+  mode: single
+- id: '1613482098461'
+  alias: 'Front Garden: Motion take snapshot'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.front_garden_motion
+    from: 'off'
+    to: 'on'
+  condition: []
+  action:
+  - service: camera.snapshot
+    data:
+      filename: camera/driveway/driveway_{{ now ().year }}_{{ now ().month }}_{{ now
+        ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
+    entity_id: camera.driveway
+  - service: notify.mobile_app_dannys_phone
+    data:
+      message: Motion deteched
+      data:
+        push:
+          category: camera
+        entity_id: camera.driveway
+  mode: single
+- id: '1613575217378'
+  alias: 'Back Garden: Motion Detected'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.back_garden_motion
+    from: 'off'
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.conservatory_door
+    state: 'off'
+  action:
+  - service: notify.mobile_app_dannys_phone
+    data:
+      title: Back Garden
+      message: Motivated n detrcted in the back garden.
+  mode: single
+- id: '1613684184857'
+  alias: 'Bathroom: Door Opened'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bathroom_door
+    to: 'on'
+    from: 'off'
+  condition: []
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: 'Bathroom :bathtub: :door: door opened. Incrementing counter :abacus:
+        from {{ states(''counter.bathroom_door_counter'') }} to {{ states(''counter.bathroom_door_counter'')
+        | int + 1 }}.'
+  - service: counter.increment
+    data: {}
+    entity_id: counter.bathroom_door_counter
+  mode: single
+- id: '1613684645058'
+  alias: 'Bathroom: Door Opened Once For More than 30 seconds'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id: binary_sensor.bathroom_door
+    to: 'on'
+    from: 'off'
+    for: 00:01:00
+  condition:
+  - condition: numeric_state
+    entity_id: counter.bathroom_door_counter
+    below: '2'
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: 'Bathroom :door: door has been opened for more than 30 secs. Resetting
+        counter :abacus: from {{ states(''counter.bathroom_door_counter'') }} to 0'
+  - service: counter.reset
+    data: {}
+    entity_id: counter.bathroom_door_counter
+  mode: single
+- id: '1613689158296'
+  alias: 'Bathroom: Door Closed And Opened In Succession'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: counter.bathroom_door_counter
+    above: '1'
+  condition: []
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: ':bathtub: :door: Closed and opened {{ states(''counter.bathroom_door_counter'')
+        }} in 30 seconds, keeping lights on for 5 minutes.'
+  - service: script.bathroom_flash_light
+    data: {}
+  - scene: scene.bathroom_light_on
   mode: single
