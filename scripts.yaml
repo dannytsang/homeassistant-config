@@ -263,3 +263,30 @@ front_door_closed_notification:
   sequence:
   - scene: scene.office_turn_off_light_notification
   mode: single
+kitchen_reset_notification_main:
+  alias: Kitchen Reset Notification Main
+  sequence:
+  - condition: state
+    entity_id: light.kitchen_down_light
+    state: 'on'
+  - scene: scene.kitchen_dim_kitchen_lights
+  - type: turn_on
+    device_id: 69a713c1ef9b27f13cd5637b7d11e6fb
+    entity_id: light.kitchen_down_light
+    domain: light
+    brightness_pct: 60
+  mode: single
+bathroom_flash_light:
+  alias: Bathroom Flash Light
+  sequence:
+  - repeat:
+      count: '2'
+      sequence:
+      - scene: scene.bathroom_light_on
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - scene: scene.bathroom_turn_off_light
+  mode: single
