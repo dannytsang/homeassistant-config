@@ -1,0 +1,233 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Total energy usage using energy@home <https://github.com/dannytsang/energyathome>
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Computer A
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: JD electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: JD electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: JD electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: JD electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Computer B
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Server electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Server electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Server electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Server electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Telephony
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Telephony electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Telephony electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Telephony electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Telephony electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Fridge Freezer
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Fridge Freezer electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 20 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Fridge Freezer electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 20 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Fridge Freezer electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 20 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Fridge Freezer electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 20 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Freezer
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Freezer electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Freezer electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Freezer electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Freezer electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Home Entertainment
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Home Entertainment electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 21 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Home Entertainment electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 21 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Home Entertainment electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 21 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Home Entertainment electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 21 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+# Surround Sound
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Surround Sound electricity usage
+      query: "SELECT id,date_time,channel_id,data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Surround Sound electricity usage day average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 DAY GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Surround Sound electricity usage week average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 WEEK GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
+- platform: sql
+  db_url: !secret energyathome
+  queries:
+    - name: Surround Sound electricity usage month average
+      query: "SELECT channel_id, AVG(data) as data,unit as unit_of_measurement FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 1 MONTH GROUP BY channel_id,unit;"
+      column: "data"
+      unit_of_measurement: Wh
