@@ -192,7 +192,7 @@
         title: Office Motion Detected
         message:
           ":feet: :bulb: Motion detected in the office, the light is off and
-          it's dark. Turning office lights on"
+          it's dark. Turning office lights on."
       service: script.post_to_home_log
   mode: single
 - id: "1584277767373"
@@ -215,8 +215,8 @@
   action:
     - data:
         message:
-          ":no_pedestrians: :light: No motion detected in the office for 6 minutes and
-          :computer: is not connected. Turning office and desk lights off."
+          ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
+          and :computer: is not connected. Turning office and desk lights off."
       service: script.post_to_home_log
     - scene: scene.office_turn_off_all_lights
   mode: single
@@ -347,8 +347,9 @@
       entity_id: switch.magic_mirror_screen
       type: turn_off
     - data:
-        message: "':mirror: :house: :running: Turning On Maggic Mirror
-          because it'' target: "
+        message:
+          "':mirror: :house: :running: Turning On Maggic Mirror because it''
+          target: "
       service: script.post_to_home_log
 - id: "1589026420341"
   alias: "Alarm: Triggered"
@@ -567,8 +568,8 @@
       domain: switch
     - data:
         message:
-          ":clock11: :no_pedestrians: :mirror: Turning off Maggic Mirror because no
-          motion was detected."
+          ":clock11: :no_pedestrians: :mirror: Turning off Maggic Mirror because
+          no motion was detected."
       service: script.post_to_home_log
   mode: single
 - id: "1591705427768"
@@ -969,8 +970,8 @@
     - service: script.post_to_home_log
       data:
         message:
-          ":no_pedestrians: :bulb: :low_brightness: No motion detected and TV is turned off in the lounge
-          for 5 minutes. Dimming lights"
+          ":no_pedestrians: :bulb: :low_brightness: No motion detected and TV
+          is turned off in the lounge for 5 minutes. Dimming lights"
   mode: single
 - id: "1606256309890"
   alias: "Office: Computer Turned Off"
@@ -1209,7 +1210,9 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming conservatory lights."
+        message:
+          ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
+          conservatory lights."
     - scene: scene.conservatory_dim_light
   mode: single
 - id: "1610307951215"
@@ -1262,7 +1265,9 @@
     - scene: scene.bathroom_dim_lights
     - service: script.post_to_home_log
       data:
-        message: ":no_pedestrians: :bulb: :low_brightness: No motion and door is open. Dimming bathroom light."
+        message:
+          ":no_pedestrians: :bulb: :low_brightness: No motion and door is open.
+          Dimming bathroom light."
   mode: single
 - id: "1610314735644"
   alias: "Bathroom: No Motion Detected And Bathroom Door Is Open 2"
@@ -1330,7 +1335,9 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge lights."
+        message:
+          ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
+          lights."
     - scene: scene.lounge_dim_lights
   mode: single
 - id: "1610409803685"
@@ -1470,7 +1477,9 @@
     - scene: scene.bathroom_dim_lights
     - service: script.post_to_home_log
       data:
-        message: ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door is closed. Dimming bathroom light."
+        message:
+          ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door
+          is closed. Dimming bathroom light."
   mode: single
 - id: "1611165055857"
   alias: "Bathroom: No Motion Detected And Bathroom Door Is Closed 2"
@@ -2023,4 +2032,16 @@
       data:
         message: ":no_pedestrians: No motion in conservatory. Turning lights off."
     - scene: scene.conservatory_turn_off_light
+  mode: single
+- id: "1613730574349"
+  alias: "Person: Danny Awake Changed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.awake_duration
+  condition: []
+  action:
+    - service: notify.mobile_app_dannys_phone
+      data:
+        message: Awake has changed to {{ states('sensor.awake_duration') | int  }} mins
   mode: single
