@@ -1,1860 +1,2026 @@
-- id: '1581867286886'
-  alias: 'People: Danny Arrives Home And It''s Dark'
-  description: ''
+- id: "1581867286886"
+  alias: "People: Danny Arrives Home And It's Dark"
+  description: ""
   trigger:
-  - entity_id: person.danny
-    from: not_home
-    platform: state
-    to: home
+    - entity_id: person.danny
+      from: not_home
+      platform: state
+      to: home
   condition:
-  - condition: state
-    entity_id: input_boolean.enable_home_presence_detection
-    state: 'on'
-  - condition: numeric_state
-    entity_id: sensor.lounge_light_level
-    below: '55'
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
+    - condition: numeric_state
+      entity_id: sensor.lounge_light_level
+      below: "55"
   action:
-  - scene: scene.lounge_lights
-  - scene: scene.kitchen_lights_on_2
-  - data:
-      message: ''':crescent_moon: :house: :running: :bulb: Danny arrived home and
-        its dark so turning on the lights.'''
-    service: script.post_to_home_log
+    - scene: scene.lounge_lights
+    - scene: scene.kitchen_lights_on_2
+    - data:
+        message:
+          "':crescent_moon: :house: :running: :bulb: Danny arrived home and
+          its dark so turning on the lights.'"
+      service: script.post_to_home_log
   mode: single
-- id: '1582387272430'
-  alias: 'Downstairs: Turn On Lights At Night When Danny Is Home'
-  description: ''
+- id: "1582387272430"
+  alias: "Downstairs: Turn On Lights At Night When Danny Is Home"
+  description: ""
   trigger:
-  - platform: template
-    value_template: '{{ state_attr(''sensor.conservatory_motion_sensor_light_level'',''dark'')
-      == True }}'
+    - platform: template
+      value_template:
+        "{{ state_attr('sensor.conservatory_motion_sensor_light_level','dark')
+        == True }}"
   condition:
-  - condition: state
-    entity_id: person.danny
-    state: home
+    - condition: state
+      entity_id: person.danny
+      state: home
   action:
-  - scene: scene.lounge_lights
-  - scene: scene.kitchen_lights_on_2
-- id: '1582406380123'
+    - scene: scene.lounge_lights
+    - scene: scene.kitchen_lights_on_2
+- id: "1582406380123"
   alias: Turn Off Downstairs Lights at 2am
-  description: ''
+  description: ""
   trigger:
-  - at: 02:00:00
-    platform: time
+    - at: 02:00:00
+      platform: time
   condition: []
   action:
-  - scene: scene.turn_off_downstairs_lights
-- id: '1582456019025'
+    - scene: scene.turn_off_downstairs_lights
+- id: "1582456019025"
   alias: Turn Off House When Danny Leaves
-  description: ''
+  description: ""
   trigger:
-  - entity_id: person.danny
-    from: home
-    platform: state
-    to: not_home
+    - entity_id: person.danny
+      from: home
+      platform: state
+      to: not_home
   condition:
-  - condition: state
-    entity_id: person.terina
-    state: not_home
-  action:
-  - scene: scene.turn_off_downstairs_lights
-  - scene: scene.office_lights_off
-  - data:
-      message: ''':running: :house: Danny has left the house and no one is home. Turning
-        off lights.'''
-    service: script.post_to_home_log
-- id: '1582456025977'
-  alias: Turn Off Lights When Terina Leaves
-  description: ''
-  trigger:
-  - entity_id: person.terina
-    from: home
-    platform: state
-    to: not_home
-  condition:
-  - condition: state
-    entity_id: person.danny
-    state: not_home
-  action:
-  - scene: scene.turn_off_downstairs_lights
-  - scene: scene.office_lights_off
-  - data:
-      message: ''':house: :dancer: Terina has left the house and no one is home. Turning
-        off lights.'''
-    service: script.post_to_home_log
-- id: '1582754128581'
-  alias: Terina Arrives Home
-  description: ''
-  trigger:
-  - entity_id: person.terina
-    from: not_home
-    platform: state
-    to: home
-  condition:
-  - condition: template
-    value_template: '{{ state_attr(''sensor.hue_motion_sensor_1_light_level'',''lightlevel'')
-      < 55 }}'
-  action:
-  - scene: scene.lounge_lights
-  - scene: scene.kitchen_lights_on_2
-  - data:
-      message: ''':crescent_moon: :dancer: :house: :bulb: Terina arrived home and
-        its dark so turning on the lights.'''
-    service: script.post_to_home_log
-- id: '1582754236859'
-  alias: 'Downstairs: Turn On Lights At Night When Terina Is Home'
-  description: ''
-  trigger:
-  - platform: template
-    value_template: '{{ state_attr(''sensor.conservatory_motion_sensor_light_level'',''dark'')
-      == True }}'
-  condition:
-  - condition: state
-    entity_id: person.terina
-    state: home
-  action:
-  - scene: scene.lounge_lights
-  - scene: scene.kitchen_lights_on_2
-- id: '1584055822251'
-  alias: 'Qnap: offline'
-  description: ''
-  trigger:
-  - entity_id: device_tracker.qnap
-    for: 00:05:00
-    platform: state
-    to: not_home
-  condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - data:
-      message: ':warning: QNAP is offline! :warning:'
-    service: script.post_to_home_log
-- id: '1584089698583'
-  alias: 'Doorbell: Lower Battery'
-  description: ''
-  trigger:
-  - entity_id: sensor.front_door_battery_2
-    platform: state
-    to: '10'
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Conservatory motion sensor is low on battery'
-    service: script.post_to_home_log
-- id: '1584089831265'
-  alias: 'Doorbell: Critically Low On Battery'
-  description: ''
-  trigger:
-  - entity_id: sensor.front_door_battery_2
-    platform: state
-    to: '5'
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Conservatory motion sensor is critically low on
-        battery'
-    service: script.post_to_home_log
-- id: '1584277382805'
-  alias: 'Office: Motion Detected Light Off And It''s Dark'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.office_motion
-    to: 'on'
-  condition:
-  - condition: and
-    conditions:
     - condition: state
-      entity_id: input_boolean.enable_office_motion_trigger
-      state: 'on'
-    - condition: or
-      conditions:
-      - condition: numeric_state
-        entity_id: sensor.office_light_level
-        below: '91'
-      - condition: numeric_state
-        entity_id: sensor.office_light_level_2
-        below: '26'
-  action:
-  - scene: scene.office_turn_on_light
-  - data:
-      title: Office Motion Detected
-      message: ':feet: :bulb: Motion detected in the office, the light is off and
-        it''s dark. Turning office lights on'
-    service: script.post_to_home_log
-  mode: single
-- id: '1584277767373'
-  alias: 'Office: No Motion Detected And Computer Is Off'
-  description: ''
-  trigger:
-  - entity_id: group.office_motion
-    for: 00:06:00
-    platform: state
-    to: 'off'
-  - platform: state
-    entity_id: input_boolean.enable_office_motion_trigger
-    to: 'on'
-  condition:
-  - condition: or
-    conditions:
-    - condition: state
-      entity_id: group.jd_computer
+      entity_id: person.terina
       state: not_home
   action:
-  - data:
-      message: ':no_pedestrians: No motion detected in the office for 6 minutes and
-        :computer: is not connected. Turning office and desk lights off.'
-    service: script.post_to_home_log
-  - scene: scene.office_turn_off_all_lights
-  mode: single
-- id: '1587044886886'
-  alias: 'Office: No Motion Detected And Computer Is On'
-  description: ''
+    - scene: scene.turn_off_downstairs_lights
+    - scene: scene.office_lights_off
+    - data:
+        message:
+          "':running: :house: Danny has left the house and no one is home. Turning
+          off lights.'"
+      service: script.post_to_home_log
+- id: "1582456025977"
+  alias: Turn Off Lights When Terina Leaves
+  description: ""
   trigger:
-  - entity_id: group.office_motion
-    for: 00:10:00
-    platform: state
-    to: 'off'
+    - entity_id: person.terina
+      from: home
+      platform: state
+      to: not_home
   condition:
-  - condition: state
-    entity_id: input_boolean.enable_office_motion_trigger
-    state: 'on'
+    - condition: state
+      entity_id: person.danny
+      state: not_home
   action:
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion detected in the office for 10 minutes and
-        :computer: is connected. Turning office light off.'
-  - scene: scene.office_main_light_off
-  mode: single
-- id: '1587806619052'
-  alias: 'Alarm: Arm Overnight No One Home'
-  description: ''
+    - scene: scene.turn_off_downstairs_lights
+    - scene: scene.office_lights_off
+    - data:
+        message:
+          "':house: :dancer: Terina has left the house and no one is home. Turning
+          off lights.'"
+      service: script.post_to_home_log
+- id: "1582754128581"
+  alias: Terina Arrives Home
+  description: ""
   trigger:
-  - at: 01:00:00
-    platform: time
+    - entity_id: person.terina
+      from: not_home
+      platform: state
+      to: home
   condition:
-  - condition: state
-    entity_id: person.danny
-    state: not_home
-  - condition: state
-    entity_id: person.terina
-    state: not_home
-  - condition: state
-    entity_id: binary_sensor.conservatory_door
-    state: 'off'
+    - condition: template
+      value_template:
+        "{{ state_attr('sensor.hue_motion_sensor_1_light_level','lightlevel')
+        < 55 }}"
   action:
-  - code: ''
-    device_id: e5359a77b14b405781335a01c70d8d66
-    domain: alarm_control_panel
-    entity_id: alarm_control_panel.stevenage_alarm
-    type: arm_away
-  - data:
-      message: ':running: :dancer: are away. Turning alarm on in away mode :bell:
-        :house:'
-    service: script.post_to_home_log
-  mode: single
-- id: '1587833877434'
-  alias: 'Conservatory: Door Open At Night'
-  description: ''
+    - scene: scene.lounge_lights
+    - scene: scene.kitchen_lights_on_2
+    - data:
+        message:
+          "':crescent_moon: :dancer: :house: :bulb: Terina arrived home and
+          its dark so turning on the lights.'"
+      service: script.post_to_home_log
+- id: "1582754236859"
+  alias: "Downstairs: Turn On Lights At Night When Terina Is Home"
+  description: ""
   trigger:
-  - event: sunset
-    platform: sun
+    - platform: template
+      value_template:
+        "{{ state_attr('sensor.conservatory_motion_sensor_light_level','dark')
+        == True }}"
   condition:
-  - condition: state
-    entity_id: binary_sensor.conservatory_door
-    state: 'on'
+    - condition: state
+      entity_id: person.terina
+      state: home
   action:
-  - data:
-      message: 'Conservatory :door: is on open and it''s dark :full_moon:'
-    service: script.post_to_home_log
-- id: '1588199006400'
-  alias: 'Bedroom: Remote Low Battery'
-  description: ''
+    - scene: scene.lounge_lights
+    - scene: scene.kitchen_lights_on_2
+- id: "1584055822251"
+  alias: "Qnap: offline"
+  description: ""
   trigger:
-  - entity_id: sensor.bedroom_dimmer_switch_battery_level
-    platform: state
-    to: '10'
+    - entity_id: device_tracker.qnap
+      for: 00:05:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - data:
+        message: ":warning: QNAP is offline! :warning:"
+      service: script.post_to_home_log
+- id: "1584089698583"
+  alias: "Doorbell: Lower Battery"
+  description: ""
+  trigger:
+    - entity_id: sensor.front_door_battery_2
+      platform: state
+      to: "10"
   condition: []
   action:
-  - data:
-      message: ':warning: :battery: Bedroom remote is low on battery'
-    service: script.post_to_home_log
-- id: '1588199110995'
-  alias: 'Bedroom: Remote Critically Low Battery'
-  description: ''
+    - data:
+        message: ":warning: :battery: Conservatory motion sensor is low on battery"
+      service: script.post_to_home_log
+- id: "1584089831265"
+  alias: "Doorbell: Critically Low On Battery"
+  description: ""
   trigger:
-  - entity_id: sensor.bedroom_dimmer_switch_battery_level
-    platform: state
-    to: '5'
+    - entity_id: sensor.front_door_battery_2
+      platform: state
+      to: "5"
   condition: []
   action:
-  - data:
-      message: ':warning: :battery: Bedroom remote is critically low on battery'
-    service: script.post_to_home_log
-- id: '1588609147280'
-  alias: 'People: Someone Arrives Home'
-  description: ''
+    - data:
+        message:
+          ":warning: :battery: Conservatory motion sensor is critically low on
+          battery"
+      service: script.post_to_home_log
+- id: "1584277382805"
+  alias: "Office: Motion Detected Light Off And It's Dark"
+  description: ""
   trigger:
-  - entity_id: group.all_people
-    from: not_home
-    platform: state
-    to: home
+    - platform: state
+      entity_id: group.office_motion
+      to: "on"
   condition:
-  - condition: state
-    entity_id: alarm_control_panel.stevenage_alarm
-    state: armed_away
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: input_boolean.enable_office_motion_trigger
+          state: "on"
+        - condition: or
+          conditions:
+            - condition: numeric_state
+              entity_id: sensor.office_light_level
+              below: "91"
+            - condition: numeric_state
+              entity_id: sensor.office_light_level_2
+              below: "26"
   action:
-  - data: {}
-    entity_id: alarm_control_panel.stevenage_alarm
-    service: script.1589652888991
-- id: '1588856667889'
-  alias: 'MagicMirror: Turn Off At Night'
-  description: ''
-  trigger:
-  - minutes: '30'
-    platform: time_pattern
-  condition:
-  - after: '23:00:00'
-    before: 05:00:00
-    condition: time
-  - condition: state
-    entity_id: binary_sensor.conservatory_motion
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.office_motion
-    state: 'off'
-  - condition: state
-    entity_id: binary_sensor.lounge_motion
-    state: 'off'
-  action:
-  - device_id: feeb759747ae471e94b687b3a358a666
-    domain: switch
-    entity_id: switch.magic_mirror_screen
-    type: turn_off
-  - data:
-      message: ''':white_large_square: :house: :running: Turning On Maggic Mirror
-        because it'''' target: '
-    service: script.post_to_home_log
-- id: '1589026420341'
-  alias: 'Alarm: Triggered'
-  description: ''
-  trigger:
-  - entity_id: alarm_control_panel.stevenage_alarm
-    platform: state
-    to: triggered
-  condition: []
-  action:
-  - condition: state
-    entity_id: input_boolean.enable_slack_notifications
-    state: 'on'
-  - data:
-      data:
-        attachments:
-        - color: '#a51018'
-          fields:
-          - short: false
-            title: Priority
-            value: High
-          text: Ring alarm has been triggered
-          title: ':warning: :bell: :mega:'
-      message: '@danny @terina'
-      target: '#home_log #general'
-    service: notify.slack_notify
+    - scene: scene.office_turn_on_light
+    - data:
+        title: Office Motion Detected
+        message:
+          ":feet: :bulb: Motion detected in the office, the light is off and
+          it's dark. Turning office lights on"
+      service: script.post_to_home_log
   mode: single
-- id: '1589654262959'
-  alias: 'Office: Chromecast Offline'
-  description: ''
+- id: "1584277767373"
+  alias: "Office: No Motion Detected And Computer Is Off"
+  description: ""
   trigger:
-  - entity_id: device_tracker.chromecast_ultra
-    for: 00:05:00
-    platform: state
-    to: not_home
+    - entity_id: group.office_motion
+      for: 00:06:00
+      platform: state
+      to: "off"
+    - platform: state
+      entity_id: input_boolean.enable_office_motion_trigger
+      to: "on"
   condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - data:
-      message: ':warning: Office Chromecast is offline! :warning:'
-    service: script.post_to_home_log
-- id: '1589654316361'
-  alias: 'Bedroom: Chromecast Offline'
-  description: ''
-  trigger:
-  - entity_id: device_tracker.chromecast_bedroom
-    for: 00:05:00
-    platform: state
-    to: not_home
-  condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - data:
-      message: ':warning: Bedroom Chromecast is offline! :warning:'
-    service: script.post_to_home_log
-- id: '1589654392712'
-  alias: 'Utility: Unifi AP Offline'
-  description: ''
-  trigger:
-  - entity_id: device_tracker.utility
-    for: 00:05:00
-    from: home
-    platform: state
-    to: not_home
-  condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - data:
-      message: ':warning: Utility wireless access point is offline! :warning:'
-    service: script.post_to_home_log
-- id: '1589654509374'
-  alias: 'Lounge: Unifi AP Offline'
-  description: ''
-  trigger:
-  - entity_id: device_tracker.lounge
-    for: 00:05:00
-    from: home
-    platform: state
-    to: not_home
-  condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - data:
-      message: ':warning: Lounge wireless access point is offline! :warning:'
-    service: script.post_to_home_log
-- id: '1589654825847'
-  alias: 'Qnap: Online'
-  description: ''
-  trigger:
-  - entity_id: device_tracker.qnap
-    from: not_home
-    platform: state
-    to: home
-  condition: []
-  action:
-  - data:
-      message: 'Qnap is online! target: '
-    service: script.post_to_home_log
-- id: '1590564041899'
-  alias: 'Lounge: UPS On Battery'
-  description: ''
-  trigger:
-  - entity_id: sensor.lounge_ups_status_data
-    platform: state
-    to: OB DISCHRG
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Lounge UPS is running on battery :battery: :warning:'
-    service: script.post_to_home_log
-  - data:
-      message: ':warning: :battery: Lounge UPS is running on battery mins left :battery:
-        :warning:'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1590564595890'
-  alias: 'Lounge: UPS Below 5 Minutes Run time'
-  description: ''
-  trigger:
-  - below: '301'
-    entity_id: sensor.lounge_ups_battery_runtime
-    platform: numeric_state
-  condition:
-  - condition: state
-    entity_id: sensor.lounge_ups_status_data
-    state: OB DISCHRG
-  action:
-  - data:
-      message: ':warning: :battery: Lounge UPS battery has less than 5 minutes left
-        :battery: :warning:'
-    service: script.post_to_home_log
-  - data:
-      message: ':warning: :battery: Lounge UPS battery has less than 5 minutes left
-        :battery: :warning:'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1591041613690'
-  alias: 'Stairs: Motion Detected And Lounge Is Dark'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.stairs_motion
-    platform: state
-    to: 'on'
-  condition:
-  - condition: and
-    conditions:
-    - below: '26'
-      condition: numeric_state
-      entity_id: sensor.lounge_light_level
     - condition: or
       conditions:
-      - condition: state
-        entity_id: light.lounge_left_lamp
-        state: 'off'
-      - condition: state
-        entity_id: light.lounge_right_lamp
-        state: 'off'
+        - condition: state
+          entity_id: group.jd_computer
+          state: not_home
+  action:
+    - data:
+        message:
+          ":no_pedestrians: :light: No motion detected in the office for 6 minutes and
+          :computer: is not connected. Turning office and desk lights off."
+      service: script.post_to_home_log
+    - scene: scene.office_turn_off_all_lights
+  mode: single
+- id: "1587044886886"
+  alias: "Office: No Motion Detected And Computer Is On"
+  description: ""
+  trigger:
+    - entity_id: group.office_motion
+      for: 00:10:00
+      platform: state
+      to: "off"
+  condition:
     - condition: state
-      entity_id: input_boolean.enable_stairs_motion_trigger
-      state: 'on'
+      entity_id: input_boolean.enable_office_motion_trigger
+      state: "on"
   action:
-  - scene: scene.lounge_lights
-  - data:
-      message: ':feet: :bulb: Motion detected on the stairs. Turning lounge lights
-        on'
-    service: script.post_to_home_log
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion detected in the office for 10 minutes and
+          :computer: is connected. Turning office light off."
+    - scene: scene.office_main_light_off
   mode: single
-- id: '1591553714916'
-  alias: 'Lounge: UPS Fully Charged'
-  description: ''
+- id: "1587806619052"
+  alias: "Alarm: Arm Overnight No One Home"
+  description: ""
   trigger:
-  - entity_id: sensor.lounge_ups_status_data
-    from: OL CHRG
-    platform: state
-    to: OL
-  condition: []
-  action:
-  - data:
-      message: ':battery: Lounge UPS battery is fully charged :battery:'
-    service: script.post_to_home_log
-- id: '1591553945554'
-  alias: 'MagicMirror: Turn Off If No Montion At Night'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.stairs_motion
-    for: 00:05:00
-    platform: state
-    to: 'off'
+    - at: 01:00:00
+      platform: time
   condition:
-  - after: '23:00'
-    before: '5:00'
-    condition: time
-  - condition: state
-    entity_id: switch.magic_mirror_screen
-    state: 'on'
+    - condition: state
+      entity_id: person.danny
+      state: not_home
+    - condition: state
+      entity_id: person.terina
+      state: not_home
+    - condition: state
+      entity_id: binary_sensor.conservatory_door
+      state: "off"
   action:
-  - type: turn_off
-    device_id: 8dece5066db945139d9c8f3b2b8a5314
-    entity_id: switch.magic_mirror_screen
-    domain: switch
-  - data:
-      message: ':clock11: :black_large_square: Turning off Maggic Mirror because no
-        motion was detected :clock11: :black_large_square:'
-    service: script.post_to_home_log
+    - code: ""
+      device_id: e5359a77b14b405781335a01c70d8d66
+      domain: alarm_control_panel
+      entity_id: alarm_control_panel.stevenage_alarm
+      type: arm_away
+    - data:
+        message:
+          ":running: :dancer: are away. Turning alarm on in away mode :bell:
+          :house:"
+      service: script.post_to_home_log
   mode: single
-- id: '1591705427768'
-  alias: 'Office: Server UPS On Battery'
-  description: ''
+- id: "1587833877434"
+  alias: "Conservatory: Door Open At Night"
+  description: ""
   trigger:
-  - entity_id: sensor.server_ups_status_data
-    platform: state
-    to: OB DISCHRG
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Office UPS is running on battery with less than
-        5 minutes left :battery: :warning:'
-      target: '#general'
-    service: notify.slack_notify
-  - data:
-      message: ':warning: :battery: Office UPS is running on battery with less than
-        5 minutes left :battery: :warning:'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1591705795121'
-  alias: 'Office: Server UPS On Battery With Less Than 5 Minutes'
-  description: ''
-  trigger:
-  - below: '301'
-    entity_id: sensor.server_ups_status_data
-    platform: numeric_state
+    - event: sunset
+      platform: sun
   condition:
-  - condition: state
-    entity_id: sensor.server_ups_status_data
-    state: OB DISCHRG
+    - condition: state
+      entity_id: binary_sensor.conservatory_door
+      state: "on"
   action:
-  - data:
-      message: ':warning: :battery: Office UPS battery has less than 5 minutes left
-        :battery: :warning:'
-    service: script.post_to_home_log
-  - data:
-      message: ':warning: :battery: Office UPS battery has less than 5 minutes left
-        :battery: :warning:'
-      target: '#general'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1591729661691'
-  alias: 'Office: UPS Fully Charged'
-  description: ''
+    - data:
+        message: "Conservatory :door: is on open and it's dark :full_moon:"
+      service: script.post_to_home_log
+- id: "1588199006400"
+  alias: "Bedroom: Remote Low Battery"
+  description: ""
   trigger:
-  - entity_id: sensor.server_ups_status_data
-    from: OL CHRG
-    platform: state
-    to: OL
+    - entity_id: sensor.bedroom_dimmer_switch_battery_level
+      platform: state
+      to: "10"
   condition: []
   action:
-  - data:
-      message: ':battery: Office UPS battery is fully charged :battery:'
-    service: script.post_to_home_log
-  mode: single
-- id: '1591963855737'
-  alias: 'Lounge: UPS Unavailable'
-  description: ''
+    - data:
+        message: ":warning: :battery: Bedroom remote is low on battery"
+      service: script.post_to_home_log
+- id: "1588199110995"
+  alias: "Bedroom: Remote Critically Low Battery"
+  description: ""
   trigger:
-  - entity_id: sensor.lounge_ups_status_data
-    platform: state
-    to: unavailable
+    - entity_id: sensor.bedroom_dimmer_switch_battery_level
+      platform: state
+      to: "5"
   condition: []
   action:
-  - data:
-      message: ':warning: :battery: Lounge UPS battery is not connected :battery:
-        :warning:'
-    service: script.post_to_home_log
-- id: '1591963905748'
-  alias: 'Office: UPS Unavailable'
-  description: ''
+    - data:
+        message: ":warning: :battery: Bedroom remote is critically low on battery"
+      service: script.post_to_home_log
+- id: "1588609147280"
+  alias: "People: Someone Arrives Home"
+  description: ""
   trigger:
-  - entity_id: sensor.server_ups_status_data
-    platform: state
-    to: unavailable
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Office UPS battery is not connected :battery:
-        :warning:'
-    service: script.post_to_home_log
-  mode: single
-- id: '1594146384568'
-  alias: 'Conservatory: Water Detected'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.conservatory_water
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - data:
-      message: ':warning: :droplet: Water detected in the conservatory :droplet: :warning:'
-    service: script.post_to_home_log
-- id: '1594148554582'
-  alias: 'Conservatory: Water Not Detected'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.conservatory_water
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition: []
-  action:
-  - data:
-      message: Water no longer detected in the conservatory
-    service: script.post_to_home_log
-- id: '1594554327310'
-  alias: 'People: Everyone Left And House Is Not Locked'
-  description: ''
-  trigger:
-  - entity_id: group.all_people
-    for: 00:02:00
-    platform: state
-    to: not_home
+    - entity_id: group.all_people
+      from: not_home
+      platform: state
+      to: home
   condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  - condition: state
-    entity_id: group.alarmed_doors_and_windows
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.enable_home_presence_detection
-    state: 'on'
+    - condition: state
+      entity_id: alarm_control_panel.stevenage_alarm
+      state: armed_away
   action:
-  - data:
-      message: ':warning: :door: :unlock: No one is home and not all the doors / windows
-        are closed.'
-      title: No one is home
-    service: script.post_to_direct_notification
-  - data:
-      message: ':warning: :door: :unlock: No one is home and not all the doors / windows
-        are closed.'
-    service: script.post_to_home_log
-  mode: single
-- id: '1595678795894'
-  alias: 'Utility: Freezer Door Open'
-  description: ''
+    - data: {}
+      entity_id: alarm_control_panel.stevenage_alarm
+      service: script.1589652888991
+- id: "1588856667889"
+  alias: "MagicMirror: Turn Off At Night"
+  description: ""
   trigger:
-  - entity_id: binary_sensor.freezer_contact
-    from: 'off'
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - data:
-      message: ':door: :snowflake: Freezer door is open'
-    service: script.post_to_home_log
-  mode: single
-- id: '1595678900777'
-  alias: 'Utility: Freezer Door Closed'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.freezer_contact
-    from: 'on'
-    platform: state
-    to: 'off'
-  condition: []
-  action:
-  - data:
-      message: ':door: :snowflake: Freezer door closed'
-    service: script.post_to_home_log
-  mode: single
-- id: '1595679010792'
-  alias: 'Utility: Freezer Open For A Long Period Of Time'
-  description: ''
-  trigger:
-  - entity_id: binary_sensor.freezer_contact
-    for: 00:04:00
-    from: 'off'
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - data:
-      message: ':warning: :door: :snowflake: @danny @terina Freezer door has been
-        open for more than 4 minutes!'
-      target: general
-    service: notify.slack_notify
-  - data:
-      message: ':warning: :door: :snowflake: Freezer door has been open for more than
-        4 minutes!'
-    service: script.post_to_home_log
-  mode: single
-- id: '1596190251094'
-  alias: 'Office: Turn Fan Off After 1 Hour'
-  description: ''
-  trigger:
-  - entity_id: switch.office_fan
-    for: 01:00:00
-    from: 'off'
-    platform: state
-    to: 'on'
-  condition: []
-  action:
-  - device_id: 6670051512fe44daa725f099f661e23c
-    domain: switch
-    entity_id: switch.office_fan
-    type: turn_off
-  - data:
-      message: Turned off office Fan after 1 hour.
-    service: script.post_to_home_log
-  mode: single
-- id: '1600127180656'
-  alias: 'Bedroom: Close Blinds Before Sunrise'
-  description: ''
-  trigger:
-  - event: sunrise
-    offset: -02:00:00
-    platform: sun
+    - minutes: "30"
+      platform: time_pattern
   condition:
-  - condition: device
-    device_id: e5a40dac52c048169af0a3120fd75346
-    domain: cover
-    entity_id: cover.bedroom_blind
-    type: is_open
+    - after: "23:00:00"
+      before: 05:00:00
+      condition: time
+    - condition: state
+      entity_id: binary_sensor.conservatory_motion
+      state: "off"
+    - condition: state
+      entity_id: binary_sensor.office_motion
+      state: "off"
+    - condition: state
+      entity_id: binary_sensor.lounge_motion
+      state: "off"
   action:
-  - data:
-      message: ':sunrise: Bedroom blind is open and it''s nearly sunrise. Closing
-        blinds'
-    service: script.post_to_home_log
-  - device_id: e5a40dac52c048169af0a3120fd75346
-    domain: cover
-    entity_id: cover.bedroom_blind
-    position: 0
-    type: set_position
+    - device_id: feeb759747ae471e94b687b3a358a666
+      domain: switch
+      entity_id: switch.magic_mirror_screen
+      type: turn_off
+    - data:
+        message: "':mirror: :house: :running: Turning On Maggic Mirror
+          because it'' target: "
+      service: script.post_to_home_log
+- id: "1589026420341"
+  alias: "Alarm: Triggered"
+  description: ""
+  trigger:
+    - entity_id: alarm_control_panel.stevenage_alarm
+      platform: state
+      to: triggered
+  condition: []
+  action:
+    - condition: state
+      entity_id: input_boolean.enable_slack_notifications
+      state: "on"
+    - data:
+        data:
+          attachments:
+            - color: "#a51018"
+              fields:
+                - short: false
+                  title: Priority
+                  value: High
+              text: Ring alarm has been triggered
+              title: ":warning: :bell: :mega:"
+        message: "@danny @terina"
+        target: "#home_log #general"
+      service: notify.slack_notify
   mode: single
-- id: '1600719083284'
+- id: "1589654262959"
+  alias: "Office: Chromecast Offline"
+  description: ""
+  trigger:
+    - entity_id: device_tracker.chromecast_ultra
+      for: 00:05:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - data:
+        message: ":warning: Office Chromecast is offline! :warning:"
+      service: script.post_to_home_log
+- id: "1589654316361"
+  alias: "Bedroom: Chromecast Offline"
+  description: ""
+  trigger:
+    - entity_id: device_tracker.chromecast_bedroom
+      for: 00:05:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - data:
+        message: ":warning: Bedroom Chromecast is offline! :warning:"
+      service: script.post_to_home_log
+- id: "1589654392712"
+  alias: "Utility: Unifi AP Offline"
+  description: ""
+  trigger:
+    - entity_id: device_tracker.utility
+      for: 00:05:00
+      from: home
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - data:
+        message: ":warning: Utility wireless access point is offline! :warning:"
+      service: script.post_to_home_log
+- id: "1589654509374"
+  alias: "Lounge: Unifi AP Offline"
+  description: ""
+  trigger:
+    - entity_id: device_tracker.lounge
+      for: 00:05:00
+      from: home
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - data:
+        message: ":warning: Lounge wireless access point is offline! :warning:"
+      service: script.post_to_home_log
+- id: "1589654825847"
+  alias: "Qnap: Online"
+  description: ""
+  trigger:
+    - entity_id: device_tracker.qnap
+      from: not_home
+      platform: state
+      to: home
+  condition: []
+  action:
+    - data:
+        message: "Qnap is online! target: "
+      service: script.post_to_home_log
+- id: "1590564041899"
+  alias: "Lounge: UPS On Battery"
+  description: ""
+  trigger:
+    - entity_id: sensor.lounge_ups_status_data
+      platform: state
+      to: OB DISCHRG
+  condition: []
+  action:
+    - data:
+        message: ":warning: :battery: Lounge UPS is running on battery :battery: :warning:"
+      service: script.post_to_home_log
+    - data:
+        message:
+          ":warning: :battery: Lounge UPS is running on battery mins left :battery:
+          :warning:"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1590564595890"
+  alias: "Lounge: UPS Below 5 Minutes Run time"
+  description: ""
+  trigger:
+    - below: "301"
+      entity_id: sensor.lounge_ups_battery_runtime
+      platform: numeric_state
+  condition:
+    - condition: state
+      entity_id: sensor.lounge_ups_status_data
+      state: OB DISCHRG
+  action:
+    - data:
+        message:
+          ":warning: :battery: Lounge UPS battery has less than 5 minutes left
+          :battery: :warning:"
+      service: script.post_to_home_log
+    - data:
+        message:
+          ":warning: :battery: Lounge UPS battery has less than 5 minutes left
+          :battery: :warning:"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1591041613690"
+  alias: "Stairs: Motion Detected And Lounge Is Dark"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.stairs_motion
+      platform: state
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - below: "26"
+          condition: numeric_state
+          entity_id: sensor.lounge_light_level
+        - condition: or
+          conditions:
+            - condition: state
+              entity_id: light.lounge_left_lamp
+              state: "off"
+            - condition: state
+              entity_id: light.lounge_right_lamp
+              state: "off"
+        - condition: state
+          entity_id: input_boolean.enable_stairs_motion_trigger
+          state: "on"
+  action:
+    - scene: scene.lounge_lights
+    - data:
+        message:
+          ":feet: :bulb: Motion detected on the stairs. Turning lounge lights
+          on"
+      service: script.post_to_home_log
+  mode: single
+- id: "1591553714916"
+  alias: "Lounge: UPS Fully Charged"
+  description: ""
+  trigger:
+    - entity_id: sensor.lounge_ups_status_data
+      from: OL CHRG
+      platform: state
+      to: OL
+  condition: []
+  action:
+    - data:
+        message: ":battery: :thumbsup: Lounge UPS battery is fully charged."
+      service: script.post_to_home_log
+- id: "1591553945554"
+  alias: "MagicMirror: Turn Off If No Montion At Night"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.stairs_motion
+      for: 00:05:00
+      platform: state
+      to: "off"
+  condition:
+    - after: "23:00"
+      before: "5:00"
+      condition: time
+    - condition: state
+      entity_id: switch.magic_mirror_screen
+      state: "on"
+  action:
+    - type: turn_off
+      device_id: 8dece5066db945139d9c8f3b2b8a5314
+      entity_id: switch.magic_mirror_screen
+      domain: switch
+    - data:
+        message:
+          ":clock11: :no_pedestrians: :mirror: Turning off Maggic Mirror because no
+          motion was detected."
+      service: script.post_to_home_log
+  mode: single
+- id: "1591705427768"
+  alias: "Office: Server UPS On Battery"
+  description: ""
+  trigger:
+    - entity_id: sensor.server_ups_status_data
+      platform: state
+      to: OB DISCHRG
+  condition: []
+  action:
+    - data:
+        message:
+          ":warning: :battery: Server UPS is running on battery with less than
+          5 minutes left :battery: :warning:"
+        target: "#general"
+      service: notify.slack_notify
+    - data:
+        message:
+          ":warning: :battery: Server UPS is running on battery with less than
+          5 minutes left :battery: :warning:"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1591705795121"
+  alias: "Office: Server UPS On Battery With Less Than 5 Minutes"
+  description: ""
+  trigger:
+    - below: "301"
+      entity_id: sensor.server_ups_status_data
+      platform: numeric_state
+  condition:
+    - condition: state
+      entity_id: sensor.server_ups_status_data
+      state: OB DISCHRG
+  action:
+    - data:
+        message:
+          ":warning: :battery: Server UPS battery has less than 5 minutes left
+          :battery: :warning:"
+      service: script.post_to_home_log
+    - data:
+        message:
+          ":warning: :battery: Server UPS battery has less than 5 minutes left
+          :battery: :warning:"
+        target: "#general"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1591729661691"
+  alias: "Office: UPS Fully Charged"
+  description: ""
+  trigger:
+    - entity_id: sensor.server_ups_status_data
+      from: OL CHRG
+      platform: state
+      to: OL
+  condition: []
+  action:
+    - data:
+        message: ":battery: :thumbsup: Server UPS battery is fully charged."
+      service: script.post_to_home_log
+  mode: single
+- id: "1591963855737"
+  alias: "Lounge: UPS Unavailable"
+  description: ""
+  trigger:
+    - entity_id: sensor.lounge_ups_status_data
+      platform: state
+      to: unavailable
+  condition: []
+  action:
+    - data:
+        message:
+          ":warning: :battery: Lounge UPS battery is not connected :battery:
+          :warning:"
+      service: script.post_to_home_log
+- id: "1591963905748"
+  alias: "Office: UPS Unavailable"
+  description: ""
+  trigger:
+    - entity_id: sensor.server_ups_status_data
+      platform: state
+      to: unavailable
+  condition: []
+  action:
+    - data:
+        message:
+          ":warning: :battery: Server UPS battery is not connected :battery:
+          :warning:"
+      service: script.post_to_home_log
+  mode: single
+- id: "1594146384568"
+  alias: "Conservatory: Water Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.conservatory_water
+      platform: state
+      to: "on"
+  condition: []
+  action:
+    - data:
+        message: ":warning: :droplet: Water detected in the conservatory :droplet: :warning:"
+      service: script.post_to_home_log
+- id: "1594148554582"
+  alias: "Conservatory: Water Not Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.conservatory_water
+      from: "on"
+      platform: state
+      to: "off"
+  condition: []
+  action:
+    - data:
+        message: Water no longer detected in the conservatory
+      service: script.post_to_home_log
+- id: "1594554327310"
+  alias: "People: Everyone Left And House Is Not Locked"
+  description: ""
+  trigger:
+    - entity_id: group.all_people
+      for: 00:02:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+    - condition: state
+      entity_id: group.alarmed_doors_and_windows
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
+  action:
+    - data:
+        message:
+          ":warning: :door: :unlock: No one is home and not all the doors / windows
+          are closed."
+        title: No one is home
+      service: script.post_to_direct_notification
+    - data:
+        message:
+          ":warning: :door: :unlock: No one is home and not all the doors / windows
+          are closed."
+      service: script.post_to_home_log
+  mode: single
+- id: "1595678795894"
+  alias: "Utility: Freezer Door Open"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.freezer_contact
+      from: "off"
+      platform: state
+      to: "on"
+  condition: []
+  action:
+    - data:
+        message: ":door: :snowflake: Freezer door is open"
+      service: script.post_to_home_log
+  mode: single
+- id: "1595678900777"
+  alias: "Utility: Freezer Door Closed"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.freezer_contact
+      from: "on"
+      platform: state
+      to: "off"
+  condition: []
+  action:
+    - data:
+        message: ":door: :snowflake: Freezer door closed"
+      service: script.post_to_home_log
+  mode: single
+- id: "1595679010792"
+  alias: "Utility: Freezer Open For A Long Period Of Time"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.freezer_contact
+      for: 00:04:00
+      from: "off"
+      platform: state
+      to: "on"
+  condition: []
+  action:
+    - data:
+        message:
+          ":warning: :door: :snowflake: @danny @terina Freezer door has been
+          open for more than 4 minutes!"
+        target: general
+      service: notify.slack_notify
+    - data:
+        message:
+          ":warning: :door: :snowflake: Freezer door has been open for more than
+          4 minutes!"
+      service: script.post_to_home_log
+  mode: single
+- id: "1596190251094"
+  alias: "Office: Turn Fan Off After 1 Hour"
+  description: ""
+  trigger:
+    - entity_id: switch.office_fan
+      for: 01:00:00
+      from: "off"
+      platform: state
+      to: "on"
+  condition: []
+  action:
+    - device_id: 6670051512fe44daa725f099f661e23c
+      domain: switch
+      entity_id: switch.office_fan
+      type: turn_off
+    - data:
+        message: Turned off office Fan after 1 hour.
+      service: script.post_to_home_log
+  mode: single
+- id: "1600127180656"
+  alias: "Bedroom: Close Blinds Before Sunrise"
+  description: ""
+  trigger:
+    - event: sunrise
+      offset: -02:00:00
+      platform: sun
+  condition:
+    - condition: device
+      device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      type: is_open
+  action:
+    - data:
+        message:
+          ":sunrise: Bedroom blind is open and it's nearly sunrise. Closing
+          blinds"
+      service: script.post_to_home_log
+    - device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      position: 0
+      type: set_position
+  mode: single
+- id: "1600719083284"
   alias: Test2
-  description: ''
+  description: ""
   trigger:
-  - platform: time
-    at: '12:00:00'
+    - platform: time
+      at: "12:00:00"
   condition: []
   action:
-  - service: script.post_to_home_log
-    data:
-      message: testing testing
+    - service: script.post_to_home_log
+      data:
+        message: testing testing
   mode: single
-- id: '1601146277582'
-  alias: 'Bedroom: Watching TV During The Day'
-  description: ''
+- id: "1601146277582"
+  alias: "Bedroom: Watching TV During The Day"
+  description: ""
   trigger:
-  - platform: numeric_state
-    entity_id: switch.bedroom_tv_plug
-    attribute: current_power_w
-    above: '20'
-    for: 00:01:00
+    - platform: numeric_state
+      entity_id: switch.bedroom_tv_plug
+      attribute: current_power_w
+      above: "20"
+      for: 00:01:00
   condition:
-  - condition: numeric_state
-    entity_id: sensor.bedroom_light_level
-    above: '20'
-  - condition: sun
-    before: sunset
-    after: sunrise
-  - condition: state
-    entity_id: cover.bedroom_blind
-    state: open
-  - condition: state
-    entity_id: binary_sensor.bathroom_window
-    state: 'off'
-  action:
-  - device_id: e5a40dac52c048169af0a3120fd75346
-    domain: cover
-    entity_id: cover.bedroom_blind
-    type: set_position
-    position: 0
-  - service: script.post_to_home_log
-    data:
-      title: ':sunny: :tv:'
-      message: ':sunny: :tv: TV turned on, window is closed and it''s bright. Closing
-        bedroom blinds.'
-  mode: single
-- id: '1601641236163'
-  alias: 'Bedroom: Close Blinds When Someone Is In Bed'
-  description: ''
-  trigger:
-  - platform: event
-    event_type: ifttt_webhook_received
-    event_data:
-      action: someone_in_bed
-  condition:
-  - condition: device
-    device_id: e5a40dac52c048169af0a3120fd75346
-    domain: cover
-    entity_id: cover.bedroom_blind
-    type: is_open
-  - condition: state
-    entity_id: input_boolean.enable_bedroom_blind_automations
-    state: 'on'
-  action:
-  - data:
-      title: Close bedroom blinds
-      message: ':sleeping_accommodation: Someone is in bed, bedroom window is closed
-        and it''s getting late. Closing blinds'
-    service: script.post_to_home_log
-  - device_id: e5a40dac52c048169af0a3120fd75346
-    domain: cover
-    entity_id: cover.bedroom_blind
-    position: 0
-    type: set_position
-  mode: single
-- id: '1603568714170'
-  alias: 'Test: IFTTT Test'
-  description: ''
-  trigger:
-  - platform: event
-    event_type: ifttt_webhook_received
-    event_data:
-      action: ifttt_test
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: IFTTT test successful
-  mode: single
-- id: '1604998439600'
-  alias: 'House: Water detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.water_sensors
-    to: 'on'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':warning: :droplet: Potential leak detected :droplet: :warning:'
-  mode: single
-- id: '1604998512525'
-  alias: 'House: Water Not Detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.water_sensors
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: Potential leak has stopped
-  mode: single
-- id: '1605924680077'
-  alias: 'Ashlee''s Room: Turn Off Night Light At Sunrise'
-  description: ''
-  trigger:
-  - platform: sun
-    event: sunrise
-  condition:
-  - condition: state
-    entity_id: switch.night_light
-    state: 'on'
-  action:
-  - type: turn_off
-    device_id: 55432b61c333477b84f972603e84e798
-    entity_id: switch.night_light
-    domain: switch
-  - service: script.post_to_home_log
-    data:
-      message: :sunrise:. Turn off night light
-  mode: single
-- id: '1606170045630'
-  alias: 'Lounge: No Motion After 5 Minutes'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.lounge_motion
-    to: 'off'
-    for: 00:05:00
-  condition:
-  - condition: state
-    entity_id: input_boolean.enable_lounge_motion_trigger
-    state: 'on'
-  - condition: numeric_state
-    entity_id: switch.tv_plug
-    attribute: current_power_w
-    below: '10'
-  action:
-  - scene: scene.lounge_dim_lights
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion detected and TV is turned off in the lounge
-        for 5 minutes. Dimming lights'
-  mode: single
-- id: '1606256309890'
-  alias: 'Office: Computer Turned Off'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.jd_computer
-    for: 00:10:00
-    to: not_home
-    from: home
-  condition:
-  - condition: template
-    value_template: '{{ not is_state(''device_tracker.unifi_security_gateway'', ''unavailable'')
-      }}'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':computer: :tv: Computer turned off for more than 10 minutes. Consider
-        turning monitor off.'
-  - scene: scene.office_turn_off_desk_light
-  - service: script.post_to_home_log
-    data:
-      message: ':computer: :tv: Computer turned off for more than 10 minutes. Turned
-        off desk lights.'
-  mode: single
-- id: '1606294735952'
-  alias: 'Kitchen: Turn Off Lights Weekend Morning'
-  description: ''
-  trigger:
-  - platform: time
-    at: 09:00:00
-  condition:
-  - condition: time
-    weekday:
-    - sat
-    - sun
-  action:
-  - device_id: 7bb3a37c66e143368cdc7b5a27a8a155
-    domain: light
-    entity_id: light.kitchen_down_light
-    type: turn_off
-  - device_id: 902ae097a4f84ef1a73d1b078600b02d
-    domain: light
-    entity_id: light.kitchen_cabinet_light
-    type: turn_off
-  - data:
-      message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
-    service: script.post_to_home_log
-  mode: single
-- id: '1606652871369'
-  alias: 'Kitchen: No Motion During Day'
-  description: ''
-  trigger:
-  - platform: state
-    to: 'off'
-    for: 00:05:00
-    entity_id: group.kitchen_motion
-  condition:
-  - condition: and
-    conditions:
+    - condition: numeric_state
+      entity_id: sensor.bedroom_light_level
+      above: "20"
     - condition: sun
       before: sunset
-    - condition: time
-      after: '23:30:00'
+      after: sunrise
+    - condition: state
+      entity_id: cover.bedroom_blind
+      state: open
+    - condition: state
+      entity_id: binary_sensor.bathroom_window
+      state: "off"
   action:
-  - scene: scene.kitchen_lights_on_3
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion detected after :city_sunrise: and before
-        :city_sunset: Turning kitchen lights off (1).'
+    - device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      type: set_position
+      position: 0
+    - service: script.post_to_home_log
+      data:
+        title: ":sunny: :tv:"
+        message:
+          ":sunny: :tv: TV turned on, window is closed and it's bright. Closing
+          bedroom blinds."
   mode: single
-- id: '1608489396143'
-  alias: 'Home Assistant: Start Up'
-  description: ''
+- id: "1601641236163"
+  alias: "Bedroom: Close Blinds When Someone Is In Bed"
+  description: ""
   trigger:
-  - platform: homeassistant
-    event: start
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: Home Assistant has started.
-  mode: single
-- id: '1608489438291'
-  alias: 'Home Assistant: Shutdown'
-  description: ''
-  trigger:
-  - platform: homeassistant
-    event: shutdown
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: Home Assistant shutdown.
-  mode: single
-- id: '1608493783373'
-  alias: 'Lounge: Bay Window High Temperature'
-  description: ''
-  trigger:
-  - platform: event
-    event_type: ifttt_webhook_received
-    event_data:
-      action: bay_window_high_temp
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':warning: :thermometer: Bay window is above 35c. Turning server fan
-        on.'
-  - type: turn_on
-    device_id: 15217f2c122d11eba01aa91aa4fd493d
-    entity_id: switch.server_fan
-    domain: switch
-  mode: single
-- id: '1608493853210'
-  alias: 'Lounge: Bay Window Below High Temperature'
-  description: ''
-  trigger:
-  - platform: event
-    event_type: ifttt_webhook_received
-    event_data:
-      action: bay_window_low_temp
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':thermometer: :snowflake: Bay window below high temperature. Turning
-        server fan off.'
-  - type: turn_off
-    device_id: 15217f2c122d11eba01aa91aa4fd493d
-    entity_id: switch.server_fan
-    domain: switch
-  mode: single
-- id: '1608655560832'
-  alias: 'Octoprint: Print Started'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.octoprint_printing
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: 3D printer started printing
-  mode: single
-- id: '1608655663801'
-  alias: 'Octoprint: Errored'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.octoprint_printing_error
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: script.post_to_direct_notification
-    data:
-      title: 3D printer error
-      message: 3D printer has encountered an error
-  mode: single
-- id: '1609349959402'
-  alias: '3D Printer: Print Finished And Bed Cooled'
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: sensor.octoprint_actual_tool0_temp
-    below: '50'
-  condition: []
-  action:
-  - service: script.post_direct_message_to_danny
-    data:
-      title: Print head cooled sufficiently
-      message: Print head below 50c
-  mode: single
-- id: '1609598244704'
-  alias: 'Kitchen: No Motion During Day 2'
-  description: ''
-  trigger:
-  - platform: state
-    to: 'off'
-    for: 00:05:00
-    entity_id: group.kitchen_motion
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: someone_in_bed
   condition:
-  - condition: and
-    conditions:
+    - condition: device
+      device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      type: is_open
+    - condition: state
+      entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+  action:
+    - data:
+        title: Close bedroom blinds
+        message:
+          ":sleeping_accommodation: Someone is in bed, bedroom window is closed
+          and it's getting late. Closing blinds"
+      service: script.post_to_home_log
+    - device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      position: 0
+      type: set_position
+  mode: single
+- id: "1603568714170"
+  alias: "Test: IFTTT Test"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: ifttt_test
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: IFTTT test successful
+  mode: single
+- id: "1604998439600"
+  alias: "House: Water detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.water_sensors
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":warning: :droplet: Potential leak detected :droplet: :warning:"
+  mode: single
+- id: "1604998512525"
+  alias: "House: Water Not Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.water_sensors
+      from: "on"
+      to: "off"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Potential leak has stopped
+  mode: single
+- id: "1605924680077"
+  alias: "Ashlee's Room: Turn Off Night Light At Sunrise"
+  description: ""
+  trigger:
+    - platform: sun
+      event: sunrise
+  condition:
+    - condition: state
+      entity_id: switch.night_light
+      state: "on"
+  action:
+    - type: turn_off
+      device_id: 55432b61c333477b84f972603e84e798
+      entity_id: switch.night_light
+      domain: switch
+    - service: script.post_to_home_log
+      data:
+        message: :sunrise:. Turn off night light
+  mode: single
+- id: "1606170045630"
+  alias: "Lounge: No Motion After 5 Minutes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.lounge_motion
+      to: "off"
+      for: 00:05:00
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_lounge_motion_trigger
+      state: "on"
+    - condition: numeric_state
+      entity_id: switch.tv_plug
+      attribute: current_power_w
+      below: "10"
+  action:
+    - scene: scene.lounge_dim_lights
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: :bulb: :low_brightness: No motion detected and TV is turned off in the lounge
+          for 5 minutes. Dimming lights"
+  mode: single
+- id: "1606256309890"
+  alias: "Office: Computer Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.jd_computer
+      for: 00:10:00
+      to: not_home
+      from: home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":computer: :tv: Computer turned off for more than 10 minutes. Consider
+          turning monitor off."
+    - scene: scene.office_turn_off_desk_light
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":computer: :tv: Computer turned off for more than 10 minutes. Turned
+          off desk lights."
+  mode: single
+- id: "1606294735952"
+  alias: "Kitchen: Turn Off Lights Weekend Morning"
+  description: ""
+  trigger:
+    - platform: time
+      at: 09:00:00
+  condition:
+    - condition: time
+      weekday:
+        - sat
+        - sun
+  action:
+    - device_id: 7bb3a37c66e143368cdc7b5a27a8a155
+      domain: light
+      entity_id: light.kitchen_down_light
+      type: turn_off
+    - device_id: 902ae097a4f84ef1a73d1b078600b02d
+      domain: light
+      entity_id: light.kitchen_cabinet_light
+      type: turn_off
+    - data:
+        message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
+      service: script.post_to_home_log
+  mode: single
+- id: "1606652871369"
+  alias: "Kitchen: No Motion During Day"
+  description: ""
+  trigger:
+    - platform: state
+      to: "off"
+      for: 00:05:00
+      entity_id: group.kitchen_motion
+  condition:
+    - condition: and
+      conditions:
+        - condition: sun
+          before: sunset
+        - condition: time
+          after: "23:30:00"
+  action:
+    - scene: scene.kitchen_lights_on_3
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion detected after :city_sunrise: and before
+          :city_sunset: Turning kitchen lights off (1)."
+  mode: single
+- id: "1608489396143"
+  alias: "Home Assistant: Start Up"
+  description: ""
+  trigger:
+    - platform: homeassistant
+      event: start
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Home Assistant has started.
+  mode: single
+- id: "1608489438291"
+  alias: "Home Assistant: Shutdown"
+  description: ""
+  trigger:
+    - platform: homeassistant
+      event: shutdown
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Home Assistant shutdown.
+  mode: single
+- id: "1608493783373"
+  alias: "Lounge: Bay Window High Temperature"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: bay_window_high_temp
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":warning: :thermometer: Bay window is above 35c. Turning server fan
+          on."
+    - type: turn_on
+      device_id: 15217f2c122d11eba01aa91aa4fd493d
+      entity_id: switch.server_fan
+      domain: switch
+  mode: single
+- id: "1608493853210"
+  alias: "Lounge: Bay Window Below High Temperature"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: bay_window_low_temp
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":thermometer: :snowflake: Bay window below high temperature. Turning
+          server fan off."
+    - type: turn_off
+      device_id: 15217f2c122d11eba01aa91aa4fd493d
+      entity_id: switch.server_fan
+      domain: switch
+  mode: single
+- id: "1608655560832"
+  alias: "Octoprint: Print Started"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.octoprint_printing
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: 3D printer started printing
+  mode: single
+- id: "1608655663801"
+  alias: "Octoprint: Errored"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.octoprint_printing_error
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_direct_notification
+      data:
+        title: 3D printer error
+        message: 3D printer has encountered an error
+  mode: single
+- id: "1609349959402"
+  alias: "3D Printer: Print Finished And Bed Cooled"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octoprint_actual_tool0_temp
+      below: "50"
+  condition: []
+  action:
+    - service: script.post_direct_message_to_danny
+      data:
+        title: Print head cooled sufficiently
+        message: Print head below 50c
+  mode: single
+- id: "1609598244704"
+  alias: "Kitchen: No Motion During Day 2"
+  description: ""
+  trigger:
+    - platform: state
+      to: "off"
+      for: 00:05:00
+      entity_id: group.kitchen_motion
+  condition:
+    - condition: and
+      conditions:
+        - condition: time
+          after: 00:00:00
+        - condition: sun
+          before: sunset
+  action:
+    - scene: scene.kitchen_lights_on_3
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion detected after :city_sunrise: and before
+          :city_sunset: Turning kitchen lights off."
+  mode: single
+- id: "1610234394136"
+  alias: "Conservatory: Motion Detected Turn On Light"
+  description: ""
+  trigger:
+    - platform: state
+      to: "on"
+      entity_id: group.conservatory_motion
+      from: "off"
+  condition:
+    - condition: sun
+      after: sunset
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: :feet:Motion detected in Conservatory. Turning on Lights
+    - scene: scene.conservatory_turn_on_light
+  mode: single
+- id: "1610234794461"
+  alias: "Conservatory: No Motion Detected Dim Lights"
+  description: ""
+  trigger:
+    - platform: state
+      to: "off"
+      for: 00:01:00
+      entity_id: group.conservatory_motion
+      from: "on"
+  condition:
+    - condition: state
+      entity_id: light.conservatory
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming conservatory lights."
+    - scene: scene.conservatory_dim_light
+  mode: single
+- id: "1610307951215"
+  alias: "Bathroom: Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: numeric_state
+      entity_id: sensor.bathroom_illuminance
+      below: "30"
+    - condition: state
+      entity_id: input_boolean.bathroom_light_override
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":feet: :bathtub: Motion detected in the bathroom and door is open.
+          Turning lights on."
+    - scene: scene.bathroom_light_on
+  mode: single
+- id: "1610314564871"
+  alias: "Bathroom: No Motion Detected And Bathroom Door Is Open"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "off"
+      for: 00:01:30
+  condition:
+    - condition: state
+      entity_id: light.bathroom_light
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bathroom_door
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.bathroom_light_override
+      state: "off"
+  action:
+    - scene: scene.bathroom_dim_lights
+    - service: script.post_to_home_log
+      data:
+        message: ":no_pedestrians: :bulb: :low_brightness: No motion and door is open. Dimming bathroom light."
+  mode: single
+- id: "1610314735644"
+  alias: "Bathroom: No Motion Detected And Bathroom Door Is Open 2"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "off"
+      for: 00:02:00
+  condition:
+    - condition: state
+      entity_id: light.bathroom_light
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bathroom_door
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.bathroom_light_override
+      state: "off"
+  action:
+    - scene: scene.bathroom_turn_off_light
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion again and door is open. Turning bathroom
+          light off."
+  mode: single
+- id: "1610388192224"
+  alias: "Lounge: TV Turned On"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: switch.tv_plug
+      above: "35"
+      attribute: current_power_w
+  condition: []
+  action:
+    - service: script.post_direct_message_to_danny
+      data:
+        message: TV turned on.
+  mode: single
+- id: "1610388245160"
+  alias: "Lounge: TV Turned Off"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: switch.tv_plug
+      below: "35"
+      attribute: current_power_w
+      for: 00:05:00
+  condition:
+    - condition: state
+      entity_id: group.lounge_lights
+      state: "on"
+    - condition: state
+      entity_id: group.lounge_motion
+      state: "off"
+    - condition: template
+      value_template:
+        " {{ (as_timestamp(now())-as_timestamp(states.group.lounge_motion.last_updated))
+        > 300 }}"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge lights."
+    - scene: scene.lounge_dim_lights
+  mode: single
+- id: "1610409803685"
+  alias: "Lounge: TV Turned Off 2"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: switch.tv_plug
+      attribute: current_power_w
+      for: 00:10:00
+      below: "35"
+  condition:
+    - condition: state
+      entity_id: group.lounge_lights
+      state: "on"
+    - condition: state
+      entity_id: group.lounge_motion
+      state: "off"
+    - condition: template
+      value_template:
+        " {{ (as_timestamp(now())-as_timestamp(states.group.lounge_motion.last_updated))
+        > 300 }}"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: TV turned off for 10 minutes. Turning lounge lights off.
+    - scene: scene.lounge_lights_off
+  mode: single
+- id: "1610918759041"
+  alias: "Lounge: Restart Harmony Hub"
+  description: ""
+  trigger:
+    - platform: time
+      at: 03:00:00
+  condition:
+    - condition: numeric_state
+      entity_id: switch.tv_plug
+      attribute: current_power_w
+      below: "40"
+    - condition: time
+      weekday:
+        - mon
+  action:
+    - type: turn_off
+      device_id: b6132172dbf641938719e0bd3eb92e63
+      entity_id: switch.bedroom_tv_plug
+      domain: switch
+    - service: script.post_to_home_log
+      data:
+        message: ":TV: Restarting Harmony hub."
+    - wait_template: 00:01:00
+    - type: turn_on
+      device_id: b6132172dbf641938719e0bd3eb92e63
+      entity_id: switch.bedroom_tv_plug
+      domain: switch
+  mode: single
+- id: "1611063957341"
+  alias: "Lounge: Server Fan Running Longer Than 1 Hour"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: switch.server_fan
+      to: "on"
+      for: 01:00:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          Server fan has been running for more than 1 hour. Consider turning
+          Fan off.
+    - service: script.post_direct_message_to_danny
+      data:
+        message:
+          Server fan has been running for more than 1 hour. Consider turning
+          Fan off.
+  mode: single
+- id: "1611094285340"
+  alias: "Calendar: Terina WFH"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: calendar.family
+      attribute: all_day
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: calendar.family
+      state: Terina WFH
+      attribute: message
+  action:
+    - service: script.post_direct_message_to_danny
+      data:
+        title: Test Terina WFH
+        message: Terina WFH Calendar event.
+  mode: single
+- id: "1611164672680"
+  alias: "Bathroom: Door Closed And It's Dark"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_door
+      to: "off"
+      from: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: numeric_state
+      entity_id: sensor.bathroom_illuminance
+      below: "30"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":bathtub: :door: Bathroom door closed. Turning lights on."
+    - scene: scene.bathroom_light_on
+  mode: single
+- id: "1611164800136"
+  alias: "Bathroom: No Motion Detected And Bathroom Door Is Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "off"
+      for: 00:10:00
+  condition:
+    - condition: state
+      entity_id: light.bathroom_light
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bathroom_door
+      state: "off"
+  action:
+    - scene: scene.bathroom_dim_lights
+    - service: script.post_to_home_log
+      data:
+        message: ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door is closed. Dimming bathroom light."
+  mode: single
+- id: "1611165055857"
+  alias: "Bathroom: No Motion Detected And Bathroom Door Is Closed 2"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "off"
+      for: 00:12:00
+  condition:
+    - condition: state
+      entity_id: light.bathroom_light
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bathroom_door
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: No motion again and door is closed. Turning bathroom
+          light off."
+    - scene: scene.bathroom_turn_off_light
+  mode: single
+- id: "1611864051855"
+  alias: "Leo's Bedroom: Door Open At Night"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_door
+      from: "off"
+      to: "on"
+  condition:
     - condition: time
       after: 00:00:00
-    - condition: sun
-      before: sunset
+      before: 06:00
   action:
-  - scene: scene.kitchen_lights_on_3
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion detected after :city_sunrise: and before
-        :city_sunset: Turning kitchen lights off.'
-  mode: single
-- id: '1610234394136'
-  alias: 'Conservatory: Motion Detected Turn On Light'
-  description: ''
-  trigger:
-  - platform: state
-    to: 'on'
-    entity_id: group.conservatory_motion
-  condition:
-  - condition: sun
-    after: sunset
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: :feet:Motion detected in Conservatory. Turning on Lights
-  - scene: scene.conservatory_turn_on_light
-  mode: single
-- id: '1610234794461'
-  alias: 'Conservatory: No Motion Detected Dim Lights'
-  description: ''
-  trigger:
-  - platform: state
-    to: 'off'
-    for: 00:01:00
-    entity_id: group.conservatory_motion
-  condition:
-  - condition: state
-    entity_id: light.conservatory
-    state: 'on'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion detected. Dimming conservatory lights.'
-  - scene: scene.conservatory_dim_light
-  mode: single
-- id: '1610307951215'
-  alias: 'Bathroom: Motion Detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_motion
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: numeric_state
-    entity_id: sensor.bathroom_illuminance
-    below: '30'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':feet: :bathtub: Motion detected in the bathroom and door is open.
-        Turning lights on.'
-  - scene: scene.bathroom_light_on
-  mode: single
-- id: '1610314564871'
-  alias: 'Bathroom: No Motion Detected And Bathroom Door Is Open'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_motion
-    to: 'off'
-    for: 00:01:30
-  condition:
-  - condition: state
-    entity_id: light.bathroom_light
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.bathroom_door
-    state: 'on'
-  - condition: numeric_state
-    entity_id: counter.bathroom_door_counter
-    below: '2'
-  action:
-  - scene: scene.bathroom_dim_lights
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion and door is open. Dimming bathroom light.'
-  mode: single
-- id: '1610314735644'
-  alias: 'Bathroom: No Motion Detected And Bathroom Door Is Open 2'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_motion
-    to: 'off'
-    for: 00:02:00
-  condition:
-  - condition: state
-    entity_id: light.bathroom_light
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.bathroom_door
-    state: 'on'
-  - condition: numeric_state
-    entity_id: counter.bathroom_door_counter
-    below: '2'
-  action:
-  - scene: scene.bathroom_turn_off_light
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion again and door is open. Turning bathroom
-        light off.'
-  mode: single
-- id: '1610388192224'
-  alias: 'Lounge: TV Turned On'
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: switch.tv_plug
-    above: '35'
-    attribute: current_power_w
-  condition: []
-  action:
-  - service: script.post_direct_message_to_danny
-    data:
-      message: TV turned on.
-  mode: single
-- id: '1610388245160'
-  alias: 'Lounge: TV Turned Off'
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: switch.tv_plug
-    below: '35'
-    attribute: current_power_w
-    for: 00:05:00
-  condition:
-  - condition: state
-    entity_id: group.lounge_lights
-    state: 'on'
-  - condition: state
-    entity_id: group.lounge_motion
-    state: 'off'
-  - condition: template
-    value_template: ' {{ (as_timestamp(now())-as_timestamp(states.group.lounge_motion.last_updated))
-      > 300 }}'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: TV turned off for 5 minutes. Dimming lounge lights.
-  - scene: scene.lounge_dim_lights
-  mode: single
-- id: '1610409803685'
-  alias: 'Lounge: TV Turned Off 2'
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: switch.tv_plug
-    attribute: current_power_w
-    for: 00:10:00
-    below: '35'
-  condition:
-  - condition: state
-    entity_id: group.lounge_lights
-    state: 'on'
-  - condition: state
-    entity_id: group.lounge_motion
-    state: 'off'
-  - condition: template
-    value_template: ' {{ (as_timestamp(now())-as_timestamp(states.group.lounge_motion.last_updated))
-      > 300 }}'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: TV turned off for 10 minutes. Turning lounge lights off.
-  - scene: scene.lounge_lights_off
-  mode: single
-- id: '1610918759041'
-  alias: 'Lounge: Restart Harmony Hub'
-  description: ''
-  trigger:
-  - platform: time
-    at: 03:00:00
-  condition:
-  - condition: numeric_state
-    entity_id: switch.tv_plug
-    attribute: current_power_w
-    below: '40'
-  - condition: time
-    weekday:
-    - mon
-  action:
-  - type: turn_off
-    device_id: b6132172dbf641938719e0bd3eb92e63
-    entity_id: switch.bedroom_tv_plug
-    domain: switch
-  - service: script.post_to_home_log
-    data:
-      message: ':TV: Restarting Harmony hub.'
-  - wait_template: 00:01:00
-  - type: turn_on
-    device_id: b6132172dbf641938719e0bd3eb92e63
-    entity_id: switch.bedroom_tv_plug
-    domain: switch
-  mode: single
-- id: '1611063957341'
-  alias: 'Lounge: Server Fan Running Longer Than 1 Hour'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: switch.server_fan
-    to: 'on'
-    for: 01:00:00
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: Server fan has been running for more than 1 hour. Consider turning
-        Fan off.
-  - service: script.post_direct_message_to_danny
-    data:
-      message: Server fan has been running for more than 1 hour. Consider turning
-        Fan off.
-  mode: single
-- id: '1611094285340'
-  alias: 'Calendar: Terina WFH'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: calendar.family
-    attribute: all_day
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: calendar.family
-    state: Terina WFH
-    attribute: message
-  action:
-  - service: script.post_direct_message_to_danny
-    data:
-      title: Test Terina WFH
-      message: Terina WFH Calendar event.
-  mode: single
-- id: '1611164672680'
-  alias: 'Bathroom: Door Closed And It''s Dark'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_door
-    to: 'off'
-    from: 'on'
-  condition:
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: numeric_state
-    entity_id: sensor.bathroom_illuminance
-    below: '30'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':bathtub: :door: Bathroom door closed. Turning lights on.'
-  - scene: scene.bathroom_light_on
-  mode: single
-- id: '1611164800136'
-  alias: 'Bathroom: No Motion Detected And Bathroom Door Is Closed'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_motion
-    to: 'off'
-    for: 00:10:00
-  condition:
-  - condition: state
-    entity_id: light.bathroom_light
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.bathroom_door
-    state: 'off'
-  action:
-  - scene: scene.bathroom_dim_lights
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion and door is closed. Dimming bathroom light.'
-  mode: single
-- id: '1611165055857'
-  alias: 'Bathroom: No Motion Detected And Bathroom Door Is Closed 2'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_motion
-    to: 'off'
-    for: 00:12:00
-  condition:
-  - condition: state
-    entity_id: light.bathroom_light
-    state: 'on'
-  - condition: state
-    entity_id: input_boolean.enable_bathroom_motion_trigger
-    state: 'on'
-  - condition: state
-    entity_id: binary_sensor.bathroom_door
-    state: 'off'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':no_pedestrians: No motion again and door is closed. Turning bathroom
-        light off.'
-  - scene: scene.bathroom_turn_off_light
-  mode: single
-- id: '1611864051855'
-  alias: 'Leo''s Bedroom: Door Open At Night'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.leos_door
-    from: 'off'
-    to: 'on'
-  condition:
-  - condition: time
-    after: 00:00:00
-    before: 06:00
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: Leo's door open
-  mode: single
-- id: '1611931052908'
-  alias: 'Porch: Front Door Open Indicator'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_door
-    from: 'off'
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: group.all_people
-    state: home
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: 'Someone is home, notifying front :door: door is open'
-  - service: script.front_door_open_notification
-    data: {}
-  mode: single
-- id: '1611931640441'
-  alias: 'Porch: Front Door Closed'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_door
-    from: 'on'
-    to: 'off'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':door: Front door closed.'
-  - service: script.front_door_closed_notification
-    data: {}
-  mode: single
-- id: '1612997966835'
-  alias: 'Bedroom: NowTv Playing'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.nowtv_stick
-    to: playing
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: NowTv is playing {{ state_attr(''media_player.nowtv_stick'',
-        ''app_name'') }}'
-  mode: single
-- id: '1612998070590'
-  alias: 'Bedroom: NowTv Turned Off'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.nowtv_stick
-    to: standby
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: NowTv turned off.'
-  mode: single
-- id: '1612998168526'
-  alias: 'Lounge: Roku Stick Playing'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.roku_streaming_stick
-    to: playing
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: Roku playing {{ state_attr(''media_player.roku_streaming_stick'',
-        ''app_name'') }}'
-  mode: single
-- id: '1612998400190'
-  alias: 'Lounge: Roku Stick Turned Off'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.roku_streaming_stick
-    to: idle
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: Roku turned off.'
-  mode: single
-- id: '1613051036668'
-  alias: 'Bedroom: NowTv On Standby'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.nowtv_stick
-    to: 'on'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: NowTv turned on'
-  mode: single
-- id: '1613051229066'
-  alias: 'Lounge: Roku Turned On'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.roku_streaming_stick
-    to: 'on'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: Roku turned on.'
-  mode: single
-- id: '1613052205966'
-  alias: 'Bedroom: NowTv Paused'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: media_player.nowtv_stick
-    to: paused
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':tv: NowTv paused'
-  mode: single
-- id: '1613246249488'
-  alias: 'Office: Computer UPS On Battery'
-  description: ''
-  trigger:
-  - entity_id: sensor.computer_ups_status_data
-    platform: state
-    to: OB DISCHRG
-  condition: []
-  action:
-  - data:
-      message: ':warning: :battery: Office UPS is running on battery with less than
-        5 minutes left :battery: :warning:'
-      target: '#general'
-    service: notify.slack_notify
-  - data:
-      message: ':warning: :battery: Office UPS is running on battery with less than
-        5 minutes left :battery: :warning:'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1613246359438'
-  alias: 'Office: Computer UPS On Battery With Less Than 5 Minutes'
-  description: ''
-  trigger:
-  - below: '301'
-    entity_id: sensor.computer_ups_status_data
-    platform: numeric_state
-  condition:
-  - condition: state
-    entity_id: sensor.computer_ups_status_data
-    state: OB DISCHRG
-  action:
-  - data:
-      message: ':warning: :battery: Office UPS battery has less than 5 minutes left
-        :battery: :warning:'
-    service: script.post_to_home_log
-  - data:
-      message: ':warning: :battery: Office UPS battery has less than 5 minutes left
-        :battery: :warning:'
-      target: '#general'
-    service: script.post_to_direct_notification
-  mode: single
-- id: '1613264719942'
-  alias: 'Office: Alarm Armed Home Mode & Motion Detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.office_motion
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: alarm_control_panel.stevenage_alarm
-    state: armed_home
-  - condition: state
-    entity_id: group.jd_computer
-    state: 'off'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':paw_prints: Motioned detected in the office!'
-  mode: single
-- id: '1613264961246'
-  alias: 'Kitchen: Alarm Armed Home Mode & Motion Detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.kitchen_motion
-    to: 'on'
-  condition:
-  - condition: state
-    entity_id: alarm_control_panel.stevenage_alarm
-    state: armed_home
-  - condition: state
-    entity_id: group.jd_computer
-    state: 'off'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':paw_prints: Motioned detected in the kitchen!'
-  mode: single
-- id: '1613321560216'
-  alias: 3D Printer
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.octoprint_time_remaining
-    to: '0'
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: ':printer: :white_check_mark: Completed 3D printing'
-  mode: single
-- id: '1613324300208'
-  alias: 'UPS: Computer UPS Unavailable'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: sensor.computer_ups_status
-    to: unavailable
-  condition: []
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: PC UPS is offline.
-  mode: single
-- id: '1613326798324'
-  alias: 'Bathroom: Door Closed And No Motion For 5 Minutes'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_door
-    to: 'off'
-    from: 'on'
-  condition:
-  - condition: state
-    entity_id: binary_sensor.bathroom_motion
-    state: 'off'
-    for: 00:05:00
-  action:
-  - service: script.post_direct_message_to_danny
-    data:
-      title: Bathroom door closed
-      message: Bathroom door is closed and there has been no motion for 5 minutes.
-        Should the door be open?
-  mode: single
-- id: '1613333442249'
-  alias: 'People: No One Home And 3D Printing'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: group.adult_people
-    to: not_home
-    for: 00:01:00
-  condition:
-  - condition: not
-    conditions:
-    - condition: state
-      entity_id: sensor.octoprint_time_remaining
-      state: unknown
-  action:
-  - service: script.post_to_direct_notification
-    data:
-      title: 3D Printing
-      message: 3D printer is printing and no one is home.
-  mode: single
-- id: '1613475468647'
-  alias: 'Front Garden: Motion Detected'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_garden_motion
-    from: 'off'
-    to: 'on'
-  condition:
-  - condition: time
-    before: '19:00'
-    after: 09:00
-  - condition: state
-    entity_id: binary_sensor.front_door
-    state: 'off'
-  - condition: state
-    entity_id: group.adult_people
-    state: home
-  action:
-  - service: script.post_direct_message_to_danny
-    data:
-      title: Front Garden
-      message: ':paw_prints: Motion detected in the front garden'
-  - service: script.post_to_home_log
-    data:
-      message: ':paw_prints: Motion detected in the front garden'
-  mode: single
-- id: '1613482098461'
-  alias: 'Front Garden: Motion take snapshot'
-  description: ''
-  trigger:
-  - platform: state
-    entity_id: binary_sensor.front_garden_motion
-    from: 'off'
-    to: 'on'
-  condition: []
-  action:
-  - service: camera.snapshot
-    data:
-      filename: camera/driveway/driveway_{{ now ().year }}_{{ now ().month }}_{{ now
-        ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
-    entity_id: camera.driveway
-  - service: notify.mobile_app_dannys_phone
-    data:
-      message: Motion deteched
+    - service: script.post_to_home_log
       data:
-        push:
-          category: camera
-        entity_id: camera.driveway
+        message: Leo's door open
   mode: single
-- id: '1613575217378'
-  alias: 'Back Garden: Motion Detected'
-  description: ''
+- id: "1611931052908"
+  alias: "Porch: Front Door Open Indicator"
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.back_garden_motion
-    from: 'off'
-    to: 'on'
+    - platform: state
+      entity_id: binary_sensor.front_door
+      from: "off"
+      to: "on"
   condition:
-  - condition: state
-    entity_id: binary_sensor.conservatory_door
-    state: 'off'
+    - condition: state
+      entity_id: group.all_people
+      state: home
   action:
-  - service: notify.mobile_app_dannys_phone
-    data:
-      title: Back Garden
-      message: Motivated n detrcted in the back garden.
+    - service: script.post_to_home_log
+      data:
+        message: "Someone is home, notifying front :door: door is open"
+    - service: script.front_door_open_notification
+      data: {}
   mode: single
-- id: '1613684184857'
-  alias: 'Bathroom: Door Opened'
-  description: ''
+- id: "1611931640441"
+  alias: "Porch: Front Door Closed"
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_door
-    to: 'on'
-    from: 'off'
+    - platform: state
+      entity_id: binary_sensor.front_door
+      from: "on"
+      to: "off"
   condition: []
   action:
-  - service: script.post_to_home_log
-    data:
-      message: 'Bathroom :bathtub: :door: door opened. Incrementing counter :abacus:
-        from {{ states(''counter.bathroom_door_counter'') }} to {{ states(''counter.bathroom_door_counter'')
-        | int + 1 }}.'
-  - service: counter.increment
-    data: {}
-    entity_id: counter.bathroom_door_counter
+    - service: script.post_to_home_log
+      data:
+        message: ":door: Front door closed."
+    - service: script.front_door_closed_notification
+      data: {}
   mode: single
-- id: '1613684645058'
-  alias: 'Bathroom: Door Opened Once For More than 30 seconds'
-  description: ''
+- id: "1612997966835"
+  alias: "Bedroom: NowTv Playing"
+  description: ""
   trigger:
-  - platform: state
-    entity_id: binary_sensor.bathroom_door
-    to: 'on'
-    from: 'off'
-    for: 00:01:00
-  condition:
-  - condition: numeric_state
-    entity_id: counter.bathroom_door_counter
-    below: '2'
-  action:
-  - service: script.post_to_home_log
-    data:
-      message: 'Bathroom :door: door has been opened for more than 30 secs. Resetting
-        counter :abacus: from {{ states(''counter.bathroom_door_counter'') }} to 0'
-  - service: counter.reset
-    data: {}
-    entity_id: counter.bathroom_door_counter
-  mode: single
-- id: '1613689158296'
-  alias: 'Bathroom: Door Closed And Opened In Succession'
-  description: ''
-  trigger:
-  - platform: numeric_state
-    entity_id: counter.bathroom_door_counter
-    above: '1'
+    - platform: state
+      entity_id: media_player.nowtv_stick
+      to: playing
   condition: []
   action:
-  - service: script.post_to_home_log
-    data:
-      message: ':bathtub: :door: Closed and opened {{ states(''counter.bathroom_door_counter'')
-        }} in 30 seconds, keeping lights on for 5 minutes.'
-  - service: script.bathroom_flash_light
-    data: {}
-  - scene: scene.bathroom_light_on
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":tv: NowTv is playing {{ state_attr('media_player.nowtv_stick',
+          'app_name') }}"
+  mode: single
+- id: "1612998070590"
+  alias: "Bedroom: NowTv Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.nowtv_stick
+      to: standby
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: NowTv turned off."
+  mode: single
+- id: "1612998168526"
+  alias: "Lounge: Roku Stick Playing"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.roku_streaming_stick
+      to: playing
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":tv: Roku playing {{ state_attr('media_player.roku_streaming_stick',
+          'app_name') }}"
+  mode: single
+- id: "1612998400190"
+  alias: "Lounge: Roku Stick Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.roku_streaming_stick
+      to: idle
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: Roku turned off."
+  mode: single
+- id: "1613051036668"
+  alias: "Bedroom: NowTv On Standby"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.nowtv_stick
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: NowTv turned on"
+  mode: single
+- id: "1613051229066"
+  alias: "Lounge: Roku Turned On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.roku_streaming_stick
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: Roku turned on."
+  mode: single
+- id: "1613052205966"
+  alias: "Bedroom: NowTv Paused"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.nowtv_stick
+      to: paused
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: NowTv paused"
+  mode: single
+- id: "1613246249488"
+  alias: "Office: Computer UPS On Battery"
+  description: ""
+  trigger:
+    - entity_id: sensor.computer_ups_status_data
+      platform: state
+      to: OB DISCHRG
+  condition: []
+  action:
+    - data:
+        message:
+          ":warning: :battery: Server UPS is running on battery with less than
+          5 minutes left :battery: :warning:"
+        target: "#general"
+      service: notify.slack_notify
+    - data:
+        message:
+          ":warning: :battery: Server UPS is running on battery with less than
+          5 minutes left :battery: :warning:"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1613246359438"
+  alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
+  description: ""
+  trigger:
+    - below: "301"
+      entity_id: sensor.computer_ups_status_data
+      platform: numeric_state
+  condition:
+    - condition: state
+      entity_id: sensor.computer_ups_status_data
+      state: OB DISCHRG
+  action:
+    - data:
+        message:
+          ":warning: :battery: Server UPS battery has less than 5 minutes left
+          :battery: :warning:"
+      service: script.post_to_home_log
+    - data:
+        message:
+          ":warning: :battery: Server UPS battery has less than 5 minutes left
+          :battery: :warning:"
+        target: "#general"
+      service: script.post_to_direct_notification
+  mode: single
+- id: "1613264719942"
+  alias: "Office: Alarm Armed Home Mode & Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.office_motion
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.stevenage_alarm
+      state: armed_home
+    - condition: state
+      entity_id: group.jd_computer
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":paw_prints: Motioned detected in the office!"
+  mode: single
+- id: "1613264961246"
+  alias: "Kitchen: Alarm Armed Home Mode & Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.kitchen_motion
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.stevenage_alarm
+      state: armed_home
+    - condition: state
+      entity_id: group.jd_computer
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":paw_prints: Motioned detected in the kitchen!"
+  mode: single
+- id: "1613321560216"
+  alias: 3D Printer
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.octoprint_time_remaining
+      to: "0"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":printer: :white_check_mark: Completed 3D printing"
+  mode: single
+- id: "1613324300208"
+  alias: "UPS: Computer UPS Unavailable"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.computer_ups_status
+      to: unavailable
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: PC UPS is offline.
+  mode: single
+- id: "1613326798324"
+  alias: "Bathroom: Door Closed And No Motion For 5 Minutes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_door
+      to: "off"
+      from: "on"
+  condition:
+    - condition: state
+      entity_id: binary_sensor.bathroom_motion
+      state: "off"
+      for: 00:05:00
+  action:
+    - service: script.post_direct_message_to_danny
+      data:
+        title: Bathroom door closed
+        message:
+          Bathroom door is closed and there has been no motion for 5 minutes.
+          Should the door be open?
+  mode: single
+- id: "1613333442249"
+  alias: "People: No One Home And 3D Printing"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.adult_people
+      to: not_home
+      for: 00:01:00
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: sensor.octoprint_time_remaining
+          state: unknown
+  action:
+    - service: script.post_to_direct_notification
+      data:
+        title: 3D Printing
+        message: 3D printer is printing and no one is home.
+  mode: single
+- id: "1613475468647"
+  alias: "Front Garden: Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_garden_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: time
+      before: "19:00"
+      after: 09:00
+    - condition: state
+      entity_id: binary_sensor.front_door
+      state: "off"
+    - condition: state
+      entity_id: group.adult_people
+      state: home
+  action:
+    - service: script.post_direct_message_to_danny
+      data:
+        title: Front Garden
+        message: ":paw_prints: Motion detected in the front garden"
+    - service: script.post_to_home_log
+      data:
+        message: ":paw_prints: Motion detected in the front garden"
+  mode: single
+- id: "1613482098461"
+  alias: "Front Garden: Motion take snapshot"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_garden_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: camera.snapshot
+      data:
+        filename:
+          camera/driveway/driveway_{{ now ().year }}_{{ now ().month }}_{{ now
+          ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
+      entity_id: camera.driveway
+    - service: notify.mobile_app_dannys_phone
+      data:
+        message: Motion deteched
+        data:
+          push:
+            category: camera
+          entity_id: camera.driveway
+  mode: single
+- id: "1613575217378"
+  alias: "Back Garden: Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.back_garden_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: binary_sensor.conservatory_door
+      state: "off"
+  action:
+    - service: notify.mobile_app_dannys_phone
+      data:
+        title: Back Garden
+        message: Motivated n detrcted in the back garden.
+  mode: single
+- id: "1613684184857"
+  alias: "Bathroom: Door Opened"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_door
+      to: "on"
+      from: "off"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bathtub: :door: Bathroom door opened. Incrementing counter :abacus:
+          from {{ states('counter.bathroom_door_counter') }} to {{ states('counter.bathroom_door_counter')
+          | int + state_attr('counter.bathroom_door_counter', 'step') | int }}."
+    - service: counter.increment
+      data: {}
+      entity_id: counter.bathroom_door_counter
+  mode: single
+- id: "1613684645058"
+  alias: "Bathroom: Door Opened Once For More than 30 seconds"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_door
+      to: "on"
+      from: "off"
+      for: 00:01:00
+  condition:
+    - condition: numeric_state
+      entity_id: counter.bathroom_door_counter
+      below: "2"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          '":bathtub: Bathroom :door: door has been opened for more than 30 secs.
+          Resetting counter :abacus: from {{ states(''counter.bathroom_door_counter'')
+          }} to 0"'
+    - service: counter.reset
+      data: {}
+      entity_id: counter.bathroom_door_counter
+  mode: single
+- id: "1613689158296"
+  alias: "Bathroom: Door Closed And Opened In Succession And Override Is Off"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: counter.bathroom_door_counter
+      above: "1"
+  condition:
+    - condition: state
+      entity_id: input_boolean.bathroom_light_override
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bathtub: :door: Closed and opened {{ states('counter.bathroom_door_counter')
+          }}x in 30 seconds, keeping lights on for 10 minutes."
+    - service: script.bathroom_flash_light
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 2
+        milliseconds: 0
+    - scene: scene.bathroom_light_on
+    - service: counter.reset
+      data: {}
+      entity_id: counter.bathroom_door_counter
+    - service: input_boolean.turn_on
+      data: {}
+      entity_id: input_boolean.bathroom_light_override
+  mode: single
+- id: "1613695680298"
+  alias: "Bathroom: Light Override Dim"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: input_boolean.bathroom_light_override
+      to: "on"
+      from: "off"
+      for: 00:10:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":bathtub: :bulb: :low_brightness: Dimming bathroom :bulb: lights."
+    - scene: scene.bathroom_dim_lights
+  mode: single
+- id: "1613695788304"
+  alias: "Bathroom: Light Override Turn Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: input_boolean.bathroom_light_override
+      to: "on"
+      for: 00:11:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: "Turning :bathtub: bathroom :bulb: light off."
+    - scene: scene.bathroom_turn_off_light
+    - service: input_boolean.turn_off
+      data: {}
+      entity_id: input_boolean.bathroom_light_override
+  mode: single
+- id: "1613697803282"
+  alias: "Bathroom: Door Closed And Opened In Succession And Override Is On"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: counter.bathroom_door_counter
+      above: "1"
+  condition:
+    - condition: state
+      entity_id: input_boolean.bathroom_light_override
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bathtub: :door: Closed and opened {{ states('counter.bathroom_door_counter')
+          }} in 30 seconds, resetting lights to :paw_prints: motion detection."
+    - service: script.bathroom_flash_light
+      data: {}
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 2
+        milliseconds: 0
+    - scene: scene.bathroom_turn_off_light
+    - service: counter.reset
+      data: {}
+      entity_id: counter.bathroom_door_counter
+    - service: input_boolean.turn_off
+      data: {}
+      entity_id: input_boolean.bathroom_light_override
+  mode: single
+- id: "1610238960657"
+  alias: "Conservatory: No Motion Turning Lights Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.conservatory_motion
+      to: "off"
+      for: 00:01:30
+  condition:
+    - condition: state
+      entity_id: light.conservatory
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":no_pedestrians: No motion in conservatory. Turning lights off."
+    - scene: scene.conservatory_turn_off_light
   mode: single
