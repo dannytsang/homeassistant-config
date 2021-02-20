@@ -210,16 +210,17 @@ post_to_direct_notification:
 test:
   alias: Test
   sequence:
-  - service: light.turn_on
-    data:
-      entity_id: light.office_light
-      data_template:
-        brightness: '{{ brightness | int +5 }}'
-  - delay:
-      seconds: 1
-  - service: script.test
-    data:
-      brightness: '{{state.attributes.brightness }}'
+  - repeat:
+      count: '3'
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness: 255
+          color_name: green
+        entity_id: light.office_light
+      - service: light.turn_off
+        data: {}
+        entity_id: light.office_light
   mode: single
 post_direct_message_to_danny:
   alias: Post Direct Message to Danny
@@ -282,11 +283,11 @@ bathroom_flash_light:
   - repeat:
       count: '2'
       sequence:
-      - scene: scene.bathroom_light_on
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 1
-          milliseconds: 0
-      - scene: scene.bathroom_turn_off_light
+      - service: light.turn_on
+        data:
+          brightness_pct: 100
+        entity_id: light.bathroom_light
+      - service: light.turn_off
+        data: {}
+        entity_id: light.bathroom_light
   mode: single
