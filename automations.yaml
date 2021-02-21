@@ -18,8 +18,8 @@
     - scene: scene.kitchen_lights_on_2
     - data:
         message:
-          ":crescent_moon: :house: :running: :bulb: Danny arrived home and
-          its dark so turning on the lights."
+          ":crescent_moon: :house: :running: :bulb: Danny arrived home and it's
+          dark so turning on the lights."
       service: script.post_to_home_log
   mode: single
 - id: "1582387272430"
@@ -104,8 +104,8 @@
     - scene: scene.kitchen_lights_on_2
     - data:
         message:
-          ":crescent_moon: :dancer: :house: :bulb: Terina arrived home and
-          its dark so turning on the lights."
+          ":crescent_moon: :dancer: :house: :bulb: Terina arrived home and its
+          dark so turning on the lights."
       service: script.post_to_home_log
 - id: "1582754236859"
   alias: "Downstairs: Turn On Lights At Night When Terina Is Home"
@@ -349,7 +349,9 @@
       entity_id: switch.magic_mirror_screen
       type: turn_off
     - data:
-        message: ":mirror: :house: :running: Turning On Maggic Mirror because it's late"
+        message:
+          ":mirror: :house: :running: Turning On Maggic Mirror because it's
+          late"
       service: script.post_to_home_log
 - id: "1589026420341"
   alias: "Alarm: Triggered"
@@ -388,8 +390,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
   action:
     - data:
         message: ":warning: Office Chromecast is offline! :warning:"
@@ -405,8 +407,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
   action:
     - data:
         message: ":warning: Bedroom Chromecast is offline! :warning:"
@@ -1057,6 +1059,9 @@
   action:
     - service: script.post_to_home_log
       data:
+        message: "@home_assistant has started."
+    - service: script.post_direct_message_to_danny
+      data:
         message: Home Assistant has started.
   mode: single
 - id: "1608489438291"
@@ -1069,7 +1074,10 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: Home Assistant shutdown.
+        message: "@home_assistant shuting down."
+    - service: script.post_direct_message_to_danny
+      data:
+        message: Home assistant shutting down.
   mode: single
 - id: "1608493783373"
   alias: "Lounge: Bay Window High Temperature"
@@ -2022,4 +2030,23 @@
         filePath:
           camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
           now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
+  mode: single
+- id: "1613937312554"
+  alias: Home Assistant CI
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.travis_build_status
+      from: started
+      to: passed
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bearded_person: :hammer_and_wrench: :white_check_mark: Travis CI
+          build passed. Pulling changes."
+    - service: hassio.addon_start
+      data:
+        addon: core_git_pull
   mode: single
