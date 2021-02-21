@@ -18,8 +18,8 @@
     - scene: scene.kitchen_lights_on_2
     - data:
         message:
-          "':crescent_moon: :house: :running: :bulb: Danny arrived home and
-          its dark so turning on the lights.'"
+          ":crescent_moon: :house: :running: :bulb: Danny arrived home and
+          its dark so turning on the lights."
       service: script.post_to_home_log
   mode: single
 - id: "1582387272430"
@@ -28,8 +28,8 @@
   trigger:
     - platform: template
       value_template:
-        "{{ state_attr('sensor.conservatory_motion_sensor_light_level','dark')
-        == True }}"
+        '{{ state_attr("sensor.conservatory_motion_sensor_light_level","dark")
+        == True }}'
   condition:
     - condition: state
       entity_id: person.danny
@@ -83,8 +83,8 @@
     - scene: scene.office_lights_off
     - data:
         message:
-          "':house: :dancer: Terina has left the house and no one is home. Turning
-          off lights.'"
+          ":house: :dancer: Terina has left the house and no one is home. Turning
+          off lights."
       service: script.post_to_home_log
 - id: "1582754128581"
   alias: Terina Arrives Home
@@ -97,15 +97,15 @@
   condition:
     - condition: template
       value_template:
-        "{{ state_attr('sensor.hue_motion_sensor_1_light_level','lightlevel')
-        < 55 }}"
+        '{{ state_attr("sensor.hue_motion_sensor_1_light_level","lightlevel")
+        < 55 }}'
   action:
     - scene: scene.lounge_lights
     - scene: scene.kitchen_lights_on_2
     - data:
         message:
-          "':crescent_moon: :dancer: :house: :bulb: Terina arrived home and
-          its dark so turning on the lights.'"
+          ":crescent_moon: :dancer: :house: :bulb: Terina arrived home and
+          its dark so turning on the lights."
       service: script.post_to_home_log
 - id: "1582754236859"
   alias: "Downstairs: Turn On Lights At Night When Terina Is Home"
@@ -113,8 +113,8 @@
   trigger:
     - platform: template
       value_template:
-        "{{ state_attr('sensor.conservatory_motion_sensor_light_level','dark')
-        == True }}"
+        '{{ state_attr("sensor.conservatory_motion_sensor_light_level","dark")
+        == True }}'
   condition:
     - condition: state
       entity_id: person.terina
@@ -133,8 +133,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
   action:
     - data:
         message: ":warning: QNAP is offline! :warning:"
@@ -349,9 +349,7 @@
       entity_id: switch.magic_mirror_screen
       type: turn_off
     - data:
-        message:
-          "':mirror: :house: :running: Turning On Maggic Mirror because it''
-          target: "
+        message: ":mirror: :house: :running: Turning On Maggic Mirror because it's late"
       service: script.post_to_home_log
 - id: "1589026420341"
   alias: "Alarm: Triggered"
@@ -2070,4 +2068,66 @@
           ":feet: :door: :high_brightness: Motion detected on the landing, Leo's
           door is closed and it's dark. Turning stairs lights on."
       service: script.post_to_home_log
+  mode: single
+- id: "1613923510415"
+  alias: "Doorbell: Last Ding State Change"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.front_door_last_ding
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        title: Door bell State Changed
+        message:
+    - service: script.post_to_home_log
+      data:
+        message:
+          'answered: {{ state_attr("sensor.front_door_last_ding", "answered")
+          }}'
+    - service: script.post_to_home_log
+      data:
+        message:
+          "recording_status: {{ state_attr('sensor.front_door_last_ding', 'recording_status')
+          }}"
+    - service: script.post_to_home_log
+      data:
+        message:
+          'category: {{ state_attr("sensor.front_door_last_ding", "category")
+          }}'
+  mode: single
+- id: "1613924044189"
+  alias: "Doorbell: Ring"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door_ding
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        title: Ding Dong
+        message: ":door: :bell: Someone is has rung the door bell."
+    - service: camera.snapshot
+      data:
+        entity_id: camera.front_door
+        filename:
+          camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
+          now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
+      entity_id: camera.front_door
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 1
+        milliseconds: 0
+    - service: script.post_to_home_log_with_local_attachments
+      data:
+        title: Doorbell rung
+        message: Mugshot
+        filePath:
+          camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
+          now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
   mode: single
