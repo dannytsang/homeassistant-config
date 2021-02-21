@@ -7,10 +7,15 @@
       to: "on"
   condition: []
   action:
-    - scene: scene.porch_light_on
     - service: script.post_to_home_log
       data:
-        message: ":door: :bulb: Door opened. Turning porch light on."
+        message: ':door: :bulb: :high_brightness: Door opened. Turning porch light on. Incrementing counter :abacus:
+          from {{ states("counter.front_door_counter") }} to {{ states("counter.front_door_counter")
+          | int + state_attr("counter.front_door_counter", "step") | int }}.'
+    - scene: scene.porch_light_on
+    - service: counter.increment
+      data: {}
+      entity_id: counter.front_door_counter
   mode: single
 - id: "1606157835544"
   alias: "Porch: Front Door Closed Turn Off Porch Light"
