@@ -425,8 +425,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
   action:
     - data:
         message: ":warning: Utility wireless access point is offline! :warning:"
@@ -443,8 +443,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
   action:
     - data:
         message: ":warning: Lounge wireless access point is offline! :warning:"
@@ -698,8 +698,8 @@
   condition:
     - condition: template
       value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
+        }}'
     - condition: state
       entity_id: group.alarmed_doors_and_windows
       state: "on"
@@ -1956,7 +1956,7 @@
           entity_id: input_boolean.enable_stairs_motion_trigger
           state: "on"
         - after: "19:30:00"
-          before: 08:00:00
+          before: "23:59:59"
           condition: time
         - condition: state
           entity_id: binary_sensor.leos_door
@@ -2049,4 +2049,29 @@
     - service: hassio.addon_start
       data:
         addon: core_git_pull
+  mode: single
+- id: "1613955443909"
+  alias: "New Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.stairs_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: time
+      after: 00:00:00
+    - below: "5"
+      condition: numeric_state
+      entity_id: sensor.stairs_light_level
+    - condition: state
+      entity_id: input_boolean.enable_stairs_motion_trigger
+      state: "on"
+  action:
+    - scene: scene.landing_dim_light
+    - data:
+        message:
+          ":feet: :door: :low_brightness: Motion detected on the landing and
+          it's dark. Turning stairs lights on 10%"
+      service: script.post_to_home_log
   mode: single
