@@ -985,10 +985,11 @@
       to: not_home
       from: home
   condition:
-    - condition: template
-      value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - service: script.post_to_home_log
       data:
@@ -1120,7 +1121,7 @@
       domain: switch
   mode: single
 - id: "1608655560832"
-  alias: "Octoprint: Print Started"
+  alias: "3D Printer: Print Started"
   description: ""
   trigger:
     - platform: state
@@ -1131,10 +1132,14 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: 3D printer started printing
+        message:
+          ':printer: 3D printer has started. Estimated time to completion: {{((now().strftime("%s")
+          | int + (states("sensor.octoprint_time_remaining") | int)) | timestamp_custom("%H:%M:%S"))}}
+          ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
+          60) | round(2) }} hours).'
   mode: single
 - id: "1608655663801"
-  alias: "Octoprint: Errored"
+  alias: "3D Printer: Errored"
   description: ""
   trigger:
     - platform: state
@@ -1143,10 +1148,14 @@
       to: "on"
   condition: []
   action:
-    - service: script.post_to_direct_notification
+    - service: script.post_to_home_log
       data:
         title: 3D printer error
-        message: 3D printer has encountered an error
+        message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
+    - service: script.post_direct_message_to_danny
+      data:
+        title: 3D printer error
+        message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
   mode: single
 - id: "1609349959402"
   alias: "3D Printer: Print Finished And Bed Cooled"
@@ -1557,21 +1566,6 @@
       data:
         message: ":tv: NowTv turned off."
   mode: single
-- id: "1612998168526"
-  alias: "Lounge: Roku Stick Playing"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: media_player.roku_streaming_stick
-      to: playing
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":tv: Roku playing {{ state_attr('media_player.roku_streaming_stick',
-          'app_name') }}"
-  mode: single
 - id: "1612998400190"
   alias: "Lounge: Roku Stick Turned Off"
   description: ""
@@ -1708,17 +1702,20 @@
         message: ":paw_prints: Motioned detected in the kitchen!"
   mode: single
 - id: "1613321560216"
-  alias: 3D Printer
+  alias: "3D Printer: Finished Printing"
   description: ""
   trigger:
     - platform: state
-      entity_id: sensor.octoprint_time_remaining
-      to: "0"
+      entity_id: binary_sensor.octoprint_printing
+      from: "on"
+      to: "off"
   condition: []
   action:
     - service: script.post_to_home_log
       data:
-        message: ":printer: :white_check_mark: Completed 3D printing"
+        message:
+          ':printer: :white_check_mark: Completed 3D printing. Total time: {{
+          (((states("sensor.octoprint_time_elapsed") | int) / 60) | float) / 60 }} hours.'
   mode: single
 - id: "1613324300208"
   alias: "UPS: Computer UPS Unavailable"
@@ -1989,8 +1986,8 @@
     - service: script.post_to_home_log
       data:
         message:
-          "recording_status: {{ state_attr('sensor.front_door_last_ding', 'recording_status')
-          }}"
+          'recording_status: {{ state_attr("sensor.front_door_last_ding", "recording_status")
+          }}'
     - service: script.post_to_home_log
       data:
         message:
