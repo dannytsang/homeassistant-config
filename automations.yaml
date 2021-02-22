@@ -2053,3 +2053,25 @@
           it's dark. Turning stairs lights on 10%"
       service: script.post_to_home_log
   mode: single
+- id: "1614033445487"
+  alias: "Porch: Front Door Opened Once For More than 20 seconds"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+      to: "on"
+      from: "off"
+      for: 00:00:20
+  condition:
+    - condition: numeric_state
+      entity_id: counter.front_door
+      below: "2"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ':door: :abacus: Front door has been opened for more
+          than 20 secs. Resetting counter  from {{ states("counter.front_door")
+          }} to 0'
+    - service: counter.reset
+      data: {}
+      entity_id: counter.front_door

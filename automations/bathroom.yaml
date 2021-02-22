@@ -12,11 +12,11 @@
       data:
         message:
           ':bathtub: :door: Bathroom door opened. Incrementing counter :abacus:
-          from {{ states("counter.bathroom_door_counter") }} to {{ states("counter.bathroom_door_counter")
-          | int + state_attr("counter.bathroom_door_counter", "step") | int }}.'
+          from {{ states("counter.bathroom_door") }} to {{ states("counter.bathroom_door")
+          | int + state_attr("counter.bathroom_door", "step") | int }}.'
     - service: counter.increment
       data: {}
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
   mode: single
 - id: "1613684645058"
   alias: "Bathroom: Door Opened Once For More than 20 seconds"
@@ -26,28 +26,28 @@
       entity_id: binary_sensor.bathroom_door
       to: "on"
       from: "off"
-      for: 00:0:20
+      for: 00:00:20
   condition:
     - condition: numeric_state
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
       below: "2"
   action:
     - service: script.post_to_home_log
       data:
         message:
           ':bathtub: :door: :abacus: Bathroom  door has been opened for more
-          than 30 secs. Resetting counter  from {{ states("counter.bathroom_door_counter")
+          than 20 secs. Resetting counter  from {{ states("counter.bathroom_door")
           }} to 0'
     - service: counter.reset
       data: {}
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
   mode: single
 - id: "1613689158296"
   alias: "Bathroom: :door: Door Closed And Opened In Succession And Override Is Off"
   description: ""
   trigger:
     - platform: numeric_state
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
       above: "1"
   condition:
     - condition: state
@@ -60,7 +60,7 @@
     - service: script.post_to_home_log
       data:
         message:
-          ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door_counter")
+          ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door")
           }}x in 30 seconds, keeping lights on for 10 minutes.'
     - service: script.bathroom_flash_light
       data: {}
@@ -72,7 +72,7 @@
     - scene: scene.bathroom_light_on
     - service: counter.reset
       data: {}
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
     - service: input_boolean.turn_on
       data: {}
       entity_id: input_boolean.bathroom_light_override
@@ -82,7 +82,7 @@
   description: ""
   trigger:
     - platform: numeric_state
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
       above: "1"
   condition:
     - condition: state
@@ -95,7 +95,7 @@
     - service: script.post_to_home_log
       data:
         message:
-          ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door_counter")
+          ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door")
           }} in 30 seconds, resetting lights to :paw_prints: motion detection.'
     - service: script.bathroom_flash_light
       data: {}
@@ -107,7 +107,7 @@
     - scene: scene.bathroom_turn_off_light
     - service: counter.reset
       data: {}
-      entity_id: counter.bathroom_door_counter
+      entity_id: counter.bathroom_door
     - service: input_boolean.turn_off
       data: {}
       entity_id: input_boolean.bathroom_light_override
