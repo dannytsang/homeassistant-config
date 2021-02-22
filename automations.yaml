@@ -2031,3 +2031,28 @@
           camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
           now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
   mode: single
+- id: "1613955443909"
+  alias: "New Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.stairs_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: time
+      after: 00:00:00
+    - below: "5"
+      condition: numeric_state
+      entity_id: sensor.stairs_light_level
+    - condition: state
+      entity_id: input_boolean.enable_stairs_motion_trigger
+      state: "on"
+  action:
+    - scene: scene.landing_dim_light
+    - data:
+        message:
+          ":feet: :door: :low_brightness: Motion detected on the landing and
+          it's dark. Turning stairs lights on 10%"
+      service: script.post_to_home_log
+  mode: single
