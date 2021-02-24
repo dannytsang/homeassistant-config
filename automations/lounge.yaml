@@ -84,3 +84,43 @@
     - data: {}
       service: script.1588857720303
   mode: single
+- id: "1608493783373"
+  alias: "Lounge: Bay Window High Temperature"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: bay_window_high_temp
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":warning: :thermometer: Bay window is above 35c. Turning server fan
+          on."
+    - type: turn_on
+      device_id: 15217f2c122d11eba01aa91aa4fd493d
+      entity_id: switch.server_fan
+      domain: switch
+  mode: single
+- id: "1608493853210"
+  alias: "Lounge: Bay Window Below High Temperature"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: bay_window_low_temp
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":thermometer: :snowflake: Bay window below high temperature. Turning
+          server fan off."
+    - type: turn_off
+      device_id: 15217f2c122d11eba01aa91aa4fd493d
+      entity_id: switch.server_fan
+      domain: switch
+  mode: single

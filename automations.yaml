@@ -760,31 +760,6 @@
         message: Turned off office Fan after 1 hour.
       service: script.post_to_home_log
   mode: single
-- id: "1600127180656"
-  alias: "Bedroom: Close Blinds Before Sunrise"
-  description: ""
-  trigger:
-    - event: sunrise
-      offset: -02:00:00
-      platform: sun
-  condition:
-    - condition: device
-      device_id: e5a40dac52c048169af0a3120fd75346
-      domain: cover
-      entity_id: cover.bedroom_blind
-      type: is_open
-  action:
-    - data:
-        message:
-          ":sunrise: Bedroom blind is open and it's nearly sunrise. Closing
-          blinds"
-      service: script.post_to_home_log
-    - device_id: e5a40dac52c048169af0a3120fd75346
-      domain: cover
-      entity_id: cover.bedroom_blind
-      position: 0
-      type: set_position
-  mode: single
 - id: "1600719083284"
   alias: Test2
   description: ""
@@ -1050,46 +1025,6 @@
     - service: script.post_direct_message_to_danny
       data:
         message: Home assistant shutting down.
-  mode: single
-- id: "1608493783373"
-  alias: "Lounge: Bay Window High Temperature"
-  description: ""
-  trigger:
-    - platform: event
-      event_type: ifttt_webhook_received
-      event_data:
-        action: bay_window_high_temp
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":warning: :thermometer: Bay window is above 35c. Turning server fan
-          on."
-    - type: turn_on
-      device_id: 15217f2c122d11eba01aa91aa4fd493d
-      entity_id: switch.server_fan
-      domain: switch
-  mode: single
-- id: "1608493853210"
-  alias: "Lounge: Bay Window Below High Temperature"
-  description: ""
-  trigger:
-    - platform: event
-      event_type: ifttt_webhook_received
-      event_data:
-        action: bay_window_low_temp
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":thermometer: :snowflake: Bay window below high temperature. Turning
-          server fan off."
-    - type: turn_off
-      device_id: 15217f2c122d11eba01aa91aa4fd493d
-      entity_id: switch.server_fan
-      domain: switch
   mode: single
 - id: "1608655560832"
   alias: "3D Printer: Print Started"

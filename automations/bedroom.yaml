@@ -47,3 +47,28 @@
       position: 100
       type: set_position
   mode: single
+- id: "1600127180656"
+  alias: "Bedroom: Close Blinds Before Sunrise"
+  description: ""
+  trigger:
+    - event: sunrise
+      offset: -02:00:00
+      platform: sun
+  condition:
+    - condition: device
+      device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      type: is_open
+  action:
+    - data:
+        message:
+          ":sunrise: Bedroom blind is open and it's nearly sunrise. Closing
+          blinds"
+      service: script.post_to_home_log
+    - device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      position: 0
+      type: set_position
+  mode: single
