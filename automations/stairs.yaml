@@ -22,6 +22,35 @@
           ":paw_prints: :mirror: Motion detected in lounge/stairs. Turning
           on Maggic Mirror."
       service: script.post_to_home_log
+- id: "1588856667889"
+  alias: "MagicMirror: Turn Off At Night"
+  description: ""
+  trigger:
+    - minutes: "30"
+      platform: time_pattern
+  condition:
+    - after: "23:00:00"
+      before: 05:00:00
+      condition: time
+    - condition: state
+      entity_id: binary_sensor.conservatory_motion
+      state: "off"
+    - condition: state
+      entity_id: binary_sensor.office_motion
+      state: "off"
+    - condition: state
+      entity_id: binary_sensor.lounge_motion
+      state: "off"
+  action:
+    - device_id: feeb759747ae471e94b687b3a358a666
+      domain: switch
+      entity_id: switch.magic_mirror_screen
+      type: turn_off
+    - data:
+        message:
+          ":mirror: :house: :running: Turning off Maggic Mirror because it's
+          late"
+      service: script.post_to_home_log
 - id: "1587595847618"
   alias: "Stairs: No Motion Detected"
   description: ""

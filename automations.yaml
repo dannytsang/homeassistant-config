@@ -324,35 +324,6 @@
     - data: {}
       entity_id: alarm_control_panel.stevenage_alarm
       service: script.1589652888991
-- id: "1588856667889"
-  alias: "MagicMirror: Turn Off At Night"
-  description: ""
-  trigger:
-    - minutes: "30"
-      platform: time_pattern
-  condition:
-    - after: "23:00:00"
-      before: 05:00:00
-      condition: time
-    - condition: state
-      entity_id: binary_sensor.conservatory_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.office_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.lounge_motion
-      state: "off"
-  action:
-    - device_id: feeb759747ae471e94b687b3a358a666
-      domain: switch
-      entity_id: switch.magic_mirror_screen
-      type: turn_off
-    - data:
-        message:
-          ":mirror: :house: :running: Turning On Maggic Mirror because it's
-          late"
-      service: script.post_to_home_log
 - id: "1589026420341"
   alias: "Alarm: Triggered"
   description: ""
@@ -2069,9 +2040,23 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ':door: :abacus: Front door has been opened for more
-          than 20 secs. Resetting counter  from {{ states("counter.front_door")
-          }} to 0'
+        message:
+          ':door: :abacus: Front door has been opened for more than 20 secs.
+          Resetting counter  from {{ states("counter.front_door") }} to 0'
     - service: counter.reset
       data: {}
       entity_id: counter.front_door
+- id: "1614197981954"
+  alias: "Alarm: Disconnected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.stevenage_alarm_info
+      to: unavailable
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        title: Alarm Offline
+        message: ":warning: :no_bell: Alarm has disconnected from @home_assistanmt :warning:"
+  mode: single
