@@ -167,37 +167,6 @@
           battery"
       service: script.post_to_home_log
   mode: single
-- id: "1584277382805"
-  alias: "Office: Motion Detected Light Off And It's Dark"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.office_motion
-      to: "on"
-      from: "off"
-  condition:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: input_boolean.enable_office_motion_trigger
-          state: "on"
-        - condition: or
-          conditions:
-            - condition: numeric_state
-              entity_id: sensor.office_motion_light_level
-              below: "91"
-            - condition: numeric_state
-              entity_id: sensor.office_motion_2_light_level
-              below: "26"
-  action:
-    - scene: scene.office_turn_on_light
-    - data:
-        title: Office Motion Detected
-        message:
-          ":feet: :bulb: Motion detected in the office, the light is off and
-          it's dark. Turning office lights on."
-      service: script.post_to_home_log
-  mode: single
 - id: "1584277767373"
   alias: "Office: No Motion Detected And Computer Is Off"
   description: ""
@@ -1475,19 +1444,6 @@
         message: ":tv: NowTv turned off."
   mode: queued
   max: 10
-- id: "1612998400190"
-  alias: "Lounge: Roku Stick Turned Off"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: media_player.roku_streaming_stick
-      to: idle
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":tv: Roku turned off."
-  mode: queued
 - id: "1613051036668"
   alias: "Bedroom: NowTv On Standby"
   description: ""
@@ -1502,19 +1458,6 @@
         message: ":tv: NowTv turned on"
   mode: queued
   max: 10
-- id: "1613051229066"
-  alias: "Lounge: Roku Turned On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: media_player.roku_streaming_stick
-      to: "on"
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":tv: Roku turned on."
-  mode: queued
 - id: "1613052205966"
   alias: "Bedroom: NowTv Paused"
   description: ""
