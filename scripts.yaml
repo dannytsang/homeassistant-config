@@ -327,3 +327,18 @@ porch_override_notification:
         entity_id: light.porch
   - scene: scene.porch_light_on
   mode: single
+post_to_home_log_with_url:
+  alias: Post To Home Log With URL
+  sequence:
+  - condition: state
+    entity_id: input_boolean.enable_slack_notifications
+    state: 'on'
+  - service: notify.slack_notify
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
+      target: '#home_log'
+      data:
+        file:
+          url: '{{ url }}'
+  mode: single
