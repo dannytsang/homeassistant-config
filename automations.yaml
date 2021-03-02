@@ -1855,3 +1855,24 @@
     entity_id: light.elgato_key_light_left
     domain: light
   mode: single
+- id: '1614692626417'
+  alias: 'Bathroom: Humidity Is High'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.bathroom_motion_relative_humidity
+    above: '30'
+    for: 00:01:00
+  condition:
+  - condition: state
+    entity_id: binary_sensor.bathroom_window
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.bathroom_door
+    state: 'off'
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: ':bath: :droplet: :chart_with_upwards_trend: Humidity in the bathroom
+        is above 30% with :door:doors and :window:windows closed.'
+  mode: single
