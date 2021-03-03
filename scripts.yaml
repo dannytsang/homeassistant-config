@@ -10,7 +10,7 @@
           morning routine"
         target: "#home_log"
       service: notify.slack_notify
-    - device_id: 0c892895ffe711eaabea492e9418f7a9
+    - device_id: 5a2c3c40a5dda5671e2edd177e2541fd
       domain: alarm_control_panel
       entity_id: alarm_control_panel.stevenage_alarm
       type: disarm
@@ -24,19 +24,8 @@
         message: ""
         target: "#home_log"
       service: notify.slack_notify
-    - device_id: 8dece5066db945139d9c8f3b2b8a5314
-      domain: switch
-      entity_id: switch.magic_mirror_screen
-      type: turn_on
-    - data:
-        data:
-          attachments:
-            - color: "#36a64f"
-              text: Turning On Magic Mirror
-              title: ":white_large_square: :house:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
+    - service: script.morning_script_turn_on_magic_mirror
+      data: {}
     - data:
         message: ":clock9: :sunrise: Morning routine complete."
         target: "#home_log"
@@ -343,4 +332,24 @@ post_to_home_log_with_url:
         data:
           file:
             url: "{{ url }}"
+  mode: single
+morning_script_turn_on_magic_mirror:
+  alias: Morning Script Turn on Magic Mirror
+  sequence:
+    - condition: state
+      entity_id: input_boolean.enable_magic_mirror_automations
+      state: "on"
+    - device_id: 8dece5066db945139d9c8f3b2b8a5314
+      domain: switch
+      entity_id: switch.magic_mirror_screen
+      type: turn_on
+    - data:
+        data:
+          attachments:
+            - color: "#36a64f"
+              text: Turning On Magic Mirror
+              title: ":mirror: :house:"
+        message: ""
+        target: "#home_log"
+      service: notify.slack_notify
   mode: single
