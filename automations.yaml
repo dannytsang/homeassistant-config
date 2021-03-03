@@ -470,6 +470,9 @@
   - condition: state
     entity_id: switch.magic_mirror_screen
     state: 'on'
+  - condition: state
+    entity_id: input_boolean.enable_magic_mirror_automations
+    state: 'on'
   action:
   - type: turn_off
     device_id: 8dece5066db945139d9c8f3b2b8a5314
@@ -1863,4 +1866,42 @@
     data:
       message: ':bath: :droplet: :chart_with_upwards_trend: Humidity in the bathroom
         is above 30% with :door:doors and :window:windows closed.'
+  mode: single
+- id: '1588856667889'
+  alias: 'MagicMirror: Turn Off Based On Time During Weekday'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /30
+  condition:
+  - condition: state
+    entity_id: binary_sensor.stairs_motion
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.lounge_motion
+    state: 'off'
+  - condition: state
+    entity_id: binary_sensor.landing_motion
+    state: 'off'
+  - condition: time
+    after: 09:00:00
+    before: '17:30:00'
+    weekday:
+    - mon
+    - tue
+    - wed
+    - thu
+    - fri
+  - condition: state
+    entity_id: input_boolean.enable_magic_mirror_automations
+    state: 'on'
+  action:
+  - type: turn_off
+    device_id: 8dece5066db945139d9c8f3b2b8a5314
+    entity_id: switch.magic_mirror_screen
+    domain: switch
+  - data:
+      message: ':mirror: :timer_clock: Turning off Magic Mirror based on time and
+        no motion nearby.'
+    service: script.post_to_home_log
   mode: single

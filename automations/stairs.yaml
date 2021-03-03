@@ -12,6 +12,12 @@
     - condition: state
       entity_id: switch.magic_mirror_screen
       state: "off"
+    - condition: state
+      entity_id: input_boolean.enable_magic_mirror_automations
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_stairs_motion_trigger
+      state: "on"
   action:
     - device_id: 8dece5066db945139d9c8f3b2b8a5314
       domain: switch
@@ -22,35 +28,6 @@
           ":paw_prints: :mirror: Motion detected in lounge/stairs. Turning
           on Maggic Mirror."
       service: script.post_to_home_log
-- id: "1588856667889"
-  alias: "MagicMirror: Turn Off At Night"
-  description: ""
-  trigger:
-    - minutes: "30"
-      platform: time_pattern
-  condition:
-    - after: "23:00:00"
-      before: 05:00:00
-      condition: time
-    - condition: state
-      entity_id: binary_sensor.conservatory_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.office_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.lounge_motion
-      state: "off"
-  action:
-    - device_id: feeb759747ae471e94b687b3a358a666
-      domain: switch
-      entity_id: switch.magic_mirror_screen
-      type: turn_off
-    - data:
-        message:
-          ":mirror: :house: :running: Turning off Maggic Mirror because it's
-          late"
-      service: script.post_to_home_log
 - id: "1587595847618"
   alias: "Stairs: No Motion Detected"
   description: ""
@@ -59,7 +36,10 @@
       for: 00:01:00
       platform: state
       to: "off"
-  condition: []
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_stairs_motion_trigger
+      state: "on"
   action:
     - device_id: 9d5a2644cdf541248d79efc729c7b35c
       domain: light
@@ -94,8 +74,6 @@
   action:
     - scene: scene.stairs_turn_light_on
     - data:
-        message:
-          ":feet: Motion detected on the landing and it's dark. Turning stairs
-          lights on at 60%"
+        message: ":feet: Motion detected on the landing and it's dark. Turning stairs lights on at 60%"
       service: script.post_to_home_log
   mode: single
