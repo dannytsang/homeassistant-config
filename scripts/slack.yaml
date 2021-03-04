@@ -1,0 +1,16 @@
+post_to_home_log:
+  alias: Post To Home Log
+  icon: mdi:slack
+  max: 10
+  mode: queued
+  sequence:
+    - condition: state
+      entity_id: input_boolean.enable_slack_notifications
+      state: "on"
+    - data:
+        message: "{{ message }}"
+        title: "{{ title }}"
+        target: "#home_log"
+        data:
+          blocks: []
+      service: notify.slack_notify
