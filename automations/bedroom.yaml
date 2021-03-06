@@ -25,6 +25,7 @@
     - platform: numeric_state
       entity_id: sensor.bed_sensor
       below: "100"
+      for: 00:00:30
   condition:
     - condition: device
       device_id: e5a40dac52c048169af0a3120fd75346
@@ -48,6 +49,42 @@
       domain: cover
       entity_id: cover.bedroom_blind
       position: 100
+      type: set_position
+  mode: single
+- id: "1601641236163"
+  alias: "Bedroom: Close Blinds When Someone Is In Bed After Sunset"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_received
+      event_data:
+        action: someone_in_bed
+    - platform: numeric_state
+      entity_id: sensor.bed_sensor
+      above: "100"
+      for: 00:00:30
+  condition:
+    - condition: device
+      device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      type: is_open
+    - condition: state
+      entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+    - condition: sun
+      after: sunset
+  action:
+    - data:
+        title: Close bedroom blinds
+        message:
+          ":sleeping_accommodation: Someone is in bed, bedroom window is closed
+          and it's getting late. Closing blinds"
+      service: script.post_to_home_log
+    - device_id: e5a40dac52c048169af0a3120fd75346
+      domain: cover
+      entity_id: cover.bedroom_blind
+      position: 0
       type: set_position
   mode: single
 - id: "1600127180656"
