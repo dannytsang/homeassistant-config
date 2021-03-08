@@ -1955,3 +1955,22 @@
       service: script.post_to_home_log
     - service: script.bedroom_leos_door_opened_notification
   mode: single
+- id: "1615211009087"
+  alias: "Bedroom: Ashlee's Bedroom Door Opens Warning"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.ashlees_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: group.bedroom_desk_lights
+      state: "on"
+  action:
+    - data:
+        title: Close bedroom blinds
+        message: ":girl: :door: Ashlee's door opened and bedroom light is on. Sending warning."
+      service: script.post_to_home_log
+    - service: script.bedroom_ashlees_door_opened_notification
+  mode: single
