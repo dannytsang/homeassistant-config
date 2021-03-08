@@ -1970,7 +1970,29 @@
   action:
     - data:
         title: Close bedroom blinds
-        message: ":girl: :door: Ashlee's door opened and bedroom light is on. Sending warning."
+        message:
+          ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+          warning."
       service: script.post_to_home_log
     - service: script.bedroom_ashlees_door_opened_notification
+  mode: single
+- id: "1615224190495"
+  alias: "Porch: Front Door Closed For More than 20 seconds"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+      to: "off"
+      from: "on"
+      for: 00:00:20
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ':door: :abacus: Front  door has been closed for more
+          than 20 secs. Resetting counter  from {{ states("counter.front_door")
+          }} to 0'
+    - service: counter.reset
+      target:
+        entity_id: counter.front_door
   mode: single
