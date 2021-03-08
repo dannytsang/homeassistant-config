@@ -186,17 +186,13 @@ post_to_direct_notification:
 test:
   alias: Test
   sequence:
-    - repeat:
-        count: "3"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness: 255
-              color_name: green
-            entity_id: light.office_light
-          - service: light.turn_off
-            data: {}
-            entity_id: light.office_light
+    - service: light.turn_on
+      data:
+        color_name: cyan
+        flash: short
+        brightness: 255
+      target:
+        entity_id: light.office_light
   mode: single
 post_direct_message_to_danny:
   alias: Post Direct Message to Danny
@@ -336,4 +332,39 @@ morning_script_turn_on_magic_mirror:
         message: ""
         target: "#home_log"
       service: notify.slack_notify
+  mode: single
+bedroom_leos_door_opened_notification:
+  alias: Bedroom Leo's Door Opened Notification
+  sequence:
+    - repeat:
+        count: "2"
+        sequence:
+          - service: light.turn_on
+            data:
+              color_name: blue
+            target:
+              entity_id:
+                - light.bedroom_left_lamp
+                - light.bedroom_right_lamp
+          - service: light.turn_off
+            target:
+              entity_id:
+                - light.bedroom_left_lamp
+                - light.bedroom_right_lamp
+  mode: single
+bedroom_ashlees_door_opened_notification:
+  alias: Bedroom Ashlee's Door Opened Notification
+  sequence:
+    - service: light.turn_on
+      data:
+        color_name: pink
+      target:
+        entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
+    - service: light.turn_off
+      target:
+        entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
   mode: single

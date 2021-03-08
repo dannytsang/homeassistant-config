@@ -1913,7 +1913,9 @@
   action:
     - data:
         title: Close bedroom blinds
-        message: ":sleeping_accommodation: An extra person got into Bed. There are now two people are in bed."
+        message:
+          ":sleeping_accommodation: An extra person got into Bed. There are now
+          two people are in bed."
       service: script.post_to_home_log
   mode: single
 - id: "1615209203993"
@@ -1930,4 +1932,26 @@
         title: Close bedroom blinds
         message: ":sleeping_accommodation: One person got out of bed. One person left."
       service: script.post_to_home_log
+  mode: single
+- id: "1615209552353"
+  alias: "Bedroom: Leo's Bedroom Door Opens Warning"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.bed_sensor
+      above: "100"
+    - condition: state
+      entity_id: group.bedroom_desk_lights
+      state: "on"
+  action:
+    - data:
+        title: Close bedroom blinds
+        message: ":boy: :door: Leo's door opened and bedroom light is on. Sending warning."
+      service: script.post_to_home_log
+    - service: script.bedroom_leos_door_opened_notification
   mode: single
