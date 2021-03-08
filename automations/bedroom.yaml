@@ -18,13 +18,10 @@
   alias: "Bedroom: Open Blind No One Is In Bed"
   description: ""
   trigger:
-    - platform: event
-      event_type: ifttt_webhook_received
-      event_data:
-        action: empty_bed
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      below: "100"
+    - platform: state
+      entity_id: binary_sensor.bed_occupied
+      from: "on"
+      to: "off"
       for: 00:00:30
   condition:
     - condition: device
@@ -55,13 +52,10 @@
   alias: "Bedroom: Close Blinds When Someone Is In Bed After Sunset"
   description: ""
   trigger:
-    - platform: event
-      event_type: ifttt_webhook_received
-      event_data:
-        action: someone_in_bed
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
+    - platform: state
+      entity_id: binary_sensor.bed_occupied
+      from: "off"
+      to: "on"
       for: 00:00:30
   condition:
     - condition: device
