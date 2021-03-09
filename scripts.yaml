@@ -394,3 +394,29 @@ bedroom_ashlees_door_opened_notification:
                 - light.bedroom_right_lamp
     - scene: scene.bedroom_desk_lamps_on
   mode: single
+counter_strike_bomb_planted:
+  alias: Counter Strike Bomb Planted
+  sequence:
+    - repeat:
+        until:
+          - condition: or
+            conditions:
+              - condition: state
+                entity_id: group.jd_computer
+                state: "off"
+        sequence:
+          - service: light.turn_on
+            data:
+              color_name: red
+              brightness_pct: 100
+            target:
+              entity_id: light.office_light
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 1
+              milliseconds: 0
+          - service: light.turn_off
+            target:
+              entity_id: light.office_light
+  mode: single
