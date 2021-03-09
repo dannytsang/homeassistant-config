@@ -1522,18 +1522,12 @@
   alias: "MagicMirror: Turn Off Based On Time During Weekday"
   description: ""
   trigger:
-    - platform: time_pattern
-      minutes: /30
-  condition:
-    - condition: state
+    - platform: state
       entity_id: binary_sensor.stairs_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.lounge_motion
-      state: "off"
-    - condition: state
-      entity_id: binary_sensor.landing_motion
-      state: "off"
+      to: "off"
+      for: 00:05:00
+      from: "on"
+  condition:
     - condition: time
       after: 09:00:00
       before: "17:30:00"
@@ -1546,6 +1540,9 @@
     - condition: state
       entity_id: input_boolean.enable_magic_mirror_automations
       state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_stairs_motion_trigger
+      state: "on"
   action:
     - type: turn_off
       device_id: 8dece5066db945139d9c8f3b2b8a5314
@@ -1553,7 +1550,7 @@
       domain: switch
     - data:
         message:
-          ":mirror: :timer_clock: Turning off Magic Mirror based on time and
+          ":no_pedestrians: :mirror: Turning off Magic Mirror based on time and
           no motion nearby."
       service: script.post_to_home_log
   mode: single
