@@ -43,3 +43,21 @@
           conservatory lights."
     - scene: scene.conservatory_dim_light
   mode: single
+- id: "1610238960657"
+  alias: "Conservatory: No Motion Turning Turn Lights Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.conservatory_motion
+      to: "off"
+      for: 00:01:30
+  condition:
+    - condition: state
+      entity_id: light.conservatory_light
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":no_pedestrians: No motion in conservatory. Turning lights off."
+    - scene: scene.conservatory_turn_off_light
+  mode: single

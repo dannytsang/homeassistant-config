@@ -1,3 +1,4 @@
+# Created by Danny Tsang <danny@tsang.uk>
 - id: "1610307951215"
   alias: "Bathroom: Motion Detected And It's Dark"
   description: ""
@@ -44,7 +45,7 @@
     - platform: state
       entity_id: binary_sensor.bathroom_motion
       to: "off"
-      for: 00:01:30
+      for: 00:02:00
   condition:
     - condition: state
       entity_id: light.bathroom_light
@@ -65,6 +66,32 @@
         message:
           ":no_pedestrians: :bulb: :low_brightness: No motion and door is open.
           Dimming bathroom light."
+  mode: single
+- id: "1611164800136"
+  alias: "Bathroom: No Motion Detected And Bathroom Door Is Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_motion
+      to: "off"
+      for: 00:10:00
+  condition:
+    - condition: state
+      entity_id: light.bathroom_light
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bathroom_door
+      state: "off"
+  action:
+    - scene: scene.bathroom_dim_lights
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door
+          is closed. Dimming bathroom light."
   mode: single
 - id: "1613684184857"
   alias: "Bathroom: Door Opened"

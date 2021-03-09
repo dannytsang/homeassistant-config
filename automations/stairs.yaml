@@ -51,6 +51,35 @@
           stairs light off."
       service: script.post_to_home_log
   mode: single
+- id: "1591553945554"
+  alias: "Stairs: Turn Off Magic Mirror If No Montion At Night"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.stairs_motion
+      for: 00:03:00
+      platform: state
+      to: "off"
+  condition:
+    - after: "23:00"
+      before: "5:00"
+      condition: time
+    - condition: state
+      entity_id: switch.magic_mirror_screen
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_magic_mirror_automations
+      state: "on"
+  action:
+    - type: turn_off
+      device_id: 8dece5066db945139d9c8f3b2b8a5314
+      entity_id: switch.magic_mirror_screen
+      domain: switch
+    - data:
+        message:
+          ":clock11: :no_pedestrians: :mirror: Turning off Maggic Mirror because
+          no motion was detected."
+      service: script.post_to_home_log
+  mode: single
 - id: "1598726353326"
   alias: "Stairs: Landing Dark, Before Kids Bed Time And Motion Detected"
   description: ""
