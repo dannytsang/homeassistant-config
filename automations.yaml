@@ -810,7 +810,7 @@
     - platform: state
       entity_id: binary_sensor.bathroom_motion
       to: "off"
-      for: 00:02:00
+      for: 00:02:30
   condition:
     - condition: state
       entity_id: light.bathroom_light
@@ -1662,4 +1662,62 @@
     - service: counter.reset
       target:
         entity_id: counter.front_door
+  mode: single
+- id: "1615313996827"
+  alias: "Game: Counter Strike Bomb Planted"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: csgo_bomb_planted
+  condition: []
+  action:
+    - service: script.counter_strike_bomb_planted
+  mode: single
+- id: "1615314042948"
+  alias: "Game: Counter Strike Round Freeze"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: csgo_round_freeze
+  condition: []
+  action:
+    - scene: scene.counter_strike_round_freeze
+  mode: single
+- id: "1615314108603"
+  alias: "Game: Counter Strike Bomb Explodes"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: csgo_bomb_exploded
+  condition: []
+  action:
+    - service: script.turn_off
+      target:
+        entity_id: script.counter_strike_bomb_planted
+    - scene: scene.counter_strike_bomb_exploded
+  mode: single
+- id: "1615314203373"
+  alias: "Game: Counter Strike Bomb Defused"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: csgo_bomb_defused
+  condition: []
+  action:
+    - service: script.turn_off
+      target:
+        entity_id: script.counter_strike_bomb_planted
+    - scene: scene.counter_strike_bomb_defused
+  mode: single
+- id: "1615314310555"
+  alias: "Game: Counter Strike Round Start Or Game Stopped"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: csgo_round_started
+    - platform: event
+      event_type: csgo_game_stopped
+  condition: []
+  action:
+    - scene: scene.office_turn_off_light_notification
   mode: single
