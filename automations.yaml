@@ -808,9 +808,9 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: binary_sensor.bathroom_motion
       to: "off"
       for: 00:02:30
+      entity_id: group.bathroom_motion
   condition:
     - condition: state
       entity_id: light.bathroom_light
@@ -940,35 +940,14 @@
         title: Test Terina WFH
         message: Terina WFH Calendar event.
   mode: single
-- id: "1611164672680"
-  alias: "Bathroom: Door Closed And It's Dark"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.bathroom_door
-      to: "off"
-      from: "on"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_bathroom_motion_trigger
-      state: "on"
-    - condition: numeric_state
-      entity_id: sensor.bathroom_motion_light_level
-      below: "30"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":bathtub: :door: Bathroom door closed. Turning lights on."
-    - scene: scene.bathroom_light_on
-  mode: single
 - id: "1611165055857"
   alias: "Bathroom: No Motion Detected And Bathroom Door Is Closed 2"
   description: ""
   trigger:
     - platform: state
-      entity_id: binary_sensor.bathroom_motion
       to: "off"
       for: 00:12:00
+      entity_id: group.bathroom_motion
   condition:
     - condition: state
       entity_id: light.bathroom_light

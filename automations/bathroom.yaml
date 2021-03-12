@@ -113,6 +113,27 @@
       data: {}
       entity_id: counter.bathroom_door
   mode: single
+- id: "1611164672680"
+  alias: "^Bathroom: Door Closed And It's Dark"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_door
+      to: "off"
+      from: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_motion_trigger
+      state: "on"
+    - condition: numeric_state
+      entity_id: sensor.bathroom_motion_light_level
+      below: "30"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":bathtub: :door: Bathroom door closed. Turning lights on."
+    - scene: scene.bathroom_light_on
+  mode: single
 - id: "1613684645058"
   alias: "Bathroom: Door Opened Once For More than 20 seconds"
   description: ""
