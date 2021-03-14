@@ -1533,52 +1533,6 @@
           no motion nearby."
       service: script.post_to_home_log
   mode: single
-- id: "1615208851217"
-  alias: "Bedroom: One Person In Bed"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
-      below: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message: ":sleeping_accommodation: One person is in bed"
-      service: script.post_to_home_log
-  mode: single
-- id: "1615209163907"
-  alias: "Bedroom: Two People In Bed"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message:
-          ":sleeping_accommodation: An extra person got into Bed. There are now
-          two people are in bed."
-      service: script.post_to_home_log
-  mode: single
-- id: "1615209203993"
-  alias: "Bedroom: Someone Getting Out Of Bed"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
-      below: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message: ":sleeping_accommodation: One person got out of bed. One person left."
-      service: script.post_to_home_log
-  mode: single
 - id: "1615209552353"
   alias: "Bedroom: Leo's Bedroom Door Opens Warning"
   description: ""
@@ -1699,4 +1653,37 @@
   condition: []
   action:
     - scene: scene.office_turn_off_light_notification
+  mode: single
+- id: "1615689096351"
+  alias: "Bedroom: Window Closed And Someone Is In Bed At Night"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bedroom_window
+      from: "on"
+      to: "off"
+      for: 00:00:30
+  condition:
+    - condition: state
+      entity_id: binary_sensor.bed_occupied
+      state: "on"
+    - condition: state
+      entity_id: cover.bedroom_blind
+      state: open
+    - condition: state
+      entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+    - condition: sun
+      after: sunset
+  action:
+    - service: script.post_to_home_log
+      data:
+        title: Close bedroom blinds
+        message:
+          ":sleeping_accommodation: :window: Bedroom window shut, someone is
+          in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
+          blinds."
+    - service: cover.close_cover
+      target:
+        entity_id: cover.bedroom_blind
   mode: single
