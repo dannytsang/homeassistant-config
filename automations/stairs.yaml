@@ -81,6 +81,7 @@
           no motion was detected."
       service: script.post_to_home_log
   mode: single
+# Stairs light
 - id: "1598726353326"
   alias: "^Stairs: Landing Dark, Before Kids Bed Time And Motion Detected"
   description: ""
@@ -105,5 +106,67 @@
     - scene: scene.stairs_turn_light_on
     - data:
         message: ":feet: Motion detected on the landing and it's dark. Turning stairs lights on at 60%"
+      service: script.post_to_home_log
+  mode: single
+- id: "1587595659605"
+  alias: "^Stairs: Dark, Leo's Door Open And Motion Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.landing_motion
+      from: "off"
+      platform: state
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - below: "5"
+          condition: numeric_state
+          entity_id: sensor.stairs_motion_light_level
+        - condition: state
+          entity_id: input_boolean.enable_stairs_motion_trigger
+          state: "on"
+        - after: "19:30:00"
+          before: 08:00:00
+          condition: time
+        - condition: state
+          entity_id: binary_sensor.leos_door
+          state: "on"
+  action:
+    - scene: scene.landing_dim_light
+    - data:
+        message:
+          ":feet: :door: :low_brightness: Motion detected on the landing and
+          it's dark. Turning stairs lights on 10%"
+      service: script.post_to_home_log
+  mode: single
+- id: "1613866698304"
+  alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected"
+  description: ""
+  trigger:
+    - entity_id: binary_sensor.landing_motion
+      from: "off"
+      platform: state
+      to: "on"
+  condition:
+    - condition: and
+      conditions:
+        - below: "5"
+          condition: numeric_state
+          entity_id: sensor.stairs_motion_light_level
+        - condition: state
+          entity_id: input_boolean.enable_stairs_motion_trigger
+          state: "on"
+        - after: "19:30:00"
+          before: "23:59:59"
+          condition: time
+        - condition: state
+          entity_id: binary_sensor.leos_door
+          state: "off"
+  action:
+    - scene: scene.stairs_turn_light_on
+    - data:
+        message:
+          ":feet: :door: :high_brightness: Motion detected on the landing, Leo's
+          door is closed and it's dark. Turning stairs lights on."
       service: script.post_to_home_log
   mode: single
