@@ -55,6 +55,27 @@
         message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
       service: script.post_to_home_log
   mode: single
+- id: "1606294735952"
+  alias: "^Kitchen: Turn Off Lights Weekend Morning"
+  description: ""
+  trigger:
+    - platform: time
+      at: 09:00:00
+  condition:
+    - condition: time
+      weekday:
+        - sat
+        - sun
+  action:
+    - service: light.turn_off
+      target:
+        entity_id:
+          - light.kitchen_cabinet_light
+          - light.kitchen_down_light
+    - data:
+        message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
+      service: script.post_to_home_log
+  mode: single
 - id: "1588197104336"
   alias: "^Kitchen: Turn On Lights (Dim)"
   description: ""

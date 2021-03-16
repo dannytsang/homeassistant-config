@@ -169,11 +169,10 @@
       entity_id: binary_sensor.conservatory_door
       state: "off"
   action:
-    - code: ""
-      device_id: e5359a77b14b405781335a01c70d8d66
-      domain: alarm_control_panel
-      entity_id: alarm_control_panel.stevenage_alarm
-      type: arm_away
+    - service: alarm_control_panel.alarm_arm_away
+      data: {}
+      target:
+        entity_id: alarm_control_panel.stevenage_alarm
     - data:
         message:
           ":running: :dancer: are away. Turning alarm on in away mode :bell:
@@ -526,12 +525,11 @@
       to: "on"
   condition: []
   action:
-    - data:
+    - service: script.post_to_direct_notification
+      data:
         message:
-          ":warning: :door: :snowflake: @danny @terina Freezer door has been
-          open for more than 4 minutes!"
-        target: general
-      service: notify.slack_notify
+          ":warning: :door: :snowflake: Freezer door has been open for more than
+          4 minutes!"
     - data:
         message:
           ":warning: :door: :snowflake: Freezer door has been open for more than
@@ -573,11 +571,7 @@
       entity_id: binary_sensor.bathroom_window
       state: "off"
   action:
-    - device_id: e5a40dac52c048169af0a3120fd75346
-      domain: cover
-      entity_id: cover.bedroom_blind
-      type: set_position
-      position: 0
+    - service: cover.close_cover
     - service: script.post_to_home_log
       data:
         title: ":sunny: :tv:"
@@ -637,10 +631,9 @@
       entity_id: switch.night_light
       state: "on"
   action:
-    - type: turn_off
-      device_id: f7c05239afa74c2380c5fd0e36c9f849
-      entity_id: switch.ashlees_lamp
-      domain: switch
+    - service: switch.turn_off
+      target:
+        entity_id: switch.ashlees_lamp
     - service: script.post_to_home_log
       data:
         message: :sunrise:. Turn off night light
@@ -672,30 +665,6 @@
         message:
           ":computer: :tv: Computer turned off for more than 10 minutes. Turned
           off desk lights."
-  mode: single
-- id: "1606294735952"
-  alias: "Kitchen: Turn Off Lights Weekend Morning"
-  description: ""
-  trigger:
-    - platform: time
-      at: 09:00:00
-  condition:
-    - condition: time
-      weekday:
-        - sat
-        - sun
-  action:
-    - device_id: 7bb3a37c66e143368cdc7b5a27a8a155
-      domain: light
-      entity_id: light.kitchen_down_light
-      type: turn_off
-    - device_id: 902ae097a4f84ef1a73d1b078600b02d
-      domain: light
-      entity_id: light.kitchen_cabinet_light
-      type: turn_off
-    - data:
-        message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
-      service: script.post_to_home_log
   mode: single
 - id: "1608655560832"
   alias: "3D Printer: Print Started"
@@ -855,18 +824,16 @@
       weekday:
         - mon
   action:
-    - type: turn_off
-      device_id: b6132172dbf641938719e0bd3eb92e63
-      entity_id: switch.bedroom_tv_plug
-      domain: switch
+    - service: switch.turn_off
+      target:
+        entity_id: switch.harmony_hub_plug
     - service: script.post_to_home_log
       data:
         message: ":TV: Restarting Harmony hub."
     - wait_template: 00:01:00
-    - type: turn_on
-      device_id: b6132172dbf641938719e0bd3eb92e63
-      entity_id: switch.bedroom_tv_plug
-      domain: switch
+    - service: switch.turn_on
+      target:
+        entity_id: switch.harmony_hub_plug
   mode: single
 - id: "1611063957341"
   alias: "Lounge: Server Fan Running Longer Than 1 Hour"
@@ -1380,10 +1347,10 @@
     - service: script.post_to_home_log
       data:
         message: ":bulb: Toggle Key light"
-    - type: toggle
-      device_id: 191a49baaec54b6183658470ea6788c3
-      entity_id: light.elgato_key_light_left
-      domain: light
+    - service: light.toggle
+      data: {}
+      target:
+        entity_id: light.elgato_key_light_left
   mode: single
 - id: "1614692626417"
   alias: "Bathroom: Humidity Is High"
@@ -1433,10 +1400,9 @@
       entity_id: input_boolean.enable_stairs_motion_trigger
       state: "on"
   action:
-    - type: turn_off
-      device_id: 8dece5066db945139d9c8f3b2b8a5314
-      entity_id: switch.magic_mirror_screen
-      domain: switch
+    - service: switch.turn_off
+      target:
+        entity_id: switch.magic_mirror_screen
     - data:
         message:
           ":no_pedestrians: :mirror: Turning off Magic Mirror based on time and
@@ -1607,11 +1573,9 @@
       to: "off"
       for: 00:00:30
   condition:
-    - condition: device
-      device_id: e5a40dac52c048169af0a3120fd75346
-      domain: cover
+    - condition: state
       entity_id: cover.bedroom_blind
-      type: is_closed
+      state: closed
     - condition: sun
       after: sunrise
       after_offset: -01:00:00
