@@ -15,24 +15,34 @@
       device_class: opening
       icon_template: "mdi:blinds{{ '-open' if is_state('cover.bedroom_blind','open') else '' }}"
     bed_occupied:
-      icon_template: "mdi:bed-double{{ '' if states('sensor.bed_sensor') | int >= 100 else '-outline' }}"
+      icon_template: "mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | int >= 4000 or states('sensor.bed_top_right') | int >= 9000 or states('sensor.bed_bottom_left') | int >= 1000 or states('sensor.bed_bottom_right') | int >= 8000 else '' }}"
       friendly_name: Number of People In Bed
       device_class: presence
       value_template: >-
-        {% if states('sensor.bed_sensor') | int >= 100 %}
+        {% if states('sensor.bed_top_left') | int >= 4000 or states('sensor.bed_top_right') | int >= 9000 or states('sensor.bed_bottom_left') | int >= 1000 %}
           on
         {% else %}
           off
         {% endif %}
       attribute_templates:
         number_in_bed: >-
-          {% if states('sensor.bed_sensor') | int > 100 and states('sensor.bed_sensor') | int < 600 %}
+          {% if states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_top_right') | int < 9000 %}
             1
-          {% elif states('sensor.bed_sensor') | int > 600 %}
+          {% elif states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_top_right') | int > 9000 %}
             2
           {% else %}
             0
           {% endif %}
+    leos_bed_occupied:
+      icon_template: "mdi:bed-double{{ '-outline' if states('sensor.leos_bed_top_left') | int >= 1000 or states('sensor.leos_bed_top_right') | int >= 1000 or states('leos_sensor.bed_bottom_left') | int >= 1000 or states('sensor.leos_bed_bottom_right') | int >= 8000 else '' }}"
+      friendly_name: Number of People In Leo's Bed
+      device_class: presence
+      value_template: >-
+        {% if states('sensor.leos_bed_top_left') | int >= 1000 or states('sensor.leos_bed_top_right') | int >= 1000 or states('sensor.bed_bottom_left') | int >= 1000 %}
+          on
+        {% else %}
+          off
+        {% endif %}
     tv_powered_on:
       value_template: "{{ state_attr('switch.tv_plug','current_power_w') | float > 45 }}"
       friendly_name: "TV Powered On"
