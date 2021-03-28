@@ -916,7 +916,9 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: "Someone is home, notifying front :door: door is open"
+        message:
+          ":people_holding_hands: Someone is home, notifying front :door: door
+          is open"
     - service: script.front_door_open_notification
       data: {}
   mode: single
@@ -1048,27 +1050,6 @@
       data:
         message: PC UPS is offline.
   mode: single
-- id: "1613326798324"
-  alias: "Bathroom: Door Closed And No Motion For 5 Minutes"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.bathroom_door
-      to: "off"
-      from: "on"
-  condition:
-    - condition: state
-      entity_id: binary_sensor.bathroom_motion
-      state: "off"
-      for: 00:05:00
-  action:
-    - service: script.post_direct_message_to_danny
-      data:
-        title: Bathroom door closed
-        message:
-          Bathroom door is closed and there has been no motion for 5 minutes.
-          Should the door be open?
-  mode: single
 - id: "1613475468647"
   alias: "Front Garden: Motion Detected"
   description: ""
@@ -1171,34 +1152,6 @@
     - service: input_boolean.turn_off
       data: {}
       entity_id: input_boolean.bathroom_light_override
-  mode: single
-- id: "1613923510415"
-  alias: "Doorbell: Last Ding State Change"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: sensor.front_door_last_ding
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        title: Door bell State Changed
-        message:
-    - service: script.post_to_home_log
-      data:
-        message:
-          'answered: {{ state_attr("sensor.front_door_last_ding", "answered")
-          }}'
-    - service: script.post_to_home_log
-      data:
-        message:
-          'recording_status: {{ state_attr("sensor.front_door_last_ding", "recording_status")
-          }}'
-    - service: script.post_to_home_log
-      data:
-        message:
-          'category: {{ state_attr("sensor.front_door_last_ding", "category")
-          }}'
   mode: single
 - id: "1613924044189"
   alias: "Porch: Doorbell Pressed"
