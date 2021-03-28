@@ -52,3 +52,23 @@
     - data: {}
       entity_id: alarm_control_panel.stevenage_alarm
       service: script.1589652888991
+- id: "1613333442249"
+  alias: "People: No One Home And 3D Printing"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.adult_people
+      to: not_home
+      for: 00:01:00
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: sensor.octoprint_time_remaining
+          state: unknown
+  action:
+    - service: script.post_to_direct_notification
+      data:
+        title: 3D Printing
+        message: 3D printer is printing and no one is home.
+  mode: single

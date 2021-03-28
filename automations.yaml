@@ -1069,26 +1069,6 @@
           Bathroom door is closed and there has been no motion for 5 minutes.
           Should the door be open?
   mode: single
-- id: "1613333442249"
-  alias: "People: No One Home And 3D Printing"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.adult_people
-      to: not_home
-      for: 00:01:00
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: sensor.octoprint_time_remaining
-          state: unknown
-  action:
-    - service: script.post_to_direct_notification
-      data:
-        title: 3D Printing
-        message: 3D printer is printing and no one is home.
-  mode: single
 - id: "1613475468647"
   alias: "Front Garden: Motion Detected"
   description: ""
@@ -1221,7 +1201,7 @@
           }}'
   mode: single
 - id: "1613924044189"
-  alias: "Doorbell: Ring"
+  alias: "Porch: Doorbell Pressed"
   description: ""
   trigger:
     - platform: state
@@ -1247,8 +1227,9 @@
     - delay:
         hours: 0
         minutes: 0
-        seconds: 1
+        seconds: 5
         milliseconds: 0
+    - service: shell_command.copy_front_door_deepstack_files
     - service: script.post_to_home_log_with_local_attachments
       data:
         title: Doorbell rung
@@ -1529,4 +1510,31 @@
   condition: []
   action:
     - scene: scene.office_turn_off_light_notification
+  mode: single
+- id: "1616103854416"
+  alias: "Deepstack: Object detected"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: deepstack.object_detected
+      event_data: {}
+  condition: []
+  action:
+    - service: notify.mobile_app_dannys_phone
+      data:
+        data:
+          attachment:
+            url: https://{{ trigger.event.data.confidence }}
+            content-type: png
+            hide-thumbnail: false
+  mode: single
+- id: "1616108137538"
+  alias: "Time: Delete Old Camera Files"
+  description: ""
+  trigger:
+    - platform: time
+      at: 03:00:00
+  condition: []
+  action:
+    - service: shell_command.delete_old_camera_files
   mode: single
