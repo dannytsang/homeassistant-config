@@ -1491,3 +1491,45 @@
   action:
     - service: shell_command.delete_old_camera_files
   mode: single
+- id: "1617376203344"
+  alias: "Leo's Room: Close Blinds"
+  description: ""
+  trigger:
+    - platform: time
+      at: "19:00:00"
+  condition:
+    - condition: state
+      entity_id: cover.leos_blinds
+      state: open
+    - condition: state
+      entity_id: binary_sensor.leos_window
+      state: "off"
+  action:
+    - service: cover.close_cover
+      target:
+        entity_id: cover.leos_blinds
+    - service: script.post_to_home_log
+      data:
+        message: ":city_sunset: :window: closing Leo's blinds."
+  mode: single
+- id: "1617376413056"
+  alias: "Leo's Room: Open Blinds In The Morning"
+  description: ""
+  trigger:
+    - at: 09:30:00
+      platform: time
+  condition:
+    - condition: state
+      entity_id: cover.leos_blinds
+      state: closed
+    - condition: state
+      entity_id: input_boolean.enable_leos_blind_automations
+      state: "on"
+  action:
+    - data:
+        message: ":sunrise: :window: Opening Leo's blinds"
+      service: script.post_to_home_log
+    - service: cover.open_cover
+      target:
+        entity_id: cover.leos_blinds
+  mode: single
