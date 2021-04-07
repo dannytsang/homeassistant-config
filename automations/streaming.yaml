@@ -39,7 +39,7 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":tv: NowTv paused"
+        message: ":tv: NowTv paused."
   mode: queued
   max: 10
 # Roku
@@ -73,6 +73,20 @@
         message: ":tv: Roku turned off."
   mode: queued
   max: 10
+- id: "1617813522257"
+  alias: "^Lounge: Roku Paused"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.roku_streaming_stick
+      to: paused
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: Roku paused."
+  mode: queued
+  max: 10
 - id: "1613051229066"
   alias: "^Lounge: Roku Turned On"
   description: ""
@@ -94,15 +108,36 @@
   trigger:
     - platform: state
       entity_id: media_player.office_chromecast
+      attribute: media_title
       to: playing
   condition: []
   action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":tv: Chromecast office is playing {{ state_attr('media_player.office_chromecast',
-          'media_title') }} on {{ state_attr('media_player.office_chromecast',
-          'app_name') }}"
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'media_title') != none }}"
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'app_name') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Chromecast office is playing {{ state_attr('media_player.office_chromecast',
+                  'media_title') }} on {{ state_attr('media_player.office_chromecast',
+                  'app_name') }}."
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'app_name') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Chromecast office is playing {{ state_attr('media_player.office_chromecast',
+                  'app_name') }}."
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":tv: Chromecast office is playing."
   mode: queued
   max: 10
 - id: "1617795505115"
@@ -145,5 +180,109 @@
     - service: script.post_to_home_log
       data:
         message: ":tv: Chromecast office turned off."
+  mode: queued
+  max: 10
+- id: "1617796469498"
+  alias: "^Office: Chromecast Media Changes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.office_chromecast
+      attribute: media_title
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'media_title') != none }}"
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'app_name') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Chromecast office is playing {{ state_attr('media_player.office_chromecast',
+                  'media_title') }} on {{ state_attr('media_player.office_chromecast',
+                  'app_name') }}."
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_chromecast', 'app_name') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Chromecast office is playing {{ state_attr('media_player.office_chromecast',
+                  'app_name') }}."
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":tv: Chromecast office is playing."
+  mode: queued
+  max: 10
+# Office TV
+- id: "1617814309728"
+  alias: "Office: TV On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.office_tv
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
+                  'source') }}."
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":tv: Office TV turned on."
+  mode: queued
+  max: 10
+- id: "1617814349289"
+  alias: "Office: TV Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.office_tv
+      from: "on"
+      to: "off"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: Office TV turned off."
+  mode: queued
+  max: 10
+- id: "1617814753264"
+  alias: "Office: TV Source Changes"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: media_player.office_tv
+      attribute: source
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
+                  'source') }}."
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":tv: Office TV media changed."
   mode: queued
   max: 10
