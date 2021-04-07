@@ -1190,6 +1190,11 @@
         filePath:
           camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
           now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
+    - service: script.post_to_home_log_with_local_attachments
+      data:
+        title: Doorbell rung
+        message: Processed Mugshot
+        filePath: "{{states('input_text.camera_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
   mode: single
 - id: "1613955443909"
   alias: "Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
@@ -1239,20 +1244,6 @@
     - service: counter.reset
       data: {}
       entity_id: counter.front_door
-- id: "1614197981954"
-  alias: "Alarm: Disconnected"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: sensor.stevenage_alarm_info
-      to: unavailable
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        title: Alarm Offline
-        message: ":warning: :no_bell: Alarm has disconnected from @home_assistanmt :warning:"
-  mode: single
 - id: "1614285576722"
   alias: Sleep As Android
   description: ""
@@ -1492,11 +1483,12 @@
     - service: shell_command.delete_old_camera_files
   mode: single
 - id: "1617376203344"
-  alias: "Leo's Room: Close Blinds"
+  alias: "Leo's Room: Close Blinds Before Sun Rise"
   description: ""
   trigger:
-    - platform: time
-      at: "19:00:00"
+    - platform: sun
+      event: sunrise
+      offset: -02:00:00
   condition:
     - condition: state
       entity_id: cover.leos_blinds
@@ -1532,4 +1524,147 @@
     - service: cover.open_cover
       target:
         entity_id: cover.leos_blinds
+  mode: single
+- id: "1617395256574"
+  alias: "Leo's Room: Bed Occupied At Night"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_bed_occupied
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: cover.leos_blinds
+      state: open
+    - condition: state
+      entity_id: binary_sensor.leos_window
+      state: "off"
+    - condition: time
+      after: "19:00:00"
+    - condition: state
+      entity_id: input_boolean.enable_leos_blind_automations
+      state: "on"
+  action:
+    - service: cover.close_cover
+      target:
+        entity_id: cover.leos_blinds
+  mode: single
+- id: "1617458869658"
+  alias: "Leo's Room: Open Blinds In The Morning When No One Is In Bed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_bed_occupied
+      from: "on"
+      to: "off"
+  condition:
+    - condition: time
+      after: 07:00:00
+    - condition: state
+      entity_id: cover.leos_blinds
+      state: closed
+    - condition: state
+      entity_id: input_boolean.enable_leos_blind_automations
+      state: "on"
+  action:
+    - service: cover.open_cover
+      target:
+        entity_id: cover.leos_blinds
+  mode: single
+- id: "1617735040678"
+  alias: "Conservatory: Motion Detected Process Camera"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.conservatory_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_conservatory
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_conservatory
+              above: "0"
+          sequence:
+            - service: shell_command.copy_conservatory_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Motion Detected In Conservatory
+                message: Processed Mugshot
+                filePath: "{{states('input_text.camera_folder_path')}}/conservatory/deepstack_object_conservatory_latest.png"
+      default: []
+  mode: single
+- id: "1617735237453"
+  alias: "Stairs: Motion Detected Process Camera"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.stairs_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_upstairs
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_upstairs
+              above: "0"
+          sequence:
+            - service: shell_command.copy_upstairs_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Motion From Stairs
+                message: Processed Mugshot
+                filePath: "{{states('input_text.camera_folder_path')}}/upstairs/deepstack_object_upstairs_latest.png"
+      default: []
+  mode: single
+- id: "1617742736231"
+  alias: "Lounge: Motion Detected Process Camera"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.lounge_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_lounge
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_lounge
+              above: "0"
+          sequence:
+            - service: shell_command.copy_lounge_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Motion From Lounge
+                message: Motion From Lounge
+                filePath: "{{states('input_text.camera_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
+      default: []
   mode: single
