@@ -488,17 +488,18 @@
       entity_id: input_boolean.enable_home_presence_detection
       state: "on"
   action:
-    - data:
+    - service: script.post_to_direct_notification
+      data:
         message:
-          ":warning: :door: :unlock: No one is home and not all the doors / windows
-          are closed."
-        title: No one is home
-      service: script.post_to_direct_notification
-    - data:
+          ":warning: :door: :unlock: No one is home and not all the alarmed doors
+          / windows are closed."
+        title: No one is home and couldn't turn on the alarm
+    - service: script.post_to_home_log
+      data:
         message:
-          ":warning: :door: :unlock: No one is home and not all the doors / windows
-          are closed."
-      service: script.post_to_home_log
+          ":warning: :door: :unlock: No one is home and not all the alarmed doors
+          / windows are closed."
+        title: No one is home and couldn't turn on the alarm
   mode: single
 - id: "1595678900777"
   alias: "Utility: Freezer Door Closed"
@@ -1182,7 +1183,6 @@
         minutes: 0
         seconds: 5
         milliseconds: 0
-    - service: shell_command.copy_front_door_deepstack_files
     - service: script.post_to_home_log_with_local_attachments
       data:
         title: Doorbell rung
@@ -1190,11 +1190,19 @@
         filePath:
           camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
           now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
-    - service: script.post_to_home_log_with_local_attachments
-      data:
-        title: Doorbell rung
-        message: Processed Mugshot
-        filePath: "{{states('input_text.camera_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_front_door
+              above: "0"
+          sequence:
+            - service: shell_command.copy_front_door_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Doorbell rung
+                message: Processed Mugshot
+                filePath: "{{states('input_text.camera_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+      default: []
   mode: single
 - id: "1613955443909"
   alias: "Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
@@ -1488,7 +1496,6 @@
   trigger:
     - platform: state
       entity_id: binary_sensor.leos_bed_occupied
-      from: "off"
       to: "on"
   condition:
     - condition: state
@@ -1498,7 +1505,7 @@
       entity_id: binary_sensor.leos_window
       state: "off"
     - condition: time
-      after: "19:00:00"
+      after: "18:30:00"
     - condition: state
       entity_id: input_boolean.enable_leos_blind_automations
       state: "on"
@@ -1518,6 +1525,7 @@
   condition:
     - condition: time
       after: 07:00:00
+      before: "12:00:00"
     - condition: state
       entity_id: cover.leos_blinds
       state: closed
@@ -1556,8 +1564,8 @@
             - service: shell_command.copy_conservatory_deepstack_files
             - service: script.post_to_home_log_with_local_attachments
               data:
-                title: Motion Detected In Conservatory
-                message: Processed Mugshot
+                title: Object found
+                message: Motion Detected In Conservatory
                 filePath: "{{states('input_text.camera_folder_path')}}/conservatory/deepstack_object_conservatory_latest.png"
       default: []
   mode: single
@@ -1624,4 +1632,114 @@
                 message: Motion From Lounge
                 filePath: "{{states('input_text.camera_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
       default: []
+  mode: single
+- id: "1618158730212"
+  alias: "Shed: Door Opened"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.shed_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_slack_notifications
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: :hut: Shed door opened."
+  mode: single
+- id: "1618158789152"
+  alias: "Shed: Door Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.shed_door
+      from: "on"
+      to: "off"
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_slack_notifications
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: :hut: Shed door closed."
+  mode: single
+- id: "1618158998129"
+  alias: "Shed: Motion Detected When Door Is Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.shed_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: binary_sensor.shed_door
+      state: "off"
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_slack_notifications
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":paw_prints: :hut: Motion detected in the shed and the door is
+                  shut."
+      default: []
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_slack_direct_messages
+              state: "on"
+          sequence:
+            - service: script.post_to_direct_notification
+              data:
+                title: Motion detected in shed and door is closed
+                message:
+                  ":paw_prints: :hut: Motion detected in the shed and the door is
+                  shut."
+      default: []
+  mode: single
+- id: "1595524992208"
+  alias: "People: No One Home And Lock"
+  description: ""
+  trigger:
+    - entity_id: group.all_people
+      for: 00:02:00
+      platform: state
+      to: not_home
+  condition:
+    - condition: template
+      value_template:
+        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
+        }}"
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
+    - condition: state
+      entity_id: group.alarmed_doors_and_windows
+      state: "off"
+  action:
+    - service: alarm_control_panel.alarm_arm_away
+      data: {}
+      entity_id: alarm_control_panel.stevenage_alarm
+    - data:
+        message:
+          ":information_source: :house_with_garden: :bell: No one is home. Alarm
+          turned on with all sensors enabled."
+      service: script.post_to_home_log
+    - service: script.post_to_direct_notification
+      data:
+        message:
+          ":information_source: :house_with_garden: :bell: No one is home. Alarm
+          turned on with all sensors on."
+        title: No One Home
+    - service: script.1588939391030
+      data: {}
   mode: single
