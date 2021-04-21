@@ -21,6 +21,9 @@
     - condition: state
       entity_id: binary_sensor.bedroom_window
       state: "off"
+    - condition: state
+      entity_id: input_boolean.enable_bed_presence
+      state: "on"
   action:
     - data:
         title: Close bedroom blinds
@@ -40,11 +43,9 @@
       offset: -02:00:00
       platform: sun
   condition:
-    - condition: device
-      device_id: e5a40dac52c048169af0a3120fd75346
-      domain: cover
+    - condition: state
       entity_id: cover.bedroom_blind
-      type: is_open
+      state: open
   action:
     - data:
         message:
@@ -54,53 +55,6 @@
     - service: cover.close_cover
       target:
         entity_id: cover.bedroom_blind
-  mode: single
-# Bed Notifications
-- id: "1615208851217"
-  alias: "^Bedroom: One Person In Bed Notification"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
-      below: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message: ":sleeping_accommodation: One person is in bed"
-      service: script.post_to_home_log
-  mode: single
-- id: "1615209203993"
-  alias: "^Bedroom: Someone Getting Out Of Bed Notification"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
-      below: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message: ":sleeping_accommodation: One person got out of bed. One person left."
-      service: script.post_to_home_log
-  mode: single
-- id: "1615209163907"
-  alias: "^Bedroom: Two People In Bed Notification"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "600"
-  condition: []
-  action:
-    - data:
-        title: Close bedroom blinds
-        message:
-          ":sleeping_accommodation: An extra person got into Bed. There are now
-          two people are in bed."
-      service: script.post_to_home_log
   mode: single
 - id: "1615689096351"
   alias: "^Bedroom: Window Closed And Someone Is In Bed At Night"
@@ -154,6 +108,9 @@
       before: sunset
     - condition: state
       entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_bed_presence
       state: "on"
   action:
     - delay: 00:01:00
