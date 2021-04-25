@@ -708,7 +708,7 @@
         message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
   mode: single
 - id: "1609349959402"
-  alias: "3D Printer: Print Finished And Bed Cooled"
+  alias: "3D Printer: Print Finished And Hot End Cooled"
   description: ""
   trigger:
     - platform: numeric_state
@@ -716,10 +716,10 @@
       below: "50"
   condition: []
   action:
-    - service: script.post_direct_message_to_danny
-      data:
-        title: Print head cooled sufficiently
-        message: Print head below 50c
+    - service: script.post_to_home_log
+    - service: switch.turn_off
+      target:
+        entity_id: switch.prusa_fan
   mode: single
 - id: "1609598244704"
   alias: "Kitchen: No Motion During Day 2"
@@ -1703,4 +1703,60 @@
         title: No One Home
     - service: script.1588939391030
       data: {}
+  mode: single
+- id: "1619254173098"
+  alias: "Leo's Room: Window Closed And Bed Occupied At Night"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_window
+      to: "off"
+      from: "on"
+  condition:
+    - condition: state
+      entity_id: cover.leos_blinds
+      state: open
+    - condition: time
+      after: "18:30:00"
+    - condition: state
+      entity_id: input_boolean.enable_leos_blind_automations
+      state: "on"
+    - condition: state
+      entity_id: input_boolean.enable_leos_bed_presence
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.leos_bed_occupied
+      state: "on"
+  action:
+    - service: cover.close_cover
+      target:
+        entity_id: cover.leos_blinds
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":window: :bed: Leo's window closed and someone is in bed. Closing
+          blinds."
+  mode: single
+- id: "1619356833117"
+  alias: "Kitchen: Turn Off Coffee Machine"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: switch.coffee_machine
+      from: "off"
+      to: "on"
+      for: 01:00:00
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_coffee_machine_automations
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":coffee: Coffee machine has been on for 1 hour. Turning off coffee
+          machine."
+    - service: switch.turn_off
+      target:
+        entity_id: switch.coffee_machine
   mode: single
