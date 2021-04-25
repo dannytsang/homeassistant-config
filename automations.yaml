@@ -240,10 +240,11 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
-        }}'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - data:
         message: ":warning: Office Chromecast is offline! :warning:"
@@ -257,10 +258,11 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
-        }}'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - data:
         message: ":warning: Bedroom Chromecast is offline! :warning:"
@@ -275,10 +277,11 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
-        }}'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - data:
         message: ":warning: Utility wireless access point is offline! :warning:"
@@ -293,10 +296,11 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
-        }}'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - data:
         message: ":warning: Lounge wireless access point is offline! :warning:"
@@ -477,10 +481,11 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        '{{ not is_state("device_tracker.unifi_security_gateway", "unavailable")
-        }}'
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
     - condition: state
       entity_id: group.alarmed_doors_and_windows
       state: "on"
@@ -1676,16 +1681,17 @@
       platform: state
       to: not_home
   condition:
-    - condition: template
-      value_template:
-        "{{ not is_state('device_tracker.unifi_security_gateway', 'unavailable')
-        }}"
     - condition: state
       entity_id: input_boolean.enable_home_presence_detection
       state: "on"
     - condition: state
       entity_id: group.alarmed_doors_and_windows
       state: "off"
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.unifi_security_gateway
+          state: unavailable
   action:
     - service: alarm_control_panel.alarm_arm_away
       data: {}
@@ -1759,4 +1765,19 @@
     - service: switch.turn_off
       target:
         entity_id: switch.coffee_machine
+  mode: single
+- id: "1619378428234"
+  alias: "3D Printer: Filament Box Sensor On Battery"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: ifttt_webhook_recieved
+      event_data:
+        action: ifttt_ubibot_filament_on_battery
+  condition: []
+  action:
+    - service: script.post_to_direct_notification
+      data:
+        title: Ububot Filament Sensor On Battery
+        message: Filament box sensor is running on backup battery.
   mode: single
