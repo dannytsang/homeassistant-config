@@ -1214,7 +1214,7 @@
               data:
                 title: Processed Mugshot
                 message: Doorbell rung
-                filePath: "{{states('input_text.camera_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+                filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
       default: []
   mode: single
 - id: "1613955443909"
@@ -1493,16 +1493,6 @@
             content-type: png
             hide-thumbnail: false
   mode: single
-- id: "1616108137538"
-  alias: "Time: Delete Old Camera Files"
-  description: ""
-  trigger:
-    - platform: time
-      at: 03:00:00
-  condition: []
-  action:
-    - service: shell_command.delete_old_camera_files
-  mode: single
 - id: "1617735040678"
   alias: "Conservatory: Motion Detected Process Camera"
   description: ""
@@ -1532,7 +1522,7 @@
               data:
                 title: Object found
                 message: Motion Detected In Conservatory
-                filePath: "{{states('input_text.camera_folder_path')}}/conservatory/deepstack_object_conservatory_latest.png"
+                filePath: "{{states('input_text.camera_external_folder_path')}}/conservatory/deepstack_object_conservatory_latest.png"
       default: []
   mode: single
 - id: "1617735237453"
@@ -1564,7 +1554,7 @@
               data:
                 title: Processed Mugshot
                 message: Motion From Stairs
-                filePath: "{{states('input_text.camera_folder_path')}}/upstairs/deepstack_object_upstairs_latest.png"
+                filePath: "{{states('input_text.camera_external_folder_path')}}/upstairs/deepstack_object_upstairs_latest.png"
       default: []
   mode: single
 - id: "1617742736231"
@@ -1596,7 +1586,12 @@
               data:
                 title: Motion From Lounge
                 message: Motion From Lounge
-                filePath: "{{states('input_text.camera_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
+                filePath: "{{states('input_text.camera_external_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Motion From Lounge2
+                message: Motion From Lounge2
+                filePath: /camera/lounge/deepstack_object_lounge_latest.png
       default: []
   mode: single
 - id: "1618158730212"
@@ -1780,4 +1775,23 @@
       data:
         title: Ububot Filament Sensor On Battery
         message: Filament box sensor is running on backup battery.
+  mode: single
+- id: "1619466600288"
+  alias: "Time: Delete Old Camera Files"
+  description: ""
+  trigger:
+    - platform: time
+      at: 03:00
+  condition: []
+  action:
+    - service: delete.files_in_folder
+      data:
+        folder: /config/camera/
+        scan_subfolders: true
+        remove_subfolders: false
+        time: 172800
+        except_files:
+          - .gitignore
+          - deepstack_object_lounge_latest.png
+          - deepstack_object_lounge_none.png
   mode: single
