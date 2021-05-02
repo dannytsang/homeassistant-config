@@ -432,3 +432,42 @@ echo_text_to_speech:
   mode: queued
   icon: mdi:amazon-alexa
   max: 10
+office_turn_off_backup_drive:
+  alias: Office Turn Off Backup Drive
+  sequence:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: switch.external_hdd
+          state: "on"
+        - condition: state
+          entity_id: group.jd_computer
+          state: ""
+    - service: script.post_to_home_log
+      data:
+        message: ":floppy_disk: Turning off external HDD"
+    - service: switch.turn_off
+      target:
+        entity_id: switch.external_hdd
+  mode: single
+office_turn_on_external_hard_drive:
+  alias: Office Turn On External Hard Drive
+  sequence:
+    - condition: and
+      conditions:
+        - condition: state
+          entity_id: switch.external_hdd
+          state: "off"
+        - condition: state
+          entity_id: group.jd_computer
+          state: "on"
+        - condition: time
+          weekday:
+            - sun
+    - service: script.post_to_home_log
+      data:
+        message: :floppy_disk
+    - service: switch.turn_on
+      target:
+        entity_id: switch.external_hdd
+  mode: single
