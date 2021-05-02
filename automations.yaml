@@ -662,15 +662,20 @@
   action:
     - service: script.post_to_home_log
       data:
-        message:
-          ":computer: :tv: Computer turned off for more than 10 minutes. Consider
-          turning monitor off."
+        message: ":computer: :tv: Computer turned off for more than 10 minutes."
     - scene: scene.office_turn_off_desk_light
+    - service: script.post_to_home_log
+      data:
+        messsage: Turned off desk lights.
+    - service: switch.turn_off
+      target:
+        entity_id: switch.goxlr
     - service: script.post_to_home_log
       data:
         message:
           ":computer: :tv: Computer turned off for more than 10 minutes. Turned
-          off desk lights."
+          off goXLR"
+    - service: script.office_turn_off_backup_drive
   mode: single
 - id: "1608655560832"
   alias: "3D Printer: Print Started"
@@ -682,6 +687,11 @@
       to: "on"
   condition: []
   action:
+    - wait_for_trigger:
+        - platform: numeric_state
+          entity_id: sensor.octoprint_time_remaining
+          above: "0"
+      timeout: "60"
     - service: script.post_to_home_log
       data:
         message:
@@ -1800,4 +1810,36 @@
           - deepstack_object_lounge_none.png
           - deepstack_object_upstairs_latest.png
           - deepstack_object_upstairs_none.png
+  mode: single
+- id: "1619865008647"
+  alias: "Office: Computer Turned On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.jd_computer
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: Computer turned on."
+    - service: script.office_turn_on_external_hard_drive
+  mode: single
+- id: "1619873649348"
+  alias: "3D Printer: 50% Complete"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octoprint_job_percentage
+      above: "50"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          3D printer is 50% complete and due to finish at {{((now().strftime("%s")
+          | int + (states("sensor.octoprint_time_remaining") | int)) | timestamp_custom("%H:%M:%S"))}}
+          ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
+          60) | round(2) }} hours).
   mode: single
