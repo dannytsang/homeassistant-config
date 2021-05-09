@@ -158,3 +158,25 @@
     - data:
         message: Electric blanket has been on for 1 hour. Turning electric blanket off.
       service: script.post_to_home_log
+- id: "1615209552353"
+  alias: "^Bedroom: Leo's Bedroom Door Opens Warning"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.bed_sensor
+      above: "100"
+    - condition: state
+      entity_id: group.bedroom_desk_lights
+      state: "on"
+  action:
+    - data:
+        title: Close bedroom blinds
+        message: ":boy: :door: Leo's door opened and bedroom light is on. Sending warning."
+      service: script.post_to_home_log
+    - service: script.bedroom_leos_door_opened_notification
+  mode: queued

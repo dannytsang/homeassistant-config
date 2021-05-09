@@ -193,18 +193,6 @@
     - data:
         message: "Conservatory :door: is on open and it's dark :full_moon:"
       service: script.post_to_home_log
-- id: "1588199006400"
-  alias: "Bedroom: Remote Low Battery"
-  description: ""
-  trigger:
-    - entity_id: sensor.bedroom_dimmer_switch_battery_level
-      platform: state
-      to: "10"
-  condition: []
-  action:
-    - data:
-        message: ":warning: :battery: Bedroom remote is low on battery"
-      service: script.post_to_home_log
 - id: "1589026420341"
   alias: "Alarm: Triggered"
   description: ""
@@ -1173,7 +1161,7 @@
       entity_id: input_boolean.bathroom_light_override
   mode: single
 - id: "1613924044189"
-  alias: "Porch: Doorbell Pressed"
+  alias: "Front Garden: Doorbell Pressed"
   description: ""
   trigger:
     - platform: state
@@ -1189,8 +1177,8 @@
     - service: input_text.set_value
       data:
         value:
-          front_door_{{ now ().year }}_{{ now ().month }}_{{ now     ().day }}_{{
-          now ().hour }}_{{ now ().minute }}.jpg
+          front_door_{{ now ().year }}_{{ now ().month }}_{{ now().day }}_{{ now().hour
+          }}_{{ now ().minute }}.jpg
       target:
         entity_id: input_text.latest_doorbell_photo_file
     - service: camera.snapshot
@@ -1364,28 +1352,6 @@
           ":no_pedestrians: :mirror: Turning off Magic Mirror based on time and
           no motion nearby."
       service: script.post_to_home_log
-  mode: single
-- id: "1615209552353"
-  alias: "Bedroom: Leo's Bedroom Door Opens Warning"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.leos_door
-      from: "off"
-      to: "on"
-  condition:
-    - condition: numeric_state
-      entity_id: sensor.bed_sensor
-      above: "100"
-    - condition: state
-      entity_id: group.bedroom_desk_lights
-      state: "on"
-  action:
-    - data:
-        title: Close bedroom blinds
-        message: ":boy: :door: Leo's door opened and bedroom light is on. Sending warning."
-      service: script.post_to_home_log
-    - service: script.bedroom_leos_door_opened_notification
   mode: single
 - id: "1615211009087"
   alias: "Bedroom: Ashlee's Bedroom Door Opens Warning"
@@ -1812,13 +1778,19 @@
   trigger:
     - platform: state
       entity_id: group.jd_computer
-      from: "off"
-      to: "on"
+      from: not_home
+      to: home
   condition: []
   action:
     - service: script.post_to_home_log
       data:
         message: ":tv: Computer turned on."
+    - service: switch.turn_on
+      target:
+        entity_id: switch.goxlr
+    - service: script.post_to_home_log
+      data:
+        message: Turned on GoXLR.
     - service: script.office_turn_on_external_hard_drive
   mode: single
 - id: "1619873649348"
@@ -1837,4 +1809,51 @@
           | int + (states("sensor.octoprint_time_remaining") | int)) | timestamp_custom("%H:%M:%S"))}}
           ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
           60) | round(2) }} hours).
+  mode: single
+- id: "1619958763526"
+  alias: "Front Garden: Doorbell Camera Updated"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: camera.front_door
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: :camera: doorbell camera updated."
+    - service: input_text.set_value
+      data:
+        value:
+          front_door_{{ now ().year }}_{{ now ().month }}_{{ now().day }}_{{ now().hour
+          }}_{{ now ().minute }}.jpg
+      target:
+        entity_id: input_text.latest_doorbell_photo_file
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_front_door
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - service: script.post_to_home_log_with_local_attachments
+      data:
+        title: Doorbell rung
+        message: Mugshot
+        filePath:
+          camera/front_door/front_door_{{ now().year }}_{{ now().month }}_{{
+          now().day }}_{{ now().hour }}_{{ now().minute }}.jpg
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_front_door
+              above: "0"
+          sequence:
+            - service: shell_command.copy_front_door_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Doorbell Picture updated
+                message: Doorbell photo updated
+                filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+      default: []
   mode: single
