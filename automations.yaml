@@ -1094,20 +1094,29 @@
       to: "on"
   condition: []
   action:
-    - service: camera.snapshot
-      data:
-        filename:
-          camera/driveway/driveway_{{ now ().year }}_{{ now ().month }}_{{ now
-          ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
-      entity_id: camera.driveway
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: Motion deteched
-        data:
-          push:
-            category: camera
-          entity_id: camera.driveway
-  mode: single
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_driveway
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_driveway
+              above: "0"
+          sequence:
+            - service: shell_command.copy_driveway_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Object found
+                message: Motion Detected In Front Garden
+                filePath: "{{states('input_text.camera_external_folder_path')}}/driveway/deepstack_object_driveway_latest.png"
+      default: []
+  mode: queued
+  max: 10
 - id: "1613575217378"
   alias: "Back Garden: Motion Detected"
   description: ""
