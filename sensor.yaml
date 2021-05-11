@@ -1,4 +1,12 @@
 # Created by Danny Tsang <danny@tsang.uk>
+# Date and Time
+- platform: time_date
+  display_options:
+    - "time"
+    - "date"
+    - "date_time"
+    - "date_time_iso"
+    - "time_date"
 # Travis CI build status
 - platform: rest
   resource: !secret travis_ci_url
@@ -22,7 +30,18 @@
   display_options:
     - exchangerate
     - market_price_usd
-# Templates
+# RESTful integration
+# Toggl
+- platform: rest
+  name: Toggl Current Timer
+  authentication: basic
+  username: !secret toggl
+  password: api_token
+  value_template: "{{ value_json.data.description }}"
+  json_attributes:
+    - data
+  resource: https://api.track.toggl.com/api/v8/time_entries/current
+# Template sensors
 - platform: template
   sensors:
     bedroom_tv_plug_current_w:
@@ -77,3 +96,7 @@
       value_template: "{{ states('sensor.pi_hole_seen_clients') | int + states('sensor.pi_hole_2_seen_clients') | int }}"
       friendly_name: "Pi-Hole Total Seen Clients"
       unit_of_measurement: "clients"
+    # Toggl
+    toggl_current_timer_start_time:
+      value_template: "{{ state_attr('sensor.toggl_current_timer', 'start')['start'] }}"
+      device_class: timestamp
