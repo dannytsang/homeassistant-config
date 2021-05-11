@@ -1,1 +1,0 @@
-"""The switchbot-curtain component."""
