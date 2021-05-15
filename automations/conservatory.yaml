@@ -1,4 +1,32 @@
 # Created by Danny Tsang <danny@tsang.uk>
+- id: "1617735040678"
+  alias: "^Conservatory: Motion Detected And No One Home"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.conservatory_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_people
+          state: not_home
+        - condition: not
+          conditions:
+            - condition: state
+              entity_id: alarm_control_panel.stevenage_alarm
+              state: disarmed
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
+  action:
+    - service: script.conservatory_camera_process_image
+      data:
+        title: No One Home Or Alarm Is Active
+        message: Motion Detected In Conservatory
+  mode: single
 - id: "1610234394136"
   alias: "^Conservatory: Motion Detected And It's Dark"
   description: ""
