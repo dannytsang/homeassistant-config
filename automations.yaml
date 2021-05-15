@@ -1183,46 +1183,9 @@
       data:
         title: Ding Dong
         message: ":door: :bell: Someone is has rung the door bell."
-    - service: input_text.set_value
-      data:
-        value:
-          front_door_{{ now ().year }}_{{ now ().month }}_{{ now().day }}_{{ now().hour
-          }}_{{ now ().minute }}.jpg
+    - service: input_boolean.turn_on
       target:
-        entity_id: input_text.latest_doorbell_photo_file
-    - service: camera.snapshot
-      data:
-        entity_id: camera.front_door
-        filename: camera/front_door/{{states('input_text.latest_doorbell_photo_file')}}
-      entity_id: camera.front_door
-    - service: image_processing.scan
-      target:
-        entity_id: image_processing.deepstack_object_front_door
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 5
-        milliseconds: 0
-    - service: script.post_to_home_log_with_local_attachments
-      data:
-        title: Doorbell rung
-        message: Mugshot
-        filePath:
-          camera/front_door/front_door_{{ now ().year }}_{{ now ().month }}_{{
-          now ().day }}_{{ now ().hour }}_{{ now ().minute }}.jpg
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: image_processing.deepstack_object_front_door
-              above: "0"
-          sequence:
-            - service: shell_command.copy_front_door_deepstack_files
-            - service: script.post_to_home_log_with_local_attachments
-              data:
-                title: Processed Mugshot
-                message: Doorbell rung
-                filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
-      default: []
+        entity_id: input_boolean.wait_for_doorbell_camera_update
   mode: single
 - id: "1613955443909"
   alias: "Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
@@ -1543,14 +1506,24 @@
       default: []
   mode: single
 - id: "1617742736231"
-  alias: "Lounge: Motion Detected Process Camera"
+  alias: "Lounge: Motion Detected And No One Home"
   description: ""
   trigger:
     - platform: state
       entity_id: group.lounge_motion
       from: "off"
       to: "on"
-  condition: []
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_people
+          state: not_home
+        - condition: not
+          conditions:
+            - condition: state
+              entity_id: alarm_control_panel.stevenage_alarm
+              state: disarmed
   action:
     - service: image_processing.scan
       target:
@@ -1824,9 +1797,17 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: camera.front_door
+      entity_id: input_boolean.wait_for_doorbell_camera_update
+      from: "off"
+      to: "on"
   condition: []
   action:
+    - wait_for_trigger:
+        - platform: template
+          value_template:
+            "{{ state_attr('camera.front_door', 'last_video_id') | string
+            != states('input_text.doorbell_last_video_id') | string}}"
+      timeout: "120"
     - service: script.post_to_home_log
       data:
         message: ":door: :camera: doorbell camera updated."
@@ -1837,6 +1818,10 @@
           }}_{{ now ().minute }}.jpg
       target:
         entity_id: input_text.latest_doorbell_photo_file
+    - service: input_text.set_value
+      entity_id: input_text.doorbell_last_video_id
+      data_template:
+        value: "{{ state_attr('camera.front_door', 'last_video_id') | string }}"
     - service: image_processing.scan
       target:
         entity_id: image_processing.deepstack_object_front_door
@@ -1848,7 +1833,7 @@
     - service: script.post_to_home_log_with_local_attachments
       data:
         title: Doorbell rung
-        message: Mugshot
+        message: Something detected
         filePath:
           camera/front_door/front_door_{{ now().year }}_{{ now().month }}_{{
           now().day }}_{{ now().hour }}_{{ now().minute }}.jpg
@@ -1865,4 +1850,67 @@
                 message: Doorbell photo updated
                 filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
       default: []
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wait_for_doorbell_camera_update
   mode: single
+  max: 10
+- id: "1621070004545"
+  alias: "Front Garden: Doorbell Camera Updated 2"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: camera.front_door
+  condition:
+    - condition: template
+      value_template:
+        "{{ state_attr('camera.front_door', 'last_video_id') | string
+        != states('input_text.doorbell_last_video_id') | string}}"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: :camera: doorbell camera updated 2."
+    - service: input_text.set_value
+      data:
+        value:
+          front_door_{{ now ().year }}_{{ now ().month }}_{{ now().day }}_{{ now().hour
+          }}_{{ now ().minute }}.jpg
+      target:
+        entity_id: input_text.latest_doorbell_photo_file
+    - service: input_text.set_value
+      entity_id: input_text.doorbell_last_video_id
+      data_template:
+        value: "{{ state_attr('camera.front_door', 'last_video_id') | string }}"
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_front_door
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - service: script.post_to_home_log_with_local_attachments
+      data:
+        title: Doorbell rung
+        message: Something detected
+        filePath:
+          camera/front_door/front_door_{{ now().year }}_{{ now().month }}_{{
+          now().day }}_{{ now().hour }}_{{ now().minute }}.jpg
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_front_door
+              above: "0"
+          sequence:
+            - service: shell_command.copy_front_door_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Doorbell Picture updated 2
+                message: Doorbell photo updated 2
+                filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+      default: []
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.wait_for_doorbell_camera_update
+  mode: single
+  max: 10
