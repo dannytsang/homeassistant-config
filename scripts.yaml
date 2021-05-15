@@ -471,3 +471,29 @@ office_turn_on_external_hard_drive:
       target:
         entity_id: switch.external_hdd
   mode: single
+lounge_camera_process_objects:
+  alias: Lounge camera process objects
+  sequence:
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_lounge
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_lounge
+              above: "0"
+          sequence:
+            - service: shell_command.copy_lounge_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: Object found
+                message: Motion Detected In Lounge
+                filePath: "{{states('input_text.camera_external_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
+      default: []
+  mode: single
+  icon: mdi:camera

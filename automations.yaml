@@ -1169,24 +1169,6 @@
       data: {}
       entity_id: input_boolean.bathroom_light_override
   mode: single
-- id: "1613924044189"
-  alias: "Front Garden: Doorbell Pressed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door_ding
-      from: "off"
-      to: "on"
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        title: Ding Dong
-        message: ":door: :bell: Someone is has rung the door bell."
-    - service: input_boolean.turn_on
-      target:
-        entity_id: input_boolean.wait_for_doorbell_camera_update
-  mode: single
 - id: "1613955443909"
   alias: "Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
   description: ""
@@ -1524,28 +1506,11 @@
             - condition: state
               entity_id: alarm_control_panel.stevenage_alarm
               state: disarmed
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
   action:
-    - service: image_processing.scan
-      target:
-        entity_id: image_processing.deepstack_object_lounge
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 10
-        milliseconds: 0
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: image_processing.deepstack_object_lounge
-              above: "0"
-          sequence:
-            - service: shell_command.copy_lounge_deepstack_files
-            - service: script.post_to_home_log_with_local_attachments
-              data:
-                title: Object found
-                message: Motion Detected In Lounge
-                filePath: "{{states('input_text.camera_external_folder_path')}}/lounge/deepstack_object_lounge_latest.png"
-      default: []
+    - service: script.lounge_camera_process_objects
   mode: single
 - id: "1618158730212"
   alias: "Shed: Door Opened"
