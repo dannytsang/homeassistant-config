@@ -17,6 +17,24 @@
       target:
         entity_id: input_boolean.wait_for_doorbell_camera_update
   mode: single
+- id: "1621070004545"
+  alias: "^Front Garden: Doorbell Camera Updated"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: camera.front_door
+  condition:
+    - condition: template
+      value_template:
+        "{{ state_attr('camera.front_door', 'last_video_id') | string
+        != states('input_text.doorbell_last_video_id') | string}}"
+  action:
+    - service: script.front_garden_door_bell_camera_process_image
+      data:
+        title: Doorbell Picture updated
+        message: Doorbell photo updated
+  mode: queued
+  max: 10
 - id: "1584089698583"
   alias: "^Front Garden: Doorbell Battery Low"
   description: ""
