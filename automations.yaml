@@ -1424,36 +1424,32 @@
             hide-thumbnail: false
   mode: single
 - id: "1617735237453"
-  alias: "Stairs: Motion Detected Process Camera"
+  alias: "Stairs: Motion Detected And No One Home"
   description: ""
   trigger:
     - platform: state
       entity_id: group.stairs_motion
       from: "off"
       to: "on"
-  condition: []
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: group.all_people
+          state: not_home
+        - condition: not
+          conditions:
+            - condition: state
+              entity_id: alarm_control_panel.stevenage_alarm
+              state: disarmed
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
   action:
-    - service: image_processing.scan
-      target:
-        entity_id: image_processing.deepstack_object_upstairs
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 10
-        milliseconds: 0
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: image_processing.deepstack_object_upstairs
-              above: "0"
-          sequence:
-            - service: shell_command.copy_upstairs_deepstack_files
-            - service: script.post_to_home_log_with_local_attachments
-              data:
-                title: Object found
-                message: Motion Detected On Stairs
-                filePath: "{{states('input_text.camera_external_folder_path')}}/upstairs/deepstack_object_upstairs_latest.png"
-      default: []
+    - service: script.stairs_camera_process_image
+      data:
+        title: No One Home Or Alarm Is Active
+        message: Motion Detected On Stairs
   mode: single
 - id: "1617742736231"
   alias: "Lounge: Motion Detected And No One Home"
