@@ -1057,35 +1057,8 @@
       data:
         message: PC UPS is offline.
   mode: single
-- id: "1613475468647"
-  alias: "Front Garden: Motion Detected"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_garden_motion
-      from: "off"
-      to: "on"
-  condition:
-    - condition: time
-      before: "19:00"
-      after: 09:00
-    - condition: state
-      entity_id: binary_sensor.front_door
-      state: "off"
-    - condition: state
-      entity_id: group.adult_people
-      state: home
-  action:
-    - service: script.post_direct_message_to_danny
-      data:
-        title: Front Garden
-        message: ":paw_prints: :deciduous_tree: Motion detected in the front garden."
-    - service: script.post_to_home_log
-      data:
-        message: ":paw_prints: :deciduous_tree: Motion detected in the front garden."
-  mode: single
 - id: "1613482098461"
-  alias: "Front Garden: Motion take snapshot"
+  alias: "Front Garden: Motion Detected"
   description: ""
   trigger:
     - platform: state
@@ -1094,27 +1067,10 @@
       to: "on"
   condition: []
   action:
-    - service: image_processing.scan
-      target:
-        entity_id: image_processing.deepstack_object_driveway
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 10
-        milliseconds: 0
-    - choose:
-        - conditions:
-            - condition: numeric_state
-              entity_id: image_processing.deepstack_object_driveway
-              above: "0"
-          sequence:
-            - service: shell_command.copy_driveway_deepstack_files
-            - service: script.post_to_home_log_with_local_attachments
-              data:
-                title: Object found
-                message: Motion Detected In Front Garden
-                filePath: "{{states('input_text.camera_external_folder_path')}}/driveway/deepstack_object_driveway_latest.png"
-      default: []
+    - service: script.driveway_camera_process_objects
+      data:
+        title: Object found
+        message: Motion Detected In Front Garden
   mode: queued
   max: 10
 - id: "1613575217378"

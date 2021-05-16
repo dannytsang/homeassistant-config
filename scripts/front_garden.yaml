@@ -1,0 +1,33 @@
+# Created by Danny Tsang <danny@tsang.uk>
+driveway_camera_process_objects:
+  alias: Driveway camera process objects
+  fields:
+    message:
+      description: Message to post
+    title:
+      description: Header to the message posted.
+  sequence:
+    - service: image_processing.scan
+      target:
+        entity_id: image_processing.deepstack_object_driveway
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: image_processing.deepstack_object_driveway
+              above: "0"
+          sequence:
+            - service: shell_command.copy_driveway_deepstack_files
+            - service: script.post_to_home_log_with_local_attachments
+              data:
+                title: "{{ title }}"
+                message: "{{ message }}"
+                filePath: >-
+                  {{states('input_text.camera_external_folder_path')}}/driveway/deepstack_object_driveway_latest.png
+      default: []
+  mode: single
+  icon: mdi:camera
