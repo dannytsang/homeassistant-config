@@ -1693,3 +1693,80 @@
       data:
         message: Partially closing bathroom blinds
   mode: single
+- id: "1621713217274"
+  alias: "Bedroom: Motion Detected (Day)"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.bedroom_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: sun
+      before: sunset
+      after: sunrise
+  action:
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.under_bed_light_left
+          - light.under_bed_light_right
+      data:
+        brightness_pct: 100
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
+          before sunset. Turning lights on full brightness."
+  mode: single
+- id: "1621713735692"
+  alias: "Bedroom: Motion Detected (Night)"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.bedroom_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: light.turn_on
+      target:
+        entity_id:
+          - light.under_bed_light_left
+          - light.under_bed_light_right
+      data:
+        brightness_pct: 5
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
+          before sunset. Turning lights on low brightness."
+  mode: single
+- id: "1621713867762"
+  alias: "Bedroom: No Motion"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.bedroom_motion
+      from: "on"
+      to: "off"
+      for: 00:01:00
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: light.under_bed_light_left
+          state: "on"
+        - condition: state
+          entity_id: light.under_bed_light_right
+          state: "on"
+  action:
+    - service: light.turn_off
+      target:
+        entity_id:
+          - light.under_bed_light_left
+          - light.under_bed_light_right
+    - service: script.post_to_home_log
+      data:
+        message: ":bed: No motion detected for 1 minute. Turning lights off."
+  mode: single
