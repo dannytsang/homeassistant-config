@@ -1658,3 +1658,38 @@
           ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
           60) | round(2) }} hours).
   mode: single
+- id: "1621203193434"
+  alias: "Bathroom: Open Blinds In The Morning"
+  description: ""
+  trigger:
+    - platform: time
+      at: 06:30:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: opening bathroom blinds
+    - service: cover.open_cover
+      target:
+        entity_id: cover.bathroom_blinds
+  mode: single
+- id: "1621203351544"
+  alias: "Bathroom: Close Blinds At Night"
+  description: ""
+  trigger:
+    - platform: time
+      at: 00:00:00
+  condition:
+    - condition: state
+      entity_id: binary_sensor.bathroom_window
+      state: "off"
+  action:
+    - service: cover.set_cover_position
+      data:
+        position: 20
+      target:
+        entity_id: cover.bathroom_blinds
+    - service: script.post_to_home_log
+      data:
+        message: Partially closing bathroom blinds
+  mode: single
