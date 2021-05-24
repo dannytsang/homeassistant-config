@@ -15,6 +15,9 @@ class GameState:
     EVENT_BOMB_DEFUSED = "csgo_bomb_defused"
     EVENT_BOMB_EXPLODED = "csgo_bomb_exploded"
 
+    EVENT_HEALTH_LOW = "csgo_health_low"
+    EVENT_HEALTH_CRITICAL = "csgo_health_critical"
+
     EVENT_GAME_STOPPED = "csgo_game_stopped"
 
     def __init__(self, hass: HomeAssistantType):
@@ -22,15 +25,17 @@ class GameState:
 
         self._round_state = None
         self._bomb_state = None
+        self._health_state = None
 
     def load(self, data: str):
         data = json.loads(data)
         self._round_state = data["round_state"]
         self._bomb_state = data["bomb_state"]
+        self._bomb_state = data["health_state"]
 
     def dump(self) -> str:
         return json.dumps(
-            dict(round_state=self._round_state, bomb_state=self._bomb_state)
+            dict(round_state=self._round_state, bomb_state=self._bomb_state, health_state=self._health_state)
         )
 
     def update(self, data: dict):
@@ -40,6 +45,8 @@ class GameState:
                 self._check_round_state(value=data["round"]["phase"])
             if "bomb" in data["round"]:
                 self._check_bomb_state(value=data["round"]["bomb"])
+        if "player" in data:
+            self._check_health_state(value=data["player"]["state"]["health"])
         # no game state submitted, must have ended
         else:
             self._reset()
@@ -48,6 +55,7 @@ class GameState:
         if self._round_state or self._bomb_state:
             self._round_state = None
             self._bomb_state = None
+            self._health_state = None
             self._fire_event(event=self.EVENT_GAME_STOPPED)
 
     def _check_round_state(self, value: str):
@@ -68,6 +76,20 @@ class GameState:
 
         # remember current state
         self._round_state = value
+    
+    def _check_health_state(self, value: int):
+        # state hasn't changed
+        if self._health_state == value:
+            return
+
+        # report new state
+        if value <= 30 and value > 10:
+            self._fire_event(event=self.EVENT_HEALTH_LOW)
+        elif value <= 10:
+            self._fire_event(event=self.EVENT_HEALTH_CRITICAL)
+
+        # remember current state
+        self._health_state = value
 
     def _check_bomb_state(self, value: str):
         # state hasn't changed

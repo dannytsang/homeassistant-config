@@ -10,6 +10,17 @@ WEBHOOK_SCHEMA = vol.Schema(
             },
             extra=vol.ALLOW_EXTRA,
         ),
+        vol.Optional("player"): vol.Schema(
+            {
+                vol.Optional("state"): vol.Schema(
+                    {
+                        vol.Optional("health"): vol.Any(int),
+                    },
+                    extra=vol.ALLOW_EXTRA,
+                ),
+            },
+            extra=vol.ALLOW_EXTRA,
+        ),
     },
     extra=vol.ALLOW_EXTRA,
 )
