@@ -18,3 +18,13 @@ automation:
         data:
           addon: core_git_pull
     mode: single
+sensor:
+  # Travis CI build status
+  - platform: rest
+    resource: !secret travis_ci_url
+    headers:
+      Accept: application/vnd.travis-ci.2+json
+      Authorization: !secret travis_ci_token
+      Travis-API-Version: 3
+    value_template: "{{ value_json.builds[0].state }}"
+    name: "Travis CI Build Status"
