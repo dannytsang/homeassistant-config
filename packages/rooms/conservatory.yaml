@@ -1,0 +1,65 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1610234394136"
+    alias: "^Conservatory: Motion Detected And It's Dark"
+    description: ""
+    trigger:
+      - platform: state
+        to: "on"
+        entity_id: group.conservatory_motion
+        from: "off"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.conservatory_motion_light_level
+        below: "25"
+      - condition: state
+        entity_id: input_boolean.enable_conservatory_motion_trigger
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":feet: :bulb: :high_brightness: Motion detected in conservatory and it's dark ({{ states('sensor.conservatory_motion_light_level') }} lux < 25 lux). Turning on Lights."
+      - scene: scene.conservatory_turn_on_light
+    mode: single
+  - id: "1610234794461"
+    alias: "^Conservatory: No Motion Detected Dim Lights"
+    description: ""
+    trigger:
+      - platform: state
+        to: "off"
+        for: 00:01:00
+        entity_id: group.conservatory_motion
+        from: "on"
+    condition:
+      - condition: state
+        entity_id: light.conservatory
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_conservatory_motion_trigger
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
+            conservatory lights."
+      - scene: scene.conservatory_dim_light
+    mode: single
+  - id: "1610238960657"
+    alias: "^Conservatory: No Motion Turning Turn Lights Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.conservatory_motion
+        to: "off"
+        for: 00:01:30
+    condition:
+      - condition: state
+        entity_id: light.conservatory
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":no_pedestrians: No motion in conservatory. Turning lights off."
+      - scene: scene.conservatory_turn_off_light
+    mode: single

@@ -1,14 +1,18 @@
-#rest:
-#  - resource_template: >-
-#      {% set region = 'A'} %}
-#      {% set from = (utcnow().timestamp() / 1800) | round(0, 'floor') | int * 1800 } %}
-#      {% set to = from + 60 * 60 %}
-#      {% set format = '%Y-%m-%dT%H:%M:%SZ'} %}
-#      https://api.octopus.energy/v1/products/AGILE-18-02-21/electricity-tariffs/E-1R-AGILE-18-02-21-{{ region }}/standard-unit-rates?period_from={{ from | timestamp_custom(format, False) }}&period_to={{ to | timestamp_custom(format, False) }}
-#    sensor:
-#      - name: "Agile cost now"
-#        value_template: "{{ value_json.results[1].value_inc_vat }}"
-#        unit_of_measurement: "p/kWh"
-#      - name: "Agile cost next"
-#        value_template: "{{ value_json.results[0].value_inc_vat }}"
-#        unit_of_measurement: "p/kWh"
+octopusagile:
+  region_code: "A"
+  mpan: !secret octopus_mpan
+  serial: !secret octopus_serial
+  auth: !secret octopus_key
+  startdate: "2020-05-08"
+  run_devices:
+    - energy_time: 2
+      entity_id: dishwasher
+      run_before: "07:00:00"
+      run_time: 2.5
+    - energy_time: 2
+      entity_id: washing_machine
+      run_before: "07:00:00"
+      run_time: 2
+sensor:
+  # Octopus Energy
+  - platform: "octopusagile"
