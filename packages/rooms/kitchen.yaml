@@ -1,0 +1,177 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1583797341647"
+    alias: "^Kitchen: Turn Off Lights At Night"
+    description: ""
+    trigger:
+      - at: "23:30:00"
+        platform: time
+    condition: []
+    action:
+      - scene: scene.kitchen_lights_on_3
+      - service: script.post_to_home_log
+        data:
+          message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
+    mode: single
+  - id: "1606652871369"
+    alias: "^Kitchen: No Motion During Day Turn Off Lights"
+    description: ""
+    trigger:
+      - platform: state
+        to: "off"
+        for: 00:05:00
+        entity_id: group.kitchen_motion
+    condition:
+      - condition: and
+        conditions:
+          - condition: sun
+            before: sunset
+          - condition: time
+            after: "23:30:00"
+    action:
+      - scene: scene.kitchen_lights_on_3
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":no_pedestrians: No motion detected after :city_sunrise: and before
+            :city_sunset: Turning kitchen lights off (1)."
+    mode: single
+  - id: "1588198374875"
+    alias: "^Kitchen: Turn Off Lights Weekday Morning"
+    description: ""
+    trigger:
+      - platform: time
+        at: 08:50:00
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      - scene: scene.kitchen_lights_on_3
+      - data:
+          message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
+        service: script.post_to_home_log
+    mode: single
+  - id: "1606294735952"
+    alias: "^Kitchen: Turn Off Lights Weekend Morning"
+    description: ""
+    trigger:
+      - platform: time
+        at: 09:00:00
+    condition:
+      - condition: time
+        weekday:
+          - sat
+          - sun
+    action:
+      - service: light.turn_off
+        target:
+          entity_id:
+            - light.kitchen_cabinet_light
+            - light.kitchen_down_light
+      - data:
+          message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
+        service: script.post_to_home_log
+    mode: single
+  - id: "1588197104336"
+    alias: "^Kitchen: Turn On Lights (Dim)"
+    description: ""
+    trigger:
+      - event: sunset
+        platform: sun
+      - platform: time
+        at: 06:45:00
+    condition:
+      - condition: state
+        entity_id: group.all_people
+        state: home
+    action:
+      - scene: scene.kitchen_dim_kitchen_lights
+      - data:
+          message: ":bulb: :low_brightness: At least one person is home. Turning on kitchen lights on dim setting."
+        service: script.post_to_home_log
+    mode: single
+  - id: "1606158191302"
+    alias: "^Kitchen: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.kitchen_motion
+        to: "on"
+    condition:
+      - condition: or
+        conditions:
+          - condition: numeric_state
+            entity_id: light.kitchen_cabinet_light
+            attribute: brightness
+            below: "100"
+          - condition: numeric_state
+            entity_id: light.kitchen_down_light
+            attribute: brightness
+            below: "100"
+          - condition: template
+            value_template: "{{ state_attr('light.kitchen_cabinet_light', 'brightness') == none }}"
+          - condition: template
+            value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
+    action:
+      - scene: scene.kitchen_lights_on_2
+      - service: script.post_to_home_log
+        data:
+          message: ":feet: :bulb: :high_brightness: Motion detected in the kitchen ({{ states('sensor.kitchen_motion_light_level') }} & {{ states('sensor.kitchen_motion_2_light_level') }} lux). Turning lights on to full brightness."
+    mode: single
+  - id: "1606158459561"
+    alias: "^Kitchen: No Motion In The Evening After 5 Minutes"
+    description: ""
+    trigger:
+      - platform: state
+        to: "off"
+        for: 00:05:00
+        entity_id: group.kitchen_motion
+    condition:
+      - condition: sun
+        after: sunset
+      - condition: time
+        before: "23:30:00"
+    action:
+      - scene: scene.kitchen_dim_kitchen_lights
+      - service: script.post_to_home_log
+        data:
+          message: ":no_pedestrians: :bulb: :low_brightness: No motion detected after :city_sunset: and before :clock1130: Dimming kitchen lights."
+    mode: single
+  - id: "1606158610314"
+    alias: "^Kitchen: Turn Off Lights"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_motion
+        to: "off"
+        for: 00:05:00
+    condition:
+      - condition: time
+        after: "23:30"
+      - condition: sun
+        before: sunset
+    action:
+      - scene: scene.kitchen_lights_on_3
+      - service: script.post_to_home_log
+        data:
+          message: ':no_pedestrians: :clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %} 30 {% else %} {% endif %}: No motion in the kitchen after 23:30. Turning lights off.'
+    mode: single
+sensor:
+  # Aggregated stats
+  - platform: min_max
+    name: Kitchen Area Light Level
+    entity_ids:
+      - sensor.kitchen_motion_light_level
+      - sensor.kitchen_motion_2_light_level
+    type: mean
+  - platform: min_max
+    name: Kitchen Area Temperature
+    entity_ids:
+      - sensor.kitchen_motion_temperature
+      - sensor.kitchen_motion_2_temperature
+    type: mean
