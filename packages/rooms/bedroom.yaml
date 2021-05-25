@@ -1,0 +1,215 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  # Bed
+  - id: "1601641236163"
+    alias: "^Bedroom: Close Blinds When Someone Is In Bed After Sunset"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bed_occupied
+        from: "off"
+        to: "on"
+        for: 00:00:30
+    condition:
+      - condition: state
+        entity_id: cover.bedroom_blind
+        state: open
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_blind_automations
+        state: "on"
+      - condition: sun
+        after: sunset
+      - condition: state
+        entity_id: binary_sensor.bedroom_window
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_bed_presence
+        state: "on"
+    action:
+      - data:
+          title: Close bedroom blinds
+          message:
+            ":sleeping_accommodation: :window: Someone is in bed ({{states('sensor.bed_sensor')}}),
+            bedroom window is closed and it's getting late. Closing blinds."
+        service: script.post_to_home_log
+      - service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_blind
+    mode: single
+  - id: "1600127180656"
+    alias: "^Bedroom: Close Blinds Before Sunrise"
+    description: ""
+    trigger:
+      - event: sunrise
+        offset: -02:00:00
+        platform: sun
+    condition:
+      - condition: state
+        entity_id: cover.bedroom_blind
+        state: open
+    action:
+      - data:
+          message:
+            ":sunrise: Bedroom blind is open and it's nearly sunrise. Closing
+            blinds"
+        service: script.post_to_home_log
+      - service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_blind
+    mode: single
+  - id: "1615689096351"
+    alias: "^Bedroom: Window Closed And Someone Is In Bed At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_window
+        from: "on"
+        to: "off"
+        for: 00:00:30
+    condition:
+      - condition: state
+        entity_id: binary_sensor.bed_occupied
+        state: "on"
+      - condition: state
+        entity_id: cover.bedroom_blind
+        state: open
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_blind_automations
+        state: "on"
+      - condition: sun
+        after: sunset
+    action:
+      - service: script.post_to_home_log
+        data:
+          title: Close bedroom blinds
+          message:
+            ":sleeping_accommodation: :window: Bedroom window shut, someone is
+            in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
+            blinds."
+      - service: cover.close_cover
+        target:
+          entity_id: cover.bedroom_blind
+    mode: single
+  - id: "1601641292576"
+    alias: "^Bedroom: Open Blind When No One Is In Bed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bed_occupied
+        from: "on"
+        to: "off"
+        for: 00:00:30
+    condition:
+      - condition: state
+        entity_id: cover.bedroom_blind
+        state: closed
+      - condition: sun
+        after: sunrise
+        after_offset: -01:00:00
+        before: sunset
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_blind_automations
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_bed_presence
+        state: "on"
+    action:
+      - delay: 00:01:00
+      - data:
+          title: Open Blinds
+          message:
+            ":bed: :window: No one is in bed ({{states('sensor.bed_sensor')}}).
+            Opening the blinds."
+        service: script.post_to_home_log
+      - service: cover.open_cover
+        target:
+          entity_id: cover.bedroom_blind
+    mode: single
+  # TV
+  - id: "1612997966835"
+    alias: "^Bedroom: NowTv Playing"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: media_player.nowtv_stick
+        to: playing
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":tv: NowTv is playing {{ state_attr('media_player.nowtv_stick',
+            'app_name') }}"
+    mode: queued
+    max: 10
+  # Plugs / switches
+  - id: "1581800266867"
+    alias: "^Turn off Electric Blanket After 1 hour"
+    description: ""
+    trigger:
+      - entity_id: switch.blanket
+        for: 01:00:00
+        platform: state
+        to: "'on'"
+    condition: []
+    action:
+      - data: {}
+        entity_id: switch.blanket
+        service: switch.turn_off
+      - data:
+          message: Electric blanket has been on for 1 hour. Turning electric blanket off.
+        service: script.post_to_home_log
+  - id: "1615209552353"
+    alias: "^Bedroom: Leo's Bedroom Door Opens Warning"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_door
+        from: "off"
+        to: "on"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.bed_sensor
+        above: "100"
+      - condition: state
+        entity_id: group.bedroom_desk_lights
+        state: "on"
+    action:
+      - data:
+          title: Close bedroom blinds
+          message: ":boy: :door: Leo's door opened and bedroom light is on. Sending warning."
+        service: script.post_to_home_log
+      - service: script.bedroom_leos_door_opened_notification
+    mode: queued
+sensor:
+  - platform: template
+    sensors:
+      bedroom_tv_plug_current_w:
+        value_template: "{{ state_attr('switch.bedroom_tv_plug','current_power_w') | float }}"
+        friendly_name: "Bedroom TV current power"
+        unit_of_measurement: "Wh"
+        icon_template: mdi:flash
+  # Aggregated sensors
+  - platform: min_max
+    name: Bedroom Area Temperature
+    entity_ids:
+      - sensor.bedroom_motion_temperature
+      - sensor.bedroom_motion_2_temperature
+    type: mean
+  # Statistics
+  - platform: statistics
+    entity_id: sensor.bed_top_left
+    name: Bed Top Left Stat
+    sampling_size: 2000
+  - platform: statistics
+    entity_id: sensor.bed_top_right
+    name: Bed Top Right Stat
+    sampling_size: 2000
+  - platform: statistics
+    entity_id: sensor.bed_bottom_left
+    name: Bed Bottom Left Stat
+    sampling_size: 2000
+  - platform: statistics
+    entity_id: sensor.bed_bottom_right
+    name: Bed Bottom Right Stat
+    sampling_size: 2000
