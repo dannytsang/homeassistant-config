@@ -1,0 +1,34 @@
+# Created by Danny Tsang <danny@tsang.uk>
+homeassistant:
+  customize: !include customize.yaml
+  # https://github.com/BeardedTinker/Home-Assistant_Config/issues/21
+  allowlist_external_dirs:
+    - !secret camera_folder
+  media_dirs:
+    recording: !secret camera_folder
+  packages: !include_dir_named packages/
+automation:
+  - id: "1608489438291"
+    alias: "^Home Assistant: Shutdown"
+    description: ""
+    trigger:
+      - platform: homeassistant
+        event: shutdown
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: "@home_assistant shutting down."
+    mode: single
+  - id: "1608489396143"
+    alias: "^Home Assistant: Start Up"
+    description: ""
+    trigger:
+      - platform: homeassistant
+        event: start
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: "@home_assistant has started."
+    mode: single
