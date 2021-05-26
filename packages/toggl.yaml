@@ -1,0 +1,18 @@
+# Created by Danny Tsang <danny@tsang.uk>
+sensor:
+  # Get current timer
+  - platform: rest
+    name: Toggl Current Timer
+    authentication: basic
+    username: !secret toggl
+    password: api_token
+    value_template: "{{ value_json.data.description }}"
+    json_attributes:
+      - data
+    resource: https://api.track.toggl.com/api/v8/time_entries/current
+  - platform: template
+    sensors:
+      # Toggl
+      toggl_current_timer_start_time:
+        value_template: "{{ state_attr('sensor.toggl_current_timer', 'start')['start'] }}"
+        device_class: timestamp
