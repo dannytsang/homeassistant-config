@@ -162,30 +162,6 @@
         message: ""
         target: "#home_log"
       service: notify.slack_notify
-post_to_direct_notification:
-  alias: Post Direct Mesage
-  icon: mdi:slack
-  max: 10
-  mode: queued
-  fields:
-    message:
-      description: Message to post
-  sequence:
-    - condition: state
-      state: "on"
-      entity_id: input_boolean.enable_slack_direct_messages
-    - data:
-        message: "@danny @terina {{ message }}"
-        target: "#general"
-        data:
-          blocks: []
-      service: notify.slack_notify
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: "{{ message }}"
-    - service: notify.mobile_app_terina_s_phone
-      data:
-        message: "{{ message }}"
 test:
   alias: Test
   sequence:
@@ -270,30 +246,6 @@ bathroom_flash_light:
             data: {}
             entity_id: light.bathroom_light
   mode: single
-post_to_home_log_with_local_attachments:
-  alias: Post To Home Log With Local Attachments
-  fields:
-    message:
-      description: Message to post
-    title:
-      description: (optional)Header to the message posted.
-    filePath:
-      description: (optional)File path to attach to post.
-  sequence:
-    - condition: state
-      entity_id: input_boolean.enable_slack_notifications
-      state: "on"
-    - service: notify.slack_notify
-      data:
-        message: "{{ message }}"
-        title: "{{ title }}"
-        target: "#home_log"
-        data:
-          file:
-            path: "{{ filePath }}"
-  mode: queued
-  icon: mdi:slack
-  max: 10
 porch_override_notification:
   alias: Porch Override Notification
   sequence:
@@ -311,28 +263,6 @@ porch_override_notification:
               color_name: white
             entity_id: light.porch
     - scene: scene.porch_light_on
-  mode: single
-post_to_home_log_with_url:
-  alias: Post To Home Log With URL
-  fields:
-    message:
-      description: Message to post
-    title:
-      description: (optional)Header to the message posted.
-    url:
-      description: (optional)Link to file.
-  sequence:
-    - condition: state
-      entity_id: input_boolean.enable_slack_notifications
-      state: "on"
-    - service: notify.slack_notify
-      data:
-        message: "{{ message }}"
-        title: "{{ title }}"
-        target: "#home_log"
-        data:
-          file:
-            url: "{{ url }}"
   mode: single
 morning_script_turn_on_magic_mirror:
   alias: Morning Script Turn on Magic Mirror
