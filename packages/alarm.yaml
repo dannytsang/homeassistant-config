@@ -1,5 +1,29 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  - id: "1587680439011"
+    alias: "^Alarm: Arm Overnight Home Mode"
+    description: ""
+    trigger:
+      - at: 00:00:00
+        platform: time
+    condition:
+      - condition: state
+        entity_id: group.all_people
+        state: home
+      - condition: state
+        entity_id: group.alarmed_doors_and_windows
+        state: "off"
+    action:
+      - service: alarm_control_panel.alarm_arm_home
+        data: {}
+        target:
+          entity_id: alarm_control_panel.stevenage_alarm
+      - data:
+          message:
+            ":couple: home. Turning alarm on in home mode (door sensors only) :bell:
+            :house:"
+        service: script.post_to_home_log
+    mode: single
   - id: "1614197981954"
     alias: "^Alarm: Disconnected"
     description: ""
