@@ -1,0 +1,215 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1592062695452"
+    alias: "^Stairs: Motion Detected And MagicMirror Is Off"
+    description: ""
+    trigger:
+      - entity_id: group.lounge_motion
+        platform: state
+        to: "on"
+      - entity_id: binary_sensor.stairs_motion
+        platform: state
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: switch.magic_mirror_screen
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_magic_mirror_automations
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_stairs_motion_trigger
+        state: "on"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.magic_mirror_screen
+      - data:
+          message:
+            ":paw_prints: :mirror: Motion detected in lounge/stairs. Turning
+            on Maggic Mirror."
+        service: script.post_to_home_log
+  - id: "1587595847618"
+    alias: "^Stairs: No Motion Detected"
+    description: ""
+    trigger:
+      - entity_id: group.upstairs_motion
+        for: 00:01:00
+        platform: state
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stairs_motion_trigger
+        state: "on"
+    action:
+      - scene: scene.landing_turn_light_off
+      - data:
+          message:
+            ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
+            stairs light off."
+        service: script.post_to_home_log
+    mode: single
+  - id: "1591553945554"
+    alias: "^Stairs: No Montion At Night Turn Off Magic Mirror"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.stairs_motion
+        for: 00:03:00
+        platform: state
+        to: "off"
+    condition:
+      - after: "23:00"
+        before: "5:00"
+        condition: time
+      - condition: state
+        entity_id: switch.magic_mirror_screen
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_magic_mirror_automations
+        state: "on"
+    action:
+      - type: turn_off
+        device_id: 8dece5066db945139d9c8f3b2b8a5314
+        entity_id: switch.magic_mirror_screen
+        domain: switch
+      - data:
+          message:
+            ":clock11: :no_pedestrians: :mirror: Turning off Maggic Mirror because
+            no motion was detected."
+        service: script.post_to_home_log
+    mode: single
+  # Stairs light
+  - id: "1598726353326"
+    alias: "^Stairs: Landing Dark, Before Kids Bed Time And Motion Detected"
+    description: ""
+    trigger:
+      - entity_id: group.upstairs_motion
+        from: "off"
+        platform: state
+        to: "on"
+    condition:
+      - condition: and
+        conditions:
+          - below: "5"
+            condition: numeric_state
+            entity_id: sensor.stairs_motion_light_level
+          - condition: state
+            entity_id: input_boolean.enable_stairs_motion_trigger
+            state: "on"
+          - after: 08:00:00
+            before: "19:30:00"
+            condition: time
+    action:
+      - scene: scene.stairs_turn_light_on
+      - data:
+          message: ":feet: Motion detected on the landing and it's dark. Turning stairs lights on at 60%"
+        service: script.post_to_home_log
+    mode: single
+  - id: "1587595659605"
+    alias: "^Stairs: Dark, Leo's Door Open And Motion Detected"
+    description: ""
+    trigger:
+      - entity_id: group.upstairs_motion
+        from: "off"
+        platform: state
+        to: "on"
+    condition:
+      - condition: and
+        conditions:
+          - below: "5"
+            condition: numeric_state
+            entity_id: sensor.stairs_motion_light_level
+          - condition: state
+            entity_id: input_boolean.enable_stairs_motion_trigger
+            state: "on"
+          - after: "19:30:00"
+            before: 08:00:00
+            condition: time
+          - condition: state
+            entity_id: binary_sensor.leos_door
+            state: "on"
+    action:
+      - scene: scene.landing_dim_light
+      - data:
+          message:
+            ":feet: :door: :low_brightness: Motion detected on the landing and
+            it's dark. Turning stairs lights on 10%"
+        service: script.post_to_home_log
+    mode: single
+  - id: "1613866698304"
+    alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected"
+    description: ""
+    trigger:
+      - entity_id: group.upstairs_motion
+        from: "off"
+        platform: state
+        to: "on"
+    condition:
+      - condition: and
+        conditions:
+          - below: "5"
+            condition: numeric_state
+            entity_id: sensor.stairs_motion_light_level
+          - condition: state
+            entity_id: input_boolean.enable_stairs_motion_trigger
+            state: "on"
+          - after: "19:30:00"
+            before: "23:59:59"
+            condition: time
+          - condition: state
+            entity_id: binary_sensor.leos_door
+            state: "off"
+    action:
+      - scene: scene.stairs_turn_light_on
+      - data:
+          message:
+            ":feet: :door: :high_brightness: Motion detected on the landing, Leo's
+            door is closed and it's dark. Turning stairs lights on."
+        service: script.post_to_home_log
+    mode: single
+  - id: "1615849889104"
+    alias: "^Stairs: Light On And Leo's Door Opens Before Midnight"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_door
+        from: "off"
+        to: "on"
+    condition:
+      - condition: time
+        after: "19:30:00"
+        before: "23:59:59"
+      - condition: state
+        entity_id: light.stairs
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":feet: :door: :low_brightness: Leo's door opened after bed time and
+            the stairs light are on. Dimming lights to 10%"
+      - scene: scene.landing_dim_light
+    mode: single
+  - id: "1615850302527"
+    alias: "^Stairs: Light On And Leo's Door Closed Before Midnight"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_door
+        from: "on"
+        to: "off"
+    condition:
+      - condition: time
+        after: "19:30:00"
+        before: "23:59:59"
+      - condition: state
+        entity_id: light.stairs
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":door: :high_brightness: Leo's door closed after bed time and the
+            stairs light are on. Turn light onto full brightness."
+      - scene: scene.stairs_turn_light_on
+    mode: single
