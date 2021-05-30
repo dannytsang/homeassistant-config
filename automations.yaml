@@ -621,35 +621,6 @@
           off goXLR"
     - service: script.office_turn_off_backup_drive
   mode: single
-- id: "1608655560832"
-  alias: "3D Printer: Print Started"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.octoprint_printing
-      from: "off"
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - wait_for_trigger:
-        - platform: numeric_state
-          entity_id: sensor.octoprint_time_remaining
-          above: "0"
-      timeout: "60"
-    - service: script.post_to_home_log
-      data:
-        message:
-          ':printer: 3D printer has started. Estimated time to completion: {{((now().strftime("%s")
-          | int + (states("sensor.octoprint_time_remaining") | int)) | timestamp_custom("%H:%M:%S"))}}
-          ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
-          60) | round(2) }} hours).'
-    - service: switch.turn_on
-      target:
-        entity_id: switch.prusa_fan
-  mode: single
 - id: "1608655663801"
   alias: "3D Printer: Errored"
   description: ""
@@ -671,23 +642,6 @@
       data:
         title: 3D printer error
         message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
-  mode: single
-- id: "1609349959402"
-  alias: "3D Printer: Print Finished And Hot End Cooled"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octoprint_actual_tool0_temp
-      below: "50"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-    - service: switch.turn_off
-      target:
-        entity_id: switch.prusa_fan
   mode: single
 - id: "1609598244704"
   alias: "Kitchen: No Motion During Day 2"
