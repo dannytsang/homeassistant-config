@@ -1738,8 +1738,61 @@
           entity_id: binary_sensor.shed_door
           state: "on"
   action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":paw_prints: :door: Shed or conservatory door open and motion detected
+          in the back garden. :camera: Capturing image for processing"
     - service: script.stairs_camera_process_image
       data:
         title: Shed or Conservatory Door Open
         message: Motion Detected In Back Garden.
+  mode: single
+- id: "1622374233310"
+  alias: "Office: Close Office Curtains At Night"
+  description: ""
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: -01:00:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":city_sunset: :window: It's getting dark, closing office blinds."
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.office_window
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":warning: :window: Office window is still open. Waiting until
+                  it's closed before closing curtains. :warning:"
+      default:
+        - service: script.office_close_curtains
+    - wait_for_trigger:
+        - platform: state
+          entity_id: binary_sensor.office_window
+          to: "off"
+      timeout: 05:00:00
+    - service: script.post_to_home_log
+      data:
+        message: ":white_check_mark: :window: Office window closed. Closing curtains."
+    - service: script.office_close_curtains
+  mode: single
+- id: "1622374444832"
+  alias: "Office: Open Curtains In The Morning"
+  description: ""
+  trigger:
+    - platform: time
+      at: 08:00:00
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":clock8: Opening office curtains."
+    - service: script.office_open_curtains
   mode: single
