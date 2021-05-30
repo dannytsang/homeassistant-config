@@ -23,7 +23,7 @@
       service: script.post_to_home_log
   mode: single
 - id: "1582406380123"
-  alias: Turn Off Downstairs Lights at 2am
+  alias: "Timed: Turn Off Downstairs Lights at 2am"
   description: ""
   trigger:
     - at: 02:00:00
@@ -31,6 +31,7 @@
   condition: []
   action:
     - scene: scene.turn_off_downstairs_lights
+  mode: single
 - id: "1582456019025"
   alias: Turn Off House When Danny Leaves
   description: ""
@@ -1582,7 +1583,10 @@
   trigger:
     - platform: time
       at: 06:30:00
-  condition: []
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_bathroom_blind_automations
+      state: "on"
   action:
     - service: script.post_to_home_log
       data:
