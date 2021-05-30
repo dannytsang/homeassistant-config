@@ -102,7 +102,7 @@ automation:
     action:
       - scene: scene.stairs_turn_light_on
       - data:
-          message: ":feet: Motion detected on the landing and it's dark. Turning stairs lights on at 60%"
+          message: ":feet: Motion detected upstairs and it's dark. Turning stairs light on."
         service: script.post_to_home_log
     mode: single
   - id: "1587595659605"
@@ -129,12 +129,24 @@ automation:
             entity_id: binary_sensor.leos_door
             state: "on"
     action:
-      - scene: scene.landing_dim_light
-      - data:
-          message:
-            ":feet: :door: :low_brightness: Motion detected on the landing and
-            it's dark. Turning stairs lights on 10%"
-        service: script.post_to_home_log
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_select.home_mode
+              state: No Children
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":feet: :door: :high_brightness: Motion detected upstairs, it's
+                dark and in No Children Mode. Turning stairs light on."
+            - scene: scene.stairs_turn_light_on
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: >-
+                :feet: :door: :low_brightness: Motion detected upstairs and it's
+                dark. Turning stairs lights on 10%
+          - scene: scene.landing_dim_light
     mode: single
   - id: "1613866698304"
     alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected"
@@ -163,8 +175,8 @@ automation:
       - scene: scene.stairs_turn_light_on
       - data:
           message:
-            ":feet: :door: :high_brightness: Motion detected on the landing, Leo's
-            door is closed and it's dark. Turning stairs lights on."
+            ":feet: :door: :high_brightness: Motion detected upstairs, Leo's
+            door is closed and it's dark. Turning stairs light on."
         service: script.post_to_home_log
     mode: single
   - id: "1615849889104"
@@ -182,6 +194,11 @@ automation:
       - condition: state
         entity_id: light.stairs
         state: "on"
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: No Children
     action:
       - service: script.post_to_home_log
         data:
