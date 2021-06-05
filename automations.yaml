@@ -1724,9 +1724,14 @@
         message: ":city_sunset: :window: It's getting dark, closing office blinds."
     - choose:
         - conditions:
-            - condition: state
-              entity_id: binary_sensor.office_window
-              state: "on"
+            - condition: or
+              conditions:
+                - condition: state
+                  entity_id: binary_sensor.office_window_right
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.office_window_left
+                  state: "on"
           sequence:
             - service: script.post_to_home_log
               data:
@@ -1866,11 +1871,11 @@
         entity_id: switch.office_fan
   mode: single
 - id: "1622666920056"
-  alias: "Office: Close Curtains When Window Is Closed At Night"
+  alias: "Office: Office Window Closed At Night"
   description: ""
   trigger:
     - platform: state
-      entity_id: binary_sensor.office_window
+      entity_id: group.office_windows
       from: "on"
       to: "off"
   condition:
@@ -1883,7 +1888,9 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":window: :city_sunset: Office window closed and it's dark. Closing curtains."
+        message:
+          ":window: :city_sunset: Office window closed and it's dark. Closing
+          curtains."
     - service: script.office_close_curtains
   mode: single
 - id: "1622667464880"
@@ -1906,7 +1913,9 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":window: :city_sunset: Bedroom window closed and it's dark. Closing blinds."
+        message:
+          ":window: :city_sunset: Bedroom window closed and it's dark. Closing
+          blinds."
     - service: cover.close_cover
       target:
         entity_id: cover.bedroom_blind
@@ -1925,8 +1934,8 @@
     - service: script.post_to_home_log
       data:
         message:
-          ":warning: The following entrances are still open: {% for entity in\
-          \ state_attr('group.alarmed_doors_and_windows','entity_id') %}{% if states(entity)\
-          \ == 'on' %}\n  {{ '* ' ~ state_attr(entity, 'friendly_name') }}\n  {% endif\
-          \ %}{% endfor %}"
+          ':warning: :door: :window: The following entrances are still open:
+          {% for entity in state_attr(''group.alarmed_doors_and_windows'',''entity_id'')
+          %}{% if states(entity) == ''on'' %}{{ ''\n* '' ~ state_attr(entity, ''friendly_name'')
+          }} {% endif %}{% endfor %}'
   mode: single
