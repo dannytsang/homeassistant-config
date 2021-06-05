@@ -1,5 +1,38 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  - id: "1605925028960"
+    alias: "^Ashlee's Room: Close Blinds"
+    description: ""
+    trigger:
+      - platform: time
+        at: "19:00:00"
+    condition:
+      - condition: state
+        entity_id: cover.ashlees_blinds
+        state: open
+      - condition: state
+        entity_id: input_boolean.enable_ashlees_blind_automations
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.ashlees_window
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":warning: :window: Ashlee's window is still open. Waiting until
+                    it's closed before closing blinds. :warning:"
+        default:
+          - service: cover.close_cover
+            target:
+              entity_id: cover.ashlees_blinds
+    mode: single
   - id: "1605775729191"
     alias: "^Ashlee's Room: Turn Off Lamp After An Hour"
     description: ""
