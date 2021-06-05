@@ -14,7 +14,7 @@ automation:
           message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
     mode: single
   - id: "1606652871369"
-    alias: "^Kitchen: No Motion During Day Turn Off Lights"
+    alias: "^Kitchen: No Motion During Day"
     description: ""
     trigger:
       - platform: state
@@ -35,6 +35,29 @@ automation:
           message:
             ":no_pedestrians: No motion detected after :city_sunrise: and before
             :city_sunset: Turning kitchen lights off (1)."
+    mode: single
+  - id: "1609598244704"
+    alias: "^Kitchen: No Motion During Day 2"
+    description: ""
+    trigger:
+      - platform: state
+        to: "off"
+        for: 00:05:00
+        entity_id: group.kitchen_motion
+    condition:
+      - condition: and
+        conditions:
+          - condition: time
+            after: 00:00:00
+          - condition: sun
+            before: sunset
+    action:
+      - scene: scene.kitchen_lights_on_3
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":no_pedestrians: No motion detected after :city_sunrise: and before
+            :city_sunset: Turning kitchen lights off."
     mode: single
   - id: "1588198374875"
     alias: "^Kitchen: Turn Off Lights Weekday Morning"

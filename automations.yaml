@@ -643,29 +643,6 @@
         title: 3D printer error
         message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
   mode: single
-- id: "1609598244704"
-  alias: "Kitchen: No Motion During Day 2"
-  description: ""
-  trigger:
-    - platform: state
-      to: "off"
-      for: 00:05:00
-      entity_id: group.kitchen_motion
-  condition:
-    - condition: and
-      conditions:
-        - condition: time
-          after: 00:00:00
-        - condition: sun
-          before: sunset
-  action:
-    - scene: scene.kitchen_lights_on_3
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":no_pedestrians: No motion detected after :city_sunrise: and before
-          :city_sunset: Turning kitchen lights off."
-  mode: single
 - id: "1610314735644"
   alias: "Bathroom: No Motion Detected And Bathroom Door Is Open 2"
   description: ""
@@ -945,25 +922,6 @@
     - service: script.post_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the kitchen!"
-  mode: single
-- id: "1613321560216"
-  alias: "3D Printer: Finished Printing"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.octoprint_printing
-      from: "on"
-      to: "off"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ':printer: :white_check_mark: Completed 3D printing. Total time: {{
-          (((states("sensor.octoprint_time_elapsed") | int) / 60) | float) / 60 }} hours.'
   mode: single
 - id: "1613324300208"
   alias: "UPS: Computer UPS Unavailable"
