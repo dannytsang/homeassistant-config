@@ -388,15 +388,12 @@ office_turn_on_external_hard_drive:
         - condition: state
           entity_id: switch.external_hdd
           state: "off"
-        - condition: state
-          entity_id: group.jd_computer
-          state: "on"
         - condition: time
           weekday:
             - sun
     - service: script.post_to_home_log
       data:
-        message: :floppy_disk
+        message: ":floppy_disk: Turned on external hard drive."
     - service: switch.turn_on
       target:
         entity_id: switch.external_hdd
@@ -451,25 +448,4 @@ front_garden_door_bell_camera_process_image:
                 message: "{{ message }}"
                 filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
       default: []
-  mode: single
-office_close_curtains:
-  alias: Office Close Curtains
-  sequence:
-    - service: ifttt.trigger
-      data:
-        event: close_office_left_curtain
-    - service: ifttt.trigger
-      data:
-        event: close_office_right_curtain
-  mode: single
-  icon: mdi:blinds
-office_open_curtains:
-  alias: Office Open Curtains
-  sequence:
-    - service: ifttt.trigger
-      data:
-        event: open_office_right_curtain
-    - service: ifttt.trigger
-      data:
-        event: open_office_left_curtain
   mode: single
