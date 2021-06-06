@@ -1832,11 +1832,11 @@
         entity_id: cover.bedroom_blind
   mode: single
 - id: "1622667704047"
-  alias: "Time: Doors or Windows Still Open At Night"
+  alias: "Time: Warn Doors or Windows Still Open At Night"
   description: ""
   trigger:
     - platform: time
-      at: "22:00:00"
+      at: "21:00:00"
   condition:
     - condition: state
       entity_id: group.alarmed_doors_and_windows
@@ -1876,4 +1876,52 @@
     - service: cover.close_cover
       target:
         entity_id: cover.ashlees_blinds
+  mode: single
+- id: "1622933176882"
+  alias: "Time: Alert Doors or Windows Still Open At Night"
+  description: ""
+  trigger:
+    - platform: time
+      at: "22:00:00"
+  condition:
+    - condition: state
+      entity_id: group.alarmed_doors_and_windows
+      state: "on"
+  action:
+    - service: script.post_to_direct_notification
+      data:
+        message:
+          ':warning: :door: :window: The following entrances are still open:
+          {% for entity in state_attr(''group.alarmed_doors_and_windows'',''entity_id'')
+          %}{% if states(entity) == ''on'' %}{{ ''\n* '' ~ state_attr(entity, ''friendly_name'')
+          }} {% endif %}{% endfor %}'
+    - service: script.post_to_home_log
+      data:
+        message:
+          ':warning: :door: :window: The following entrances are still open:
+          {% for entity in state_attr(''group.alarmed_doors_and_windows'',''entity_id'')
+          %}{% if states(entity) == ''on'' %}{{ ''\n* '' ~ state_attr(entity, ''friendly_name'')
+          }} {% endif %}{% endfor %}'
+  mode: single
+- id: "1622934382699"
+  alias: "Bathroom: Window Closed At Night"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bathroom_window
+      from: "on"
+      to: "off"
+  condition:
+    - condition: time
+      after: 00:00:00
+      before: 06:30:00
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":window: :city_sunset: Bathroom window closed and it's dark. Closing
+          blinds."
+    - service: cover.close_cover
+      target:
+        entity_id: cover.bathroom_blinds
   mode: single
