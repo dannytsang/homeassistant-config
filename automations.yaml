@@ -1925,3 +1925,85 @@
       target:
         entity_id: cover.bathroom_blinds
   mode: single
+- id: "1622973276606"
+  alias: "Office: Arm Office Door"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: input_boolean.arm_office_door
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.office_door
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":warning: :alarm: Unable to arm office door because the door is
+                  not closed. Disabling alarm."
+            - service: input_boolean.turn_off
+              target:
+                entity_id: input_boolean.arm_office_door
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":bell: :door: Office door armed."
+  mode: single
+- id: "1622973478458"
+  alias: "Office: Trigger Armed Door"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.office_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: input_boolean.arm_office_door
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":rotating_light: :door: Office door armed and was opened:rotating_light:"
+    - service: script.conservatory_camera_process_image
+      data:
+        title: Office door alarm triggered
+        message: Office door alarm triggered.
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.arm_office_door
+  mode: queued
+  max: 10
+- id: "1623087278802"
+  alias: "3D Printer: Check If Dark And Printing"
+  description: ""
+  trigger:
+    - platform: time_pattern
+      hours: "*"
+      seconds: "*"
+      minutes: "0"
+    - platform: sun
+      event: sunrise
+  condition:
+    - condition: state
+      entity_id: light.prusa
+      state: "off"
+    - condition: numeric_state
+      entity_id: sensor.conservatory_motion_light_level
+      below: "100"
+    - condition: state
+      entity_id: binary_sensor.octoprint_printing
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":city_sunset: :printer: It's getting dark and 3D printer is printing.
+          Turning on lights."
+    - scene: scene.3d_printer_light_on
+  mode: single
