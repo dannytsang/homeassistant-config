@@ -53,26 +53,6 @@ automation:
             ':printer: :white_check_mark: Completed 3D printing. Total time: {{
             (((states("sensor.octoprint_time_elapsed") | int) / 60) | float) / 60 }} hours.'
     mode: single
-  - id: "1609349959402"
-    alias: "^3D Printer: Print Finished And Hot End Cooled"
-    description: ""
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.octoprint_actual_tool0_temp
-        below: "50"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_3d_printer_automations
-        state: "on"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message: ":printer: :snowflake: Hot end cooled down. Turning off extruder fan and light."
-      - service: switch.turn_off
-        target:
-          entity_id: switch.prusa_fan
-      - scene: scene.3d_printer_light_off
-    mode: single
 input_boolean:
   enable_3d_printer_automations:
     name: Enable 3D printer automations
