@@ -81,6 +81,33 @@ automation:
           message: Turned off office Fan after 1 hour.
         service: script.post_to_home_log
     mode: single
+  - id: "1622666920056"
+    alias: "^Office: Window Closed At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.office_windows
+        from: "on"
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_curtain_automations
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: sun
+            after: sunset
+            after_offset: -01:00:00
+          - condition: sun
+            before: sunrise
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":window: :city_sunset: Office window closed and it's dark. Closing
+            curtains."
+      - service: script.office_close_curtains
+    mode: single
 group:
   office_windows:
     name: Office Windows
