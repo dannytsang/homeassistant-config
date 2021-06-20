@@ -2011,3 +2011,59 @@
               ":printer: :sunrise: Printing started after sunrise. Not turning
               on printer light."
   mode: single
+- id: "1624194131454"
+  alias: "Bedroom: TV Turned On During Bright Day"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bedroom_tv_powered_on
+      from: "off"
+      to: "on"
+  condition:
+    - condition: numeric_state
+      entity_id: binary_sensor.bedroom_motion_2
+      above: "60"
+    - condition: state
+      entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+    - condition: state
+      entity_id: binary_sensor.bedroom_window
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
+          blinds."
+    - service: cover.set_cover_position
+      target:
+        entity_id: cover.bedroom_blind
+      data:
+        position: 20
+  mode: single
+- id: "1624194439043"
+  alias: "Bedroom: TV Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.bedroom_tv_powered_on
+      from: "on"
+      to: "off"
+  condition:
+    - condition: numeric_state
+      entity_id: cover.bedroom_blind
+      attribute: current_position
+      below: "100"
+    - condition: state
+      entity_id: input_boolean.enable_bedroom_blind_automations
+      state: "on"
+    - condition: sun
+      before: sunset
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":tv: :bed: Bedroom TV turned off. Opening Blinds."
+    - service: cover.open_cover
+      target:
+        entity_id: cover.bedroom_blind
+  mode: single
