@@ -187,6 +187,14 @@ automation:
         service: script.post_to_home_log
       - service: script.bedroom_leos_door_opened_notification
     mode: queued
+binary_sensor:
+  - platform: template
+    sensors:
+      bedroom_tv_powered_on:
+        value_template: "{{ state_attr('switch.bedroom_tv_plug','current_power_w') | float > 45 }}"
+        friendly_name: "Bedroom TV Powered On"
+        device_class: "power"
+        icon_template: "mdi:television-classic{{ '' if state_attr('switch.bedroom_tv_plug','current_power_w') | float > 45 else '-off' }}"
 input_boolean:
   enable_bed_presence:
     name: Enable Bed Sensor
@@ -198,6 +206,13 @@ input_boolean:
     name: Enable motion trigger for bedroom
     icon: mdi:motion-sensor
 sensor:
+  - platform: template
+    sensors:
+      bedroom_tv_plug_current_w:
+        value_template: "{{ state_attr('switch.bedroom_tv_plug','current_power_w') | float }}"
+        friendly_name: "Bedroom TV current power"
+        unit_of_measurement: "Wh"
+        icon_template: mdi:flash
   # Aggregated sensors
   - platform: min_max
     name: Bedroom Area Light Level
