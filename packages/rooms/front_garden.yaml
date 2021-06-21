@@ -64,6 +64,26 @@ automation:
             battery"
         service: script.post_to_home_log
     mode: single
+  # Motion
+  - id: "1613482098461"
+    alias: "^Front Garden: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.front_garden_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_front_garden_motion_trigger
+        state: "on"
+    action:
+      - service: script.driveway_camera_process_objects
+        data:
+          title: Snapshot
+          message: Motion Detected In Front Garden
+    mode: queued
+    max: 10
 input_boolean:
   enable_front_door_trigger:
     name: Enable front door sensor
