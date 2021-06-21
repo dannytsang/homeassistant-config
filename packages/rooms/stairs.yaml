@@ -1,5 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Motion
   - id: "1592062695452"
     alias: "^Stairs: Motion Detected And MagicMirror Is Off"
     description: ""
@@ -79,7 +80,6 @@ automation:
             no motion was detected."
         service: script.post_to_home_log
     mode: single
-  # Stairs light
   - id: "1598726353326"
     alias: "^Stairs: Upstairs Dark, Before Kids Bed Time And Motion Detected"
     description: ""
@@ -183,6 +183,35 @@ automation:
             door is closed and it's dark. Turning stairs light on."
         service: script.post_to_home_log
     mode: single
+  - id: "1617735237453"
+    alias: "^Stairs: Motion Detected And No One Home"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.stairs_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: group.all_people
+            state: not_home
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: alarm_control_panel.stevenage_alarm
+                state: disarmed
+      - condition: state
+        entity_id: input_boolean.enable_home_presence_detection
+        state: "on"
+    action:
+      - service: script.stairs_camera_process_image
+        data:
+          title: Snapshot
+          message: Motion Detected On Stairs And Alarm Armed
+    mode: single
+  # Contact sensor
   - id: "1615849889104"
     alias: "^Stairs: Light On And Leo's Door Opens Before Midnight"
     description: ""

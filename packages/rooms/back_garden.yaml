@@ -1,0 +1,30 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1622309854294"
+    alias: "^Back Garden: Door Open And Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.back_garden_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: binary_sensor.conservatory_door
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.shed_door
+            state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":paw_prints: :door: Shed or conservatory door open and motion detected
+            in the back garden. :camera: Capturing image for processing"
+      - service: script.conservatory_camera_process_image
+        data:
+          title: Snapshot
+          message: Motion Detected In Back Garden And Shed/Conservatory Door Open
+    mode: single
