@@ -1481,6 +1481,24 @@
     - condition: sun
       before: sunset
       after: sunrise
+    - condition: or
+      conditions:
+        - condition: template
+          value_template:
+            'value_template: "{{ state_attr(''light.under_bed_light_left'',
+            ''brightness'') == none }}"'
+        - condition: template
+          value_template:
+            'value_template: "{{ state_attr(''light.under_bed_light_right'',
+            ''brightness'') == none }}"'
+        - condition: numeric_state
+          entity_id: light.under_bed_light_left
+          below: "100"
+          attribute: brightness
+        - condition: numeric_state
+          entity_id: light.under_bed_light_right
+          below: "100"
+          attribute: brightness
   action:
     - service: script.post_to_home_log
       data:
@@ -1503,6 +1521,24 @@
     - condition: state
       entity_id: input_boolean.enable_bedroom_motion_trigger
       state: "on"
+    - condition: or
+      conditions:
+        - condition: template
+          value_template:
+            'value_template: "{{ state_attr(''light.under_bed_light_left'',
+            ''brightness'') == none }}"'
+        - condition: template
+          value_template:
+            'value_template: "{{ state_attr(''light.under_bed_light_right'',
+            ''brightness'') == none }}"'
+        - condition: numeric_state
+          entity_id: light.under_bed_light_left
+          below: "9"
+          attribute: brightness
+        - condition: numeric_state
+          entity_id: light.under_bed_light_right
+          below: "9"
+          attribute: brightness
   action:
     - service: script.post_to_home_log
       data:
