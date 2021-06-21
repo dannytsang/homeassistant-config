@@ -122,6 +122,46 @@ image_processing:
         confidence: 25
     source:
       - entity_id: camera.upstairs
+script:
+  driveway_camera_process_objects:
+    alias: Driveway camera process objects
+    fields:
+      message:
+        description: Message to post
+      title:
+        description: Header to the message posted.
+    sequence:
+      - service: image_processing.scan
+        target:
+          entity_id: image_processing.deepstack_object_driveway
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 10
+          milliseconds: 0
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: image_processing.deepstack_object_driveway
+                above: "0"
+            sequence:
+              - service: shell_command.copy_driveway_deepstack_files
+              - service: script.post_to_home_log_with_local_attachments
+                data:
+                  title: "{{ title }}"
+                  message: "{{ message }}"
+                  filePath: >-
+                    {{states('input_text.camera_external_folder_path')}}/driveway/deepstack_object_driveway_latest.png
+              - service: script.post_to_home_log
+                data:
+                  message: >-
+                    The following objects detected:{% for object in state_attr('image_processing.deepstack_object_driveway','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: ":heavy_check_mark: Nothing detected in the driveway."
+    mode: single
+    icon: mdi:camera
 shell_command:
   copy_conservatory_deepstack_files: !secret copy_conservatory_deepstack_files_command
   copy_driveway_deepstack_files: !secret copy_driveway_deepstack_files_command
