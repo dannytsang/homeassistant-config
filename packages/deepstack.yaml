@@ -158,7 +158,7 @@ script:
         default:
           - service: script.post_to_home_log
             data:
-              message: ":heavy_check_mark: Nothing detected in conservatory."
+              message: ":white_check_mark: Nothing detected in conservatory."
     mode: single
     icon: mdi:camera
   driveway_camera_process_objects:
@@ -197,9 +197,67 @@ script:
         default:
           - service: script.post_to_home_log
             data:
-              message: ":heavy_check_mark: Nothing detected in the driveway."
+              message: ":white_check_mark: Nothing detected in the driveway."
     mode: single
     icon: mdi:camera
+  front_garden_door_bell_camera_process_image:
+    alias: Front Garden Doorbell Process Camera
+    fields:
+      message:
+        description: Message to post
+      title:
+        description: Header to the message posted.
+    sequence:
+      - service: script.post_to_home_log
+        data:
+          message: ":door: :camera: doorbell camera updated 2."
+      - service: input_text.set_value
+        data:
+          value:
+            front_door_{{ now ().year }}_{{ now ().month }}_{{ now().day }}_{{ now().hour
+            }}_{{ now ().minute }}.jpg
+        target:
+          entity_id: input_text.latest_doorbell_photo_file
+      - service: input_text.set_value
+        entity_id: input_text.doorbell_last_video_id
+        data_template:
+          value: "{{ state_attr('camera.front_door', 'last_video_id') | string }}"
+      - service: image_processing.scan
+        target:
+          entity_id: image_processing.deepstack_object_front_door
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - service: script.post_to_home_log_with_local_attachments
+        data:
+          title: Doorbell rung
+          message: Something detected
+          filePath:
+            camera/front_door/front_door_{{ now().year }}_{{ now().month }}_{{
+            now().day }}_{{ now().hour }}_{{ now().minute }}.jpg
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: image_processing.deepstack_object_front_door
+                above: "0"
+            sequence:
+              - service: shell_command.copy_front_door_deepstack_files
+              - service: script.post_to_home_log_with_local_attachments
+                data:
+                  title: "{{ title }}"
+                  message: "{{ message }}"
+                  filePath: "{{states('input_text.camera_external_folder_path')}}/front_door/deepstack_object_front_door_latest.png"
+              - service: script.post_to_home_log
+                data:
+                  message: >-
+                    The following objects detected:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: ":white_check_mark: Nothing detected at the front door."
+    mode: single
   lounge_camera_process_objects:
     alias: Lounge camera process objects
     fields:
@@ -235,7 +293,7 @@ script:
         default:
           - service: script.post_to_home_log
             data:
-              message: ":heavy_check_mark: Nothing detected in the lounge."
+              message: ":white_check_mark: Nothing detected in the lounge."
     mode: single
     icon: mdi:camera
   stairs_camera_process_image:
@@ -273,7 +331,7 @@ script:
         default:
           - service: script.post_to_home_log
             data:
-              message: ":heavy_check_mark: Nothing detected on the stairs."
+              message: ":white_check_mark: Nothing detected on the stairs."
     mode: single
     icon: mdi:camera
 shell_command:
