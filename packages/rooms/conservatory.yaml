@@ -43,6 +43,14 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
+      - condition: or
+        conditions:
+          - condition: numeric_state
+            entity_id: light.conservatory
+            attribute: brightness
+            below: "9"
+          - condition: template
+            value_template: "{{ state_attr('light.conservatory', 'brightness') == none }}"
     action:
       - service: script.post_to_home_log
         data:
