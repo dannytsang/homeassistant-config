@@ -345,6 +345,25 @@ binary_sensor:
         friendly_name: "Bedroom TV Powered On"
         device_class: "power"
         icon_template: "mdi:television-classic{{ '' if state_attr('switch.bedroom_tv_plug','current_power_w') | float > 40 else '-off' }}"
+      bed_occupied:
+        icon_template: "mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | int >= 4000 or states('sensor.bed_top_right') | int >= 10500 or states('sensor.bed_bottom_left') | int >= 1000 or states('sensor.bed_bottom_right') | int >= 8000 else '' }}"
+        friendly_name: Bed occupied sensor regardless where on the bed.
+        device_class: occupancy
+        value_template: >-
+          {% if states('sensor.bed_top_left') | int >= 4000 or states('sensor.bed_top_right') | int >= 11000 or states('sensor.bed_bottom_left') | int >= 1000 or states('sensor.bed_bottom_right') | int >= 2000 %}
+            on
+          {% else %}
+            off
+          {% endif %}
+        attribute_templates:
+          number_in_bed: >-
+            {% if states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_top_right') | int < 11000 %}
+              1
+            {% elif states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_top_right') | int > 11000 %}
+              2
+            {% else %}
+              0
+            {% endif %}
 input_boolean:
   enable_bed_presence:
     name: Enable Bed Sensor
