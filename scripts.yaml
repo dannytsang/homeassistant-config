@@ -1,400 +1,293 @@
-"1588857720303":
+'1588857720303':
   alias: Morning Script
   sequence:
-    - data: {}
-      entity_id: input_boolean.enable_morning_routine
-      service: input_boolean.turn_off
-    - data:
-        message:
-          ":paw_prints: :sunrise: Motion detected in the Lounge in the morning. Running
-          morning routine"
-        target: "#home_log"
-      service: notify.slack_notify
-    - device_id: 5a2c3c40a5dda5671e2edd177e2541fd
-      domain: alarm_control_panel
+  - data: {}
+    entity_id: input_boolean.enable_morning_routine
+    service: input_boolean.turn_off
+  - service: script.post_to_home_log
+    data:
+      message: ':paw_prints: :sunrise: Motion detected in the Lounge in the morning.
+        Running morning routine.'
+  - service: alarm_control_panel.alarm_disarm
+    target:
       entity_id: alarm_control_panel.stevenage_alarm
-      type: disarm
-      code: ""
-    - data:
-        data:
-          attachments:
-            - color: "#36a64f"
-              text: Turning alarm off
-              title: ":no_bell:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
-    - service: script.morning_script_turn_on_magic_mirror
-      data: {}
-    - data:
-        message: ":clock9: :sunrise: Morning routine complete."
-        target: "#home_log"
-      service: notify.slack_notify
+  - service: script.post_to_home_log
+    data:
+      message: ':no_bell: Turning alarm off.'
+  - service: script.morning_script_turn_on_magic_mirror
+    data: {}
+  - service: script.post_to_home_log
+    data:
+      message: ':clock9: :sunrise: Morning routine complete.'
   mode: single
-"1588939391030":
+'1588939391030':
   alias: Everybody Leave Home
   sequence:
-    - data:
-        message:
-          ":running: :house: :dancer: Everyone has left the house. Running the
-          following:"
-      service: script.post_to_home_log
-    - data:
-        message: ":running: :house: :mirror: Turning off Magic Mirror."
-      service: script.post_to_home_log
-    - type: turn_off
-      device_id: 8dece5066db945139d9c8f3b2b8a5314
+  - data:
+      message: ':running: :house: :dancer: Everyone has left the house. Running the
+        following:'
+    service: script.post_to_home_log
+  - data:
+      message: ':running: :house: :mirror: Turning off Magic Mirror.'
+    service: script.post_to_home_log
+  - service: switch.turn_off
+    target:
       entity_id: switch.magic_mirror_screen
-      domain: switch
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off office lights."
-    - type: turn_off
-      device_id: 57fbb31d1d0148b09fa8cac02579ff92
-      entity_id: light.office_light
-      domain: light
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off office fan"
-    - type: turn_off
-      device_id: 6670051512fe44daa725f099f661e23c
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off office lights.'
+  - scene: scene.office_turn_off_all_lights
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off office fan'
+  - service: switch.turn_off
+    target:
       entity_id: switch.office_fan
-      domain: switch
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off kitchen lights."
-    - scene: scene.kitchen_lights_on_3
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off lounge lights."
-    - scene: scene.lounge_lights_off
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off stairs light."
-    - type: turn_off
-      device_id: 9d5a2644cdf541248d79efc729c7b35c
-      entity_id: light.stairs
-      domain: light
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off conservatory light."
-    - type: turn_off
-      device_id: 28186b62f0274699bc8b73d59f0abd24
-      entity_id: light.conservatory_light
-      domain: light
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off kitchen lights.'
+  - scene: scene.kitchen_lights_on_3
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off lounge lights.'
+  - scene: scene.lounge_lights_off
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off stairs light.'
+  - scene: scene.landing_turn_light_off
+  - service: script.post_to_home_log
+    data:
+      message: ':running: :house: :bulb: Turning off conservatory light.'
+  - scene: scene.conservatory_turn_off_light
   mode: single
-"1589124084566":
-  alias: JD Computer Off
-  sequence:
-    - data:
-        data:
-          attachments:
-            - color: "#ab0000"
-              text: JD computer turned off. Running moringing routine
-              title: ":computer:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
-    - type: turn_off
-      device_id: 5f30eea6f1b043fd91425d730912fa64
-      entity_id: switch.monitor
-      domain: switch
-    - data:
-        data:
-          attachments:
-            - color: "#ab0000"
-              text: Turning monitor off
-              title: ":tv:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
-    - device_id: 02282691e7b14d4393f498bf81ebaee2
-      domain: light
-      entity_id: light.office_desk_left
-      type: turn_off
-    - device_id: 02282691e7b14d4393f498bf81ebaee2
-      domain: light
-      entity_id: light.office_desk_left
-      type: turn_off
-    - device_id: e8d107fbd2c84a3aa18fa117b34301a9
-      domain: light
-      entity_id: light.office_desk_right
-      type: turn_off
-    - device_id: 8185583f9d6c4f5484b9b803b41c6430
-      domain: light
-      entity_id: light.office_desk_top
-      type: turn_off
-    - data:
-        data:
-          attachments:
-            - color: "#ab0000"
-              text: Turning office lights off
-              title: ":bulb:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
-  mode: single
-"1589652888991":
+'1589652888991':
   alias: Someone Arrives Home
   sequence:
-    - data:
-        message: ":house: :running: Someone arrives home. Running the arive home routine:"
-        target: "#home_log"
-      service: notify.slack_notify
-    - data: {}
-      entity_id: alarm_control_panel.ring_alarm
-      service: alarm_control_panel.alarm_disarm
-    - data:
-        data:
-          attachments:
-            - color: "#1109ad"
-              text: Turning alarm off
-              title: ":no_bell:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
-    - data:
-        data:
-          attachments:
-            - color: "#1109ad"
-              text: Turning On Magic Mirror
-              title: ":white_large_square: :house:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
+  - data:
+      message: ':house: :running: Someone arrives home. Running the arive home routine:'
+      target: '#home_log'
+    service: notify.slack_notify
+  - data: {}
+    entity_id: alarm_control_panel.ring_alarm
+    service: alarm_control_panel.alarm_disarm
+  - data:
+      data:
+        attachments:
+        - color: '#1109ad'
+          text: Turning alarm off
+          title: ':no_bell:'
+      message: ''
+      target: '#home_log'
+    service: notify.slack_notify
+  - data:
+      data:
+        attachments:
+        - color: '#1109ad'
+          text: Turning On Magic Mirror
+          title: ':white_large_square: :house:'
+      message: ''
+      target: '#home_log'
+    service: notify.slack_notify
 test:
   alias: Test
   sequence:
-    - service: light.turn_on
-      data:
-        color_name: cyan
-        flash: short
-        brightness: 255
-      target:
-        entity_id: light.office_light
+  - service: light.turn_on
+    data:
+      color_name: cyan
+      flash: short
+      brightness: 255
+    target:
+      entity_id: light.office_light
   mode: single
 post_direct_message_to_danny:
   alias: Post Direct Message to Danny
   sequence:
-    - condition: state
-      entity_id: input_boolean.enable_mobile_direct_notifications
-      state: "on"
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: "{{ message }}"
-        title: "{{ title }}"
+  - condition: state
+    entity_id: input_boolean.enable_mobile_direct_notifications
+    state: 'on'
+  - service: notify.mobile_app_dannys_phone
+    data:
+      message: '{{ message }}'
+      title: '{{ title }}'
   mode: single
 police_effect:
   alias: Police Effect
   sequence:
-    - repeat:
-        count: "10"
-        sequence:
-          - scene: scene.landing_set_light_to_blue
-          - scene: scene.landing_set_light_to_red
-    - scene: scene.landing_dim_light
-    - scene: scene.landing_turn_light_off
+  - repeat:
+      count: '10'
+      sequence:
+      - scene: scene.landing_set_light_to_blue
+      - scene: scene.landing_set_light_to_red
+  - scene: scene.landing_dim_light
+  - scene: scene.landing_turn_light_off
   mode: single
 front_door_open_notification:
   alias: Front Door Open Notification
   sequence:
-    - scene: scene.office_front_door_open
+  - scene: scene.office_front_door_open
   mode: single
 front_garden_motion_notification:
   alias: Front Garden Motion Notification
   sequence:
-    - repeat:
-        count: "4"
-        sequence:
-          - scene: scene.office_front_garden_motion_notification
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 1
-              milliseconds: 0
-          - scene: scene.office_turn_off_light_notification
+  - repeat:
+      count: '4'
+      sequence:
+      - scene: scene.office_front_garden_motion_notification
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - scene: scene.office_turn_off_light_notification
   mode: single
 front_door_closed_notification:
   alias: Front Door Closed Notification
   sequence:
-    - scene: scene.office_turn_off_light_notification
-  mode: single
-kitchen_reset_notification_main:
-  alias: Kitchen Reset Notification Main
-  sequence:
-    - condition: state
-      entity_id: light.kitchen_down_light
-      state: "on"
-    - scene: scene.kitchen_dim_kitchen_lights
-    - type: turn_on
-      device_id: 69a713c1ef9b27f13cd5637b7d11e6fb
-      entity_id: light.kitchen_down_light
-      domain: light
-      brightness_pct: 60
+  - scene: scene.office_turn_off_light_notification
   mode: single
 bathroom_flash_light:
   alias: Bathroom Flash Light
   sequence:
-    - repeat:
-        count: "2"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness_pct: 100
-            entity_id: light.bathroom_light
-          - service: light.turn_off
-            data: {}
-            entity_id: light.bathroom_light
+  - repeat:
+      count: '2'
+      sequence:
+      - service: light.turn_on
+        data:
+          brightness_pct: 100
+        entity_id: light.bathroom_light
+      - service: light.turn_off
+        data: {}
+        entity_id: light.bathroom_light
   mode: single
 porch_override_notification:
   alias: Porch Override Notification
   sequence:
-    - repeat:
-        count: "2"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness: 255
-              color_name: blue
-            entity_id: light.porch
-          - service: light.turn_on
-            data:
-              brightness: 178
-              color_name: white
-            entity_id: light.porch
-    - scene: scene.porch_light_on
-  mode: single
-morning_script_turn_on_magic_mirror:
-  alias: Morning Script Turn on Magic Mirror
-  sequence:
-    - condition: state
-      entity_id: input_boolean.enable_magic_mirror_automations
-      state: "on"
-    - device_id: 8dece5066db945139d9c8f3b2b8a5314
-      domain: switch
-      entity_id: switch.magic_mirror_screen
-      type: turn_on
-    - data:
+  - repeat:
+      count: '2'
+      sequence:
+      - service: light.turn_on
         data:
-          attachments:
-            - color: "#36a64f"
-              text: Turning On Magic Mirror
-              title: ":mirror: :house:"
-        message: ""
-        target: "#home_log"
-      service: notify.slack_notify
+          brightness: 255
+          color_name: blue
+        entity_id: light.porch
+      - service: light.turn_on
+        data:
+          brightness: 178
+          color_name: white
+        entity_id: light.porch
+  - scene: scene.porch_light_on
   mode: single
 bedroom_leos_door_opened_notification:
   alias: Bedroom Leo's Door Opened Notification
   sequence:
-    - repeat:
-        count: "2"
-        sequence:
-          - service: light.turn_on
-            data:
-              color_name: blue
-            target:
-              entity_id:
-                - light.bedroom_left_lamp
-                - light.bedroom_right_lamp
-          - service: light.turn_off
-            target:
-              entity_id:
-                - light.bedroom_left_lamp
-                - light.bedroom_right_lamp
-    - scene: scene.bedroom_desk_lamps_on
+  - repeat:
+      count: '2'
+      sequence:
+      - service: light.turn_on
+        data:
+          color_name: blue
+        target:
+          entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
+  - scene: scene.bedroom_desk_lamps_on
   mode: single
 bedroom_ashlees_door_opened_notification:
   alias: Bedroom Ashlee's Door Opened Notification
   sequence:
-    - repeat:
-        count: "2"
-        sequence:
-          - service: light.turn_on
-            data:
-              color_name: pink
-            target:
-              entity_id:
-                - light.bedroom_left_lamp
-                - light.bedroom_right_lamp
-          - service: light.turn_off
-            target:
-              entity_id:
-                - light.bedroom_left_lamp
-                - light.bedroom_right_lamp
-    - scene: scene.bedroom_desk_lamps_on
+  - repeat:
+      count: '2'
+      sequence:
+      - service: light.turn_on
+        data:
+          color_name: pink
+        target:
+          entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
+      - service: light.turn_off
+        target:
+          entity_id:
+          - light.bedroom_left_lamp
+          - light.bedroom_right_lamp
+  - scene: scene.bedroom_desk_lamps_on
   mode: single
 counter_strike_bomb_planted:
   alias: Counter Strike Bomb Planted
   sequence:
-    - repeat:
-        until:
-          - condition: or
-            conditions:
-              - condition: state
-                entity_id: group.jd_computer
-                state: "off"
-        sequence:
-          - service: light.turn_on
-            data:
-              color_name: red
-              brightness_pct: 100
-            target:
-              entity_id: light.office_light
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 1
-              milliseconds: 0
-          - service: light.turn_off
-            target:
-              entity_id: light.office_light
+  - repeat:
+      until:
+      - condition: or
+        conditions:
+        - condition: state
+          entity_id: group.jd_computer
+          state: 'off'
+      sequence:
+      - service: light.turn_on
+        data:
+          color_name: red
+          brightness_pct: 100
+        target:
+          entity_id: light.office_light
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - service: light.turn_off
+        target:
+          entity_id: light.office_light
   mode: single
 echo_text_to_speech:
   alias: Echo Text To Speech
   sequence:
-    - service: notify.alexa_media
+  - service: notify.alexa_media
+    data:
+      target: media_player.office
+      message: testing
       data:
-        target: media_player.office
-        message: testing
-        data:
-          type: tts
+        type: tts
   mode: queued
   icon: mdi:amazon-alexa
   max: 10
 office_turn_off_backup_drive:
   alias: Office Turn Off Backup Drive
   sequence:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: switch.external_hdd
-          state: "on"
-        - condition: state
-          entity_id: group.jd_computer
-          state: not_home
-    - service: script.post_to_home_log
-      data:
-        message: ":floppy_disk: Turning off external HDD"
-    - service: switch.turn_off
-      target:
-        entity_id: switch.external_hdd
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: switch.external_hdd
+      state: 'on'
+    - condition: state
+      entity_id: group.jd_computer
+      state: not_home
+  - service: script.post_to_home_log
+    data:
+      message: ':floppy_disk: Turning off external HDD'
+  - service: switch.turn_off
+    target:
+      entity_id: switch.external_hdd
   mode: single
 office_turn_on_external_hard_drive:
   alias: Office Turn On External Hard Drive
   sequence:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: switch.external_hdd
-          state: "off"
-        - condition: time
-          weekday:
-            - sun
-    - service: script.post_to_home_log
-      data:
-        message: ":floppy_disk: Turned on external hard drive."
-    - service: switch.turn_on
-      target:
-        entity_id: switch.external_hdd
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: switch.external_hdd
+      state: 'off'
+    - condition: time
+      weekday:
+      - sun
+  - service: script.post_to_home_log
+    data:
+      message: ':floppy_disk: Turned on external hard drive.'
+  - service: switch.turn_on
+    target:
+      entity_id: switch.external_hdd
   mode: single
