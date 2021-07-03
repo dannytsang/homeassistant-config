@@ -9,14 +9,9 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: binary_sensor.conservatory_door
-            state: "on"
-          - condition: state
-            entity_id: binary_sensor.shed_door
-            state: "on"
+      - condition: state
+        entity_id: group.back_doors
+        state: "on"
     action:
       - service: script.post_to_home_log
         data:
@@ -27,4 +22,13 @@ automation:
         data:
           title: Snapshot
           message: Motion Detected In Back Garden And Shed/Conservatory Door Open
-    mode: single
+    mode: queued
+    max: 10
+
+group:
+  back_doors:
+    name: Alarmed Doors and Windows
+    icon: mdi:door
+    entities:
+      - binary_sensor.conservatory_door
+      - binary_sensor.shed_door
