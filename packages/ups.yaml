@@ -1,6 +1,19 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   # Lounge
+  - id: "1591553714916"
+    alias: "^UPS: Lounge Fully Charged"
+    description: ""
+    trigger:
+      - entity_id: sensor.lounge_ups_status_data
+        from: OL CHRG
+        platform: state
+        to: OL
+    condition: []
+    action:
+      - data:
+          message: ":battery: :thumbsup: Lounge UPS battery is fully charged."
+        service: script.post_to_home_log
   - id: "1590564212294"
     alias: "^UPS: Lounge Charging"
     description: ""
@@ -18,6 +31,19 @@ automation:
         service: script.post_to_direct_notification
     mode: single
   # PC
+  - id: "1613324300208"
+    alias: "^UPS: Computer UPS Unavailable"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: sensor.computer_ups_status
+        to: unavailable
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: PC UPS is offline.
+    mode: single
   - id: "1613246389183"
     alias: "^UPS: Office PC Charging"
     description: ""
@@ -49,6 +75,20 @@ automation:
         service: script.post_to_home_log
     mode: single
   # Server
+  - id: "1591729661691"
+    alias: "^UPS: Office Fully Charged"
+    description: ""
+    trigger:
+      - entity_id: sensor.server_ups_status_data
+        from: OL CHRG
+        platform: state
+        to: OL
+    condition: []
+    action:
+      - data:
+          message: ":battery: :thumbsup: Server UPS battery is fully charged."
+        service: script.post_to_home_log
+    mode: single
   - id: "1591705737293"
     alias: "^UPS: Server Charging"
     description: ""
