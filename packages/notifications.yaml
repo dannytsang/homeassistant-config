@@ -1,5 +1,8 @@
 # Created by Danny Tsang <danny@tsang.uk>
 input_boolean:
+  enable_mobile_notifications:
+    name: Enable Mobile Notifications
+    icon: mdi:cellphone-information
   enable_mobile_direct_notifications:
     name: Enable Mobile Direct Notifications
     icon: mdi:cellphone-information
@@ -9,36 +12,13 @@ input_boolean:
   enable_slack_direct_messages:
     name: Enable Slack Direct Messages
     icon: mdi:slack
+
 notify:
   - name: slack_notify
     platform: slack
     api_key: !secret slack
     default_channel: "#home_log"
 script:
-  post_to_direct_notification:
-    alias: Post Direct Mesage
-    icon: mdi:slack
-    max: 10
-    mode: queued
-    fields:
-      message:
-        description: Message to post
-    sequence:
-      - condition: state
-        state: "on"
-        entity_id: input_boolean.enable_slack_direct_messages
-      - data:
-          message: "@danny @terina {{ message }}"
-          target: "#general"
-          data:
-            blocks: []
-        service: notify.slack_notify
-      - service: notify.mobile_app_dannys_phone
-        data:
-          message: "{{ message }}"
-      - service: notify.mobile_app_terina_s_phone
-        data:
-          message: "{{ message }}"
   post_to_home_log:
     alias: Post To Home Log
     icon: mdi:slack
