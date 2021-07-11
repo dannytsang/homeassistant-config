@@ -458,14 +458,18 @@
     - service: script.post_to_direct_notification
       data:
         message:
-          ":warning: :door: :unlock: No one is home and not all the alarmed doors
-          / windows are closed."
+          ":warning: :door: :window: The following entrances are still open:
+          {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+          %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+          }} {% endif %}{% endfor %}"
         title: No one is home and couldn't turn on the alarm
-    - service: script.post_to_home_log
+    - service: script.post_to_direct_notification
       data:
         message:
-          ":warning: :door: :unlock: No one is home and not all the alarmed doors
-          / windows are closed."
+          ":warning: :door: :window: The following entrances are still open:
+          {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+          %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+          }} {% endif %}{% endfor %}"
         title: No one is home and couldn't turn on the alarm
   mode: single
 - id: "1595678900777"
@@ -512,9 +516,60 @@
       at: "12:00:00"
   condition: []
   action:
-    - service: script.post_to_home_log
+    - service: notify.mobile_app_dannys_phone
       data:
-        message: testing testing
+        message: 🔔 Alarm is on and turning off devices.
+        title: 🏃‍♂️🏃‍♀️🏡 No one is home
+        data:
+          actions:
+            - title: Disarm
+              action: disarm
+            - title: Leave On
+              action: leave_on
+            - title: Disarm & Leave On
+              action: disarm_leave_on
+    - service: notify.mobile_app_terina_s_phone
+      data:
+        message: 🔔 Alarm is on and turning off devices.
+        title: 🏃‍♂️🏃‍♀️🏡 No one is home
+        data:
+          actions:
+            - title: Disarm
+              action: disarm
+            - title: Leave On
+              action: leave_on
+            - title: Disarm & Leave On
+              action: disarm_leave_on
+    - wait_for_trigger:
+        - platform: event
+          event_type: mobile_app_notification_action
+      timeout: "60"
+      continue_on_timeout: false
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "TEST: Mobile action: disarm"
+        - conditions:
+            - condition: template
+              value_template: "{{ wait.trigger.event.data.action == 'leave_on' }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "TEST: Mobile action: leave on"
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ wait.trigger.event.data.action == 'disarm_leave_on'
+                }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "TEST: Mobile action: disarm and leave on"
+      default: []
   mode: single
 - id: "1604998439600"
   alias: "House: Water detected"
@@ -1187,7 +1242,7 @@
       default: []
   mode: single
 - id: "1595524992208"
-  alias: "People: No One Home And Lock"
+  alias: "People: No One Home And Locked"
   description: ""
   trigger:
     - entity_id: group.all_people
@@ -1210,19 +1265,75 @@
     - service: alarm_control_panel.alarm_arm_away
       data: {}
       entity_id: alarm_control_panel.stevenage_alarm
-    - data:
-        message:
-          ":information_source: :house_with_garden: :bell: No one is home. Alarm
-          turned on with all sensors enabled."
-      service: script.post_to_home_log
-    - service: script.post_to_direct_notification
-      data:
-        message:
-          ":information_source: :house_with_garden: :bell: No one is home. Alarm
-          turned on with all sensors on."
-        title: No One Home
-    - service: script.1588939391030
-      data: {}
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "on"
+          sequence:
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: Alarm armed and turning off devices.
+                title: No One Home
+                data:
+                  actions:
+                    - title: Disarm
+                      action: disarm
+                    - title: Leave On
+                      action: leave_on
+                    - title: Disarm & Leave On
+                      action: disarm_leave_on
+            - service: notify.mobile_app_terina_s_phone
+              data:
+                title: No One Home
+                message: Alarm armed and turning off devices.
+                data:
+                  actions:
+                    - title: Disarm
+                      action: disarm
+                    - title: Leave On
+                      action: leave_on
+                    - title: Disarm & Leave On
+                      action: disarm_leave_on
+            - wait_for_trigger:
+                - platform: event
+                  event_type: mobile_app_notification_action
+              timeout: "300"
+              continue_on_timeout: true
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
+                  sequence:
+                    - service: alarm_control_panel.alarm_disarm
+                      target:
+                        entity_id: alarm_control_panel.stevenage_alarm
+                    - service: script.post_to_home_log
+                      data:
+                        message: Disarming alarm.
+                - conditions:
+                    - condition: template
+                      value_template: "{{ wait.trigger.event.data.action == 'leave_on' }}"
+                  sequence:
+                    - service: script.post_to_home_log
+                      data:
+                        message: Leaving devices on.
+                - conditions:
+                    - condition: template
+                      value_template:
+                        "{{ wait.trigger.event.data.action == 'disarm_leave_on'
+                        }}"
+                  sequence:
+                    - service: alarm_control_panel.alarm_disarm
+                      target:
+                        entity_id: alarm_control_panel.stevenage_alarm
+                    - service: script.post_to_home_log
+                      data:
+                        message: Disarming alarm and skipping turning off devices.
+              default:
+                - service: script.1588939391030
+      default:
+        - service: script.1588939391030
   mode: single
 - id: "1619254173098"
   alias: "Leo's Room: Window Closed And Bed Occupied At Night"
@@ -1505,12 +1616,14 @@
     - condition: state
       entity_id: input_boolean.enable_bedroom_blind_automations
       state: "on"
-    - condition: state
-      entity_id: cover.bedroom_blind
-      state: open
     - condition: sun
       before: sunrise
       after: sunset
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: cover.bedroom_blind
+          state: closed
   action:
     - service: script.post_to_home_log
       data:
@@ -1742,23 +1855,70 @@
     - condition: state
       entity_id: input_boolean.enable_bedroom_blind_automations
       state: "on"
-    - condition: state
-      entity_id: binary_sensor.bedroom_window
-      state: "off"
     - condition: sun
       before: sunset
       after: sunrise
   action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
-          blinds."
-    - service: cover.set_cover_position
-      target:
-        entity_id: cover.bedroom_blind
-      data:
-        position: 20
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.bedroom_window
+              state: "on"
+          sequence:
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: Do you want to close the blinds?
+                data:
+                  actions:
+                    - title: "Yes"
+                      action: close_bedroom_blinds
+                    - title: "No"
+                      action: ignore
+                title: 📺🛌TV On & Window Is Open
+            - wait_for_trigger:
+                - platform: event
+                  event_type: mobile_app_notification_action
+              timeout: "120"
+              continue_on_timeout: true
+            - choose:
+                - conditions:
+                    - condition: template
+                      value_template:
+                        "{{ wait.trigger.event.data.action == 'close_bedroom_blinds'
+                        }}"
+                  sequence:
+                    - service: cover.set_cover_position
+                      target:
+                        entity_id: cover.bedroom_blind
+                      data:
+                        position: 20
+                    - service: script.post_to_home_log
+                      data:
+                        message: ":window: Closing bedroom blinds"
+                - conditions:
+                    - condition: template
+                      value_template: "{{ wait.trigger.event.data.action == 'ignore' }}"
+                  sequence: []
+              default: []
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.bedroom_window
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
+                  blinds."
+            - service: cover.set_cover_position
+              target:
+                entity_id: cover.bedroom_blind
+              data:
+                position: 20
+      default: []
   mode: single
 - id: "1624194439043"
   alias: "Bedroom: TV Turned Off"
@@ -1870,4 +2030,35 @@
           ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
           for 1 minute. Turning stairs light off."
     - scene: scene.stairs_light_2_off
+  mode: single
+- id: "1625924056779"
+  alias: Mobile Notification Action Router
+  description: ""
+  trigger:
+    - platform: event
+      event_type: mobile_app_notification_action
+      event_data: {}
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'action_very' }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "TEST: Mobile action: Very"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'action_mod' }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "TEST: Mobile action: Mod"
+      default:
+        - service: script.post_to_home_log
+          data:
+            message:
+              ":warning: :flying_saucer: Unknown mobile action received :flying_saucer:
+              :warning:"
   mode: single
