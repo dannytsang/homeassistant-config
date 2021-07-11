@@ -184,6 +184,29 @@ automation:
         data:
           message: ':no_pedestrians: :clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %} 30 {% else %} {% endif %}: No motion in the kitchen after 23:30. Turning lights off.'
     mode: single
+  - id: "1619356833117"
+    alias: "^Kitchen: Turn Off Coffee Machine"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: switch.coffee_machine
+        from: "off"
+        to: "on"
+        for: 01:00:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_coffee_machine_automations
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":coffee: Coffee machine has been on for 1 hour. Turning off coffee
+            machine."
+      - service: switch.turn_off
+        target:
+          entity_id: switch.coffee_machine
+    mode: single
 input_boolean:
   enable_coffee_machine_automations:
     name: Enable coffee machine automations
