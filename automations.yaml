@@ -153,33 +153,6 @@
           :computer: is connected. Turning office light off."
     - scene: scene.office_main_light_off
   mode: single
-- id: "1587806619052"
-  alias: "Alarm: Arm Overnight No One Home"
-  description: ""
-  trigger:
-    - at: 01:00:00
-      platform: time
-  condition:
-    - condition: state
-      entity_id: person.danny
-      state: not_home
-    - condition: state
-      entity_id: person.terina
-      state: not_home
-    - condition: state
-      entity_id: binary_sensor.conservatory_door
-      state: "off"
-  action:
-    - service: alarm_control_panel.alarm_arm_away
-      data: {}
-      target:
-        entity_id: alarm_control_panel.stevenage_alarm
-    - data:
-        message:
-          ":running: :dancer: are away. Turning alarm on in away mode :bell:
-          :house:"
-      service: script.post_to_home_log
-  mode: single
 - id: "1587833877434"
   alias: "Conservatory: Door Open At Night"
   description: ""
@@ -711,35 +684,6 @@
         message: TV turned off for 10 minutes. Turning lounge lights off.
     - scene: scene.lounge_lights_off
   mode: single
-- id: "1610918759041"
-  alias: "Lounge: Restart Harmony Hub"
-  description: ""
-  trigger:
-    - platform: time
-      at: 03:00:00
-  condition:
-    - condition: time
-      weekday:
-        - mon
-    - condition: state
-      entity_id: binary_sensor.tv_powered_on
-      state: "off"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":TV: Restarting Harmony hub."
-    - service: switch.turn_off
-      target:
-        entity_id: switch.harmony_hub_plug
-    - delay:
-        hours: 0
-        minutes: 1
-        seconds: 0
-        milliseconds: 0
-    - service: switch.turn_on
-      target:
-        entity_id: switch.harmony_hub_plug
-  mode: single
 - id: "1611063957341"
   alias: "Lounge: Server Fan Running Longer Than 1 Hour"
   description: ""
@@ -1268,6 +1212,22 @@
     - choose:
         - conditions:
             - condition: state
+              entity_id: group.external_doors_and_windows
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                service: script.post_to_direct_notification
+                data:
+                  message:
+                    ":warning: :door: :window: The following entrances are still
+                    open: {% for entity in state_attr('group.external_doors_and_windows','entity_id')
+                    %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+                    }} {% endif %}{% endfor %}"
+      default: []
+    - choose:
+        - conditions:
+            - condition: state
               entity_id: input_boolean.enable_mobile_direct_notifications
               state: "on"
           sequence:
@@ -1279,7 +1239,7 @@
                   actions:
                     - title: Disarm
                       action: disarm
-                    - title: Leave On
+                    - title: Devices On
                       action: leave_on
                     - title: Disarm & Leave On
                       action: disarm_leave_on
@@ -1411,26 +1371,6 @@
       data:
         message: Turned on GoXLR.
     - service: script.office_turn_on_external_hard_drive
-  mode: single
-- id: "1619873649348"
-  alias: "3D Printer: 50% Complete"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octoprint_job_percentage
-      above: "50"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          3D printer is 50% complete and due to finish at {{((now().strftime("%s")
-          | int + (states("sensor.octoprint_time_remaining") | int)) | timestamp_custom("%H:%M:%S"))}}
-          ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
-          60) | round(2) }} hours).
   mode: single
 - id: "1621203193434"
   alias: "Bathroom: Open Blinds In The Morning"

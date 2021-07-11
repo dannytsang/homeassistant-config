@@ -10,6 +10,26 @@ octoprint:
   bed: true
   number_of_tools: 1
 automation:
+  - id: "1619873649348"
+    alias: "^3D Printer: 50% Complete"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.octoprint_job_percentage
+        above: "50"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_3d_printer_automations
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            3D printer is 50% complete and due to finish at {{((now().strftime('%s')
+            | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
+            ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
+            60) | round(2) }} hours).
+    mode: single
   - id: "1613321560216"
     alias: "^3D Printer: Finished Printing"
     description: ""
@@ -25,9 +45,7 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message:
-            ':printer: :white_check_mark: Completed 3D printing. Total time: {{
-            (((states("sensor.octoprint_time_elapsed") | int) / 60) | float) / 60 }} hours.'
+          message: ":printer: :white_check_mark: Completed 3D printing. Total time: {{ (((states('sensor.octoprint_time_elapsed') | int) / 60) | float) / 60 }} hours."
     mode: single
 input_boolean:
   enable_3d_printer_automations:

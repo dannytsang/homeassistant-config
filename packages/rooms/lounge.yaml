@@ -73,6 +73,35 @@ automation:
       - data: {}
         service: script.1588857720303
     mode: single
+  - id: "1610918759041"
+    alias: "^Lounge: Restart Harmony Hub"
+    description: ""
+    trigger:
+      - platform: time
+        at: 03:00:00
+    condition:
+      - condition: time
+        weekday:
+          - mon
+      - condition: state
+        entity_id: binary_sensor.tv_powered_on
+        state: "off"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":TV: Restarting Harmony hub."
+      - service: switch.turn_off
+        target:
+          entity_id: switch.harmony_hub_plug
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
+      - service: switch.turn_on
+        target:
+          entity_id: switch.harmony_hub_plug
+    mode: single
   - id: "1610388245160"
     alias: "^Lounge: TV Turned Off"
     description: ""
