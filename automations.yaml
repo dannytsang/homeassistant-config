@@ -2076,6 +2076,9 @@
     - platform: state
       entity_id: binary_sensor.lounge_motion_2
       to: "on"
+    - platform: state
+      entity_id: binary_sensor.lounge_motion_3
+      to: "on"
   condition:
     - condition: and
       conditions:
@@ -2084,10 +2087,10 @@
           state: "on"
         - condition: or
           conditions:
-            - below: "25"
+            - below: "30"
               condition: numeric_state
               entity_id: sensor.lounge_motion_light_level
-            - below: "20"
+            - below: "25"
               condition: numeric_state
               entity_id: sensor.lounge_motion_2_light_level
         - condition: or
@@ -2101,15 +2104,19 @@
               attribute: brightness
               below: "190"
             - condition: template
-              value_template: "{{ state_attr('light.lounge_left_lamp', 'brightness') == none }}"
+              value_template:
+                "{{ state_attr('light.lounge_left_lamp', 'brightness')
+                == none }}"
             - condition: template
-              value_template: "{{ state_attr('light.lounge_right_lamp', 'brightness') == none }}"
+              value_template:
+                "{{ state_attr('light.lounge_right_lamp', 'brightness')
+                == none }}"
   action:
     - data:
         message:
-          ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge and it's dark ({{ states('sensor.lounge_motion_light_level')
-          }} & {{ states('sensor.lounge_motion_2_light_level') }} lux < 20-25 lux). Turning lounge
-          lights on."
+          ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
+          and it's dark ({{ states('sensor.lounge_motion_light_level') }} & {{ states('sensor.lounge_motion_2_light_level')
+          }} lux < 20-25 lux). Turning lounge lights on."
       service: script.post_to_home_log
     - scene: scene.lounge_lights
   mode: queued
