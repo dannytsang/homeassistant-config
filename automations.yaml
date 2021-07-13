@@ -1791,35 +1791,10 @@
                 data:
                   actions:
                     - title: "Yes"
-                      action: close_bedroom_blinds
+                      action: set_bedroom_blinds_20
                     - title: "No"
                       action: ignore
                 title: 📺🛌TV On & Window Is Open
-            - wait_for_trigger:
-                - platform: event
-                  event_type: mobile_app_notification_action
-              timeout: "120"
-              continue_on_timeout: true
-            - choose:
-                - conditions:
-                    - condition: template
-                      value_template:
-                        "{{ wait.trigger.event.data.action == 'close_bedroom_blinds'
-                        }}"
-                  sequence:
-                    - service: cover.set_cover_position
-                      target:
-                        entity_id: cover.bedroom_blind
-                      data:
-                        position: 20
-                    - service: script.post_to_home_log
-                      data:
-                        message: ":window: Closing bedroom blinds"
-                - conditions:
-                    - condition: template
-                      value_template: "{{ wait.trigger.event.data.action == 'ignore' }}"
-                  sequence: []
-              default: []
         - conditions:
             - condition: state
               entity_id: binary_sensor.bedroom_window
@@ -1931,11 +1906,18 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ trigger.event.data.action == 'action_very' }}"
+              value_template:
+                "{{ trigger.event.data.action == 'set_bedroom_blinds_20'
+                }}"
           sequence:
             - service: script.post_to_home_log
               data:
-                message: "TEST: Mobile action: Very"
+                message: ":window: Closing bedroom blinds"
+            - service: cover.set_cover_position
+              target:
+                entity_id: cover.bedroom_blind
+              data:
+                position: 20
         - conditions:
             - condition: template
               value_template: "{{ trigger.event.data.action == 'action_mod' }}"
@@ -1943,12 +1925,7 @@
             - service: script.post_to_home_log
               data:
                 message: "TEST: Mobile action: Mod"
-      default:
-        - service: script.post_to_home_log
-          data:
-            message:
-              ":warning: :flying_saucer: Unknown mobile action received :flying_saucer:
-              :warning:"
+      default: []
   mode: single
 - id: "1583956425622"
   alias: "Lounge: Dark And Motion Detected"
@@ -2000,12 +1977,46 @@
                 "{{ state_attr('light.lounge_right_lamp', 'brightness')
                 == none }}"
   action:
-    - data:
-        message:
-          ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
-          and it's dark ({{ states('sensor.lounge_motion_light_level') }} & {{ states('sensor.lounge_motion_2_light_level')
-          }} lux < 20-25 lux). Turning lounge lights on."
-      service: script.post_to_home_log
-    - scene: scene.lounge_lights
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: device_tracker.lap_ctc0501
+              state: home
+            - condition: or
+              conditions:
+                - below: "81"
+                  condition: numeric_state
+                  entity_id: sensor.lounge_motion_2_light_level
+                - below: "65"
+                  condition: numeric_state
+                  entity_id: sensor.lounge_motion_3_light_level
+          sequence:
+            - data:
+                message:
+                  ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
+                  in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
+                  }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
+                  lux) and Terina''s work computer is on. Turning lounge lights on."
+              service: script.post_to_home_log
+            - scene: scene.lounge_lights
+        - conditions:
+            - condition: or
+              conditions:
+                - below: "25"
+                  condition: numeric_state
+                  entity_id: sensor.lounge_motion_2_light_level
+                - below: "30"
+                  condition: numeric_state
+                  entity_id: sensor.lounge_motion_3_light_level
+          sequence:
+            - data:
+                message:
+                  ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
+                  and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
+                  {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
+                  Turning lounge lights on."
+              service: script.post_to_home_log
+            - scene: scene.lounge_lights
+      default: []
   mode: queued
   max: 10
