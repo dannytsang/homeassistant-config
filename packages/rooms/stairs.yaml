@@ -1,6 +1,43 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   # Motion
+  - id: "1624918278463"
+    alias: "^Stairs: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stairs_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: light.stairs_2
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_stairs_motion_trigger
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: time
+                after: 00:00:00
+              - condition: sun
+                before: sunrise
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :low_brightness: Motion detected at the bottom of
+                    the stairs and it's night time. Turning stairs light on dim."
+              - scene: scene.stairs_light_dim
+        default:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":paw_prints: :high_brightness: Motion detected at the bottom of
+                the stairs. Turning stairs light."
+          - scene: scene.stairs_light_2_on
+    mode: single
   - id: "1592062695452"
     alias: "^Stairs: Motion Detected And MagicMirror Is Off"
     description: ""
@@ -50,6 +87,29 @@ automation:
             ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
             stairs light off."
         service: script.post_to_home_log
+    mode: single
+  - id: "1624918387840"
+    alias: "^Stairs: No Motion Detected Bottom Of Stairs"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stairs_motion
+        to: "off"
+        for: 00:01:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stairs_motion_trigger
+        state: "on"
+      - condition: state
+        entity_id: light.stairs_2
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
+            for 1 minute. Turning stairs light off."
+      - scene: scene.stairs_light_2_off
     mode: single
   - id: "1591553945554"
     alias: "^Stairs: No Motion At Night Turn Off Magic Mirror"
