@@ -337,6 +337,58 @@ automation:
         service: script.post_to_home_log
       - service: script.bedroom_leos_door_opened_notification
     mode: queued
+  - id: "1624194131454"
+    alias: "Bedroom: TV Turned On During Bright Day"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_tv_powered_on
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_blind_automations
+        state: "on"
+      - condition: sun
+        before: sunset
+        after: sunrise
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_mobile_direct_notifications
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.bedroom_window
+                state: "on"
+            sequence:
+              - service: notify.mobile_app_dannys_phone
+                data:
+                  message: Do you want to close the blinds?
+                  data:
+                    actions:
+                      - title: "Yes"
+                        action: set_bedroom_blinds_20
+                      - title: "No"
+                        action: ignore
+                  title: 📺🛌TV On & Window Is Open
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bedroom_window
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
+                    blinds."
+              - service: cover.set_cover_position
+                target:
+                  entity_id: cover.bedroom_blind
+                data:
+                  position: 20
+        default: []
+    mode: single
   - id: "1624194439043"
     alias: "^Bedroom: TV Turned Off"
     description: ""
