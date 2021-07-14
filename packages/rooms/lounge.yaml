@@ -1,6 +1,99 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   # Lights related automation.
+  - id: "1583956425622"
+    alias: "Lounge: Dark And Motion Detected"
+    description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
+    trigger:
+      - entity_id: group.lounge_motion
+        platform: state
+        to: "on"
+        from: "off"
+      - platform: state
+        entity_id: binary_sensor.lounge_motion
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.lounge_motion_2
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.lounge_motion_3
+        to: "on"
+    condition:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: input_boolean.enable_lounge_motion_trigger
+            state: "on"
+          - condition: or
+            conditions:
+              - below: "30"
+                condition: numeric_state
+                entity_id: sensor.lounge_motion_light_level
+              - below: "25"
+                condition: numeric_state
+                entity_id: sensor.lounge_motion_2_light_level
+          - condition: or
+            conditions:
+              - condition: numeric_state
+                entity_id: light.lounge_left_lamp
+                attribute: brightness
+                below: "190"
+              - condition: numeric_state
+                entity_id: light.lounge_right_lamp
+                attribute: brightness
+                below: "190"
+              - condition: template
+                value_template:
+                  "{{ state_attr('light.lounge_left_lamp', 'brightness')
+                  == none }}"
+              - condition: template
+                value_template:
+                  "{{ state_attr('light.lounge_right_lamp', 'brightness')
+                  == none }}"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: device_tracker.lap_ctc0501
+                state: home
+              - condition: or
+                conditions:
+                  - below: "81"
+                    condition: numeric_state
+                    entity_id: sensor.lounge_motion_2_light_level
+                  - below: "65"
+                    condition: numeric_state
+                    entity_id: sensor.lounge_motion_3_light_level
+            sequence:
+              - data:
+                  message:
+                    ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
+                    in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
+                    }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
+                    lux) and Terina''s work computer is on. Turning lounge lights on."
+                service: script.post_to_home_log
+              - scene: scene.lounge_lights
+          - conditions:
+              - condition: or
+                conditions:
+                  - below: "25"
+                    condition: numeric_state
+                    entity_id: sensor.lounge_motion_2_light_level
+                  - below: "30"
+                    condition: numeric_state
+                    entity_id: sensor.lounge_motion_3_light_level
+            sequence:
+              - data:
+                  message:
+                    ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
+                    and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
+                    {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
+                    Turning lounge lights on."
+                service: script.post_to_home_log
+              - scene: scene.lounge_lights
+        default: []
+    mode: queued
+    max: 10
   - id: "1606170045630"
     alias: "^Lounge: No Motion After 5 Minutes And TV Is Off Dim Lights"
     description: ""
