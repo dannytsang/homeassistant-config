@@ -1654,56 +1654,6 @@
         entity_id: input_boolean.arm_office_door
   mode: queued
   max: 10
-- id: "1623087278802"
-  alias: "3D Printer: Check If Dark And Printing"
-  description: ""
-  trigger:
-    - platform: time_pattern
-      hours: "*"
-      seconds: "*"
-      minutes: /30
-    - platform: sun
-      event: sunset
-  condition:
-    - condition: state
-      entity_id: light.prusa
-      state: "off"
-    - condition: numeric_state
-      entity_id: sensor.conservatory_motion_light_level
-      below: "100"
-    - condition: state
-      entity_id: binary_sensor.octoprint_printing
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":city_sunset: :printer: It's getting dark and 3D printer is printing.
-          Turning on lights."
-    - scene: scene.3d_printer_light_on
-  mode: single
-- id: "1609349959402"
-  alias: "3D Printer: Print Finished And Hot End Cooled"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octoprint_actual_tool0_temp
-      below: "50"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":printer: :snowflake: Hot end cooled down. Turning off extruder fan
-          and light."
-    - service: switch.turn_off
-      target:
-        entity_id: switch.prusa_fan
-    - scene: scene.3d_printer_light_off
-  mode: single
 - id: "1608655560832"
   alias: "3D Printer: Print Started"
   description: ""
