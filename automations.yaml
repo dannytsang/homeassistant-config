@@ -685,11 +685,23 @@
         message:
           Server fan has been running for more than 1 hour. Consider turning
           Fan off.
-    - service: script.post_direct_message_to_danny
-      data:
-        message:
-          Server fan has been running for more than 1 hour. Consider turning
-          Fan off.
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "on"
+          sequence:
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: Turn off server fan?
+                data:
+                  actions:
+                    - title: "Yes"
+                      action: server_fan_off
+                    - title: "No"
+                      action: ignore
+                title: Server fan on for over 1 hour
+      default: []
   mode: single
 - id: "1611094285340"
   alias: "Calendar: Terina WFH"
@@ -1502,7 +1514,7 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: "Office temperature is high. Turning on fan :fan:"
+        message: ":hotsprings: Office temperature is high. Turning on fan."
     - service: switch.turn_on
       target:
         entity_id: switch.office_fan
@@ -1736,7 +1748,7 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: ":window: Closing bedroom blinds"
+                message: ":window: Closing bedroom blinds event received."
             - service: cover.set_cover_position
               target:
                 entity_id: cover.bedroom_blind
@@ -1744,10 +1756,13 @@
                 position: 20
         - conditions:
             - condition: template
-              value_template: "{{ trigger.event.data.action == 'action_mod' }}"
+              value_template: "{{ trigger.event.data.action == 'server_fan_off' }}"
           sequence:
             - service: script.post_to_home_log
               data:
-                message: "TEST: Mobile action: Mod"
+                message: Turning off server fan event received.
+            - service: switch.turn_off
+              target:
+                entity_id: switch.server_fan
       default: []
   mode: single
