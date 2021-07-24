@@ -1,0 +1,80 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# https://github.com/alphasixtyfive/HomeAssistantConfigs/blob/main/octopus_energy_go.yaml
+input_text:
+  electricity_mpan:
+    initial: !secret electricity_mpan
+  electricity_serial:
+    initial: !secret electricity_serial
+  gas_mprn:
+    initial: !secret gas_mprn
+  gas_serial:
+    initial: !secret gas_serial
+sensor:
+  - platform: rest
+    name: Gas consumption yesterday
+    resource_template: >-
+      {% set mprn = states('input_text.gas_mprn') %}
+      {% set serial = states('input_text.gas_serial') %}
+      {% set date = as_timestamp(now() - timedelta(days = 1))|timestamp_custom('%Y-%m-%d') %}
+      https://api.octopus.energy/v1/gas-meter-points/{{ mprn }}/meters/{{ serial }}/consumption/?period_from={{ date + 'T00:00:00' }}&period_to={{ date + 'T23:59:59' }}
+    headers:
+      Authorization: !secret octopus_key
+    value_template: "{{ value_json.results|sum(attribute='consumption')|round(3) }}"
+    unit_of_measurement: "m³"
+    json_attributes:
+      - "results"
+
+  - platform: template
+    sensors:
+      gas_cost_yesterday:
+        friendly_name: Gas cost yesterday
+        icon_template: mdi:cash-multiple
+        value_template: >-
+          {% set unit_price = 2.86 %}
+          {% set standing_charge = 26.06 %}
+          {% set calorific_value = 39.1 %}
+          {% set usage = state_attr('sensor.gas_consumption_yesterday', 'results') %}
+          {% if usage is defined and usage|count == 48 %}
+            {{ ((states('sensor.gas_consumption_yesterday') | float * 1.02264 * calorific_value / 3.6) * unit_price / 100 + standing_charge / 100)|round(2) }}
+          {% else %}
+            Unknown
+          {% endif %}
+        unit_of_measurement: "£"
+
+  - platform: rest
+    name: Electricity consumption yesterday
+    resource_template: >-
+      {% set mpan = states('input_text.electricity_mpan') %}
+      {% set serial = states('input_text.electricity_serial') %}
+      {% set date = as_timestamp(now() - timedelta(days = 1))|timestamp_custom('%Y-%m-%d') %}
+      https://api.octopus.energy/v1/electricity-meter-points/{{ mpan }}/meters/{{ serial }}/consumption/?period_from={{ date + 'T00:00:00' }}&period_to={{ date + 'T23:59:59' }}
+    headers:
+      Authorization: !secret octopus_key
+    value_template: "{{ value_json.results|sum(attribute='consumption')|round(3) }}"
+    unit_of_measurement: "kWh"
+    json_attributes:
+      - "results"
+
+  - platform: template
+    sensors:
+      electricity_cost_yesterday:
+        friendly_name: Electricity cost yesterday
+        icon_template: mdi:cash-multiple
+        value_template: >-
+          {% set standing_charge = 25 %}
+          {% set usage = state_attr('sensor.electricity_consumption_yesterday', 'results') %}
+          {% if usage is defined and usage|count == 48 %}
+            {% set ns = namespace(total=0) %}
+            {% for p in range(0, 48) %}
+              {% set time = as_timestamp(usage[p].interval_start)|timestamp_custom('%H:%M:%S') %}
+              {% set unit_price = 15.96 %}
+              {% if '00:30:00' <= time < '04:30:00' %}
+                {% set unit_price = 5 %}
+              {% endif %}
+              {% set ns.total = ns.total + (usage[p].consumption * unit_price / 100) %}
+            {% endfor %}
+            {{ (ns.total + standing_charge / 100)|round(2) }}
+          {% else %}
+            Unknown
+          {% endif %}
+        unit_of_measurement: "£"
