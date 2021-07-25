@@ -477,20 +477,9 @@
   action:
     - service: notify.mobile_app_dannys_phone
       data:
-        message: 🔔 Alarm is on and turning off devices.
-        title: 🏃‍♂️🏃‍♀️🏡 No one is home
-        data:
-          actions:
-            - title: Disarm
-              action: disarm
-            - title: Leave On
-              action: leave_on
-            - title: Disarm & Leave On
-              action: disarm_leave_on
-    - service: notify.mobile_app_terina_s_phone
-      data:
-        message: 🔔 Alarm is on and turning off devices.
-        title: 🏃‍♂️🏃‍♀️🏡 No one is home
+        message: "Office Temp: {{ states('sensor.office_area_temperature') }}"
+        title: 🏃‍♂️🏃‍♀️🏡 No one is home {{ states('sensor.office_area_temperature')
+          }}
         data:
           actions:
             - title: Disarm
@@ -1530,7 +1519,8 @@
               data:
                 message:
                   ":hotsprings: :people_holding_hands: Office temperature is high
-                  and someone is home. Turning on fan."
+                  ({{states('sensor.office_area_temperature') }}c) and someone is home.
+                  Turning on fan."
             - service: switch.turn_on
               target:
                 entity_id: switch.office_fan
@@ -1541,7 +1531,9 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: ":warning: :hotsprings: Office temperature is above 29c."
+                message:
+                  ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
+                  }}c)."
             - service: notify.mobile_app_dannys_phone
               data:
                 message: Turn on office fan?
