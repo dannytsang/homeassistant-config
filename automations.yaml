@@ -159,7 +159,7 @@
   trigger:
     - entity_id: alarm_control_panel.stevenage_alarm
       platform: state
-      to: burglar-alarm
+      to: triggered
   condition: []
   action:
     - condition: state
@@ -1393,7 +1393,7 @@
       default:
         - service: cover.set_cover_position
           data:
-            position: 20
+            position: 40
   mode: single
 - id: "1622374233310"
   alias: "Office: Close Office Curtains At Night"
@@ -1502,22 +1502,70 @@
     - platform: numeric_state
       entity_id: sensor.office_area_temperature
       above: "25"
+    - platform: numeric_state
+      entity_id: sensor.office_area_temperature
+      above: "29"
+      for: 00:01:00
+    - platform: numeric_state
+      entity_id: sensor.office_area_temperature
+      for: 00:01:00
+      above: "31"
   condition:
     - condition: state
       entity_id: switch.office_fan
       state: "off"
-    - condition: state
-      entity_id: group.adult_people
-      state: home
-    - condition: time
-      before: "22:00:00"
   action:
-    - service: script.post_to_home_log
-      data:
-        message: ":hotsprings: Office temperature is high. Turning on fan."
-    - service: switch.turn_on
-      target:
-        entity_id: switch.office_fan
+    - choose:
+        - conditions:
+            - condition: numeric_state
+              entity_id: sensor.office_area_temperature
+              above: "25"
+            - condition: state
+              entity_id: group.adult_people
+              state: home
+            - condition: time
+              before: "22:00:00"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":hotsprings: :people_holding_hands: Office temperature is high
+                  and someone is home. Turning on fan."
+            - service: switch.turn_on
+              target:
+                entity_id: switch.office_fan
+        - conditions:
+            - condition: numeric_state
+              entity_id: sensor.office_area_temperature
+              above: "29"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":warning: :hotsprings: Office temperature is above 29c."
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: Turn on office fan?
+                data:
+                  actions:
+                    - title: "Yes"
+                      action: switch_on_office_fan
+                    - title: "No"
+                      action: ignore
+                title: ♨️🏢Office temperature is 29c+
+        - conditions:
+            - condition: numeric_state
+              entity_id: sensor.office_area_temperature
+              above: "31"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":warning: :hotsprings: Office temperature is above 31c. Turning
+                  fan on."
+            - service: switch.turn_on
+              target:
+                entity_id: switch.office_fan
+      default: []
   mode: single
 - id: "1622667464880"
   alias: "Bedroom: Window Closed At Night"
@@ -1764,5 +1812,17 @@
             - service: switch.turn_off
               target:
                 entity_id: switch.server_fan
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data.action == 'switch_on_office_fan'
+                }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: Turning on office fan event received.
+            - service: switch.turn_on
+              target:
+                entity_id: switch.office_fan
       default: []
   mode: single
