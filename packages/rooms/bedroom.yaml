@@ -361,6 +361,10 @@ automation:
               - condition: state
                 entity_id: binary_sensor.bedroom_window
                 state: "on"
+              - condition: numeric_state
+                entity_id: weather.home
+                attribute: wind_speed
+                above: "10"
             sequence:
               - service: notify.mobile_app_dannys_phone
                 data:
@@ -372,6 +376,28 @@ automation:
                       - title: "No"
                         action: ignore
                   title: 📺🛌TV On & Window Is Open
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_mobile_direct_notifications
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.bedroom_window
+                state: "on"
+              - condition: numeric_state
+                entity_id: weather.home
+                attribute: wind_speed
+                below: "10"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":tv: :bed: Bedroom TV turned on and it's bright. The window is open however it is below 10km/h. Lowering bedroom
+                    blinds."
+              - service: cover.set_cover_position
+                target:
+                  entity_id: cover.bedroom_blind
+                data:
+                  position: 20
           - conditions:
               - condition: state
                 entity_id: binary_sensor.bedroom_window
