@@ -1818,3 +1818,31 @@
                 entity_id: switch.office_fan
       default: []
   mode: single
+- id: "1627285063813"
+  alias: "Leo's Bedroom: Timed Open Blinds"
+  description: ""
+  trigger:
+    - platform: time
+      at: 08:00:00
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: cover.leos_blinds
+          state: closed
+        - condition: state
+          entity_id: cover.leos_blinds
+          state: closing
+    - condition: not
+      conditions:
+        - condition: state
+          state: Guest
+          entity_id: input_select.home_mode
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Opening Leo's bedroom blinds
+    - service: cover.open_cover
+      target:
+        entity_id: cover.leos_blinds
+  mode: single
