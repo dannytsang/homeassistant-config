@@ -71,18 +71,35 @@ automation:
         for: 01:00:00
         platform: state
         to: "on"
+        id: 1h
+        from: "off"
       - entity_id: switch.office_fan
         for: 02:00:00
         platform: state
         to: "on"
+        id: 2h
+        from: "off"
     condition: []
     action:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: 1h
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: Turned off office Fan after 1 hour.
+          - conditions:
+              - condition: trigger
+                id: 2h
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: Turned off office Fan after 2 hours.
+        default: []
       - service: switch.turn_off
         target:
           entity_id: switch.office_fan
-      - data:
-          message: Turned off office Fan after 1 hour.
-        service: script.post_to_home_log
     mode: single
   - id: "1622666920056"
     alias: "^Office: Window Closed At Night"
