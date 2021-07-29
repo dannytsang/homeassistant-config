@@ -1,11 +1,13 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   - id: "1605925028960"
-    alias: "^Ashlee's Room: Close Blinds"
+    alias: "Ashlee's Room: Close Blinds"
     description: ""
     trigger:
       - platform: time
         at: "19:00:00"
+      - platform: time
+        at: "22:00:00"
     condition:
       - condition: state
         entity_id: cover.ashlees_blinds
@@ -14,9 +16,6 @@ automation:
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
       - choose:
           - conditions:
               - condition: state
@@ -28,7 +27,23 @@ automation:
                   message:
                     ":warning: :window: Ashlee's window is still open. Waiting until
                     it's closed before closing blinds. :warning:"
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: No Children
+              - condition: sun
+                after: sunset
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.ashlees_blinds
         default:
+          - service: script.post_to_home_log
+            data:
+              message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
           - service: cover.close_cover
             target:
               entity_id: cover.ashlees_blinds
@@ -63,18 +78,32 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: Guest
     action:
-      - data:
-          message: ":sunrise: :window: Opening Ashlee's blinds"
-        service: script.post_to_home_log
-      - service: cover.open_cover
-        target:
-          entity_id: cover.ashlees_blinds
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Guest
+            sequence:
+              - data:
+                  message: ":sunrise: :window: Opening Ashlee's blinds"
+                service: script.post_to_home_log
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.ashlees_blinds
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":stop_sign: :sunrise: :window: Guest mode is enabled. Skipping
+                    opening Ashlee's bedroom blinds."
+        default: []
     mode: single
 input_boolean:
   enable_ashlees_blind_automations:
