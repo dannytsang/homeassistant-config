@@ -1171,94 +1171,119 @@
           entity_id: device_tracker.unifi_security_gateway
           state: unavailable
   action:
-    - service: alarm_control_panel.alarm_arm_away
-      data: {}
-      entity_id: alarm_control_panel.stevenage_alarm
     - choose:
         - conditions:
             - condition: state
-              entity_id: group.external_doors_and_windows
-              state: "on"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                service: script.post_to_direct_notification
-                data:
-                  message:
-                    ":warning: :door: :window: The following entrances are still
-                    open: {% for entity in state_attr('group.external_doors_and_windows','entity_id')
-                    %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
-                    }} {% endif %}{% endfor %}"
-      default: []
-    - choose:
-        - conditions:
+              entity_id: input_select.home_mode
+              state: Guest
             - condition: state
               entity_id: input_boolean.enable_mobile_direct_notifications
               state: "on"
           sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":warning: Guest mode is active and no one is home."
             - service: notify.mobile_app_dannys_phone
               data:
-                message: Alarm armed and turning off devices.
-                title: No One Home
+                message: Guest mode is on. Do you want to turn on the alarm?
+                title: No One Home In Guest Mode
                 data:
                   actions:
-                    - title: Disarm
-                      action: disarm
-                    - title: Devices On
-                      action: leave_on
-                    - title: Disarm & Leave On
-                      action: disarm_leave_on
-            - service: notify.mobile_app_terina_s_phone
-              data:
-                title: No One Home
-                message: Alarm armed and turning off devices.
-                data:
-                  actions:
-                    - title: Disarm
-                      action: disarm
-                    - title: Leave On
-                      action: leave_on
-                    - title: Disarm & Leave On
-                      action: disarm_leave_on
-            - wait_for_trigger:
-                - platform: event
-                  event_type: mobile_app_notification_action
-              timeout: "300"
-              continue_on_timeout: true
+                    - title: Alarm On & Turn Off Devices
+                      action: guest_mode_arm_alarm_and_turn_off_devices
+                    - title: Alarm On Only
+                      action: guest_mode_arm_alarm_away
+                    - title: Turn Off Devices Only
+                      action: guest_mode_turn_off_devices
+      default:
+        - service: alarm_control_panel.alarm_arm_away
+          data: {}
+          entity_id: alarm_control_panel.stevenage_alarm
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: group.external_doors_and_windows
+                  state: "on"
+              sequence:
+                - service: script.post_to_direct_notification
+                  data:
+                    message:
+                      ":warning: :door: :window: The following entrances are still
+                      open: {% for entity in state_attr('group.external_doors_and_windows','entity_id')
+                      %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity,
+                      'friendly_name') }} {% endif %}{% endfor %}"
+          default:
             - choose:
                 - conditions:
-                    - condition: template
-                      value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
+                    - condition: state
+                      entity_id: input_boolean.enable_mobile_direct_notifications
+                      state: "on"
                   sequence:
-                    - service: alarm_control_panel.alarm_disarm
-                      target:
-                        entity_id: alarm_control_panel.stevenage_alarm
-                    - service: script.post_to_home_log
+                    - service: notify.mobile_app_dannys_phone
                       data:
-                        message: Disarming alarm.
-                - conditions:
-                    - condition: template
-                      value_template: "{{ wait.trigger.event.data.action == 'leave_on' }}"
-                  sequence:
-                    - service: script.post_to_home_log
+                        message: Alarm armed and turning off devices.
+                        title: No One Home
+                        data:
+                          actions:
+                            - title: Disarm
+                              action: disarm
+                            - title: Devices On
+                              action: leave_on
+                            - title: Disarm & Leave On
+                              action: disarm_leave_on
+                    - service: notify.mobile_app_terina_s_phone
                       data:
-                        message: Leaving devices on.
-                - conditions:
-                    - condition: template
-                      value_template:
-                        "{{ wait.trigger.event.data.action == 'disarm_leave_on'
-                        }}"
-                  sequence:
-                    - service: alarm_control_panel.alarm_disarm
-                      target:
-                        entity_id: alarm_control_panel.stevenage_alarm
-                    - service: script.post_to_home_log
-                      data:
-                        message: Disarming alarm and skipping turning off devices.
+                        title: No One Home
+                        message: Alarm armed and turning off devices.
+                        data:
+                          actions:
+                            - title: Disarm
+                              action: disarm
+                            - title: Leave On
+                              action: leave_on
+                            - title: Disarm & Leave On
+                              action: disarm_leave_on
+                    - wait_for_trigger:
+                        - platform: event
+                          event_type: mobile_app_notification_action
+                      timeout: "300"
+                      continue_on_timeout: true
+                    - choose:
+                        - conditions:
+                            - condition: template
+                              value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
+                          sequence:
+                            - service: alarm_control_panel.alarm_disarm
+                              target:
+                                entity_id: alarm_control_panel.stevenage_alarm
+                            - service: script.post_to_home_log
+                              data:
+                                message: Disarming alarm.
+                        - conditions:
+                            - condition: template
+                              value_template:
+                                "{{ wait.trigger.event.data.action == 'leave_on'
+                                }}"
+                          sequence:
+                            - service: script.post_to_home_log
+                              data:
+                                message: Leaving devices on.
+                        - conditions:
+                            - condition: template
+                              value_template:
+                                "{{ wait.trigger.event.data.action == 'disarm_leave_on'
+                                }}"
+                          sequence:
+                            - service: alarm_control_panel.alarm_disarm
+                              target:
+                                entity_id: alarm_control_panel.stevenage_alarm
+                            - service: script.post_to_home_log
+                              data:
+                                message: Disarming alarm and skipping turning off devices.
+                      default:
+                        - service: script.1588939391030
               default:
                 - service: script.1588939391030
-      default:
-        - service: script.1588939391030
   mode: single
 - id: "1619254173098"
   alias: "Leo's Room: Window Closed And Bed Occupied At Night"
@@ -1725,6 +1750,7 @@
             message:
               ":printer: :sunrise: Printing started after sunrise. Not turning
               on printer light."
+        - scene: scene.3d_printer_light_off
   mode: single
 - id: "1624661497604"
   alias: "Bathroom: Window Closed At Night"
@@ -1794,6 +1820,46 @@
             - service: switch.turn_on
               target:
                 entity_id: switch.office_fan
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data.action == 'guest_mode_arm_alarm_and_turn_off_devices'
+                }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":bell: Guest mode override. Turning alarm on and devices off."
+            - service: alarm_control_panel.alarm_arm_away
+              data: {}
+              entity_id: alarm_control_panel.stevenage_alarm
+            - service: script.1588939391030
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data.action == 'guest_mode_arm_alarm_away'
+                }}"
+            - condition: state
+              entity_id: input_select.home_mode
+              state: Guest
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":bell: Guest mode override. Turning alarm in away mode (motion
+                  and sensors) on only."
+            - service: alarm_control_panel.alarm_arm_away
+              target:
+                entity_id: alarm_control_panel.stevenage_alarm
+        - conditions:
+            - condition: template
+              value_template:
+                "{{ trigger.event.data.action == 'guest_mode_turn_off_devices'
+                }}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: Guest mode override. Turning devices off only.
+            - service: script.1588939391030
       default: []
   mode: single
 - id: "1627285063813"
