@@ -327,19 +327,50 @@ post_to_direct_notification:
     - choose:
         - conditions:
             - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "on"
+            - condition: state
               entity_id: input_boolean.enable_slack_direct_messages
               state: "on"
           sequence:
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: "{{ message }}"
             - data:
                 message: "@terina {{ message }}"
                 target: "#general"
                 data:
                   blocks: []
               service: notify.slack_notify
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "off"
+            - condition: state
+              entity_id: input_boolean.enable_slack_direct_messages
+              state: "on"
+          sequence:
+            - data:
+                message: "@danny @terina {{ message }}"
+                target: "#general"
+                data:
+                  blocks: []
+              service: notify.slack_notify
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_mobile_direct_notifications
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_slack_direct_messages
+              state: "off"
+          sequence:
+            - service: notify.mobile_app_dannys_phone
+              data:
+                message: "{{ message }}"
+            - service: notify.mobile_app_terina_s_phone
+              data:
+                message: "{{ message }}"
       default: []
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: "{{ message }}"
 post_actionable_notification_with_2_buttons:
   alias: Post Actionable Notification With 2 Buttons
   fields:
