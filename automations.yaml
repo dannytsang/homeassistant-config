@@ -597,28 +597,6 @@
           off goXLR"
     - service: script.office_turn_off_backup_drive
   mode: single
-- id: "1608655663801"
-  alias: "3D Printer: Errored"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.octoprint_printing_error
-      from: "off"
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_3d_printer_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        title: 3D printer error
-        message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
-    - service: script.post_direct_message_to_danny
-      data:
-        title: 3D printer error
-        message: ":warning: :printer: 3D printer has encountered an error :x: :warning:"
-  mode: single
 - id: "1610388192224"
   alias: "Lounge: TV Turned On"
   description: ""
@@ -1845,4 +1823,66 @@
     - service: cover.open_cover
       target:
         entity_id: cover.leos_blinds
+  mode: single
+- id: "1627509008928"
+  alias: Enter Normal Mode
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: input_select.home_mode
+      to: No Children
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: time
+              after: 08:00:00
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: Opening Leo's bedroom blinds
+            - service: cover.open_cover
+              target:
+                entity_id: cover.leos_blinds
+      default: []
+  mode: single
+- id: "1627724032362"
+  alias: "3D Printer: Hotend Reached Temperature"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octoprint_actual_tool0_temp
+      above: sensor.octoprint_target_tool0_temp
+      id: hot_end
+    - platform: numeric_state
+      id: bed
+      above: sensor.octoprint_target_bed_temp
+      entity_id: sensor.octoprint_actual_bed_temp
+  condition:
+    - condition: state
+      entity_id: binary_sensor.octoprint_printing
+      state: "off"
+  action:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: hot_end
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":thermometer: :printer: 3D Printer hotend has reached temperature.
+                  Turning on notification light."
+            - scene: scene.3d_printer_temperature_reached
+        - conditions:
+            - condition: trigger
+              id: bed
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":thermometer: :printer: 3D Printer bed has reached temperature.
+                  Turning on notification light."
+            - scene: scene.3d_printer_temperature_reached
+      default: []
   mode: single
