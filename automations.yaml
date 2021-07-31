@@ -414,22 +414,43 @@
       entity_id: input_boolean.enable_home_presence_detection
       state: "on"
   action:
-    - service: script.post_to_direct_notification
-      data:
-        message:
-          ":warning: :door: :window: The following entrances are still open:
-          {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-          %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
-          }} {% endif %}{% endfor %}"
-        title: No one is home and couldn't turn on the alarm
-    - service: script.post_to_direct_notification
-      data:
-        message:
-          ":warning: :door: :window: The following entrances are still open:
-          {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-          %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
-          }} {% endif %}{% endfor %}"
-        title: No one is home and couldn't turn on the alarm
+    - choose:
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: Guest
+                - condition: state
+                  entity_id: input_boolean.enable_slack_direct_messages
+                  state: "on"
+          sequence:
+            - service: script.post_to_direct_notification
+              data:
+                message:
+                  ":warning: :door: :window: The following entrances are still open:
+                  {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                  %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+                  }} {% endif %}{% endfor %}"
+                title: No one is home and couldn't turn on the alarm
+      default: []
+    - choose:
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: Guest
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":warning: :door: :window: The following entrances are still open:
+                  {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                  %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+                  }} {% endif %}{% endfor %}"
+                title: No one is home and couldn't turn on the alarm
+      default: []
   mode: single
 - id: "1595678900777"
   alias: "Utility: Freezer Door Closed"
@@ -1210,8 +1231,8 @@
                     message:
                       ":warning: :door: :window: The following entrances are still
                       open: {% for entity in state_attr('group.external_doors_and_windows','entity_id')
-                      %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity,
-                      'friendly_name') }} {% endif %}{% endfor %}"
+                      %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+                      }} {% endif %}{% endfor %}"
           default:
             - choose:
                 - conditions:
