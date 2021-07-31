@@ -8,6 +8,9 @@ automation:
         at: "19:00:00"
       - platform: time
         at: "22:00:00"
+      - platform: sun
+        event: sunset
+        id: sunset
     condition:
       - condition: state
         entity_id: cover.ashlees_blinds
@@ -31,8 +34,11 @@ automation:
               - condition: state
                 entity_id: input_select.home_mode
                 state: No Children
-              - condition: sun
-                after: sunset
+              - condition: trigger
+                id: sunset
+              - condition: state
+                entity_id: binary_sensor.ashlees_window
+                state: "off"
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -40,13 +46,18 @@ automation:
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
-        default:
-          - service: script.post_to_home_log
-            data:
-              message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
-          - service: cover.close_cover
-            target:
-              entity_id: cover.ashlees_blinds
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.ashlees_window
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.ashlees_blinds
+        default: []
     mode: single
   - id: "1605775729191"
     alias: "^Ashlee's Room: Turn Off Lamp After An Hour"
