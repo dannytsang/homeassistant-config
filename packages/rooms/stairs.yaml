@@ -254,17 +254,17 @@ automation:
     condition:
       - condition: or
         conditions:
-          - condition: state
-            entity_id: group.all_people
-            state: not_home
-          - condition: not
+          - condition: and
             conditions:
               - condition: state
-                entity_id: alarm_control_panel.stevenage_alarm
-                state: disarmed
-      - condition: state
-        entity_id: input_boolean.enable_home_presence_detection
-        state: "on"
+                entity_id: group.all_people
+                state: not_home
+              - condition: state
+                entity_id: input_boolean.enable_home_presence_detection
+                state: "on"
+          - condition: state
+            entity_id: alarm_control_panel.stevenage_alarm
+            state: arm_away
     action:
       - service: script.stairs_camera_process_image
         data:
