@@ -11,9 +11,6 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_trigger
         state: "on"
-      - condition: numeric_state
-        entity_id: sensor.bathroom_motion_light_level
-        below: "55"
       - condition: state
         entity_id: input_boolean.bathroom_light_override
         state: "off"
@@ -28,13 +25,39 @@ automation:
               '{{ state_attr("light.bathroom_light", "brightness") ==
               none }}'
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":paw_prints: :bathtub: Motion detected in the bathroom, the :door:door is
-            open and it's dark ({{ states('sensor.bathroom_motion_light_level') }}
-            < 5 lux). Turning lights on."
-      - scene: scene.bathroom_light_on
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_light_level
+                below: "40"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark in guest mode ({{ states('sensor.bathroom_motion_light_level') }}
+                    < 40 lux). Turning lights on."
+              - scene: scene.bathroom_light_on
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Guest
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_light_level
+                below: "30"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark ({{ states('sensor.bathroom_motion_light_level') }}
+                    < 40 lux). Turning lights on."
+              - scene: scene.bathroom_light_on
+        default: []
+
     mode: single
   - id: "1610314564871"
     alias: "^Bathroom: No Motion Detected And Bathroom Door Is Open Dimming Lights"
