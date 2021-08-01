@@ -1002,27 +1002,6 @@
           no motion nearby."
       service: script.post_to_home_log
   mode: single
-- id: "1615211009087"
-  alias: "Bedroom: Ashlee's Bedroom Door Opens Warning"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.ashlees_door
-      from: "off"
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: group.bedroom_desk_lights
-      state: "on"
-  action:
-    - data:
-        title: Close bedroom blinds
-        message:
-          ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
-          warning."
-      service: script.post_to_home_log
-    - service: script.bedroom_ashlees_door_opened_notification
-  mode: single
 - id: "1615224190495"
   alias: "Porch: Front Door Closed For More than 20 seconds"
   description: ""
@@ -1973,3 +1952,91 @@
             - scene: scene.3d_printer_temperature_reached
       default: []
   mode: single
+- id: "1615209552353"
+  alias: "Bedroom: Other Bedroom Door Opens Warning"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.leos_door
+      from: "off"
+      to: "on"
+      id: leo
+    - platform: state
+      entity_id: binary_sensor.ashlees_door
+      id: ashlee
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: group.bedroom_desk_lights
+      state: "on"
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: input_select.home_mode
+          state: Guest
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_bed_presence
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.bed_occupied
+              state: "on"
+            - condition: trigger
+              id: leo
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                title: Close bedroom blinds
+                message:
+                  ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                  warning."
+            - service: script.bedroom_leos_door_opened_notification
+        - conditions:
+            - condition: sun
+              after: sunset
+            - condition: trigger
+              id: leo
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                title: Close bedroom blinds
+                message:
+                  ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                  warning."
+            - service: script.bedroom_leos_door_opened_notification
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_bed_presence
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.bed_occupied
+              state: "on"
+            - condition: trigger
+              id: ashlee
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                title: Close bedroom blinds
+                message:
+                  ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+                  warning."
+            - service: script.bedroom_ashlees_door_opened_notification
+        - conditions:
+            - condition: sun
+              after: sunset
+            - condition: trigger
+              id: ashlee
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                title: Close bedroom blinds
+                message:
+                  ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+                  warning."
+            - service: script.bedroom_ashlees_door_opened_notification
+      default: []
+  mode: queued
+  max: 10
