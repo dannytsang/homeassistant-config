@@ -1339,54 +1339,6 @@
         message: Turned on GoXLR.
     - service: script.office_turn_on_external_hard_drive
   mode: single
-- id: "1621203193434"
-  alias: "Bathroom: Open Blinds In The Morning"
-  description: ""
-  trigger:
-    - platform: time
-      at: 06:30:00
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_bathroom_blind_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: opening bathroom blinds
-    - service: cover.open_cover
-      target:
-        entity_id: cover.bathroom_blinds
-  mode: single
-- id: "1621203351544"
-  alias: "Bathroom: Close Blinds At Night"
-  description: ""
-  trigger:
-    - platform: time
-      at: 00:00:00
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_bathroom_blind_automations
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":city_sunset: :window: It's getting dark, closing bathroom's blinds."
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.bathroom_window
-              state: "on"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message:
-                  ":warning: :window: Bathroom window is still open. Waiting until
-                  it's closed before closing blinds. :warning:"
-      default:
-        - service: cover.set_cover_position
-          data:
-            position: 40
-  mode: single
 - id: "1622374233310"
   alias: "Office: Close Office Curtains At Night"
   description: ""
@@ -1487,36 +1439,6 @@
       target:
         entity_id: cover.leos_blinds
   mode: single
-- id: "1622667464880"
-  alias: "Bedroom: Window Closed At Night"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.bedroom_window
-      from: "on"
-      to: "off"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_bedroom_blind_automations
-      state: "on"
-    - condition: sun
-      before: sunrise
-      after: sunset
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: cover.bedroom_blind
-          state: closed
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":window: :city_sunset: Bedroom window closed and it's dark. Closing
-          blinds."
-    - service: cover.close_cover
-      target:
-        entity_id: cover.bedroom_blind
-  mode: single
 - id: "1622891806607"
   alias: "Ashlee's Room: Window Closed After Dark"
   description: ""
@@ -1543,28 +1465,6 @@
     - service: cover.close_cover
       target:
         entity_id: cover.ashlees_blinds
-  mode: single
-- id: "1622934382699"
-  alias: "Bathroom: Window Closed At Night"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.bathroom_window
-      from: "on"
-      to: "off"
-  condition:
-    - condition: time
-      after: 00:00:00
-      before: 06:30:00
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":window: :city_sunset: Bathroom window closed and it's dark. Closing
-          blinds."
-    - service: cover.close_cover
-      target:
-        entity_id: cover.bathroom_blinds
   mode: single
 - id: "1622973276606"
   alias: "Office: Arm Office Door"
