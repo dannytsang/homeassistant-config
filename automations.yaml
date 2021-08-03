@@ -1286,7 +1286,7 @@
                 - service: script.1588939391030
   mode: single
 - id: "1619254173098"
-  alias: "Leo's Room: Window Closed And Bed Occupied At Night"
+  alias: "Leo's Room: Window Closed At Night"
   description: ""
   trigger:
     - platform: state
@@ -1302,21 +1302,38 @@
     - condition: state
       entity_id: input_boolean.enable_leos_blind_automations
       state: "on"
-    - condition: state
-      entity_id: input_boolean.enable_leos_bed_presence
-      state: "on"
-    - condition: state
-      entity_id: binary_sensor.leos_bed_occupied
-      state: "on"
   action:
-    - service: cover.close_cover
-      target:
-        entity_id: cover.leos_blinds
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":window: :bed: Leo's window closed and someone is in bed. Closing
-          blinds."
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_leos_bed_presence
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.leos_bed_occupied
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":window: :bed: Leo's window closed and someone is in bed. Closing
+                  blinds."
+            - service: cover.close_cover
+              target:
+                entity_id: cover.leos_blinds
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_leos_bed_presence
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":window: :bed: Leo's window closed and someone is in bed. Closing
+                  blinds."
+            - service: cover.close_cover
+              target:
+                entity_id: cover.leos_blinds
+      default: []
   mode: single
 - id: "1619865008647"
   alias: "Office: Computer Turned On"
