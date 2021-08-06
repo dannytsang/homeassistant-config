@@ -107,8 +107,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_trigger
         state: "on"
       - condition: numeric_state
-        entity_id: switch.tv_plug
-        attribute: current_power_w
+        entity_id: sensor.tv_plug_energy_meter
         below: "10"
     action:
       - scene: scene.lounge_dim_lights
@@ -131,8 +130,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_trigger
         state: "on"
       - condition: numeric_state
-        entity_id: switch.tv_plug
-        attribute: current_power_w
+        entity_id: sensor.tv_plug_energy_meter
         below: "10"
     action:
       - scene: scene.lounge_lights_off
@@ -200,9 +198,8 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: switch.tv_plug
+        entity_id: sensor.tv_plug_energy_meter
         below: "35"
-        attribute: current_power_w
         for: 00:05:00
     condition:
       - condition: state
@@ -267,15 +264,15 @@ binary_sensor:
   - platform: template
     sensors:
       tv_powered_on:
-        value_template: "{{ state_attr('switch.tv_plug','current_power_w') | float > 45 }}"
+        value_template: "{{ states('sensor.tv_plug_energy_meter') | float > 45 }}"
         friendly_name: "TV Powered On"
         device_class: "power"
-        icon_template: "mdi:television-classic{{ '' if state_attr('switch.tv_plug','current_power_w') | float > 45 else '-off' }}"
+        icon_template: "mdi:television-classic{{ '' if states('sensor.tv_plug_energy_meter') | float > 45 else '-off' }}"
       sky_powered_on:
-        value_template: "{{ state_attr('switch.sky_plug','current_power_w') | float > 15 }}"
+        value_template: "{{ states('sensor.sky_energy_meter') | float > 15 }}"
         friendly_name: "Sky Powered On"
         device_class: "power"
-        icon_template: "mdi:television-classic{{ '' if state_attr('switch.sky_plug','current_power_w') | float > 15 else '-off' }}"
+        icon_template: "mdi:television-classic{{ '' if states('sensor.sky_energy_meter') | float > 15 else '-off' }}"
 group:
   lounge_lights:
     name: Lounge Lights
@@ -386,19 +383,6 @@ scene:
         supported_features: 55
         state: "off"
 sensor:
-  # Plug sensors to tell if it's turned on or not
-  - platform: template
-    sensors:
-      tv_plug_current_w:
-        value_template: "{{ state_attr('switch.tv_plug','current_power_w') | float }}"
-        friendly_name: "TV current power"
-        unit_of_measurement: "Wh"
-        icon_template: mdi:flash
-      sky_plug_current_w:
-        value_template: "{{ state_attr('switch.sky_plug','current_power_w') | float }}"
-        friendly_name: "Sky current power"
-        unit_of_measurement: "Wh"
-        icon_template: mdi:flash
   # Aggregated stats
   - platform: min_max
     name: Lounge Area Light Level
