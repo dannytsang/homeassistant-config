@@ -83,71 +83,104 @@ sensor:
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: House Power Meter
+        query: "SELECT id,date_time,channel_id,data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 18 LIMIT 1) LIMIT 1) AND unit = 'W' AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Computer A
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: JD electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: JD Power Meter
+        query: "SELECT id,date_time,channel_id,data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 19 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Computer B
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Server electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: Server Power Meter
+        query: "SELECT id,date_time,channel_id,data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 37 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Telephony
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Telephony electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: Telephony Power Meter
+        query: "SELECT id,date_time,channel_id,data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 26 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Fridge Freezer
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Fridge Freezer electricity usage
+      - name: Fridge Freezer Power Meter
         query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 20 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Freezer
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Freezer electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: Freezer Power Meter
+        query: "SELECT id,date_time,channel_id,data as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 28 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Home Entertainment
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Home Entertainment electricity usage
+      - name: Home Entertainment Power Meter
         query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 21 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
+        unit_of_measurement: W
   # Surround Sound
   - platform: sql
     db_url: !secret energyathome
     queries:
-      - name: Surround Sound electricity usage
-        query: "SELECT id,date_time,channel_id,data/1000 as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
+      - name: Surround Sound Power Meter
+        query: "SELECT id,date_time,channel_id,data as data FROM energyathome.historical_data WHERE channel_id = (SELECT channel_id FROM channel WHERE device_id = 29 LIMIT 1) AND date_time >= NOW() - INTERVAL 30 MINUTE ORDER BY date_time DESC LIMIT 1;"
         column: "data"
-        unit_of_measurement: kW
-
-template:
-  - sensor:
-      - name: "Electricity Usage"
-        unit_of_measurement: "kWh"
-        state: "{{ states('sensor.electricity_usage') }}"
-        device_class: temperature
-        state_class: measurement
+        unit_of_measurement: W
+  # Convert power to energy (e.g. W to Wh)
+  - platform: integration
+    source: sensor.house_power_meter
+    name: House Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.jd_power_meter
+    name: JD Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.server_power_meter
+    name: House Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.telephony_power_meter
+    name: JD Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.fridge_freezer_power_meter
+    name: House Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.freezer_power_meter
+    name: JD Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.home_entertainment_power_meter
+    name: House Energy Meter
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.surround_sound_power_meter
+    name: JD Energy Meter
+    unit_prefix: k
+    round: 2
