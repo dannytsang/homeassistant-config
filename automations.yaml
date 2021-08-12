@@ -585,39 +585,6 @@
       data:
         message: :sunrise:. Turn off night light
   mode: single
-- id: "1606256309890"
-  alias: "Office: Computer Turned Off"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.jd_computer
-      for: 00:10:00
-      to: not_home
-      from: home
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: device_tracker.unifi_security_gateway
-          state: unavailable
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":computer: :tv: Computer turned off for more than 10 minutes."
-    - scene: scene.office_turn_off_desk_light
-    - service: script.post_to_home_log
-      data:
-        messsage: Turned off desk lights.
-    - service: switch.turn_off
-      target:
-        entity_id: switch.goxlr
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":computer: :tv: Computer turned off for more than 10 minutes. Turned
-          off goXLR"
-    - service: script.office_turn_off_backup_drive
-  mode: single
 - id: "1610388192224"
   alias: "Lounge: TV Turned On"
   description: ""
@@ -1332,27 +1299,6 @@
               target:
                 entity_id: cover.leos_blinds
       default: []
-  mode: single
-- id: "1619865008647"
-  alias: "Office: Computer Turned On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.jd_computer
-      from: not_home
-      to: home
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":tv: Computer turned on."
-    - service: switch.turn_on
-      target:
-        entity_id: switch.goxlr
-    - service: script.post_to_home_log
-      data:
-        message: Turned on GoXLR.
-    - service: script.office_turn_on_external_hard_drive
   mode: single
 - id: "1622374233310"
   alias: "Office: Close Office Curtains At Night"
