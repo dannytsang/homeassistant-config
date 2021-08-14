@@ -30,6 +30,9 @@
       platform: time
   condition: []
   action:
+    - service: script.post_to_home_log
+      data:
+        message: ":clock2: Turning downstairs light off."
     - scene: scene.turn_off_downstairs_lights
   mode: single
 - id: "1582456019025"
@@ -1728,4 +1731,47 @@
           - 1113a7b5b2e35fdaf84ef16b64876b26
           - 9707324e4feaa91d866c3d03f35bb2d4
           - 181a0b1496f19f428500bb9262239310
+  mode: single
+- id: "1628985027639"
+  alias: "Conservatory: Door Open"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.conservatory_door
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: Conservatory door opened. Enabling conservatory camera :camera_with_flash:"
+    - service: switch.turn_on
+      target:
+        device_id: 181a0b1496f19f428500bb9262239310
+  mode: single
+- id: "1628985156167"
+  alias: "Conservatory: Door Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.conservatory_door
+      to: "off"
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: alarm_control_panel.stevenage_alarm
+                  state: armed_home
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":door: :camera: Conservatory door closed. Turning conservatory
+                  camera off."
+            - service: switch.turn_off
+              target:
+                device_id: 181a0b1496f19f428500bb9262239310
+      default: []
   mode: single
