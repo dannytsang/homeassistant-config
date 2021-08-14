@@ -349,7 +349,7 @@
         message: Water no longer detected in the conservatory
       service: script.post_to_home_log
 - id: "1594554327310"
-  alias: "People: Everyone Left And House Is Not Locked"
+  alias: "People: No One Home And House Is Not Locked"
   description: ""
   trigger:
     - entity_id: group.all_people
@@ -1166,9 +1166,9 @@
                               data:
                                 message: Disarming alarm and skipping turning off devices.
                       default:
-                        - service: script.1588939391030
+                        - service: script.everybody_leave_home
               default:
-                - service: script.1588939391030
+                - service: script.everybody_leave_home
   mode: single
 - id: "1619254173098"
   alias: "Leo's Room: Window Closed At Night"
@@ -1491,7 +1491,7 @@
             - service: alarm_control_panel.alarm_arm_away
               data: {}
               entity_id: alarm_control_panel.stevenage_alarm
-            - service: script.1588939391030
+            - service: script.everybody_leave_home
         - conditions:
             - condition: template
               value_template:
@@ -1518,7 +1518,7 @@
             - service: script.post_to_home_log
               data:
                 message: Guest mode override. Turning devices off only.
-            - service: script.1588939391030
+            - service: script.everybody_leave_home
       default: []
   mode: single
 - id: "1627285063813"
@@ -1699,3 +1699,25 @@
       default: []
   mode: queued
   max: 10
+- id: "1628956688014"
+  alias: "Alarm: Disarmed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: alarm_control_panel.stevenage_alarm
+      to: disarmed
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: :no_bell:Alarmed disarmed.
+    - service: script.post_to_home_log
+      data:
+        message: ":camera: Turning off indoor cameras."
+    - service: switch.turn_off
+      target:
+        device_id:
+          - 1113a7b5b2e35fdaf84ef16b64876b26
+          - 9707324e4feaa91d866c3d03f35bb2d4
+          - 181a0b1496f19f428500bb9262239310
+  mode: single
