@@ -8,41 +8,74 @@ automation:
       - platform: state
         entity_id: group.office_motion
         to: "on"
-    condition:
-      - condition: and
-        conditions:
-          - condition: numeric_state
-            entity_id: sensor.office_motion_light_level
-            below: "105"
-          - condition: numeric_state
-            entity_id: sensor.office_motion_2_light_level
-            below: "110"
-          - condition: state
-            entity_id: input_boolean.enable_office_motion_trigger
-            state: "on"
-          - condition: or
-            conditions:
-              - condition: numeric_state
-                entity_id: light.office_light_2
-                attribute: brightness
-                below: "200"
-              - condition: numeric_state
-                entity_id: light.office_light_3
-                attribute: brightness
-                below: "200"
-              - condition: template
-                value_template: "{{ state_attr('light.office_light_2', 'brightness') == none }}"
-              - condition: template
-                value_template: "{{ state_attr('light.office_light_3', 'brightness') == none }}"
+    condition: []
     action:
-      - scene: scene.office_turn_on_light
-      - data:
-          title: Office Motion Detected
-          message:
-            ":paw_prints: :bulb: :high_brightness: Motion detected in the office and it's dark ({{ states('sensor.office_motion_light_level')
-            }} & {{ states('sensor.office_motion_2_light_level') }} lux < 100 & 110 lux). Turning office lights
-            on."
-        service: script.post_to_home_log
+      - choose:
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: or
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: sensor.office_motion_light_level
+                        below: "105"
+                      - condition: numeric_state
+                        entity_id: sensor.office_motion_2_light_level
+                        below: "110"
+                  - condition: or
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: light.office_light_2
+                        attribute: brightness
+                        below: "200"
+                      - condition: numeric_state
+                        entity_id: light.office_light_3
+                        attribute: brightness
+                        below: "200"
+                      - condition: template
+                        value_template: "{{ state_attr('light.office_light_2', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.office_light_3', 'brightness') == none }}"
+            sequence:
+              - scene: scene.office_turn_on_light
+              - service: script.post_to_home_log
+                data:
+                  title: Office Motion Detected
+                  message: >-
+                    :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                    and it's dark ({{ states('sensor.office_motion_light_level') }} & {{
+                    states('sensor.office_motion_2_light_level') }} lux < 105 & 110
+                    lux). Turning office lights on.
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.office_motion_light_level
+                    above: "105"
+                  - condition: numeric_state
+                    entity_id: sensor.office_motion_2_light_level
+                    above: "110"
+                  - condition: or
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: light.office_light_2
+                        attribute: brightness
+                        below: "200"
+                      - condition: numeric_state
+                        entity_id: light.office_light_3
+                        attribute: brightness
+                        below: "200"
+            sequence:
+              - scene: scene.office_main_light_off
+              - service: script.post_to_home_log
+                data:
+                  title: Office Motion Detected
+                  message: >-
+                    :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                    and bright ({{ states('sensor.office_motion_light_level') }} & {{
+                    states('sensor.office_motion_2_light_level') }} lux > 105 & 110
+                    lux). Turning office lights off.
+        default: []
     mode: single
   - id: "1606170234725"
     alias: "^Office: No Motion After 5 Minutes"
@@ -61,6 +94,51 @@ automation:
             ":no_pedestrians: No motion detected in the office after 5 minutes.
             Dimming lights."
       - scene: scene.office_dim_main_lights
+    mode: single
+  - id: "1584277767373"
+    alias: "^Office: No Motion Detected And Computer Is Off"
+    description: ""
+    trigger:
+      - entity_id: group.office_motion
+        for: 00:06:00
+        platform: state
+        to: "off"
+      - platform: state
+        entity_id: input_boolean.enable_office_motion_trigger
+        to: "on"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: group.jd_computer
+            state: not_home
+    action:
+      - data:
+          message:
+            ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
+            and :computer: is not connected. Turning office and desk lights off."
+        service: script.post_to_home_log
+      - scene: scene.office_turn_off_all_lights
+    mode: single
+  - id: "1587044886886"
+    alias: "^Office: No Motion Detected And Computer Is On"
+    description: ""
+    trigger:
+      - entity_id: group.office_motion
+        for: 00:10:00
+        platform: state
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_trigger
+        state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":no_pedestrians: No motion detected in the office for 10 minutes and
+            :computer: is connected. Turning office light off."
+      - scene: scene.office_main_light_off
     mode: single
   # Plugs / switches
   - id: "1622584959878"
