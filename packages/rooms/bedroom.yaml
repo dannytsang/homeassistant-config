@@ -258,6 +258,10 @@ automation:
     trigger:
       - platform: time
         at: 09:30:00
+        id: "093000"
+      - platform: time
+        at: 10:30:00
+        id: "103000"
     condition:
       - condition: state
         entity_id: cover.bedroom_blind
@@ -266,12 +270,49 @@ automation:
         entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
     action:
-      - service: cover.open_cover
-        target:
-          entity_id: cover.bedroom_blind
-      - service: script.post_to_home_log
-        data:
-          message: ":clock930: :window: Opening blinds because it's closed and its 09:30!"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "on"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - condition: trigger
+                id: "093000"
+              - service: script.post_to_home_log
+                data:
+                  message: ":clock930: :window: Opening blinds because it's closed and its 09:30 on a weekday!"
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "off"
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: trigger
+                id: "093000"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.post_to_home_log
+                data:
+                  message: ":clock930: :window: Opening blinds because it's closed and its 09:30 on a weekend!"
+          - conditions:
+              - condition: trigger
+                id: "103000"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.post_to_home_log
+                data:
+                  message: ":clock1030: :window: Opening blinds because it's closed and its 10:30!"
+        default: []
     mode: single
   - id: "1621875567853"
     alias: "^Bedroom: Evening Timed Blinds"
