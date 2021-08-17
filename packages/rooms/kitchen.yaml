@@ -73,6 +73,16 @@ automation:
           - wed
           - thu
           - fri
+      - condition: or
+        conditions:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+          - condition: state
+            entity_id: group.all_people
+            state: home
     action:
       - scene: scene.kitchen_lights_on_3
       - data:
@@ -109,9 +119,16 @@ automation:
       - platform: time
         at: 06:45:00
     condition:
-      - condition: state
-        entity_id: group.all_people
-        state: home
+      - condition: or
+        conditions:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+          - condition: state
+            entity_id: group.all_people
+            state: home
     action:
       - scene: scene.kitchen_dim_kitchen_lights
       - data:
