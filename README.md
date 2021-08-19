@@ -62,3 +62,8 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
  * [Play light bar](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-play-light-bar-double-pack/7820230P7)
  * [White and colour ambiance (E14)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-single-bulb-e14/8718696695166)
  * [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
+
+### Ring
+Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
+ * [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
+ * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0
