@@ -63,6 +63,10 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
  * [White and colour ambiance (E14)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-single-bulb-e14/8718696695166)
  * [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
 
+### Wemos
+Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
+ * [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
+
 ### Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
  * [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
