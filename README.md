@@ -15,6 +15,10 @@ At the heart of everything are hubs / controllers. These are devices that bridge
  * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
  * [Conbee II](https://phoscon.de/en/conbee2)
 
+### Aqara
+I have just started to look at this manufacturer since I got the Conbee II stick.
+ * [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)
+
 ### Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
  * Dimmer switch
