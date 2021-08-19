@@ -30,6 +30,11 @@ I love Elgato products. They are generally well designed however you do pay a pr
  * [Key Light](https://www.elgato.com/en/key-light)
  * [Stream Deck](https://www.elgato.com/en/stream-deck)
 
+### Google
+
+ * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
+ * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
+
 ### Hive Home
 Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.
  * Hive 1 (SLT2)
