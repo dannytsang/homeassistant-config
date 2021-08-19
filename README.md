@@ -31,7 +31,7 @@ I love Elgato products. They are generally well designed however you do pay a pr
  * [Stream Deck](https://www.elgato.com/en/stream-deck)
 
 ### Google
-
+Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
  * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
  * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 
