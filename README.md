@@ -19,6 +19,12 @@ At the heart of everything are hubs / controllers. These are devices that bridge
 I have just started to look at this manufacturer since I got the Conbee II stick.
  * [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)
 
+### CurrentCost
+A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).
+ * [Data Cable](http://www.currentcost.com/product-datacable.html)
+ * [Envi](http://www.currentcost.com/product-cc128.html)
+ * [Individual Application Monitors](http://www.currentcost.com/product-iams.html)
+
 ### Elgato
 I love Elgato products. They are generally well designed however you do pay a price.
  * [Key Light](https://www.elgato.com/en/key-light)
