@@ -54,6 +54,10 @@ The light output is one of the best in terms of lumens. The colours are generall
  * Color 1000
  * [Mini White](https://eu.lifx.com/products/lifx-mini-white)
 
+### Logitech
+Until Broadlink came along, Logitech was the only player in town to integrate remote control. The hub has been unstable however there were no alternatives at the time. I haven't integrated any automations as a result.
+ * [Harmony Elite](https://www.logitech.com/en-gb/products/harmony/harmony-elite.915-000257.html?crid=60)
+
 ### Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
  * Dimmer switch
