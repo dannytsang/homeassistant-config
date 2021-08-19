@@ -30,6 +30,10 @@ I love Elgato products. They are generally well designed however you do pay a pr
  * [Key Light](https://www.elgato.com/en/key-light)
  * [Stream Deck](https://www.elgato.com/en/stream-deck)
 
+### Hive Home
+Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.
+ * Hive 1 (SLT2)
+
 ### Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
  * Dimmer switch
