@@ -19,6 +19,11 @@ At the heart of everything are hubs / controllers. These are devices that bridge
 I have just started to look at this manufacturer since I got the Conbee II stick.
  * [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)
 
+### Elgato
+I love Elgato products. They are generally well designed however you do pay a price.
+ * [Key Light](https://www.elgato.com/en/key-light)
+ * [Stream Deck](https://www.elgato.com/en/stream-deck)
+
 ### Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
  * Dimmer switch
