@@ -66,4 +66,9 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
 ### Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
  * [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
- * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0)
+ * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0) 
+
+### Roku
+Relatively cheap and usable media streaming device (compared to a PlayStation). Has a wide variety of support for apps and more reliable than Chromecast devices.
+ * [NowTV Smart Stick](https://www.nowtv.com/ie/smart-tv-stick)
+ * [Streaming stick+](https://www.roku.com/en-gb/products/streaming-stick-plus)
