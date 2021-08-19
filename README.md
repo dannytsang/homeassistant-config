@@ -15,6 +15,14 @@ At the heart of everything are hubs / controllers. These are devices that bridge
  * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
  * [Conbee II](https://phoscon.de/en/conbee2)
 
+### Amazon
+We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
+  * [Echo 1st Gen](https://www.amazon.com/Amazon-Echo-Bluetooth-Speaker-with-WiFi-Alexa-White/dp/B00X4WHP5E?th=1)
+  * [Echo dot 2nd Gen](https://www.amazon.co.uk/Amazon-Echo-Dot-2nd-Gen/dp/B01DFKBL68)
+  * [Echo dot 3rd Gen](https://www.amazon.co.uk/All-new-Echo-Dot-3rd-Gen/dp/B07PFFMV56/ref=sr_1_2?dchild=1&keywords=echo+dot+white&qid=1629415420&sr=8-2)
+  * [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
+  * [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
+
 ### Aqara
 I have just started to look at this manufacturer since I got the Conbee II stick.
  * [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)
