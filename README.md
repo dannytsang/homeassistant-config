@@ -54,6 +54,10 @@ The light output is one of the best in terms of lumens. The colours are generall
  * Color 1000
  * [Mini White](https://eu.lifx.com/products/lifx-mini-white)
 
+### Logitech
+Until Broadlink came along, Logitech was the only player in town to integrate remote control. The hub has been unstable however there were no alternatives at the time. I haven't integrated any automations as a result.
+ * [Harmony Elite](https://www.logitech.com/en-gb/products/harmony/harmony-elite.915-000257.html?crid=60)
+
 ### Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
  * Dimmer switch
@@ -70,12 +74,19 @@ A powerful and relatively cheap SOC board to power home projects. I have these m
 ### Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
  * [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
- * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0) 
+ * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0)
+ * [Stickup Cam Elite](https://en-uk.ring.com/products/stick-up-security-camera-elite)
 
 ### Roku
 Relatively cheap and usable media streaming device (compared to a PlayStation). Has a wide variety of support for apps and more reliable than Chromecast devices.
  * [NowTV Smart Stick](https://www.nowtv.com/ie/smart-tv-stick)
  * [Streaming stick+](https://www.roku.com/en-gb/products/streaming-stick-plus)
+
+### Samsung SmartThings
+Some real gems that Samsung has made like the multipurpose sensor where Philips doesn't have. Generally reliable and well packaged.
+ * [Multipurpose Sensor](https://www.samsung.com/uk/smartthings/sensor/smartthings-multipurpose-sensor-gp-u999sjvlaea/)
+ * [Smart Plug 2019](https://www.samsung.com/uk/smartthings/outlet/smartthings-smart-plug-gp-wou019bbdwg/)
+ * [Water Leak Sensors v3](https://www.samsung.com/uk/smartthings/sensors-plug-f-wtr-uk-v3/)
 
 ### Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
