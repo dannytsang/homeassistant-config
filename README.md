@@ -88,6 +88,13 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
  * [Smart Plug 2019](https://www.samsung.com/uk/smartthings/outlet/smartthings-smart-plug-gp-wou019bbdwg/)
  * [Water Leak Sensors v3](https://www.samsung.com/uk/smartthings/sensors-plug-f-wtr-uk-v3/)
 
+### Ubiquiti
+
+ * [Unifi AC Lite](https://www.ui.com/unifi/unifi-ap-ac-lite/)
+ * [Unifi Security Gateway](https://www.ui.com/unifi-routing/usg/)
+ * Unifi Swtich 8
+ * [Unifi Switch 24](https://store.ui.com/collections/unifi-network-switching/products/usw-24)
+
 ### Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
  * [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
