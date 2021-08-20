@@ -40,6 +40,10 @@ I love Elgato products. They are generally well designed however you do pay a pr
  * [Key Light](https://www.elgato.com/en/key-light)
  * [Stream Deck](https://www.elgato.com/en/stream-deck)
 
+### GLEDOPTO
+Third party WLED to Zigbee controller.
+ * RGB CCT 1D
+
 ### Google
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
  * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
