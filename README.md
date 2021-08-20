@@ -9,6 +9,8 @@ More details to follow. Visit my [blog](https://dannytsang.co.uk) in the mean ti
 ## Hardware
 I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) which allows me to cross eco system compatibility.
 
+[Home Assistant](https://home-assistant.io) is running on a Dell OptiPlex 3060 SFF running [Unraid](https://unraid.net/) as the base Operating System.
+
 ### Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
  * [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
