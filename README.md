@@ -119,3 +119,13 @@ This is not an exhaustive list and it changes quite a lot. Too keep up to date, 
  * [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
  * [Samba Backup](https://github.com/thomasmauerer/hassio-addons/tree/master/samba-backup)
  * [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
+
+# Integrations
+There are too many to list and changes now and then so I will list the ones that will help explain configurations.
+ * [CO2 Signal](https://www.home-assistant.io/integrations/co2signal/)
+ * [Frigate](https://github.com/blakeblackshear/frigate-hass-integration)
+ * [HACS](https://hacs.xyz/)
+ * [IFTTT](https://www.home-assistant.io/integrations/ifttt/)
+ * [Network UPS Tool](https://www.home-assistant.io/integrations/nut/)
+ * [Slack](https://www.home-assistant.io/integrations/slack/)
+ * [Ubiquiti Unifi](https://www.home-assistant.io/integrations/unifi/)
