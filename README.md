@@ -109,3 +109,13 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
 ### Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
  * [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
+
+# Integrtions
+This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.co.uk).
+ * [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
+ * [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
+ * [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
+ * [Mosquitto broker](https://github.com/home-assistant/addons/tree/master/mosquitto)
+ * [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
+ * [Samba Backup](https://github.com/thomasmauerer/hassio-addons/tree/master/samba-backup)
+ * [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
