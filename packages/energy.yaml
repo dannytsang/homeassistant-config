@@ -79,6 +79,13 @@ sensor:
           {% endif %}
         unit_of_measurement: "£"
 
+  - platform: template
+    sensors:
+      current_electriity_unit_cost:
+        value_template: "{% if [now().hour, now().minute]|join()|int <= 430  %} 0.05 {% else %} 0.1596 {% endif %}"
+        friendly_name: "Current Electricity Unit Cost"
+        unit_of_measurement: "£"
+        icon_template: mdi:cash-multiple
   # Total energy usage using energy@home <https://github.com/dannytsang/energyathome>
   - platform: sql
     db_url: !secret energyathome
