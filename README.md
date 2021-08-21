@@ -99,6 +99,10 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
  * [Smart Plug 2019](https://www.samsung.com/uk/smartthings/outlet/smartthings-smart-plug-gp-wou019bbdwg/)
  * [Water Leak Sensors v3](https://www.samsung.com/uk/smartthings/sensors-plug-f-wtr-uk-v3/)
 
+### Sonoff
+Relatively cheap hardware and some unique offering however lacks out of the box support.
+ * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
+
 ### Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
  * [Unifi AC Lite](https://www.ui.com/unifi/unifi-ap-ac-lite/)
