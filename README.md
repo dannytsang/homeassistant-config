@@ -2,7 +2,7 @@
 <a href="https://travis-ci.com/github/dannytsang/homeassistant-config" target="_blank"><img src="https://img.shields.io/travis/com/dannytsang/homeassistant-config?style=plastic"/></a>
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 
-Configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsangs.
+Configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang.
 
 More details to follow. Visit my [blog](https://dannytsang.co.uk) in the mean time.
 
