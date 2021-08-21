@@ -100,7 +100,7 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
  * [Water Leak Sensors v3](https://www.samsung.com/uk/smartthings/sensors-plug-f-wtr-uk-v3/)
 
 ### Ubiquiti
-
+Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
  * [Unifi AC Lite](https://www.ui.com/unifi/unifi-ap-ac-lite/)
  * [Unifi Security Gateway](https://www.ui.com/unifi-routing/usg/)
  * Unifi Swtich 8
