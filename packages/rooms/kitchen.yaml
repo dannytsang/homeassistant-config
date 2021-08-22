@@ -13,7 +13,7 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
+          message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights"
       - scene: scene.kitchen_lights_on_3
     mode: single
   - id: "1606652871369"
@@ -55,12 +55,13 @@ automation:
           - condition: sun
             before: sunset
     action:
-      - scene: scene.kitchen_lights_on_3
       - service: script.post_to_home_log
         data:
           message:
             ":no_pedestrians: No motion detected after :city_sunrise: and before
-            :city_sunset: Turning kitchen lights off."
+            :city_sunset: Turning kitchen all lights off."
+      - scene: scene.kitchen_main_lights_on
+      - scene: scene.kitchen_lights_on_3
     mode: single
   - id: "1606294735952"
     alias: "^Kitchen: Turn Off Lights In The Morning"
@@ -113,7 +114,7 @@ automation:
         default: []
     mode: single
   - id: "1588197104336"
-    alias: "^Kitchen: Turn On Lights (Dim)"
+    alias: "^Kitchen: Timed Turn On Lights (Dim)"
     description: ""
     trigger:
       - event: sunset
@@ -160,10 +161,160 @@ automation:
           - condition: template
             value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
     action:
-      - scene: scene.kitchen_lights_on_2
-      - service: script.post_to_home_log
-        data:
-          message: ":paw_prints: :bulb: :high_brightness: Motion detected in the kitchen ({{ states('sensor.kitchen_motion_light_level') }} & {{ states('sensor.kitchen_motion_2_light_level') }} lux). Turning lights on to full brightness."
+      - choose:
+          - conditions:
+              - condition: and
+                conditions:
+                  - condition: or
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: light.kitchen_cabinet_light
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_down_light
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_drawers
+                        attribute: brightness
+                        below: "100"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_cabinet_light', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_drawers', 'brightness') == none }}"
+                  - condition: or
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: light.kitchen_left
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_left_2
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_middle
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_middle_2
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_right
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_right_2
+                        attribute: brightness
+                        below: "100"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_left', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_left_2', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_middle', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_middle_2', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_right', 'brightness') == none }}"
+                      - condition: template
+                        value_template: "{{ state_attr('light.kitchen_right_2', 'brightness') == none }}"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  data:
+                    message: >-
+                      :paw_prints: :bulb: :high_brightness: Motion detected in the
+                      kitchen ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                      states('sensor.kitchen_motion_2_light_level') }} lux). Turning
+                      all lights on to full brightness.
+              - scene: scene.kitchen_main_lights_on
+              - scene: scene.kitchen_lights_on_2
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: numeric_state
+                    entity_id: light.kitchen_cabinet_light
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_down_light
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_drawers
+                    attribute: brightness
+                    below: "100"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_cabinet_light', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_drawers', 'brightness') == none }}"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  data:
+                    message: >-
+                      :paw_prints: :bulb: :high_brightness: Motion detected in the
+                      kitchen ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                      states('sensor.kitchen_motion_2_light_level') }} lux). Turning
+                      side lights on to full brightness.
+              - scene: scene.kitchen_lights_on_2
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: numeric_state
+                    entity_id: light.kitchen_left
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_left_2
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_middle
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_middle_2
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_right
+                    attribute: brightness
+                    below: "100"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_right_2
+                    attribute: brightness
+                    below: "100"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_left', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_left_2', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_middle', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_middle_2', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_right', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_right_2', 'brightness') == none }}"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  data:
+                    message: >-
+                      :paw_prints: :bulb: :high_brightness: Motion detected in the
+                      kitchen ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                      states('sensor.kitchen_motion_2_light_level') }} lux). Turning
+                      main lights on to full brightness.
+              - scene: scene.kitchen_main_lights_on
+        default: []
     mode: single
   - id: "1606158459561"
     alias: "^Kitchen: No Motion In The Evening After 5 Minutes"
@@ -179,10 +330,11 @@ automation:
       - condition: time
         before: "23:30:00"
     action:
-      - scene: scene.kitchen_dim_kitchen_lights
       - service: script.post_to_home_log
         data:
           message: ":no_pedestrians: :bulb: :low_brightness: No motion detected after :city_sunset: and before :clock1130: Dimming kitchen lights."
+      - scene: scene.kitchen_dim_kitchen_lights
+      - scene: scene.kitchen_main_lights_off
     mode: single
   - id: "1606158610314"
     alias: "^Kitchen: Turn Off Lights"
