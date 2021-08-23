@@ -127,8 +127,10 @@ This is not an exhaustive list and it changes quite a lot. Too keep up to date, 
 * [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
 
 # Integrations
-There are too many to list and changes now and then so I will list the ones that will help explain configurations.
+There are too many to list and changes now and then so I will list the ones that will help explain configurations. These may include integrations from [HACS](https://hacs.xyz/).
 * [CO2 Signal](https://www.home-assistant.io/integrations/co2signal/)
+* [HASS-Deepstack-face](https://github.com/robmarkcole/HASS-Deepstack-face)
+* [HASS-Deepstack-object](https://github.com/robmarkcole/HASS-Deepstack-object)
 * [Frigate](https://github.com/blakeblackshear/frigate-hass-integration)
 * [HACS](https://hacs.xyz/)
 * [IFTTT](https://www.home-assistant.io/integrations/ifttt/)
