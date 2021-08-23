@@ -67,14 +67,10 @@ everybody_leave_home:
     - service: script.post_to_home_log
       data:
         message: ":camera_with_flash: Turning on all cameras."
-    - service: switch.turn_on
-      target:
-        device_id:
-          - 1113a7b5b2e35fdaf84ef16b64876b26
-          - 9707324e4feaa91d866c3d03f35bb2d4
-          - bdf082f58c55dfb5d2aafbcb60913837
-          - 181a0b1496f19f428500bb9262239310
-
+    - service: script.conservatory_turn_off_camera
+    - service: script.lounge_turn_off_camera
+    - service: script.upstairs_turn_off_camera
+    - service: script.front_garden_turn_on_camera
   mode: single
 "1589652888991":
   alias: Someone Arrives Home
@@ -408,3 +404,91 @@ post_actionable_notification_with_3_buttons:
               action: "{{ action3_name }}"
   mode: single
   icon: mdi:cellphone
+lounge_turn_off_camera:
+  alias: Lounge Turn Off Camera
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.lounge_camera_clips
+          - switch.lounge_camera_detect
+          - switch.lounge_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+lounge_turn_on_camera:
+  alias: Lounge Turn On Camera
+  sequence:
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.lounge_camera_clips
+          - switch.lounge_camera_detect
+          - switch.lounge_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+conservatory_turn_off_camera:
+  alias: Conservatory Turn Off Camera
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.conservatory_camera_clips
+          - switch.conservatory_camera_detect
+          - switch.conservatory_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+conservatory_turn_on_camera:
+  alias: Conservatory Turn On Camera
+  sequence:
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.conservatory_camera_clips
+          - switch.conservatory_camera_detect
+          - switch.conservatory_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+upstairs_turn_on_camera:
+  alias: Upstairs Turn On Camera
+  sequence:
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.upstairs_camera_clips
+          - switch.upstairs_camera_detect
+          - switch.upstairs_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+upstairs_turn_off_camera:
+  alias: Upstairs Turn Off Camera
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.upstairs_camera_clips
+          - switch.upstairs_camera_detect
+          - switch.upstairs_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+front_garden_turn_off_camera:
+  alias: Front Garden Turn Off Camera
+  sequence:
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.driveway_camera_clips
+          - switch.driveway_camera_detect
+          - switch.driveway_camera_snapshots
+  mode: single
+  icon: mdi:cctv
+front_garden_turn_on_camera:
+  alias: Front Garden Turn On Camera
+  sequence:
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.driveway_camera_clips
+          - switch.driveway_camera_detect
+          - switch.driveway_camera_snapshots
+  mode: single
+  icon: mdi:cctv
