@@ -9,20 +9,40 @@ automation:
         entity_id: binary_sensor.stairs_motion
         from: "off"
         to: "on"
-    condition:
-      - condition: state
-        entity_id: light.stairs_2
-        state: "off"
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_trigger
-        state: "on"
+    condition: []
     action:
       - choose:
+          - conditions:
+              - condition: sun
+                after: sunrise
+              - condition: state
+                entity_id: light.stairs_2
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_stairs_motion_trigger
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :high_brightness: Motion detected at the bottom of
+                    the stairs. Turning stairs light."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_2_on
+                data:
+                  transition: 1
           - conditions:
               - condition: time
                 after: 00:00:00
               - condition: sun
                 before: sunrise
+              - condition: state
+                entity_id: light.stairs_2
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_stairs_motion_trigger
+                state: "on"
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -30,17 +50,7 @@ automation:
                     ":paw_prints: :low_brightness: Motion detected at the bottom of
                     the stairs and it's night time. Turning stairs light on dim."
               - scene: scene.stairs_light_dim
-        default:
-          - service: script.post_to_home_log
-            data:
-              message:
-                ":paw_prints: :high_brightness: Motion detected at the bottom of
-                the stairs. Turning stairs light."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_on
-        data:
-          transition: 2
+        default: []
     mode: single
   - id: "1592062695452"
     alias: "^Stairs: Motion Detected And MagicMirror Is Off"
