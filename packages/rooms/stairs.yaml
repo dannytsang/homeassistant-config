@@ -89,30 +89,54 @@ automation:
         for: 00:01:00
         platform: state
         to: "off"
+        id: upstairs
+      - platform: state
+        entity_id: binary_sensor.stairs_motion
+        to: "off"
+        for: 00:01:00
+        id: bottom_stairs
     condition:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_trigger
         state: "on"
     action:
-      - scene: scene.stairs_light_off
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_off
-        data:
-          transition: 1
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 1
-          milliseconds: 0
-      - service: light.turn_off
-        target:
-          entity_id: light.stairs_2
-      - data:
-          message:
-            ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
-            stairs light off."
-        service: script.post_to_home_log
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: upstairs
+            sequence:
+              - data:
+                  message:
+                    ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
+                    stairs light off."
+                service: script.post_to_home_log
+              - scene: scene.stairs_light_off
+        default: []
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: light.stairs_2
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
+                    for 1 minute. Turning stairs ambient light off."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_2_off
+                data:
+                  transition: 1
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 1
+                  milliseconds: 0
+              - service: light.turn_off
+                target:
+                  entity_id: light.stairs_2
+        default: []
     mode: single
   - id: "1624918387840"
     alias: "^Stairs: No Motion Detected Bottom Of Stairs"
