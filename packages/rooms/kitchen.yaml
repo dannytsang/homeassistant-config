@@ -14,7 +14,7 @@ automation:
       - service: script.post_to_home_log
         data:
           message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights"
-      - scene: scene.kitchen_lights_on_3
+      - scene: scene.kitchen_main_lights_off
     mode: single
   - id: "1606652871369"
     alias: "^Kitchen: No Motion"
@@ -41,24 +41,38 @@ automation:
             sequence:
               - service: script.post_to_home_log
                 data:
-                  message: >-
-                    :no_pedestrians: No motion detected after :city_sunrise: and before
-                    :city_sunset: Turning kitchen all lights off.
-              - scene: scene.kitchen_lights_on_3
+                  message:
+                    ":no_pedestrians: No motion detected after :city_sunrise:
+                    and before :city_sunset: Turning kitchen all lights off."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_main_lights_off
           - conditions:
               - condition: and
                 conditions:
                   - condition: sun
-                    before: sunset
+                    after: sunset
                   - condition: time
-                    after: "23:30:00"
+                    before: "23:30:00"
             sequence:
               - service: script.post_to_home_log
                 data:
                   message:
-                    ":no_pedestrians: No motion detected after :city_sunrise: and before
-                    :city_sunset: Turning kitchen lights off (1)."
-              - scene: scene.kitchen_lights_on_3
+                    ":no_pedestrians: No motion detected after :city_sunset: and before
+                    :clock1130: Dimming kitchen side lights."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_dim_kitchen_lights
+          - conditions:
+              - condition: time
+                after: "23:30:00"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":no_pedestrians: No motion detected after :clock1130: Turning kitchen all lights off."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_main_lights_off
         default: []
       - choose:
           - conditions:
@@ -144,7 +158,7 @@ automation:
                 data:
                   message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights'
 
-              - scene: scene.kitchen_lights_on_3
+              - scene: scene.kitchen_main_lights_off
           - conditions:
               - condition: time
                 weekday:
@@ -156,7 +170,7 @@ automation:
               - service: script.post_to_home_log
                 data:
                   message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
-              - scene: scene.kitchen_lights_on_3
+              - scene: scene.kitchen_main_lights_off
         default: []
     mode: single
   - id: "1588197104336"
@@ -281,7 +295,7 @@ automation:
                     message: >-
                       :paw_prints: :bulb: :high_brightness: Motion detected in the
                       kitchen. Turning side lights on to full brightness.
-              - scene: scene.kitchen_lights_on_2
+              - scene: scene.kitchen_side_lights_on
         default: []
     mode: single
   - id: "1606158459561"
@@ -318,7 +332,7 @@ automation:
       - condition: sun
         before: sunset
     action:
-      - scene: scene.kitchen_lights_on_3
+      - scene: scene.kitchen_main_lights_off
       - service: script.post_to_home_log
         data:
           message: ':no_pedestrians: :clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 and now().minute | int < 35 %} 30 {% else %} {% endif %}: No motion in the kitchen after 23:30. Turning lights off.'
@@ -460,7 +474,7 @@ scene:
         friendly_name: Kitchen Right 2
         supported_features: 35
         state: "on"
-  - id: "1629659773767"
+  - id: "kitchen_main_lights_off"
     name: Kitchen Main Lights Off
     entities:
       light.kitchen_left:

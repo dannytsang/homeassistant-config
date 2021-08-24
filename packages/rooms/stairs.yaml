@@ -84,12 +84,20 @@ automation:
         entity_id: input_boolean.enable_stairs_motion_trigger
         state: "on"
     action:
-      - scene: scene.landing_turn_light_off
+      - scene: scene.stairs_light_off
       - service: scene.turn_on
         target:
           entity_id: scene.stairs_light_2_off
         data:
-          transition: 2
+          transition: 1
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - service: light.turn_off
+        target:
+          entity_id: light.stairs_2
       - data:
           message:
             ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
@@ -430,7 +438,7 @@ scene:
         friendly_name: Stairs Light
         supported_features: 55
         state: "on"
-  - id: "1612220751261"
+  - id: "stairs_light_off"
     name: "Stairs: Turn Light Off"
     entities:
       light.stairs:
@@ -458,18 +466,60 @@ scene:
         friendly_name: Stairs Light
         supported_features: 55
         state: "on"
-  - id: '1623880453377'
+  - id: "1623880439954"
+    name: Stairs Light 2 On
+    entities:
+      light.stairs_2:
+        min_mireds: 155
+        max_mireds: 495
+        effect_list:
+          - colorloop
+          - random
+        supported_color_modes:
+          - color_temp
+          - hs
+        color_mode: color_temp
+        brightness: 255
+        color_temp: 430
+        effect: none
+        friendly_name: Stairs 2
+        supported_features: 63
+        state: "on"
+  - id: "1623970390049"
+    name: Stairs 2 Light Dim
+    entities:
+      light.stairs_2:
+        min_mireds: 155
+        max_mireds: 495
+        effect_list:
+          - colorloop
+          - random
+        supported_color_modes:
+          - color_temp
+          - hs
+        color_mode: color_temp
+        brightness: 38
+        color_temp: 430
+        effect: none
+        friendly_name: Stairs 2
+        supported_features: 63
+        state: "on"
+  - id: "stairs_light_2_off"
     name: Stairs Light 2 Off
     entities:
       light.stairs_2:
         min_mireds: 155
         max_mireds: 495
         effect_list:
-        - colorloop
-        - random
+          - colorloop
+          - random
         supported_color_modes:
-        - color_temp
-        - hs
+          - color_temp
+          - hs
+        color_mode: color_temp
+        brightness: 0
+        color_temp: 430
+        effect: none
         friendly_name: Stairs 2
         supported_features: 63
-        state: 'off'
+        state: "on"
