@@ -57,40 +57,6 @@ script:
               - condition: state
                 entity_id: input_boolean.enable_mobile_direct_notifications
                 state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_slack_direct_messages
-                state: "on"
-            sequence:
-              - service: notify.mobile_app_dannys_phone
-                data:
-                  message: "{{ message }}"
-              - data:
-                  message: "@terina {{ message }}"
-                  target: "#general"
-                  data:
-                    blocks: []
-                service: notify.slack_notify
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_slack_direct_messages
-                state: "on"
-            sequence:
-              - data:
-                  message: "@danny @terina {{ message }}"
-                  target: "#general"
-                  data:
-                    blocks: []
-                service: notify.slack_notify
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_slack_direct_messages
-                state: "off"
             sequence:
               - service: notify.mobile_app_dannys_phone
                 data:
@@ -98,6 +64,19 @@ script:
               - service: notify.mobile_app_terina_s_phone
                 data:
                   message: "{{ message }}"
+        default: []
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_slack_direct_messages
+                state: "on"
+            sequence:
+              - data:
+                  message: "@terina @danny {{ message }}"
+                  target: "#general"
+                  data:
+                    blocks: []
+                service: notify.slack_notify
         default: []
   post_to_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
