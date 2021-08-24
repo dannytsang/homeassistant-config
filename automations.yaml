@@ -32,7 +32,10 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs light off."
+        message:
+          ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
+          25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
+          light off."
     - scene: scene.turn_off_downstairs_lights
   mode: single
 - id: "1582456019025"
@@ -555,64 +558,6 @@
     - service: script.post_direct_message_to_danny
       data:
         message: TV turned on.
-  mode: single
-- id: "1610409803685"
-  alias: "Lounge: TV Turned Off 2"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.tv_plug_power_meter
-      for: 00:10:00
-      below: "35"
-  condition:
-    - condition: state
-      entity_id: group.lounge_lights
-      state: "on"
-    - condition: state
-      entity_id: group.lounge_motion
-      state: "off"
-    - condition: template
-      value_template:
-        " {{ (as_timestamp(now())-as_timestamp(states.group.lounge_motion.last_updated))
-        > 300 }}"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: TV turned off for 10 minutes. Turning lounge lights off.
-    - scene: scene.lounge_lights_off
-  mode: single
-- id: "1611063957341"
-  alias: "Lounge: Server Fan Running Longer Than 1 Hour"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: switch.server_fan
-      to: "on"
-      for: 01:00:00
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          Server fan has been running for more than 1 hour. Consider turning
-          Fan off.
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: input_boolean.enable_mobile_direct_notifications
-              state: "on"
-          sequence:
-            - service: notify.mobile_app_dannys_phone
-              data:
-                message: Turn off server fan?
-                data:
-                  actions:
-                    - title: "Yes"
-                      action: server_fan_off
-                    - title: "No"
-                      action: ignore
-                title: Server fan on for over 1 hour
-      default: []
   mode: single
 - id: "1611094285340"
   alias: "Calendar: Terina WFH"
@@ -1714,7 +1659,10 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Leo's window is open. Skipping closing blinds."
+                message:
+                  ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                  > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Leo's
+                  window is open. Skipping closing blinds."
         - conditions:
             - condition: state
               entity_id: binary_sensor.leos_window
@@ -1722,7 +1670,10 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing Leo's blinds"
+                message:
+                  ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                  > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
+                  Leo's blinds"
             - service: cover.close_cover
               target:
                 entity_id: cover.leos_blinds
