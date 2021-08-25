@@ -6,9 +6,9 @@ automation:
     description: ""
     trigger:
       - entity_id: sensor.lounge_ups_status_data
-        from: OL CHRG
+        from: "OL CHRG"
         platform: state
-        to: OL
+        to: "OL"
     condition: []
     action:
       - data:
@@ -20,7 +20,7 @@ automation:
     trigger:
       - entity_id: sensor.lounge_ups_status_data
         platform: state
-        to: OL CHRG
+        to: "OL CHRG"
     condition: []
     action:
       - data:
@@ -50,24 +50,58 @@ automation:
     trigger:
       - entity_id: sensor.computer_ups_status_data
         platform: state
-        to: OL CHRG
+        from: "OB DISCHRG"
+        to: "OL CHRG"
+        id: battery_to_charge
+      - entity_id: sensor.computer_ups_status_data
+        platform: state
+        to: "OL CHRG"
+        id: charge
     condition: []
     action:
-      - data:
-          message: ":electric_plug: :battery: PC UPS is charging :electric_plug: :battery:"
-        service: script.post_to_home_log
-      - data:
-          message: ":electric_plug: :battery: PC UPS is charging :electric_plug: :battery:"
-        service: script.post_to_direct_notification
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: charge
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: PC UPS is charging :electric_plug: :battery:"
+        default: []
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: battery_to_charge
+              - condition: state
+                entity_id: input_boolean.enable_slack_direct_messages
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: PC UPS went from battery to charging :electric_plug: :battery:"
+              - service: script.post_to_direct_notification
+                data:
+                  message: ":electric_plug: :battery: PC UPS went from battery to charging :electric_plug: :battery:"
+          - conditions:
+              - condition: trigger
+                id: battery_to_charge
+              - condition: state
+                entity_id: input_boolean.enable_slack_direct_messages
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: PC UPS went from battery to charging :electric_plug: :battery:"
+        default: []
     mode: single
   - id: "1613246283969"
     alias: "^UPS: Office PC Fully Charged"
     description: ""
     trigger:
       - entity_id: sensor.computer_ups_status_data
-        from: OL CHRG
+        from: "OL CHRG"
         platform: state
-        to: OL
+        to: "OL"
     condition: []
     action:
       - data:
@@ -80,9 +114,9 @@ automation:
     description: ""
     trigger:
       - entity_id: sensor.server_ups_status_data
-        from: OL CHRG
+        from: "OL CHRG"
         platform: state
-        to: OL
+        to: "OL"
     condition: []
     action:
       - data:
@@ -95,7 +129,7 @@ automation:
     trigger:
       - entity_id: sensor.server_ups_status_data
         platform: state
-        to: OL CHRG
+        to: "OL CHRG"
     condition: []
     action:
       - data:
