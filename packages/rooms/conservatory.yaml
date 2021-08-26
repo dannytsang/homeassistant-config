@@ -99,6 +99,34 @@ automation:
           message: ":no_pedestrians: No motion in conservatory. Turning lights off."
       - scene: scene.conservatory_turn_off_light
     mode: single
+  # Camera
+  - id: "1629146628067"
+    alias: "^Conservatory: Person Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.conservatory_camera_person_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: switch.conservatory_camera_detect
+        state: "on"
+    action:
+      - service: camera.snapshot
+        data_template:
+          filename:
+            "{{ states('input_text.latest_frigate_conservatory_person_file_path')
+            }}"
+        target:
+          entity_id: camera.conservatory_camera_person
+      - service: script.post_to_home_log_with_local_attachments
+        data_template:
+          title: Person detected in conservatory
+          message: Frigate detected a person in the conservatory.
+          filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
+    mode: queued
+    max: 10
 input_boolean:
   enable_conservatory_motion_trigger:
     name: Enable motion trigger for conservatory

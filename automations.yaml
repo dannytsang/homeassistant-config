@@ -1583,38 +1583,23 @@
                 device_id: 181a0b1496f19f428500bb9262239310
       default: []
   mode: single
-- id: "1629146628067"
-  alias: "Conservatory: Person Detected"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.conservatory_camera_person_motion
-      from: "off"
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: switch.conservatory_camera_detect
-      state: "on"
-  action:
-    - service: camera.snapshot
-      data_template:
-        filename:
-          "{{ states('input_text.latest_frigate_conservatory_person_file_path')
-          }}"
-      target:
-        entity_id: camera.conservatory_camera_person
-    - service: script.post_to_home_log_with_local_attachments
-      data_template:
-        title: Person detected in conservatory
-        message: Frigate detected a person in the conservatory.
-        filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
-  mode: single
 - id: "1629147974029"
   alias: "Front Garden: Person Detected"
   description: ""
   trigger:
     - platform: state
-      entity_id: binary_sensor.driveway_camera_person_motion
+      entity_id: binary_sensor.road_person_motion
+      from: "off"
+      to: "on"
+      id: road
+    - platform: state
+      entity_id: binary_sensor.shared_driveway_person_motion
+      id: shared_driveway
+      from: "off"
+      to: "on"
+    - platform: state
+      entity_id: binary_sensor.front_garden_person_motion
+      id: front_garden
       from: "off"
       to: "on"
   condition:
@@ -1629,14 +1614,43 @@
           }}"
       target:
         entity_id: camera.driveway_camera_person
-    - service: script.post_to_home_log_with_local_attachments
-      data_template:
-        title: Person detected on driveway
-        message: Frigate detected a person in the driveway.
-        filePath:
-          "{{ states('input_text.latest_frigate_driveway_person_file_path')
-          }}"
-  mode: single
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: front_garden
+          sequence:
+            - service: script.post_to_home_log_with_local_attachments
+              data_template:
+                title: Person detected in the front garden
+                message: Frigate detected a person in the front garden.
+                filePath:
+                  "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                  }}"
+        - conditions:
+            - condition: trigger
+              id: shared_driveway
+          sequence:
+            - service: script.post_to_home_log_with_local_attachments
+              data_template:
+                title: Person detected in the shared driveway
+                message: Frigate detected a person in the shared driveway.
+                filePath:
+                  "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                  }}"
+        - conditions:
+            - condition: trigger
+              id: general
+          sequence:
+            - service: script.post_to_home_log_with_local_attachments
+              data_template:
+                title: Person detected in the road
+                message: Frigate detected a person in the road.
+                filePath:
+                  "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                  }}"
+      default: []
+  mode: queued
+  max: 10
 - id: "1629844319596"
   alias: "Leo's Bedroom: Timed Close Blinds"
   description: ""
