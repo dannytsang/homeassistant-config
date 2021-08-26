@@ -18,17 +18,51 @@ automation:
     alias: "^UPS: Lounge Charging"
     description: ""
     trigger:
+      - entity_id: sensor.computer_ups_status_data
+        platform: state
+        from: "OB DISCHRG"
+        to: "OL CHRG"
+        id: battery_to_charge
       - entity_id: sensor.lounge_ups_status_data
         platform: state
         to: "OL CHRG"
+        id: "charge"
     condition: []
     action:
-      - data:
-          message: ":electric_plug: :battery: Lounge UPS is charging :electric_plug: :battery:"
-        service: script.post_to_home_log
-      - data:
-          message: ":electric_plug: :battery: Lounge UPS is charging :electric_plug: :battery:"
-        service: script.post_to_direct_notification
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: charge
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: Lounge UPS is charging :electric_plug: :battery:"
+        default: []
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: battery_to_charge
+              - condition: state
+                entity_id: input_boolean.enable_slack_direct_messages
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: Lounge UPS went from battery to charging :electric_plug: :battery:"
+              - service: script.post_to_direct_notification
+                data:
+                  message: ":electric_plug: :battery: Lounge UPS went from battery to charging :electric_plug: :battery:"
+          - conditions:
+              - condition: trigger
+                id: battery_to_charge
+              - condition: state
+                entity_id: input_boolean.enable_slack_direct_messages
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":electric_plug: :battery: Lounge UPS went from battery to charging :electric_plug: :battery:"
+        default: []
     mode: single
   # PC
   - id: "1613324300208"
