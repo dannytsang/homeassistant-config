@@ -1693,3 +1693,57 @@
                 entity_id: cover.leos_blinds
       default: []
   mode: single
+- id: "1630015410190"
+  alias: "Stairs: Person Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.upstairs_camera_person_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: switch.upstairs_camera_detect
+      state: "on"
+  action:
+    - service: camera.snapshot
+      data_template:
+        filename:
+          "{{ states('input_text.latest_frigate_upstairs_person_file_path')
+          }}"
+      target:
+        entity_id: camera.conservatory_camera_person
+    - service: script.post_to_home_log_with_local_attachments
+      data_template:
+        title: Person detected on stairs
+        message: Frigate detected a person on the stairs.
+        filePath: "{{ states('input_text.latest_frigate_upstairs_person_file_path') }}"
+  mode: queued
+  max: 10
+- id: "1630015457540"
+  alias: "Lounge: Person Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.lounge_camera_person_motion
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: switch.lounge_camera_detect
+      state: "on"
+  action:
+    - service: camera.snapshot
+      data_template:
+        filename:
+          "{{ states('input_text.latest_frigate_lounge_person_file_path')
+          }}"
+      target:
+        entity_id: camera.conservatory_camera_person
+    - service: script.post_to_home_log_with_local_attachments
+      data_template:
+        title: Person detected in lounge
+        message: Frigate detected a person in the lounge.
+        filePath: "{{ states('input_text.latest_frigate_lounge_person_file_path') }}"
+  mode: queued
+  max: 10
