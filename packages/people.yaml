@@ -171,6 +171,65 @@ automation:
                 default:
                   - service: script.everybody_leave_home
     mode: single
+  - id: "1594554327310"
+    alias: "^People: No One Home And House Is Not Locked"
+    description: ""
+    trigger:
+      - entity_id: group.all_people
+        for: 00:02:00
+        platform: state
+        to: not_home
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: device_tracker.unifi_security_gateway
+            state: unavailable
+      - condition: state
+        entity_id: group.alarmed_doors_and_windows
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_home_presence_detection
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Guest
+                  - condition: state
+                    entity_id: input_boolean.enable_slack_direct_messages
+                    state: "on"
+            sequence:
+              - service: script.post_to_direct_notification
+                data:
+                  message:
+                    ":warning: :door: :window: The following entrances are still open:
+                    {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                    %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                    }} {% endif %}{% endfor %}"
+                  title: No one is home and couldn't turn on the alarm
+        default: []
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Guest
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":warning: :door: :window: The following entrances are still open:
+                    {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                    %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                    }} {% endif %}{% endfor %}"
+                  title: No one is home and couldn't turn on the alarm
+        default: []
+    mode: single
 proximity:
   danny_dannys_parents:
     ignored_zones:
