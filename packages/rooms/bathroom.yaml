@@ -58,35 +58,6 @@ automation:
               - scene: scene.bathroom_light_on
         default: []
     mode: single
-  - id: "1610314564871"
-    alias: "^Bathroom: No Motion Detected And Bathroom Door Is Open Dimming Lights"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.bathroom_motion
-        to: "off"
-        for: 00:03:00
-    condition:
-      - condition: state
-        entity_id: light.bathroom_light
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_bathroom_motion_trigger
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.bathroom_door
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.bathroom_light_override
-        state: "off"
-    action:
-      - scene: scene.bathroom_dim_lights
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":no_pedestrians: :bulb: :low_brightness: No motion and door is open.
-            Dimming bathroom light."
-    mode: single
   - id: "1610314735644"
     alias: "^Bathroom: No Motion Detected And Bathroom Door Is Open 2"
     description: ""
@@ -117,13 +88,19 @@ automation:
             light off."
     mode: single
   - id: "1611164800136"
-    alias: "^Bathroom: No Motion Detected And Bathroom Door Is Closed Dimming Lights"
+    alias: "^Bathroom: No Motion Detected Dimming Lights"
     description: ""
     trigger:
       - platform: state
         entity_id: group.bathroom_motion
         to: "off"
+        for: 00:03:00
+        id: short
+      - platform: state
+        entity_id: group.bathroom_motion
+        to: "off"
         for: 00:10:00
+        id: long
     condition:
       - condition: state
         entity_id: light.bathroom_light
@@ -131,16 +108,42 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_trigger
         state: "on"
-      - condition: state
-        entity_id: binary_sensor.bathroom_door
-        state: "off"
     action:
-      - scene: scene.bathroom_dim_lights
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door
-            is closed. Dimming bathroom light."
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "off"
+              - condition: trigger
+                id: short
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":no_pedestrians: :bulb: :low_brightness: No motion and door is open.
+                    Dimming bathroom light."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_dim_lights
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "off"
+              - condition: trigger
+                id: long
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":no_pedestrians: :bathtub: :bulb: :low_brightness: No motion and door
+                    is closed. Dimming bathroom light."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_dim_lights
+        default: []
     mode: single
   - id: "1611165055857"
     alias: "^Bathroom: No Motion Detected And Bathroom Door Is Closed 2"
