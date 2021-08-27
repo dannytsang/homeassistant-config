@@ -59,13 +59,19 @@ automation:
         default: []
     mode: single
   - id: "1610314735644"
-    alias: "^Bathroom: No Motion Detected And Bathroom Door Is Open 2"
+    alias: "^Bathroom: No Motion Detected"
     description: ""
     trigger:
       - platform: state
         to: "off"
         for: 00:03:30
         entity_id: group.bathroom_motion
+        id: door_open
+      - platform: state
+        to: "off"
+        for: 00:12:00
+        entity_id: group.bathroom_motion
+        id: door_closed
     condition:
       - condition: state
         entity_id: light.bathroom_light
@@ -73,19 +79,42 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_trigger
         state: "on"
-      - condition: state
-        entity_id: binary_sensor.bathroom_door
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.bathroom_light_override
-        state: "off"
     action:
-      - scene: scene.bathroom_turn_off_light
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":no_pedestrians: No motion again and door is open. Turning bathroom
-            light off."
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.bathroom_door
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.bathroom_light_override
+              state: "off"
+            - condition: trigger
+              id: door_open
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":no_pedestrians: No motion again and door is open. Turning bathroom
+                  light off."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.bathroom_turn_off_light
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.bathroom_door
+              state: "off"
+            - condition: trigger
+              id: door_closed
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":no_pedestrians: No motion again and door is closed. Turning bathroom
+                  light off."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.bathroom_turn_off_light
+        default: []
     mode: single
   - id: "1611164800136"
     alias: "^Bathroom: No Motion Detected Dimming Lights"
@@ -145,32 +174,6 @@ automation:
                   entity_id: scene.bathroom_dim_lights
         default: []
     mode: single
-  - id: "1611165055857"
-    alias: "^Bathroom: No Motion Detected And Bathroom Door Is Closed 2"
-    description: ""
-    trigger:
-      - platform: state
-        to: "off"
-        for: 00:12:00
-        entity_id: group.bathroom_motion
-    condition:
-      - condition: state
-        entity_id: light.bathroom_light
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_bathroom_motion_trigger
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.bathroom_door
-        state: "off"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":no_pedestrians: No motion again and door is closed. Turning bathroom
-            light off."
-      - scene: scene.bathroom_turn_off_light
-    mode: single
   - id: "1613684184857"
     alias: "^Bathroom: Door Opened"
     description: ""
@@ -184,9 +187,9 @@ automation:
       - service: script.post_to_home_log
         data:
           message:
-            ':bathtub: :door: Bathroom door opened. Incrementing counter :abacus:
-            from {{ states("counter.bathroom_door") }} to {{ states("counter.bathroom_door")
-            | int + state_attr("counter.bathroom_door", "step") | int }}.'
+            ":bathtub: :door: Bathroom door opened. Incrementing counter :abacus:
+            from {{ states('counter.bathroom_door') }} to {{ states('counter.bathroom_door')
+            | int + state_attr('counter.bathroom_door', 'step') | int }}."
       - service: counter.increment
         data: {}
         entity_id: counter.bathroom_door
@@ -209,7 +212,9 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ":bathtub: :door: Bathroom door closed. Turning lights on."
+          message: ":bathtub: :door: Bathroom door closed and it's dark
+          ({{ states('sensor.bathroom_motion_light_level') }} lux < 30 lux). 
+          Turning lights on."
       - scene: scene.bathroom_light_on
     mode: single
   - id: "1613684645058"
