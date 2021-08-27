@@ -1,5 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Shed
   - id: "1622309854294"
     alias: "^Back Garden: Door Open And Motion Detected"
     description: ""
@@ -22,7 +23,55 @@ automation:
           message: Motion Detected In Back Garden And Shed/Conservatory Door Open
     mode: queued
     max: 10
-
+  - id: "1618158789152"
+    alias: "^Shed: Door Closed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.shed_door
+        from: "on"
+        to: "off"
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                state: "on"
+                entity_id: input_boolean.enable_slack_notifications
+              - condition: state
+                entity_id: alarm_control_panel.stevenage_alarm
+                state: disarmed
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":door: :hut: :camera: Shed door closed. Turning conservatory
+                  camera off."
+              - service: script.conservatory_turn_off_camera
+          - conditions:
+              - condition: state
+                state: "off"
+                entity_id: input_boolean.enable_slack_notifications
+              - condition: state
+                entity_id: alarm_control_panel.stevenage_alarm
+                state: disarmed
+            sequence:
+              - service: script.conservatory_turn_off_camera
+          - conditions:
+              - condition: state
+                state: "on"
+                entity_id: input_boolean.enable_slack_notifications
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.stevenage_alarm
+                    state: disarmed
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                  camera on because alarm is armed."
+        default: []
+    mode: single
 group:
   back_doors:
     name: Back Doors

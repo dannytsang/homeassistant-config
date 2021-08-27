@@ -511,22 +511,6 @@
     - service: script.front_door_open_notification
       data: {}
   mode: single
-- id: "1611931640441"
-  alias: "Porch: Front Door Closed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door
-      from: "on"
-      to: "off"
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":door: Front door closed."
-    - service: script.front_door_closed_notification
-      data: {}
-  mode: single
 - id: "1613246249488"
   alias: "Office: Computer UPS On Battery"
   description: ""
@@ -832,31 +816,21 @@
       entity_id: binary_sensor.shed_door
       from: "off"
       to: "on"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_slack_notifications
-      state: "on"
+  condition: []
   action:
-    - service: script.post_to_home_log
-      data:
-        message: ":door: :hut: Shed door opened."
-  mode: single
-- id: "1618158789152"
-  alias: "Shed: Door Closed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.shed_door
-      from: "on"
-      to: "off"
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_slack_notifications
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":door: :hut: Shed door closed."
+    - choose:
+        - conditions:
+            - condition: state
+              state: "on"
+              entity_id: input_boolean.enable_slack_notifications
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":door: :hut: :camera_with_flash: Shed door opened. Turning conservatory
+                  camera on."
+      default: []
+    - service: script.conservatory_turn_on_camera
   mode: single
 - id: "1618158998129"
   alias: "Shed: Motion Detected When Door Is Closed"
@@ -1481,20 +1455,16 @@
   action:
     - choose:
         - conditions:
-            - condition: not
-              conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.stevenage_alarm
-                  state: armed_home
+            - condition: state
+              entity_id: alarm_control_panel.stevenage_alarm
+              state: disarmed
           sequence:
             - service: script.post_to_home_log
               data:
                 message:
                   ":door: :camera: Conservatory door closed. Turning conservatory
                   camera off."
-            - service: switch.turn_off
-              target:
-                device_id: 181a0b1496f19f428500bb9262239310
+            - service: script.conservatory_turn_off_camera
       default: []
   mode: single
 - id: "1629147974029"
