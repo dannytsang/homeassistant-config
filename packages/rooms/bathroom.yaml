@@ -236,43 +236,8 @@ automation:
         data: {}
         entity_id: counter.bathroom_door
     mode: single
-  - id: "1613689158296"
-    alias: "^Bathroom: Door Closed And Opened In Succession And Override Is Off"
-    description: ""
-    trigger:
-      - platform: numeric_state
-        entity_id: counter.bathroom_door
-        above: "1"
-    condition:
-      - condition: state
-        entity_id: input_boolean.bathroom_light_override
-        state: "off"
-      - condition: state
-        entity_id: input_boolean.enable_bathroom_light_override
-        state: "on"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door")
-            }}x in 30 seconds, keeping lights on for 10 minutes.'
-      - service: script.bathroom_flash_light
-        data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 2
-          milliseconds: 0
-      - scene: scene.bathroom_light_on
-      - service: counter.reset
-        data: {}
-        entity_id: counter.bathroom_door
-      - service: input_boolean.turn_on
-        data: {}
-        entity_id: input_boolean.bathroom_light_override
-    mode: single
   - id: "1613697803282"
-    alias: "^Bathroom: Door Closed And Opened In Succession And Override Is On"
+    alias: "^Bathroom: Door Closed And Opened In Succession"
     description: ""
     trigger:
       - platform: numeric_state
@@ -280,31 +245,59 @@ automation:
         above: "1"
     condition:
       - condition: state
-        entity_id: input_boolean.bathroom_light_override
-        state: "on"
-      - condition: state
         entity_id: input_boolean.enable_bathroom_light_override
         state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ':bathtub: :door: Closed and opened {{ states("counter.bathroom_door")
-            }} in 30 seconds, resetting lights to :paw_prints: motion detection.'
-      - service: script.bathroom_flash_light
-        data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 2
-          milliseconds: 0
-      - scene: scene.bathroom_turn_off_light
-      - service: counter.reset
-        data: {}
-        entity_id: counter.bathroom_door
-      - service: input_boolean.turn_off
-        data: {}
-        entity_id: input_boolean.bathroom_light_override
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bathtub: :door: Closed and opened {{ states('counter.bathroom_door')
+                    }}x in 30 seconds, keeping lights on for 10 minutes."
+              - service: script.bathroom_flash_light
+                data: {}
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 2
+                  milliseconds: 0
+              - scene: scene.bathroom_light_on
+              - service: counter.reset
+                data: {}
+                entity_id: counter.bathroom_door
+              - service: input_boolean.turn_on
+                data: {}
+                entity_id: input_boolean.bathroom_light_override
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bathtub: :door: Closed and opened {{ states('counter.bathroom_door')
+                    }} in 30 seconds, resetting lights to :paw_prints: motion detection."
+              - service: script.bathroom_flash_light
+                data: {}
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 2
+                  milliseconds: 0
+              - scene: scene.bathroom_turn_off_light
+              - service: counter.reset
+                data: {}
+                entity_id: counter.bathroom_door
+              - service: input_boolean.turn_off
+                data: {}
+                entity_id: input_boolean.bathroom_light_override
+        default: []
     mode: single
   # Blinds
   - id: "1621203193434"
