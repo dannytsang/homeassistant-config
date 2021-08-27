@@ -64,6 +64,20 @@ automation:
                   message: ":electric_plug: :battery: Lounge UPS went from battery to charging :electric_plug: :battery:"
         default: []
     mode: single
+  - id: "1591963855737"
+    alias: "^Lounge: UPS Unavailable"
+    description: ""
+    trigger:
+      - entity_id: sensor.lounge_ups_status_data
+        platform: state
+        to: unavailable
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Lounge UPS battery is not connected :battery:
+            :warning:"
+        service: script.post_to_home_log
   # PC
   - id: "1613324300208"
     alias: "^UPS: Computer UPS Unavailable"
@@ -76,7 +90,8 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ":desktop_computer: :battery: PC UPS is offline."
+          message: ":warning: :battery: PC UPS battery is not connected :battery:
+          :warning:"
     mode: single
   - id: "1613246389183"
     alias: "^UPS: Office PC Charging"
@@ -172,6 +187,21 @@ automation:
       - data:
           message: ":electric_plug: :battery: Server UPS is charging :electric_plug: :battery:"
         service: script.post_to_direct_notification
+    mode: single
+  - id: "1591963905748"
+    alias: "^Office: UPS Unavailable"
+    description: ""
+    trigger:
+      - entity_id: sensor.server_ups_status_data
+        platform: state
+        to: unavailable
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Server UPS battery is not connected :battery:
+            :warning:"
+        service: script.post_to_home_log
     mode: single
 input_boolean:
   enable_ups_trigger:
