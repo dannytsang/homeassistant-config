@@ -222,8 +222,9 @@ automation:
         service: script.post_to_home_log
     mode: single
   - id: "1587595659605"
-    alias: "^Stairs: Dark, Leo's Door Open And Motion Detected"
-    description: ""
+    alias: "^Stairs: Dark, After Bed Time and Motion Detected"
+    description: "Deliberately default to dim light because it's safer than having the light go to full 
+    brightness at night."
     trigger:
       - entity_id: group.upstairs_motion
         from: "off"
@@ -238,15 +239,9 @@ automation:
           - condition: state
             entity_id: input_boolean.enable_stairs_motion_trigger
             state: "on"
-          - after: "19:30:00"
-            before: 08:00:00
-            condition: time
-          - condition: state
-            entity_id: binary_sensor.leos_door
-            state: "on"
-          - condition: state
-            entity_id: input_boolean.enable_leos_door_automations
-            state: "on"
+          - condition: time
+            after: "19:45:00"
+            before: "08:00:00"
     action:
       - choose:
         - conditions:
@@ -259,6 +254,69 @@ automation:
                 message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
                 dark and in No Children Mode. Turning stairs light on."
             - scene: scene.stairs_light_on
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: No Children
+            - condition: state
+              entity_id: input_boolean.enable_leos_door_automations
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_ashlees_door_automations
+              state: "on"
+            - condition: state
+              entity_id: group.childrens_bedrooms
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                dark and :people_holding_hands: children's doors are shut. Turning stairs light on."
+            - scene: scene.stairs_light_on
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: No Children
+            - condition: state
+              entity_id: input_boolean.enable_leos_door_automations
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_ashlees_door_automations
+              state: "off"
+            - condition: state
+              entity_id: binary_sensor.leos_door
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                dark and :boy: Leo's door is shut. Turning stairs light on."
+            - scene: scene.stairs_light_on
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: No Children
+            - condition: state
+              entity_id: input_boolean.enable_leos_door_automations
+              state: "off"
+            - condition: state
+              entity_id: input_boolean.enable_ashlees_door_automations
+              state: "on"
+            - condition: state
+              entity_id: binary_sensor.ashlees_door
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                dark and :girl: Ashlee's door is shut. Turning stairs light on."
+            - scene: scene.stairs_light_on
         default:
           - service: script.post_to_home_log
             data:
@@ -267,10 +325,9 @@ automation:
                 dark. Turning stairs lights on 10%
           - scene: scene.landing_dim_light
           - scene: scene.stairs_light_dim
-          
     mode: single
   - id: "1613866698304"
-    alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected"
+    alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected (Obsolete)"
     description: ""
     trigger:
       - entity_id: group.upstairs_motion
