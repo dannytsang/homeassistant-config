@@ -427,33 +427,84 @@ automation:
           entity_id: scene.stairs_light_2_on
     mode: single
   - id: "1615850302527"
-    alias: "^Stairs: Light On And Leo's Door Closed Before Midnight"
+    alias: "^Stairs: Light On And Children's Door Closed Before Midnight"
     description: ""
     trigger:
       - platform: state
         entity_id: binary_sensor.leos_door
         from: "on"
         to: "off"
+      - platform: state
+        entity_id: binary_sensor.ashlees_door
+        from: "on"
+        to: "off"
     condition:
       - condition: time
-        after: "19:30:00"
+        after: "19:45:00"
         before: "23:59:59"
       - condition: state
         entity_id: light.stairs
         state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_leos_door_automations
-        state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":door: :high_brightness: Leo's door closed after bed time and the
-            stairs light are on. Turn light onto full brightness."
-      - scene: scene.stairs_light_on
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_on
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: group.childrens_bedrooms
+                state: "off"
+            sequence: 
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :high_brightness: {{ trigger.to_state.name }} closed after bed time, :people_holding_hands: 
+                    children's doors are closed and the stairs light are on. Turn light on at full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.stairs_light_on
+                    - scene.stairs_light_2_on
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "off"
+            sequence: 
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :high_brightness: :boy: Leo's door closed after bed time and the
+                    stairs light are on. Turn light onto full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.stairs_light_on
+                    - scene.stairs_light_2_on
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+            sequence: 
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :high_brightness: :girl: Ashlee's door closed after bed time and the
+                    stairs light are on. Turn light onto full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.stairs_light_on
+                    - scene.stairs_light_2_on
+        default: []
     mode: single
   # Timed
   - id: "1588856667889"
