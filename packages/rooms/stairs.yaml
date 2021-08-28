@@ -393,16 +393,20 @@ automation:
     mode: single
   # Contact sensor
   - id: "1615849889104"
-    alias: "^Stairs: Light On And Leo's Door Opens Before Midnight"
+    alias: "^Stairs: Light On And Children's Door Open After Bedtime And Before Midnight"
     description: ""
     trigger:
       - platform: state
         entity_id: binary_sensor.leos_door
         from: "off"
         to: "on"
+      - platform: state
+        entity_id: binary_sensor.ashlees_door
+        from: "off"
+        to: "on"
     condition:
       - condition: time
-        after: "19:30:00"
+        after: "19:45:00"
         before: "23:59:59"
       - condition: state
         entity_id: light.stairs
@@ -412,19 +416,45 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: No Children
-      - condition: state
-        entity_id: input_boolean.enable_leos_door_automations
-        state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":paw_prints: :door: :low_brightness: Leo's door opened after bed time and
-            the stairs light are on. Dimming lights to 10%"
-      - scene: scene.landing_dim_light
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_on
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.leos_door
+                state: "on"
+            sequence: 
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :door: :low_brightness: {{ trigger.to_state.name }} opened after bed time and
+                    the stairs light are on. Dimming stairs lights."
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.landing_dim_light
+                    - scene.stairs_light_2_on
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.ashlees_door
+                state: "on"
+            sequence: 
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :high_brightness: {{ trigger.to_state.name }} opened after bed time and
+                    the stairs light are on. Dimming stairs lights."
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.stairs_light_on
+                    - scene.stairs_light_2_on
+        default: []
     mode: single
   - id: "1615850302527"
     alias: "^Stairs: Light On And Children's Door Closed Before Midnight"
@@ -445,6 +475,9 @@ automation:
       - condition: state
         entity_id: light.stairs
         state: "on"
+      - condition: state
+        entity_id: input_select.home_mode
+        state: "Normal"
     action:
       - choose:
           - conditions:
