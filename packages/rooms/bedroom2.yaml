@@ -1,5 +1,48 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Blinds
+  - id: "1629844319596"
+    alias: "^Leo's Bedroom: Timed Close Blinds"
+    description: ""
+    trigger:
+      - platform: time
+        at: "19:00:00"
+    condition:
+      - condition: state
+        entity_id: cover.leos_blinds
+        state: open
+      - condition: state
+        entity_id: input_boolean.enable_leos_blind_automations
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.leos_window
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Leo's
+                    window is open. Skipping closing blinds."
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.leos_window
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
+                    Leo's blinds"
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.leos_blinds
+        default: []
+    mode: single
   - id: "1617376203344"
     alias: "^Leo's Room: Close Blinds Before Sun Rise"
     description: ""

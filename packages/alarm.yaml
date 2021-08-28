@@ -1,5 +1,24 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  - id: "1628956688014"
+    alias: "^Alarm: Disarmed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.stevenage_alarm
+        to: disarmed
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":no_bell: Alarmed disarmed."
+      - service: script.post_to_home_log
+        data:
+          message: ":camera: Turning off indoor cameras."
+      - service: script.conservatory_turn_off_camera
+      - service: script.lounge_turn_off_camera
+      - service: script.upstairs_turn_off_camera
+    mode: single
   - id: "1587680439011"
     alias: "^Alarm: Arm Overnight Home Mode"
     description: ""
