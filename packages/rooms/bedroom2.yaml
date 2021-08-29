@@ -6,7 +6,10 @@ automation:
     description: ""
     trigger:
       - platform: time
-        at: "19:00:00"
+        at: "19:30:00"
+      - platform: sun
+        event: sunset
+        id: sunset
     condition:
       - condition: state
         entity_id: cover.leos_blinds
@@ -24,9 +27,25 @@ automation:
               - service: script.post_to_home_log
                 data:
                   message:
+                    ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: Leo's
+                    window is open. Skipping closing blinds. :warning:"
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: No Children
+              - condition: trigger
+                id: sunset
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Leo's
-                    window is open. Skipping closing blinds."
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
+                    Leo's blinds"
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.leos_blinds
           - conditions:
               - condition: state
                 entity_id: binary_sensor.leos_window
