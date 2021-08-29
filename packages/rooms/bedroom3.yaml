@@ -5,7 +5,7 @@ automation:
     description: ""
     trigger:
       - platform: time
-        at: "19:00:00"
+        at: "19:30:00"
       - platform: time
         at: "22:00:00"
       - platform: sun
@@ -28,7 +28,8 @@ automation:
               - service: script.post_to_home_log
                 data:
                   message:
-                    ":warning: :window: Ashlee's window is still open. Waiting until
+                    ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Ashlee's window is still open. Waiting until
                     it's closed before closing blinds. :warning:"
           - conditions:
               - condition: state
@@ -53,7 +54,9 @@ automation:
             sequence:
               - service: script.post_to_home_log
                 data:
-                  message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: It's getting dark, closing Ashlee's blinds."
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
@@ -99,7 +102,9 @@ automation:
                     state: Guest
             sequence:
               - data:
-                  message: ":sunrise: :window: Opening Ashlee's blinds"
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Opening Ashlee's blinds"
                 service: script.post_to_home_log
               - service: cover.open_cover
                 target:
