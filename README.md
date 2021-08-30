@@ -1,10 +1,15 @@
-# Danny's Home Assistant
+# Danny's Home Assistant 🏡
 <a href="https://travis-ci.com/github/dannytsang/homeassistant-config" target="_blank"><img src="https://img.shields.io/travis/com/dannytsang/homeassistant-config?style=plastic"/></a>
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 
-Configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang.
+## Introduction 📢
+🥅 My goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a light through to household chores such as washing clothes. Currently, my journey continues.
 
-More details to follow. Visit my [blog](https://dannytsang.co.uk) in the mean time.
+I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or life experience to use the technology at the time. Fast forward a few decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
+
+This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾.
+
+More details to follow. Visit my [blog](https://dannytsang.co.uk).
 
 ## Hardware
 I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) which allows me to cross eco system compatibility.
