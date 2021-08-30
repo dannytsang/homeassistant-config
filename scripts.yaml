@@ -58,15 +58,24 @@ everybody_leave_home:
     - scene: scene.lounge_lights_off
     - service: script.post_to_home_log
       data:
-        message: ":running: :house: :bulb: Turning off stairs light."
-    - scene: scene.stairs_light_off
-    - service: script.post_to_home_log
-      data:
         message: ":running: :house: :bulb: Turning off conservatory light."
     - scene: scene.conservatory_turn_off_light
     - service: script.post_to_home_log
       data:
-        message: ":camera_with_flash: Turning on all cameras."
+        message: ":running: :house: :bulb: Turning off stairs light."
+    - scene: scene.stairs_light_off
+    - scene: stairs_light_2_off
+    - delay:
+      hours: 0
+      minutes: 0
+      seconds: 1
+      milliseconds: 0
+    - service: light.turn_off
+      target:
+        entity_id: light.stairs_2
+    - service: script.post_to_home_log
+      data:
+        message: ":running: :house: :camera_with_flash: Turning on all cameras."
     - service: script.conservatory_turn_off_camera
     - service: script.lounge_turn_off_camera
     - service: script.upstairs_turn_off_camera
