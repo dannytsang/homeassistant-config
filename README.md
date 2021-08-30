@@ -2,7 +2,7 @@
 <a href="https://travis-ci.com/github/dannytsang/homeassistant-config" target="_blank"><img src="https://img.shields.io/travis/com/dannytsang/homeassistant-config?style=plastic"/></a>
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 
-## Introduction 📢
+# Introduction 📢
 🥅 My goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a light through to household chores such as washing clothes. Currently, my journey continues.
 
 I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or life experience to use the technology at the time. Fast forward a few decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
@@ -121,7 +121,7 @@ Fully kitted networking gear of choice and provides really good integration with
 Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
 * [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
 
-# Addons
+# Addons ➕
 This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.co.uk).
 * [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
 * [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
@@ -131,7 +131,7 @@ This is not an exhaustive list and it changes quite a lot. Too keep up to date, 
 * [Samba Backup](https://github.com/thomasmauerer/hassio-addons/tree/master/samba-backup)
 * [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
 
-# Integrations
+# Integrations 🖧
 There are too many to list and changes now and then so I will list the ones that will help explain configurations. These may include integrations from [HACS](https://hacs.xyz/).
 * [CO2 Signal](https://www.home-assistant.io/integrations/co2signal/)
 * [HASS-Deepstack-face](https://github.com/robmarkcole/HASS-Deepstack-face)
