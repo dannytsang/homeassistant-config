@@ -154,7 +154,8 @@ automation:
     action:
       - data:
           message:
-            ":sunrise: Bedroom blind is open and it's nearly sunrise. Closing
+            ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+            :sunrise: Bedroom blind is open and it's nearly sunrise. Closing
             blinds"
         service: script.post_to_home_log
       - service: cover.close_cover
@@ -286,7 +287,8 @@ automation:
                 id: "093000"
               - service: script.post_to_home_log
                 data:
-                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because it's closed and its 09:30 on a weekday!"
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
+                  :window: Opening blinds because it's closed and its 09:30 on a weekday!"
           - conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
@@ -333,7 +335,8 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ":city_sunset: :window: It's getting dark, closing bedroom's blinds."
+          message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
+          :city_sunset: :window: It's getting dark, closing bedroom's blinds."
       - choose:
           - conditions:
               - condition: state
