@@ -1529,11 +1529,9 @@
       from: home
       to: not_home
   condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: input_select.home_mode
-          state: Guest
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
   action:
     - choose:
         - conditions:
@@ -1573,7 +1571,10 @@
       entity_id: group.children_people
       from: not_home
       to: home
-  condition: []
+  condition:
+    - condition: state
+      entity_id: input_boolean.enable_home_presence_detection
+      state: "on"
   action:
     - choose:
         - conditions:
@@ -1601,7 +1602,7 @@
             - service: script.post_to_home_log
               data:
                 message:
-                  ":boy: :girl: Children have come :house_with_garden: home. Home mode is
-                  currently in :busts_in_silhouette: guest."
+                  ":boy: :girl: Children have come :house_with_garden: home. Home
+                  mode is currently in :busts_in_silhouette: guest."
       default: []
   mode: single
