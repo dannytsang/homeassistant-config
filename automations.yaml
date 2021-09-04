@@ -1606,3 +1606,40 @@
                   mode is currently in :busts_in_silhouette: guest."
       default: []
   mode: single
+- id: "1630760046947"
+  alias: "Stairs: Close Blinds At Night"
+  description: ""
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: 01:00:00
+  condition:
+    - condition: state
+      entity_id: cover.stairs_blinds
+      state: open
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":city_sunrise: :window: Closing stairs blinds."
+    - service: cover.close_cover
+      target:
+        entity_id: cover.stairs_blinds
+  mode: single
+- id: "1630760149356"
+  alias: "Stairs: Open Blinds In The Morning"
+  description: ""
+  trigger:
+    - platform: time
+      at: 08:00
+  condition:
+    - condition: state
+      entity_id: cover.stairs_blinds
+      state: closed
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":sunrise: :window: Opening stairs blinsd."
+    - service: cover.open_cover
+      target:
+        entity_id: cover.stairs_blinds
+  mode: single
