@@ -108,7 +108,11 @@ automation:
                     ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
                     stairs light off."
                 service: script.post_to_home_log
-              - scene: scene.stairs_light_off
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_off
+                data:
+                  transition: 1
         default: []
       - choose:
           - conditions:
@@ -125,7 +129,7 @@ automation:
                 target:
                   entity_id: scene.stairs_light_2_off
                 data:
-                  transition: 1
+                  transition: 2
               - delay:
                   hours: 0
                   minutes: 0
@@ -323,8 +327,12 @@ automation:
               message: >-
                 :paw_prints: :door: :low_brightness: Motion detected upstairs and it's
                 dark. Turning stairs lights on 10%
-          - scene: scene.landing_dim_light
-          - scene: scene.stairs_light_dim
+          - service: scene.turn_on
+            target:
+              entity_id: scene.landing_dim_light
+          - service: scene.turn_on
+            target:
+              entity_id: scene.stairs_light_dim
     mode: single
   - id: "1613866698304"
     alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected (Obsolete)"

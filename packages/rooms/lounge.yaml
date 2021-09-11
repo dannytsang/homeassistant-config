@@ -110,12 +110,16 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - scene: scene.lounge_dim_lights
       - service: script.post_to_home_log
         data:
           message:
             ":no_pedestrians: :bulb: :low_brightness: No motion detected and :tv:TV
             is turned off in the lounge for 5 minutes. Dimming lights"
+      - service: scene.turn_on
+        target:
+          entity_id: scene.lounge_dim_lights
+        data:
+          transition: 2
     mode: single
   - id: "1605567425876"
     alias: "^Lounge: No Motion After 10 Minutes"
@@ -134,12 +138,16 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - scene: scene.lounge_lights_off
       - service: script.post_to_home_log
         data:
           message:
             ":no_pedestrians: No motion detected in the lounge for 10 minutes and
             :tv:TV is turned off. Turning lounge :bulb: lights off."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.lounge_lights_off
+        data:
+          transition: 2
     mode: single
   - id: "1588859622571"
     alias: "^Lounge: Motion Detected In The Morning"
@@ -219,7 +227,11 @@ automation:
           message:
             ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
             lights."
-      - scene: scene.lounge_dim_lights
+      - service: scene.turn_on
+        target:
+          entity_id: scene.lounge_dim_lights
+        data:
+          transition: 2
     mode: single
   - id: "1610409803685"
     alias: "^Lounge: TV Turned Off"
@@ -244,7 +256,11 @@ automation:
       - service: script.post_to_home_log
         data:
           message: TV turned off for 10 minutes. Turning lounge lights off.
-      - scene: scene.lounge_lights_off
+      - service: scene.turn_on
+        target:
+          entity_id: scene.lounge_lights_off
+        data:
+          transition: 2
     mode: single
   # Bay Window
   - id: "1608493783373"
