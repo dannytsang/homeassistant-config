@@ -11,6 +11,39 @@ This project contains configuration files for [Home Assistant](https://home-assi
 
 More details to follow. Visit my [blog](https://dannytsang.co.uk).
 
+## [Statistics](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
+I have 1804 states in Home Assistant.
+By domain these are;
+- 1 alarm_control_panel
+- 201 automation
+- 244 binary_sensor
+- 35 calendar
+- 48 camera
+- 1 climate
+- 3 counter
+- 5 cover
+- 173 device_tracker
+- 37 group
+- 6 image_processing
+- 38 input_boolean
+- 1 input_datetime
+- 1 input_select
+- 26 input_text
+- 31 light
+- 22 media_player
+- 2 number
+- 4 person
+- 7 proximity
+- 3 remote
+- 49 scene
+- 39 script
+- 726 sensor
+- 1 sun
+- 88 switch
+- 2 water_heater
+- 3 weather
+- 7 zone
+
 ## Hardware
 I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) which allows me to cross eco system compatibility.
 
@@ -20,7 +53,7 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
 * [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
 * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
-* [Conbee II](https://phoscon.de/en/conbee2)
+~~* [Conbee II](https://phoscon.de/en/conbee2)~~ - Currently having stability issues where the USB device is disconnected/not detected.
 
 ### Amazon
 We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
@@ -32,7 +65,7 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 
 ### Aqara
 I have just started to look at this manufacturer since I got the Conbee II stick.
-* [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)
+~~* [Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)~~ - See Conbee II above.
 
 ### CurrentCost
 A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).
