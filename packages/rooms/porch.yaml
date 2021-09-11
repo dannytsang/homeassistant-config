@@ -19,7 +19,9 @@ automation:
                 data:
                   message: ":door: :bulb: :high_brightness: Door opened and it's dark 
                   ({{ states('sensor.porch_motion_light_level') }} < 100). Turning on light."
-              - scene: scene.porch_light_on
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.porch_light_on
         default: []
       - service: script.post_to_home_log
         data:
@@ -58,7 +60,9 @@ automation:
         for: 00:01:00
     condition: []
     action:
-      - scene: scene.porch_lights_off
+      - service: scene.turn_on
+        target:
+          entity_id: scene.porch_lights_off
       - service: script.post_to_home_log
         data:
           message: ":door: Front door closed for 1 minute. Turning off porch light."
