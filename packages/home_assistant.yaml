@@ -24,3 +24,25 @@ automation:
         data:
           message: "@home_assistant :arrow_forward: has started."
     mode: single
+sensor:
+  - platform: template
+    sensors:
+      # https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share
+      total_sensors:
+        friendly_name: "Total Sensors"
+        icon_template: mdi:radio-tower
+        value_template: >-
+          {% set ns = namespace(domains=[]) %}
+          {%- for s in states -%}
+          {%- set ns.domains = (ns.domains + [s.domain])|unique|list -%}
+          {%- endfor %}
+          {{ states|length }}
+        attribute_templates:
+          break_down: >-
+            {% set ns = namespace(domains=[]) %}
+            {%- for s in states -%}
+            {%- set ns.domains = (ns.domains + [s.domain])|unique|list -%}
+            {%- endfor %}
+            [{%- for domain in ns.domains %}
+              {"{{ domain }}":{{ states[domain]|length }}},
+            {%- endfor %}]
