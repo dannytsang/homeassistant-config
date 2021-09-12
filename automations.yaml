@@ -882,9 +882,6 @@
                 message:
                   ":warning: :wondow: Leo's bedroom window is still open. Waiting
                   until it's closed before closing blinds. :warning:"
-            - service: cover.close_cover
-              target:
-                entity_id: cover.leos_blinds
       default:
         - service: cover.close_cover
           target:
@@ -1657,4 +1654,46 @@
     - service: script.post_to_home_log
       data:
         message: ":repeat: Entering Guest mode."
+  mode: single
+- id: "1631454174806"
+  alias: "Lounge: Door or Window Open"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.lounge_door_windows
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":door: :window: Lounge door/window opened. Turning on :carmera_with_flash:
+          camera."
+    - service: switch.turn_on
+      target:
+        entity_id:
+          - switch.lounge_camera_clips
+          - switch.lounge_camera_detect
+          - switch.lounge_camera_snapshots
+  mode: single
+- id: "1631454249839"
+  alias: "Lounge: Door Or Windows Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.lounge_door_windows
+      from: "on"
+      to: "off"
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: "All door/windows closed in the lounge. Turning :camera: camera off."
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.lounge_camera_clips
+          - switch.lounge_camera_detect
+          - switch.lounge_camera_snapshots
   mode: single
