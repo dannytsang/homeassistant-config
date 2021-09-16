@@ -8,7 +8,10 @@ automation:
       - platform: state
         entity_id: group.office_motion
         to: "on"
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_trigger
+        state: "on"
     action:
       - choose:
           - conditions:
@@ -90,7 +93,10 @@ automation:
         to: "off"
         for: 00:05:00
         from: "on"
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_trigger
+        state: "on"
     action:
       - service: script.post_to_home_log
         data:
@@ -112,15 +118,15 @@ automation:
         for: 00:06:00
         platform: state
         to: "off"
-      - platform: state
-        entity_id: input_boolean.enable_office_motion_trigger
-        to: "on"
     condition:
       - condition: or
         conditions:
           - condition: state
             entity_id: group.jd_computer
             state: not_home
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_trigger
+        state: "on"
     action:
       - data:
           message:
