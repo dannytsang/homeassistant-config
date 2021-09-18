@@ -78,8 +78,16 @@ automation:
                   state_attr('media_player.roku_streaming_stick','media_duration') !=
                   none}}
             sequence:
-              - service: script.post_to_home_log
+              - service: camera.snapshot
+                target:
+                  entity_id: camera.lounge_tv
                 data:
+                  filename: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+              - delay:
+                  seconds: 2
+              - service: script.post_to_home_log_with_local_attachments
+                data:
+                  title: "Roku started playing"
                   message:
                     ":tv: Roku playing {{ state_attr('media_player.roku_streaming_stick',
                     'app_name') }} and is at {{ state_attr('media_player.roku_streaming_stick','media_position') |
@@ -87,12 +95,22 @@ automation:
                     int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.roku_streaming_stick',
                     'media_position') | int / state_attr('media_player.roku_streaming_stick',
                     'media_duration') | int) * 100) | round(2, 'common') }}%) way through."
+                  filePath: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
         default:
-          - service: script.post_to_home_log
+          - service: camera.snapshot
+            target:
+              entity_id: camera.lounge_tv
             data:
+              filename: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+          - delay:
+              seconds: 2
+          - service: script.post_to_home_log_with_local_attachments
+            data:
+              title: "Roku started playing"
               message:
                 ":tv: Roku playing {{ state_attr('media_player.roku_streaming_stick',
                 'app_name') }}"
+              filePath: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
     mode: queued
     max: 10
   - id: "1612998400190"
@@ -118,9 +136,18 @@ automation:
         to: paused
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: camera.snapshot
+        target:
+          entity_id: camera.lounge_tv
         data:
+          filename: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+      - delay:
+          seconds: 2
+      - service: script.post_to_home_log_with_local_attachments
+        data:
+          title: "Roku paused"
           message: ":tv: Roku paused."
+          filePath: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
     mode: queued
     max: 10
   - id: "1613051229066"
@@ -132,9 +159,18 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: camera.snapshot
+        target:
+          entity_id: camera.lounge_tv
         data:
+          filename: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+      - delay:
+          seconds: 2
+      - service: script.post_to_home_log_with_local_attachments
+        data:
+          title: "Roku turned on"
           message: ":tv: Roku turned on."
+          filePath: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
     mode: queued
     max: 10
   # Office Chromecast
