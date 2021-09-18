@@ -497,24 +497,33 @@ binary_sensor:
         value_template: "{{ states('sensor.bedroom_tv_power_meter') | float > 40 }}"
         friendly_name: "Bedroom TV Powered On"
         device_class: "power"
-        icon_template: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_power_meter') | float > 40 else '-off' }}"
+        icon_template: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_power_meter') | 
+        float > 40 else '-off' }}"
       bed_occupied:
-        icon_template: "mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | int >= 4000 or states('sensor.bed_bottom_left') | int >= 1000 or states('sensor.bed_bottom_right') | int >= 8000 else '' }}"
+        icon_template: "mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | float >= 0.15 or 
+                      states('sensor.bed_bottom_left') | float >= 0.15 or 
+                      states('sensor.bed_top_right') | float <= 0.5 or 
+                      states('sensor.bed_bottom_right') | float >= 0.1 else '' }}"
         friendly_name: Bed occupied sensor regardless where on the bed.
         device_class: occupancy
         value_template: >-
-          {% if states('sensor.bed_top_left') | int >= 11000 or states('sensor.bed_bottom_left') | int >= 1000 or states('sensor.bed_bottom_right') | int >= 2000 %}
+          {% if states('sensor.bed_top_left') | float >= 0.15 or 
+              states('sensor.bed_bottom_left') | float >= 0.15 or 
+              states('sensor.bed_bottom_right') | float >= 2000 %}
             on
           {% else %}
             off
           {% endif %}
         attribute_templates:
           number_in_bed: >-
-            {% if states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_bottom_right') | int < 1000 %}
+            {% if states('sensor.bed_top_left') | float > 0.15 and 
+              states('sensor.bed_bottom_right') | float < 1000 %}
               1
-            {% elif states('sensor.bed_top_left') | int < 4000 and states('sensor.bed_bottom_right') | int > 1000 %}
+            {% elif states('sensor.bed_top_left') | float < 0.15 and 
+              states('sensor.bed_bottom_right') | float > 10 %}
               1
-            {% elif states('sensor.bed_top_left') | int > 4000 and states('sensor.bed_bottom_right') | int > 1000 %}
+            {% elif states('sensor.bed_top_left') | float > 0.15 and 
+              states('sensor.bed_bottom_right') | float > 10 %}
               2
             {% else %}
               0
