@@ -8,7 +8,8 @@ sensor:
     authentication: basic
     username: !secret toggl
     password: api_token
-    value_template: "{{ value_json.data.description }}"
+    # https://community.home-assistant.io/t/help-needed-with-rest-when-empty-null-value-return/87735
+    value_template: "{% if value_json.data.description is defined %} {{ value_json.data.description }} {% else %} '' {% endif %}"
     json_attributes_path: "$.data"
     json_attributes:
       - id
