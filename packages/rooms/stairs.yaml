@@ -55,7 +55,7 @@ automation:
   - id: "1587595659605"
     alias: "^Stairs: Dark, After Bed Time and Motion Detected"
     description: "Deliberately default to dim light because it's safer than having the light go to full 
-    brightness at night."
+    brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
     trigger:
       - entity_id: group.upstairs_motion
         from: "off"
@@ -72,9 +72,26 @@ automation:
             state: "on"
           - condition: time
             after: "19:45:00"
-            before: "23:59:59"
+          - condition: or
+            conditions:
+              - condition: sun
+                before: sunrise
+              - condition: time
+                before: "07:00:00"
     action:
       - choose:
+        - conditions:
+            - condition: time
+              after: "01:00:00"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":paw_prints: :low_brightness: Motion detected upstairs, it's
+                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock1: late. 
+                Turning stairs night light on."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.stairs_night_light
         - conditions:
             - condition: state
               entity_id: input_select.home_mode
