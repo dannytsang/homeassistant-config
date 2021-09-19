@@ -14,8 +14,11 @@
       entity_id: sensor.lounge_motion_light_level
       below: "55"
   action:
-    - scene: scene.lounge_lights
-    - scene: scene.kitchen_side_lights_on
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.lounge_lights
+          - scene.kitchen_side_lights_on
     - data:
         message:
           ":crescent_moon: :house: :running: :bulb: Danny arrived home and it's
@@ -36,7 +39,9 @@
           ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
           25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
           light off."
-    - scene: scene.turn_off_downstairs_lights
+    - service: scene.turn_on
+      target:
+        entity_id: scene.turn_off_downstairs_lights
   mode: single
 - id: "1582456019025"
   alias: Turn Off House When Danny Leaves
@@ -51,8 +56,11 @@
       entity_id: person.terina
       state: not_home
   action:
-    - scene: scene.turn_off_downstairs_lights
-    - scene: scene.office_lights_off
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.turn_off_downstairs_lights
+          - scene.office_lights_off
     - data:
         message:
           "':running: :house: Danny has left the house and no one is home. Turning
@@ -71,8 +79,11 @@
       entity_id: person.danny
       state: not_home
   action:
-    - scene: scene.turn_off_downstairs_lights
-    - scene: scene.office_lights_off
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.turn_off_downstairs_lights
+          - scene.office_lights_off
     - data:
         message:
           ":house: :dancer: Terina has left the house and no one is home. Turning
@@ -92,8 +103,11 @@
         '{{ state_attr("sensor.lounge_motion_light_level","lightlevel")
         < 55 }}'
   action:
-    - scene: scene.lounge_lights
-    - scene: scene.kitchen_side_lights_on
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.lounge_lights
+          - scene.kitchen_side_lights_on
     - data:
         message:
           ":crescent_moon: :dancer: :house: :bulb: Terina arrived home and its
@@ -538,7 +552,9 @@
     - service: script.post_to_home_log
       data:
         message: ":bathtub: :bulb: :low_brightness: Dimming bathroom :bulb: lights."
-    - scene: scene.bathroom_dim_lights
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bathroom_dim_lights
   mode: single
 - id: "1613695788304"
   alias: "Bathroom: Light Override Turn Off"
@@ -553,7 +569,9 @@
     - service: script.post_to_home_log
       data:
         message: "Turning :bathtub: bathroom :bulb: light off."
-    - scene: scene.bathroom_turn_off_light
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bathroom_turn_off_light
     - service: input_boolean.turn_off
       data: {}
       entity_id: input_boolean.bathroom_light_override
@@ -577,7 +595,9 @@
       entity_id: input_boolean.enable_stairs_motion_trigger
       state: "on"
   action:
-    - scene: scene.stairs_light_dim
+    - service: scene.turn_on
+      target:
+        entity_id: scene.stairs_light_dim
     - data:
         message:
           ":door: :low_brightness: Motion detected on the landing and it's dark.
@@ -1002,7 +1022,9 @@
                 message:
                   ":printer: :city_sunset: Printing started after sunset. Turning
                   Printer light on."
-            - scene: scene.3d_printer_light_on
+            - service: scene.turn_on
+              target:
+                entity_id: scene.3d_printer_light_on
         - conditions:
             - condition: sun
               before: sunrise
@@ -1012,14 +1034,18 @@
                 message:
                   ":printer: :city_sunset: Printing started before sunrise. Turning
                   Printer light on."
-            - scene: scene.3d_printer_light_on
+            - service: scene.turn_on
+              target:
+                entity_id: scene.3d_printer_light_on
       default:
         - service: script.post_to_home_log
           data:
             message:
               ":printer: :sunrise: Printing started after sunrise. Not turning
               on printer light."
-        - scene: scene.3d_printer_light_off
+        - service: scene.turn_on
+          target:
+            entity_id: scene.3d_printer_light_off
   mode: single
 - id: "1624661497604"
   alias: "Bathroom: Window Closed At Night"
@@ -1207,7 +1233,9 @@
                 message:
                   ":thermometer: :printer: 3D Printer hotend has reached temperature.
                   Turning on notification light."
-            - scene: scene.3d_printer_temperature_reached
+            - service: scene.turn_on
+              target:
+                entity_id: scene.3d_printer_temperature_reached
         - conditions:
             - condition: trigger
               id: bed
@@ -1217,7 +1245,9 @@
                 message:
                   ":thermometer: :printer: 3D Printer bed has reached temperature.
                   Turning on notification light."
-            - scene: scene.3d_printer_temperature_reached
+            - service: scene.turn_on
+              target:
+                entity_id: scene.3d_printer_temperature_reached
       default: []
   mode: single
 - id: "1615209552353"
