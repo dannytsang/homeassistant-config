@@ -52,6 +52,42 @@ automation:
                   entity_id: scene.stairs_light_2_dim
         default: []
     mode: single
+  - id: "1598726353326"
+    alias: "^Stairs: Upstairs Dark, Before Kids Bed Time And Motion Detected"
+    description: ""
+    trigger:
+      - entity_id: group.upstairs_motion
+        from: "off"
+        platform: state
+        to: "on"
+    condition:
+      - condition: and
+        conditions:
+          - below: "5"
+            condition: numeric_state
+            entity_id: sensor.stairs_motion_light_level
+          - condition: state
+            entity_id: input_boolean.enable_stairs_motion_trigger
+            state: "on"
+          - condition: or
+            conditions:
+              - condition: sun
+                after: sunrise
+              - condition: time
+                after: 07:00:00
+          - condition: time
+            before: "19:45:00"
+    action:
+      - data:
+          message: ":paw_prints: Motion detected upstairs before bed time and it's dark. 
+          Turning stairs light on."
+        service: script.post_to_home_log
+      - service: scene.turn_on
+        target:
+          entity_id:
+            - scene.stairs_light_on
+            - scene.stairs_light_2_on
+    mode: single
   - id: "1587595659605"
     alias: "^Stairs: Dark, After Bed Time and Motion Detected"
     description: "Deliberately default to dim light because it's safer than having the light go to full 
@@ -83,6 +119,9 @@ automation:
         - conditions:
             - condition: time
               after: "01:00:00"
+            - condition: state
+              entity_id: input_boolean.enable_stairs_night_light
+              state: "on"
           sequence:
             - service: script.post_to_home_log
               data:
@@ -331,37 +370,6 @@ automation:
           message:
             ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :no_pedestrians: :mirror: Turning off Maggic Mirror because
             no motion was detected."
-        service: script.post_to_home_log
-    mode: single
-  - id: "1598726353326"
-    alias: "^Stairs: Upstairs Dark, Before Kids Bed Time And Motion Detected"
-    description: ""
-    trigger:
-      - entity_id: group.upstairs_motion
-        from: "off"
-        platform: state
-        to: "on"
-    condition:
-      - condition: and
-        conditions:
-          - below: "5"
-            condition: numeric_state
-            entity_id: sensor.stairs_motion_light_level
-          - condition: state
-            entity_id: input_boolean.enable_stairs_motion_trigger
-            state: "on"
-          - after: 08:00:00
-            before: "19:30:00"
-            condition: time
-    action:
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_on
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_on
-      - data:
-          message: ":paw_prints: Motion detected upstairs and it's dark. Turning stairs light on."
         service: script.post_to_home_log
     mode: single
   - id: "1613866698304"
@@ -628,6 +636,9 @@ input_boolean:
   enable_landing_motion_trigger:
     name: Enable motion trigger for landing
     icon: mdi:motion-sensor
+  enable_stairs_night_light:
+    name: Enable stairs night light
+    icon: mdi:brightness-4
   enable_stairs_motion_trigger:
     name: Enable motion trigger for stairs
     icon: mdi:motion-sensor
