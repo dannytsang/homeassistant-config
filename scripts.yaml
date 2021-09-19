@@ -41,7 +41,9 @@ everybody_leave_home:
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off office lights."
-    - scene: scene.office_turn_off_all_lights
+    - service: scene.turn_on
+      target:
+        entity_id: scene.office_turn_off_all_lights
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off office fan"
@@ -51,20 +53,30 @@ everybody_leave_home:
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off kitchen lights."
-    - scene: scene.kitchen_main_lights_off
+    - service: scene.turn_on
+      target:
+        entity_id: scene.kitchen_main_lights_off
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off lounge lights."
-    - scene: scene.lounge_lights_off
+    - service: scene.turn_on
+      target:
+        entity_id: scene.lounge_lights_off
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off conservatory light."
-    - scene: scene.conservatory_turn_off_light
+    - service: scene.turn_on
+      target:
+        entity_id: scene.conservatory_turn_off_light
     - service: script.post_to_home_log
       data:
         message: ":running: :house: :bulb: Turning off stairs light."
-    - scene: scene.stairs_light_off
-    - scene: scene.stairs_light_2_off
+    - service: scene.turn_on
+      target:
+        entity_id: scene.stairs_light_off
+    - service: scene.turn_on
+      target:
+        entity_id: scene.stairs_light_2_off
     - delay:
         hours: 0
         minutes: 0
@@ -130,15 +142,24 @@ police_effect:
     - repeat:
         count: "10"
         sequence:
-          - scene: scene.landing_set_light_to_blue
-          - scene: scene.landing_set_light_to_red
-    - scene: scene.landing_dim_light
-    - scene: scene.stairs_light_off
+          - service: scene.turn_on
+            target:
+              entity_id:
+                - scene.landing_set_light_to_blue
+                - scene.landing_set_light_to_red
+    - service: scene.turn_on
+      target:
+        entity_id: scene.landing_dim_light
+    - service: scene.turn_on
+      target:
+        entity_id: scene.stairs_light_off
   mode: single
 front_door_open_notification:
   alias: Front Door Open Notification
   sequence:
-    - scene: scene.office_front_door_open
+    - service: scene.turn_on
+      target:
+        entity_id: scene.office_front_door_open
   mode: single
 front_garden_motion_notification:
   alias: Front Garden Motion Notification
@@ -146,18 +167,24 @@ front_garden_motion_notification:
     - repeat:
         count: "4"
         sequence:
-          - scene: scene.office_front_garden_motion_notification
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_front_garden_motion_notification
           - delay:
               hours: 0
               minutes: 0
               seconds: 1
               milliseconds: 0
-          - scene: scene.office_turn_off_light_notification
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_turn_off_light_notification
   mode: single
 front_door_closed_notification:
   alias: Front Door Closed Notification
   sequence:
-    - scene: scene.office_turn_off_light_notification
+    - service: scene.turn_on
+      target:
+        entity_id: scene.office_turn_off_light_notification
   mode: single
 bathroom_flash_light:
   alias: Bathroom Flash Light
@@ -189,7 +216,9 @@ porch_override_notification:
               brightness: 178
               color_name: white
             entity_id: light.porch
-    - scene: scene.porch_light_on
+    - service: scene.turn_on
+      target:
+        entity_id: scene.porch_light_on
   mode: single
 bedroom_leos_door_opened_notification:
   alias: Bedroom Leo's Door Opened Notification
@@ -209,7 +238,9 @@ bedroom_leos_door_opened_notification:
               entity_id:
                 - light.bedroom_left_lamp
                 - light.bedroom_right_lamp
-    - scene: scene.bedroom_desk_lamps_on
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bedroom_desk_lamps_on
   mode: single
 bedroom_ashlees_door_opened_notification:
   alias: Bedroom Ashlee's Door Opened Notification
@@ -229,7 +260,9 @@ bedroom_ashlees_door_opened_notification:
               entity_id:
                 - light.bedroom_left_lamp
                 - light.bedroom_right_lamp
-    - scene: scene.bedroom_desk_lamps_on
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bedroom_desk_lamps_on
   mode: single
 counter_strike_bomb_planted:
   alias: Counter Strike Bomb Planted
