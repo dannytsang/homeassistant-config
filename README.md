@@ -3,15 +3,16 @@
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 
 # Introduction 📢
-🥅 My goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a light through to household chores such as washing clothes. Currently, my journey continues.
+My ⚽goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a 💡light through to household chores such as 👕washing clothes. Currently, my journey continues.
 
-I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or life experience to use the technology at the time. Fast forward a few decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
+I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or 🧬life experience to use the 💻technology at the time. Fast forward a few 📅decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
 
 This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾.
 
-More details to follow. Visit my [blog](https://dannytsang.co.uk).
+More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 
-## [Statistics](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
+## Statistics
+To get the template for the below stats, see [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
 I have 1804 states in Home Assistant.
 By domain these are;
 - 1 alarm_control_panel
