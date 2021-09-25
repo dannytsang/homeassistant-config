@@ -10,6 +10,69 @@ octoprint:
   bed: true
   number_of_tools: 1
 automation:
+  - id: "1608655560832"
+    alias: "^3D Printer: Print Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.octoprint_printing
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_3d_printer_automations
+        state: "on"
+    action:
+      - wait_for_trigger:
+          - platform: numeric_state
+            entity_id: sensor.octoprint_time_remaining
+            above: "0"
+        timeout: "60"
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":printer: 3D printer has started. Estimated time to completion: {{((now().strftime('%s')
+            | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
+            ({{ ((((states('sensor.octoprint_time_remaining') | int) / 60) | float) /
+            60) | round(2) }} hours)."
+      - service: switch.turn_on
+        target:
+          entity_id: switch.prusa_fan
+      - choose:
+          - conditions:
+              - condition: sun
+                after: sunset
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":printer: :city_sunset: Printing started after sunset. Turning
+                    Printer light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+          - conditions:
+              - condition: sun
+                before: sunrise
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":printer: :city_sunset: Printing started before sunrise. Turning
+                    Printer light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+        default:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":printer: :sunrise: Printing started after sunrise. Not turning
+                on printer light."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.3d_printer_light_off
+    mode: single
   - id: "1619873649348"
     alias: "^3D Printer: 50% Complete"
     description: ""
@@ -25,10 +88,10 @@ automation:
       - service: script.post_to_home_log
         data:
           message:
-            3D printer is 50% complete and due to finish at {{((now().strftime('%s')
+            "3D printer is 50% complete and due to finish at {{((now().strftime('%s')
             | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
-            ({{ ((((states("sensor.octoprint_time_remaining") | int) / 60) | float) /
-            60) | round(2) }} hours).
+            ({{ ((((states('sensor.octoprint_time_remaining') | int) / 60) | float) /
+            60) | round(2) }} hours)."
     mode: single
   - id: "1623087278802"
     alias: "^3D Printer: Check If Dark And Printing"
