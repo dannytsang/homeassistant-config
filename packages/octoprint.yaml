@@ -23,6 +23,12 @@ automation:
         entity_id: input_boolean.enable_3d_printer_automations
         state: "on"
     action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.prusa_fan
+      - service: script.post_to_home_log
+        data:
+          message: ":printer: 3D printer is priming. Turning on extruder :dash: fan."
       - wait_for_trigger:
           - platform: numeric_state
             entity_id: sensor.octoprint_time_remaining
@@ -35,9 +41,6 @@ automation:
             | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
             ({{ ((((states('sensor.octoprint_time_remaining') | int) / 60) | float) /
             60) | round(2) }} hours)."
-      - service: switch.turn_on
-        target:
-          entity_id: switch.prusa_fan
       - choose:
           - conditions:
               - condition: sun
@@ -63,6 +66,22 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.3d_printer_light_on
+          - conditions:
+              - condition: sun
+                after: sunrise
+                before: sunset
+              - condition: state
+                entity_id: light.prusa
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":printer: :sunny: Printing started during the day. Turning
+                    Printer light off."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_off
         default:
           - service: script.post_to_home_log
             data:
