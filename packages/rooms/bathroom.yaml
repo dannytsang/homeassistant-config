@@ -102,9 +102,6 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: Guest
               - condition: numeric_state
                 entity_id: sensor.bathroom_motion_2_light_level
                 below: "40"
@@ -171,6 +168,11 @@ automation:
         id: door_open
       - platform: state
         to: "off"
+        for: 00:05:00
+        entity_id: group.bathroom_motion
+        id: door_open_night
+      - platform: state
+        to: "off"
         for: 00:12:00
         entity_id: group.bathroom_motion
         id: door_closed
@@ -192,11 +194,35 @@ automation:
               state: "off"
             - condition: trigger
               id: door_open
+            - condition: time
+              before: "22:00:00"
           sequence:
             - service: script.post_to_home_log
               data:
                 message:
                   ":no_pedestrians: No motion again and door is open. Turning bathroom
+                  light off."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.bathroom_turn_off_light
+              data:
+                transition: 2
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.bathroom_door
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.bathroom_light_override
+              state: "off"
+            - condition: trigger
+              id: door_open_night
+            - condition: time
+              after: "22:00:00"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":no_pedestrians: No motion again and door is open after :clock10: 22:00. Turning bathroom
                   light off."
             - service: scene.turn_on
               target:
