@@ -393,6 +393,9 @@ automation:
         entity_id: group.jd_computer
         from: not_home
         to: home
+      - platform: state
+        entity_id: sensor.pc_boot_time
+        from: unavailable
     condition: []
     action:
       - service: script.post_to_home_log
@@ -415,31 +418,65 @@ automation:
         for: 00:10:00
         to: not_home
         from: home
-    condition:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: device_tracker.unifi_security_gateway
-            state: unavailable
+        id: router
+      - platform: state
+        entity_id: sensor.pc_boot_time
+        to: unavailable
+        for: "00:02:00"
+        id: pc
+    condition: []
     action:
-      - service: script.post_to_home_log
-        data:
-          message: ":computer: :tv: Computer turned off for more than 10 minutes."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.office_desk_lights_off
-      - service: script.post_to_home_log
-        data:
-          messsage: Turned off desk lights.
-      - service: switch.turn_off
-        target:
-          entity_id: switch.goxlr
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":computer: :tv: Computer turned off for more than 10 minutes. Turned
-            off :level_slider: goXLR"
-      - service: script.office_turn_off_backup_drive
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: router
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: device_tracker.unifi_security_gateway
+                    state: unavailable
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":computer: :tv: Computer turned off for more than 10 minutes."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_desk_lights_off
+              - service: script.post_to_home_log
+                data:
+                  messsage: Turned off desk lights.
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.goxlr
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":computer: :tv: Computer turned off for more than 10 minutes. Turned
+                    off :level_slider: goXLR"
+              - service: script.office_turn_off_backup_drive
+          - conditions:
+              - condition: trigger
+                id: pc
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":computer: :tv: Computer turned off for more than 10 minutes."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_desk_lights_off
+              - service: script.post_to_home_log
+                data:
+                  messsage: Turned off desk lights.
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.goxlr
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":computer: :tv: Computer turned off for more than 10 minutes. Turned
+                    off :level_slider: goXLR"
+              - service: script.office_turn_off_backup_drive
+        default: []
     mode: single
   # Curtains
   - id: "1622374444832"
