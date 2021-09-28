@@ -94,7 +94,7 @@ automation:
             - scene.stairs_light_2_on
     mode: single
   - id: "1587595659605"
-    alias: "^Stairs: Dark, After Bed Time and Motion Detected"
+    alias: "^Stairs: Upstairs Dark, After Bed Time and Motion Detected Before Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full 
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
     trigger:
@@ -216,7 +216,7 @@ automation:
               entity_id: scene.stairs_light_2_dim
     mode: single
   - id: "1587595659606"
-    alias: "^Stairs: Dark, After Bed Time and Motion Detected 2"
+    alias: "^Stairs: Dark, After Bed Time and Motion Detected After Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full 
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
     trigger:
@@ -501,45 +501,6 @@ automation:
           message:
             ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :no_pedestrians: :mirror: Turning off Maggic Mirror because
             no motion was detected."
-        service: script.post_to_home_log
-    mode: single
-  - id: "1613866698304"
-    alias: "^Stairs: Dark, Leo's Door Closed And Motion Detected (Obsolete)"
-    description: ""
-    trigger:
-      - entity_id: group.upstairs_motion
-        from: "off"
-        platform: state
-        to: "on"
-    condition:
-      - condition: and
-        conditions:
-          - below: "5"
-            condition: numeric_state
-            entity_id: sensor.stairs_motion_light_level
-          - condition: state
-            entity_id: input_boolean.enable_stairs_motion_trigger
-            state: "on"
-          - after: "19:30:00"
-            before: "23:59:59"
-            condition: time
-          - condition: state
-            entity_id: binary_sensor.leos_door
-            state: "off"
-          - condition: state
-            entity_id: input_boolean.enable_leos_door_automations
-            state: "on"
-    action:
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_on
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_on
-      - data:
-          message:
-            ":paw_prints: :door: :high_brightness: Motion detected upstairs, Leo's
-            door is closed and it's dark. Turning stairs light on."
         service: script.post_to_home_log
     mode: single
   - id: "1617735237453"
