@@ -1,7 +1,8 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Motion
   - id: "1610307951215"
-    alias: "^Bathroom: Motion Detected And It's Dark"
+    alias: "^Bathroom: Motion Detected, Light Off And It's Dark"
     description: ""
     trigger:
       - platform: state
@@ -14,18 +15,115 @@ automation:
       - condition: state
         entity_id: input_boolean.bathroom_light_override
         state: "off"
+      - condition: state
+        entity_id: light.bathroom_light
+        state: "off"
+    action:
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_2_light_level
+                below: "40"
+              - condition: or
+                conditions:
+                  - condition: sun
+                    before: sunrise
+                  - condition: time
+                    before: "05:30:00"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: :low_brightness: Motion detected in the bathroom,
+                      it's dark ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux) and 
+                      it's :clock12: late. Turning bathroom night light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_night_light
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_2_light_level
+                below: "40"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark in :busts_in_silhouette: 
+                      guest mode ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux). Turning lights on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_light_on
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Guest
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_2_light_level
+                below: "30"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark ({{ states('sensor.bathroom_motion_light_level') }}
+                    < 40 lux). Turning lights on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_light_on
+        default: []
+    mode: single
+  - id: "1610307951216"
+    alias: "^Bathroom: Motion Detected, Light is on And It's Dark"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.bathroom_motion
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_bathroom_motion_trigger
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.bathroom_light_override
+        state: "off"
+      - condition: state
+        entity_id: light.bathroom_light
+        state: "on"
       - condition: or
         conditions:
           - condition: numeric_state
             entity_id: light.bathroom_light
             attribute: brightness
             below: "200"
-          - condition: template
-            value_template:
-              '{{ state_attr("light.bathroom_light", "brightness") ==
-              none }}'
     action:
       - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_2_light_level
+                below: "40"
+              - condition: or
+                conditions:
+                  - condition: sun
+                    before: sunrise
+                  - condition: time
+                    before: "05:30:00"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":paw_prints: :bathtub: :low_brightness: Motion detected in the bathroom,
+                      it's dark ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux) and 
+                      it's :clock12: late. Turning stairs night light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_night_light
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
@@ -405,28 +503,6 @@ automation:
       - service: cover.set_cover_position
         data:
           position: 40
-    mode: single
-  - id: "1622934382699"
-    alias: "^Bathroom: Window Closed At Night 2"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.bathroom_window
-        from: "on"
-        to: "off"
-    condition:
-      - condition: time
-        after: 00:00:00
-        before: 06:30:00
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":window: :city_sunset: Bathroom window closed and it's dark. Closing
-            blinds."
-      - service: cover.close_cover
-        target:
-          entity_id: cover.bathroom_blinds
     mode: single
 counter:
   bathroom_door:
