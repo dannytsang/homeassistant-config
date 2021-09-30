@@ -113,34 +113,72 @@ automation:
             60) | round(2) }} hours)."
     mode: single
   - id: "1623087278802"
-    alias: "^3D Printer: Check If Dark And Printing"
+    alias: "^3D Printer: Check If Printing Light"
     description: ""
     trigger:
       - platform: time_pattern
         hours: "*"
         seconds: "*"
-        minutes: /30
+        minutes: "/30"
       - platform: sun
         event: sunset
+        id: sunset
+      - platform: sun
+        event: sunrise
     condition:
-      - condition: state
-        entity_id: light.prusa
-        state: "off"
-      - condition: numeric_state
-        entity_id: sensor.conservatory_motion_light_level
-        below: "100"
       - condition: state
         entity_id: binary_sensor.octoprint_printing
         state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":city_sunset: :printer: It's getting dark and 3D printer is printing.
-            Turning on lights."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.3d_printer_light_on
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: light.prusa
+                state: "off"
+              - condition: numeric_state
+                entity_id: sensor.conservatory_motion_light_level
+                below: "100"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":city_sunset: :printer: It's getting dark and 3D printer is printing.
+                    Turning :bulb: lights on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+          - conditions:
+              - condition: state
+                entity_id: light.prusa
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.conservatory_motion_light_level
+                above: "100"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":city_sunrise: :printer: It's getting bright and 3D printer is printing.
+                    Turning lights off."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_off
+          - conditions:
+              - condition: state
+                entity_id: light.prusa
+                state: "off"
+              - condition: trigger
+                id: sunset
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":city_sunset: :printer: Sun is setting and 3D printer is printing.
+                    Turning :bulb: lights on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+        default: []
     mode: single
   - id: "1613321560216"
     alias: "^3D Printer: Finished Printing"
