@@ -403,24 +403,6 @@
       data:
         message: Potential leak has stopped
   mode: single
-- id: "1605924680077"
-  alias: "Ashlee's Room: Turn Off Night Light At Sunrise"
-  description: ""
-  trigger:
-    - platform: sun
-      event: sunrise
-  condition:
-    - condition: state
-      entity_id: switch.night_light
-      state: "on"
-  action:
-    - service: switch.turn_off
-      target:
-        entity_id: switch.ashlees_lamp
-    - service: script.post_to_home_log
-      data:
-        message: :sunrise:. Turn off night light
-  mode: single
 - id: "1610388192224"
   alias: "Lounge: TV Turned On"
   description: ""
@@ -694,23 +676,6 @@
   condition: []
   action:
     - service: script.counter_strike_bomb_planted
-  mode: single
-- id: "1616103854416"
-  alias: "Deepstack: Object detected"
-  description: ""
-  trigger:
-    - platform: event
-      event_type: deepstack.object_detected
-      event_data: {}
-  condition: []
-  action:
-    - service: notify.mobile_app_dannys_phone
-      data:
-        data:
-          attachment:
-            url: https://{{ trigger.event.data.confidence }}
-            content-type: png
-            hide-thumbnail: false
   mode: single
 - id: "1617742736231"
   alias: "Lounge: Motion Detected And No One Home"
@@ -1095,34 +1060,6 @@
             - service: script.everybody_leave_home
       default: []
   mode: single
-- id: "1627285063813"
-  alias: "Leo's Bedroom: Timed Open Blinds"
-  description: ""
-  trigger:
-    - platform: time
-      at: 08:00:00
-  condition:
-    - condition: or
-      conditions:
-        - condition: state
-          entity_id: cover.leos_blinds
-          state: closed
-        - condition: state
-          entity_id: cover.leos_blinds
-          state: closing
-    - condition: not
-      conditions:
-        - condition: state
-          state: Guest
-          entity_id: input_select.home_mode
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: Opening Leo's bedroom blinds
-    - service: cover.open_cover
-      target:
-        entity_id: cover.leos_blinds
-  mode: single
 - id: "1627509008928"
   alias: Enter No Children Mode
   description: ""
@@ -1382,25 +1319,6 @@
       default: []
   mode: queued
   max: 10
-- id: "1630366065607"
-  alias: "Alarm: Armed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: alarm_control_panel.stevenage_alarm
-      to: armed_away
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":bell: :camera_with_flash: Alarmed set to away mode (all sensors on).
-          Turning on all cameras."
-    - service: script.conservatory_turn_on_camera
-    - service: script.lounge_turn_on_camera
-    - service: script.upstairs_turn_on_camera
-    - service: script.front_garden_turn_on_camera
-  mode: single
 - id: "1630529131585"
   alias: "People: Kids Leave The House"
   description: ""
@@ -1498,7 +1416,7 @@
       default: []
   mode: single
 - id: "1631138390675"
-  alias: "Home Mode Changed To Normal"
+  alias: Home Mode Changed To Normal
   description: ""
   trigger:
     - platform: state
