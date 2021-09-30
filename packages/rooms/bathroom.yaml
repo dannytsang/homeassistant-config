@@ -168,7 +168,7 @@ automation:
         id: door_open
       - platform: state
         to: "off"
-        for: 00:05:00
+        for: 00:05:30
         entity_id: group.bathroom_motion
         id: door_open_night
       - platform: state
@@ -258,6 +258,11 @@ automation:
         for: 00:03:00
         id: short
       - platform: state
+        to: "off"
+        for: 00:04:30
+        entity_id: group.bathroom_motion
+        id: evening
+      - platform: state
         entity_id: group.bathroom_motion
         to: "off"
         for: 00:10:00
@@ -280,11 +285,35 @@ automation:
                 state: "off"
               - condition: trigger
                 id: short
+              - condition: time
+                before: "22:00:00"
             sequence:
               - service: script.post_to_home_log
                 data:
                   message:
                     ":no_pedestrians: :bulb: :low_brightness: No motion and door is open.
+                    Dimming bathroom light."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_dim_lights
+                data:
+                  transition: 2
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "off"
+              - condition: trigger
+                id: evening
+              - condition: time
+                after: "22:00:00"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":no_pedestrians: :bulb: :low_brightness: No motion and door is open after :clock10: 22:00.
                     Dimming bathroom light."
               - service: scene.turn_on
                 target:
