@@ -1,0 +1,55 @@
+esphome:
+  name: ashlees-bed
+  platform: ESP8266
+  board: esp01_1m
+
+i2c:
+  sda: 4
+  scl: 5
+  scan: true
+  id: bus_a
+
+ads1115:
+  - address: 0x48
+    continuous_mode: true
+
+sensor:
+  - platform: ads1115
+    multiplexer: 'A0_GND'
+    gain: 6.144
+    name: "Ashlee's Bed Top Left"
+  - platform: ads1115
+    multiplexer: 'A1_GND'
+    gain: 6.144
+    name: "Ashlee's Bed Top Right"
+  - platform: ads1115
+    multiplexer: 'A2_GND'
+    gain: 6.144
+    name: "Ashlee's Bed Bottom Left"
+  - platform: ads1115
+    multiplexer: 'A3_GND'
+    gain: 6.144
+    name: "Ashlee's Bed Bottom Right"
+  # Platform sensors
+  - platform: uptime
+    name: Uptime Sensor
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: !secret ashlees_bed_ota_password
+
+wifi:
+  ssid: !secret wifi_iot_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Ashlees-Bed Fallback Hotspot"
+    password: !secret ashlees_bed_fallback_password
+
+captive_portal:
