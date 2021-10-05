@@ -1,0 +1,62 @@
+esphome:
+  name: bed
+  platform: ESP32
+  board: esp32dev
+
+i2c:
+  sda: 21
+  scl: 22
+  scan: true
+  id: bus_a
+
+ads1115:
+  - address: 0x48
+    continuous_mode: true
+
+esp32_ble_tracker:
+
+sensor:
+  - platform: ads1115
+    multiplexer: 'A0_GND'
+    gain: 4.096
+    name: "Bed Top Left"
+  - platform: ads1115
+    multiplexer: 'A1_GND'
+    gain: 4.096
+    name: "Bed Top Right"
+    filters:
+      - median:
+          window_size: 5
+          send_every: 5
+          send_first_at: 1
+  - platform: ads1115
+    multiplexer: 'A2_GND'
+    gain: 4.096
+    name: "Bed Bottom Left"
+  - platform: ads1115
+    multiplexer: 'A3_GND'
+    gain: 4.096
+    name: "Bed Bottom Right"
+  # Platform sensors
+  - platform: uptime
+    name: Uptime Sensor
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: ""
+
+wifi:
+  ssid: !secret wifi_iot_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Bed Fallback Hotspot"
+    password: !secret bed_fallback_password
+
+captive_portal:
