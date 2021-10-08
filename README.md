@@ -14,7 +14,7 @@ More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 ## Statistics
 To get the template for the below stats, see [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
 I have 1707 states in Home Assistant.
-By domain these are;
+By domain these are:
 - 1 alarm_control_panel
 - 204 automation
 - 245 binary_sensor
