@@ -13,9 +13,42 @@ automation:
         entity_id: alarm_control_panel.stevenage_alarm
         state: armed_away
     action:
-      - data: {}
-        entity_id: alarm_control_panel.stevenage_alarm
-        service: script.1589652888991
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: alarm_control_panel.stevenage_alarm
+                state: armed_away
+              - condition: state
+                entity_id: input_boolean.enable_morning_routine
+                state: "off"
+            sequence:
+              - service: alarm_control_panel.alarm_disarm
+              - service: script.post_to_home_log
+                data:
+                  message: ":house: :running: Someone arrived home. Turning :no_bell: alarm off."
+              - service: script.conservatory_turn_off_camera
+              - service: script.lounge_turn_off_camera
+              - service: script.upstairs_turn_off_camera
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.stevenage_alarm
+                    state: home
+              - condition: state
+                entity_id: input_boolean.enable_morning_routine
+                state: "on"
+            sequence:
+              - service: alarm_control_panel.alarm_arm_home
+              - service: script.post_to_home_log
+                data:
+                  message: ":house: :running: Someone arrived home before :city_sunrise: sunrise. 
+                  Changing alarm to home mode(door sensors only) and downstairs :camera_with_flash: cameras."
+              - service: script.conservatory_turn_on_camera
+              - service: script.lounge_turn_on_camera
+              - service: script.front_garden_turn_on_camera
+        default: []
+    mode: single
   - id: "1613333442249"
     alias: "^People: No One Home And 3D Printing"
     description: ""
