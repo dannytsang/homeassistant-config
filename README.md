@@ -153,7 +153,7 @@ Fully kitted networking gear of choice and provides really good integration with
 * [Unifi Switch 24](https://store.ui.com/collections/unifi-network-switching/products/usw-24)
 
 ### Wemos
-Small WiFi development board with an ESP8266 chip. I'm using [Tasmota](https://tasmota.github.io) firmware but looking to switch to [ESPHome](https://esphome.io/) at some point.
+Small WiFi development board with an ESP8266 chip. I'm using [ESPHome](https://esphome.io/) firmware.
 * [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
 
 # Addons ➕
