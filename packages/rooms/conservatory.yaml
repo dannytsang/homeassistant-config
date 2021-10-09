@@ -139,6 +139,13 @@ automation:
           filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
     mode: queued
     max: 10
+group:
+  conservatory_motion:
+    name: Conservatory Motion
+    icon: mdi:walk
+    entities:
+      - binary_sensor.conservatory_motion
+      - binary_sensor.conservatory_motion_2
 input_boolean:
   enable_conservatory_motion_trigger:
     name: Enable motion trigger for conservatory
@@ -197,10 +204,24 @@ scene:
         friendly_name: Conservatory
         supported_features: 63
         state: "off"
-group:
-  conservatory_motion:
-    name: Conservatory Motion
-    icon: mdi:walk
-    entities:
-      - binary_sensor.conservatory_motion
-      - binary_sensor.conservatory_motion_2
+script:
+  conservatory_turn_off_camera:
+    alias: Conservatory Turn Off Camera
+    sequence:
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.conservatory_camera_detect
+            - switch.conservatory_camera_snapshots
+    mode: single
+    icon: mdi:cctv
+  conservatory_turn_on_camera:
+    alias: Conservatory Turn On Camera
+    sequence:
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.conservatory_camera_detect
+            - switch.conservatory_camera_snapshots
+    mode: single
+    icon: mdi:cctv
