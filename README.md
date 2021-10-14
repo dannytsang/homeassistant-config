@@ -69,7 +69,7 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 I have just started to look at this manufacturer since I got the Conbee II stick.
 * <strike>[Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)</strike> - See Conbee II above.
 
-### CurrentCost
+### <a name="currentcost"></a>CurrentCost
 A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).
 * [Data Cable](http://www.currentcost.com/product-datacable.html)
 * [Envi](http://www.currentcost.com/product-cc128.html)
@@ -83,6 +83,9 @@ I love Elgato products. They are generally well designed however you do pay a pr
 ### GLEDOPTO
 Third party WLED to Zigbee controller.
 * RGB CCT 1D
+
+### GlowMarkt
+The [Display and CAD](https://shop.glowmarkt.com/products/display-and-cad-combined-for-smart-meter-customers) replaced the in home display provided by my energy provider and has the added benefit of direct smart meter "real time" data via API and MQTT. It is more accurate than the [CurrentCost](#currentcost) because it reads directly from the meter. Also it should have gas usage but I am unable to get this to work at the moment.
 
 ### Google
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
