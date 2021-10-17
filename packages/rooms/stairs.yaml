@@ -110,7 +110,7 @@ automation:
     condition:
       - condition: and
         conditions:
-          - below: "5"
+          - below: "10"
             condition: numeric_state
             entity_id: sensor.stairs_motion_light_level
           - condition: state
@@ -167,6 +167,29 @@ automation:
               state: "on"
             - condition: state
               entity_id: input_boolean.enable_ashlees_door_automations
+              state: "on"
+            - condition: state
+              entity_id: group.childrens_bedroom_doors
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":paw_prints: :door: :low_brightness: Motion detected upstairs, it's
+                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are open. Turning stairs light on."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.stairs_light_dim
+        - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: No Children
+            - condition: state
+              entity_id: input_boolean.enable_leos_door_automations
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_ashlees_door_automations
               state: "off"
             - condition: state
               entity_id: binary_sensor.leos_door
@@ -178,7 +201,7 @@ automation:
                 dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :boy: Leo's door is shut. Turning stairs light on."
             - service: scene.turn_on
               target:
-                entity_id: scene.stairs_light_on
+                entity_id: scene.stairs_light_dim
         - conditions:
             - condition: not
               conditions:
