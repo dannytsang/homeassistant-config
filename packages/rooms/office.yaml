@@ -499,14 +499,16 @@ automation:
       - platform: sun
         event: sunset
         offset: -01:00:00
+        id: summer
+      - platform: sun
+        event: sunset
+        offset: 01:00:00
+        id: winter
     condition:
       - condition: state
         entity_id: input_boolean.enable_office_curtain_automations
         state: "on"
     action:
-      - service: script.post_to_home_log
-        data:
-          message: ":city_sunset: :window: It's getting dark, closing office blinds."
       - choose:
           - conditions:
               - condition: or
@@ -517,14 +519,47 @@ automation:
                   - condition: state
                     entity_id: binary_sensor.office_window_left
                     state: "on"
+              - condition: trigger
+                id: summer
             sequence:
               - service: script.post_to_home_log
                 data:
                   message:
                     ":warning: :window: Office window is still open so not closing
                     curtains. before closing curtains. :warning:"
-        default:
-          - service: script.office_close_curtains
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: sensor.season
+                    state: spring
+                  - condition: state
+                    entity_id: sensor.season
+                    state: summer
+              - condition: trigger
+                id: summer
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
+              - service: script.office_close_curtains
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: sensor.season
+                    state: autumn
+                  - condition: state
+                    entity_id: sensor.season
+                    state: winter
+              - condition: trigger
+                id: winter
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
+              - service: script.office_close_curtains
+        default: []
     mode: single
   # Lights
   - id: "1614555883547"
