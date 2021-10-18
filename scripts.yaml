@@ -129,10 +129,27 @@ police_effect:
 front_door_open_notification:
   alias: Front Door Open Notification
   sequence:
+    - service: scene.create
+      data:
+        scene_id: current_stairs_light
+        snapshot_entities:
+          - light.stairs
+    - service: scene.create
+      data:
+        scene_id: current_stairs_light2
+        snapshot_entities:
+          - light.stairs_2
+    - service: scene.create
+      data:
+        scene_id: current_office_light_1
+        snapshot_entities:
+          - light.office_light
     - service: scene.turn_on
       target:
-        entity_id: scene.office_front_door_open
+        entity_id:
+          - scene.front_door_open_notification
   mode: single
+  icon: mdi:door-open
 front_garden_motion_notification:
   alias: Front Garden Motion Notification
   sequence:
@@ -156,8 +173,12 @@ front_door_closed_notification:
   sequence:
     - service: scene.turn_on
       target:
-        entity_id: scene.office_turn_off_light_notification
+        entity_id:
+          - scene.current_office_light_1
+          - scene.current_stairs_light
+          - scene.current_stairs_light2
   mode: single
+  icon: mdi:door
 bathroom_flash_light:
   alias: Bathroom Flash Light
   sequence:
