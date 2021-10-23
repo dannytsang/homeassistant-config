@@ -11,7 +11,7 @@ This project contains configuration files for [Home Assistant](https://home-assi
 
 More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 
-## Statistics
+## Statistics 📊
 To get the template for the below stats, see [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
 I have 1707 states in Home Assistant.
 By domain these are:
@@ -46,7 +46,7 @@ By domain these are:
 - 3 weather
 - 7 zone
 
-## Hardware
+## Hardware ⚙️
 I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) which allows me to cross eco system compatibility.
 
 [Home Assistant](https://home-assistant.io) is running on a Dell OptiPlex 3060 SFF running [Unraid](https://unraid.net/) as the base Operating System.
@@ -95,6 +95,8 @@ Probably the first smart house item we purchased in 2010. There are a lot better
 
 ### Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
+* [SK6812](https://www.aliexpress.com/item/32549394249.html?spm=a2g0s.9042311.0.0.584a4c4d07qBv6)
+* [ZasLuke USB Capture Card](https://www.amazon.co.uk/gp/product/B08DJ4SXMX/ref=ppx_yo_dt_b_asin_title_o09_s00?ie=UTF8&psc=1)
 
 ### Ikea
 Love the Ikea blinds. They are easy to get hold of compared to other products and once you get over the pairing, they have worked flawlessly.
