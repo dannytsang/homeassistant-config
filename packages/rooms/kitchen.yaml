@@ -317,6 +317,45 @@ automation:
           - conditions:
               - condition: or
                 conditions:
+                  - condition: state
+                    entity_id: light.kitchen_cabinet_light
+                    state: "off"
+                  - condition: state
+                    entity_id: light.kitchen_down_light
+                    state: "off"
+                  - condition: state
+                    entity_id: light.kitchen_drawers
+                    state: "off"
+              - condition: or
+                conditions:
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_cabinet_light', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.kitchen_drawers', 'brightness') == none }}"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                    kitchen and the lights are off. Turning side lights on to full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_side_lights_on
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: light.kitchen_cabinet_light
+                    state: "on"
+                  - condition: state
+                    entity_id: light.kitchen_down_light
+                    state: "on"
+                  - condition: state
+                    entity_id: light.kitchen_drawers
+                    state: "on"
+              - condition: or
+                conditions:
                   - condition: numeric_state
                     entity_id: light.kitchen_cabinet_light
                     attribute: brightness
@@ -329,12 +368,6 @@ automation:
                     entity_id: light.kitchen_drawers
                     attribute: brightness
                     below: "100"
-                  - condition: template
-                    value_template: "{{ state_attr('light.kitchen_cabinet_light', 'brightness') == none }}"
-                  - condition: template
-                    value_template: "{{ state_attr('light.kitchen_down_light', 'brightness') == none }}"
-                  - condition: template
-                    value_template: "{{ state_attr('light.kitchen_drawers', 'brightness') == none }}"
             sequence:
               - service: script.post_to_home_log
                 data:
