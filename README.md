@@ -197,9 +197,9 @@ Other noteworthy mentions:
 # GitHub
 This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
 
-I use some of the "advance" configuration options such as [split configuration](https://www.home-assistant.io/docs/configuration/splitting_configuration/) and [packages](https://www.home-assistant.io/docs/configuration/packages/).
+Whilst [Home Assistant](https://home-assistant.io) offer backup solution, it is a bit of all or nothing restore process where as Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
 
-## Setup & Workflow
+## Setup
 I use the UI as much as possible to create and maintain changes. There's currently a general movement towards the UI within [Home Assistant](https://home-assistant.io) such as setup of integrations being removed from the configuration files. I generally support this move to make it easier for everyone.
 
 All changes are performed in the UI where possible and if they are held in configuration files then it will end up in Git where possible.
@@ -208,8 +208,38 @@ I use the Visual Studio Code add-on to edit files in [Home Assistant](https://ho
 
 Visual Studio Code addon includes a Git client so all changes are managed through the text editor.
 
+## Workflows
+The advantage of using a source code management system like Git is the ability to use hooks to trigger actions (as well as other advantages).
+
+I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes.
+
+For this reason, the `custom_components` is stored in the repository to allow a successful build and configuration check.
+
 ## Structure
 This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).
 
+I use some of the "advance" configuration options such as [split configuration](https://www.home-assistant.io/docs/configuration/splitting_configuration/) and [packages](https://www.home-assistant.io/docs/configuration/packages/).
+
+### Blueprints
+I have yet to explore this feature yet.
+
+### ESPHome
+Files related to managing the ESP microcontroller. See [ESPHome.io](https://esphome.io/) for more details.
+
 ### Packages
 I use packages for stable configurations that rarely need changing. This is due to lack of user interface support with packages.
+
+For automations, I use a caret (^) prefix to denote the automations are stored in a package and therefore cannot be editted from the UI.
+
+I tried to split the files into three categories and a corresponding folder in /config/packages/:
+1. *rooms* - settings based on a room in the house.
+2. *integrations* - settings around an integration. If the integration was removed, then the package would be self contained.
+3. *other* - is stored in the root package folder.
+
+The priority where settings reside is in the above order with the top being the highest priority. For example for a new light bulb in the lounge then it will (eventually) go into the `/config/packages/rooms/lounge.yaml` package rather than in the integrations.
+
+### Split Configurations
+I use split configuration files to help manage and keep the `configuration.yaml` size down. The advantange is each type of configuration such as scripts, scenes, etc will be managed by [Home Assistant](https://home-assistant.io) UI with minimal setup.
+
+### www
+A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
