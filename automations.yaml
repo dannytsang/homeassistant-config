@@ -558,34 +558,6 @@
       data: {}
       entity_id: input_boolean.bathroom_light_override
   mode: single
-- id: "1613955443909"
-  alias: "Stairs: Dark, Leo's Door Closed, After Midnight And Motion Detected"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.upstairs_motion
-      from: "off"
-      to: "on"
-  condition:
-    - condition: time
-      after: 00:00:00
-      before: 07:00:00
-    - below: "5"
-      condition: numeric_state
-      entity_id: sensor.stairs_motion_light_level
-    - condition: state
-      entity_id: input_boolean.enable_stairs_motion_trigger
-      state: "on"
-  action:
-    - service: scene.turn_on
-      target:
-        entity_id: scene.stairs_light_dim
-    - data:
-        message:
-          ":door: :low_brightness: Motion detected on the landing and it's dark.
-          Turning stairs lights on 10%"
-      service: script.post_to_home_log
-  mode: single
 - id: "1614033445487"
   alias: "Porch: Front Door Opened Once For More than 20 seconds"
   description: ""
