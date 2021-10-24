@@ -194,7 +194,7 @@ Other noteworthy mentions:
 * [Network UPS Tool](https://www.home-assistant.io/integrations/nut/)
 * [Slack](https://www.home-assistant.io/integrations/slack/)
 
-# GitHub
+# GitHub 🐱🐙
 This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
 
 Whilst [Home Assistant](https://home-assistant.io) offer backup solution, it is a bit of all or nothing restore process where as Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
