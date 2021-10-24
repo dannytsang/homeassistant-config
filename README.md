@@ -195,7 +195,21 @@ Other noteworthy mentions:
 * [Slack](https://www.home-assistant.io/integrations/slack/)
 
 # GitHub
-This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the user interface.
+This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
+
+I use some of the "advance" configuration options such as [split configuration](https://www.home-assistant.io/docs/configuration/splitting_configuration/) and [packages](https://www.home-assistant.io/docs/configuration/packages/).
+
+## Setup & Workflow
+I use the UI as much as possible to create and maintain changes. There's currently a general movement towards the UI within [Home Assistant](https://home-assistant.io) such as setup of integrations being removed from the configuration files. I generally support this move to make it easier for everyone.
+
+All changes are performed in the UI where possible and if they are held in configuration files then it will end up in Git where possible.
+
+I use the Visual Studio Code add-on to edit files in [Home Assistant](https://home-assistant.io) or if I really have to the File Editor add-on on my mobile deives.
+
+Visual Studio Code addon includes a Git client so all changes are managed through the text editor.
 
 ## Structure
 This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).
+
+### Packages
+I use packages for stable configurations that rarely need changing. This is due to lack of user interface support with packages.
