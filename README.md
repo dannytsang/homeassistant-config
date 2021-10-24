@@ -230,16 +230,7 @@ Private directory to hold camera images. Predominantly used for sending images t
 Files related to managing the ESP microcontroller. See [ESPHome.io](https://esphome.io/) for more details.
 
 ### Packages
-I use packages for stable configurations that rarely need changing. This is due to lack of user interface support with packages.
-
-For automations, I use a caret (^) prefix to denote the automations are stored in a package and therefore cannot be editted from the UI.
-
-I tried to split the files into three categories and a corresponding folder in /config/packages/:
-1. *rooms* - settings based on a room in the house.
-2. *integrations* - settings around an integration. If the integration was removed, then the package would be self contained.
-3. *other* - is stored in the root package folder.
-
-The priority where settings reside is in the above order with the top being the highest priority. For example for a new light bulb in the lounge then it will (eventually) go into the `/config/packages/rooms/lounge.yaml` package rather than in the integrations.
+See [packages readme](packages/README.md) for more details.
 
 ### Split Configurations
 I use split configuration files to help manage and keep the `configuration.yaml` size down. The advantange is each type of configuration such as scripts, scenes, etc will be managed by [Home Assistant](https://home-assistant.io) UI with minimal setup.
