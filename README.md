@@ -7,7 +7,7 @@ My ⚽goal with home automation is to never have to think about doing something 
 
 I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or 🧬life experience to use the 💻technology at the time. Fast forward a few 📅decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
 
-This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾.
+This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾)
 
 More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 
@@ -193,3 +193,9 @@ Other noteworthy mentions:
 * [IFTTT](https://www.home-assistant.io/integrations/ifttt/)
 * [Network UPS Tool](https://www.home-assistant.io/integrations/nut/)
 * [Slack](https://www.home-assistant.io/integrations/slack/)
+
+# GitHub
+This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the user interface.
+
+## Structure
+This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).
