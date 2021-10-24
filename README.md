@@ -223,6 +223,9 @@ I use some of the "advance" configuration options such as [split configuration](
 ### Blueprints
 I have yet to explore this feature yet.
 
+### Camera
+Private directory to hold camera images. Predominantly used for sending images to [DeepStack](https://deepstack.cc/).
+
 ### ESPHome
 Files related to managing the ESP microcontroller. See [ESPHome.io](https://esphome.io/) for more details.
 
@@ -243,3 +246,6 @@ I use split configuration files to help manage and keep the `configuration.yaml`
 
 ### www
 A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
+
+## Tags / Releases
+I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed.
