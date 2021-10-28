@@ -1,9 +1,10 @@
+from http import HTTPStatus
 import logging
 
 from aiohttp import web
 import voluptuous as vol
 
-from homeassistant.const import CONF_WEBHOOK_ID, HTTP_OK, HTTP_UNPROCESSABLE_ENTITY
+from homeassistant.const import CONF_WEBHOOK_ID
 from homeassistant.helpers import config_entry_flow
 
 from .const import DOMAIN
@@ -41,7 +42,7 @@ async def handle_webhook(hass, webhook_id, request):
     except vol.MultipleInvalid as error:
         _LOGGER.warn(f"csgo: failed to parse message '{error.error_message}''")
         # always reply 200 so that csgo keeps sending data
-        return web.Response(text="OK", status=HTTP_OK)
+        return web.Response(text="OK", status=HTTPStatus.OK)
 
     # load current gamestate
     gamestate = GameState(hass=hass)
@@ -54,7 +55,7 @@ async def handle_webhook(hass, webhook_id, request):
     hass.data[DOMAIN] = gamestate.dump()
 
     # acknowledge
-    return web.Response(text="OK", status=HTTP_OK)
+    return web.Response(text="OK", status=HTTPStatus.OK)
 
 
 # pylint: disable=invalid-name

@@ -10,6 +10,9 @@ class GameState:
     EVENT_ROUND_FREEZE = "csgo_round_freeze"
     EVENT_ROUND_STARTED = "csgo_round_started"
     EVENT_ROUND_ENDED = "csgo_round_ended"
+    
+    EVENT_ROUND_WIN_T = "csgo_round_win_t"
+    EVENT_ROUND_WIN_CT = "csgo_round_win_ct"
 
     EVENT_BOMB_PLANTED = "csgo_bomb_planted"
     EVENT_BOMB_DEFUSED = "csgo_bomb_defused"
@@ -31,7 +34,7 @@ class GameState:
         data = json.loads(data)
         self._round_state = data["round_state"]
         self._bomb_state = data["bomb_state"]
-        self._bomb_state = data["health_state"]
+        self._health_state = data["health_state"]
 
     def dump(self) -> str:
         return json.dumps(
@@ -41,8 +44,8 @@ class GameState:
     def update(self, data: dict):
         # handle active game state
         if "round" in data:
-            if "phase" in data["round"]:
-                self._check_round_state(value=data["round"]["phase"])
+            if "phase" in data["round"] or "win_team" in data["round"]:
+                self._check_round_state(value=data["round"])
             if "bomb" in data["round"]:
                 self._check_bomb_state(value=data["round"]["bomb"])
         if "player" in data:
@@ -58,7 +61,7 @@ class GameState:
             self._health_state = None
             self._fire_event(event=self.EVENT_GAME_STOPPED)
 
-    def _check_round_state(self, value: str):
+    def _check_round_state(self, value: dict):
         # state hasn't changed
         if self._round_state == value:
             return
@@ -66,13 +69,21 @@ class GameState:
         # round status has changed so the bomb should reset
         self._bomb_state = None
 
-        # report new state
-        if value == "live":
-            self._fire_event(event=self.EVENT_ROUND_STARTED)
-        elif value == "freezetime":
-            self._fire_event(event=self.EVENT_ROUND_FREEZE)
-        elif value == "over":
-            self._fire_event(event=self.EVENT_ROUND_ENDED)
+        # check for phase data 
+        if "phase" in value:
+            if value["phase"] == "live":
+                self._fire_event(event=self.EVENT_ROUND_STARTED)
+            elif value["phase"] == "freezetime":
+                self._fire_event(event=self.EVENT_ROUND_FREEZE)
+            elif value["phase"] == "over":
+                self._fire_event(event=self.EVENT_ROUND_ENDED)
+        
+        # check for winning team data
+        if "win_team" in value:
+            if value["win_team"] == "CT":
+                self._fire_event(event=self.EVENT_ROUND_WIN_CT)
+            elif value["win_team"] == "T":
+                self._fire_event(event=self.EVENT_ROUND_WIN_T)
 
         # remember current state
         self._round_state = value
