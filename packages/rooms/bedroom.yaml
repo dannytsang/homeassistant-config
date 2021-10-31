@@ -1,109 +1,5 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Motion triggers
-  - id: "1621713217274"
-    alias: "^Bedroom: Motion Detected (Day)"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.bedroom_motion
-        from: "off"
-        to: "on"
-      - platform: state
-        entity_id: input_boolean.enable_bedroom_motion_trigger
-        to: "on"
-    condition:
-      - condition: sun
-        before: sunset
-        after: sunrise
-      - condition: or
-        conditions:
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
-          - condition: numeric_state
-            entity_id: light.under_bed_light_left
-            below: "100"
-            attribute: brightness
-          - condition: numeric_state
-            entity_id: light.under_bed_light_right
-            below: "100"
-            attribute: brightness
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
-            before sunset. Turning lights on full brightness."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_turn_on_light
-    mode: single
-  - id: "1621713735692"
-    alias: "^Bedroom: Motion Detected (Night)"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.bedroom_motion
-        from: "off"
-        to: "on"
-    condition:
-      - condition: sun
-        after: sunset
-      - condition: state
-        entity_id: input_boolean.enable_bedroom_motion_trigger
-        state: "on"
-      - condition: or
-        conditions:
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
-          - condition: numeric_state
-            entity_id: light.under_bed_light_left
-            below: "9"
-            attribute: brightness
-          - condition: numeric_state
-            entity_id: light.under_bed_light_right
-            below: "9"
-            attribute: brightness
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
-            before sunset. Turning lights on low brightness."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_dim_light
-    mode: single
-  - id: "1621713867762"
-    alias: "^Bedroom: No Motion"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.bedroom_motion
-        from: "on"
-        to: "off"
-        for: 00:02:00
-    condition:
-      - condition: or
-        conditions:
-          - condition: state
-            entity_id: light.under_bed_light_left
-            state: "on"
-          - condition: state
-            entity_id: light.under_bed_light_right
-            state: "on"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message: ":bed: No motion detected for 1 minute in the bedroom. Turning lights off."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_turn_off_light
-    mode: single
   # Bed
   - id: "1601641236163"
     alias: "^Bedroom: Close Blinds When Someone Is In Bed After Sunset"
@@ -257,6 +153,199 @@ automation:
       - service: cover.open_cover
         target:
           entity_id: cover.bedroom_blind
+    mode: single
+  # Door
+  - id: "1615209552353"
+    alias: "^Bedroom: Other Bedroom Door Opens Warning"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_door
+        from: "off"
+        to: "on"
+        id: leo
+      - platform: state
+        entity_id: binary_sensor.ashlees_door
+        id: ashlee
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: group.bedroom_desk_lights
+        state: "on"
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Guest
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_bed_presence
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.bed_occupied
+                state: "on"
+              - condition: trigger
+                id: leo
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  title: Close bedroom blinds
+                  message:
+                    ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                    warning."
+              - service: script.bedroom_leos_door_opened_notification
+          - conditions:
+              - condition: sun
+                after: sunset
+              - condition: trigger
+                id: leo
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  title: Close bedroom blinds
+                  message:
+                    ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                    warning."
+              - service: script.bedroom_leos_door_opened_notification
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_bed_presence
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.bed_occupied
+                state: "on"
+              - condition: trigger
+                id: ashlee
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  title: Close bedroom blinds
+                  message:
+                    ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+                    warning."
+              - service: script.bedroom_ashlees_door_opened_notification
+          - conditions:
+              - condition: sun
+                after: sunset
+              - condition: trigger
+                id: ashlee
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  title: Close bedroom blinds
+                  message:
+                    ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+                    warning."
+              - service: script.bedroom_ashlees_door_opened_notification
+        default: []
+    mode: queued
+    max: 10
+  # Motion triggers
+  - id: "1621713217274"
+    alias: "^Bedroom: Motion Detected (Day)"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.bedroom_motion
+        from: "off"
+        to: "on"
+      - platform: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        to: "on"
+    condition:
+      - condition: sun
+        before: sunset
+        after: sunrise
+      - condition: or
+        conditions:
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
+          - condition: numeric_state
+            entity_id: light.under_bed_light_left
+            below: "100"
+            attribute: brightness
+          - condition: numeric_state
+            entity_id: light.under_bed_light_right
+            below: "100"
+            attribute: brightness
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
+            before sunset. Turning lights on full brightness."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bedroom_turn_on_light
+    mode: single
+  - id: "1621713735692"
+    alias: "^Bedroom: Motion Detected (Night)"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.bedroom_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
+          - condition: numeric_state
+            entity_id: light.under_bed_light_left
+            below: "9"
+            attribute: brightness
+          - condition: numeric_state
+            entity_id: light.under_bed_light_right
+            below: "9"
+            attribute: brightness
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
+            before sunset. Turning lights on low brightness."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bedroom_dim_light
+    mode: single
+  - id: "1621713867762"
+    alias: "^Bedroom: No Motion"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.bedroom_motion
+        from: "on"
+        to: "off"
+        for: 00:02:00
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.under_bed_light_left
+            state: "on"
+          - condition: state
+            entity_id: light.under_bed_light_right
+            state: "on"
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":bed: No motion detected for 1 minute in the bedroom. Turning lights off."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bedroom_turn_off_light
     mode: single
   # Time
   - id: "1621875409014"

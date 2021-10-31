@@ -142,6 +142,45 @@ automation:
           filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
     mode: queued
     max: 10
+  # Door
+  - id: "1628985027639"
+    alias: "^Conservatory: Door Open"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.conservatory_door
+        to: "on"
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":door: Conservatory door opened. Enabling conservatory camera :camera_with_flash:"
+      - service: script.conservatory_turn_on_camera
+    mode: single
+  - id: "1628985156167"
+    alias: "Conservatory: Door Closed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.conservatory_door
+        to: "off"
+        from: "on"
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: alarm_control_panel.stevenage_alarm
+                state: disarmed
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :camera: Conservatory door closed. Turning conservatory
+                    camera off."
+              - service: script.conservatory_turn_off_camera
+        default: []
+    mode: single
 group:
   conservatory_motion:
     name: Conservatory Motion
