@@ -66,6 +66,34 @@ automation:
       - service: script.post_to_home_log
         data:
           message: ":door: Front door closed for 1 minute. Turning off porch light."
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: light.stairs
+              state: 'on'
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "Front door closed. Turning stairs light off as fall back."
+            - service: scene.turn_on
+              target:
+                entity_id:
+                  - scene.stairs_light_off
+        default: []
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: light.office_light
+              state: 'on'
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "Front door closed. Turning office light off as fall back."
+            - service: scene.turn_on
+              target:
+                entity_id:
+                  - scene.office_turn_off_light_notification
+        default: []
     mode: single
 input_boolean:
   enable_porch_light_override:
