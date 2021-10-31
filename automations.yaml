@@ -1476,3 +1476,26 @@
       default:
         - service: script.lounge_flash_lounge_lights_green
   mode: single
+- id: "1635673894105"
+  alias: "Office: Computer Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.jd_computer
+      to: not_home
+      from: home
+      id: router
+    - platform: state
+      entity_id: sensor.pc_boot_time
+      to: unavailable
+      id: pc
+    - platform: state
+      entity_id: sensor.bios_version
+      to: unavailable
+      id: pc
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":computer: :tv: Computer turned off."
+  mode: single
