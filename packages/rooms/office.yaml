@@ -410,7 +410,7 @@ automation:
       - service: script.office_turn_on_external_hard_drive
     mode: single
   - id: "1606256309890"
-    alias: "^Office: Computer Turned Off"
+    alias: "^Office: Computer Turned Off For A Period Of Time"
     description: ""
     trigger:
       - platform: state
@@ -424,17 +424,23 @@ automation:
         to: unavailable
         for: "00:02:00"
         id: pc
-    condition: []
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: device_tracker.unifi_security_gateway
+            state: unavailable
+      - condition: state
+        entity_id: sensor.bios_version
+        state: unavailable
+      - condition: state
+        entity_id: sensor.pc_boot_time
+        state: unavailable
     action:
       - choose:
           - conditions:
               - condition: trigger
                 id: router
-              - condition: not
-                conditions:
-                  - condition: state
-                    entity_id: device_tracker.unifi_security_gateway
-                    state: unavailable
             sequence:
               - service: script.post_to_home_log
                 data:
