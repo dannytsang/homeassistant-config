@@ -1437,7 +1437,7 @@
         entity_id: switch.blanket
   mode: single
 - id: "1634576629865"
-  alias: "NFC Tag: Front Door Scanned"
+  alias: "NFC Tag: Scanned Locked By User"
   description: ""
   trigger:
     - platform: event
@@ -1446,17 +1446,31 @@
         user_id:
           - 06cbf6deafc54cf0beffa49552a396b1
           - 2df8a2a6e0be4d5d902aad2d39ed4c9b
-  condition:
-    - condition: template
-      value_template: "{{ trigger.event.data.tag_id == '47e42f4c-3ffa-463f-ae2f-ed0b97a4fe9c'}}"
+  condition: []
   action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":door: :label: Front door tag scanned by {{ states.person|selectattr('attributes.user_id',
-          '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
-          }}."
-    - service: script.nfc_front_door
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.tag_id == '47e42f4c-3ffa-463f-ae2f-ed0b97a4fe9c'}}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":door: :label: Front door tag scanned by {{ states.person|selectattr('attributes.user_id',
+                  '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
+                  }}."
+            - service: script.nfc_front_door
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.tag_id == '8b6d6755-b4d5-4b23-8e8b-cf224d221bb7'}}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":door: :label: Bedroom right tag scanned by {{ states.person|selectattr('attributes.user_id',
+                  '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
+                  }}."
+      default: []
   mode: single
 - id: "1635673894105"
   alias: "Office: Computer Turned Off"
