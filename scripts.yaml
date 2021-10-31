@@ -32,59 +32,7 @@ everybody_leave_home:
           ":running: :house: :dancer: Everyone has left the house. Running the
           following:"
       service: script.post_to_home_log
-    - data:
-        message: ":running: :house: :mirror: Turning off Magic Mirror."
-      service: script.post_to_home_log
-    - service: switch.turn_off
-      target:
-        entity_id: switch.magic_mirror_screen
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off office lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.office_all_lights_off
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off office fan"
-    - service: switch.turn_off
-      target:
-        entity_id: switch.office_fan
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off kitchen lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.kitchen_main_lights_off
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off lounge lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.lounge_lights_off
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off conservatory light."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.conservatory_turn_off_light
-    - service: script.post_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off stairs light."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.stairs_light_off
-    - service: scene.turn_on
-      target:
-        entity_id: scene.stairs_light_2_off
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 1
-        milliseconds: 0
-    - service: light.turn_off
-      target:
-        entity_id: light.stairs_2
+    - service: script.turn_everything_off
   mode: single
 test:
   alias: Test
@@ -293,7 +241,6 @@ echo_text_to_speech:
         data:
           type: tts
   mode: queued
-  icon: mdi:amazon-alexa
   max: 10
 office_turn_off_backup_drive:
   alias: Office Turn Off Backup Drive
@@ -524,3 +471,76 @@ nfc_front_door:
             message: ":no_bell: Alarm is not on so nothing to do."
         - service: script.lounge_flash_lounge_lights_red
   mode: single
+  icon: mdi:nfc
+turn_everything_off:
+  alias: Turn Everything Off
+  sequence:
+    - data:
+        message: ":mirror: Turning off Magic Mirror."
+      service: script.post_to_home_log
+    - service: switch.turn_off
+      target:
+        entity_id: switch.magic_mirror_screen
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off office lights."
+    - service: scene.turn_on
+      target:
+        entity_id: scene.office_all_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off office, bedroom fans."
+    - service: switch.turn_off
+      target:
+        entity_id:
+          - switch.office_fan
+          - switch.fan_3
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off kitchen lights."
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.kitchen_all_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off lounge lights."
+    - service: scene.turn_on
+      target:
+        entity_id: scene.lounge_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: ":running: :house: :bulb: Turning off conservatory light."
+    - service: scene.turn_on
+      target:
+        entity_id: scene.conservatory_turn_off_light
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off stairs light."
+    - service: scene.turn_on
+      target:
+        entity_id:
+          - scene.stairs_light_off
+          - scene.stairs_light_2_off
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off porch light."
+    - service: scene.turn_on
+      target:
+        entity_id: scene.porch_lights_off
+    - service: script.post_to_home_log
+      data:
+        message: ":bulb: Turning off bathroom light."
+    - service: scene.turn_on
+      target:
+        entity_id: scene.bathroom_turn_off_light
+  mode: single
+nfc_bedroom_right:
+  alias: NFC Bedroom Right
+  sequence:
+    - service: script.post_to_home_log
+      data:
+        message: Turning everything off.
+    - service: script.turn_everything_off
+  mode: single
+  icon: mdi:nfc
