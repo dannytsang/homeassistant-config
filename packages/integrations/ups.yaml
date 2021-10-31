@@ -78,6 +78,24 @@ automation:
             ":warning: :battery: Lounge UPS battery is not connected :battery:
             :warning:"
         service: script.post_to_home_log
+  - id: "1590564041899"
+    alias: "^UPS: Lounge UPS On Battery"
+    description: ""
+    trigger:
+      - entity_id: sensor.lounge_ups_status_data
+        platform: state
+        to: OB DISCHRG
+    condition: []
+    action:
+      - data:
+          message: ":warning: :battery: Lounge UPS is running on battery :battery: :warning:"
+        service: script.post_to_home_log
+      - data:
+          message:
+            ":warning: :battery: Lounge UPS is running on battery mins left :battery:
+            :warning:"
+        service: script.post_to_direct_notification
+    mode: single
   # PC
   - id: "1613324300208"
     alias: "^UPS: Computer UPS Unavailable"
@@ -157,6 +175,27 @@ automation:
           message: ":battery: PC UPS battery is fully charged :battery:"
         service: script.post_to_home_log
     mode: single
+  - id: "1613246249488"
+    alias: "^UPS: Office PC UPS On Battery"
+    description: ""
+    trigger:
+      - entity_id: sensor.computer_ups_status_data
+        platform: state
+        to: OB DISCHRG
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Server UPS is running on battery with less than
+            5 minutes left :battery: :warning:"
+          target: "#general"
+        service: notify.slack_notify
+      - data:
+          message:
+            ":warning: :battery: Server UPS is running on battery with less than
+            5 minutes left :battery: :warning:"
+        service: script.post_to_direct_notification
+    mode: single
   # Server
   - id: "1591729661691"
     alias: "^UPS: Office Fully Charged"
@@ -202,6 +241,27 @@ automation:
             ":warning: :battery: Server UPS battery is not connected :battery:
             :warning:"
         service: script.post_to_home_log
+    mode: single
+  - id: "1591705427768"
+    alias: "^UPS: Server UPS On Battery"
+    description: ""
+    trigger:
+      - entity_id: sensor.server_ups_status_data
+        platform: state
+        to: OB DISCHRG
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Server UPS is running on battery with less than
+            5 minutes left :battery: :warning:"
+          target: "#general"
+        service: notify.slack_notify
+      - data:
+          message:
+            ":warning: :battery: Server UPS is running on battery with less than
+            5 minutes left :battery: :warning:"
+        service: script.post_to_direct_notification
     mode: single
 input_boolean:
   enable_ups_trigger:

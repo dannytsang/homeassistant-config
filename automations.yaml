@@ -213,24 +213,6 @@
     - data:
         message: ":warning: Lounge wireless access point is offline! :warning:"
       service: script.post_to_home_log
-- id: "1590564041899"
-  alias: "Lounge: UPS On Battery"
-  description: ""
-  trigger:
-    - entity_id: sensor.lounge_ups_status_data
-      platform: state
-      to: OB DISCHRG
-  condition: []
-  action:
-    - data:
-        message: ":warning: :battery: Lounge UPS is running on battery :battery: :warning:"
-      service: script.post_to_home_log
-    - data:
-        message:
-          ":warning: :battery: Lounge UPS is running on battery mins left :battery:
-          :warning:"
-      service: script.post_to_direct_notification
-  mode: single
 - id: "1590564595890"
   alias: "Lounge: UPS Below 5 Minutes Run time"
   description: ""
@@ -252,27 +234,6 @@
         message:
           ":warning: :battery: Lounge UPS battery has less than 5 minutes left
           :battery: :warning:"
-      service: script.post_to_direct_notification
-  mode: single
-- id: "1591705427768"
-  alias: "Office: Server UPS On Battery"
-  description: ""
-  trigger:
-    - entity_id: sensor.server_ups_status_data
-      platform: state
-      to: OB DISCHRG
-  condition: []
-  action:
-    - data:
-        message:
-          ":warning: :battery: Server UPS is running on battery with less than
-          5 minutes left :battery: :warning:"
-        target: "#general"
-      service: notify.slack_notify
-    - data:
-        message:
-          ":warning: :battery: Server UPS is running on battery with less than
-          5 minutes left :battery: :warning:"
       service: script.post_to_direct_notification
   mode: single
 - id: "1591705795121"
@@ -311,6 +272,7 @@
     - data:
         message: ":warning: :droplet: Water detected in the conservatory :droplet: :warning:"
       service: script.post_to_home_log
+  mode: single
 - id: "1594148554582"
   alias: "Conservatory: Water Not Detected"
   description: ""
@@ -324,6 +286,7 @@
     - data:
         message: Water no longer detected in the conservatory
       service: script.post_to_home_log
+  mode: single
 - id: "1600719083284"
   alias: Test2
   description: ""
@@ -403,19 +366,6 @@
       data:
         message: Potential leak has stopped
   mode: single
-- id: "1610388192224"
-  alias: "Lounge: TV Turned On"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.tv_plug_power_meter
-      above: "35"
-  condition: []
-  action:
-    - service: script.post_direct_message_to_danny
-      data:
-        message: TV turned on.
-  mode: single
 - id: "1611931052908"
   alias: "Porch: Front Door Open Indicator"
   description: ""
@@ -436,27 +386,6 @@
           is open"
     - service: script.front_door_open_notification
       data: {}
-  mode: single
-- id: "1613246249488"
-  alias: "Office: Computer UPS On Battery"
-  description: ""
-  trigger:
-    - entity_id: sensor.computer_ups_status_data
-      platform: state
-      to: OB DISCHRG
-  condition: []
-  action:
-    - data:
-        message:
-          ":warning: :battery: Server UPS is running on battery with less than
-          5 minutes left :battery: :warning:"
-        target: "#general"
-      service: notify.slack_notify
-    - data:
-        message:
-          ":warning: :battery: Server UPS is running on battery with less than
-          5 minutes left :battery: :warning:"
-      service: script.post_to_direct_notification
   mode: single
 - id: "1613246359438"
   alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
