@@ -31,16 +31,14 @@ automation:
           message: ":printer: 3D printer is priming. Turning on extruder :dash: fan."
       - wait_for_trigger:
           - platform: numeric_state
-            entity_id: sensor.octoprint_time_remaining
+            entity_id: sensor.octoprint_estimated_finish_time
             above: "0"
         timeout: "60"
       - service: script.post_to_home_log
         data:
           message:
-            ":printer: 3D printer has started. Estimated time to completion: {{((now().strftime('%s')
-            | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
-            ({{ ((((states('sensor.octoprint_time_remaining') | int) / 60) | float) /
-            60) | round(2) }} hours)."
+            ":printer: 3D printer has started. Estimated time to completion:
+            {{ states('sensor.octoprint_estimated_finish_time') }}."
       - choose:
           - conditions:
               - condition: sun
@@ -106,11 +104,7 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message:
-            "3D printer is 50% complete and due to finish at {{((now().strftime('%s')
-            | int + (states('sensor.octoprint_time_remaining') | int)) | timestamp_custom('%H:%M:%S'))}}
-            ({{ ((((states('sensor.octoprint_time_remaining') | int) / 60) | float) /
-            60) | round(2) }} hours)."
+          message: "3D printer is 50% complete and due to finish at {{ states('sensor.octoprint_estimated_finish_time') }}."
     mode: single
   - id: "1623087278802"
     alias: "^3D Printer: Check If Printing Light"
@@ -195,31 +189,8 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ":printer: :white_check_mark: Completed 3D printing. Total time: {{ (((states('sensor.octoprint_time_elapsed') | int) / 60) | float) / 60 }} hours."
-    mode: single
-  - id: "1609349959402"
-    alias: "^3D Printer: Print Finished And Hot End Cooled"
-    description: ""
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.octoprint_actual_tool0_temp
-        below: "50"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_3d_printer_automations
-        state: "on"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":printer: :snowflake: Hot end cooled down. Turning off extruder fan
-            and light."
-      - service: switch.turn_off
-        target:
-          entity_id: switch.prusa_fan
-      - service: scene.turn_on
-        target:
-          entity_id: scene.3d_printer_light_off
+          message: ":printer: :white_check_mark: Completed 3D printing which 
+          started {{states('sensor.octoprint_start_time')}}"
     mode: single
 input_boolean:
   enable_3d_printer_automations:

@@ -974,58 +974,6 @@
       data:
         message: ":repeat: Entering No Children mode."
   mode: single
-- id: "1627724032362"
-  alias: "3D Printer: Hotend Reached Temperature"
-  description: ""
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octoprint_actual_tool0_temp
-      above: sensor.octoprint_target_tool0_temp
-      id: hot_end
-    - platform: numeric_state
-      id: bed
-      above: sensor.octoprint_target_bed_temp
-      entity_id: sensor.octoprint_actual_bed_temp
-  condition:
-    - condition: state
-      entity_id: binary_sensor.octoprint_printing
-      state: "off"
-    - condition: or
-      conditions:
-        - condition: numeric_state
-          entity_id: sensor.octoprint_target_bed_temp
-          above: "30"
-        - condition: numeric_state
-          entity_id: sensor.octoprint_target_tool0_temp
-          above: "30"
-  action:
-    - choose:
-        - conditions:
-            - condition: trigger
-              id: hot_end
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message:
-                  ":thermometer: :printer: 3D Printer hotend has reached temperature.
-                  Turning on notification light."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.3d_printer_temperature_reached
-        - conditions:
-            - condition: trigger
-              id: bed
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message:
-                  ":thermometer: :printer: 3D Printer bed has reached temperature.
-                  Turning on notification light."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.3d_printer_temperature_reached
-      default: []
-  mode: single
 - id: "1629147974029"
   alias: "Front Garden: Person Detected"
   description: ""
