@@ -1,0 +1,84 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  # Echo: Leo's Bedroom
+  - id: "1612998168529"
+    alias: "^Leo's Bedroom: Echo Playing"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: media_player.leos_bedroom
+        to: playing
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ state_attr('media_player.leos_bedroom','media_position') !=
+                  none and
+                  state_attr('media_player.leos_bedroom','media_duration') !=
+                  none and
+                  state_attr('media_player.leos_bedroom','media_title') !=
+                  none and
+                  state_attr('media_player.leos_bedroom','media_artist') !=
+                  none }}
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":radio: Echo office playing *{{ state_attr('media_player.leos_bedroom',
+                    'media_title') }}* by _{{ state_attr('media_player.leos_bedroom',
+                    'media_artist') }}_ and is at {{ state_attr('media_player.leos_bedroom','media_position') |
+                    int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.leos_bedroom','media_duration') |
+                    int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.leos_bedroom',
+                    'media_position') | int / state_attr('media_player.leos_bedroom',
+                    'media_duration') | int) * 100) | round(2, 'common') }}%) way through."
+        default:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":radio: Echo office playing *{{ state_attr('media_player.leos_bedroom',
+                'media_content_type') }}*."
+    mode: queued
+    max: 10
+  # Echo: Office
+  - id: "1612998168528"
+    alias: "^Office: Echo Playing"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: media_player.office_echo
+        to: playing
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ state_attr('media_player.office_echo','media_position') !=
+                  none and
+                  state_attr('media_player.office_echo','media_duration') !=
+                  none and
+                  state_attr('media_player.office_echo','media_title') !=
+                  none and
+                  state_attr('media_player.office_echo','media_artist') !=
+                  none }}
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":radio: Echo office playing *{{ state_attr('media_player.office_echo',
+                    'media_title') }}* by _{{ state_attr('media_player.office_echo',
+                    'media_artist') }}_ and is at {{ state_attr('media_player.office_echo','media_position') |
+                    int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.office_echo','media_duration') |
+                    int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.office_echo',
+                    'media_position') | int / state_attr('media_player.office_echo',
+                    'media_duration') | int) * 100) | round(2, 'common') }}%) way through."
+        default:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":radio: Echo office playing *{{ state_attr('media_player.office_echo',
+                'media_content_type') }}*."
+    mode: queued
+    max: 10
