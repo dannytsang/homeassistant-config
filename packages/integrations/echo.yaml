@@ -43,12 +43,15 @@ automation:
     max: 10
   # Echo: Office
   - id: "1612998168528"
-    alias: "^Office: Echo Playing"
+    alias: "^Office: Echo Playing Or Paused"
     description: ""
     trigger:
       - platform: state
         entity_id: media_player.office_echo
         to: playing
+      - platform: state
+        entity_id: media_player.office_echo
+        to: paused
     condition: []
     action:
       - choose:
@@ -67,9 +70,10 @@ automation:
               - service: script.post_to_home_log
                 data:
                   message:
-                    ":radio: Echo office playing *{{ state_attr('media_player.office_echo',
-                    'media_title') }}* by _{{ state_attr('media_player.office_echo',
-                    'media_artist') }}_ and is at {{ state_attr('media_player.office_echo','media_position') |
+                    ":radio: Echo office {{ state('media_player.office_echo') }}
+                    *{{ state_attr('media_player.office_echo', 'media_title') }}*
+                    by _{{ state_attr('media_player.office_echo', 'media_artist') }}_
+                    and is at {{ state_attr('media_player.office_echo','media_position') |
                     int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.office_echo','media_duration') |
                     int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.office_echo',
                     'media_position') | int / state_attr('media_player.office_echo',
@@ -78,7 +82,7 @@ automation:
           - service: script.post_to_home_log
             data:
               message:
-                ":radio: Echo office playing *{{ state_attr('media_player.office_echo',
-                'media_content_type') }}*."
+                ":radio: Echo office {{ state('media_player.office_echo') }}
+                *{{ state_attr('media_player.office_echo', 'media_content_type') }}*."
     mode: queued
     max: 10
