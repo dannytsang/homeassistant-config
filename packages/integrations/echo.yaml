@@ -43,15 +43,11 @@ automation:
     max: 10
   # Echo: Office
   - id: "1612998168528"
-    alias: "^Office: Echo Playing Or Paused"
+    alias: "^Office: Echo Status Change"
     description: ""
     trigger:
       - platform: state
         entity_id: media_player.office_echo
-        to: playing
-      - platform: state
-        entity_id: media_player.office_echo
-        to: paused
     condition: []
     action:
       - choose:
@@ -59,30 +55,44 @@ automation:
               - condition: template
                 value_template: >-
                   {{ state_attr('media_player.office_echo','media_position') !=
-                  none and
+                  none or
                   state_attr('media_player.office_echo','media_duration') !=
-                  none and
+                  none or
                   state_attr('media_player.office_echo','media_title') !=
-                  none and
+                  none or
                   state_attr('media_player.office_echo','media_artist') !=
                   none }}
             sequence:
               - service: script.post_to_home_log
                 data:
                   message:
-                    ":radio: Echo office {{ state('media_player.office_echo') }}
-                    *{{ state_attr('media_player.office_echo', 'media_title') }}*
-                    by _{{ state_attr('media_player.office_echo', 'media_artist') }}_
+                    ":radio: Echo office {{ states('media_player.office_echo') }}
+                    *{% if state_attr('media_player.office_echo','media_title') != none %}by _{{ state_attr('media_player.office_echo', 'media_title') }}_{% endif %}*
+                    {% if state_attr('media_player.office_echo','media_artist') != none %}by _{{ state_attr('media_player.office_echo', 'media_artist') }}_{% endif %}
+                    {% if state_attr('media_player.office_echo','media_position') != none and state_attr('media_player.office_echo','media_duration') != none %}
                     and is at {{ state_attr('media_player.office_echo','media_position') |
                     int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.office_echo','media_duration') |
                     int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.office_echo',
                     'media_position') | int / state_attr('media_player.office_echo',
-                    'media_duration') | int) * 100) | round(2, 'common') }}%) way through."
+                    'media_duration') | int) * 100) | round(2, 'common') }}%) the way through.
+                    {% elif state_attr('media_player.office_echo','media_position') != none %}
+                    and is at {{ state_attr('media_player.office_echo','media_position') |
+                    int | timestamp_custom('%H:%M:%S') }} the way through.
+                    {% endif %}"
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ state_attr('media_player.office_echo','media_content_type') !=
+                  none }}
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":radio: Echo office {{ state('media_player.office_echo') }}
+                    *{{ state_attr('media_player.office_echo', 'media_content_type') }}*."
         default:
           - service: script.post_to_home_log
             data:
-              message:
-                ":radio: Echo office {{ state('media_player.office_echo') }}
-                *{{ state_attr('media_player.office_echo', 'media_content_type') }}*."
+              message: ":radio: Echo office {{ state('media_player.office_echo') }}."
     mode: queued
     max: 10
