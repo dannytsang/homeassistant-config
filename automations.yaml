@@ -1271,8 +1271,37 @@
     - service: script.post_to_home_log
       data:
         message:
-          ":radio: Ashlee's echo has been playing music for more than an hour after
-          bedtime. Turning music off."
+          ":radio: Ashlee's echo has been playing music for more than an hour
+          after bedtime. Turning music off."
     - service: media_player.media_stop
       target:
         entity_id: media_player.ashlees_bedroom
+- id: "1636203020481"
+  alias: "Porch: Some One Leaving"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.porch_motion
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":door: Someone leaving."
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.porch_motion
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":test_tube: :door: Someone entering."
+      default: []
+  mode: single
