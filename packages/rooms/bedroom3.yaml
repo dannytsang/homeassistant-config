@@ -118,7 +118,30 @@ automation:
                     opening Ashlee's bedroom blinds."
         default: []
     mode: single
+binary_sensor:
+  - platform: template
+    sensors:
+      ashlees_bed_occupied:
+        icon_template:
+          "mdi:bed-single{{ '-outline' if states('sensor.ashlees_bed_top') | float >= 0.2 or
+          states('sensor.ashlees_bed_middle_top') | float >= 0.2 or
+          states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
+          states('sensor.ashlees_bed_bottom') | float >= 0.2 else '' }}"
+        friendly_name: Ashlee's Bed occupied
+        device_class: occupancy
+        value_template: >-
+          {% if states('sensor.ashlees_bed_top') | float >= 0.2 or 
+              states('sensor.ashlees_bed_middle_top') | float >= 0.2 or 
+              states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
+              states('sensor.ashlees_bed_bottom') | float >= 0.2 %}
+            on
+          {% else %}
+            off
+          {% endif %}
 input_boolean:
+  enable_ashlees_bed_presence:
+    name: Enable Ashlee's Bed Sensor
+    icon: mdi:bed-single
   enable_ashlees_blind_automations:
     name: Enable Ashlees Blind Automation
     icon: mdi:window-open
