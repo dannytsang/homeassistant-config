@@ -118,26 +118,6 @@ automation:
                     opening Ashlee's bedroom blinds."
         default: []
     mode: single
-binary_sensor:
-  - platform: template
-    sensors:
-      ashlees_bed_occupied:
-        icon_template:
-          "mdi:bed-single{{ '-outline' if states('sensor.ashlees_bed_top') | float >= 0.2 or
-          states('sensor.ashlees_bed_middle_top') | float >= 0.2 or
-          states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
-          states('sensor.ashlees_bed_bottom') | float >= 0.2 else '' }}"
-        friendly_name: Ashlee's Bed occupied
-        device_class: occupancy
-        value_template: >-
-          {% if states('sensor.ashlees_bed_top') | float >= 0.2 or 
-              states('sensor.ashlees_bed_middle_top') | float >= 0.2 or 
-              states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
-              states('sensor.ashlees_bed_bottom') | float >= 0.2 %}
-            on
-          {% else %}
-            off
-          {% endif %}
 input_boolean:
   enable_ashlees_bed_presence:
     name: Enable Ashlee's Bed Sensor
@@ -148,3 +128,21 @@ input_boolean:
   enable_ashlees_door_automations:
     name: Enable Ashlee's Door Automation
     icon: mdi:door
+template:
+  - binary_sensor:
+      - name: Ashlee's Bed Occupied
+        icon: >-
+          mdi:bed-single{{ '-outline' if states('sensor.ashlees_bed_top') | float >= 0.2 or
+          states('sensor.ashlees_bed_middle_top') | float >= 0.2 or
+          states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
+          states('sensor.ashlees_bed_bottom') | float >= 0.2 else '' }}
+        device_class: occupancy
+        state: >-
+          {% if states('sensor.ashlees_bed_top') | float >= 0.2 or 
+              states('sensor.ashlees_bed_middle_top') | float >= 0.2 or 
+              states('sensor.ashlees_bed_middle_bottom') | float >= 0.2 or
+              states('sensor.ashlees_bed_bottom') | float >= 0.2 %}
+            on
+          {% else %}
+            off
+          {% endif %}

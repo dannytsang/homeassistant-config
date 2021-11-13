@@ -177,28 +177,6 @@ automation:
         target:
           entity_id: cover.leos_blinds
     mode: single
-binary_sensor:
-  - platform: template
-    sensors:
-      leos_bed_occupied:
-        icon_template:
-          "mdi:bed-double{{ '-outline' if states('sensor.leos_bed_top_left') | float >= 0.06 or
-          states('sensor.leos_bed_top_right') | float >= 0.06 or
-          states('sensor.leos_bed_bottom_left') | float >= 0.06 or
-          states('sensor.leos_bed_bottom_right') | float >= 0.06
-          else '' }}"
-        friendly_name: Leo's bed occupied
-        device_class: occupancy
-        value_template: >-
-          {% if states('sensor.leos_bed_top_left') | 
-            float >= 0.06 or states('sensor.leos_bed_top_right') | 
-            float >= 0.06 or states('sensor.leos_bed_bottom_left') | 
-            float >= 0.06 or states('sensor.leos_bed_bottom_right') | 
-            float >= 0.06 %}
-            on
-          {% else %}
-            off
-          {% endif %}
 input_boolean:
   enable_leos_bed_presence:
     name: Enable Leo's Bed Sensor
@@ -227,3 +205,23 @@ sensor:
     entity_id: sensor.leos_bed_bottom_right
     name: Leo's Bed Bottom Right Stat
     sampling_size: 2000
+template:
+  - binary_sensor:
+      - name: Leo's Bed Occupied
+        icon: >-
+          mdi:bed-double{{ '-outline' if states('sensor.leos_bed_top_left') | float >= 0.06 or
+          states('sensor.leos_bed_top_right') | float >= 0.06 or
+          states('sensor.leos_bed_bottom_left') | float >= 0.06 or
+          states('sensor.leos_bed_bottom_right') | float >= 0.06
+          else '' }}
+        device_class: occupancy
+        state: >-
+          {% if states('sensor.leos_bed_top_left') | 
+            float >= 0.06 or states('sensor.leos_bed_top_right') | 
+            float >= 0.06 or states('sensor.leos_bed_bottom_left') | 
+            float >= 0.06 or states('sensor.leos_bed_bottom_right') | 
+            float >= 0.06 %}
+            on
+          {% else %}
+            off
+          {% endif %}
