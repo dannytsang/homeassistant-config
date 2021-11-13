@@ -110,5 +110,11 @@ template:
       entity_id: binary_sensor.front_door
     sensor:
     - name: Door Entry Direction
-      icon: mdi:location-{% if states('binary_sensor.porch_motion') == 'on' %}exit{% else %}enter{% endif %}
-      state: "{% if states('binary_sensor.porch_motion') == 'on' %}leaving{% else %}entering{% endif %}"
+      icon: >-
+        mdi:{% if states('binary_sensor.porch_motion') == 'on' %}location-exit
+        {% elif states('binary_sensor.porch_motion') == 'on' %}location-enter
+        {% else %}alert-circle-outline{% endif %}
+      state: >-
+        {% if states('binary_sensor.porch_motion') == 'on' %}leaving
+        {% elif states('binary_sensor.porch_motion') == 'off' %}entering
+        {% else %}unknown{% endif %}
