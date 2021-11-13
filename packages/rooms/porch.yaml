@@ -102,3 +102,13 @@ input_boolean:
   porch_light_override:
     name: Bathroom Light Override
     icon: mdi:lightbulb
+template:
+  # Replicate Switchbot contact sensor to know if someone is entering or leaving. Thanks to @damieng5
+  # https://www.switch-bot.com/products/contact-sensor
+  - trigger:
+    - platform: state
+      entity_id: binary_sensor.front_door
+    sensor:
+    - name: Door Entry Direction
+      icon: mdi:location-{% if states('binary_sensor.porch_motion') == 'on' %}exit{% else %}enter{% endif %}
+      state: "{% if states('binary_sensor.porch_motion') == 'on' %}leaving{% else %}entering{% endif %}"
