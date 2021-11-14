@@ -1,6 +1,8 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # https://community.home-assistant.io/t/templates-in-command-line-sensor-octopus-energy-api/96141/133
 input_text:
+  dno_region_code:
+    initial: !secret dno_region_code
   electricity_mpan:
     initial: !secret electricity_mpan
   electricity_serial:
@@ -27,7 +29,7 @@ sensor:
   - platform: rest
     name: Go rates today
     resource_template: >-
-      {% set region = 'H' %}
+      {% set region = states('input_text.dno_region_code') %}
       {% set from = as_timestamp(as_timestamp(now())|timestamp_custom('%Y-%m-%d') + 'T00:00:00') %}
       {% set to = from + 24 * 60 * 60 %}
       {% set format = '%Y-%m-%dT%H:%M:%SZ' %}
@@ -45,7 +47,7 @@ sensor:
   - platform: rest
     name: Go rates off peak
     resource_template: >-
-      {% set region = 'H' %}
+      {% set region = states('input_text.dno_region_code') %}
       {% set from = as_timestamp(as_timestamp(now())|timestamp_custom('%Y-%m-%d') + 'T00:30:00') %}
       {% set to = from + 4 %}
       {% set format = '%Y-%m-%dT%H:%M:%SZ' %}
@@ -230,60 +232,6 @@ sensor:
     json_attributes:
       - "results"
 
-  - platform: template
-    sensors:
-      electricity_cost:
-        friendly_name: Electricity cost
-        icon_template: mdi:cash-multiple
-        value_template: >-
-          {% set standing_charge = 25 %}
-          {% set usage = state_attr('sensor.electricity_consumption', 'results') %}
-          {% if usage is defined and usage|count == 48 %}
-            {% set ns = namespace(total=0) %}
-            {% for p in range(0, 48) %}
-              {% set time = as_timestamp(usage[p].interval_start)|timestamp_custom('%H:%M:%S') %}
-              {% set unit_price = 15.59 %}
-              {% if '00:30:00' <= time < '04:30:00' %}
-                {% set unit_price = 5 %}
-              {% endif %}
-              {% set ns.total = ns.total + (usage[p].consumption * unit_price / 100) %}
-            {% endfor %}
-            {{ (ns.total + standing_charge / 100)|round(2) }}
-          {% else %}
-            Unknown
-          {% endif %}
-        unit_of_measurement: "£"
-        device_class: monetary
-
-  - platform: template
-    sensors:
-      electricity_cost_off_peak:
-        friendly_name: Electricity cost off peak
-        icon_template: mdi:cash-multiple
-        value_template: >-
-          {% set standing_charge = 0 %}
-          {% set usage = state_attr('sensor.electricity_consumption_off_peak', 'results') %}
-          {% if usage is defined and usage|count == 8 %}
-            {% set ns = namespace(total=0) %}
-            {% for p in range(0, 8) %}
-              {% set time = as_timestamp(usage[p].interval_start)|timestamp_custom('%H:%M:%S') %}
-              {% set unit_price = 5 %}
-              {% set ns.total = ns.total + (usage[p].consumption * unit_price / 100) %}
-            {% endfor %}
-            {{ (ns.total + standing_charge / 100)|round(2) }}
-          {% else %}
-            Unknown
-          {% endif %}
-        unit_of_measurement: "£"
-        device_class: monetary
-
-  - platform: template
-    sensors:
-      current_electricity_unit_cost:
-        value_template: "{% if [now().hour, now().minute]|join()|int <= 430  %} 0.05 {% else %} 0.1596 {% endif %}"
-        friendly_name: "Current Electricity Unit Cost"
-        unit_of_measurement: "GBP/kWh"
-        icon_template: mdi:cash-multiple
   # Total energy usage using energy@home <https://github.com/dannytsang/energyathome>
   - platform: sql
     db_url: !secret energyathome
@@ -394,3 +342,62 @@ sensor:
     name: DCC Electricity
     unit_prefix: k
     round: 2
+template:
+  - trigger:
+      - platform: time
+        at: "00:30:00"
+      - platform: time
+        at: "00:35:00"
+      - platform: time
+        at: "04:30:00"
+      - platform: time
+        at: "04:35:00"
+    sensors:
+      electricity_cost:
+        friendly_name: Electricity cost
+        icon_template: mdi:cash-multiple
+        value_template: >-
+          {% set standing_charge = 25 %}
+          {% set usage = state_attr('sensor.electricity_consumption', 'results') %}
+          {% if usage is defined and usage|count == 48 %}
+            {% set ns = namespace(total=0) %}
+            {% for p in range(0, 48) %}
+              {% set time = as_timestamp(usage[p].interval_start)|timestamp_custom('%H:%M:%S') %}
+              {% set unit_price = 15.59 %}
+              {% if '00:30:00' <= time < '04:30:00' %}
+                {% set unit_price = 5 %}
+              {% endif %}
+              {% set ns.total = ns.total + (usage[p].consumption * unit_price / 100) %}
+            {% endfor %}
+            {{ (ns.total + standing_charge / 100)|round(2) }}
+          {% else %}
+            Unknown
+          {% endif %}
+        unit_of_measurement: "£"
+        device_class: monetary
+  - sensors:
+      electricity_cost_off_peak:
+        friendly_name: Electricity cost off peak
+        icon_template: mdi:cash-multiple
+        value_template: >-
+          {% set standing_charge = 0 %}
+          {% set usage = state_attr('sensor.electricity_consumption_off_peak', 'results') %}
+          {% if usage is defined and usage|count == 8 %}
+            {% set ns = namespace(total=0) %}
+            {% for p in range(0, 8) %}
+              {% set time = as_timestamp(usage[p].interval_start)|timestamp_custom('%H:%M:%S') %}
+              {% set unit_price = 5 %}
+              {% set ns.total = ns.total + (usage[p].consumption * unit_price / 100) %}
+            {% endfor %}
+            {{ (ns.total + standing_charge / 100)|round(2) }}
+          {% else %}
+            Unknown
+          {% endif %}
+        unit_of_measurement: "£"
+        device_class: monetary
+  - sensors:
+      current_electricity_unit_cost:
+        value_template: "{% if [now().hour, now().minute]|join()|int <= 430  %} 0.05 {% else %} 0.1596 {% endif %}"
+        friendly_name: "Current Electricity Unit Cost"
+        unit_of_measurement: "GBP/kWh"
+        icon_template: mdi:cash-multiple
