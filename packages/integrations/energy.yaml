@@ -94,24 +94,6 @@ sensor:
     json_attributes:
       - "results"
 
-  - platform: template
-    sensors:
-      gas_cost:
-        friendly_name: Gas cost
-        icon_template: mdi:cash-multiple
-        value_template: >-
-          {% set unit_price = 3.95 %}
-          {% set standing_charge = 23.85 %}
-          {% set calorific_value = 39.1 %}
-          {% set usage = state_attr('sensor.gas_consumption', 'results') %}
-          {% if usage is defined and usage|count == 48 %}
-            {{ ((states('sensor.gas_consumption') | float * 1.02264 * calorific_value / 3.6) * unit_price / 100 + standing_charge / 100)|round(2) }}
-          {% else %}
-            Unknown
-          {% endif %}
-        device_class: energy
-        unit_of_measurement: "£"
-
   - platform: rest
     name: Electricity consumption
     resource_template: >-
@@ -342,21 +324,26 @@ sensor:
     name: DCC Electricity
     unit_prefix: k
     round: 2
+
 template:
-  - trigger:
-      - platform: time
-        at: "00:30:00"
-      - platform: time
-        at: "00:35:00"
-      - platform: time
-        at: "04:30:00"
-      - platform: time
-        at: "04:35:00"
-    sensors:
-      electricity_cost:
-        friendly_name: Electricity cost
-        icon_template: mdi:cash-multiple
-        value_template: >-
+  - sensor:
+      - name: Gas cost
+        icon: mdi:cash-multiple
+        state: >-
+          {% set unit_price = 3.95 %}
+          {% set standing_charge = 23.85 %}
+          {% set calorific_value = 39.1 %}
+          {% set usage = state_attr('sensor.gas_consumption', 'results') %}
+          {% if usage is defined and usage|count == 48 %}
+            {{ ((states('sensor.gas_consumption') | float * 1.02264 * calorific_value / 3.6) * unit_price / 100 + standing_charge / 100)|round(2) }}
+          {% else %}
+            Unknown
+          {% endif %}
+        device_class: energy
+        unit_of_measurement: "£"
+      - name: Electricity Cost
+        icon: mdi:cash-multiple
+        state: >-
           {% set standing_charge = 25 %}
           {% set usage = state_attr('sensor.electricity_consumption', 'results') %}
           {% if usage is defined and usage|count == 48 %}
@@ -375,11 +362,9 @@ template:
           {% endif %}
         unit_of_measurement: "£"
         device_class: monetary
-  - sensors:
-      electricity_cost_off_peak:
-        friendly_name: Electricity cost off peak
-        icon_template: mdi:cash-multiple
-        value_template: >-
+      - name: Electricity Cost Off Peak
+        icon: mdi:cash-multiple
+        state: >-
           {% set standing_charge = 0 %}
           {% set usage = state_attr('sensor.electricity_consumption_off_peak', 'results') %}
           {% if usage is defined and usage|count == 8 %}
@@ -395,9 +380,17 @@ template:
           {% endif %}
         unit_of_measurement: "£"
         device_class: monetary
-  - sensors:
-      current_electricity_unit_cost:
-        value_template: "{% if [now().hour, now().minute]|join()|int <= 430  %} 0.05 {% else %} 0.1596 {% endif %}"
-        friendly_name: "Current Electricity Unit Cost"
+  - trigger:
+      - platform: time
+        at: "00:30:00"
+      - platform: time
+        at: "00:35:00"
+      - platform: time
+        at: "04:30:00"
+      - platform: time
+        at: "04:35:00"
+    sensor:
+      - name: Current Electricity Unit Cost
+        state: "{% if [now().hour, now().minute]|join()|int <= 430  %} 0.05 {% else %} 0.1596 {% endif %}"
         unit_of_measurement: "GBP/kWh"
-        icon_template: mdi:cash-multiple
+        icon: mdi:cash-multiple
