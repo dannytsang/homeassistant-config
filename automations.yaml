@@ -1305,3 +1305,17 @@
                 message: ":test_tube: :door: Someone entering."
       default: []
   mode: single
+- id: "1637409592193"
+  alias: "Double Take: Unknown Face"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.double_take_unknown
+  condition: []
+  action:
+    - service: script.post_to_home_log_with_url
+      data:
+        message: Unknown face detected.
+        title: Stranger Detected
+        url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.unknown.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
+  mode: single
