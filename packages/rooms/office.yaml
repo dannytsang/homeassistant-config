@@ -394,8 +394,9 @@ automation:
         from: not_home
         to: home
       - platform: state
-        entity_id: sensor.pc_boot_time
+        entity_id: binary_sensor.microphone
         from: unavailable
+        to: "on"
     condition: []
     action:
       - service: script.post_to_home_log
@@ -420,9 +421,9 @@ automation:
         from: home
         id: router
       - platform: state
-        entity_id: sensor.pc_boot_time
+        entity_id: binary_sensor.microphone
         to: unavailable
-        for: "00:02:00"
+        for: "00:10:00"
         id: pc
     condition:
       - condition: not
@@ -430,12 +431,6 @@ automation:
           - condition: state
             entity_id: device_tracker.unifi_security_gateway
             state: unavailable
-      - condition: state
-        entity_id: sensor.bios_version
-        state: unavailable
-      - condition: state
-        entity_id: sensor.pc_boot_time
-        state: unavailable
     action:
       - choose:
           - conditions:
@@ -583,6 +578,19 @@ automation:
             - light.elgato_key_light_left
             - light.elgato_key_light_right
     mode: single
+binary_sensor:
+  - name: JD On
+    platform: "bayesian"
+    prior: 0.0
+    observations:
+      - entity_id: "device_tracker.jd"
+        platform: "state"
+        to_state: "home"
+        prob_given_true: 1.0
+      - entity_id: "sensor.computer_ups_load"
+        platform: "numeric_state"
+        above: 10
+        prob_given_true: 0.90
 group:
   jd_computer:
     name: JD Computer
