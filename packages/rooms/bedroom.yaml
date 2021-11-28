@@ -781,13 +781,14 @@ template:
       icon: >- 
         mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | float >= 0.15
         or states('sensor.bed_bottom_left') | float >= 0.15 or
-        states('sensor.bed_top_right') | float <= 0.5 or
+        states('sensor.bed_top_right') | float >= 0.15 or
         states('sensor.bed_bottom_right') | float >= 0.1 else '' }}
       device_class: occupancy
       state: >-
-        {% if states('sensor.bed_top_left') | float >= 0.15 or 
-            states('sensor.bed_bottom_left') | float >= 0.15 or 
-            states('sensor.bed_bottom_right') | float >= 2000 %}
+        {% if states('sensor.bed_top_left') | float >= 0.15 or
+            states('sensor.bed_top_right') | float >= 0.15 or 
+            states('sensor.bed_bottom_left') | float >= 0.15 or
+            states('sensor.bed_bottom_right') | float >= 0.1 %}
           on
         {% else %}
           off
