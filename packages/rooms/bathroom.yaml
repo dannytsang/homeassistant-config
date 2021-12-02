@@ -375,14 +375,33 @@ automation:
         entity_id: sensor.bathroom_motion_light_level
         below: "30"
     action:
-      - service: script.post_to_home_log
-        data:
-          message: ":bathtub: :door: Bathroom door closed and it's dark
-          ({{ states('sensor.bathroom_motion_light_level') }} lux < 30 lux). 
-          Turning lights on."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bathroom_light_on
+      - choose:
+        - conditions:
+            - condition: or
+              conditions:
+                - condition: sun
+                  before: sunrise
+                - condition: time
+                  before: "05:30:00"
+          sequence: 
+            - service: script.post_to_home_log
+              data:
+                message:
+                  ":paw_prints: :bathtub: :low_brightness: Motion detected in the bathroom,
+                    it's dark ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux) and 
+                    it's :clock12: late. Turning bathroom night light on."
+            - service: scene.turn_on
+              target:
+                entity_id: scene.bathroom_night_light
+        default: 
+          - service: script.post_to_home_log
+            data:
+              message: ":bathtub: :door: Bathroom door closed and it's dark
+              ({{ states('sensor.bathroom_motion_light_level') }} lux < 30 lux). 
+              Turning lights on."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.bathroom_light_on
     mode: single
   - id: "1613684645058"
     alias: "Bathroom: Door Opened Once For More than 20 seconds"
