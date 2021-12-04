@@ -1315,3 +1315,111 @@
         title: Stranger Detected
         url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.unknown.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
   mode: single
+- id: "1638650461801"
+  alias: "Office: Window Open And Heating Is On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.office_windows
+      from: "off"
+      to: "on"
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.office
+          state: "off"
+          attribute: hvac_action
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":window: Office window opened and the heating is on. Turning off office
+          heating."
+    - service: climate.set_hvac_mode
+      target:
+        entity_id: climate.office
+      data:
+        hvac_mode: "off"
+  mode: single
+- id: "1638650699336"
+  alias: "Office: Window Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: group.office_windows
+      from: "on"
+      to: "off"
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.office
+          state: "off"
+          attribute: hvac_modes
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":window: Office window closed and heating is set to off. Turning heating
+          back to schedule (auto)."
+    - service: climate.set_hvac_mode
+      target:
+        entity_id: climate.office
+      data:
+        hvac_mode: auto
+  mode: single
+- id: "1638650461802"
+  alias: "Conservatory: Door Open And Heating Is On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.conservatory_door
+      from: "off"
+      to: "on"
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.conservatory
+          state: "off"
+          attribute: hvac_action
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":door: Conservatory door opened and the heating is on. Turning off conservatory
+          heating."
+    - service: climate.set_hvac_mode
+      target:
+        entity_id: climate.conservatory
+      data:
+        hvac_mode: "off"
+  mode: single
+- id: "1638650699337"
+  alias: "Conservatory: Door Closed"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.conservatory_door
+      from: "on"
+      to: "off"
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: climate.conservatory
+          state: "off"
+          attribute: hvac_modes
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":door: Conservatory door closed and heating is set to off. Turning heating
+          back to schedule (auto)."
+    - service: climate.set_hvac_mode
+      target:
+        entity_id: climate.conservatory
+      data:
+        hvac_mode: auto
+  mode: single
