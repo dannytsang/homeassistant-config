@@ -23,22 +23,26 @@ class GameState:
 
     EVENT_GAME_STOPPED = "csgo_game_stopped"
 
+    EVENT_PLAYER_FLASHED = "csgo_player_flashed"
+
     def __init__(self, hass: HomeAssistantType):
         self._hass = hass
 
         self._round_state = None
         self._bomb_state = None
         self._health_state = None
+        self._flashed_state = None
 
     def load(self, data: str):
         data = json.loads(data)
         self._round_state = data["round_state"]
         self._bomb_state = data["bomb_state"]
         self._health_state = data["health_state"]
+        self._flashed_state = data["flashed_state"]
 
     def dump(self) -> str:
         return json.dumps(
-            dict(round_state=self._round_state, bomb_state=self._bomb_state, health_state=self._health_state)
+            dict(round_state=self._round_state, bomb_state=self._bomb_state, health_state=self._health_state, flashed_state=self._flashed_state)
         )
 
     def update(self, data: dict):
@@ -50,6 +54,7 @@ class GameState:
                 self._check_bomb_state(value=data["round"]["bomb"])
         if "player" in data:
             self._check_health_state(value=data["player"]["state"]["health"])
+            self._check_player_flashed(value=data["player"]["state"]["flashed"])
         # no game state submitted, must have ended
         else:
             self._reset()
@@ -59,6 +64,7 @@ class GameState:
             self._round_state = None
             self._bomb_state = None
             self._health_state = None
+            self._flashed_state = None
             self._fire_event(event=self.EVENT_GAME_STOPPED)
 
     def _check_round_state(self, value: dict):
@@ -102,6 +108,22 @@ class GameState:
         # remember current state
         self._health_state = value
 
+    def _check_player_flashed(self, value: int):
+        # state hasen't changed
+        if self._flashed_state == value:
+            return
+
+        # report new state
+        if value > 0:
+            # Add flashed_value to report in event
+            data = {
+                "flash_value": value
+            }
+            self._fire_event(event=self.EVENT_PLAYER_FLASHED, data=data)
+
+        # remember current state
+        self._flashed_state = value
+
     def _check_bomb_state(self, value: str):
         # state hasn't changed
         if self._bomb_state == value:
@@ -118,6 +140,6 @@ class GameState:
         # remember current state
         self._bomb_state = value
 
-    def _fire_event(self, event: str):
+    def _fire_event(self, event: str, data: dict = None):
         _LOGGER.debug(f"csgo fired event: {event}")
-        self._hass.bus.async_fire(event)
+        self._hass.bus.async_fire(event, data)

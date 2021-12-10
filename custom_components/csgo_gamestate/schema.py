@@ -16,6 +16,7 @@ WEBHOOK_SCHEMA = vol.Schema(
                 vol.Optional("state"): vol.Schema(
                     {
                         vol.Optional("health"): vol.Any(int),
+                        vol.Optional("flashed"): vol.Any(int),
                     },
                     extra=vol.ALLOW_EXTRA,
                 ),
