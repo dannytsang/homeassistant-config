@@ -487,28 +487,6 @@
       data: {}
       entity_id: input_boolean.bathroom_light_override
   mode: single
-- id: "1614033445487"
-  alias: "Porch: Front Door Opened Once For More than 20 seconds"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door
-      to: "on"
-      from: "off"
-      for: 00:00:20
-  condition:
-    - condition: numeric_state
-      entity_id: counter.front_door
-      below: "2"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":door: :abacus: Front door has been opened for more than 20 secs.
-          Resetting counter  from {{ states('counter.front_door') }} to 0."
-    - service: counter.reset
-      data: {}
-      entity_id: counter.front_door
 - id: "1614285576722"
   alias: Sleep As Android
   description: ""
@@ -547,26 +525,6 @@
         message:
           ":bath: :droplet: :chart_with_upwards_trend: Humidity in the bathroom
           is above 55% with :door:doors and :window:windows closed."
-  mode: single
-- id: "1615224190495"
-  alias: "Porch: Front Door Closed For More than 20 seconds"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door
-      to: "off"
-      from: "on"
-      for: 00:00:20
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":door: :abacus: Front  door has been closed for more than 20 secs.
-          Resetting counter  from {{ states('counter.front_door') }} to 0"
-    - service: counter.reset
-      target:
-        entity_id: counter.front_door
   mode: single
 - id: "1615313996827"
   alias: "Game: Counter Strike Bomb Planted"
