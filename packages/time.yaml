@@ -90,3 +90,21 @@ automation:
           message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
         service: script.post_to_home_log
     mode: single
+  - id: "1582406380123"
+    alias: "^Timed: Turn Off Downstairs Lights at 2am"
+    description: "Fall back to turn off all lights should there be any connectivity issues etc."
+    trigger:
+      - at: 02:00:00
+        platform: time
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
+            25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
+            light off."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.turn_off_downstairs_lights
+    mode: single
