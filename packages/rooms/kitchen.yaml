@@ -526,6 +526,57 @@ automation:
         target:
           entity_id: switch.coffee_machine
     mode: single
+  # Fridge
+  - id: "1595678795895"
+    alias: "^Kitchen: Fridge Door Open"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.fridge_contact
+        from: "off"
+        platform: state
+        to: "on"
+    condition: []
+    action:
+      - data:
+          message: ":door: :snowflake: Fridge door is open."
+        service: script.post_to_home_log
+    mode: single
+  - id: "1595678900778"
+    alias: "^Kitchen: Fridge Door Closed"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.fridge_contact
+        from: "on"
+        platform: state
+        to: "off"
+    condition: []
+    action:
+      - data:
+          message: ":door: :snowflake: Fridge door closed."
+        service: script.post_to_home_log
+    mode: single
+  - id: "1595679010793"
+    alias: "^Kitchen: Fridge Open For A Long Period Of Time"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.fridge_contact
+        for: 00:04:00
+        from: "off"
+        platform: state
+        to: "on"
+    condition: []
+    action:
+      - service: script.post_to_direct_notification
+        data:
+          message:
+            ":warning: :door: :snowflake: Fridge door has been open for more than
+            4 minutes!"
+      - data:
+          message:
+            ":warning: :door: :snowflake: Fridge door has been open for more than
+            4 minutes!"
+        service: script.post_to_home_log
+    mode: single
 group:
   kitchen_area_motion:
     name: Kitchen Motion
