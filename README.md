@@ -67,6 +67,9 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 * [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
 * [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
 
+### Broadlink
+An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4 Pro](https://www.ibroadlink.com/products/ir+rf).
+
 ### <strike><a name="currentcost"></a>CurrentCost</strike>
 <strike>A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).</strike>
 * <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
