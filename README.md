@@ -57,7 +57,7 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
 * [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
 * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
-* [Conbee II](https://phoscon.de/en/conbee2) - Removed because it's not as self contained as a SmartThings hub which can be centrally placed in the house. I have kept it to periodically update IKEA device firmwares.
+* <strike>[Conbee II](https://phoscon.de/en/conbee2)</strike> - Currently having stability issues where the USB device is disconnected/not detected.
 
 ### Amazon
 We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
@@ -67,16 +67,11 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 * [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
 * [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
 
-### Aqara
-I have just started to look at this manufacturer since I got the Conbee II stick.
-* <strike>[Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)</strike> - See Conbee II above.
-
 ### <strike><a name="currentcost"></a>CurrentCost</strike>
 <strike>A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).</strike>
 * <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
 * <strike>[Envi](http://www.currentcost.com/product-cc128.html)</strike>
 * <strike>[Individual Application Monitors](http://www.currentcost.com/product-iams.html)</strike>
-
 Replaced with SmartThings and GlowMarkt.
 
 ### Elgato
