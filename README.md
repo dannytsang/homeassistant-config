@@ -82,6 +82,9 @@ I love Elgato products. They are generally well designed however you do pay a pr
 * [Key Light](https://www.elgato.com/en/key-light)
 * [Stream Deck](https://www.elgato.com/en/stream-deck)
 
+### Expressif
+Makes chips and used in popular commercial IOT applications like [Tuya](https://www.tuya.com/). I use Wemos variant of the older ESP8266 (see below) and the newer ESP32. To manage all of these, I use ESPHome.
+
 ### GLEDOPTO
 Third party WLED to Zigbee controller.
 * RGB CCT 1D
