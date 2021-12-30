@@ -53,11 +53,10 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 
 [Home Assistant](https://home-assistant.io) is running on a Dell OptiPlex 3060 SFF running [Unraid](https://unraid.net/) as the base Operating System.
 
-### Hubs / Controllers
+### <a name="controllers"></a>Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
 * [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
 * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
-* <strike>[Conbee II](https://phoscon.de/en/conbee2)</strike> - Currently having stability issues where the USB device is disconnected/not detected.
 
 ### Amazon
 We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
@@ -75,6 +74,7 @@ An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4
 * <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
 * <strike>[Envi](http://www.currentcost.com/product-cc128.html)</strike>
 * <strike>[Individual Application Monitors](http://www.currentcost.com/product-iams.html)</strike>
+
 Replaced with SmartThings and GlowMarkt.
 
 ### Elgato
@@ -94,7 +94,7 @@ Really like the casting feature to share content however found it was relatiely 
 * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
 * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 
-### Hive Home
+### <a name="currentcost"></a>Hive Home
 Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.
 * Hive 1 (SLT2)
 
@@ -155,6 +155,11 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
 ### Sonoff
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
+
+### Tado
+Smart home heating system which I am looking to replace Hive. The [Hive](#hive) system has stability issues (see above). It's currently being tested because I am also having issues with Tado.
+* [Wireless Thermostat V3+](https://www.tado.com/gb-en/wireless-smart-thermostat-specifications-overview)
+* [Radiator Valves](https://www.tado.com/gb-en/smart-radiator-thermostat-specifications-overview)
 
 ### Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
@@ -227,7 +232,7 @@ This repository's top level is the /config folder where typically the configurat
 I use some of the "advance" configuration options such as [split configuration](https://www.home-assistant.io/docs/configuration/splitting_configuration/) and [packages](https://www.home-assistant.io/docs/configuration/packages/).
 
 ### Blueprints
-I have yet to explore this feature yet.
+I have yet to explore this feature yet. See [here](https://github.com/dannytsang/homeassistant-config/issues/9).
 
 ### Camera
 Private directory to hold camera images. Predominantly used for sending images to [DeepStack](https://deepstack.cc/).
@@ -246,3 +251,6 @@ A public folder for holding any files such as images that does not need authenti
 
 ## Tags / Releases 🏷️
 I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed.
+
+# Miscellaneous
+I tried the [Conbee II](https://phoscon.de/en/conbee2) USB stick and it was good however it was tied to a computer running Deconz which makes it harder to put in the house in a central location compared to the a hub like [Philips Hue](#controllers) or [SmartThings](#controllers).
