@@ -57,7 +57,7 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
 * [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
 * [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
-* <strike>[Conbee II](https://phoscon.de/en/conbee2)</strike> - Currently having stability issues where the USB device is disconnected/not detected.
+* [Conbee II](https://phoscon.de/en/conbee2) - Removed because it's not as self contained as a SmartThings hub which can be centrally placed in the house. I have kept it to periodically update IKEA device firmwares.
 
 ### Amazon
 We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
@@ -76,6 +76,7 @@ I have just started to look at this manufacturer since I got the Conbee II stick
 * <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
 * <strike>[Envi](http://www.currentcost.com/product-cc128.html)</strike>
 * <strike>[Individual Application Monitors](http://www.currentcost.com/product-iams.html)</strike>
+
 Replaced with SmartThings and GlowMarkt.
 
 ### Elgato
