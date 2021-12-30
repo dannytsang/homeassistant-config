@@ -67,20 +67,23 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 * [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
 * [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
 
-### Aqara
-I have just started to look at this manufacturer since I got the Conbee II stick.
-* <strike>[Temperature and Humidity Sensor](https://www.aqara.com/en/temperature_humidity_sensor.html)</strike> - See Conbee II above.
+### Broadlink
+An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4 Pro](https://www.ibroadlink.com/products/ir+rf).
 
-### <a name="currentcost"></a>CurrentCost
-A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).
-* [Data Cable](http://www.currentcost.com/product-datacable.html)
-* [Envi](http://www.currentcost.com/product-cc128.html)
-* [Individual Application Monitors](http://www.currentcost.com/product-iams.html)
+### <strike><a name="currentcost"></a>CurrentCost</strike>
+<strike>A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).</strike>
+* <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
+* <strike>[Envi](http://www.currentcost.com/product-cc128.html)</strike>
+* <strike>[Individual Application Monitors](http://www.currentcost.com/product-iams.html)</strike>
+Replaced with SmartThings and GlowMarkt.
 
 ### Elgato
 I love Elgato products. They are generally well designed however you do pay a price.
 * [Key Light](https://www.elgato.com/en/key-light)
 * [Stream Deck](https://www.elgato.com/en/stream-deck)
+
+### Expressif
+Makes chips and used in popular commercial IOT applications like [Tuya](https://www.tuya.com/). I use Wemos variant of the older ESP8266 (see below) and the newer ESP32. To manage all of these, I use ESPHome.
 
 ### GLEDOPTO
 Third party WLED to Zigbee controller.
@@ -128,8 +131,9 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
 * [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
 
 ### Raspberry Pi Foundation
-A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display.
+A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display (dashboard).
 * [Raspberry Pi 4 model B](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
+* [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
 ### Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
