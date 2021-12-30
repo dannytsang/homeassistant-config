@@ -128,8 +128,9 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
 * [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
 
 ### Raspberry Pi Foundation
-A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display.
+A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display (dashboard).
 * [Raspberry Pi 4 model B](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
+* [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
 ### Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
