@@ -94,9 +94,11 @@ Really like the casting feature to share content however found it was relatiely 
 * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
 * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 
-### <a name="currentcost"></a>Hive Home
-Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.
-* Hive 1 (SLT2)
+### <strike><a name="currentcost"></a>Hive Home</strike>
+<strike>Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.</strike>
+* <strike>Hive 1 (SLT2)</strike>
+
+Looking to replace this with [Tado](#tado)
 
 ### Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
@@ -156,7 +158,7 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
 
-### Tado
+### <a name="tado"></a>Tado
 Smart home heating system which I am looking to replace Hive. The [Hive](#hive) system has stability issues (see above). It's currently being tested because I am also having issues with Tado.
 * [Wireless Thermostat V3+](https://www.tado.com/gb-en/wireless-smart-thermostat-specifications-overview)
 * [Radiator Valves](https://www.tado.com/gb-en/smart-radiator-thermostat-specifications-overview)
