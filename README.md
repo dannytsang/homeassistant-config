@@ -98,7 +98,7 @@ Really like the casting feature to share content however found it was relatiely 
 <strike>Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.</strike>
 * <strike>Hive 1 (SLT2)</strike>
 
-Looking to replace this with [Tado](#tado)
+Looking to replace this with [Tado](#tado).
 
 ### Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
@@ -123,7 +123,7 @@ The light output is one of the best in terms of lumens. The colours are generall
 Until Broadlink came along, Logitech was the only player in town to integrate remote control. The hub has been unstable however there were no alternatives at the time. I haven't integrated any automations as a result.
 * [Harmony Elite](https://www.logitech.com/en-gb/products/harmony/harmony-elite.915-000257.html?crid=60)
 
-### Philips Hue
+### <a name="philipshue"></a>Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
 * Dimmer switch
 * [Motion sensor](https://www.philips-hue.com/en-gb/p/hue-motion-sensor/8718696743171)
@@ -138,9 +138,13 @@ A powerful and relatively cheap SOC board to power home projects. I have these m
 * [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
 ### Ring
-Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general.
+Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general. The 1st generation alarm works with 2nd generation sensors.
 * [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
 * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0)
+* [Ring Alarm Contact Sensor 1st Gen](https://www.amazon.co.uk/gp/product/B07QRZ8TNY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+* [Ring Alarm Contact Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-contact-sensor-2nd-generation/dp/B08L5BZFJ7/ref=sr_1_3?crid=2EHCOKQXDB8D&keywords=ring+alarm&qid=1640880930&sprefix=ring+alarm%2Caps%2C81&sr=8-3)
+* [Ring Alarm Motion Sensor 1st Gen](https://www.amazon.co.uk/gp/product/B07QQV5RCZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
+* [Ring Alarm Motion Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-motion-detector-2nd-generation/dp/B08J6C5JJN/ref=sr_1_1_sspa?crid=1CS8GPODHRQ0A&keywords=ring+alarm+motion&qid=1640881018&sprefix=ring+alarm+motion%2Caps%2C80&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExRE9SRE1PSEtHNk0mZW5jcnlwdGVkSWQ9QTA2OTcyMDVUSE9KMFJJSjI4R00mZW5jcnlwdGVkQWRJZD1BMDMzMTIwNzVIUFE2TFFYV1ZRRiZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=)
 * [Stickup Cam Elite](https://en-uk.ring.com/products/stick-up-security-camera-elite)
 
 ### Roku
@@ -148,7 +152,7 @@ Relatively cheap and usable media streaming device (compared to a PlayStation). 
 * [NowTV Smart Stick](https://www.nowtv.com/ie/smart-tv-stick)
 * [Streaming stick+](https://www.roku.com/en-gb/products/streaming-stick-plus)
 
-### Samsung SmartThings
+### <a name="smartthings"></a>Samsung SmartThings
 Some real gems that Samsung has made like the multipurpose sensor where Philips doesn't have. Generally reliable and well packaged.
 * [Multipurpose Sensor](https://www.samsung.com/uk/smartthings/sensor/smartthings-multipurpose-sensor-gp-u999sjvlaea/)
 * [Smart Plug 2019](https://www.samsung.com/uk/smartthings/outlet/smartthings-smart-plug-gp-wou019bbdwg/)
