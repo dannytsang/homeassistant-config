@@ -1,4 +1,37 @@
 # Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1640970081113"
+    alias: "Attic: Water Tank Below 50%"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.attic_water_tank_percent
+        below: "50"
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":potable_water: Water tank is below 50% full."
+    mode: single
+  - id: "1640970248794"
+    alias: "Attic: Water Tank Below 25%"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.attic_water_tank_percent
+        below: "25"
+    condition: []
+    action:
+      - service: script.post_to_direct_notification
+        data:
+          title: ":potable_water: Water tank is low"
+          message: Check water tank in the attic because it's below 25%.
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":potable_water: Check water tank in the attic because it's below
+            25%."
+    mode: single
 group:
   attic_area_temperature:
     name: Attic Temperature
