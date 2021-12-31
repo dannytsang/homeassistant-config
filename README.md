@@ -49,9 +49,9 @@ By domain these are:
 - 7 zone
 
 ## Hardware 🔩
-I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) which allows me to cross eco system compatibility.
+I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) to use multiple eco systems together.
 
-[Home Assistant](https://home-assistant.io) is running on a Dell OptiPlex 3060 SFF running [Unraid](https://unraid.net/) as the base Operating System.
+[Home Assistant](https://home-assistant.io) is running on a custom built computer running [Unraid](https://unraid.net/) as the base Operating System.
 
 ### <a name="controllers"></a>Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
