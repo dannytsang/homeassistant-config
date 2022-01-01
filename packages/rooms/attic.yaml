@@ -7,7 +7,12 @@ automation:
       - platform: numeric_state
         entity_id: sensor.attic_water_tank_percent
         below: "50"
-    condition: []
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.attic_water_tank_percent
+            state: unavailable
     action:
       - service: script.post_to_home_log
         data:
@@ -20,7 +25,13 @@ automation:
       - platform: numeric_state
         entity_id: sensor.attic_water_tank_percent
         below: "25"
-    condition: []
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.attic_water_tank_percent
+            state: unavailable
+
     action:
       - service: script.post_to_direct_notification
         data:
