@@ -50,3 +50,11 @@ jobs:
           path: "./"
           secrets: ./secrets.yaml.sample
           version: "${{ matrix.version }}"
+
+  deploy:
+    name: "Deploy Changes"
+    needs: [home-assistant]
+    uses: satak/webrequest-action@master
+    with:
+      url: ${{ secrets.deployment_url }}
+      method: GET
