@@ -1,0 +1,24 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1641129761539"
+    alias: "^Stash: Update Library"
+    description: "Update Stash library every hour."
+    trigger:
+      - platform: time_pattern
+        minutes: "0"
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: "Updating :bearded_person: Stash."
+      - service: rest_command.update_stash
+    mode: single
+rest_command:
+  update_stash:
+    url: !secret stash_url
+    method: POST
+    headers:
+      ApiKey: !secret stash_key
+    payload: '{"query": "mutation { metadataScan ( input: { useFileMetadata: true } ) metadataGenerate ( input : { sprites: true previews: true imagePreviews: true markers: true transcodes: false } ) } "}'
+    content_type: "application/json"
+    verify_ssl: true
