@@ -43,9 +43,17 @@ sensor:
       name: "Bedroom Air Pressure"
     humidity:
       name: "Bedroom Humidity"
+      id: hum
     gas_resistance:
       name: "Bedroom Gas Resistance"
+      id: g_res
     update_interval: 60s
+  # https://community.home-assistant.io/t/bme680-gas-resistance-values/140719/15
+  - platform: template
+    name: "Bed IAQ"
+    id: Bed_IAQ
+    unit_of_measurement: IAQ
+    lambda: "return log(id(g_res).state) + 0.04 * id(hum).state;"
   # Platform sensors
   - platform: uptime
     name: Uptime Sensor

@@ -9,7 +9,7 @@ i2c:
   scan: true
   id: bus_a
 
-#esp32_ble_tracker:
+esp32_ble_tracker:
 
 # Enable logging
 logger:
@@ -30,9 +30,17 @@ sensor:
       name: "Attic Air Pressure"
     humidity:
       name: "Attic Humidity"
+      id: hum
     gas_resistance:
       name: "Attic Gas Resistance"
+      id: g_res
     update_interval: 60s
+  # https://community.home-assistant.io/t/bme680-gas-resistance-values/140719/15
+  - platform: template
+    name: "Attic IAQ"
+    id: Attic_IAQ
+    unit_of_measurement: IAQ
+    lambda: "return log(id(g_res).state) + 0.04 * id(hum).state;"
   # Platform sensors
   - platform: uptime
     name: Attic Uptime Sensor
