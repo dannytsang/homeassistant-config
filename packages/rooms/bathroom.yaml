@@ -6,7 +6,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.bathroom_area_motion
+        entity_id: group.bathroom_light_trigger
         to: "on"
     condition:
       - condition: state
@@ -77,11 +77,11 @@ automation:
         default: []
     mode: single
   - id: "1610307951216"
-    alias: "^Bathroom: Motion Detected, Light is on And It's Dark"
+    alias: "^Bathroom: Motion Detected, Light is On And It's Dark"
     description: ""
     trigger:
       - platform: state
-        entity_id: group.bathroom_area_motion
+        entity_id: group.bathroom_light_trigger
         to: "on"
     condition:
       - condition: state
@@ -162,19 +162,19 @@ automation:
     description: ""
     trigger:
       - platform: state
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:03:30
-        entity_id: group.bathroom_area_motion
         id: door_open
       - platform: state
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:05:30
-        entity_id: group.bathroom_area_motion
         id: door_open_night
       - platform: state
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:12:00
-        entity_id: group.bathroom_area_motion
         id: door_closed
     condition:
       - condition: state
@@ -253,17 +253,17 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.bathroom_area_motion
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:03:00
         id: short
       - platform: state
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:04:30
-        entity_id: group.bathroom_area_motion
         id: evening
       - platform: state
-        entity_id: group.bathroom_area_motion
+        entity_id: group.bathroom_light_trigger
         to: "off"
         for: 00:10:00
         id: long
@@ -592,6 +592,13 @@ group:
     entities:
       - binary_sensor.bathroom_motion
       - binary_sensor.bathroom_motion_2
+  bathroom_light_trigger:
+    name: Bathroom Light Trigger
+    icon: mdi:motion-sensor
+    entities:
+      - binary_sensor.bathroom_motion
+      - binary_sensor.bathroom_motion_2
+      - binary_sensor.bathroom_door_acceleration
 input_boolean:
   enable_bathroom_blind_automations:
     name: Enable bathroom blind automations
