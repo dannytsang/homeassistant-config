@@ -37,7 +37,27 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        version: ["stable", "beta", "dev"]
+        version: ["stable"]
+    steps:
+      - name: ⤵️ Check out configuration from GitHub
+        uses: actions/checkout@v2
+      - name: ➕ Create dummy files
+        run: |
+          sed -e '/delete:/d' < configuration.yaml > configuration.yaml
+      - name: 🚀 Run Home Assistant Configuration Check
+        uses: frenck/action-home-assistant@v1.1.1
+        with:
+          path: "./"
+          secrets: ./secrets.yaml.sample
+          version: "${{ matrix.version }}"
+  
+  home-assistant-future:
+    name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
+    needs: [yamllint, remarklint]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        version: ["beta", "dev"]
     steps:
       - name: ⤵️ Check out configuration from GitHub
         uses: actions/checkout@v2
@@ -62,4 +82,4 @@ jobs:
           url: ${{ secrets.DEPLOYMENT_URL }}
           method: POST
           headers: '{"Content-Type":"application/json"}'
-          payload: '${{secrets.TEST_URL}}'
+          #payload: '${{secrets.TEST_URL}}'
