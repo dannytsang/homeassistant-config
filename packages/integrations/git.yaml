@@ -4,18 +4,20 @@ automation:
     alias: "^Home Assistant CI"
     description: "https://community.home-assistant.io/t/guide-to-setting-up-a-fully-automated-ci-for-hassio/51576"
     trigger:
-      - platform: state
-        entity_id: sensor.travis_ci_build_status
-        from: started
-        to: passed
+      - platform: webhook
+        webhook_id: git_pull
     condition:
       - condition: state
         entity_id: input_boolean.enable_git_automations
         state: "on"
+      - condition: template
+        value_template:
+          "{{ trigger.json.key|string == states('input_text.github_pull_key')
+          }}"
     action:
       - service: script.post_to_home_log
         data:
-          message: ":construction_worker: :hammer_and_wrench:  Travis CI
+          message: ":construction_worker: :hammer_and_wrench: GitHub
             build passed :white_check_mark:. Pulling changes."
       - service: hassio.addon_start
         data:
@@ -24,6 +26,11 @@ automation:
 input_boolean:
   enable_git_automations:
     name: Enable git integration
+    icon: mdi:github
+input_text:
+  github_pull_key:
+    name: GitHub Pull Key
+    initial: !secret github_pull_key
     icon: mdi:github
 sensor:
   # Travis CI build status
