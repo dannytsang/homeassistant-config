@@ -35,9 +35,6 @@ jobs:
     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
     needs: [yamllint, remarklint]
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        version: ["stable"]
     steps:
       - name: ⤵️ Check out configuration from GitHub
         uses: actions/checkout@v2
@@ -49,7 +46,7 @@ jobs:
         with:
           path: "./"
           secrets: ./secrets.yaml.sample
-          version: "${{ matrix.version }}"
+          version: "stable"
   
   home-assistant-future:
     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
@@ -72,14 +69,14 @@ jobs:
           version: "${{ matrix.version }}"
 
   deploy:
-    name: "Deploy Changes"
+    name: "Deploy changes"
     needs: [home-assistant]
     runs-on: ubuntu-latest
     steps:
-      - name: Web Request Action
+      - name: 🌑 Deploying
         uses: Satak/webrequest-action@v1.2.3
         with:
-          url: ${{ secrets.DEPLOYMENT_URL }}
+          url: '${{ secrets.DEPLOYMENT_URL }}'
           method: POST
           headers: '{"Content-Type":"application/json"}'
           #payload: '${{secrets.TEST_URL}}'
