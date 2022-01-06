@@ -1249,15 +1249,13 @@
       entity_id: sensor.double_take_unknown
   condition: []
   action:
-    - service: script.post_to_home_log
-      data:
-        message: ":busts_in_silhouette: Unknown face detected in double-take."
     - service: script.post_to_home_log_with_url
       data:
         message: Unknown face detected.
-        title: Stranger Detected
+        title: ":busts_in_silhouette: Stranger Detected"
         url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.unknown.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
-  mode: single
+  mode: queued
+  max: 10
 - id: "1638650461801"
   alias: "Office: Window Open And Heating Is On"
   description: ""
