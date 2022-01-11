@@ -13,7 +13,7 @@ ads1115:
   - address: 0x48
     continuous_mode: true
 
-esp32_ble_tracker:
+#esp32_ble_tracker:
 
 sensor:
   # ADS1115
@@ -54,9 +54,17 @@ sensor:
     id: Bed_IAQ
     unit_of_measurement: IAQ
     lambda: "return log(id(g_res).state) + 0.04 * id(hum).state;"
+  # Bluetooth
+  - platform: template
+    name: "BLE Sensor"
+    id: ble_sensor
   # Platform sensors
   - platform: uptime
     name: Uptime Sensor
+  # Bluetooth sensor
+  - platform: ble_rssi
+    service_uuid: 'f63ef063-b3d9-4ffa-96ca-6f07fb6126d4'
+    name: "Danny's Phone BLE UUID"
 
 # Enable logging
 logger:
