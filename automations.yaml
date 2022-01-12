@@ -1255,6 +1255,52 @@
         url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.unknown.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
   mode: queued
   max: 10
+- id: "1637409592194"
+  alias: "Double Take: Person Detected In Lounge"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: sensor.double_take_ashlee_lounge
+      id: ashlee
+    - platform: state
+      entity_id: sensor.double_take_danny_lounge
+      id: danny
+    - platform: state
+      entity_id: sensor.double_take_terina_lounge
+      id: terina
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: trigger
+              id: ashlee
+          sequence:
+            - service: script.post_to_home_log_with_url
+              data:
+                message: Ashlee In Lounge.
+                title: ":girl: Ashlee In Lounge"
+                url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.match.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
+        - conditions:
+            - condition: trigger
+              id: danny
+          sequence:
+            - service: script.post_to_home_log_with_url
+              data:
+                message: Danny In Lounge.
+                title: ":man: Danny In Lounge"
+                url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.match.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
+        - conditions:
+            - condition: trigger
+              id: terina
+          sequence:
+            - service: script.post_to_home_log_with_url
+              data:
+                message: Terina In Lounge.
+                title: ":woman: Terina In Lounge"
+                url: "{{states('input_text.double_take_url')}}/api/storage/matches/{{trigger.to_state.attributes.match.filename}}?box=true&token={{trigger.to_state.attributes.token}}"
+      default: []
+  mode: queued
+  max: 10
 - id: "1638650461801"
   alias: "Office: Window Open And Heating Is On"
   description: ""
