@@ -342,6 +342,9 @@ automation:
     description: ""
     trigger:
       - platform: time
+        at: "08:15:00"
+        id: "workday"
+      - platform: time
         at: "09:30:00"
         id: "093000"
       - platform: time
@@ -364,12 +367,12 @@ automation:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "on"
+              - condition: trigger
+                id: "workday"
             sequence:
               - service: cover.open_cover
                 target:
                   entity_id: cover.bedroom_blind
-              - condition: trigger
-                id: "093000"
               - service: script.post_to_home_log
                 data:
                   message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
