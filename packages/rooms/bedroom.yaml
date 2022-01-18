@@ -367,6 +367,10 @@ automation:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "on"
+              # Check if there's an event with "A/L in the work calendar" and the event is on.
+              - condition: template
+                value_template: "{{ 'A/L' not in state_attr('calendar.work_calendar','message')|string 
+                and states('calendar.work_calendar') == 'off' }}"
               - condition: trigger
                 id: "workday"
             sequence:
