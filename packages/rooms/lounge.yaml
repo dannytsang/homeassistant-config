@@ -547,6 +547,7 @@ scene:
         supported_features: 55
         state: "off"
 script:
+  # Camera
   lounge_turn_off_camera:
     alias: Lounge Turn Off Camera
     sequence:
@@ -566,6 +567,29 @@ script:
             - switch.lounge_camera_snapshots
     mode: single
     icon: mdi:cctv
+  # Receiver
+  lounge_select_vcr_dvr_input:
+    sequence:
+      - service: script.post_to_home_log
+        data:
+          message: "Changing Onkyo to :tv: VCR/DVR input."
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 15
+          milliseconds: 0
+      - service: remote.send_command
+        target:
+          entity_id: remote.living_room
+        data:
+          device: Onkyo AV Receiver
+          command: InputVCR/DVR
+      - service: script.post_to_home_log
+        data:
+          message: "Changed Onkyo to :tv: VCR/DVR input."
+    mode: single
+    alias: Lounge Reciever Select VCR/DVR Input
+    icon: mdi:audio-video
 sensor:
   # Aggregated stats
   - platform: min_max
