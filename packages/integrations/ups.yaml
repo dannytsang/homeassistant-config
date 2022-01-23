@@ -1,4 +1,14 @@
 # Created by Danny Tsang <danny@tsang.uk>
+alert:
+  server_ups_replace_battery_alarm:
+    name: Server UPS Replace Battery Alarm
+    entity_id: sensor.server_ups_status_data
+    state: "ALARM OL RB"
+    repeat: 60
+    can_acknowledge: true
+    skip_first: true
+    notifiers:
+      - mobile_app_dannys_phone
 automation:
   # Lounge
   - id: "1591553714916"
@@ -65,7 +75,7 @@ automation:
         default: []
     mode: single
   - id: "1591963855737"
-    alias: "^Lounge: UPS Unavailable"
+    alias: "^UPS: Lounge Unavailable"
     description: ""
     trigger:
       - entity_id: sensor.lounge_ups_status_data
@@ -94,6 +104,24 @@ automation:
           message:
             ":warning: :battery: Lounge UPS is running on battery mins left :battery:
             :warning:"
+        service: script.post_to_direct_notification
+    mode: single
+  - id: "1591705427770"
+    alias: "^UPS: Lounge UPS Replace Battery Alarm"
+    description: ""
+    trigger:
+      - entity_id: sensor.lounge_ups_status_data
+        platform: state
+        to: ALARM OL RB
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Lounge UPS replace battery alarm. :battery: :warning:"
+        service: script.post_to_home_log
+      - data:
+          message:
+            ":warning: :battery: Lounge UPS replace battery alarm.:battery: :warning:"
         service: script.post_to_direct_notification
     mode: single
   # PC
@@ -186,14 +214,32 @@ automation:
     action:
       - data:
           message:
-            ":warning: :battery: Server UPS is running on battery with less than
+            ":warning: :battery: PC UPS is running on battery with less than
             5 minutes left :battery: :warning:"
           target: "#general"
         service: notify.slack_notify
       - data:
           message:
-            ":warning: :battery: Server UPS is running on battery with less than
+            ":warning: :battery: PC UPS is running on battery with less than
             5 minutes left :battery: :warning:"
+        service: script.post_to_direct_notification
+    mode: single
+  - id: "1591705427770"
+    alias: "^UPS: Office PC UPS Replace Battery Alarm"
+    description: ""
+    trigger:
+      - entity_id: sensor.computer_ups_status_data
+        platform: state
+        to: ALARM OL RB
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: PC UPS replace battery alarm. :battery: :warning:"
+        service: script.post_to_home_log
+      - data:
+          message:
+            ":warning: :battery: PC UPS replace battery alarm.:battery: :warning:"
         service: script.post_to_direct_notification
     mode: single
   # Server
@@ -261,6 +307,24 @@ automation:
           message:
             ":warning: :battery: Server UPS is running on battery with less than
             5 minutes left :battery: :warning:"
+        service: script.post_to_direct_notification
+    mode: single
+  - id: "1591705427769"
+    alias: "^UPS: Server UPS Replace Battery Alarm"
+    description: ""
+    trigger:
+      - entity_id: sensor.server_ups_status_data
+        platform: state
+        to: ALARM OL RB
+    condition: []
+    action:
+      - data:
+          message:
+            ":warning: :battery: Server UPS replace battery alarm. :battery: :warning:"
+        service: script.post_to_home_log
+      - data:
+          message:
+            ":warning: :battery: Server UPS replace battery alarm.:battery: :warning:"
         service: script.post_to_direct_notification
     mode: single
 input_boolean:
