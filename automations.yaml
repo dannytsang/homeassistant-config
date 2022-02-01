@@ -273,52 +273,12 @@
   description: ""
   trigger:
     - platform: time
-      at: "12:00:00"
+      at: "12:00"
   condition: []
   action:
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: "Office Temp: {{ states('sensor.office_area_temperature') }}"
-        title: 🏃‍♂️🏃‍♀️🏡 No one is home {{ states('sensor.office_area_temperature')
-          }}
-        data:
-          actions:
-            - title: Disarm
-              action: disarm
-            - title: Leave On
-              action: leave_on
-            - title: Disarm & Leave On
-              action: disarm_leave_on
-    - wait_for_trigger:
-        - platform: event
-          event_type: mobile_app_notification_action
-      timeout: "60"
-      continue_on_timeout: false
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message: "TEST: Mobile action: disarm"
-        - conditions:
-            - condition: template
-              value_template: "{{ wait.trigger.event.data.action == 'leave_on' }}"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message: "TEST: Mobile action: leave on"
-        - conditions:
-            - condition: template
-              value_template:
-                "{{ wait.trigger.event.data.action == 'disarm_leave_on'
-                }}"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message: "TEST: Mobile action: disarm and leave on"
-      default: []
+    - service: light.turn_off
+      target:
+        area_id: office
   mode: single
 - id: "1604998439600"
   alias: "House: Water detected"
@@ -1409,25 +1369,3 @@
       data:
         hvac_mode: auto
   mode: single
-- id: "1638650699339"
-  alias: "Count Home Assistant errors"
-  description: ""
-  trigger:
-    platform: event
-    event_type: system_log_event
-    event_data:
-      level: ERROR
-  action:
-    service: counter.increment
-    entity_id: counter.homeassistant_errors
-- id: "1638650699340"
-  description: ""
-  alias: "Count Home Assistant warnings"
-  trigger:
-    platform: event
-    event_type: system_log_event
-    event_data:
-      level: WARNING
-  action:
-    service: counter.increment
-    entity_id: counter.homeassistant_warnings
