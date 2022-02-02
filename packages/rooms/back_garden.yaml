@@ -35,9 +35,67 @@ automation:
     action:
       - choose:
           - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.stevenage_alarm
+                    state: disarmed
+              - condition: state
+                entity_id: binary_sensor.conservatory_door
+                state: "on"
+            sequence:
+              - choose:
+                - conditions:
+                    - condition: state
+                      state: "on"
+                      entity_id: input_boolean.enable_slack_notifications
+                  sequence:
+                    - service: script.post_to_home_log
+                      data:
+                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                        camera on because alarm is armed and conservatory door is open."
+                default: []
+          - conditions:
+            - condition: not
+              conditions:
+                - condition: state
+                  entity_id: alarm_control_panel.stevenage_alarm
+                  state: disarmed
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "off"
+            sequence:
+              - choose:
+                - conditions:
+                    - condition: state
+                      state: "on"
+                      entity_id: input_boolean.enable_slack_notifications
+                  sequence:
+                    - service: script.post_to_home_log
+                      data:
+                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                        camera on because alarm is armed."
+                default: []
+          - conditions:
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "on"
+            sequence:
+              - choose:
+                - conditions:
+                    - condition: state
+                      state: "on"
+                      entity_id: input_boolean.enable_slack_notifications
+                  sequence:
+                    - service: script.post_to_home_log
+                      data:
+                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                        camera on because conservatory door is open."
+                default: []
+          - conditions:
               - condition: state
                 entity_id: alarm_control_panel.stevenage_alarm
-                state: disarmed
+                state: "disarmed"
             sequence:
               - choose:
                 - conditions:
@@ -56,7 +114,7 @@ automation:
                 conditions:
                   - condition: state
                     entity_id: alarm_control_panel.stevenage_alarm
-                    state: disarmed
+                    state: "disarmed"
             sequence:
               - choose:
                 - conditions:
