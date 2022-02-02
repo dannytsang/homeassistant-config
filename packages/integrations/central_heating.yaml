@@ -1,0 +1,56 @@
+# Created by Danny Tsang <danny@tsang.uk>
+script:
+  set_central_heating_to_away_mode:
+    alias: Set Central Heating To Away Mode
+    icon: mdi:hvac
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_slack_notifications
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Setting heating to :running: away mode."
+        default: []
+      - service: climate.set_preset_mode
+        target:
+          entity_id:
+            - climate.ashlees_bedroom
+            - climate.bedroom
+            - climate.conservatory
+            - climate.kitchen
+            - climate.leos_bedroom
+            - climate.lounge
+            - climate.office
+        data:
+          preset_mode: away
+    mode: single
+  set_central_heating_to_home_mode:
+    alias: Set Central Heating To Home Mode
+    icon: mdi:hvac
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_slack_notifications
+                state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Setting heating to :house_with_garden: Home mode."
+        default: []
+      - service: climate.set_preset_mode
+        target:
+          entity_id:
+            - climate.ashlees_bedroom
+            - climate.bedroom
+            - climate.conservatory
+            - climate.kitchen
+            - climate.leos_bedroom
+            - climate.lounge
+            - climate.office
+        data:
+          preset_mode: home
+    mode: single
