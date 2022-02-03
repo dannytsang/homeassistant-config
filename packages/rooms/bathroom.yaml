@@ -616,6 +616,21 @@ input_boolean:
   enable_bathroom_night_light:
     name: Enable bathroom night light
     icon: mdi:brightness-4
+script:
+  bathroom_flash_light:
+    alias: Bathroom Flash Light
+    sequence:
+      - repeat:
+          count: "2"
+          sequence:
+            - service: light.turn_on
+              data:
+                brightness_pct: 100
+              entity_id: light.bathroom_light
+            - service: light.turn_off
+              data: {}
+              entity_id: light.bathroom_light
+    mode: single
 sensor:
   # Aggregated sensors
   - platform: min_max

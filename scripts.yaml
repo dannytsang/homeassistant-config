@@ -1,29 +1,3 @@
-morning_script:
-  alias: Morning Script
-  sequence:
-    - data: {}
-      entity_id: input_boolean.enable_morning_routine
-      service: input_boolean.turn_off
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
-          Running morning routine."
-    - service: alarm_control_panel.alarm_disarm
-      target:
-        entity_id: alarm_control_panel.stevenage_alarm
-    - service: script.post_to_home_log
-      data:
-        message: ":no_bell: Turning alarm off."
-    - service: script.morning_script_turn_on_magic_mirror
-      data: {}
-    - service: switch.turn_off
-      target:
-        entity_id: group.indoor_cameras
-    - service: script.post_to_home_log
-      data:
-        message: ":clock9: :sunrise: Morning routine complete."
-  mode: single
 everybody_leave_home:
   alias: Everybody Leave Home
   sequence:
@@ -98,49 +72,6 @@ front_door_open_notification:
           - scene.front_door_open_notification
   mode: single
   icon: mdi:door-open
-front_garden_motion_notification:
-  alias: Front Garden Motion Notification
-  sequence:
-    - repeat:
-        count: "4"
-        sequence:
-          - service: scene.turn_on
-            target:
-              entity_id: scene.office_front_garden_motion_notification
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 1
-              milliseconds: 0
-          - service: scene.turn_on
-            target:
-              entity_id: scene.office_turn_off_light_notification
-  mode: single
-front_door_closed_notification:
-  alias: Front Door Closed Notification
-  sequence:
-    - service: scene.turn_on
-      target:
-        entity_id:
-          - scene.current_office_light_1
-          - scene.current_stairs_light
-          - scene.current_stairs_light2
-  mode: single
-  icon: mdi:door
-bathroom_flash_light:
-  alias: Bathroom Flash Light
-  sequence:
-    - repeat:
-        count: "2"
-        sequence:
-          - service: light.turn_on
-            data:
-              brightness_pct: 100
-            entity_id: light.bathroom_light
-          - service: light.turn_off
-            data: {}
-            entity_id: light.bathroom_light
-  mode: single
 porch_override_notification:
   alias: Porch Override Notification
   sequence:
@@ -205,32 +136,6 @@ bedroom_ashlees_door_opened_notification:
       target:
         entity_id: scene.bedroom_desk_lamps_on
   mode: single
-counter_strike_bomb_planted:
-  alias: Counter Strike Bomb Planted
-  sequence:
-    - repeat:
-        until:
-          - condition: or
-            conditions:
-              - condition: state
-                entity_id: group.jd_computer
-                state: "off"
-        sequence:
-          - service: light.turn_on
-            data:
-              color_name: red
-              brightness_pct: 100
-            target:
-              entity_id: light.office_light
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 1
-              milliseconds: 0
-          - service: light.turn_off
-            target:
-              entity_id: light.office_light
-  mode: single
 echo_text_to_speech:
   alias: Echo Text To Speech
   sequence:
@@ -242,42 +147,6 @@ echo_text_to_speech:
           type: tts
   mode: queued
   max: 10
-office_turn_off_backup_drive:
-  alias: Office Turn Off Backup Drive
-  sequence:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: switch.external_hdd
-          state: "on"
-        - condition: state
-          entity_id: group.jd_computer
-          state: not_home
-    - service: script.post_to_home_log
-      data:
-        message: ":floppy_disk: Turning off external HDD"
-    - service: switch.turn_off
-      target:
-        entity_id: switch.external_hdd
-  mode: single
-office_turn_on_external_hard_drive:
-  alias: Office Turn On External Hard Drive
-  sequence:
-    - condition: and
-      conditions:
-        - condition: state
-          entity_id: switch.external_hdd
-          state: "off"
-        - condition: time
-          weekday:
-            - sun
-    - service: script.post_to_home_log
-      data:
-        message: ":floppy_disk: Turned on external hard drive."
-    - service: switch.turn_on
-      target:
-        entity_id: switch.external_hdd
-  mode: single
 post_rich_notification:
   alias: Post Rich Notification
   sequence:
@@ -379,50 +248,6 @@ post_actionable_notification_with_3_buttons:
               action: "{{ action3_name }}"
   mode: single
   icon: mdi:cellphone
-front_garden_turn_off_camera:
-  alias: Front Garden Turn Off Camera
-  sequence:
-    - service: switch.turn_off
-      target:
-        entity_id:
-          - switch.driveway_camera_detect
-          - switch.driveway_camera_snapshots
-  mode: single
-  icon: mdi:cctv
-front_garden_turn_on_camera:
-  alias: Front Garden Turn On Camera
-  sequence:
-    - service: switch.turn_on
-      target:
-        entity_id:
-          - switch.driveway_camera_detect
-          - switch.driveway_camera_snapshots
-  mode: single
-  icon: mdi:cctv
-lounge_flash_lounge_lights_green:
-  alias: "Lounge: Flash Lounge Lights Green"
-  sequence:
-    - service: scene.create
-      data:
-        scene_id: current_lounge_lights
-        snapshot_entities:
-          - light.lounge_left_lamp
-          - light.lounge_right_lamp
-    - service: scene.turn_on
-      target:
-        entity_id: scene.lounge_lights_green
-      data:
-        transition: 0
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 0
-        milliseconds: 500
-    - service: scene.turn_on
-      target:
-        entity_id: scene.current_lounge_lights
-  mode: single
-  icon: mdi:lamp
 lounge_flash_lounge_lights_red:
   alias: "Lounge: Flash Lounge Lights Red"
   sequence:
@@ -447,31 +272,6 @@ lounge_flash_lounge_lights_red:
         entity_id: scene.current_lounge_lights
   mode: single
   icon: mdi:lamp
-nfc_front_door:
-  alias: NFC Front Door
-  sequence:
-    - choose:
-        - conditions:
-            - condition: not
-              conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.stevenage_alarm
-                  state: disarmed
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message: ":no_bell: Turning off alarm."
-            - service: alarm_control_panel.alarm_disarm
-              target:
-                entity_id: alarm_control_panel.stevenage_alarm
-            - service: script.lounge_flash_lounge_lights_green
-      default:
-        - service: script.post_to_home_log
-          data:
-            message: ":no_bell: Alarm is not on so nothing to do."
-        - service: script.lounge_flash_lounge_lights_red
-  mode: single
-  icon: mdi:nfc
 turn_everything_off:
   alias: Turn Everything Off
   sequence:

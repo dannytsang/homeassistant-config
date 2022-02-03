@@ -978,6 +978,42 @@ script:
         data:
           event: open_office_left_curtain
     mode: single
+  office_turn_off_backup_drive:
+    alias: Office Turn Off Backup Drive
+    sequence:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: switch.external_hdd
+            state: "on"
+          - condition: state
+            entity_id: group.jd_computer
+            state: not_home
+      - service: script.post_to_home_log
+        data:
+          message: ":floppy_disk: Turning off external HDD"
+      - service: switch.turn_off
+        target:
+          entity_id: switch.external_hdd
+    mode: single
+  office_turn_on_external_hard_drive:
+    alias: Office Turn On External Hard Drive
+    sequence:
+      - condition: and
+        conditions:
+          - condition: state
+            entity_id: switch.external_hdd
+            state: "off"
+          - condition: time
+            weekday:
+              - sun
+      - service: script.post_to_home_log
+        data:
+          message: ":floppy_disk: Turned on external hard drive."
+      - service: switch.turn_on
+        target:
+          entity_id: switch.external_hdd
+    mode: single
 sensor:
   - platform: min_max
     name: Office Area Light Level

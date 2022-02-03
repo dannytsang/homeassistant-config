@@ -144,6 +144,43 @@ input_boolean:
   porch_light_override:
     name: Bathroom Light Override
     icon: mdi:lightbulb
+script:
+  front_door_closed_notification:
+    alias: Front Door Closed Notification
+    sequence:
+      - service: scene.turn_on
+        target:
+          entity_id:
+            - scene.current_office_light_1
+            - scene.current_stairs_light
+            - scene.current_stairs_light2
+    mode: single
+    icon: mdi:door
+  nfc_front_door:
+    alias: NFC Front Door
+    sequence:
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.stevenage_alarm
+                    state: disarmed
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":no_bell: Turning off alarm."
+              - service: alarm_control_panel.alarm_disarm
+                target:
+                  entity_id: alarm_control_panel.stevenage_alarm
+              - service: script.lounge_flash_lounge_lights_green
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: ":no_bell: Alarm is not on so nothing to do."
+          - service: script.lounge_flash_lounge_lights_red
+    mode: single
+    icon: mdi:nfc
 template:
   # Replicate Switchbot contact sensor to know if someone is entering or leaving. Thanks to @damieng5
   # https://www.switch-bot.com/products/contact-sensor

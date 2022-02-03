@@ -91,3 +91,42 @@ input_boolean:
   enable_front_garden_motion_trigger:
     name: Enable motion trigger for front garden
     icon: mdi:motion-sensor
+script:
+  front_garden_motion_notification:
+    alias: Front Garden Motion Notification
+    sequence:
+      - repeat:
+          count: "4"
+          sequence:
+            - service: scene.turn_on
+              target:
+                entity_id: scene.office_front_garden_motion_notification
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 1
+                milliseconds: 0
+            - service: scene.turn_on
+              target:
+                entity_id: scene.office_turn_off_light_notification
+    mode: single
+  front_garden_turn_off_camera:
+    alias: Front Garden Turn Off Camera
+    sequence:
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.driveway_camera_detect
+            - switch.driveway_camera_snapshots
+    mode: single
+    icon: mdi:cctv
+  front_garden_turn_on_camera:
+    alias: Front Garden Turn On Camera
+    sequence:
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.driveway_camera_detect
+            - switch.driveway_camera_snapshots
+    mode: single
+    icon: mdi:cctv

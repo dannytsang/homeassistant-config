@@ -108,3 +108,28 @@ automation:
         target:
           entity_id: scene.turn_off_downstairs_lights
     mode: single
+script:
+  morning_script:
+    alias: Morning Script
+    sequence:
+      - data: {}
+        entity_id: input_boolean.enable_morning_routine
+        service: input_boolean.turn_off
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
+            Running morning routine."
+      - service: alarm_control_panel.alarm_disarm
+        target:
+          entity_id: alarm_control_panel.stevenage_alarm
+      - service: script.post_to_home_log
+        data:
+          message: ":no_bell: Turning alarm off."
+      - service: switch.turn_off
+        target:
+          entity_id: group.indoor_cameras
+      - service: script.post_to_home_log
+        data:
+          message: ":clock9: :sunrise: Morning routine complete."
+    mode: single
