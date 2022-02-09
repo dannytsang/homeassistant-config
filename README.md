@@ -13,40 +13,40 @@ More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 
 ## Statistics 📊
 To get the template for the below stats, see [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
-I have 2048 states in Home Assistant.
+I have 2018 states in Home Assistant.
 By domain these are:
 - 1 alarm_control_panel
-- 1 alert
-- 216 automation
-- 318 binary_sensor
+- 2 alert
+- 232 automation
+- 330 binary_sensor
 - 2 button
 - 35 calendar
 - 51 camera
 - 7 climate
-- 2 counter
-- 5 cover
-- 130 device_tracker
-- 45 group
+- 4 counter
+- 7 cover
+- 104 device_tracker
+- 52 group
 - 10 image_processing
 - 41 input_boolean
 - 2 input_datetime
 - 1 input_select
-- 28 input_text
+- 31 input_text
 - 33 light
 - 6 media_player
 - 2 number
 - 4 person
 - 7 proximity
-- 3 remote
-- 100 scene
-- 43 script
+- 4 remote
+- 97 scene
+- 48 script
 - 1 select
-- 894 sensor
+- 844 sensor
 - 1 sun
-- 48 switch
+- 47 switch
 - 1 water_heater
 - 3 weather
-- 7 zone
+- 8 zone
 
 # Hardware 🔩
 More details [here](hardware.md).
