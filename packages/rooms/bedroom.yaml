@@ -577,6 +577,37 @@ automation:
         target:
           entity_id: cover.bedroom_blind
     mode: single
+  - id: "1644769166837"
+    alias: "^Bedroom: Danny's Alarm"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_text.sleep_as_android
+        to: alarm_alert_start
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bed: :alarm_clock: Sleep as Android alarm triggered. Opening
+                    bedroom blinds in 1 minute."
+              - delay:
+                  hours: 0
+                  minutes: 5
+                  seconds: 0
+                  milliseconds: 0
+              - service: cover.open_cover
+                data: {}
+                target:
+                  entity_id: cover.bedroom_blind
+        default: []
+    mode: single
 input_boolean:
   enable_bed_presence:
     name: Enable Bed Sensor
