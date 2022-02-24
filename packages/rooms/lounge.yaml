@@ -422,6 +422,34 @@ automation:
     action:
       - service: script.lounge_select_vcr_dvr_input
     mode: single
+  - id: '1645691949968'
+    alias: "^Lounge: Restart Hive Hub"
+    description: ""
+    trigger:
+    - platform: time
+      at: 03:00
+    condition: []
+    action:
+    - service: script.post_to_home_log
+      data:
+        message: Restarting Hive Hub.
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.hive_plug
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 5
+        milliseconds: 0
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.hive_plug
+    - service: script.post_to_home_log
+      data:
+        message: Hive Hub restarted.
+    mode: single
 group:
   lounge_area_motion:
     name: Lounge Motion
