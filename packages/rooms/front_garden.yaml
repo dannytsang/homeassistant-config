@@ -34,6 +34,11 @@ automation:
         data:
           title: Doorbell Picture updated
           message: ":door: :bell: Doorbell photo updated"
+      - service: downloader.download_file
+        data:
+          url: "{{ state_attr('camera.front_door', 'video_url') }}"
+          subdir: "front_door"
+          filename: "{{state_attr('camera.front_door', 'friendly_name')}}.mp4"
     mode: queued
     max: 10
   - id: "1584089698583"
@@ -84,6 +89,74 @@ automation:
           message: Motion Detected In Front Garden
     mode: queued
     max: 10
+  - id: "1629147974029"
+    alias: "^Front Garden: Person Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.road_person_motion
+        from: "off"
+        to: "on"
+        id: road
+      - platform: state
+        entity_id: binary_sensor.shared_driveway_person_motion
+        id: shared_driveway
+        from: "off"
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.front_garden_person_motion
+        id: front_garden
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: switch.conservatory_detect
+        state: "on"
+    action:
+      - service: camera.snapshot
+        data_template:
+          filename:
+            "{{ states('input_text.latest_frigate_driveway_person_file_path')
+            }}"
+        target:
+          entity_id: camera.driveway_camera_person
+      - choose:
+          - conditions:
+              - condition: trigger
+                id: front_garden
+            sequence:
+              - service: script.post_to_home_log_with_local_attachments
+                data_template:
+                  title: Person detected in the front garden
+                  message: Frigate detected a person in the front garden.
+                  filePath:
+                    "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                    }}"
+          - conditions:
+              - condition: trigger
+                id: shared_driveway
+            sequence:
+              - service: script.post_to_home_log_with_local_attachments
+                data_template:
+                  title: Person detected in the shared driveway
+                  message: Frigate detected a person in the shared driveway.
+                  filePath:
+                    "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                    }}"
+          - conditions:
+              - condition: trigger
+                id: general
+            sequence:
+              - service: script.post_to_home_log_with_local_attachments
+                data_template:
+                  title: Person detected in the road
+                  message: Frigate detected a person in the road.
+                  filePath:
+                    "{{ states('input_text.latest_frigate_driveway_person_file_path')
+                    }}"
+        default: []
+    mode: queued
+    max: 10
 input_boolean:
   enable_front_door_trigger:
     name: Enable front door sensor
@@ -120,8 +193,8 @@ script:
       - service: switch.turn_off
         target:
           entity_id:
-            - switch.driveway_camera_detect
-            - switch.driveway_camera_snapshots
+            - switch.driveway_detect
+            - switch.driveway_snapshots
     mode: single
     icon: mdi:cctv
   front_garden_turn_on_camera:
@@ -130,7 +203,7 @@ script:
       - service: switch.turn_on
         target:
           entity_id:
-            - switch.driveway_camera_detect
-            - switch.driveway_camera_snapshots
+            - switch.driveway_detect
+            - switch.driveway_snapshots
     mode: single
     icon: mdi:cctv
