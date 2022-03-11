@@ -1,7 +1,8 @@
 """OpenMediaVault Controller."""
 
 import asyncio
-from datetime import timedelta
+import pytz
+from datetime import datetime, timedelta
 
 from homeassistant.const import (
     CONF_HOST,
@@ -18,6 +19,24 @@ from homeassistant.helpers.event import async_track_time_interval
 from .const import DOMAIN
 from .helper import parse_api
 from .omv_api import OpenMediaVaultAPI
+
+DEFAULT_TIME_ZONE = None
+
+
+def utc_from_timestamp(timestamp: float) -> datetime:
+    """Return a UTC time from a timestamp."""
+    return pytz.utc.localize(datetime.utcfromtimestamp(timestamp))
+
+
+def as_local(dattim: datetime) -> datetime:
+    """Convert a UTC datetime object to local time zone."""
+    if dattim.tzinfo == DEFAULT_TIME_ZONE:
+        return dattim
+    if dattim.tzinfo is None:
+        dattim = pytz.utc.localize(dattim)
+
+    return dattim.astimezone(DEFAULT_TIME_ZONE)
+
 
 # ---------------------------
 #   OMVControllerData
@@ -168,8 +187,38 @@ class OMVControllerData(object):
             ensure_vals=[{"name": "memUsage", "default": 0}],
         )
 
-        tmp = self.data["hwinfo"]["uptime"].split(" ")
-        self.data["hwinfo"]["uptimeEpoch"] = int(tmp[0]) * 24 + int(tmp[2])
+        tmp_uptime = 0
+        if int(self.data["hwinfo"]["version"].split(".")[0]) > 5:
+            tmp = self.data["hwinfo"]["uptime"]
+            pos = abs(int(tmp))
+            day = pos / (3600 * 24)
+            rem = pos % (3600 * 24)
+            hour = rem / 3600
+            rem = rem % 3600
+            mins = rem / 60
+            secs = rem % 60
+            res = "%d days %02d hours %02d minutes %02d seconds" % (
+                day,
+                hour,
+                mins,
+                secs,
+            )
+            if int(tmp) < 0:
+                res = "-%s" % res
+            tmp = res.split(" ")
+        else:
+            tmp = self.data["hwinfo"]["uptime"].split(" ")
+
+        tmp_uptime += int(tmp[0]) * 86400  # days
+        tmp_uptime += int(tmp[2]) * 3600  # hours
+        tmp_uptime += int(tmp[4]) * 60  # minutes
+        tmp_uptime += int(tmp[6])  # seconds
+        now = datetime.now().replace(microsecond=0)
+        uptime_tm = datetime.timestamp(now - timedelta(seconds=tmp_uptime))
+        self.data["hwinfo"]["uptimeEpoch"] = str(
+            as_local(utc_from_timestamp(uptime_tm)).isoformat()
+        )
+
         self.data["hwinfo"]["cpuUsage"] = round(self.data["hwinfo"]["cpuUsage"], 1)
         if int(self.data["hwinfo"]["memTotal"]) > 0:
             mem = (
