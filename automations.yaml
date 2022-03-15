@@ -1452,3 +1452,36 @@
       - input_boolean.enable_lounge_motion_trigger
       - input_boolean.enable_stairs_motion_trigger
   mode: single
+- id: "1647307174048"
+  alias: "Stairs: Check Magic Mirror Is Casting Home Assistant"
+  description: ""
+  trigger:
+  - platform: time_pattern
+    minutes: "0"
+  condition: []
+  action:
+  - service: script.post_to_home_log
+    data:
+      message: Checking Magic Mirror.
+  - choose:
+    - conditions:
+      - condition: not
+        conditions:
+        - condition: state
+          entity_id: media_player.bedroom_chromecast
+          state: playing
+        - condition: state
+          entity_id: media_player.bedroom_chromecast
+          attribute: app_name
+          state: Home Assistant Lovelace
+      sequence:
+      - service: script.post_to_home_log
+        data:
+          message: Casting Home Assistant to Magic Mirror.
+      - service: cast.show_lovelace_view
+        data:
+          entity_id: media_player.bedroom_chromecast
+          dashboard_path: lovelace-magicmirror
+          view_path: home
+    default: []
+  mode: single
