@@ -615,6 +615,32 @@ automation:
           entity_id:
             - light.elgato_key_light_left
             - light.elgato_key_light_right
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "on"
+              - condition: time
+                after: "09:00:00"
+                before: "17:30:00"
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+              - condition: state
+                entity_id: media_player.spotify_danny
+                state: playing
+            sequence:
+              - service: media_player.media_stop
+                data: {}
+                target:
+                  entity_id: media_player.spotify_danny
+              - service: script.post_to_home_log
+                data:
+                  message: ":stop_button: Turning off music."
+        default: []
     mode: single
 group:
   jd_computer:
