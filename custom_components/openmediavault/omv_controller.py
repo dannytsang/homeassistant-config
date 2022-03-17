@@ -17,7 +17,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_send
 from homeassistant.helpers.event import async_track_time_interval
 
 from .const import DOMAIN
-from .helper import parse_api
+from .apiparser import parse_api
 from .omv_api import OpenMediaVaultAPI
 
 DEFAULT_TIME_ZONE = None
@@ -187,6 +187,9 @@ class OMVControllerData(object):
             ensure_vals=[{"name": "memUsage", "default": 0}],
         )
 
+        if not self.api.connected():
+            return
+
         tmp_uptime = 0
         if int(self.data["hwinfo"]["version"].split(".")[0]) > 5:
             tmp = self.data["hwinfo"]["uptime"]
@@ -265,7 +268,17 @@ class OMVControllerData(object):
             ],
         )
 
+    # ---------------------------
+    #   get_smart
+    # ---------------------------
+    def get_smart(self):
         for uid in self.data["disk"]:
+            if self.data["disk"][uid]["devicename"].startswith("mmcblk"):
+                continue
+
+            if self.data["disk"][uid]["devicename"].startswith("sr"):
+                continue
+
             tmp_data = parse_api(
                 data={},
                 source=self.api.query(
@@ -295,11 +308,6 @@ class OMVControllerData(object):
             self.data["disk"][uid]["writecacheis"] = tmp_data["writecacheis"]
             self.data["disk"][uid]["smartsupportis"] = tmp_data["smartsupportis"]
 
-    # ---------------------------
-    #   get_smart
-    # ---------------------------
-    def get_smart(self):
-        for uid in self.data["disk"]:
             tmp_data = parse_api(
                 data={},
                 source=self.api.query(
@@ -331,6 +339,14 @@ class OMVControllerData(object):
 
             for tmp_val in vals:
                 if tmp_val in tmp_data:
+                    if (
+                        isinstance(tmp_data[tmp_val]["rawvalue"], str)
+                        and " " in tmp_data[tmp_val]["rawvalue"]
+                    ):
+                        tmp_data[tmp_val]["rawvalue"] = tmp_data[tmp_val][
+                            "rawvalue"
+                        ].split(" ")[0]
+
                     self.data["disk"][uid][tmp_val] = tmp_data[tmp_val]["rawvalue"]
 
     # ---------------------------
