@@ -18,7 +18,12 @@ from .const import (
     TOKEN_URL,
     USER_AGENT,
 )
-from .exceptions import NotAuthenticatedException, PynestException
+from .exceptions import (
+    BadCredentialsException,
+    GatewayTimeoutException,
+    NotAuthenticatedException,
+    PynestException,
+)
 from .models import GoogleAuthResponse, NestAuthResponse, NestResponse
 
 _LOGGER = logging.getLogger(__package__)
@@ -86,6 +91,9 @@ class NestClient:
             result = await response.json()
 
             if "error" in result:
+                if result["error"] == "invalid_grant":
+                    raise BadCredentialsException(result["error"])
+
                 raise Exception(result["error"])
 
             refresh_token = result["refresh_token"]
@@ -120,8 +128,10 @@ class NestClient:
         ) as response:
             result = await response.json()
 
-            # TODO Move away from 1 generic exception
             if "error" in result:
+                if result["error"] == "invalid_grant":
+                    raise BadCredentialsException(result["error"])
+
                 raise Exception(result["error"])
 
             self.auth = GoogleAuthResponse(**result)
@@ -220,6 +230,9 @@ class NestClient:
         ) as response:
             if response.status == 401:
                 raise NotAuthenticatedException(await response.text())
+
+            if response.status == 504:
+                raise GatewayTimeoutException(await response.text())
 
             try:
                 result = await response.json()
