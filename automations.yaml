@@ -120,24 +120,6 @@
         target: "#home_log #general"
       service: notify.slack_notify
   mode: single
-- id: "1589654262959"
-  alias: "Office: Chromecast Offline"
-  description: ""
-  trigger:
-    - entity_id: device_tracker.chromecast_ultra
-      for: 00:05:00
-      platform: state
-      to: not_home
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: device_tracker.udmpro
-          state: unavailable
-  action:
-    - data:
-        message: ":warning: Office Chromecast is offline! :warning:"
-      service: script.post_to_home_log
 - id: "1589654316361"
   alias: "Bedroom: Chromecast Offline"
   description: ""
@@ -1412,84 +1394,91 @@
   alias: Enter Naughty Step Mode
   description: ""
   trigger:
-  - platform: state
-    entity_id: input_boolean.naughty_step_mode
-    from: "off"
-    to: "on"
+    - platform: state
+      entity_id: input_boolean.naughty_step_mode
+      from: "off"
+      to: "on"
   condition: []
   action:
-  - service: script.post_to_home_log
-    data:
-      message: Entering naughty step mode.
-  - condition: state
-    entity_id: sun.sun
-    state: below_horizon
-  - service: scene.turn_on
-    data: {}
-    target:
-      entity_id:
-      - scene.lounge_lights_off
-      - scene.stairs_light_2_off
-      - scene.stairs_light_off
-  - service: input_boolean.turn_off
-    data: {}
-    target:
-      entity_id:
-        - input_boolean.enable_lounge_motion_trigger
-        - input_boolean.enable_stairs_motion_trigger
+    - service: script.post_to_home_log
+      data:
+        message: Entering naughty step mode.
+    - condition: state
+      entity_id: sun.sun
+      state: below_horizon
+    - service: scene.turn_on
+      data: {}
+      target:
+        entity_id:
+          - scene.lounge_lights_off
+          - scene.stairs_light_2_off
+          - scene.stairs_light_off
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id:
+          - input_boolean.enable_lounge_motion_trigger
+          - input_boolean.enable_stairs_motion_trigger
   mode: single
 - id: "1647094935963"
   alias: Exit Naughty Step Mode
   description: ""
   trigger:
-  - platform: state
-    entity_id: input_boolean.naughty_step_mode
-    from: "on"
-    to: "off"
+    - platform: state
+      entity_id: input_boolean.naughty_step_mode
+      from: "on"
+      to: "off"
   condition: []
   action:
-  - service: script.post_to_home_log
-    data:
-      message: Exiting naught step mode.
-  - service: input_boolean.turn_on
-    data: {}
-    target:
-      entity_id:
-      - input_boolean.enable_lounge_motion_trigger
-      - input_boolean.enable_stairs_motion_trigger
+    - service: script.post_to_home_log
+      data:
+        message: Exiting naught step mode.
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id:
+          - input_boolean.enable_lounge_motion_trigger
+          - input_boolean.enable_stairs_motion_trigger
   mode: single
-- id: "1647307174048"
-  alias: "Stairs: Check Magic Mirror Is Casting Home Assistant"
+- id: "1648069839747"
+  alias: "Kitchen: Turn On Boiler"
   description: ""
   trigger:
-  - platform: time_pattern
-    minutes: "0"
-  - platform: homeassistant
-    event: start
-  condition: []
+    - platform: time
+      at: 06:30:00
+    - platform: time
+      at: "16:30:00"
+  condition:
+    - condition: state
+      entity_id: switch.boiler_switch
+      state: "off"
   action:
-  - service: script.post_to_home_log
-    data:
-      message: Checking Magic Mirror.
-  - choose:
-    - conditions:
-      - condition: not
-        conditions:
-        - condition: state
-          entity_id: media_player.bedroom_chromecast
-          state: playing
-        - condition: state
-          entity_id: media_player.bedroom_chromecast
-          attribute: app_name
-          state: Home Assistant Lovelace
-      sequence:
-      - service: script.post_to_home_log
-        data:
-          message: Casting Home Assistant to Magic Mirror.
-      - service: cast.show_lovelace_view
-        data:
-          entity_id: media_player.bedroom_chromecast
-          dashboard_path: lovelace-magicmirror
-          view_path: home
-    default: []
+    - service: script.post_to_home_log
+      data:
+        message: Turning on boiler.
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.boiler_switch
+  mode: single
+- id: "1648069923271"
+  alias: "Kitchen: Turn Off Boiler"
+  description: ""
+  trigger:
+    - platform: time
+      at: 08:00:00
+    - platform: time
+      at: "17:30:00"
+  condition:
+    - condition: state
+      entity_id: switch.boiler_switch
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Turn off boiler.
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.boiler_switch
   mode: single
