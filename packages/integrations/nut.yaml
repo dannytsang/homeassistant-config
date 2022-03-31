@@ -1,0 +1,22 @@
+# Created by Danny Tsang <danny@tsang.uk>
+sensor:
+  - platform: integration
+    source: sensor.office_ups_power
+    name: Office UPS Energy
+    unit_prefix: k
+    round: 2
+  - platform: integration
+    source: sensor.server_ups_power
+    name: Server UPS Energy
+    unit_prefix: k
+    round: 2
+template:
+  sensor:
+    - name: Office UPS Power
+      device_class: "power"
+      unit_of_measurement: "w"
+      state: "{{ (states('sensor.computer_ups_load') | int / 100) * states('sensor.computer_ups_nominal_real_power') | int }}"
+    - name: Server UPS Power
+      device_class: "power"
+      unit_of_measurement: "w"
+      state: "{{ (states('sensor.server_ups_load') | int / 100) * states('sensor.server_ups_nominal_real_power') | int }}"
