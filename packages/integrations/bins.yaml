@@ -1,0 +1,16 @@
+# Created by Danny Tsang <danny@tsang.uk>
+input_boolean:
+  enable_bin_collection_notifications:
+    name: Enable Bin Collection Notifications
+
+input_number:
+  bin_collection_notification_before:
+    name: Bin Collection Notification Before
+    unit_of_measurement: hours
+    min: 0
+    max: 24
+
+template:
+  - binary_sensor:
+      - name: Bin Collection Due
+        state: "{{ (as_timestamp(state_attr('calendar.bins', 'start_time')) - as_timestamp(now())) <= (states('input_number.bin_collection_notification_before')|int(0)*60*60)}}"
