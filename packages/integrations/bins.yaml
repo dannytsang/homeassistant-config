@@ -4,13 +4,20 @@ input_boolean:
     name: Enable Bin Collection Notifications
 
 input_number:
-  bin_collection_notification_before:
-    name: Bin Collection Notification Before
+  bin_collection_notification_start_offset:
+    name: Bin Collection Notification Start Offset
     unit_of_measurement: hours
     min: 0
     max: 24
+  bin_collection_notification_end_offset:
+    name: Bin Collection Notification End Offset
+    unit_of_measurement: hours
+    min: -24
+    max: 0
 
 template:
   - binary_sensor:
       - name: Bin Collection Due
-        state: "{{ (as_timestamp(state_attr('calendar.bins', 'start_time')) - as_timestamp(now())) <= (states('input_number.bin_collection_notification_before')|int(0)*60*60)}}"
+        state: >
+          {{ (as_timestamp(state_attr('calendar.bins', 'start_time')) - as_timestamp(now())) <= (states('input_number.bin_collection_notification_start_offset')|int(0)*60*60) 
+          and (as_timestamp(state_attr('calendar.bins', 'end_time')) - as_timestamp(now())) >= ((states('input_number.bin_collection_notification_end_offset')|int(0)*60*60)|abs) }}
