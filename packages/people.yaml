@@ -12,6 +12,9 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.stevenage_alarm
         state: armed_away
+      - condition: state
+        entity_id: input_boolean.enable_home_presence_detection
+        state: "on"
     action:
       - choose:
           - conditions:
@@ -47,6 +50,20 @@ automation:
               - service: script.conservatory_turn_on_camera
               - service: script.lounge_turn_on_camera
               - service: script.front_garden_turn_on_camera
+        default: []
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: climate.thermostat
+              state: "off"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: Heating is off. Turning heating on.
+            - service: climate.turn_on
+              data: {}
+              target:
+                entity_id: climate.thermostat
         default: []
     mode: single
   - id: "1613333442249"
