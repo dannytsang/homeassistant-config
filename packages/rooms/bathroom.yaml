@@ -547,37 +547,6 @@ automation:
             data:
               position: 30
     mode: single
-  - id: "1622667464880"
-    alias: "^Bedroom: Window Closed At Night"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.bedroom_window
-        from: "on"
-        to: "off"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automations
-        state: "on"
-      - condition: sun
-        after: sunset
-      - condition: sun
-        before: sunrise
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: cover.bedroom_blind
-            state: "closed"
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":window: :city_sunset: Bedroom window closed and it's dark. Closing
-            blinds."
-      - service: cover.set_cover_position
-        data:
-          position: 50
-    mode: single
 counter:
   bathroom_door:
     name: Bathroom Door Open Close
