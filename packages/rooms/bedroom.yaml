@@ -629,6 +629,10 @@ automation:
               - condition: state
                 entity_id: input_boolean.enable_bedroom_blind_automations
                 state: "on"
+              - condition: numeric_state
+                entity_id: cover.bedroom_blind
+                attribute: current_position
+                below: input_number.bedroom_blind_open_closed
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -644,6 +648,15 @@ automation:
                 data: {}
                 target:
                   entity_id: cover.bedroom_blind
+          - conditions:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bed: :alarm_clock: Sleep as Android alarm triggered."
         default: []
     mode: single
 input_boolean:
