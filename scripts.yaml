@@ -352,3 +352,33 @@ office_pc_turned_off_notification:
       target:
         entity_id: scene.office_turn_off_light_notification
   mode: single
+office_turn_on_leos_vm:
+  alias: "Office: Turn On Leo's VM"
+  sequence:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: switch.turk_docker_deepstack
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: ":ship: Turning off Deepstack."
+            - service: switch.turn_off
+              data: {}
+              target:
+                entity_id: switch.turk_docker_deepstack
+            - wait_for_trigger:
+                - platform: state
+                  entity_id: switch.turk_docker_deepstack
+                  to: "off"
+                  for:
+                    hours: 0
+                    minutes: 3
+                    seconds: 0
+      default: []
+    - service: script.post_to_home_log
+      data:
+        message: ":computer: Turning on Leo's VM."
+  mode: single
+  icon: mdi:microsoft-windows
