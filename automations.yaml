@@ -1444,45 +1444,25 @@
           - input_boolean.enable_lounge_motion_trigger
           - input_boolean.enable_stairs_motion_trigger
   mode: single
-- id: "1648069839747"
-  alias: "Kitchen: Turn On Boiler"
-  description: ""
+- id: "1649891307330"
+  alias: "Time: Check If Scheduled Mode"
+  description: Check if the schedule mode is set for the same day as today.
   trigger:
     - platform: time
-      at: 06:30:00
-    - platform: time
-      at: "16:30:00"
-  condition:
-    - condition: state
-      entity_id: switch.boiler_switch
-      state: "off"
+      at: 00:00:00
+  condition: []
   action:
-    - service: script.post_to_home_log
-      data:
-        message: Turning on boiler.
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.boiler_switch
-  mode: single
-- id: "1648069923271"
-  alias: "Kitchen: Turn Off Boiler"
-  description: ""
-  trigger:
-    - platform: time
-      at: 08:00:00
-    - platform: time
-      at: "17:30:00"
-  condition:
-    - condition: state
-      entity_id: switch.boiler_switch
-      state: "on"
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: Turn off boiler.
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.boiler_switch
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.enable_next_mode
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: Scheduled mode is turned on. Checking Due date/time.
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: ":clock12: Scheduled mode is turned off."
   mode: single
