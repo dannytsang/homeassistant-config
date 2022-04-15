@@ -121,23 +121,6 @@ automation:
                     opening Ashlee's bedroom blinds."
         default: []
     mode: single
-group:
-  ashlees_bedroom_area_temperature:
-    name: Ashlee's Bedroom Area Temperature
-    icon: mdi:thermometer
-    entities:
-      - sensor.ashlees_bed_temperature
-      # Radiator
-      - sensor.ashlees_bedroom_temperature
-      - sensor.ashlees_door_temperature
-      - sensor.ashlees_window_temperature
-  ashlees_bedroom_area_humidity:
-    name: Ashlee's Bedroom Area Humidity
-    icon: mdi:water-percent
-    entities:
-      - sensor.ashlees_bed_humidity
-      # Radiator
-      - sensor.ashlees_bedroom_humidity
 input_boolean:
   enable_ashlees_bed_presence:
     name: Enable Ashlee's Bed Sensor
@@ -148,6 +131,14 @@ input_boolean:
   enable_ashlees_door_automations:
     name: Enable Ashlee's Door Automation
     icon: mdi:door
+sensor:
+  # Aggregated sensors
+  - platform: min_max
+    name: Ashlee's Bedroom Area Temperature
+    entity_ids:
+      - sensor.ashlees_bed_temperature
+      - sensor.ashlees_door_temperature
+      - sensor.ashlees_window_temperature
 template:
   - binary_sensor:
       - name: Ashlees Bed Occupied
