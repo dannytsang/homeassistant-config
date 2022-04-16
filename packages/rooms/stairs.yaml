@@ -1137,6 +1137,49 @@ automation:
             }}"
     mode: queued
     max: 10
+  # Smoke alarm
+  - id: "1646778676344"
+    alias: "^Stairs: Cabon Monoxide Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nest_protect_upstairs_co_status
+        to: "on"
+    condition: []
+    action:
+      - service: script.post_to_direct_notification
+        data:
+          title: ":skull_and_crossbones: CO Detected on the stairs"
+          message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
+      - service: script.post_to_home_log
+        data:
+          message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
+      - service: script.set_central_heating_to_off
+        data: {}
+      - service: script.set_how_water_to_home_mode
+        data: {}
+    mode: single
+  - id: "1646778927329"
+    alias: "^Stairs: Smoked Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nest_protect_upstairs_smoke_status
+        to: "on"
+    condition: []
+    action:
+      - service: script.post_to_direct_notification
+        data:
+          title: ":smoking: Smoke detected on the stairs"
+          message: ":smoking: Smoke detected on the stairs."
+      - service: script.post_to_home_log
+        data:
+          message: ":smoking: Smoke detected on the stairs."
+      - service: script.set_central_heating_to_off
+        data: {}
+      - service: script.set_how_water_to_home_mode
+        data: {}
+    mode: single  
 input_boolean:
   enable_magic_mirror_automations:
     name: Enable Magic Mirror automations
