@@ -25,45 +25,39 @@ automation:
                 entity_id: input_boolean.enable_morning_routine
                 state: "off"
             sequence:
-              - service: alarm_control_panel.alarm_disarm
               - service: script.post_to_home_log
                 data:
-                  message: ":house: :running: Someone arrived home. Turning :no_bell: alarm off."
+                  message: ":house: :running: Someone arrived home."
+              - service: script.set_alarm_to_disarmed
               - service: script.conservatory_turn_off_camera
               - service: script.lounge_turn_off_camera
               - service: script.upstairs_turn_off_camera
           - conditions:
-              - condition: not
-                conditions:
-                  - condition: state
-                    entity_id: alarm_control_panel.house_alarm
-                    state: home
               - condition: state
                 entity_id: input_boolean.enable_morning_routine
                 state: "on"
             sequence:
-              - service: alarm_control_panel.alarm_arm_home
               - service: script.post_to_home_log
                 data:
-                  message: ":house: :running: Someone arrived home before :city_sunrise: sunrise. 
-                  Changing alarm to home mode(door sensors only) and downstairs :camera_with_flash: cameras."
+                  message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
+              - service: script.set_alarm_to_disarmed
+              - service: script.post_to_home_log
+                data:
+                  message: "Turning on downstairs :camera_with_flash: cameras."
               - service: script.conservatory_turn_on_camera
               - service: script.lounge_turn_on_camera
               - service: script.front_garden_turn_on_camera
         default: []
       - choose:
-        - conditions:
-            - condition: state
-              entity_id: climate.thermostat
-              state: "off"
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message: Heating is off. Turning heating on.
-            - service: climate.turn_on
-              data: {}
-              target:
+          - conditions:
+              - condition: state
                 entity_id: climate.thermostat
+                state: "off"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: Heating is off.
+              - service: script.set_central_heating_to_home_mode
         default: []
     mode: single
   - id: "1613333442249"
@@ -135,9 +129,7 @@ automation:
                       - title: Turn Off Devices Only
                         action: guest_mode_turn_off_devices
         default:
-          - service: alarm_control_panel.alarm_arm_away
-            data: {}
-            entity_id: alarm_control_panel.house_alarm
+          - service: script.set_alarm_to_away
           - choose:
               - conditions:
                   - condition: state
@@ -192,12 +184,7 @@ automation:
                               - condition: template
                                 value_template: "{{ wait.trigger.event.data.action == 'disarm' }}"
                             sequence:
-                              - service: alarm_control_panel.alarm_disarm
-                                target:
-                                  entity_id: alarm_control_panel.house_alarm
-                              - service: script.post_to_home_log
-                                data:
-                                  message: Disarming alarm.
+                              - service: script.set_alarm_to_disarmed
                           - conditions:
                               - condition: template
                                 value_template:
@@ -213,12 +200,10 @@ automation:
                                   "{{ wait.trigger.event.data.action == 'disarm_leave_on'
                                   }}"
                             sequence:
-                              - service: alarm_control_panel.alarm_disarm
-                                target:
-                                  entity_id: alarm_control_panel.house_alarm
+                              - service: script.set_alarm_to_disarmed
                               - service: script.post_to_home_log
                                 data:
-                                  message: Disarming alarm and skipping turning off devices.
+                                  message: Skipping turning off devices.
                         default:
                           - service: script.everybody_leave_home
                 default:

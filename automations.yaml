@@ -813,9 +813,7 @@
             - service: script.post_to_home_log
               data:
                 message: ":bell: Guest mode override. Turning alarm on and devices off."
-            - service: alarm_control_panel.alarm_arm_away
-              data: {}
-              entity_id: alarm_control_panel.house_alarm
+            - service: script.set_alarm_to_away
             - service: script.everybody_leave_home
         - conditions:
             - condition: template
@@ -831,9 +829,7 @@
                 message:
                   ":bell: Guest mode override. Turning alarm in away mode (motion
                   and sensors) on only."
-            - service: alarm_control_panel.alarm_arm_away
-              target:
-                entity_id: alarm_control_panel.house_alarm
+            - service: script.set_alarm_to_away
         - conditions:
             - condition: template
               value_template:
@@ -1465,7 +1461,9 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: Scheduled mode change to {{ states('input_select.next_home_mode') }}
+                message:
+                  Scheduled mode change to {{ states('input_select.next_home_mode')
+                  }}
             - service: input_select.select_option
               data:
                 option: "{{ states('input_select.next_home_mode') }}"
@@ -1498,3 +1496,16 @@
         message: A {{trigger.payload_json['after']['label']}} was detected.
         url: http://192.168.50.4:5000/api/frigate/notifications/{{trigger.payload_json['after']['id']}}/thumbnail.jpg?format=android
   mode: queued
+- id: "1650058720311"
+  alias: Enter Holiday Mode
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: input_select.home_mode
+      to: Holiday
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Entering Holiday Mode
+  mode: single
