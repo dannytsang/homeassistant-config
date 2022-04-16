@@ -4,16 +4,9 @@ script:
     alias: Set Central Heating To Away Mode
     icon: mdi:hvac
     sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_slack_notifications
-                state: "on"
-            sequence:
-              - service: script.post_to_home_log
-                data:
-                  message: "Setting heating to :running: away mode."
-        default: []
+      - service: script.post_to_home_log
+        data:
+          message: "Setting heating to :running: away mode."
       - service: climate.set_temperature
         data:
           hvac_mode: heat
@@ -23,16 +16,9 @@ script:
     alias: Set Central Heating To Home Mode
     icon: mdi:hvac
     sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_slack_notifications
-                state: "on"
-            sequence:
-              - service: script.post_to_home_log
-                data:
-                  message: "Setting heating to :house_with_garden: Home mode."
-        default: []
+      - service: script.post_to_home_log
+        data:
+          message: "Setting heating to :house_with_garden: Home mode."
       - service: climate.set_hvac_mode
         data:
           hvac_mode: auto
