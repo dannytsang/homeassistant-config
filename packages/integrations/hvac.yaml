@@ -18,10 +18,36 @@ script:
     sequence:
       - service: script.post_to_home_log
         data:
-          message: "Setting heating to :house_with_garden: Home mode."
+          message: "Setting heating to :house_with_garden: home mode."
       - service: climate.set_hvac_mode
         data:
           hvac_mode: auto
         target:
           entity_id: climate.thermostat
+    mode: single
+  set_how_water_to_home_mode:
+    alias: Set Central Heating To Off
+    icon: mdi:hvac
+    sequence:
+      - service: script.post_to_home_log
+        data:
+          message: "Turning on the hot water."
+      - service: water_heater.set_operation_mode
+        data:
+          operation_mode: "on"
+        target:
+          entity_id: water_heater.hot_water
+    mode: single
+  set_how_water_to_away_mode:
+    alias: Set Central Heating To Off
+    icon: mdi:hvac-off
+    sequence:
+      - service: script.post_to_home_log
+        data:
+          message: "Turning off the hot water."
+      - service: water_heater.set_operation_mode
+        data:
+          operation_mode: "off"
+        target:
+          entity_id: water_heater.hot_water
     mode: single
