@@ -91,3 +91,67 @@ group:
       - binary_sensor.office_window_left
       - binary_sensor.office_window_right
       - binary_sensor.shed_door
+script:
+  set_alarm_to_away_mode:
+    alias: Set Alarm To Away
+    sequence:
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: armed_away
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Turning :bell: alarm on in away mode."
+              - service: alarm_control_panel.alarm_arm_away
+                data: {}
+                target:
+                  entity_id: alarm_control_panel.house_alarm
+        default: []
+    mode: single
+    icon: mdi:alarm-light
+  set_alarm_to_disarmed_mode:
+    alias: Set Alarm To Disarmed
+    sequence:
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: disarmed
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Turning :no_bell: alarm off."
+              - service: alarm_control_panel.alarm_disarm
+                data: {}
+                target:
+                  entity_id: alarm_control_panel.house_alarm
+        default: []
+    mode: single
+    icon: mdi:alarm-light-off
+  set_alarm_to_home_mode:
+    alias: Set Alarm To Home
+    sequence:
+      - choose:
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: armed_home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Changing :bell: alarm to home mode(door sensors only)."
+              - service: alarm_control_panel.alarm_arm_home
+                data: {}
+                target:
+                  entity_id: alarm_control_panel.house_alarm
+        default: []
+    mode: single
+    icon: mdi:alarm-light
