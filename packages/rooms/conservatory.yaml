@@ -180,65 +180,10 @@ automation:
         from: "on"
     condition: []
     action:
-      choose:
-        - conditions:
-            - condition: not
-              conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.house_alarm
-                  state: disarmed
-            - condition: state
-              entity_id: binary_sensor.shed_door
-              state: "on"
-          sequence:
-            - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.post_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Conservatory door closed. Keeping conservatory
-                        camera on because alarm is armed and shed door is open."
-              default: []
-        - conditions:
-            - condition: not
-              conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.house_alarm
-                  state: "disarmed"
-            - condition: state
-              entity_id: binary_sensor.shed_door
-              state: "off"
-          sequence:
-            - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.post_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Conservatory door closed. Keeping conservatory
-                        camera on because alarm is armed."
-              default: []
-        - conditions:
-          - condition: state
-            entity_id: binary_sensor.shed_door
-            state: "on"
-          sequence:
-            - choose:
-              - conditions:
-                - condition: state
-                  state: "on"
-                  entity_id: input_boolean.enable_slack_notifications
-                sequence:
-                  - service: script.post_to_home_log
-                    data:
-                      message: ":door: :hut: :bell: Conservatory door closed. Keeping conservatory
-                      camera on because shed door is open."
-              default: []
+      - service: script.post_to_home_log
+        data:
+          message: ":door: Conservatory door closed."
+      - service: script.conservatory_turn_off_camera
     mode: single
 group:
   conservatory_area_motion:
@@ -315,11 +260,55 @@ scene:
 script:
   conservatory_turn_off_camera:
     alias: Conservatory Turn Off Camera
+    fields:
+      override:
+        name: override
+        description: override any other factors that may prevent the camera from turning off.
+        required: false
+        default: false
+        selector:
+          boolean:
     sequence:
-      - service: switch.turn_off
-        target:
-          entity_id:
-            - switch.conservatory_detect
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ override }}"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Overriding conditions. Turning conservatory :camera: camera detection off."
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.conservatory_detect
+                    - switch.conservatory_snapshots
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: not
+                    conditions:
+                      - condition: state
+                        entity_id: alarm_control_panel.house_alarm
+                        state: disarmed
+                  - condition: state
+                    entity_id: binary_sensor.conservatory_door
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.shed_door
+                    state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Alarm is on or conservatory or shed door is open. Keeping :camera_with_flash: camera detection on."
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: "Turning conservatory :camera: camera detection off."
+          - service: switch.turn_off
+            target:
+              entity_id:
+                - switch.conservatory_detect
+                - switch.conservatory_snapshots
     mode: single
     icon: mdi:cctv
   conservatory_turn_on_camera:
