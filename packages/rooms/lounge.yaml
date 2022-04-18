@@ -369,6 +369,7 @@ automation:
             }}"
     mode: queued
     max: 10
+  # door / window
   - id: "1631454174806"
     alias: "^Lounge: Door or Window Open"
     description: ""
@@ -382,13 +383,8 @@ automation:
       - service: script.post_to_home_log
         data:
           message:
-            ":door: :window: Lounge door/window opened. Turning on :carmera_with_flash:
-            camera."
-      - service: switch.turn_on
-        target:
-          entity_id:
-            - switch.lounge_detect
-            - switch.lounge_snapshots
+            ":door: :window: Lounge door/window opened."
+      - service: script.lounge_turn_on_camera
     mode: single
   - id: "1631454249839"
     alias: "^Lounge: Door Or Windows Closed"
@@ -402,13 +398,8 @@ automation:
     action:
       - service: script.post_to_home_log
         data:
-          message: ":door: :window: All doors/windows closed in the lounge. 
-          Turning :camera: camera off."
-      - service: switch.turn_off
-        target:
-          entity_id:
-            - switch.lounge_detect
-            - switch.lounge_snapshots
+          message: ":door: :window: All doors/windows closed in the lounge."
+      - service: script.lounge_turn_off_camera
     mode: single
   # Switches
   - id: "1610388192224"
@@ -628,15 +619,39 @@ script:
   lounge_turn_off_camera:
     alias: Lounge Turn Off Camera
     sequence:
-      - service: switch.turn_off
-        target:
-          entity_id:
-            - switch.lounge_detect
+      - choose:
+        - conditions:
+            - condition: or
+              conditions:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: alarm_control_panel.house_alarm
+                      state: disarmed
+                - condition: state
+                  entity_id: binary_sensor.front_door
+                  state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "Alarm is on or front door is open. Keeping lounge:camera_with_flash: camera detection on."
+        default:
+          - service: script.post_to_home_log
+            data:
+              message: "Turning lounge :camera: camera detection off."
+          - service: switch.turn_off
+            target:
+              entity_id:
+                - switch.lounge_detect
+                - switch.lounge_snapshots
     mode: single
     icon: mdi:cctv
   lounge_turn_on_camera:
     alias: Lounge Turn On Camera
     sequence:
+      - service: script.post_to_home_log
+        data:
+          message: "Turning lounge :camera_with_flash: camera detection on."
       - service: switch.turn_on
         target:
           entity_id:
