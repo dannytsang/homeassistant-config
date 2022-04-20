@@ -11,7 +11,7 @@
       entity_id: input_boolean.enable_home_presence_detection
       state: "on"
     - condition: numeric_state
-      entity_id: sensor.lounge_motion_light_level
+      entity_id: sensor.lounge_area_light_level
       below: "55"
   action:
     - service: scene.turn_on
@@ -42,7 +42,7 @@
       target:
         entity_id:
           - scene.turn_off_downstairs_lights
-          - scene.office_lights_off
+          - scene.office_all_lights_off
     - data:
         message:
           "':running: :house: Danny has left the house and no one is home. Turning
@@ -65,7 +65,7 @@
       target:
         entity_id:
           - scene.turn_off_downstairs_lights
-          - scene.office_lights_off
+          - scene.office_all_lights_off
     - data:
         message:
           ":house: :dancer: Terina has left the house and no one is home. Turning
@@ -142,7 +142,7 @@
   alias: "Utility: Unifi AP Offline"
   description: ""
   trigger:
-    - entity_id: device_tracker.utility
+    - entity_id: device_tracker.utility_access_point
       for: 00:05:00
       from: home
       platform: state
@@ -161,7 +161,7 @@
   alias: "Lounge: Unifi AP Offline"
   description: ""
   trigger:
-    - entity_id: device_tracker.lounge
+    - entity_id: device_tracker.lounge_access_point
       for: 00:05:00
       from: home
       platform: state
@@ -339,7 +339,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.office_motion
+      entity_id: group.office_area_motion
       to: "on"
   condition:
     - condition: state
@@ -358,7 +358,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.kitchen_motion
+      entity_id: group.kitchen_area_motion
       to: "on"
   condition:
     - condition: state
@@ -464,7 +464,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.lounge_motion
+      entity_id: group.lounge_area_motion
       from: "off"
       to: "on"
   condition:
@@ -1032,61 +1032,6 @@
     - service: script.office_pc_turned_off_notification
       data: {}
   mode: single
-- id: "1636064367798"
-  alias: "Leo's Bedroom: Echo Playing Bedtime Music"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: media_player.leos_bedroom
-      to: playing
-      for:
-        hours: 1
-        minutes: 0
-        seconds: 0
-        milliseconds: 0
-  condition:
-    - condition: time
-      after: "19:30"
-    - condition: state
-      entity_id: media_player.leos_bedroom
-      state: music
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":radio: Leo's echo has been playing music for more than an hour after
-          bedtime. Turning music off."
-    - service: media_player.media_stop
-      target:
-        entity_id: media_player.leos_bedroom
-  mode: single
-- id: "1636064405592"
-  alias: "Ashlee's Bedroom: Echo Playing Bedtime Music"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: media_player.ashlees_bedroom
-      to: playing
-      for:
-        hours: 1
-        minutes: 0
-        seconds: 0
-        milliseconds: 0
-  condition:
-    - condition: time
-      after: "19:30"
-    - condition: state
-      entity_id: media_player.ashlees_bedroom
-      state: music
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":radio: Ashlee's echo has been playing music for more than an hour
-          after bedtime. Turning music off."
-    - service: media_player.media_stop
-      target:
-        entity_id: media_player.ashlees_bedroom
 - id: "1636203020481"
   alias: "Porch: Some One Leaving"
   description: ""
@@ -1177,33 +1122,6 @@
       default: []
   mode: queued
   max: 10
-- id: "1638650461801"
-  alias: "Office: Window Open And Heating Is On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.office_windows
-      from: "off"
-      to: "on"
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: climate.office
-          state: "off"
-          attribute: hvac_action
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":window: Office window opened and the heating is on. Turning off office
-          heating."
-    - service: climate.set_hvac_mode
-      target:
-        entity_id: climate.office
-      data:
-        hvac_mode: "off"
-  mode: single
 - id: "1638650699336"
   alias: "Office: Window Closed"
   description: ""
@@ -1230,33 +1148,6 @@
         entity_id: climate.office
       data:
         hvac_mode: auto
-  mode: single
-- id: "1638650461802"
-  alias: "Conservatory: Door Open And Heating Is On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.conservatory_door
-      from: "off"
-      to: "on"
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: climate.conservatory
-          state: "off"
-          attribute: hvac_action
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":door: Conservatory door opened and the heating is on. Turning off
-          conservatory heating."
-    - service: climate.set_hvac_mode
-      target:
-        entity_id: climate.conservatory
-      data:
-        hvac_mode: "off"
   mode: single
 - id: "1638650699337"
   alias: "Conservatory: Door Closed"

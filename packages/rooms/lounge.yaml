@@ -345,7 +345,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.lounge_camera_person_motion
+        entity_id: binary_sensor.lounge_person_motion
         from: "off"
         to: "on"
     condition:
@@ -412,34 +412,6 @@ automation:
     condition: []
     action:
       - service: script.lounge_select_vcr_dvr_input
-    mode: single
-  - id: '1645691949968'
-    alias: "^Lounge: Restart Hive Hub"
-    description: ""
-    trigger:
-    - platform: time
-      at: 03:00
-    condition: []
-    action:
-    - service: script.post_to_home_log
-      data:
-        message: Restarting Hive Hub.
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.hive_plug
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 5
-        milliseconds: 0
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.hive_plug
-    - service: script.post_to_home_log
-      data:
-        message: Hive Hub restarted.
     mode: single
 group:
   lounge_area_motion:
@@ -719,8 +691,8 @@ sensor:
   - platform: min_max
     name: Lounge Area Temperature
     entity_ids:
-      - sensor.lounge_motion_temperature
       - sensor.lounge_motion_2_temperature
+      - sensor.lounge_motion_3_temperature
     type: mean
 template:
   - binary_sensor:
