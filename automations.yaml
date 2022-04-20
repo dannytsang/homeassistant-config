@@ -227,7 +227,7 @@
   alias: "Conservatory: Water Detected"
   description: ""
   trigger:
-    - entity_id: binary_sensor.conservatory_water
+    - entity_id: binary_sensor.conservatory_bucket_water
       platform: state
       to: "on"
   condition: []
@@ -240,7 +240,7 @@
   alias: "Conservatory: Water Not Detected"
   description: ""
   trigger:
-    - entity_id: binary_sensor.conservatory_water
+    - entity_id: binary_sensor.conservatory_bucket_water
       from: "on"
       platform: state
       to: "off"
@@ -1122,60 +1122,6 @@
       default: []
   mode: queued
   max: 10
-- id: "1638650699336"
-  alias: "Office: Window Closed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.office_windows
-      from: "on"
-      to: "off"
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: climate.office
-          state: "off"
-          attribute: hvac_modes
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":window: Office window closed and heating is set to off. Turning heating
-          back to schedule (auto)."
-    - service: climate.set_hvac_mode
-      target:
-        entity_id: climate.office
-      data:
-        hvac_mode: auto
-  mode: single
-- id: "1638650699337"
-  alias: "Conservatory: Door Closed"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.conservatory_door
-      from: "on"
-      to: "off"
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: climate.conservatory
-          state: "off"
-          attribute: hvac_modes
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":door: Conservatory door closed and heating is set to off. Turning
-          heating back to schedule (auto)."
-    - service: climate.set_hvac_mode
-      target:
-        entity_id: climate.conservatory
-      data:
-        hvac_mode: auto
-  mode: single
 - id: "1645568214221"
   alias: "Weather: Warning"
   description: ""
