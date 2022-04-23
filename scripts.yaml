@@ -374,11 +374,23 @@ office_turn_on_leos_vm:
                   to: "off"
                   for:
                     hours: 0
-                    minutes: 3
+                    minutes: 0
                     seconds: 0
+              continue_on_timeout: false
+              timeout: "60"
       default: []
     - service: script.post_to_home_log
       data:
         message: ":computer: Turning on Leo's VM."
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.turk_vm_leos_windows_10
+    - wait_for_trigger:
+        - platform: state
+          entity_id: switch.turk_vm_leos_windows_10
+          to: "on"
+      timeout: "60"
+      continue_on_timeout: false
   mode: single
   icon: mdi:microsoft-windows
