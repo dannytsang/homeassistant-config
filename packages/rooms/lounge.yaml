@@ -5,7 +5,7 @@ automation:
     alias: "^Lounge: Dark And Motion Detected"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
     trigger:
-      - entity_id: group.lounge_area_motion
+      - entity_id: binary_sensor.lounge_area_motion
         platform: state
         to: "on"
         from: "off"
@@ -103,7 +103,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.lounge_area_motion
+        entity_id: binary_sensor.lounge_area_motion
         to: "off"
         for: 00:05:00
     condition:
@@ -130,7 +130,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.lounge_area_motion
+        entity_id: binary_sensor.lounge_area_motion
         from: "on"
         to: "off"
         for: 00:10:00
@@ -216,14 +216,14 @@ automation:
         for: 00:05:00
     condition:
       - condition: state
-        entity_id: group.lounge_lights
+        entity_id: light.lounge_lamps
         state: "on"
       - condition: state
-        entity_id: group.lounge_area_motion
+        entity_id: binary_sensor.lounge_area_motion
         state: "off"
       - condition: template
         value_template:
-          " {{ (as_timestamp(now())-as_timestamp(states.group.lounge_area_motion.last_updated))
+          " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
       - service: script.post_to_home_log
@@ -247,14 +247,14 @@ automation:
         below: "35"
     condition:
       - condition: state
-        entity_id: group.lounge_lights
+        entity_id: light.lounge_lamps
         state: "on"
       - condition: state
-        entity_id: group.lounge_area_motion
+        entity_id: binary_sensor.lounge_area_motion
         state: "off"
       - condition: template
         value_template:
-          " {{ (as_timestamp(now())-as_timestamp(states.group.lounge_area_motion.last_updated))
+          " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
       - service: script.post_to_home_log
@@ -375,7 +375,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.lounge_door_windows
+        entity_id: binary_sensor.lounge_door_and_windows
         from: "off"
         to: "on"
     condition: []
@@ -391,7 +391,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: group.lounge_door_windows
+        entity_id: binary_sensor.lounge_door_and_windows
         from: "on"
         to: "off"
     condition: []
@@ -413,35 +413,6 @@ automation:
     action:
       - service: script.lounge_select_vcr_dvr_input
     mode: single
-group:
-  lounge_area_motion:
-    name: Lounge Motion
-    icon: mdi:walk
-    entities:
-      - binary_sensor.lounge_motion
-      - binary_sensor.lounge_motion_2
-      - binary_sensor.lounge_motion_3
-  lounge_lights:
-    name: Lounge Lights
-    icon: mdi:floor-lamp
-    entities:
-      - light.lounge_left_lamp
-      - light.lounge_right_lamp
-  lounge_windows:
-    name: Lounge Windows
-    icon: mdi:window-closed
-    entities:
-      - binary_sensor.lounge_left_window
-      - binary_sensor.lounge_middle_window
-      - binary_sensor.lounge_right_window
-  lounge_door_windows:
-    name: Lounge Door and Windows
-    icon: mdi:door
-    entities:
-      - binary_sensor.front_door
-      - binary_sensor.lounge_left_window
-      - binary_sensor.lounge_middle_window
-      - binary_sensor.lounge_right_window
 input_boolean:
   enable_lounge_motion_trigger:
     name: Enable motion trigger for lounge

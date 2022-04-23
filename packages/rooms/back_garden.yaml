@@ -11,12 +11,12 @@ automation:
         to: "on"
     condition:
       - condition: state
-        entity_id: group.back_doors
+        entity_id: binary_sensor.back_doors
         state: "on"
     action:
       - service: script.post_to_home_log
         data:
-          message: ":paw_prints: :door: {% set count = namespace(value=0) %}{% for door in state_attr('group.back_doors','entity_id') %}{% if states(door) == 'on' %}{%if count.value > 1 %}and {%endif%}{{ state_attr(door,'friendly_name') }}{% set count.value = count.value + 1 %}{% endif %}{% endfor %}{% if count.value >= 2 %} are {%else%} is {% endif %}open and motion detected in the back garden. :camera_with_flash: Capturing image for processing."
+          message: ":paw_prints: :door: {% set count = namespace(value=0) %}{% for door in state_attr('binary_sensor.back_doors','entity_id') %}{% if states(door) == 'on' %}{%if count.value > 1 %}and {%endif%}{{ state_attr(door,'friendly_name') }}{% set count.value = count.value + 1 %}{% endif %}{% endfor %}{% if count.value >= 2 %} are {%else%} is {% endif %}open and motion detected in the back garden. :camera_with_flash: Capturing image for processing."
       - service: script.conservatory_camera_process_image
         data:
           title: Back Garden Snapshot
@@ -133,10 +133,3 @@ input_boolean:
   enable_back_garden_motion_trigger:
     name: Enable motion trigger for back garden
     icon: mdi:motion-sensor
-group:
-  back_doors:
-    name: Back Doors
-    icon: mdi:door
-    entities:
-      - binary_sensor.conservatory_door
-      - binary_sensor.shed_door

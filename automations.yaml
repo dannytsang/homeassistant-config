@@ -267,7 +267,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.water_sensors
+      entity_id: binary_sensor.water_sensors
       to: "on"
   condition: []
   action:
@@ -280,7 +280,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.water_sensors
+      entity_id: binary_sensor.water_sensors
       from: "on"
       to: "off"
   condition: []
@@ -339,7 +339,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.office_area_motion
+      entity_id: binary_sensor.office_area_motion
       to: "on"
   condition:
     - condition: state
@@ -358,7 +358,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.kitchen_area_motion
+      entity_id: binary_sensor.kitchen_area_motion
       to: "on"
   condition:
     - condition: state
@@ -464,7 +464,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: group.lounge_area_motion
+      entity_id: binary_sensor.lounge_area_motion
       from: "off"
       to: "on"
   condition:
@@ -1277,4 +1277,33 @@
     - service: script.post_to_home_log
       data:
         message: Entering Holiday Mode
+  mode: single
+- id: "1650730028373"
+  alias: "Office: Leo's VM Is Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id: switch.turk_vm_leos_windows_10
+      to: "off"
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+  condition:
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: device_tracker.udmpro
+          state: unavailable
+    - condition: state
+      entity_id: switch.turk_docker_deepstack
+      state: "off"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: Leo's VM has turned off for more than 10 minutes. Turnon on Deepstack.
+    - service: switch.turn_on
+      data: {}
+      target:
+        entity_id: switch.turk_docker_deepstack
   mode: single
