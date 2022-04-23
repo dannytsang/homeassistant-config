@@ -1,0 +1,26 @@
+# Created by Danny Tsang <danny@tsang.uk>
+alert:
+  deebot_error:
+    name: Vacuum has errored
+    entity_id: vacuum.t8
+    state: "error"
+    repeat: 60
+    can_acknowledge: true
+    skip_first: true
+    notifiers:
+      - mobile_app_dannys_phone
+automation:
+  - id: "1650387098756"
+    alias: "^Deebot: Fully Charged"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: vacuum.t8
+        above: "99"
+        attribute: battery_level
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":battery: :robot: :broom: Vacuum fully charged"
+    mode: single
