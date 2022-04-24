@@ -393,7 +393,7 @@ automation:
     mode: queued
     max: 10
   - id: "1606158191303"
-    alias: "^Kitchen: Motion Detected Main Lights Off"
+    alias: "^Kitchen: Motion Detected Table Lights Off"
     description: ""
     trigger:
       - platform: state
@@ -409,16 +409,53 @@ automation:
             entity_id: light.kitchen_left
             state: "off"
           - condition: state
-            entity_id: light.kitchen_left_2
-            state: "off"
-          - condition: state
             entity_id: light.kitchen_middle
             state: "off"
           - condition: state
-            entity_id: light.kitchen_middle_2
+            entity_id: light.kitchen_right
+            state: "off"
+    action:
+      - choose:
+          - conditions:
+              - condition: or
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.kitchen_motion_light_level
+                    below: "25"
+                  - condition: numeric_state
+                    entity_id: sensor.kitchen_motion_2_light_level
+                    below: "50"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                    kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                    states('sensor.kitchen_motion_2_light_level') }} lux < 25 & 50). Turning
+                    kitchen table lights on to full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_table_lights_on
+        default: []
+    mode: queued
+    max: 10
+  - id: "1606158191306"
+    alias: "^Kitchen: Motion Detected Cooker Lights Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_area_motion
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.kitchen_light_trigger
+        to: "on"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.kitchen_left_2
             state: "off"
           - condition: state
-            entity_id: light.kitchen_right
+            entity_id: light.kitchen_middle_2
             state: "off"
           - condition: state
             entity_id: light.kitchen_right_2
@@ -440,10 +477,10 @@ automation:
                   message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
                     kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
                     states('sensor.kitchen_motion_2_light_level') }} lux < 25 & 50). Turning
-                    main lights on to full brightness."
+                    kitchen cooker lights on to full brightness."
               - service: scene.turn_on
                 target:
-                  entity_id: scene.kitchen_main_lights_on
+                  entity_id: scene.kitchen_cooker_lights_on
         default: []
     mode: queued
     max: 10
@@ -675,6 +712,7 @@ scene:
         state: "on"
   - id: "kitchen_main_lights_off"
     name: Kitchen Main Lights Off
+    icon: "mdi:lightbulb-spot-off"
     entities:
       light.kitchen_left:
         min_mireds: 111
@@ -820,6 +858,7 @@ scene:
         state: "off"
   - id: kitchen_side_lights_on
     name: Kitchen Side Lights On
+    icon: mdi:led-strip-variant
     entities:
       light.kitchen_down_light:
         min_mireds: 153
@@ -995,6 +1034,7 @@ scene:
         state: "on"
   - id: "1629659622092"
     name: Kitchen Main Lights On
+    icon: "mdi:lightbulb-spot"
     entities:
       light.kitchen_left:
         min_mireds: 111
@@ -1049,6 +1089,80 @@ scene:
         brightness: 245
         color_temp: 369
         friendly_name: Kitchen Right
+        supported_features: 35
+        state: "on"
+      light.kitchen_right_2:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Right 2
+        supported_features: 35
+        state: "on"
+  - id: "1629659622093"
+    name: Kitchen Table Lights On
+    icon: "mdi:lightbulb-spot"
+    entities:
+      light.kitchen_left:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Left
+        supported_features: 35
+        state: "on"
+      light.kitchen_middle:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Middle
+        supported_features: 35
+        state: "on"
+      light.kitchen_right:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Right
+        supported_features: 35
+        state: "on"
+  - id: "1629659622094"
+    name: Kitchen Cooker Lights On
+    icon: "mdi:lightbulb-spot"
+    entities:
+      light.kitchen_left_2:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Left 2
+        supported_features: 35
+        state: "on"
+      light.kitchen_middle_2:
+        min_mireds: 111
+        max_mireds: 500
+        supported_color_modes:
+          - color_temp
+        color_mode: color_temp
+        brightness: 245
+        color_temp: 369
+        friendly_name: Kitchen Middle 2
         supported_features: 35
         state: "on"
       light.kitchen_right_2:
