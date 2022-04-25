@@ -1307,3 +1307,28 @@
       target:
         entity_id: switch.turk_docker_deepstack
   mode: single
+- id: "1650915676886"
+  alias: "Leo's Bedroom: Turn Off Spotify At Night"
+  description: ""
+  trigger:
+    - platform: time
+      at: "23:00:00"
+  condition:
+    - condition: state
+      entity_id: media_player.spotify_danny
+      attribute: source
+      state: Leo's Bedroom
+    - condition: state
+      entity_id: media_player.spotify_danny
+      state: playing
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+          Turning off :musical_note: music in Leo's Bedroom :radio: Echo."
+    - service: media_player.media_stop
+      data: {}
+      target:
+        entity_id: media_player.spotify_danny
+  mode: single
