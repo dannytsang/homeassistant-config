@@ -5,7 +5,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any
 
-from aiohttp import ClientError, ServerDisconnectedError
+from aiohttp import ClientConnectorError, ClientError, ServerDisconnectedError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
@@ -166,6 +166,10 @@ async def _async_subscribe_for_data(hass: HomeAssistant, entry: ConfigEntry, dat
         LOGGER.debug("Subscriber: session timed out.")
         _register_subscribe_task(hass, entry, data)
 
+    except ClientConnectorError:
+        LOGGER.debug("Subscriber: cannot connect to host.")
+        _register_subscribe_task(hass, entry, data)
+
     except NotAuthenticatedException:
         LOGGER.debug("Subscriber: 401 exception.")
         # Renewing access token
@@ -176,17 +180,23 @@ async def _async_subscribe_for_data(hass: HomeAssistant, entry: ConfigEntry, dat
     except GatewayTimeoutException:
         LOGGER.debug("Subscriber: gateway time-out. Pausing for 2 minutes.")
 
-        await asyncio.sleep(120)
+        await asyncio.sleep(60 * 2)
         _register_subscribe_task(hass, entry, data)
 
     except PynestException:
-        LOGGER.exception("Subscriber: pynest exception.")
+        LOGGER.exception(
+            "Unknown pynest exception. Please create an issue on GitHub with your logfile. Updates paused for 1 minute."
+        )
 
         # Wait a minute before retrying
         await asyncio.sleep(60)
         _register_subscribe_task(hass, entry, data)
 
     except Exception:  # pylint: disable=broad-except
+        # Wait 5 minutes before retrying
+        await asyncio.sleep(60 * 5)
+        _register_subscribe_task(hass, entry, data)
+
         LOGGER.exception(
-            "Unknown exception. Live updates disabled. Please turn on debug mode and create an issue on GitHub."
+            "Unknown exception. Please create an issue on GitHub with your logfile. Updates paused for 5 minutes."
         )
