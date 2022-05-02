@@ -411,7 +411,15 @@ automation:
         above: "35"
     condition: []
     action:
-      - service: script.lounge_select_vcr_dvr_input
+      - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.playstation_powered_on
+              state: 'off'
+          sequence:
+            - service: script.lounge_select_vcr_dvr_input
+        default:
+          - service: script.lounge_select_game_input
     mode: single
 input_boolean:
   enable_lounge_motion_trigger:
@@ -603,7 +611,7 @@ script:
     mode: single
     icon: mdi:cctv
   # Receiver
-  lounge_select_vcr_dvr_input:
+  lounge_select_game_input:
     sequence:
       - service: script.post_to_home_log
         data:
@@ -618,10 +626,43 @@ script:
           entity_id: remote.living_room
         data:
           device: Onkyo AV Receiver
+          command: InputGame
+      - service: script.post_to_home_log
+        data:
+          message: "Changed Onkyo to :tv: Game input."
+    mode: single
+    alias: Lounge Reciever Select Game Input
+    icon: mdi:audio-video
+  lounge_select_vcr_dvr_input:
+    sequence:
+      - service: script.post_to_home_log
+        data:
+          message: "Changing Onkyo to :tv: VCR/DVR input."
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 10
+          milliseconds: 0
+      - service: remote.send_command
+        target:
+          entity_id: remote.living_room
+        data:
+          device: Onkyo AV Receiver
           command: InputVCR/DVR
       - service: script.post_to_home_log
         data:
           message: "Changed Onkyo to :tv: VCR/DVR input."
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 3
+          milliseconds: 0
+      - service: remote.send_command
+        target:
+          entity_id: remote.living_room
+        data:
+          device: Onkyo AV Receiver
+          command: InputVCR/DVR
     mode: single
     alias: Lounge Reciever Select VCR/DVR Input
     description: "Cater for Onkyo / Samsung where the HDMI input select changes 
@@ -667,6 +708,10 @@ sensor:
     type: mean
 template:
   - binary_sensor:
+      - name: Playstation Powered On
+        device_class: "power"
+        icon: "mdi:google-controller{{ '' if states('sensor.playstation_plug_power_meter') | float(0) > 15 else '-off' }}"
+        state: "{{ states('sensor.playstation_plug_power_meter') | float(0) > 15 }}"
       - name: TV Powered On
         device_class: "power"
         icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_power_meter') | float(0) > 25 else '-off' }}"
