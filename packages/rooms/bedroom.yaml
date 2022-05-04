@@ -659,6 +659,29 @@ automation:
                     ":bed: :alarm_clock: Sleep as Android alarm triggered."
         default: []
     mode: single
+  - id: "1633272413519"
+    alias: "^Bedroom: Turn Off Heated Blanket"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: switch.blanket
+        to: "on"
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+          milliseconds: 0
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":bed: :hotsprings: Heated blanket has been on for :hourglass: an hour.
+            Turning heated blanket off."
+      - service: switch.turn_off
+        target:
+          entity_id: switch.blanket
+    mode: single
 input_boolean:
   enable_bed_presence:
     name: Enable Bed Sensor

@@ -339,6 +339,7 @@ automation:
                   transition: 2
         default: []
     mode: single
+  # Door
   - id: "1613684184857"
     alias: "^Bathroom: Door Opened"
     description: ""
@@ -495,6 +496,44 @@ automation:
                 data: {}
                 entity_id: input_boolean.bathroom_light_override
         default: []
+    mode: single
+  - id: "1613695680298"
+    alias: "^Bathroom: Light Override Dim"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_boolean.bathroom_light_override
+        to: "on"
+        from: "off"
+        for: 00:10:00
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: ":bathtub: :bulb: :low_brightness: Dimming bathroom :bulb: lights."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bathroom_dim_lights
+    mode: single
+  - id: "1613695788304"
+    alias: "^Bathroom: Light Override Turn Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_boolean.bathroom_light_override
+        to: "on"
+        for: 00:11:00
+    condition: []
+    action:
+      - service: script.post_to_home_log
+        data:
+          message: "Turning :bathtub: bathroom :bulb: light off."
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bathroom_turn_off_light
+      - service: input_boolean.turn_off
+        data: {}
+        entity_id: input_boolean.bathroom_light_override
     mode: single
   # Blinds
   - id: "1621203193434"

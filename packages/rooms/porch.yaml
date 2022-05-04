@@ -55,6 +55,27 @@ automation:
       - service: counter.reset
         data: {}
         entity_id: counter.front_door
+  - id: "1611931052908"
+    alias: "^Porch: Front Door Open Indicator"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.front_door
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: group.adult_people
+        state: home
+    action:
+      - service: script.post_to_home_log
+        data:
+          message:
+            ":people_holding_hands: Someone is home, notifying front :door: door
+            is open"
+      - service: script.front_door_open_notification
+        data: {}
+    mode: single
   - id: "1615224190495"
     alias: "^Porch: Front Door Closed For More than 20 seconds"
     description: ""

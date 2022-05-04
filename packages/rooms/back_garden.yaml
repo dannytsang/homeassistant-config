@@ -129,6 +129,30 @@ automation:
                 default: []
         default: []
     mode: single
+  - id: "1618158730212"
+    alias: "^Shed: Door Opened"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.shed_door
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                state: "on"
+                entity_id: input_boolean.enable_slack_notifications
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":door: :hut: :camera_with_flash: Shed door opened. Turning conservatory
+                    camera on."
+        default: []
+      - service: script.conservatory_turn_on_camera
+    mode: single
 input_boolean:
   enable_back_garden_motion_trigger:
     name: Enable motion trigger for back garden

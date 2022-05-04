@@ -289,27 +289,6 @@
       data:
         message: Potential leak has stopped
   mode: single
-- id: "1611931052908"
-  alias: "Porch: Front Door Open Indicator"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door
-      from: "off"
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: group.adult_people
-      state: home
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":people_holding_hands: Someone is home, notifying front :door: door
-          is open"
-    - service: script.front_door_open_notification
-      data: {}
-  mode: single
 - id: "1613246359438"
   alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
   description: ""
@@ -371,44 +350,6 @@
     - service: script.post_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the kitchen!"
-  mode: single
-- id: "1613695680298"
-  alias: "Bathroom: Light Override Dim"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: input_boolean.bathroom_light_override
-      to: "on"
-      from: "off"
-      for: 00:10:00
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: ":bathtub: :bulb: :low_brightness: Dimming bathroom :bulb: lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.bathroom_dim_lights
-  mode: single
-- id: "1613695788304"
-  alias: "Bathroom: Light Override Turn Off"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: input_boolean.bathroom_light_override
-      to: "on"
-      for: 00:11:00
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message: "Turning :bathtub: bathroom :bulb: light off."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.bathroom_turn_off_light
-    - service: input_boolean.turn_off
-      data: {}
-      entity_id: input_boolean.bathroom_light_override
   mode: single
 - id: "1614285576722"
   alias: Sleep As Android
@@ -488,30 +429,6 @@
         message: Motion Detected In Lounge
   mode: queued
   max: 10
-- id: "1618158730212"
-  alias: "Shed: Door Opened"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.shed_door
-      from: "off"
-      to: "on"
-  condition: []
-  action:
-    - choose:
-        - conditions:
-            - condition: state
-              state: "on"
-              entity_id: input_boolean.enable_slack_notifications
-          sequence:
-            - service: script.post_to_home_log
-              data:
-                message:
-                  ":door: :hut: :camera_with_flash: Shed door opened. Turning conservatory
-                  camera on."
-      default: []
-    - service: script.conservatory_turn_on_camera
-  mode: single
 - id: "1618158998129"
   alias: "Shed: Motion Detected When Door Is Closed"
   description: ""
@@ -950,29 +867,6 @@
                   ":boy: :girl: Children have come :house_with_garden: home. Home
                   mode is currently in :busts_in_silhouette: guest."
       default: []
-  mode: single
-- id: "1633272413519"
-  alias: "Bedroom: Turn Off Heated Blanket"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: switch.blanket
-      to: "on"
-      for:
-        hours: 1
-        minutes: 0
-        seconds: 0
-        milliseconds: 0
-  condition: []
-  action:
-    - service: script.post_to_home_log
-      data:
-        message:
-          ":bed: :hotsprings: Heated blanket has been on for :hourglass: an hour.
-          Turning heated blanket off."
-    - service: switch.turn_off
-      target:
-        entity_id: switch.blanket
   mode: single
 - id: "1634576629865"
   alias: "NFC Tag: Scanned Locked By User"
