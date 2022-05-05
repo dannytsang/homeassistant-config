@@ -162,7 +162,7 @@ class XRegistry(XRegistryBase):
 
     def local_update(self, msg: dict):
         did: str = msg["deviceid"]
-        device: dict = self.devices.get(did)
+        device: XDevice = self.devices.get(did)
         params: dict = msg.get("params")
         if not device:
             if not params:
@@ -198,6 +198,7 @@ class XRegistry(XRegistryBase):
         if device.get("host") != msg.get("host"):
             # params for custom sensor
             device["host"] = params["host"] = msg["host"]
+            device["localtype"] = msg["localtype"]
 
         self.dispatcher_send(did, params)
 
@@ -220,7 +221,7 @@ class XRegistry(XRegistryBase):
             ts = time.time()
 
             for device in devices:
-                if not device["online"] or device.get("pow_ts", 0) > ts:
+                if not device.get("online") or device.get("pow_ts", 0) > ts:
                     continue
 
                 dt, params = POW_UI_ACTIVE[device["extra"]["uiid"]]
