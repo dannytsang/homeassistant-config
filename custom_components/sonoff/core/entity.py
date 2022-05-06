@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 
 ENTITY_CATEGORIES = {
     "battery": EntityCategory.DIAGNOSTIC,
+    "battery_voltage": EntityCategory.DIAGNOSTIC,
     "led": EntityCategory.CONFIG,
     "rssi": EntityCategory.DIAGNOSTIC,
 }
@@ -105,3 +106,6 @@ class XEntity(Entity):
 
         if change and self.hass:
             self._async_write_ha_state()
+
+    async def async_update(self):
+        await self.ewelink.send(self.device)
