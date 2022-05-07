@@ -14,24 +14,22 @@ automation:
       - service: script.post_to_home_log
         data:
           message: Checking Magic Mirror.
-      - choose:
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: media_player.stairs_chromecast
-                    state: playing
-                  - condition: state
-                    entity_id: media_player.stairs_chromecast
-                    attribute: app_name
-                    state: Home Assistant Lovelace
-            sequence:
-              - service: script.post_to_home_log
-                data:
-                  message: Casting Home Assistant to Magic Mirror.
-              - service: cast.show_lovelace_view
-                data:
-                  entity_id: media_player.stairs_chromecast
-                  dashboard_path: lovelace-magicmirror
-                  view_path: home
-        default: []
+      - if:
+          - not:
+              - condition: state
+                entity_id: media_player.stairs_chromecast
+                state: playing
+              - condition: state
+                entity_id: media_player.stairs_chromecast
+                attribute: app_name
+                state: Home Assistant Lovelace
+        then:
+          - service: script.post_to_home_log
+            data:
+              message: Casting Home Assistant to Magic Mirror.
+          - service: cast.show_lovelace_view
+            data:
+              entity_id: media_player.stairs_chromecast
+              dashboard_path: lovelace-magicmirror
+              view_path: home
     mode: single

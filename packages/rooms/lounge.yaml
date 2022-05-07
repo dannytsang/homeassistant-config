@@ -316,23 +316,21 @@ automation:
           message:
             Server fan has been running for more than 1 hour. Consider turning
             Fan off.
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
-                state: "on"
-            sequence:
-              - service: notify.mobile_app_dannys_phone
-                data:
-                  message: Turn off server fan?
-                  data:
-                    actions:
-                      - title: "Yes"
-                        action: server_fan_off
-                      - title: "No"
-                        action: ignore
-                  title: Server fan on for over 1 hour
-        default: []
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_mobile_direct_notifications
+            state: "on"
+        then:
+          - service: notify.mobile_app_dannys_phone
+            data:
+              message: Turn off server fan?
+              data:
+                actions:
+                  - title: "Yes"
+                    action: server_fan_off
+                  - title: "No"
+                    action: ignore
+              title: Server fan on for over 1 hour
     mode: single
   # Camera
   - id: "1630015457540"

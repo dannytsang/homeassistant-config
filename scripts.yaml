@@ -319,19 +319,17 @@ other_bedroom_door_opening_warning:
                   ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
                   warning."
       default: []
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: media_player.bedroom_chromecast
-              state: playing
-          sequence:
-            - service: media_player.media_play_pause
-              target:
-                entity_id: media_player.bedroom_chromecast
-            - service: script.post_to_home_log
-              data:
-                message: ":tv: Bedroom Chromecast was on, pausing TV."
-      default: []
+    - if:
+        - condition: state
+          entity_id: media_player.bedroom_chromecast
+          state: playing
+      then:
+        - service: media_player.media_play_pause
+          target:
+            entity_id: media_player.bedroom_chromecast
+        - service: script.post_to_home_log
+          data:
+            message: ":tv: Bedroom Chromecast was on, pausing TV."
   mode: single
 office_pc_turned_off_notification:
   alias: Office PC Turned Off Notification

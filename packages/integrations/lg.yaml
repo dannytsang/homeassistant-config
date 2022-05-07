@@ -11,17 +11,16 @@ automation:
         to: "on"
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
-            sequence:
-              - service: script.post_to_home_log
-                data:
-                  message:
-                    ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
-                    'source') }}."
-        default:
+      - if:
+          - condition: template
+            value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
+        then:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
+                'source') }}."
+        else:
           - service: script.post_to_home_log
             data:
               message: ":tv: Office TV turned on."
@@ -51,17 +50,16 @@ automation:
         attribute: source
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
-            sequence:
-              - service: script.post_to_home_log
-                data:
-                  message:
-                    ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
-                    'source') }}."
-        default:
+      - if:
+          - condition: template
+            value_template: "{{ state_attr('media_player.office_tv', 'source') != none }}"
+        then:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":tv: Office TV turned on and playing {{ state_attr('media_player.office_tv',
+                'source') }}."
+        else:
           - service: script.post_to_home_log
             data:
               message: ":tv: Office TV media changed."

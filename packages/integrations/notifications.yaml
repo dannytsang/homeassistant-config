@@ -94,19 +94,17 @@ script:
                 data:
                   message: "{{ message }}"
         default: []
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_slack_direct_messages
-                state: "on"
-            sequence:
-              - data:
-                  message: "@terina @danny {{ message }}"
-                  target: "#general"
-                  data:
-                    blocks: []
-                service: notify.slack_notify
-        default: []
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_slack_direct_messages
+            state: "on"
+        then:
+          - data:
+              message: "@terina @danny {{ message }}"
+              target: "#general"
+              data:
+                blocks: []
+            service: notify.slack_notify
   post_to_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:slack

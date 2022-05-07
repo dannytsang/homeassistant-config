@@ -195,23 +195,22 @@ script:
           minutes: 0
           seconds: 10
           milliseconds: 0
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_conservatory
-                above: "0"
-            sequence:
-              - service: shell_command.copy_conservatory_deepstack_files
-              - service: script.post_to_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
-              - service: script.post_to_home_log
-                data:
-                  message: >-
-                    The following detected in the conservatory:{% for object in state_attr('image_processing.deepstack_object_conservatory','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
+      - if:
+          - condition: numeric_state
+            entity_id: image_processing.deepstack_object_conservatory
+            above: "0"
+        then:
+          - service: shell_command.copy_conservatory_deepstack_files
+          - service: script.post_to_home_log_with_local_attachments
+            data:
+              title: "{{ title }}"
+              message: "{{ message }}"
+              filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
+          - service: script.post_to_home_log
+            data:
+              message: >-
+                The following detected in the conservatory:{% for object in state_attr('image_processing.deepstack_object_conservatory','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        else:
           - service: script.post_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in conservatory."
@@ -234,24 +233,23 @@ script:
           minutes: 0
           seconds: 10
           milliseconds: 0
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_driveway
-                above: "0"
-            sequence:
-              - service: shell_command.copy_driveway_deepstack_files
-              - service: script.post_to_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: >-
-                    "{{states('input_text.latest_deepstack_driveway_file_path')}}"
-              - service: script.post_to_home_log
-                data:
-                  message: >-
-                    The following detected in the driveway:{% for object in state_attr('image_processing.deepstack_object_driveway','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
+      - if:
+          - condition: numeric_state
+            entity_id: image_processing.deepstack_object_driveway
+            above: "0"
+        then:
+          - service: shell_command.copy_driveway_deepstack_files
+          - service: script.post_to_home_log_with_local_attachments
+            data:
+              title: "{{ title }}"
+              message: "{{ message }}"
+              filePath: >-
+                "{{states('input_text.latest_deepstack_driveway_file_path')}}"
+          - service: script.post_to_home_log
+            data:
+              message: >-
+                The following detected in the driveway:{% for object in state_attr('image_processing.deepstack_object_driveway','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        else:
           - service: script.post_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in the driveway."
@@ -295,23 +293,22 @@ script:
           filePath:
             camera/front_door/front_door_{{ now().year }}_{{ now().month }}_{{
             now().day }}_{{ now().hour }}_{{ now().minute }}.jpg
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_front_door
-                above: "0"
-            sequence:
-              - service: shell_command.copy_front_door_deepstack_files
-              - service: script.post_to_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: "{{ states('input_text.latest_deepstack_frontdoor_file_path') }}"
-              - service: script.post_to_home_log
-                data:
-                  message: >-
-                    The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
+      - if:
+          - condition: numeric_state
+            entity_id: image_processing.deepstack_object_front_door
+            above: "0"
+        then:
+          - service: shell_command.copy_front_door_deepstack_files
+          - service: script.post_to_home_log_with_local_attachments
+            data:
+              title: "{{ title }}"
+              message: "{{ message }}"
+              filePath: "{{ states('input_text.latest_deepstack_frontdoor_file_path') }}"
+          - service: script.post_to_home_log
+            data:
+              message: >-
+                The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        else:
           - service: script.post_to_home_log
             data:
               message: ":white_check_mark: Nothing detected at the front door."
