@@ -20,6 +20,7 @@ from .const import (
 )
 from .exceptions import (
     BadCredentialsException,
+    BadGatewayException,
     GatewayTimeoutException,
     NotAuthenticatedException,
     PynestException,
@@ -174,7 +175,14 @@ class NestClient:
                 + nest_auth.jwt,
             },
         ) as response:
-            nest_response = await response.json()
+            try:
+                nest_response = await response.json()
+            except ContentTypeError:
+                nest_response = await response.text()
+
+                raise PynestException(
+                    f"{response.status} error while authenticating - {nest_response}. Please create an issue on GitHub."
+                )
 
             # Change variable names since Python cannot handle vars that start with a number
             if nest_response.get("2fa_state"):
@@ -243,6 +251,9 @@ class NestClient:
 
             if response.status == 504:
                 raise GatewayTimeoutException(await response.text())
+
+            if response.status == 502:
+                raise BadGatewayException(await response.text())
 
             try:
                 result = await response.json()

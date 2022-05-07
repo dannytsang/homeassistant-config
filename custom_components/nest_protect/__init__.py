@@ -17,7 +17,7 @@ from .pynest.client import NestClient
 from .pynest.const import NEST_ENVIRONMENTS
 from .pynest.exceptions import (
     BadCredentialsException,
-    GatewayTimeoutException,
+    NestServiceException,
     NotAuthenticatedException,
     PynestException,
 )
@@ -167,6 +167,13 @@ async def _async_subscribe_for_data(hass: HomeAssistant, entry: ConfigEntry, dat
                 for area in bucket_value["wheres"]:
                     entry_data.areas[area["where_id"]] = area["name"]
 
+            # Temperature Sensors
+            if key.startswith("kryptonite."):
+                kryptonite = Bucket(**bucket)
+                entry_data.devices[key] = kryptonite
+
+                async_dispatcher_send(hass, key, kryptonite)
+
         # Update buckets with new data, to only receive new updates
         buckets = {d["object_key"]: d for d in result["objects"]}
         objects = [
@@ -195,8 +202,8 @@ async def _async_subscribe_for_data(hass: HomeAssistant, entry: ConfigEntry, dat
         await entry_data.client.authenticate(entry_data.client.auth.access_token)
         _register_subscribe_task(hass, entry, data)
 
-    except GatewayTimeoutException:
-        LOGGER.debug("Subscriber: gateway time-out. Pausing for 2 minutes.")
+    except NestServiceException:
+        LOGGER.debug("Subscriber: Nest Service error. Updates paused for 2 minutes.")
 
         await asyncio.sleep(60 * 2)
         _register_subscribe_task(hass, entry, data)
