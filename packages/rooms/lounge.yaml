@@ -19,45 +19,41 @@ automation:
         entity_id: binary_sensor.lounge_motion_3
         to: "on"
     condition:
-      - condition: and
-        conditions:
-          - condition: state
-            entity_id: input_boolean.enable_lounge_motion_trigger
-            state: "on"
-          - condition: or
-            conditions:
-              - below: "30"
-                condition: numeric_state
-                entity_id: sensor.lounge_motion_2_light_level
-              - below: "25"
-                condition: numeric_state
-                entity_id: sensor.lounge_motion_3_light_level
-          - condition: or
-            conditions:
-              - condition: numeric_state
-                entity_id: light.lounge_left_lamp
-                attribute: brightness
-                below: "190"
-              - condition: numeric_state
-                entity_id: light.lounge_right_lamp
-                attribute: brightness
-                below: "190"
-              - condition: template
-                value_template:
-                  "{{ state_attr('light.lounge_left_lamp', 'brightness')
-                  == none }}"
-              - condition: template
-                value_template:
-                  "{{ state_attr('light.lounge_right_lamp', 'brightness')
-                  == none }}"
+      - and:
+        - condition: state
+          entity_id: input_boolean.enable_lounge_motion_trigger
+          state: "on"
+        - or:
+          - below: "30"
+            condition: numeric_state
+            entity_id: sensor.lounge_motion_2_light_level
+          - below: "25"
+            condition: numeric_state
+            entity_id: sensor.lounge_motion_3_light_level
+        - or:
+          - condition: numeric_state
+            entity_id: light.lounge_left_lamp
+            attribute: brightness
+            below: "190"
+          - condition: numeric_state
+            entity_id: light.lounge_right_lamp
+            attribute: brightness
+            below: "190"
+          - condition: template
+            value_template:
+              "{{ state_attr('light.lounge_left_lamp', 'brightness')
+              == none }}"
+          - condition: template
+            value_template:
+              "{{ state_attr('light.lounge_right_lamp', 'brightness')
+              == none }}"
     action:
       - choose:
           - conditions:
               - condition: state
                 entity_id: device_tracker.lap_ctc0501
                 state: home
-              - condition: or
-                conditions:
+              - or:
                   - below: "81"
                     condition: numeric_state
                     entity_id: sensor.lounge_motion_2_light_level
@@ -76,8 +72,7 @@ automation:
                 target:
                   entity_id: scene.lounge_lights
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - below: "25"
                     condition: numeric_state
                     entity_id: sensor.lounge_motion_2_light_level
@@ -572,10 +567,8 @@ script:
     sequence:
       - choose:
         - conditions:
-            - condition: or
-              conditions:
-                - condition: not
-                  conditions:
+            - or:
+                - not:
                     - condition: state
                       entity_id: alarm_control_panel.house_alarm
                       state: disarmed

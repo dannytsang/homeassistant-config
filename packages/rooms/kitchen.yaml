@@ -67,12 +67,11 @@ automation:
                 data:
                   transition: 2
           - conditions:
-              - condition: and
-                conditions:
-                  - condition: sun
-                    after: sunset
-                  - condition: time
-                    before: "23:30:00"
+              - and:
+                - condition: sun
+                  after: sunset
+                - condition: time
+                  before: "23:30:00"
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -118,14 +117,13 @@ automation:
                 data:
                   transition: 2
           - conditions:
-              - condition: and
-                conditions:
-                  - condition: sun
-                    after: sunset
-                  - condition: time
-                    before: "23:59:59"
-                  - condition: trigger
-                    id: first_no_motion
+              - and:
+                - condition: sun
+                  after: sunset
+                - condition: time
+                  before: "23:59:59"
+                - condition: trigger
+                  id: first_no_motion
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -136,14 +134,13 @@ automation:
                 target:
                   entity_id: scene.kitchen_main_lights_dim
           - conditions:
-              - condition: and
-                conditions:
-                  - condition: sun
-                    after: sunset
-                  - condition: time
-                    before: "23:59:59"
-                  - condition: trigger
-                    id: second_no_motion
+              - and:
+                - condition: sun
+                  after: sunset
+                - condition: time
+                  before: "23:59:59"
+                - condition: trigger
+                  id: second_no_motion
             sequence:
               - service: script.post_to_home_log
                 data:
@@ -226,13 +223,11 @@ automation:
       - platform: time
         at: 06:45:00
     condition:
-      - condition: and
-        conditions:
-          - condition: not
-            conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: Guest
+      - and:
+          - not:
+            - condition: state
+              entity_id: input_select.home_mode
+              state: Guest
           - condition: state
             entity_id: group.adult_people
             state: home
@@ -258,8 +253,7 @@ automation:
         entity_id: binary_sensor.kitchen_light_trigger
         to: "on"
     condition:
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.kitchen_left
             state: "off"
@@ -272,8 +266,7 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: numeric_state
                     entity_id: sensor.kitchen_motion_light_level
                     below: "25"
@@ -304,8 +297,7 @@ automation:
         entity_id: binary_sensor.kitchen_light_trigger
         to: "on"
     condition:
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.kitchen_left_2
             state: "off"
@@ -318,8 +310,7 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: numeric_state
                     entity_id: sensor.kitchen_motion_light_level
                     below: "25"
@@ -347,8 +338,7 @@ automation:
         entity_id: binary_sensor.kitchen_area_motion
         to: "on"
     condition:
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.kitchen_cabinet_light
             state: "on"
@@ -361,8 +351,7 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: numeric_state
                     entity_id: light.kitchen_cabinet_light
                     attribute: brightness
@@ -394,8 +383,7 @@ automation:
         entity_id: binary_sensor.kitchen_area_motion
         to: "on"
     condition:
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.kitchen_cabinet_light
             state: "off"

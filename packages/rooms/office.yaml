@@ -14,8 +14,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.office_light_2
             state: "on"
@@ -25,18 +24,15 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: and
-                conditions:
-                  - condition: or
-                    conditions:
+              - and:
+                  - or:
                       - condition: numeric_state
                         entity_id: sensor.office_motion_light_level
                         below: "105"
                       - condition: numeric_state
                         entity_id: sensor.office_motion_2_light_level
                         below: "110"
-                  - condition: or
-                    conditions:
+                  - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
                         attribute: brightness
@@ -58,16 +54,14 @@ automation:
                     states('sensor.office_motion_2_light_level') }} lux < 105 & 110
                     lux). Turning office up lights.
           - conditions:
-              - condition: and
-                conditions:
+              - and:
                   - condition: numeric_state
                     entity_id: sensor.office_motion_light_level
                     above: "105"
                   - condition: numeric_state
                     entity_id: sensor.office_motion_2_light_level
                     above: "110"
-                  - condition: or
-                    conditions:
+                  - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
                         attribute: brightness
@@ -103,8 +97,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
-      - condition: or
-        conditions:
+      - or:
           - condition: state
             entity_id: light.office_light_2
             state: "off"
@@ -114,10 +107,8 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: and
-                conditions:
-                  - condition: or
-                    conditions:
+              - and:
+                  - or:
                       - condition: numeric_state
                         entity_id: sensor.office_motion_light_level
                         below: "105"
@@ -136,16 +127,14 @@ automation:
                     states('sensor.office_motion_2_light_level') }} lux < 105 & 110
                     lux). Turning office lights on.
           - conditions:
-              - condition: and
-                conditions:
+              - and:
                   - condition: numeric_state
                     entity_id: sensor.office_motion_light_level
                     above: "105"
                   - condition: numeric_state
                     entity_id: sensor.office_motion_2_light_level
                     above: "110"
-                  - condition: or
-                    conditions:
+                  - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
                         attribute: brightness
@@ -202,8 +191,7 @@ automation:
         platform: state
         to: "off"
     condition:
-      - condition: and
-        conditions:
+      - and:
           - condition: state
             entity_id: group.jd_computer
             state: not_home
@@ -375,8 +363,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_curtain_automations
         state: "on"
-      - condition: or
-        conditions:
+      - or:
           - condition: sun
             after: sunset
             after_offset: -01:00:00
@@ -432,8 +419,7 @@ automation:
         for: "00:10:00"
         id: pc
     condition:
-      - condition: not
-        conditions:
+      - not:
           - condition: state
             entity_id: device_tracker.udmpro
             state: unavailable
@@ -517,8 +503,7 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: state
                     entity_id: binary_sensor.office_window_right
                     state: "on"
@@ -532,8 +517,7 @@ automation:
                     ":warning: :window: Office window is still open so not closing
                     curtains. before closing curtains. :warning:"
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: state
                     entity_id: sensor.season
                     state: spring
@@ -548,8 +532,7 @@ automation:
                   message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
               - service: script.office_close_curtains
           - conditions:
-              - condition: or
-                conditions:
+              - or:
                   - condition: state
                     entity_id: sensor.season
                     state: autumn
@@ -1104,8 +1087,7 @@ script:
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive
     sequence:
-      - condition: and
-        conditions:
+      - and:
           - condition: state
             entity_id: switch.external_hdd
             state: "on"
@@ -1122,8 +1104,7 @@ script:
   office_turn_on_external_hard_drive:
     alias: Office Turn On External Hard Drive
     sequence:
-      - condition: and
-        conditions:
+      - and:
           - condition: state
             entity_id: switch.external_hdd
             state: "off"
