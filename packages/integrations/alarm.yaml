@@ -9,16 +9,17 @@ automation:
         to: disarmed
     condition: []
     action:
-      - service: script.post_to_home_log
-        data:
-          message: ":no_bell: Alarmed disarmed."
-      - service: script.post_to_home_log
-        data:
-          message: ":camera: Turning off indoor cameras."
-      - service: script.conservatory_turn_off_camera
-      - service: script.lounge_turn_off_camera
-      - service: script.upstairs_turn_off_camera
-      - service: script.set_central_heating_to_home_mode
+      - parallel:
+          - service: script.post_to_home_log
+            data:
+              message: ":no_bell: Alarmed disarmed."
+          - service: script.post_to_home_log
+            data:
+              message: ":camera: Turning off indoor cameras."
+          - service: script.conservatory_turn_off_camera
+          - service: script.lounge_turn_off_camera
+          - service: script.upstairs_turn_off_camera
+          - service: script.set_central_heating_to_home_mode
     mode: single
   - id: "1587680439011"
     alias: "^Alarm: Arm Overnight Home Mode"
@@ -39,12 +40,13 @@ automation:
         state: "off"
     action:
       - service: script.set_alarm_to_home_mode
-      - service: script.post_to_home_log
-        data:
-          message: "Turning on downstairs :camera_with_flash: cameras."
-      - service: script.conservatory_turn_on_camera
-      - service: script.lounge_turn_on_camera
-      - service: script.front_garden_turn_on_camera
+      - parallel:
+          - service: script.post_to_home_log
+            data:
+              message: "Turning on downstairs :camera_with_flash: cameras."
+          - service: script.conservatory_turn_on_camera
+          - service: script.lounge_turn_on_camera
+          - service: script.front_garden_turn_on_camera
     mode: single
   - id: "1630366065607"
     alias: "^Alarm: Armed"
@@ -55,15 +57,16 @@ automation:
         to: armed_away
     condition: []
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":bell: :camera_with_flash: Alarmed set to away mode (all sensors on).
-            Turning on all cameras."
-      - service: script.conservatory_turn_on_camera
-      - service: script.lounge_turn_on_camera
-      - service: script.upstairs_turn_on_camera
-      - service: script.front_garden_turn_on_camera
+      - parallel:
+          - service: script.post_to_home_log
+            data:
+              message:
+                ":bell: :camera_with_flash: Alarmed set to away mode (all sensors on).
+                Turning on all cameras."
+          - service: script.conservatory_turn_on_camera
+          - service: script.lounge_turn_on_camera
+          - service: script.upstairs_turn_on_camera
+          - service: script.front_garden_turn_on_camera
     mode: single
   - id: "1614197981954"
     alias: "^Alarm: Disconnected"
@@ -95,14 +98,14 @@ script:
   set_alarm_to_away_mode:
     alias: Set Alarm To Away
     sequence:
-      - choose:
-          - conditions:
-              - condition: not
-                conditions:
+      - parallel:
+          - if:
+              - alias: "Alarm is not already in away mode."
+                not:
                   - condition: state
                     entity_id: alarm_control_panel.house_alarm
                     state: armed_away
-            sequence:
+            then:
               - service: script.post_to_home_log
                 data:
                   message: "Turning :bell: alarm on in away mode."
@@ -110,20 +113,19 @@ script:
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
-        default: []
     mode: single
     icon: mdi:alarm-light
   set_alarm_to_disarmed_mode:
     alias: Set Alarm To Disarmed
     sequence:
-      - choose:
-          - conditions:
-              - condition: not
-                conditions:
+      - parallel:
+          - if:
+              - alias: "Alarm is not turned off already."
+                not:
                   - condition: state
                     entity_id: alarm_control_panel.house_alarm
                     state: disarmed
-            sequence:
+            then:
               - service: script.post_to_home_log
                 data:
                   message: "Turning :no_bell: alarm off."
@@ -131,20 +133,19 @@ script:
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
-        default: []
     mode: single
     icon: mdi:alarm-light-off
   set_alarm_to_home_mode:
     alias: Set Alarm To Home
     sequence:
-      - choose:
-          - conditions:
-              - condition: not
-                conditions:
+      - parallel:
+          - if:
+              - alias: "Alarm is not already in away mode."
+                not:
                   - condition: state
                     entity_id: alarm_control_panel.house_alarm
                     state: armed_home
-            sequence:
+            then:
               - service: script.post_to_home_log
                 data:
                   message: "Changing :bell: alarm to home mode(door sensors only)."
@@ -152,6 +153,5 @@ script:
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
-        default: []
     mode: single
     icon: mdi:alarm-light
