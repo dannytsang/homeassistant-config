@@ -12,11 +12,6 @@
     - type: load_5m
     - type: load_15m
 
-- platform: steam_online
-  api_key: !secret steam_key
-  accounts:
-    - !secret steam_account
-
 # Date and Time
 - platform: time_date
   display_options:
@@ -41,3 +36,19 @@
   json_attributes_topic: "double-take/matches/terina-driveway"
   value_template: "{{ value_json.camera }}"
   availability_topic: "double-take/available"
+# Fridge
+- platform: history_stats
+  name: Fridge Opened Today
+  entity_id: binary_sensor.fridge_door
+  state: "on"
+  type: time
+  start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+  end: "{{ now() }}"
+- platform: history_stats
+  name: Fridge Opened Yesterday
+  entity_id: binary_sensor.fridge_door
+  state: "on"
+  type: time
+  end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+  duration:
+    hours: 24
