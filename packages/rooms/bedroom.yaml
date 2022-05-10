@@ -278,9 +278,10 @@ automation:
         entity_id: input_boolean.enable_bedroom_motion_trigger
         to: "on"
     condition:
+      - condition: time
+        after: "06:30:00"
       - condition: sun
         before: sunset
-        after: sunrise
       - or:
           - condition: template
             value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
@@ -313,8 +314,11 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - condition: sun
-        after: sunset
+      - or: 
+        - condition: sun
+          after: sunset
+        - condition: time
+          before: "06:30:00"
       - condition: state
         entity_id: input_boolean.enable_bedroom_motion_trigger
         state: "on"
@@ -336,7 +340,7 @@ automation:
         data:
           message:
             ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
-            before sunset. Turning lights on low brightness."
+            after sunset. Turning lights on low brightness."
       - service: scene.turn_on
         target:
           entity_id: scene.bedroom_dim_light
@@ -358,6 +362,9 @@ automation:
           - condition: state
             entity_id: light.under_bed_light_right
             state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        state: "on"
     action:
       - service: script.post_to_home_log
         data:
