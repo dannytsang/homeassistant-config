@@ -439,13 +439,11 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":paw_prints: :hut: Motion detected in the shed and the door is
-          shut."
+        message: ":paw_prints: :hut: Motion detected in the shed and the door is shut."
     - service: script.post_to_direct_notification
       data:
         title: Motion detected in shed and door is closed
-        message: ":paw_prints: :hut: Motion detected in the shed and the door is
-          shut."
+        message: ":paw_prints: :hut: Motion detected in the shed and the door is shut."
   mode: single
 - id: "1619254173098"
   alias: "Leo's Room: Window Closed At Night"
@@ -1189,4 +1187,35 @@
             message:
               ":date: {{ trigger.calendar_event.friendly_name }}- {{ trigger.calendar_event.message
               }}"
+  mode: single
+- id: "1652029607668"
+  alias: "Kitchen: Temperature Reaches target"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.meater_probe_target
+      above: sensor.meater_probe_internal
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          '":cook: :thermometer: The {{states(''sensor.meater_probe_cooking'')}}
+          has reached temperature."'
+  mode: single
+- id: "1652029734731"
+  alias: "Kitchen: Cooking Has Started"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.meater_probe_cook_state
+      to: started cookiing
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message:
+          ":cook: The {{states('sensor.meater_probe_cooking')}} has started
+          cooking."
   mode: single
