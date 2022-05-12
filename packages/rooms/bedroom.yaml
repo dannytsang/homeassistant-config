@@ -267,7 +267,7 @@ automation:
     max: 10
   # Motion triggers
   - id: "1621713217274"
-    alias: "^Bedroom: Motion Detected (Day)"
+    alias: "^Bedroom: Motion Detected"
     description: ""
     trigger:
       - platform: state
@@ -278,72 +278,68 @@ automation:
         entity_id: input_boolean.enable_bedroom_motion_trigger
         to: "on"
     condition:
-      - condition: time
-        after: "06:30:00"
-      - condition: sun
-        before: sunset
       - or:
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
-          - condition: numeric_state
-            entity_id: light.under_bed_light_left
-            below: "100"
-            attribute: brightness
-          - condition: numeric_state
-            entity_id: light.under_bed_light_right
-            below: "100"
-            attribute: brightness
+        - condition: template
+          value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
+        - condition: template
+          value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
+        - condition: numeric_state
+          entity_id: light.under_bed_light_left
+          below: "100"
+          attribute: brightness
+        - condition: numeric_state
+          entity_id: light.under_bed_light_right
+          below: "100"
+          attribute: brightness
     action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
-            before sunset. Turning lights on full brightness."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_turn_on_light
-    mode: single
-  - id: "1621713735692"
-    alias: "^Bedroom: Motion Detected (Night)"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.bedroom_area_motion
-        from: "off"
-        to: "on"
-    condition:
-      - or: 
-        - condition: sun
-          after: sunset
-        - condition: time
-          before: "06:30:00"
-      - condition: state
-        entity_id: input_boolean.enable_bedroom_motion_trigger
-        state: "on"
-      - or:
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
-          - condition: numeric_state
-            entity_id: light.under_bed_light_left
-            below: "9"
-            attribute: brightness
-          - condition: numeric_state
-            entity_id: light.under_bed_light_right
-            below: "9"
-            attribute: brightness
-    action:
-      - service: script.post_to_home_log
-        data:
-          message:
-            ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
-            after sunset. Turning lights on low brightness."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_dim_light
+      - choose:
+          - conditions:
+            - condition: numeric_state
+              entity_id: cover.bedroom_blind
+              attribute: current_position
+              below: "31"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bed: :paw_prints: :window: :low_brightness: Motioned detected in the bedroom
+                    and the blinds are down. Turning lights on low brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bedroom_dim_light
+          - conditions:
+              - condition: time
+                after: "06:30:00"
+              - condition: sun
+                before: sunset
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
+                    before sunset. Turning lights on full brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bedroom_turn_on_light
+          - conditions:
+            - or: 
+              - condition: sun
+                after: sunset
+              - condition: time
+                before: "06:30:00"
+            - condition: state
+              entity_id: input_boolean.enable_bedroom_motion_trigger
+              state: "on"
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message:
+                    ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
+                    after sunset. Turning lights on low brightness."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bedroom_dim_light
+        default: []
     mode: single
   - id: "1621713867762"
     alias: "^Bedroom: No Motion"
