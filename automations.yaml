@@ -550,9 +550,14 @@
   description: ""
   trigger:
     - platform: state
-      entity_id: binary_sensor.ashlees_window
+      entity_id:
+        - binary_sensor.ashlees_window
       from: "on"
       to: "off"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
   condition:
     - condition: state
       entity_id: cover.ashlees_blinds
@@ -571,6 +576,7 @@
     - service: cover.close_cover
       target:
         entity_id: cover.ashlees_blinds
+      data: {}
   mode: single
 - id: "1622973276606"
   alias: "Office: Arm Office Door"
@@ -1218,4 +1224,29 @@
         message:
           ":cook: The {{states('sensor.meater_probe_cooking')}} has started
           cooking."
+  mode: single
+- id: "1652535595571"
+  alias: "Ashlee's Bedroom: Door Knock And Light Is On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.ashlees_door_acceleration
+    - platform: state
+      entity_id:
+        - binary_sensor.ashlees_door
+      from: "on"
+      to: "off"
+  condition:
+    - condition: state
+      entity_id: switch.ashlees_main_light_switch
+      state: "on"
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":door: Door knock detected and light is on. Turning light off."
+    - service: switch.turn_off
+      data: {}
+      target:
+        entity_id: switch.ashlees_main_light_switch
   mode: single
