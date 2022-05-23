@@ -27,6 +27,9 @@ automation:
     trigger:
       - at: 00:00:00
         platform: time
+        id: midnight
+      - at: 01:00:00
+        platform: time
       - at: 02:00:00
         platform: time
       - at: 05:00:00
@@ -39,14 +42,98 @@ automation:
         entity_id: group.alarmed_doors_and_windows
         state: "off"
     action:
-      - service: script.set_alarm_to_home_mode
-      - parallel:
-          - service: script.post_to_home_log
-            data:
-              message: "Turning on downstairs :camera_with_flash: cameras."
-          - service: script.conservatory_turn_on_camera
-          - service: script.lounge_turn_on_camera
-          - service: script.front_garden_turn_on_camera
+      - choose:
+          - conditions:
+            - not:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            - condition: state
+              entity_id: person.terina
+              state: home
+            - condition: trigger
+              id: midnight
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":running: :house_with_garden: Danny is not home. 
+                  :no_bell: Alarm not turned on and a check will be performed later."
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - not:
+              - condition: state
+                entity_id: person.terina
+                state: home
+            - condition: trigger
+              id: midnight
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":house_with_garden: :woman_dancing: Terina is not 
+                  home. :no_bell: Alarm not turned on and a check will be performed later."
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - condition: state
+              entity_id: person.terina
+              state: home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: "Everyone is home."
+              - service: script.set_alarm_to_home_mode
+              - parallel:
+                  - service: script.post_to_home_log
+                    data:
+                      message: "Turning on downstairs :camera_with_flash: cameras."
+                  - service: script.conservatory_turn_on_camera
+                  - service: script.lounge_turn_on_camera
+                  - service: script.front_garden_turn_on_camera
+          - conditions:
+            - not:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            - condition: state
+              entity_id: person.terina
+              state: home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":running: :house_with_garden: Danny is not home."
+              - service: script.set_alarm_to_home_mode
+              - parallel:
+                  - service: script.post_to_home_log
+                    data:
+                      message: "Turning on downstairs :camera_with_flash: cameras."
+                  - service: script.conservatory_turn_on_camera
+                  - service: script.lounge_turn_on_camera
+                  - service: script.front_garden_turn_on_camera
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - not:
+              - condition: state
+                entity_id: person.terina
+                state: home
+            sequence:
+              - service: script.post_to_home_log
+                data:
+                  message: ":house_with_garden: :woman_dancing: Terina is not 
+                  home."
+              - service: script.set_alarm_to_home_mode
+              - parallel:
+                  - service: script.post_to_home_log
+                    data:
+                      message: "Turning on downstairs :camera_with_flash: cameras."
+                  - service: script.conservatory_turn_on_camera
+                  - service: script.lounge_turn_on_camera
+                  - service: script.front_garden_turn_on_camera
+        default: []
     mode: single
   - id: "1630366065607"
     alias: "^Alarm: Armed"
