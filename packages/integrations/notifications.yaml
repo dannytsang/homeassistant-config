@@ -39,13 +39,33 @@ input_boolean:
   enable_slack_direct_messages:
     name: Enable Slack Direct Messages
     icon: mdi:slack
+input_select:
+  danny_direct_notification_preference:
+    name: Danny's Direct Notification Preference
+    options:
+      - Slack
+      - Mobile
+      - Telegram
+    icon: mdi:cellphone-information
+  terina_direct_notification_preference:
+    name: Danny's Direct Notification Preference
+    options:
+      - Slack
+      - Mobile
+      - Telegram
+    icon: mdi:cellphone-information
 
 notify:
   - name: slack_notify
     platform: slack
     api_key: !secret slack
     default_channel: "#home_log"
+  - platform: telegram
+    name: telegram_all
+    chat_id: !secret telegram_danny_chat_id
+
 script:
+  # Encapsulated scripts
   post_to_home_log:
     alias: Post To Home Log
     icon: mdi:slack
@@ -81,30 +101,14 @@ script:
         description: Message to post
         required: true
     sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
-                state: "on"
-            sequence:
-              - service: notify.mobile_app_dannys_phone
-                data:
-                  message: "{{ message }}"
-              - service: notify.mobile_app_terina_s_phone
-                data:
-                  message: "{{ message }}"
-        default: []
       - if:
           - condition: state
             entity_id: input_boolean.enable_slack_direct_messages
             state: "on"
         then:
-          - data:
-              message: "@terina @danny {{ message }}"
-              target: "#general"
-              data:
-                blocks: []
-            service: notify.slack_notify
+          - service: script.post_slack_direct_notification
+            data:
+              message: "{{ message }}"
   post_to_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:slack
@@ -157,3 +161,34 @@ script:
               url: "{{ url }}"
     mode: queued
     max: 10
+  # Slack specific Scripts
+  post_slack_direct_notification:
+    alias: Post Direct Mesage
+    icon: mdi:slack
+    description: "Post a direct text message to adults in the house."
+    max: 10
+    mode: queued
+    fields:
+      message:
+        description: Message to post
+        required: true
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_mobile_direct_notifications
+                state: "on"
+            sequence:
+              - service: notify.mobile_app_dannys_phone
+                data:
+                  message: "{{ message }}"
+              - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+        default: []
+      - data:
+          message: "@terina @danny {{ message }}"
+          target: "#general"
+          data:
+            blocks: []
+        service: notify.slack_notify
