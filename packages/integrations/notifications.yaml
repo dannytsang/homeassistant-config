@@ -100,15 +100,36 @@ script:
       title:
         description: Title to post
         required: false
+    variables:
+      same: false
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
-          - service: script.post_slack_direct_notification
-            data:
-              message: "{{ message }}"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.danny_direct_notification_preference
+                    state: input_select.terina_direct_notification_preference
+                sequence:
+                  alias: Both DM preferences are set the same
+            default:
+              - choose:
+                  - conditions:
+                      - condition: state
+                        entity_id: input_select.danny_direct_notification_preference
+                        state: Telegram
+                    sequence:
+                      - service: script.post_telegram_direct_notification
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title }}"
+                default:
+                  - service: script.post_slack_direct_notification
+                    data:
+                      message: "{{ message }}"
   post_to_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:slack
@@ -272,3 +293,29 @@ script:
                 action: "{{ action3_name }}"
     mode: single
     icon: mdi:cellphone
+  # Telegram specific Scripts
+  post_telegram_direct_notification:
+    alias: Post Direct Mesage
+    icon: mdi:android-messages
+    description: "Post a direct text message to adults in the house."
+    max: 10
+    mode: queued
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: Message to post
+        required: false
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_direct_notifications
+                state: "on"
+            sequence:
+              - service: notify.telegram_danny
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+        default: []
