@@ -111,21 +111,22 @@ automation:
                 entity_id: input_boolean.enable_mobile_direct_notifications
                 state: "on"
             sequence:
-              - service: script.post_to_home_log
-                data:
-                  message: ":warning: Guest mode is active and no one is home."
-              - service: notify.mobile_app_dannys_phone
-                data:
-                  message: Guest mode is on. Do you want to turn on the alarm?
-                  title: No One Home In Guest Mode
-                  data:
-                    actions:
-                      - title: Alarm On & Turn Off Devices
-                        action: guest_mode_arm_alarm_and_turn_off_devices
-                      - title: Alarm On Only
-                        action: guest_mode_arm_alarm_away
-                      - title: Turn Off Devices Only
-                        action: guest_mode_turn_off_devices
+              - parallel:
+                  - service: script.post_to_home_log
+                    data:
+                      message: ":warning: Guest mode is active and no one is home."
+                  - service: notify.mobile_app_dannys_phone
+                    data:
+                      message: Guest mode is on. Do you want to turn on the alarm?
+                      title: No One Home In Guest Mode
+                      data:
+                        actions:
+                          - title: Alarm On & Turn Off Devices
+                            action: guest_mode_arm_alarm_and_turn_off_devices
+                          - title: Alarm On Only
+                            action: guest_mode_arm_alarm_away
+                          - title: Turn Off Devices Only
+                            action: guest_mode_turn_off_devices
         default:
           - service: script.set_alarm_to_away_mode
           - choose:
@@ -198,10 +199,11 @@ automation:
                                   "{{ wait.trigger.event.data.action == 'disarm_leave_on'
                                   }}"
                             sequence:
-                              - service: script.set_alarm_to_disarmed_mode
-                              - service: script.post_to_home_log
-                                data:
-                                  message: Skipping turning off devices.
+                              - parallel:
+                                - service: script.set_alarm_to_disarmed_mode
+                                - service: script.post_to_home_log
+                                  data:
+                                    message: Skipping turning off devices.
                         default:
                           - service: script.everybody_leave_home
                 default:
