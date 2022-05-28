@@ -1247,3 +1247,69 @@
       target:
         entity_id: switch.ashlees_main_light_switch
   mode: single
+- id: "1653739708849"
+  alias: "Telegram: Event Received"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: telegram_command
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.command == 'get_camera'}}"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "Getting camera {{trigger.event.data.args}}"
+      default:
+        - service: script.post_to_home_log
+          data:
+            message: "Recieved Telegram event:\n
+              command: {{trigger.event.data.command}}\n
+              args: {{trigger.event.data.args}}\n
+              from_first: {{trigger.event.data.from_first}}\n
+              from_last: {{trigger.event.data.from_last}}\n
+              user_id: {{trigger.event.data.user_id}}\n
+              chat_id: {{trigger.event.data.chat_id}}\n
+              chat: {{trigger.event.data.chat}}"
+  mode: queued
+- id: "1653739708850"
+  alias: "Telegram: Message Received"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: telegram_text
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":speech_balloon: Recieved Telegram event:\n
+          chat: {{trigger.event.data.chat}}\n
+          from_first: {{trigger.event.data.from_first}}\n
+          from_last: {{trigger.event.data.from_last}}\n
+          user_id: {{trigger.event.data.user_id}}\n
+          chat_id: {{trigger.event.data.chat_id}}\n
+          text: {{trigger.event.data.text}}"
+  mode: queued
+- id: "1653739708851"
+  alias: "Telegram: Callback Received"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: telegram_callback
+  condition: []
+  action:
+    - service: script.post_to_home_log
+      data:
+        message: ":speech_balloon: Recieved Telegram event:\n
+          data: {{trigger.event.data.data}}\n
+          message: {{trigger.event.data.message}}\n
+          from_first: {{trigger.event.data.from_first}}\n
+          from_last: {{trigger.event.data.from_last}}\n
+          user_id: {{trigger.event.data.user_id}}\n
+          id: {{trigger.event.data.id}}\n
+          chat_id: {{trigger.event.data.chat_id}}\n
+          text: {{trigger.event.data.text}}"
+  mode: queued
