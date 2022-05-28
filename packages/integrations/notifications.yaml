@@ -27,17 +27,14 @@ automation:
           message: ":repeat: Entering Guest mode."
     mode: single
 input_boolean:
-  enable_mobile_notifications:
-    name: Enable Mobile Notifications
-    icon: mdi:cellphone-information
+  enable_direct_notifications:
+    name: Enable Direct Notifications
+    icon: mdi:bell
   enable_mobile_direct_notifications:
     name: Enable Mobile Direct Notifications
     icon: mdi:cellphone-information
   enable_slack_notifications:
     name: Enable Slack notifications
-    icon: mdi:slack
-  enable_slack_direct_messages:
-    name: Enable Slack Direct Messages
     icon: mdi:slack
 input_select:
   danny_direct_notification_preference:
@@ -100,10 +97,13 @@ script:
       message:
         description: Message to post
         required: true
+      title:
+        description: Title to post
+        required: false
     sequence:
       - if:
           - condition: state
-            entity_id: input_boolean.enable_slack_direct_messages
+            entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
           - service: script.post_slack_direct_notification
@@ -176,7 +176,7 @@ script:
       - choose:
           - conditions:
               - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
+                entity_id: input_boolean.enable_direct_notifications
                 state: "on"
             sequence:
               - service: notify.mobile_app_dannys_phone

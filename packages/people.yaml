@@ -108,7 +108,7 @@ automation:
                 entity_id: input_select.home_mode
                 state: Guest
               - condition: state
-                entity_id: input_boolean.enable_mobile_direct_notifications
+                entity_id: input_boolean.enable_direct_notifications
                 state: "on"
             sequence:
               - parallel:
@@ -146,7 +146,7 @@ automation:
               - choose:
                   - conditions:
                       - condition: state
-                        entity_id: input_boolean.enable_mobile_direct_notifications
+                        entity_id: input_boolean.enable_direct_notifications
                         state: "on"
                     sequence:
                       - service: notify.mobile_app_dannys_phone
@@ -200,10 +200,10 @@ automation:
                                   }}"
                             sequence:
                               - parallel:
-                                - service: script.set_alarm_to_disarmed_mode
-                                - service: script.post_to_home_log
-                                  data:
-                                    message: Skipping turning off devices.
+                                  - service: script.set_alarm_to_disarmed_mode
+                                  - service: script.post_to_home_log
+                                    data:
+                                      message: Skipping turning off devices.
                         default:
                           - service: script.everybody_leave_home
                 default:
@@ -235,9 +235,6 @@ automation:
                   - condition: state
                     entity_id: input_select.home_mode
                     state: Guest
-                  - condition: state
-                    entity_id: input_boolean.enable_slack_direct_messages
-                    state: "on"
             sequence:
               - service: script.post_to_direct_notification
                 data:
