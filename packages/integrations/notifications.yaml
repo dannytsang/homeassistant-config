@@ -93,7 +93,7 @@ script:
           data:
             blocks: []
         service: notify.slack_notify
-  post_to_direct_notification:
+  send_direct_notification:
     alias: Post Direct Mesage
     icon: mdi:message-outline
     description: "Post a direct text message to adults in the house."
@@ -132,15 +132,15 @@ script:
                         entity_id: input_select.danny_direct_notification_preference
                         state: Telegram
                     sequence:
-                      - service: script.send_telegram_direct_notification
+                      - service: script.post_telegram_direct_notification
                         data:
                           message: "{{ message }}"
                           title: "{{ title }}"
                 default:
-                  - service: script.send_slack_direct_notification
+                  - service: script.post_slack_direct_notification
                     data:
                       message: "{{ message }}"
-  post_to_home_log_with_local_attachments:
+  send_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:message-outline
     description: "Post a message with a file attachment to the home_log channel."
@@ -165,7 +165,7 @@ script:
           filePath: "{{ filePath }}"
     mode: queued
     max: 10
-  post_to_home_log_with_url:
+  send_home_log_with_url:
     alias: Post To Home Log With URL
     icon: mdi:slack
     description: "Post a message with a URL to the home_log channel."
@@ -189,7 +189,7 @@ script:
     mode: queued
     max: 10
   # Slack specific Scripts
-  send_slack_direct_notification:
+  post_slack_direct_notification:
     alias: Send Slack Direct Message
     icon: mdi:slack
     description: "Post a direct text message to adults in the house."
@@ -360,7 +360,7 @@ script:
     mode: single
     icon: mdi:cellphone
   # Telegram specific Scripts
-  send_telegram_direct_notification:
+  post_telegram_direct_notification:
     alias: Send Telegram Direct Message
     icon: mdi:android-messages
     description: "Post a direct text message to adults in the house."
@@ -388,7 +388,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.telegram_danny_chat_id') }}"
         default: []
-  send_to_telegram_home_log_with_local_attachments:
+  post_to_telegram_home_log_with_local_attachments:
     alias: Post To Slack Home Log With Local Attachments
     icon: mdi:android-messages
     description: "Post a message with a file attachment to the home_log channel."
