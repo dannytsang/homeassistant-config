@@ -105,27 +105,29 @@ script:
         required: true
       title:
         description: Title to post
-    variables:
-      same: false
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
+          - alias: "Check if both people are using the same DM platform that supports 
+            combined DM messages."
           - choose:
               - conditions:
                   - condition: state
                     entity_id: input_select.danny_direct_notification_preference
-                    state: input_select.terina_direct_notification_preference
+                    state: Slack
+                  - condition: state
+                    entity_id: input_select.terina_direct_notification_preference
+                    state: Slack
                 sequence:
-                  alias: Both DM preferences are set the same
-                  delay:
-                    hours: 0
-                    minutes: 0
-                    seconds: 1
-                    milliseconds: 0
+                  - service: script.post_slack_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      people: "@terina @danny"
             default:
+              - alias: "Check each person's DM platform. TODO: Use a loop."
               - choose:
                   - conditions:
                       - condition: state
@@ -136,13 +138,23 @@ script:
                         data:
                           message: "{{ message }}"
                           title: "{{ title }}"
-                default:
-                  - service: script.post_slack_direct_notification
-                    data:
-                      message: "{{ message }}"
+                  - conditions:
+                      - condition: state
+                        entity_id: input_select.danny_direct_notification_preference
+                        state: Slack
+                    sequence:
+                      - service: script.post_slack_direct_notification
+                        data:
+                          message: "{{ message }}"
+                          people: "@danny"
+                default: []
+              - service: script.post_slack_direct_notification
+                data:
+                  message: "{{ message }}"
+                  people: "@terina"
   send_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
-    icon: mdi:message-outline
+    icon: mdi:message-image-outline
     description: "Post a message with a file attachment to the home_log channel."
     fields:
       message:
@@ -167,7 +179,7 @@ script:
     max: 10
   send_home_log_with_url:
     alias: Post To Home Log With URL
-    icon: mdi:slack
+    icon: mdi:message-bookmark-outline
     description: "Post a message with a URL to the home_log channel."
     fields:
       message:
@@ -199,6 +211,9 @@ script:
       message:
         description: Message to post
         required: true
+      people:
+        description: People to message e.g. @danny
+        required: true
     sequence:
       - choose:
           - conditions:
@@ -214,7 +229,7 @@ script:
                   message: "{{ message }}"
         default: []
       - data:
-          message: "@terina @danny {{ message }}"
+          message: "{{ people }} {{ message }}"
           target: "#general"
           data:
             blocks: []
