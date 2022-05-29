@@ -52,6 +52,12 @@ input_select:
       - Telegram
     icon: mdi:cellphone-information
 
+input_text:
+  telegram_danny_chat_id:
+    name: Danny's Telegram Chat ID
+    icon: mdi:android-messages
+    initial: !secret telegram_danny_chat_id
+
 notify:
   - name: slack_notify
     platform: slack
@@ -122,12 +128,12 @@ script:
                         entity_id: input_select.danny_direct_notification_preference
                         state: Telegram
                     sequence:
-                      - service: script.post_telegram_direct_notification
+                      - service: script.send_telegram_direct_notification
                         data:
                           message: "{{ message }}"
                           title: "{{ title }}"
                 default:
-                  - service: script.post_slack_direct_notification
+                  - service: script.send_slack_direct_notification
                     data:
                       message: "{{ message }}"
   post_to_home_log_with_local_attachments:
@@ -183,8 +189,8 @@ script:
     mode: queued
     max: 10
   # Slack specific Scripts
-  post_slack_direct_notification:
-    alias: Post Direct Mesage
+  send_slack_direct_notification:
+    alias: Send Slack Direct Message
     icon: mdi:slack
     description: "Post a direct text message to adults in the house."
     max: 10
@@ -294,8 +300,8 @@ script:
     mode: single
     icon: mdi:cellphone
   # Telegram specific Scripts
-  post_telegram_direct_notification:
-    alias: Post Direct Mesage
+  send_telegram_direct_notification:
+    alias: Send Telegram Direct Message
     icon: mdi:android-messages
     description: "Post a direct text message to adults in the house."
     max: 10
@@ -313,9 +319,13 @@ script:
               - condition: state
                 entity_id: input_boolean.enable_direct_notifications
                 state: "on"
+              - condition: state
+                entity_id: input_select.danny_direct_notification_preference
+                state: "Telegram"
             sequence:
-              - service: notify.telegram_danny
+              - service: telegram_bot.send_message
                 data:
                   message: "{{ message }}"
-                  title: "{{ title }}"
+                  title: "{{ title|default('', true) }}"
+                  target: "{{ states('input_text.telegram_danny_chat_id') }}"
         default: []
