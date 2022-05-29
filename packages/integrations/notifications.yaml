@@ -191,6 +191,9 @@ script:
         required: true
       title:
         description: (optional)Header to the message posted.
+      people:
+        description: People to message e.g. Danny, Terina
+        required: true
       action1_title:
         description: First action text.
         required: true
@@ -211,11 +214,11 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title }}"
-          data:
-            action1_title: "{{ action1_title }}"
-            action1_name: "{{ action1_name }}"
-            action2_title: "{{ action2_title }}"
-            action2_name: "{{ action2_name }}"
+          people: "{{ people }}"
+          action1_title: "{{ action1_title }}"
+          action1_name: "{{ action1_name }}"
+          action2_title: "{{ action2_title }}"
+          action2_name: "{{ action2_name }}"
     mode: queued
     max: 10
     icon: mdi:message-draw
@@ -364,11 +367,14 @@ script:
         required: true
       title:
         description: (optional)Header to the message posted.
+      people:
+        description: People to message e.g. Danny, Terina
+        required: true
       action1_title:
         description: First action text.
         required: true
       action1_name:
-        description: First vent name if action is selected.
+        description: First event name if action is selected.
         required: true
       action2_title:
         description: Second action text.
@@ -377,19 +383,22 @@ script:
         description: Second event name if action is selected.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_direct_notifications
-        state: "on"
-      - service: notify.mobile_app_dannys_phone
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
-          data:
-            actions:
-              - title: "{{ action1_title }}"
-                action: "{{ action1_name }}"
-              - title: "{{ action2_title }}"
-                action: "{{ action2_name }}"
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ state_attr('person.danny','id') == 'danny' }}"
+            sequence:
+              - service: notify.mobile_app_dannys_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    actions:
+                      - title: "{{ action1_title }}"
+                        action: "{{ action1_name }}"
+                      - title: "{{ action2_title }}"
+                        action: "{{ action2_name }}"
+        default: []
     mode: queued
     max: 10
     icon: mdi:cellphone
