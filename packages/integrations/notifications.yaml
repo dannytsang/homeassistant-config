@@ -71,7 +71,7 @@ script:
   # Encapsulated scripts
   post_to_home_log:
     alias: Post To Home Log
-    icon: mdi:slack
+    icon: mdi:message-outline
     description: "Post a text message to the home_log channel."
     max: 10
     mode: queued
@@ -95,7 +95,7 @@ script:
         service: notify.slack_notify
   post_to_direct_notification:
     alias: Post Direct Mesage
-    icon: mdi:slack
+    icon: mdi:message-outline
     description: "Post a direct text message to adults in the house."
     max: 10
     mode: queued
@@ -105,7 +105,6 @@ script:
         required: true
       title:
         description: Title to post
-        required: false
     variables:
       same: false
     sequence:
@@ -143,7 +142,7 @@ script:
                       message: "{{ message }}"
   post_to_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
-    icon: mdi:slack
+    icon: mdi:message-outline
     description: "Post a message with a file attachment to the home_log channel."
     fields:
       message:
@@ -158,14 +157,12 @@ script:
       - condition: state
         entity_id: input_boolean.enable_slack_notifications
         state: "on"
-      - service: notify.slack_notify
+      - service: script.post_to_slack_home_log_with_local_attachments
         data:
           message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
+          title: "{{ title }}"
           target: "#home_log"
-          data:
-            file:
-              path: "{{ filePath }}"
+          filePath: "{{ filePath }}"
     mode: queued
     max: 10
   post_to_home_log_with_url:
@@ -183,14 +180,12 @@ script:
       - condition: state
         entity_id: input_boolean.enable_slack_notifications
         state: "on"
-      - service: notify.slack_notify
+      - service: script.post_to_slack_home_log_with_url
         data:
           message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
+          title: "{{ title }}"
           target: "#home_log"
-          data:
-            file:
-              url: "{{ url }}"
+          url: "{{ url }}"
     mode: queued
     max: 10
   # Slack specific Scripts
@@ -224,6 +219,66 @@ script:
           data:
             blocks: []
         service: notify.slack_notify
+  post_to_slack_home_log_with_local_attachments:
+    alias: Post To Slack Home Log With Local Attachments
+    icon: mdi:slack
+    description: "Post a message with a file attachment to the home_log channel."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Header to the message posted.
+      channel:
+        description: "Slack channel to post to including the #"
+        required: true
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - condition: state
+        entity_id: input_boolean.enable_slack_notifications
+        state: "on"
+      - service: notify.slack_notify
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default('', true) }}"
+          target: "{{ channel }}"
+          data:
+            file:
+              path: "{{ filePath }}"
+    mode: queued
+    max: 10
+  post_to_slack_home_log_with_url:
+    alias: Post To Home Log With URL
+    icon: mdi:slack
+    description: "Post a message with a URL to the home_log channel."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Header to the message posted.
+      target:
+        description: "Slack channel to post to including the #"
+        required: true
+      url:
+        description: Link to file.
+        required: true
+    sequence:
+      - condition: state
+        entity_id: input_boolean.enable_slack_notifications
+        state: "on"
+      - service: notify.slack_notify
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default('', true) }}"
+          target: "#home_log"
+          data:
+            file:
+              url: "{{ url }}"
+    mode: queued
+    max: 10
   post_actionable_notification_with_2_buttons:
     alias: Post Actionable Notification With 2 Buttons
     fields:
@@ -317,7 +372,6 @@ script:
         required: true
       title:
         description: Message to post
-        required: false
     sequence:
       - choose:
           - conditions:
@@ -334,3 +388,27 @@ script:
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.telegram_danny_chat_id') }}"
         default: []
+  send_to_telegram_home_log_with_local_attachments:
+    alias: Post To Slack Home Log With Local Attachments
+    icon: mdi:android-messages
+    description: "Post a message with a file attachment to the home_log channel."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Header to the message posted.
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - condition: state
+        entity_id: input_boolean.enable_slack_notifications
+        state: "on"
+      - service: notify.slack_notify
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default('', true) }}"
+          file: "{{ filePath }}"
+    mode: queued
+    max: 10
