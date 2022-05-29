@@ -25,7 +25,7 @@ automation:
                 entity_id: input_boolean.enable_morning_routine
                 state: "off"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":house: :running: Someone arrived home."
               - service: script.set_alarm_to_disarmed_mode
@@ -37,11 +37,11 @@ automation:
                 entity_id: input_boolean.enable_morning_routine
                 state: "on"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
               - service: script.set_alarm_to_disarmed_mode
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Turning on downstairs :camera_with_flash: cameras."
               - service: script.conservatory_turn_on_camera
@@ -54,7 +54,7 @@ automation:
                 entity_id: climate.thermostat
                 state: "off"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: Heating is off.
               - service: script.set_central_heating_to_home_mode
@@ -112,7 +112,7 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.post_to_home_log
+                  - service: script.send_to_home_log
                     data:
                       message: ":warning: Guest mode is active and no one is home."
                   - service: notify.mobile_app_dannys_phone
@@ -190,7 +190,7 @@ automation:
                                   "{{ wait.trigger.event.data.action == 'leave_on'
                                   }}"
                             sequence:
-                              - service: script.post_to_home_log
+                              - service: script.send_to_home_log
                                 data:
                                   message: Leaving devices on.
                           - conditions:
@@ -201,7 +201,7 @@ automation:
                             sequence:
                               - parallel:
                                   - service: script.set_alarm_to_disarmed_mode
-                                  - service: script.post_to_home_log
+                                  - service: script.send_to_home_log
                                     data:
                                       message: Skipping turning off devices.
                         default:
@@ -252,7 +252,7 @@ automation:
                     entity_id: input_select.home_mode
                     state: Guest
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":warning: :door: :window: The following entrances are still open:
@@ -380,6 +380,6 @@ script:
           message:
             ":running: :house: :dancer: Everyone has left the house. Running the
             following:"
-        service: script.post_to_home_log
+        service: script.send_to_home_log
       - service: script.turn_everything_off
     mode: single

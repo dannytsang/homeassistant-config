@@ -15,7 +15,7 @@ automation:
                 entity_id: sensor.porch_motion_light_level
                 below: "100"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":door: :bulb: :high_brightness: Door opened and it's dark 
                   ({{ states('sensor.porch_motion_light_level') }} < 100). Turning on light."
@@ -23,7 +23,7 @@ automation:
                 target:
                   entity_id: scene.porch_light_on
         default: []
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ':door: Incrementing front door counter :abacus:
@@ -47,7 +47,7 @@ automation:
         entity_id: counter.front_door
         below: "2"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":door: :abacus: Front door has been opened for more than 20 secs.
@@ -68,7 +68,7 @@ automation:
         entity_id: group.adult_people
         state: home
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":people_holding_hands: Someone is home, notifying front :door: door
@@ -87,7 +87,7 @@ automation:
         for: 00:00:20
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":door: :abacus: Front  door has been closed for more than 20 secs.
@@ -106,7 +106,7 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: Front door closed."
       - service: script.front_door_closed_notification
@@ -126,7 +126,7 @@ automation:
       - service: scene.turn_on
         target:
           entity_id: scene.porch_lights_off
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: Front door closed for 1 minute. Turning off porch light."
       - choose:
@@ -135,7 +135,7 @@ automation:
               entity_id: light.stairs
               state: "on"
           sequence:
-            - service: script.post_to_home_log
+            - service: script.send_to_home_log
               data:
                 message: "Front door closed. Turning stairs light off as fall back."
             - service: scene.turn_on
@@ -149,7 +149,7 @@ automation:
               entity_id: light.office_light
               state: "on"
           sequence:
-            - service: script.post_to_home_log
+            - service: script.send_to_home_log
               data:
                 message: "Front door closed. Turning office light off as fall back."
             - service: scene.turn_on
@@ -216,13 +216,13 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: disarmed
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":no_bell: Turning off alarm."
               - service: script.set_alarm_to_disarmed_mode
               - service: script.lounge_flash_lounge_lights_green
         default:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":no_bell: Alarm is not on so nothing to do."
           - service: script.lounge_flash_lounge_lights_red

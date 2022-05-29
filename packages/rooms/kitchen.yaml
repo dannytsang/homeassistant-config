@@ -21,7 +21,7 @@ automation:
         entity_id: light.kitchen_lights
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 
           and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: Turning off kitchen lights"
@@ -56,7 +56,7 @@ automation:
               - condition: sun
                 before: sunset
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":no_pedestrians: No motion detected after :city_sunrise:
@@ -73,7 +73,7 @@ automation:
                 - condition: time
                   before: "23:30:00"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":no_pedestrians: No motion detected after :city_sunset: and before
@@ -87,7 +87,7 @@ automation:
               - condition: time
                 after: "23:30:00"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":no_pedestrians: No motion detected after :clock1130:
                     Turning kitchen all lights off."
@@ -106,7 +106,7 @@ automation:
               - condition: trigger
                 id: first_no_motion
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     :no_pedestrians: No motion detected after :city_sunrise: and before
@@ -125,7 +125,7 @@ automation:
                 - condition: trigger
                   id: first_no_motion
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":no_pedestrians: No motion detected after :city_sunset: and before
@@ -142,7 +142,7 @@ automation:
                 - condition: trigger
                   id: second_no_motion
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":no_pedestrians: No motion detected after :city_sunset: and before
@@ -185,7 +185,7 @@ automation:
               - condition: trigger
                 id: weekday
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 
                   and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: 
@@ -204,7 +204,7 @@ automation:
               - condition: trigger
                 id: weekend
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ':clock{{ now().strftime("%H")}}: :bulb: Turning off kitchen lights'
               - service: scene.turn_on
@@ -240,7 +240,7 @@ automation:
       - data:
           message: ":bulb: :low_brightness: At least one person is home. 
           Turning on kitchen lights on dim setting."
-        service: script.post_to_home_log
+        service: script.send_to_home_log
     mode: single
   - id: "1606158191303"
     alias: "^Kitchen: Motion Detected Table Lights Off"
@@ -274,7 +274,7 @@ automation:
                     entity_id: sensor.kitchen_motion_2_light_level
                     below: "50"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
                     kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
@@ -318,7 +318,7 @@ automation:
                     entity_id: sensor.kitchen_motion_2_light_level
                     below: "50"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
                     kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
@@ -365,7 +365,7 @@ automation:
                     attribute: brightness
                     below: "100"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
                     :cook: kitchen. Turning side lights on to full brightness."
@@ -394,7 +394,7 @@ automation:
             entity_id: light.kitchen_drawers
             state: "off"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
               :cook: kitchen. Turning side lights on to full brightness."
@@ -416,7 +416,7 @@ automation:
         entity_id: input_boolean.enable_coffee_machine_automations
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":coffee: Coffee machine has been on for 30 minutes. Turning off coffee
@@ -438,7 +438,7 @@ automation:
     action:
       - data:
           message: ":door: :snowflake: Fridge door is open."
-        service: script.post_to_home_log
+        service: script.send_to_home_log
     mode: single
   - id: "1595678900778"
     alias: "^Kitchen: Fridge Door Closed"
@@ -452,7 +452,7 @@ automation:
     action:
       - data:
           message: ":door: :snowflake: Fridge door closed."
-        service: script.post_to_home_log
+        service: script.send_to_home_log
     mode: single
   - id: "1595679010793"
     alias: "^Kitchen: Fridge Open For A Long Period Of Time"
@@ -474,7 +474,7 @@ automation:
           message:
             ":warning: :door: :snowflake: Fridge door has been open for more than
             4 minutes!"
-        service: script.post_to_home_log
+        service: script.send_to_home_log
     mode: single
 input_boolean:
   enable_coffee_machine_automations:

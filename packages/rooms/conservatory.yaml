@@ -62,7 +62,7 @@ automation:
           - condition: template
             value_template: "{{ state_attr('light.conservatory', 'brightness') == none }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and it's dark ({{ states('sensor.conservatory_motion_light_level') }} lux < 25 lux). Turning on Lights."
       - service: scene.turn_on
@@ -88,7 +88,7 @@ automation:
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
@@ -115,7 +115,7 @@ automation:
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":no_pedestrians: No motion in conservatory. Turning lights off."
       - service: scene.turn_on
@@ -162,7 +162,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: Conservatory door opened. Enabling conservatory camera :camera_with_flash:"
       - service: script.conservatory_turn_on_camera
@@ -177,7 +177,7 @@ automation:
         from: "on"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: Conservatory door closed."
       - service: script.conservatory_turn_off_camera
@@ -264,7 +264,7 @@ script:
               - condition: template
                 value_template: "{{ override }}"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Overriding conditions. Turning conservatory :camera: camera detection off."
               - service: switch.turn_off
@@ -285,11 +285,11 @@ script:
                     entity_id: binary_sensor.shed_door
                     state: "on"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Alarm is on or conservatory or shed door is open. Keeping conservatory :camera_with_flash: camera detection on."
         default:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: "Turning conservatory :camera: camera detection off."
           - service: switch.turn_off

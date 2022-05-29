@@ -20,7 +20,7 @@ automation:
             state: Guest
             entity_id: input_select.home_mode
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: Opening Leo's bedroom blinds
       - service: cover.open_cover
@@ -51,7 +51,7 @@ automation:
                 entity_id: binary_sensor.leos_window
                 state: "on"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -64,7 +64,7 @@ automation:
               - condition: trigger
                 id: sunset
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -78,7 +78,7 @@ automation:
                 entity_id: binary_sensor.leos_window
                 state: "off"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -107,7 +107,7 @@ automation:
       - service: cover.close_cover
         target:
           entity_id: cover.leos_blinds
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":city_sunset: :window: closing Leo's blinds."
     mode: single
@@ -131,7 +131,7 @@ automation:
     action:
       - data:
           message: ":sunrise: :window: Opening Leo's blinds"
-        service: script.post_to_home_log
+        service: script.send_to_home_log
       - service: cover.open_cover
         target:
           entity_id: cover.leos_blinds
@@ -166,7 +166,7 @@ automation:
             entity_id: input_select.home_mode
             state: Guest
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
       - service: cover.open_cover
@@ -188,7 +188,7 @@ automation:
         entity_id: media_player.spotify_danny
         state: playing
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >

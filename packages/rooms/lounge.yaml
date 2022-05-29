@@ -67,7 +67,7 @@ automation:
                     in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
                     }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
                     lux) and Terina''s work computer is on. Turning lounge lights on."
-                service: script.post_to_home_log
+                service: script.send_to_home_log
               - service: scene.turn_on
                 target:
                   entity_id: scene.lounge_lights
@@ -86,7 +86,7 @@ automation:
                     and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
                     {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
                     Turning lounge lights on."
-                service: script.post_to_home_log
+                service: script.send_to_home_log
               - service: scene.turn_on
                 target:
                   entity_id: scene.lounge_lights
@@ -109,7 +109,7 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":no_pedestrians: :bulb: :low_brightness: No motion detected and :tv:TV
@@ -137,7 +137,7 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":no_pedestrians: No motion detected in the lounge for 10 minutes and
@@ -186,7 +186,7 @@ automation:
         entity_id: binary_sensor.tv_powered_on
         state: "off"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":TV: Restarting Harmony hub."
       - service: switch.turn_off
@@ -221,7 +221,7 @@ automation:
           " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
@@ -252,7 +252,7 @@ automation:
           " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: TV turned off for 10 minutes. Turning lounge lights off.
       - service: scene.turn_on
@@ -272,7 +272,7 @@ automation:
           action: bay_window_high_temp
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":warning: :thermometer: Bay window is above 35c. Turning server fan
@@ -291,7 +291,7 @@ automation:
           action: bay_window_low_temp
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":thermometer: :snowflake: Bay window below high temperature. Turning
@@ -311,7 +311,7 @@ automation:
         for: 01:00:00
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             Server fan has been running for more than 1 hour. Consider turning
@@ -373,7 +373,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":door: :window: Lounge door/window opened."
@@ -389,7 +389,7 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: :window: All doors/windows closed in the lounge."
       - service: script.lounge_turn_off_camera
@@ -574,11 +574,11 @@ script:
                   entity_id: binary_sensor.front_door
                   state: "on"
           sequence:
-            - service: script.post_to_home_log
+            - service: script.send_to_home_log
               data:
                 message: "Alarm is on or front door is open. Keeping lounge:camera_with_flash: camera detection on."
         default:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: "Turning lounge :camera: camera detection off."
           - service: switch.turn_off
@@ -591,7 +591,7 @@ script:
   lounge_turn_on_camera:
     alias: Lounge Turn On Camera
     sequence:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Turning lounge :camera_with_flash: camera detection on."
       - service: switch.turn_on
@@ -604,7 +604,7 @@ script:
   # Receiver
   lounge_select_game_input:
     sequence:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Changing Onkyo to :tv: VCR/DVR input."
       - delay:
@@ -618,7 +618,7 @@ script:
         data:
           device: Onkyo AV Receiver
           command: InputGame
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Changed Onkyo to :tv: Game input."
     mode: single
@@ -626,7 +626,7 @@ script:
     icon: mdi:audio-video
   lounge_select_vcr_dvr_input:
     sequence:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Changing Onkyo to :tv: VCR/DVR input."
       - delay:
@@ -640,7 +640,7 @@ script:
         data:
           device: Onkyo AV Receiver
           command: InputVCR/DVR
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Changed Onkyo to :tv: VCR/DVR input."
       - delay:

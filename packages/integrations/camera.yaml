@@ -206,12 +206,12 @@ script:
               title: "{{ title }}"
               message: "{{ message }}"
               filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: >-
                 The following detected in the conservatory:{% for object in state_attr('image_processing.deepstack_object_conservatory','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in conservatory."
     mode: single
@@ -245,12 +245,12 @@ script:
               message: "{{ message }}"
               filePath: >-
                 "{{states('input_text.latest_deepstack_driveway_file_path')}}"
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: >-
                 The following detected in the driveway:{% for object in state_attr('image_processing.deepstack_object_driveway','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in the driveway."
     mode: single
@@ -264,7 +264,7 @@ script:
       title:
         description: Header to the message posted.
     sequence:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":door: :camera: doorbell camera updated."
       - service: input_text.set_value
@@ -304,12 +304,12 @@ script:
               title: "{{ title }}"
               message: "{{ message }}"
               filePath: "{{ states('input_text.latest_deepstack_frontdoor_file_path') }}"
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: >-
                 The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected at the front door."
     mode: single
@@ -343,12 +343,12 @@ script:
                   title: "{{ title }}"
                   message: "{{ message }}"
                   filePath: "{{ states('input_text.latest_deepstack_lounge_file_path') }}"
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     The following detected in the lounge:{% for object in state_attr('image_processing.deepstack_object_lounge','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         default:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in the lounge."
     mode: single
@@ -382,12 +382,12 @@ script:
                   title: "{{ title }}"
                   message: "{{ message }}"
                   filePath: "{{ states('input_text.latest_deepstack_upstairs_file_path') }}"
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     The following detected upstairs:{% for object in state_attr('image_processing.deepstack_object_upstairs','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         default:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected on the stairs."
     mode: single

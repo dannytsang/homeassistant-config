@@ -11,7 +11,7 @@ automation:
         entity_id: group.alarmed_doors_and_windows
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
@@ -41,7 +41,7 @@ automation:
             {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
             %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
             }} {% endif %}{% endfor %}"
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
@@ -90,7 +90,7 @@ automation:
         service: input_boolean.turn_on
       - data:
           message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
-        service: script.post_to_home_log
+        service: script.send_to_home_log
     mode: single
   - id: "1582406380123"
     alias: "^Timed: Turn Off Downstairs Lights at 2am"
@@ -100,7 +100,7 @@ automation:
         platform: time
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
@@ -121,19 +121,19 @@ script:
       - data: {}
         entity_id: input_boolean.enable_morning_routine
         service: input_boolean.turn_off
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
             Running morning routine."
       - service: script.set_alarm_to_disarmed_mode
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":no_bell: Turning alarm off."
       - service: switch.turn_off
         target:
           entity_id: switch.indoor_cameras
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":clock9: :sunrise: Morning routine complete."
     mode: single

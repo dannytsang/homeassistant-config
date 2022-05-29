@@ -45,7 +45,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_main_light_on
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   title: Office Motion Detected
                   message: >-
@@ -74,7 +74,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_main_light_off
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   title: Office Motion Detected
                   message: >-
@@ -119,7 +119,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_main_light_on
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -147,7 +147,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_main_light_off
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -170,7 +170,7 @@ automation:
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":no_pedestrians: No motion detected in the office after 5 minutes.
@@ -209,7 +209,7 @@ automation:
           message:
             ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
             and :computer: is not connected. Turning office and desk lights off."
-        service: script.post_to_home_log
+        service: script.send_to_home_log
       - service: scene.turn_on
         target:
           entity_id: scene.office_all_lights_off
@@ -229,7 +229,7 @@ automation:
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":no_pedestrians: No motion detected in the office for 10 minutes and
@@ -269,7 +269,7 @@ automation:
               - condition: time
                 after: "08:30:00"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":hotsprings: :people_holding_hands: Office temperature is high
@@ -283,7 +283,7 @@ automation:
                 entity_id: sensor.office_area_temperature
                 above: "29"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
@@ -303,7 +303,7 @@ automation:
                 entity_id: sensor.office_area_temperature
                 above: "31"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":warning: :hotsprings: Office temperature is above 31c. Turning
@@ -336,14 +336,14 @@ automation:
               - condition: trigger
                 id: 1h
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: Turned off office Fan after 1 hour.
           - conditions:
               - condition: trigger
                 id: 2h
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: Turned off office Fan after 2 hours.
         default: []
@@ -374,7 +374,7 @@ automation:
           - condition: sun
             before: sunrise
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message:
             ":window: :city_sunset: Office window closed and it's dark. Closing
@@ -396,13 +396,13 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":tv: Computer turned on."
       - service: switch.turn_on
         target:
           entity_id: switch.goxlr
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":level_slider: Turned on GoXLR."
       - service: script.office_turn_on_external_hard_drive
@@ -433,19 +433,19 @@ automation:
               - condition: trigger
                 id: router
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":computer: :tv: Computer turned off for more than 10 minutes."
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_desk_lights_off
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   messsage: Turned off desk lights.
               - service: switch.turn_off
                 target:
                   entity_id: switch.goxlr
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":computer: :tv: Computer turned off for more than 10 minutes. Turned
@@ -455,19 +455,19 @@ automation:
               - condition: trigger
                 id: pc
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":computer: :tv: Computer turned off for more than 10 minutes."
               - service: scene.turn_on
                 target:
                   entity_id: scene.office_desk_lights_off
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   messsage: Turned off desk lights.
               - service: switch.turn_off
                 target:
                   entity_id: switch.goxlr
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":computer: :tv: Computer turned off for more than 10 minutes. Turned
@@ -484,7 +484,7 @@ automation:
         at: 08:00:00
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
       - service: script.office_open_curtains
@@ -515,7 +515,7 @@ automation:
                     entity_id: binary_sensor.office_window_left
                     state: "on"
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message:
                     ":warning: :window: Office window is still open so not closing
@@ -531,7 +531,7 @@ automation:
               - condition: trigger
                 id: summer
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
               - service: script.office_close_curtains
@@ -546,7 +546,7 @@ automation:
               - condition: trigger
                 id: winter
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
               - service: script.office_close_curtains
@@ -562,7 +562,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Webhook: Closing office curtains."
       - service: script.office_close_curtains
@@ -577,7 +577,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: "Webhook: Closing office curtains."
       - service: script.office_open_curtains
@@ -593,7 +593,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_keylight_key') }}"
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":bulb: Toggle Key light"
       - service: light.toggle
@@ -624,7 +624,7 @@ automation:
                 data: {}
                 target:
                   entity_id: media_player.spotify_danny
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":stop_button: Turning off music."
         default: []
@@ -643,7 +643,7 @@ automation:
         data:
           title: ":skull_and_crossbones: CO Detected in the office"
           message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
       - service: script.set_central_heating_to_off
@@ -664,7 +664,7 @@ automation:
         data:
           title: ":smoking: Smoke detected in the office"
           message: ":smoking: Smoke detected in the :office: office."
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":smoking: Smoke detected in the :office: office."
       - service: script.set_central_heating_to_off
@@ -1098,7 +1098,7 @@ script:
           - condition: state
             entity_id: group.jd_computer
             state: not_home
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":floppy_disk: Turning off external HDD"
       - service: switch.turn_off
@@ -1115,7 +1115,7 @@ script:
           - condition: time
             weekday:
               - sun
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           message: ":floppy_disk: Turned on external hard drive."
       - service: switch.turn_on

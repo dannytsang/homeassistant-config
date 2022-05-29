@@ -10,10 +10,10 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":no_bell: Alarmed disarmed."
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message: ":camera: Turning off indoor cameras."
           - service: script.conservatory_turn_off_camera
@@ -54,7 +54,7 @@ automation:
             - condition: trigger
               id: midnight
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":running: :house_with_garden: Danny is not home. 
                   :no_bell: Alarm not turned on and a check will be performed later."
@@ -69,7 +69,7 @@ automation:
             - condition: trigger
               id: midnight
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":house_with_garden: :woman_dancing: Terina is not 
                   home. :no_bell: Alarm not turned on and a check will be performed later."
@@ -81,12 +81,12 @@ automation:
               entity_id: person.terina
               state: home
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Everyone is home."
               - service: script.set_alarm_to_home_mode
               - parallel:
-                  - service: script.post_to_home_log
+                  - service: script.send_to_home_log
                     data:
                       message: "Turning on downstairs :camera_with_flash: cameras."
                   - service: script.conservatory_turn_on_camera
@@ -101,12 +101,12 @@ automation:
               entity_id: person.terina
               state: home
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":running: :house_with_garden: Danny is not home."
               - service: script.set_alarm_to_home_mode
               - parallel:
-                  - service: script.post_to_home_log
+                  - service: script.send_to_home_log
                     data:
                       message: "Turning on downstairs :camera_with_flash: cameras."
                   - service: script.conservatory_turn_on_camera
@@ -121,13 +121,13 @@ automation:
                 entity_id: person.terina
                 state: home
             sequence:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: ":house_with_garden: :woman_dancing: Terina is not 
                   home."
               - service: script.set_alarm_to_home_mode
               - parallel:
-                  - service: script.post_to_home_log
+                  - service: script.send_to_home_log
                     data:
                       message: "Turning on downstairs :camera_with_flash: cameras."
                   - service: script.conservatory_turn_on_camera
@@ -145,7 +145,7 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.post_to_home_log
+          - service: script.send_to_home_log
             data:
               message:
                 ":bell: :camera_with_flash: Alarmed set to away mode (all sensors on).
@@ -164,7 +164,7 @@ automation:
         to: unavailable
     condition: []
     action:
-      - service: script.post_to_home_log
+      - service: script.send_to_home_log
         data:
           title: Alarm Offline
           message: ":warning: :no_bell: Alarm has disconnected from @home_assistant :warning:"
@@ -193,7 +193,7 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: armed_away
             then:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Turning :bell: alarm on in away mode."
               - service: alarm_control_panel.alarm_arm_away
@@ -213,7 +213,7 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: disarmed
             then:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Turning :no_bell: alarm off."
               - service: alarm_control_panel.alarm_disarm
@@ -233,7 +233,7 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: armed_home
             then:
-              - service: script.post_to_home_log
+              - service: script.send_to_home_log
                 data:
                   message: "Changing :bell: alarm to home mode(door sensors only)."
               - service: alarm_control_panel.alarm_arm_home
