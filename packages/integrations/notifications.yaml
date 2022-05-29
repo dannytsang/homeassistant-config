@@ -106,52 +106,35 @@ script:
       title:
         description: Title to post
     sequence:
-      - if:
-          - condition: state
-            entity_id: input_boolean.enable_direct_notifications
-            state: "on"
-        then:
-          - alias: "Check if both people are using the same DM platform that supports 
-            combined DM messages."
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: input_select.danny_direct_notification_preference
-                    state: Slack
-                  - condition: state
-                    entity_id: input_select.terina_direct_notification_preference
-                    state: Slack
-                sequence:
-                  - service: script.post_slack_direct_notification
-                    data:
-                      message: "{{ message }}"
-                      people: "@terina @danny"
-            default:
-              - alias: "Check each person's DM platform. TODO: Use a loop."
-              - choose:
-                  - conditions:
-                      - condition: state
-                        entity_id: input_select.danny_direct_notification_preference
-                        state: Telegram
-                    sequence:
-                      - service: script.post_telegram_direct_notification
-                        data:
-                          message: "{{ message }}"
-                          title: "{{ title }}"
-                  - conditions:
-                      - condition: state
-                        entity_id: input_select.danny_direct_notification_preference
-                        state: Slack
-                    sequence:
-                      - service: script.post_slack_direct_notification
-                        data:
-                          message: "{{ message }}"
-                          people: "@danny"
-                default: []
+      - condition: state
+        entity_id: input_boolean.enable_slack_notifications
+        state: "on"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.danny_direct_notification_preference
+                state: Telegram
+            sequence:
+              - service: script.post_telegram_direct_notification
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+          - conditions:
+              - condition: state
+                entity_id: input_select.danny_direct_notification_preference
+                state: Slack
+            sequence:
               - service: script.post_slack_direct_notification
                 data:
                   message: "{{ message }}"
-                  people: "@terina"
+                  title: "{{ title }}"
+                  people: "@danny"
+        default: []
+      - service: script.post_slack_direct_notification
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
+          people: "@terina"
   send_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:message-image-outline
@@ -200,6 +183,7 @@ script:
           url: "{{ url }}"
     mode: queued
     max: 10
+
   # Slack specific Scripts
   post_slack_direct_notification:
     alias: Send Slack Direct Message
@@ -294,7 +278,7 @@ script:
               url: "{{ url }}"
     mode: queued
     max: 10
-  post_actionable_notification_with_2_buttons:
+  post_slack_actionable_notification_with_2_buttons:
     alias: Post Actionable Notification With 2 Buttons
     fields:
       message:
@@ -331,7 +315,7 @@ script:
     mode: queued
     max: 10
     icon: mdi:cellphone
-  post_actionable_notification_with_3_buttons:
+  post_slack_actionable_notification_with_3_buttons:
     alias: Post Actionable Notification With 3 Buttons
     fields:
       message:
