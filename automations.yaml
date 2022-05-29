@@ -1262,18 +1262,15 @@
           sequence:
             - service: script.post_to_home_log
               data:
-                message: "Getting camera {{trigger.event.data.args}}"
+                message: Getting camera {{trigger.event.data.args}}
       default:
         - service: script.post_to_home_log
           data:
-            message: "Recieved Telegram event:\n
-              command: {{trigger.event.data.command}}\n
-              args: {{trigger.event.data.args}}\n
-              from_first: {{trigger.event.data.from_first}}\n
-              from_last: {{trigger.event.data.from_last}}\n
-              user_id: {{trigger.event.data.user_id}}\n
-              chat_id: {{trigger.event.data.chat_id}}\n
-              chat: {{trigger.event.data.chat}}"
+            message:
+              "Recieved Telegram event:\n command: {{trigger.event.data.command}}\n\
+              \ args: {{trigger.event.data.args}}\n from_first: {{trigger.event.data.from_first}}\n\
+              \ from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n\
+              \ chat_id: {{trigger.event.data.chat_id}}\n chat: {{trigger.event.data.chat}}"
   mode: queued
 - id: "1653739708850"
   alias: "Telegram: Message Received"
@@ -1285,13 +1282,11 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":speech_balloon: Recieved Telegram event:\n
-          chat: {{trigger.event.data.chat}}\n
-          from_first: {{trigger.event.data.from_first}}\n
-          from_last: {{trigger.event.data.from_last}}\n
-          user_id: {{trigger.event.data.user_id}}\n
-          chat_id: {{trigger.event.data.chat_id}}\n
-          text: {{trigger.event.data.text}}"
+        message:
+          ":speech_balloon: Recieved Telegram event:\n chat: {{trigger.event.data.chat}}\n\
+          \ from_first: {{trigger.event.data.from_first}}\n from_last: {{trigger.event.data.from_last}}\n\
+          \ user_id: {{trigger.event.data.user_id}}\n chat_id: {{trigger.event.data.chat_id}}\n\
+          \ text: {{trigger.event.data.text}}"
   mode: queued
 - id: "1653739708851"
   alias: "Telegram: Callback Received"
@@ -1303,13 +1298,40 @@
   action:
     - service: script.post_to_home_log
       data:
-        message: ":speech_balloon: Recieved Telegram event:\n
-          data: {{trigger.event.data.data}}\n
-          message: {{trigger.event.data.message}}\n
-          from_first: {{trigger.event.data.from_first}}\n
-          from_last: {{trigger.event.data.from_last}}\n
-          user_id: {{trigger.event.data.user_id}}\n
-          id: {{trigger.event.data.id}}\n
-          chat_id: {{trigger.event.data.chat_id}}\n
-          text: {{trigger.event.data.text}}"
+        message:
+          ":speech_balloon: Recieved Telegram event:\n data: {{trigger.event.data.data}}\n\
+          \ message: {{trigger.event.data.message}}\n from_first: {{trigger.event.data.from_first}}\n\
+          \ from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n\
+          \ id: {{trigger.event.data.id}}\n chat_id: {{trigger.event.data.chat_id}}\n\
+          \ text: {{trigger.event.data.text}}"
   mode: queued
+- id: "1653857006776"
+  alias: Heating Turned On Check Entrances
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - climate.thermostat
+      attribute: hvac_action
+      to: heating
+      from: idle
+  condition:
+    - condition: state
+      entity_id: climate.thermostat
+      state: auto
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "on"
+          sequence:
+            - service: script.post_to_home_log
+              data:
+                message: "Heating turned on and the conservatory :door: door is open."
+            - service: script.send_direct_notification
+              data:
+                message: Consider closing the door or turning the heating off.
+                title: "Heating turned on and conservatory :door: door is open"
+      default: []
+  mode: single
