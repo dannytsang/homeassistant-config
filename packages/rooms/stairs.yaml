@@ -11,46 +11,47 @@ automation:
         to: "on"
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: sun
-                after: sunrise
-              - condition: state
-                entity_id: light.stairs_2
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_stairs_motion_trigger
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":paw_prints: :high_brightness: Motion detected at the bottom of
-                    the stairs. Turning stairs light strip on."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_2_on
-          - conditions:
-              - condition: time
-                after: 00:00:00
-              - condition: sun
-                before: sunrise
-              - condition: state
-                entity_id: light.stairs_2
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_stairs_motion_trigger
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":paw_prints: :low_brightness: Motion detected at the bottom of
-                    the stairs and it's night time. Turning stairs light strip on dim."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_2_dim
-        default: []
+      parallel:
+        - choose:
+            - conditions:
+                - condition: sun
+                  after: sunrise
+                - condition: state
+                  entity_id: light.stairs_2
+                  state: "off"
+                - condition: state
+                  entity_id: input_boolean.enable_stairs_motion_trigger
+                  state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :high_brightness: Motion detected at the bottom of
+                      the stairs. Turning stairs light strip on."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.stairs_light_2_on
+            - conditions:
+                - condition: time
+                  after: 00:00:00
+                - condition: sun
+                  before: sunrise
+                - condition: state
+                  entity_id: light.stairs_2
+                  state: "off"
+                - condition: state
+                  entity_id: input_boolean.enable_stairs_motion_trigger
+                  state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :low_brightness: Motion detected at the bottom of
+                      the stairs and it's night time. Turning stairs light strip on dim."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.stairs_light_2_dim
+          default: []
     mode: single
   - id: "1598726353326"
     alias: "^Stairs: Upstairs Dark, Before Kids Bed Time, Light Off And Motion Detected"
@@ -79,14 +80,15 @@ automation:
         entity_id: light.stairs
         state: "off"
     action:
-      - data:
-          message: ":paw_prints: Motion detected upstairs before bed time and it's dark. 
-          Turning stairs light on."
-        service: script.send_to_home_log
-      - service: scene.turn_on
-        target:
-          entity_id:
-            - scene.stairs_light_on
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":paw_prints: Motion detected upstairs before bed time and it's dark. 
+            Turning stairs light on."
+        - service: scene.turn_on
+          target:
+            entity_id:
+              - scene.stairs_light_on
     mode: queued
     max: 10
   - id: "1598726353327"
@@ -156,109 +158,110 @@ automation:
         entity_id: light.stairs
         state: "off"
     action:
-      - choose:
-        - conditions:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: No Children
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode. 
-                Turning stairs light on."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.childrens_bedroom_doors
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are shut. Turning stairs light on."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.childrens_bedroom_doors
-              state: "on"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :low_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are open. Turning stairs light on low."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_dim
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "off"
-            - condition: state
-              entity_id: binary_sensor.leos_door
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :boy: Leo's door is shut. Turning stairs light on."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_dim
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "off"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.ashlees_door
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :girl: Ashlee's door is shut. Turning stairs light on."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        default: []
+      parallel:
+        - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: No Children
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode. 
+                  Turning stairs light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.childrens_bedroom_doors
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are shut. Turning stairs light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.childrens_bedroom_doors
+                state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :low_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are open. Turning stairs light on low."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_dim
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.leos_door
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :boy: Leo's door is shut. Turning stairs light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_dim
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.ashlees_door
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :girl: Ashlee's door is shut. Turning stairs light on."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          default: []
     mode: queued
     max: 10
   - id: "1587595659608"
@@ -292,109 +295,110 @@ automation:
         attribute: brightness
         below: "5"
     action:
-      - choose:
-        - conditions:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: No Children
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode. 
-                Turning stairs light up."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.childrens_bedroom_doors
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are shut. Turning stairs light up."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.childrens_bedroom_doors
-              state: "on"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :low_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are open. Turning stairs light up."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_dim
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "off"
-            - condition: state
-              entity_id: binary_sensor.leos_door
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :boy: Leo's door is shut. Turning stairs light up."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_dim
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: No Children
-            - condition: state
-              entity_id: input_boolean.enable_leos_door_automations
-              state: "off"
-            - condition: state
-              entity_id: input_boolean.enable_ashlees_door_automations
-              state: "on"
-            - condition: state
-              entity_id: binary_sensor.ashlees_door
-              state: "off"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :girl: Ashlee's door is shut. Turning stairs light up."
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-        default: []
+      parallel:
+        - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: No Children
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode. 
+                  Turning stairs light up."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.childrens_bedroom_doors
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are shut. Turning stairs light up."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.childrens_bedroom_doors
+                state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :low_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :people_holding_hands: children's doors are open. Turning stairs light up."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_dim
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.leos_door
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :boy: Leo's door is shut. Turning stairs light up."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_dim
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: state
+                entity_id: input_boolean.enable_leos_door_automations
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_door_automations
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.ashlees_door
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
+                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and :girl: Ashlee's door is shut. Turning stairs light up."
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.stairs_light_on
+          default: []
     mode: single
   - id: "1587595659606"
     alias: "^Stairs: Dark, After Bed Time, Light Off and Motion Detected After Midnight"
@@ -426,14 +430,14 @@ automation:
         entity_id: light.stairs
         state: "off"
     action:
-      - choose:
-        # Bedroom light is on
-        - conditions:
-            - condition: state
-              entity_id: light.bedroom_bedside_lights
-              state: "on"
-          sequence:
-            parallel:
+      parallel:
+        - choose:
+          # Bedroom light is on
+          - conditions:
+              - condition: state
+                entity_id: light.bedroom_bedside_lights
+                state: "on"
+            sequence:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
@@ -442,13 +446,12 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
-        # Check if night light settings is turned on.
-        - conditions:
-            - condition: state
-              entity_id: input_boolean.enable_stairs_night_light
-              state: "on"
-          sequence:
-            parallel:
+          # Check if night light settings is turned on.
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_stairs_night_light
+                state: "on"
+            sequence:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :low_brightness: Motion detected upstairs, it's
@@ -457,8 +460,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_night_light
-        default:
-          parallel:
+          default:
             - service: script.send_to_home_log
               data:
                 message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
@@ -502,14 +504,14 @@ automation:
         attribute: brightness
         below: "5"
     action:
-      - choose:
-        # Bedroom light is on
-        - conditions:
-            - condition: state
-              entity_id: light.bedroom_bedside_lights
-              state: "on"
-          sequence:
-            parallel:
+      parallel:
+        - choose:
+          # Bedroom light is on
+          - conditions:
+              - condition: state
+                entity_id: light.bedroom_bedside_lights
+                state: "on"
+            sequence:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
@@ -518,13 +520,12 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
-        # Check if night light settings is turned on.
-        - conditions:
-            - condition: state
-              entity_id: input_boolean.enable_stairs_night_light
-              state: "on"
-          sequence:
-            parallel:
+          # Check if night light settings is turned on.
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_stairs_night_light
+                state: "on"
+            sequence:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :low_brightness: Motion detected upstairs, it's
@@ -533,8 +534,7 @@ automation:
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_night_light
-        default:
-          parallel:
+          default:
             - service: script.send_to_home_log
               data:
                 message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
@@ -565,14 +565,15 @@ automation:
         entity_id: input_boolean.enable_stairs_motion_trigger
         state: "on"
     action:
-      - service: switch.turn_on
-        target:
-          entity_id: switch.magic_mirror_screen
-      - data:
-          message:
-            ":paw_prints: :mirror: Motion detected in lounge/stairs. Turning
-            on Maggic Mirror."
-        service: script.send_to_home_log
+      parallel:
+        - service: switch.turn_on
+          target:
+            entity_id: switch.magic_mirror_screen
+        - data:
+            message:
+              ":paw_prints: :mirror: Motion detected in lounge/stairs. Turning
+              on Maggic Mirror."
+          service: script.send_to_home_log
     mode: queued
     max: 10
   - id: "1587595847618"
@@ -594,47 +595,48 @@ automation:
         entity_id: input_boolean.enable_stairs_motion_trigger
         state: "on"
     action:
-      - choose:
-          - conditions:
-              - condition: trigger
-                id: upstairs
-            sequence:
-              - data:
-                  message:
-                    ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
-                    stairs light off."
-                service: script.send_to_home_log
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_off
-                data:
-                  transition: 1
-        default: []
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: light.stairs_2
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
-                    for 1 minute. Turning stairs ambient light off."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_2_off
-                data:
-                  transition: 2
-              - delay:
-                  hours: 0
-                  minutes: 0
-                  seconds: 1
-                  milliseconds: 0
-              - service: light.turn_off
-                target:
+      parallel:
+        - choose:
+            - conditions:
+                - condition: trigger
+                  id: upstairs
+              sequence:
+                - data:
+                    message:
+                      ":no_pedestrians: :bulb: No motion detected on the landing for 1 minute. Turning
+                      stairs light off."
+                  service: script.send_to_home_log
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.stairs_light_off
+                  data:
+                    transition: 1
+          default: []
+        - choose:
+            - conditions:
+                - condition: state
                   entity_id: light.stairs_2
-        default: []
+                  state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
+                      for 1 minute. Turning stairs ambient light off."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.stairs_light_2_off
+                  data:
+                    transition: 2
+                - delay:
+                    hours: 0
+                    minutes: 0
+                    seconds: 1
+                    milliseconds: 0
+                - service: light.turn_off
+                  target:
+                    entity_id: light.stairs_2
+          default: []
     mode: queued
     max: 10
   - id: "1624918387840"
@@ -653,16 +655,17 @@ automation:
         entity_id: light.stairs_2
         state: "on"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
-            for 1 minute. Turning stairs light off."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.stairs_light_2_off
-        data:
-          transition: 2
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":no_pedestrians: :bulb: No motion detected at the bottom of the stairs
+              for 1 minute. Turning stairs light off."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.stairs_light_2_off
+          data:
+            transition: 2
     mode: single
   - id: "1591553945554"
     alias: "^Stairs: No Motion At Night Turn Off Magic Mirror"
@@ -685,14 +688,15 @@ automation:
         entity_id: input_boolean.enable_magic_mirror_automations
         state: "on"
     action:
-      - service: switch.turn_off
-        target:
-          entity_id: switch.magic_mirror_screen
-      - data:
-          message:
-            ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :no_pedestrians: :mirror: Turning off Maggic Mirror because
-            no motion was detected."
-        service: script.send_to_home_log
+      parallel:
+        - service: switch.turn_off
+          target:
+            entity_id: switch.magic_mirror_screen
+        - data:
+            message:
+              ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :no_pedestrians: :mirror: Turning off Maggic Mirror because
+              no motion was detected."
+          service: script.send_to_home_log
     mode: single
   - id: "1617735237453"
     alias: "^Stairs: Motion Detected And No One Home"
@@ -745,44 +749,45 @@ automation:
             entity_id: input_select.home_mode
             state: No Children
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.leos_door
-                state: "on"
-            sequence: 
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":paw_prints: :door: :low_brightness: {{ trigger.to_state.name }} opened after bed time and
-                    the stairs light are on. Dimming stairs lights."
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_dim
-                    - scene.stairs_light_2_on
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.ashlees_door
-                state: "on"
-            sequence: 
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":door: :high_brightness: {{ trigger.to_state.name }} opened after bed time and
-                    the stairs light are on. Dimming stairs lights."
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_on
-                    - scene.stairs_light_2_on
-        default: []
+      parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_leos_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.leos_door
+                  state: "on"
+              sequence: 
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :door: :low_brightness: {{ trigger.to_state.name }} opened after bed time and
+                      the stairs light are on. Dimming stairs lights."
+                - service: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.stairs_light_dim
+                      - scene.stairs_light_2_on
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_ashlees_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.ashlees_door
+                  state: "on"
+              sequence: 
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":door: :high_brightness: {{ trigger.to_state.name }} opened after bed time and
+                      the stairs light are on. Dimming stairs lights."
+                - service: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.stairs_light_on
+                      - scene.stairs_light_2_on
+          default: []
     mode: queued
     max: 10
   - id: "1615850302527"
@@ -808,71 +813,72 @@ automation:
         entity_id: input_select.home_mode
         state: "Normal"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.childrens_bedroom_doors
-                state: "off"
-            sequence: 
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":door: :high_brightness: {{ trigger.to_state.name }} closed after bed time, :people_holding_hands: 
-                    children's doors are closed and the stairs light are on. Turn light on at full brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_on
-                    - scene.stairs_light_2_on
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "off"
-              - condition: state
-                entity_id: binary_sensor.leos_door
-                state: "off"
-            sequence: 
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":door: :high_brightness: :boy: Leo's door closed after bed time and the
-                    stairs light are on. Turn light onto full brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_on
-                    - scene.stairs_light_2_on
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.ashlees_door
-                state: "off"
-            sequence: 
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":door: :high_brightness: :girl: Ashlee's door closed after bed time and the
-                    stairs light are on. Turn light onto full brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_on
-                    - scene.stairs_light_2_on
-        default: []
+      parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_leos_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: input_boolean.enable_ashlees_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.childrens_bedroom_doors
+                  state: "off"
+              sequence: 
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":door: :high_brightness: {{ trigger.to_state.name }} closed after bed time, :people_holding_hands: 
+                      children's doors are closed and the stairs light are on. Turn light on at full brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.stairs_light_on
+                      - scene.stairs_light_2_on
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_leos_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: input_boolean.enable_ashlees_door_automations
+                  state: "off"
+                - condition: state
+                  entity_id: binary_sensor.leos_door
+                  state: "off"
+              sequence: 
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":door: :high_brightness: :boy: Leo's door closed after bed time and the
+                      stairs light are on. Turn light onto full brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.stairs_light_on
+                      - scene.stairs_light_2_on
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_leos_door_automations
+                  state: "off"
+                - condition: state
+                  entity_id: input_boolean.enable_ashlees_door_automations
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.ashlees_door
+                  state: "off"
+              sequence: 
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":door: :high_brightness: :girl: Ashlee's door closed after bed time and the
+                      stairs light are on. Turn light onto full brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.stairs_light_on
+                      - scene.stairs_light_2_on
+          default: []
     mode: single
   # Timed
   - id: "1588856667889"
@@ -922,12 +928,13 @@ automation:
         entity_id: cover.stairs_blinds
         state: open
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":city_sunrise: :window: Closing stairs blinds."
-      - service: cover.close_cover
-        target:
-          entity_id: cover.stairs_blinds
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":city_sunrise: :window: Closing stairs blinds."
+        - service: cover.close_cover
+          target:
+            entity_id: cover.stairs_blinds
     mode: single
   - id: "1630760149356"
     alias: "^Stairs: Open Blinds In The Morning"
@@ -940,12 +947,13 @@ automation:
         entity_id: cover.stairs_blinds
         state: closed
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":sunrise: :window: Opening stairs blinsd."
-      - service: cover.open_cover
-        target:
-          entity_id: cover.stairs_blinds
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":sunrise: :window: Opening stairs blinsd."
+        - service: cover.open_cover
+          target:
+            entity_id: cover.stairs_blinds
     mode: single
   # Camera
   - id: "1630015410190"
@@ -961,20 +969,21 @@ automation:
         entity_id: switch.upstairs_detect
         state: "on"
     action:
-      - service: camera.snapshot
-        data_template:
-          filename:
-            "{{ states('input_text.latest_frigate_upstairs_person_file_path')
-            }}"
-        target:
-          entity_id: camera.upstairs_person
-      - service: script.send_home_log_with_local_attachments
-        data_template:
-          title: Person detected on stairs
-          message: Frigate detected a person on the stairs.
-          filePath:
-            "{{ states('input_text.latest_frigate_upstairs_person_file_path')
-            }}"
+      parallel:
+        - service: camera.snapshot
+          data_template:
+            filename:
+              "{{ states('input_text.latest_frigate_upstairs_person_file_path')
+              }}"
+          target:
+            entity_id: camera.upstairs_person
+        - service: script.send_home_log_with_local_attachments
+          data_template:
+            title: Person detected on stairs
+            message: Frigate detected a person on the stairs.
+            filePath:
+              "{{ states('input_text.latest_frigate_upstairs_person_file_path')
+              }}"
     mode: queued
     max: 10
   # Smoke alarm
@@ -987,17 +996,18 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_direct_notification
-        data:
-          title: ":skull_and_crossbones: CO Detected on the stairs"
-          message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
-      - service: script.send_to_home_log
-        data:
-          message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
-      - service: script.set_central_heating_to_off
-        data: {}
-      - service: script.set_how_water_to_home_mode
-        data: {}
+      parallel:
+        - service: script.send_direct_notification
+          data:
+            title: ":skull_and_crossbones: CO Detected on the stairs"
+            message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
+        - service: script.send_to_home_log
+          data:
+            message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
+        - service: script.set_central_heating_to_off
+          data: {}
+        - service: script.set_how_water_to_home_mode
+          data: {}
     mode: single
   - id: "1646778927329"
     alias: "^Stairs: Smoked Detected"
@@ -1008,18 +1018,20 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_direct_notification
-        data:
-          title: ":smoking: Smoke detected on the stairs"
-          message: ":smoking: Smoke detected on the stairs."
-      - service: script.send_to_home_log
-        data:
-          message: ":smoking: Smoke detected on the stairs."
-      - service: script.set_central_heating_to_off
-        data: {}
-      - service: script.set_how_water_to_home_mode
-        data: {}
-    mode: single  
+      parallel:
+        - service: script.send_direct_notification
+          data:
+            title: ":smoking: Smoke detected on the stairs"
+            message: ":smoking: Smoke detected on the stairs."
+        - service: script.send_to_home_log
+          data:
+            message: ":smoking: Smoke detected on the stairs."
+        - service: script.set_central_heating_to_off
+          data: {}
+        - service: script.set_how_water_to_home_mode
+          data: {}
+    mode: single
+
 input_boolean:
   enable_magic_mirror_automations:
     name: Enable Magic Mirror automations
@@ -1033,6 +1045,7 @@ input_boolean:
   enable_stairs_motion_trigger:
     name: Enable motion trigger for stairs
     icon: mdi:motion-sensor
+
 scene:
   - id: "1609512133205"
     name: "Stairs: Turn Light On"
@@ -1220,6 +1233,7 @@ scene:
         friendly_name: Stairs Light
         supported_features: 55
         state: "on"
+
 script:
   upstairs_turn_on_camera:
     alias: Upstairs Turn On Camera
