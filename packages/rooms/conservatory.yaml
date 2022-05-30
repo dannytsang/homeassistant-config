@@ -164,8 +164,26 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          message: ":door: Conservatory door opened. Enabling conservatory camera :camera_with_flash:"
+          message: ":door: Conservatory door opened."
+      - service: script.send_to_home_log
+        data:
+          message: "Turning conservatory camera :camera_with_flash: on."
       - service: script.conservatory_turn_on_camera
+      - if:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: climate.thermostat
+                state: "off"
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: "Turning off the heating."
+          - service: climate.set_hvac_mode
+            data:
+              hvac_mode: "off"
+            target:
+              entity_id: climate.thermostat
     mode: single
   - id: "1628985156167"
     alias: "Conservatory: Door Closed"
@@ -177,10 +195,24 @@ automation:
         from: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":door: Conservatory door closed."
-      - service: script.conservatory_turn_off_camera
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":door: Conservatory door closed."
+        - service: script.conservatory_turn_off_camera
+        - if:
+            - condition: state
+              entity_id: climate.thermostat
+              state: "off"
+          then:
+            - service: script.send_to_home_log
+              data:
+                message: "Setting heating to schedule (auto) mode."
+            - service: climate.set_hvac_mode
+              data:
+                hvac_mode: "auto"
+              target:
+                entity_id: climate.thermostat
     mode: single
 group:
   conservatory_area_temperature:
