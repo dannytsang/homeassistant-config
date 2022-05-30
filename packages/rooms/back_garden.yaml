@@ -43,17 +43,10 @@ automation:
                 entity_id: binary_sensor.conservatory_door
                 state: "on"
             sequence:
-              - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.send_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                        camera on because alarm is armed and conservatory door is open."
-                default: []
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                  camera on because alarm is armed and conservatory door is open."
           - conditions:
             - not:
                 - condition: state
@@ -63,49 +56,29 @@ automation:
               entity_id: binary_sensor.conservatory_door
               state: "off"
             sequence:
-              - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.send_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                        camera on because alarm is armed."
-                default: []
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                  camera on because alarm is armed."
           - conditions:
             - condition: state
               entity_id: binary_sensor.conservatory_door
               state: "on"
             sequence:
-              - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.send_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                        camera on because conservatory door is open."
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                  camera on because conservatory door is open."
                 default: []
           - conditions:
               - condition: state
                 entity_id: alarm_control_panel.house_alarm
                 state: "disarmed"
             sequence:
-              - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.send_to_home_log
-                      data:
-                        message: ":door: :hut: :camera: Shed door closed. Turning conservatory
-                        camera off."
-                default: []
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: :hut: :camera: Shed door closed. Turning conservatory
+                  camera off."
               - service: script.conservatory_turn_off_camera
           - conditions:
               - not:
@@ -113,17 +86,10 @@ automation:
                     entity_id: alarm_control_panel.house_alarm
                     state: "disarmed"
             sequence:
-              - choose:
-                - conditions:
-                    - condition: state
-                      state: "on"
-                      entity_id: input_boolean.enable_slack_notifications
-                  sequence:
-                    - service: script.send_to_home_log
-                      data:
-                        message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                        camera on because alarm is armed."
-                default: []
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
+                  camera on because alarm is armed."
         default: []
     mode: single
   - id: "1618158730212"
