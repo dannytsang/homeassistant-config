@@ -16,7 +16,7 @@ automation:
         entity_id: input_boolean.bathroom_light_override
         state: "off"
       - condition: state
-        entity_id: light.bathroom_light
+        entity_id: light.bathroom
         state: "off"
     action:
       - choose:
@@ -114,11 +114,11 @@ automation:
         entity_id: input_boolean.bathroom_light_override
         state: "off"
       - condition: state
-        entity_id: light.bathroom_light
+        entity_id: light.bathroom
         state: "on"
       - or:
           - condition: numeric_state
-            entity_id: light.bathroom_light
+            entity_id: light.bathroom
             attribute: brightness
             below: "200"
     action:
@@ -198,7 +198,7 @@ automation:
         id: door_closed
     condition:
       - condition: state
-        entity_id: light.bathroom_light
+        entity_id: light.bathroom
         state: "on"
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_trigger
@@ -289,7 +289,7 @@ automation:
         id: long
     condition:
       - condition: state
-        entity_id: light.bathroom_light
+        entity_id: light.bathroom
         state: "on"
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_trigger
@@ -605,6 +605,7 @@ automation:
             data:
               position: 30
     mode: single
+
 counter:
   bathroom_door:
     name: Bathroom Door Open Close
@@ -612,6 +613,7 @@ counter:
     initial: 0
     minimum: 0
     step: 1
+
 input_boolean:
   enable_bathroom_blind_automations:
     name: Enable bathroom blind automations
@@ -629,11 +631,12 @@ input_boolean:
   enable_bathroom_night_light:
     name: Enable bathroom night light
     icon: mdi:brightness-4
+
 scene:
   - id: "1610310643539"
     name: "Bathroom: Light On"
     entities:
-      light.bathroom_light:
+      light.bathroom:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -648,7 +651,7 @@ scene:
   - id: "1610310671262"
     name: "Bathroom: Turn Off Light"
     entities:
-      light.bathroom_light:
+      light.bathroom:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -661,7 +664,7 @@ scene:
   - id: "1610310719574"
     name: "Bathroom: Dim Lights"
     entities:
-      light.bathroom_light:
+      light.bathroom:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -676,7 +679,7 @@ scene:
   - id: "1632078596492"
     name: Bathroom Night Light
     entities:
-      light.bathroom_light:
+      light.bathroom:
         min_mireds: 153
         max_mireds: 454
         effect_list:
@@ -701,6 +704,7 @@ scene:
         supported_features: 39
         state: "on"
     icon: mdi:lightbulb
+
 script:
   bathroom_flash_light:
     alias: Bathroom Flash Light
@@ -711,10 +715,10 @@ script:
             - service: light.turn_on
               data:
                 brightness_pct: 100
-              entity_id: light.bathroom_light
+              entity_id: light.bathroom
             - service: light.turn_off
               data: {}
-              entity_id: light.bathroom_light
+              entity_id: light.bathroom
     mode: single
 sensor:
   # Aggregated sensors
