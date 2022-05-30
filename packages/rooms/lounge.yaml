@@ -48,49 +48,50 @@ automation:
               "{{ state_attr('light.lounge_right_lamp', 'brightness')
               == none }}"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: device_tracker.lap_ctc0501
-                state: home
-              - or:
-                  - below: "81"
-                    condition: numeric_state
-                    entity_id: sensor.lounge_motion_2_light_level
-                  - below: "65"
-                    condition: numeric_state
-                    entity_id: sensor.lounge_motion_3_light_level
-            sequence:
-              - data:
-                  message:
-                    ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
-                    in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
-                    }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
-                    lux) and Terina''s work computer is on. Turning lounge lights on."
-                service: script.send_to_home_log
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.lounge_lights
-          - conditions:
-              - or:
-                  - below: "25"
-                    condition: numeric_state
-                    entity_id: sensor.lounge_motion_2_light_level
-                  - below: "30"
-                    condition: numeric_state
-                    entity_id: sensor.lounge_motion_3_light_level
-            sequence:
-              - data:
-                  message:
-                    ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
-                    and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
-                    {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
-                    Turning lounge lights on."
-                service: script.send_to_home_log
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.lounge_lights
-        default: []
+      parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: device_tracker.lap_ctc0501
+                  state: home
+                - or:
+                    - below: "81"
+                      condition: numeric_state
+                      entity_id: sensor.lounge_motion_2_light_level
+                    - below: "65"
+                      condition: numeric_state
+                      entity_id: sensor.lounge_motion_3_light_level
+              sequence:
+                - data:
+                    message:
+                      ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
+                      in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
+                      }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
+                      lux) and Terina''s work computer is on. Turning lounge lights on."
+                  service: script.send_to_home_log
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.lounge_lights
+            - conditions:
+                - or:
+                    - below: "25"
+                      condition: numeric_state
+                      entity_id: sensor.lounge_motion_2_light_level
+                    - below: "30"
+                      condition: numeric_state
+                      entity_id: sensor.lounge_motion_3_light_level
+              sequence:
+                - data:
+                    message:
+                      ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
+                      and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
+                      {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
+                      Turning lounge lights on."
+                  service: script.send_to_home_log
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.lounge_lights
+          default: []
     mode: queued
     max: 10
   - id: "1606170045630"
@@ -109,16 +110,17 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":no_pedestrians: :bulb: :low_brightness: No motion detected and :tv:TV
-            is turned off in the lounge for 5 minutes. Dimming lights"
-      - service: scene.turn_on
-        target:
-          entity_id: scene.lounge_dim_lights
-        data:
-          transition: 2
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":no_pedestrians: :bulb: :low_brightness: No motion detected and :tv:TV
+              is turned off in the lounge for 5 minutes. Dimming lights"
+        - service: scene.turn_on
+          target:
+            entity_id: scene.lounge_dim_lights
+          data:
+            transition: 2
     mode: single
   - id: "1605567425876"
     alias: "^Lounge: No Motion After 10 Minutes"
@@ -137,16 +139,17 @@ automation:
         entity_id: sensor.tv_plug_power_meter
         below: "10"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":no_pedestrians: No motion detected in the lounge for 10 minutes and
-            :tv:TV is turned off. Turning lounge :bulb: lights off."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.lounge_lights_off
-        data:
-          transition: 2
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":no_pedestrians: No motion detected in the lounge for 10 minutes and
+              :tv:TV is turned off. Turning lounge :bulb: lights off."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.lounge_lights_off
+          data:
+            transition: 2
     mode: single
   - id: "1588859622571"
     alias: "^Lounge: Motion Detected In The Morning"
@@ -221,16 +224,17 @@ automation:
           " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
-            lights."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.lounge_dim_lights
-        data:
-          transition: 2
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
+              lights."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.lounge_dim_lights
+          data:
+            transition: 2
     mode: single
   - id: "1610409803685"
     alias: "^Lounge: TV Turned Off Turn Off Lights"
@@ -252,14 +256,15 @@ automation:
           " {{ (as_timestamp(now())-as_timestamp(states.binary_sensor.lounge_area_motion.last_updated))
           > 300 }}"
     action:
-      - service: script.send_to_home_log
-        data:
-          message: TV turned off for 10 minutes. Turning lounge lights off.
-      - service: scene.turn_on
-        target:
-          entity_id: scene.lounge_lights_off
-        data:
-          transition: 2
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: TV turned off for 10 minutes. Turning lounge lights off.
+        - service: scene.turn_on
+          target:
+            entity_id: scene.lounge_lights_off
+          data:
+            transition: 2
     mode: single
   # Bay Window
   - id: "1608493783373"
@@ -272,14 +277,15 @@ automation:
           action: bay_window_high_temp
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":warning: :thermometer: Bay window is above 35c. Turning server fan
-            on."
-      - service: switch.turn_on
-        target:
-          entity_id: switch.server_fan
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":warning: :thermometer: Bay window is above 35c. Turning server fan
+              on."
+        - service: switch.turn_on
+          target:
+            entity_id: switch.server_fan
     mode: single
   - id: "1608493853210"
     alias: "^Lounge: Bay Window Below High Temperature"
@@ -291,14 +297,15 @@ automation:
           action: bay_window_low_temp
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":thermometer: :snowflake: Bay window below high temperature. Turning
-            server fan off."
-      - service: switch.turn_off
-        target:
-          entity_id: switch.server_fan
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":thermometer: :snowflake: Bay window below high temperature. Turning
+              server fan off."
+        - service: switch.turn_off
+          target:
+            entity_id: switch.server_fan
 
     mode: single
   - id: "1611063957341"
@@ -311,26 +318,27 @@ automation:
         for: 01:00:00
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            Server fan has been running for more than 1 hour. Consider turning
-            Fan off.
-      - if:
-          - condition: state
-            entity_id: input_boolean.enable_direct_notifications
-            state: "on"
-        then:
-          - service: notify.mobile_app_dannys_phone
-            data:
-              message: Turn off server fan?
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              Server fan has been running for more than 1 hour. Consider turning
+              Fan off.
+        - if:
+            - condition: state
+              entity_id: input_boolean.enable_direct_notifications
+              state: "on"
+          then:
+            - service: notify.mobile_app_dannys_phone
               data:
-                actions:
-                  - title: "Yes"
-                    action: server_fan_off
-                  - title: "No"
-                    action: ignore
-              title: Server fan on for over 1 hour
+                message: Turn off server fan?
+                data:
+                  actions:
+                    - title: "Yes"
+                      action: server_fan_off
+                    - title: "No"
+                      action: ignore
+                title: Server fan on for over 1 hour
     mode: single
   # Camera
   - id: "1630015457540"
@@ -373,11 +381,12 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":door: :window: Lounge door/window opened."
-      - service: script.lounge_turn_on_camera
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":door: :window: Lounge door/window opened."
+        - service: script.lounge_turn_on_camera
     mode: single
   - id: "1631454249839"
     alias: "^Lounge: Door Or Windows Closed"
@@ -389,10 +398,11 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":door: :window: All doors/windows closed in the lounge."
-      - service: script.lounge_turn_off_camera
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":door: :window: All doors/windows closed in the lounge."
+        - service: script.lounge_turn_off_camera
     mode: single
   # Switches
   - id: "1610388192224"
@@ -414,10 +424,12 @@ automation:
         default:
           - service: script.lounge_select_game_input
     mode: single
+
 input_boolean:
   enable_lounge_motion_trigger:
     name: Enable motion trigger for lounge
     icon: mdi:motion-sensor
+
 scene:
   - id: "1582387315374"
     name: Lounge Lights On
@@ -558,6 +570,7 @@ scene:
         supported_features: 55
         state: "on"
     icon: mdi:lamp
+
 script:
   # Camera
   lounge_turn_off_camera:
@@ -703,6 +716,7 @@ sensor:
       - sensor.lounge_motion_2_temperature
       - sensor.lounge_motion_3_temperature
     type: mean
+
 template:
   - binary_sensor:
       - name: Playstation Powered On
