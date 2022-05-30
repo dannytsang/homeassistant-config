@@ -40,6 +40,29 @@ automation:
                 target:
                   entity_id: scene.bathroom_night_light
           - conditions:
+              - condition: numeric_state
+                entity_id: sensor.bathroom_motion_2_light_level
+                below: "40"
+              - or:
+                  - condition: sun
+                    before: sunrise
+                  - condition: time
+                    before: "05:30:00"
+              - condition: state
+                entity_id: light.bedroom_bedside_lights
+                state: "on"
+            sequence:
+              parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :bathtub: :high_brightness: Motion detected in the bathroom,
+                        it's dark ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux) and 
+                        it's :clock12: late. Bedroom lights are still on so turning bathroom light on."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bathroom_light_on
+          - conditions:
               - condition: state
                 entity_id: input_select.home_mode
                 state: Guest
@@ -47,14 +70,15 @@ automation:
                 entity_id: sensor.bathroom_motion_2_light_level
                 below: "40"
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark in :busts_in_silhouette: 
-                      guest mode ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux). Turning lights on."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.bathroom_light_on
+              parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark in :busts_in_silhouette: 
+                        guest mode ({{ states('sensor.bathroom_motion_light_level') }} < 40 lux). Turning lights on."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bathroom_light_on
           - conditions:
               - not:
                   - condition: state
@@ -64,14 +88,15 @@ automation:
                 entity_id: sensor.bathroom_motion_2_light_level
                 below: "30"
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark ({{ states('sensor.bathroom_motion_light_level') }}
-                    < 40 lux). Turning lights on."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.bathroom_light_on
+              parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":paw_prints: :bathtub: Motion detected in the bathroom and it's dark ({{ states('sensor.bathroom_motion_light_level') }}
+                      < 40 lux). Turning lights on."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bathroom_light_on
         default: []
     mode: single
   - id: "1610307951216"
