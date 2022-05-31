@@ -67,7 +67,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "5"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -83,7 +83,11 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: ":paw_prints: Motion detected upstairs before bed time and it's dark. 
+            message: ":paw_prints: Motion detected upstairs before bed time and it's dark 
+            ({{ states('sensor.stairs_motion_light_level') }} 
+            {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
+            {{ states('input_number.stairs_light_level_threshold') }} 
+            {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}). 
             Turning stairs light on."
         - service: scene.turn_on
           target:
@@ -105,7 +109,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "5"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -123,7 +127,11 @@ automation:
         below: "5"
     action:
       - data:
-          message: ":paw_prints: Motion detected upstairs before bed time, light is on and it's dark. 
+          message: ":paw_prints: Motion detected upstairs before bed time, light is on and it's dark 
+          ({{ states('sensor.stairs_motion_light_level') }} 
+          {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
+          {{ states('input_number.stairs_light_level_threshold') }} 
+          {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}).  
           Turning stairs light on."
         service: script.send_to_home_log
       - service: scene.turn_on
@@ -146,7 +154,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "10"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -279,7 +287,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "10"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -305,8 +313,11 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :door: :high_brightness: Motion detected upstairs, it's
-                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode. 
-                  Turning stairs light up."
+                  dark ({{ states('sensor.stairs_motion_light_level') }} 
+                  {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
+                  {{ states('input_number.stairs_light_level_threshold') }} 
+                  {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}) 
+                  and in No Children Mode. Turning stairs light up."
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
@@ -415,7 +426,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "5"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -441,8 +452,11 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
-                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock12: late 
-                  but bedroom light(s) are on. Turning stairs light on."
+                  dark ({{ states('sensor.stairs_motion_light_level') }} 
+                  {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
+                  {{ states('input_number.stairs_light_level_threshold') }} 
+                  {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}) 
+                  and it's :clock12: late but bedroom light(s) are on. Turning stairs light on."
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
@@ -485,7 +499,7 @@ automation:
         from: "off"
         to: "on"
     condition:
-      - below: "5"
+      - below: input_number.stairs_light_level_threshold
         condition: numeric_state
         entity_id: sensor.stairs_motion_light_level
       - condition: state
@@ -515,8 +529,11 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: :high_brightness: Motion detected upstairs, it's
-                  dark ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock12: late 
-                  but bedroom light(s) are on. Turning stairs light on."
+                  dark ({{ states('sensor.stairs_motion_light_level') }} 
+                  {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
+                  {{ states('input_number.stairs_light_level_threshold') }} 
+                  {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}) 
+                  and it's :clock12: late but bedroom light(s) are on. Turning stairs light on."
               - service: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
