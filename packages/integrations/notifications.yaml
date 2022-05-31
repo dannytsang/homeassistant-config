@@ -44,7 +44,7 @@ input_select:
       - Telegram
     icon: mdi:cellphone-information
   terina_direct_notification_preference:
-    name: Danny's Direct Notification Preference
+    name: Terina's Direct Notification Preference
     options:
       - Slack
       - Mobile
@@ -82,16 +82,16 @@ script:
       title:
         description: (optional)Header to the message posted.
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
-          target: "#home_log"
-          data:
-            blocks: []
-        service: notify.slack_notify
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_notifications
+            state: "on"
+        then:
+          - service: notify.slack_notify
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default('', true) }}"
+              target: "#home_log"
   send_direct_notification:
     alias: Send A Direct Mesage To a Person
     icon: mdi:message-outline
@@ -105,35 +105,37 @@ script:
       title:
         description: Title to post
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.danny_direct_notification_preference
-                state: Telegram
-            sequence:
-              - service: script.post_telegram_direct_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title }}"
-          - conditions:
-              - condition: state
-                entity_id: input_select.danny_direct_notification_preference
-                state: Slack
-            sequence:
-              - service: script.post_slack_direct_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title }}"
-                  people: "@danny"
-        default: []
-      - service: script.post_slack_direct_notification
-        data:
-          message: "{{ message }}"
-          title: "{{ title }}"
-          people: "@terina"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_notifications
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.danny_direct_notification_preference
+                    state: Telegram
+                sequence:
+                  - service: script.post_telegram_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.danny_direct_notification_preference
+                    state: Slack
+                sequence:
+                  - service: script.post_slack_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      people: "@danny"
+            default: []
+          - service: script.post_slack_direct_notification
+            data:
+              message: "{{ message }}"
+              title: "{{ title }}"
+              people: "@terina"
   send_home_log_with_local_attachments:
     alias: Post To Home Log With Local Attachments
     icon: mdi:message-image-outline
