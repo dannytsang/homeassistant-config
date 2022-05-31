@@ -61,7 +61,7 @@ notify:
   - name: slack_notify
     platform: slack
     api_key: !secret slack
-    default_channel: "#home_log"
+    default_channel: "home_log"
   - platform: telegram
     name: telegram
     chat_id: !secret telegram_danny_chat_id
@@ -91,7 +91,7 @@ script:
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
-              target: "#home_log"
+              target: "home_log"
   send_direct_notification:
     alias: Send A Direct Mesage To a Person
     icon: mdi:message-outline
@@ -157,7 +157,7 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title }}"
-          target: "#home_log"
+          target: "home_log"
           filePath: "{{ filePath }}"
     mode: queued
     max: 10
@@ -180,7 +180,7 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title }}"
-          target: "#home_log"
+          target: "home_log"
           url: "{{ url }}"
     mode: queued
     max: 10
@@ -282,23 +282,45 @@ script:
     sequence:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_direct_notifications
-                state: "on"
+              - condition: template
+                value_template: "{{ 'person.danny' in people.split(',') }}"
+              - condition: template
+                value_template: "{{ 'person.terina' in people.split(',') }}"
             sequence:
-              - service: notify.mobile_app_dannys_phone
+              - service: notify.slack_notify
                 data:
-                  message: "{{ message }}"
-              - service: notify.mobile_app_terina_s_phone
+                  message: "@danny @terina {{ message }}"
+                  target: "general"
+                  data:
+                    blocks: []
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.danny' in people.split(',') }}"
+            sequence:
+              - service: notify.slack_notify
                 data:
-                  message: "{{ message }}"
-        default: []
-      - data:
-          message: "{{ people }} {{ message }}"
-          target: "#general"
-          data:
-            blocks: []
-        service: notify.slack_notify
+                  message: "@danny {{ message }}"
+                  target: "general"
+                  data:
+                    blocks: []
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.terina' in people.split(',') }}"
+            sequence:
+              - service: notify.slack_notify
+                data:
+                  message: "@terina {{ message }}"
+                  target: "general"
+                  data:
+                    blocks: []
+        default:
+          # If no one was specified
+          - service: notify.slack_notify
+            data:
+              message: "@danny @terina {{ message }}"
+              target: "general"
+              data:
+                blocks: []
   post_to_slack_home_log_with_local_attachments:
     alias: Post To Slack Home Log With Local Attachments
     icon: mdi:slack
@@ -340,7 +362,7 @@ script:
       title:
         description: (optional)Header to the message posted.
       target:
-        description: "Slack channel to post to including the #"
+        description: "Slack channel to post without the #."
         required: true
       url:
         description: Link to file.
@@ -353,7 +375,7 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
-          target: "#home_log"
+          target: "home_log"
           data:
             file:
               url: "{{ url }}"
@@ -458,23 +480,27 @@ script:
         description: Message to post
         required: true
       title:
-        description: Message to post
+        description: Title of post
+      people:
+        description: Person to send the message to e.g. person.danny.
+          If not specified then it goes to everyone.
     sequence:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_direct_notifications
-                state: "on"
-              - condition: state
-                entity_id: input_select.danny_direct_notification_preference
-                state: "Telegram"
+              - condition: template
+                value_template: "{{ 'person.danny' in people.split(',') }}"
             sequence:
               - service: telegram_bot.send_message
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.telegram_danny_chat_id') }}"
-        default: []
+        default:
+          - service: telegram_bot.send_message
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default('', true) }}"
+              target: "{{ states('input_text.telegram_danny_chat_id') }}"
   post_to_telegram_home_log_with_local_attachments:
     alias: Post To Slack Home Log With Local Attachments
     icon: mdi:android-messages
