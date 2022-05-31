@@ -39,14 +39,15 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_direct_notification
-        data:
-          message:
-            ":warning: :door: :snowflake: Freezer door has been open for more than
-            4 minutes!"
-      - data:
-          message:
-            ":warning: :door: :snowflake: Freezer door has been open for more than
-            4 minutes!"
-        service: script.send_to_home_log
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message:
+                ":warning: :door: :snowflake: Freezer door has been open for more than
+                4 minutes!"
+          - data:
+              message:
+                ":warning: :door: :snowflake: Freezer door has been open for more than
+                4 minutes!"
+            service: script.send_to_home_log
     mode: single
