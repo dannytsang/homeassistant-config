@@ -24,10 +24,10 @@ automation:
           entity_id: input_boolean.enable_lounge_motion_trigger
           state: "on"
         - or:
-          - below: "30"
+          - below: input_number.lounge_light_level_2_threshold
             condition: numeric_state
             entity_id: sensor.lounge_motion_2_light_level
-          - below: "25"
+          - below: input_number.lounge_light_level_3_threshold
             condition: numeric_state
             entity_id: sensor.lounge_motion_3_light_level
         - or:
@@ -66,7 +66,7 @@ automation:
                     message:
                       ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
                       in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
-                      }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25
+                      }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 65-85
                       lux) and Terina''s work computer is on. Turning lounge lights on."
                   service: script.send_to_home_log
                 - service: scene.turn_on
@@ -74,10 +74,10 @@ automation:
                     entity_id: scene.lounge_lights
             - conditions:
                 - or:
-                    - below: "25"
+                    - below: input_number.lounge_light_level_2_threshold
                       condition: numeric_state
                       entity_id: sensor.lounge_motion_2_light_level
-                    - below: "30"
+                    - below: input_number.lounge_light_level_3_threshold
                       condition: numeric_state
                       entity_id: sensor.lounge_motion_3_light_level
               sequence:
@@ -85,7 +85,10 @@ automation:
                     message:
                       ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
                       and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
-                      {{ states('sensor.lounge_motion_3_light_level') }} lux < 20-25 lux).
+                      {{ states('sensor.lounge_motion_3_light_level') }} lux < 
+                      {{ states('input_number.lounge_light_level_2_threshold') }}-
+                      {{ states('input_number.lounge_light_level_3_threshold') }} 
+                      {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }}).
                       Turning lounge lights on."
                   service: script.send_to_home_log
                 - service: scene.turn_on
