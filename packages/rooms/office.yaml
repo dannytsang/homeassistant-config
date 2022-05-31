@@ -42,7 +42,7 @@ automation:
                         attribute: brightness
                         below: "200"
             sequence:
-              parallel:
+              - parallel:
                 - service: scene.turn_on
                   target:
                     entity_id: scene.office_main_light_on
@@ -72,7 +72,7 @@ automation:
                         attribute: brightness
                         below: "200"
             sequence:
-              parallel:
+              - parallel:
                 - service: scene.turn_on
                   target:
                     entity_id: scene.office_main_light_off
@@ -118,7 +118,7 @@ automation:
                         entity_id: sensor.office_motion_2_light_level
                         below: "110"
             sequence:
-              parallel:
+              - parallel:
                 - service: scene.turn_on
                   target:
                     entity_id: scene.office_main_light_on
@@ -147,7 +147,7 @@ automation:
                         attribute: brightness
                         below: "200"
             sequence:
-              parallel:
+              - parallel:
                 - service: scene.turn_on
                   target:
                     entity_id: scene.office_main_light_off
@@ -174,7 +174,7 @@ automation:
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message:
@@ -209,7 +209,7 @@ automation:
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
     action:
-      parallel:
+      - parallel:
         - data:
             message:
               ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
@@ -234,7 +234,7 @@ automation:
         entity_id: input_boolean.enable_office_motion_trigger
         state: "on"
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message:
@@ -275,7 +275,7 @@ automation:
               - condition: time
                 after: "08:30:00"
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message:
@@ -290,7 +290,7 @@ automation:
                 entity_id: sensor.office_area_temperature
                 above: "29"
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message:
@@ -311,7 +311,7 @@ automation:
                 entity_id: sensor.office_area_temperature
                 above: "31"
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message:
@@ -383,7 +383,7 @@ automation:
           - condition: sun
             before: sunrise
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message:
@@ -406,7 +406,7 @@ automation:
         to: "on"
     condition: []
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message: ":tv: Computer turned on."
@@ -444,7 +444,7 @@ automation:
               - condition: trigger
                 id: router
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message: ":computer: :tv: Computer turned off for more than 10 minutes."
@@ -467,7 +467,7 @@ automation:
               - condition: trigger
                 id: pc
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message: ":computer: :tv: Computer turned off for more than 10 minutes."
@@ -497,7 +497,7 @@ automation:
         at: 08:00:00
     condition: []
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
@@ -545,7 +545,7 @@ automation:
               - condition: trigger
                 id: summer
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
@@ -561,7 +561,7 @@ automation:
               - condition: trigger
                 id: winter
             sequence:
-              parallel:
+              - parallel:
                 - service: script.send_to_home_log
                   data:
                     message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
@@ -578,7 +578,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message: "Webhook: Closing office curtains."
@@ -594,7 +594,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message: "Webhook: Closing office curtains."
@@ -611,7 +611,7 @@ automation:
       - condition: template
         value_template: "{{ trigger.json.key|string == states('input_text.office_keylight_key') }}"
     action:
-      parallel:
+      - parallel:
         - service: script.send_to_home_log
           data:
             message: ":bulb: Toggle Key light"
@@ -658,7 +658,7 @@ automation:
         to: "on"
     condition: []
     action:
-      parallel:
+      - parallel:
         - service: script.send_direct_notification
           data:
             title: ":skull_and_crossbones: CO Detected in the office"
@@ -680,7 +680,7 @@ automation:
         to: "on"
     condition: []
     action:
-      parallel:
+      - parallel:
         - service: script.send_direct_notification
           data:
             title: ":smoking: Smoke detected in the office"
