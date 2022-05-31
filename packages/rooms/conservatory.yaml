@@ -51,7 +51,7 @@ automation:
     condition:
       - condition: numeric_state
         entity_id: sensor.conservatory_motion_light_level
-        below: "250"
+        below: input_number.conservatory_light_level_threshold
       - condition: state
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
@@ -66,7 +66,12 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and it's dark ({{ states('sensor.conservatory_motion_light_level') }} lux < 25 lux). Turning on Lights."
+              message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and 
+              it's dark ({{ states('sensor.conservatory_motion_light_level') }} 
+              {{ state_attr('sensor.conservatory_motion_light_level','unit_of_measurement') }} < 
+              ({{ states('input_number.conservatory_light_level_threshold') }} 
+              {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}). 
+              Turning on Lights."
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_on_light
