@@ -28,10 +28,10 @@ automation:
                   - or:
                       - condition: numeric_state
                         entity_id: sensor.office_motion_light_level
-                        below: "105"
+                        below: input_number.office_light_level_threshold
                       - condition: numeric_state
                         entity_id: sensor.office_motion_2_light_level
-                        below: "110"
+                        below: input_number.office_light_level_2_threshold
                   - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
@@ -43,25 +43,29 @@ automation:
                         below: "200"
             sequence:
               - parallel:
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_main_light_on
-                - service: script.send_to_home_log
-                  data:
-                    title: Office Motion Detected
-                    message: >-
-                      :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                      and it's dark ({{ states('sensor.office_motion_light_level') }} & {{
-                      states('sensor.office_motion_2_light_level') }} lux < 105 & 110
-                      lux). Turning office up lights.
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.office_main_light_on
+                  - service: script.send_to_home_log
+                    data:
+                      title: Office Motion Detected
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and it's dark ({{ states('sensor.office_motion_light_level') }} & 
+                        {{ states('sensor.office_motion_2_light_level') }} 
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                        {{ states('input_number.office_light_level_threshold') }}-
+                        {{ states('input_number.office_light_level_2_threshold') }}
+                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
+                        Turning office up lights.
           - conditions:
               - and:
                   - condition: numeric_state
                     entity_id: sensor.office_motion_light_level
-                    above: "105"
+                    above: input_number.office_light_level_threshold
                   - condition: numeric_state
                     entity_id: sensor.office_motion_2_light_level
-                    above: "110"
+                    above: input_number.office_light_level_2_threshold
                   - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
@@ -73,17 +77,21 @@ automation:
                         below: "200"
             sequence:
               - parallel:
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_main_light_off
-                - service: script.send_to_home_log
-                  data:
-                    title: Office Motion Detected
-                    message: >-
-                      :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                      and bright ({{ states('sensor.office_motion_light_level') }} & {{
-                      states('sensor.office_motion_2_light_level') }} lux > 105 & 110
-                      lux). Turning office lights off.
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.office_main_light_off
+                  - service: script.send_to_home_log
+                    data:
+                      title: Office Motion Detected
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and bright ({{ states('sensor.office_motion_light_level') }} & 
+                        {{ states('sensor.office_motion_2_light_level') }} 
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                        {{ states('input_number.office_light_level_threshold') }}-
+                        {{ states('input_number.office_light_level_2_threshold') }}
+                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
+                        Turning office lights off.
         default: []
     mode: single
   - id: "1632064858461"
@@ -113,51 +121,26 @@ automation:
                   - or:
                       - condition: numeric_state
                         entity_id: sensor.office_motion_light_level
-                        below: "105"
+                        below: input_number.office_light_level_threshold
                       - condition: numeric_state
                         entity_id: sensor.office_motion_2_light_level
-                        below: "110"
+                        below: input_number.office_light_level_2_threshold
             sequence:
               - parallel:
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_main_light_on
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                      and it's dark ({{ states('sensor.office_motion_light_level') }} & {{
-                      states('sensor.office_motion_2_light_level') }} lux < 105 & 110
-                      lux). Turning office lights on.
-          - conditions:
-              - and:
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_light_level
-                    above: "105"
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_2_light_level
-                    above: "110"
-                  - or:
-                      - condition: numeric_state
-                        entity_id: light.office_light_2
-                        attribute: brightness
-                        below: "200"
-                      - condition: numeric_state
-                        entity_id: light.office_light_3
-                        attribute: brightness
-                        below: "200"
-            sequence:
-              - parallel:
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_main_light_off
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                      and bright ({{ states('sensor.office_motion_light_level') }} & {{
-                      states('sensor.office_motion_2_light_level') }} lux > 105 & 110
-                      lux). Turning office lights off.
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.office_main_light_on
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and it's dark ({{ states('sensor.office_motion_light_level') }} & 
+                        {{ states('sensor.office_motion_2_light_level') }} 
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                        {{ states('input_number.office_light_level_threshold') }}-
+                        {{ states('input_number.office_light_level_2_threshold') }}
+                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
+                        Turning office lights on.
         default: []
     mode: single
   - id: "1606170234725"
@@ -175,16 +158,16 @@ automation:
         state: "on"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":no_pedestrians: No motion detected in the office after 5 minutes.
-              Dimming lights."
-        - service: scene.turn_on
-          target:
-            entity_id: scene.office_main_lights_dim
-          data:
-            transition: 2
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":no_pedestrians: No motion detected in the office after 5 minutes.
+                Dimming lights."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_main_lights_dim
+            data:
+              transition: 2
     mode: single
   - id: "1584277767373"
     alias: "^Office: No Motion Detected And Computer Is Off"
@@ -210,16 +193,16 @@ automation:
         state: "on"
     action:
       - parallel:
-        - data:
-            message:
-              ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
-              and :computer: is not connected. Turning office and desk lights off."
-          service: script.send_to_home_log
-        - service: scene.turn_on
-          target:
-            entity_id: scene.office_all_lights_off
-          data:
-            transition: 2
+          - data:
+              message:
+                ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
+                and :computer: is not connected. Turning office and desk lights off."
+            service: script.send_to_home_log
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_all_lights_off
+            data:
+              transition: 2
     mode: single
   - id: "1587044886886"
     alias: "^Office: No Motion Detected And Computer Is On"
@@ -235,14 +218,14 @@ automation:
         state: "on"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":no_pedestrians: No motion detected in the office for 10 minutes and
-              :computer: is connected. Turning office light off."
-        - service: scene.turn_on
-          target:
-            entity_id: scene.office_main_light_off
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":no_pedestrians: No motion detected in the office for 10 minutes and
+                :computer: is connected. Turning office light off."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_main_light_off
     mode: single
   # Plugs / switches
   - id: "1622584959878"
@@ -276,50 +259,50 @@ automation:
                 after: "08:30:00"
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":hotsprings: :people_holding_hands: Office temperature is high
-                      ({{states('sensor.office_area_temperature') }}c) and someone is home.
-                      Turning on fan."
-                - service: switch.turn_on
-                  target:
-                    entity_id: switch.office_fan
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":hotsprings: :people_holding_hands: Office temperature is high
+                        ({{states('sensor.office_area_temperature') }}c) and someone is home.
+                        Turning on fan."
+                  - service: switch.turn_on
+                    target:
+                      entity_id: switch.office_fan
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.office_area_temperature
                 above: "29"
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
-                      }}c)."
-                - service: notify.mobile_app_dannys_phone
-                  data:
-                    message: Turn on office fan?
+                  - service: script.send_to_home_log
                     data:
-                      actions:
-                        - title: "Yes"
-                          action: switch_on_office_fan
-                        - title: "No"
-                          action: ignore
-                    title: ♨️🏢Office temperature is 29c+
+                      message:
+                        ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
+                        }}c)."
+                  - service: notify.mobile_app_dannys_phone
+                    data:
+                      message: Turn on office fan?
+                      data:
+                        actions:
+                          - title: "Yes"
+                            action: switch_on_office_fan
+                          - title: "No"
+                            action: ignore
+                      title: ♨️🏢Office temperature is 29c+
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.office_area_temperature
                 above: "31"
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":warning: :hotsprings: Office temperature is above 31c. Turning
-                      fan on."
-                - service: switch.turn_on
-                  target:
-                    entity_id: switch.office_fan
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":warning: :hotsprings: Office temperature is above 31c. Turning
+                        fan on."
+                  - service: switch.turn_on
+                    target:
+                      entity_id: switch.office_fan
         default: []
     mode: single
   - id: "1596190251094"
@@ -384,12 +367,12 @@ automation:
             before: sunrise
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":window: :city_sunset: Office window closed and it's dark. Closing
-              curtains."
-        - service: script.office_close_curtains
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":window: :city_sunset: Office window closed and it's dark. Closing
+                curtains."
+          - service: script.office_close_curtains
     mode: single
   # Computer related automations
   - id: "1619865008647"
@@ -407,16 +390,16 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":tv: Computer turned on."
-        - service: switch.turn_on
-          target:
-            entity_id: switch.goxlr
-        - service: script.send_to_home_log
-          data:
-            message: ":level_slider: Turned on GoXLR."
-        - service: script.office_turn_on_external_hard_drive
+          - service: script.send_to_home_log
+            data:
+              message: ":tv: Computer turned on."
+          - service: switch.turn_on
+            target:
+              entity_id: switch.goxlr
+          - service: script.send_to_home_log
+            data:
+              message: ":level_slider: Turned on GoXLR."
+          - service: script.office_turn_on_external_hard_drive
     mode: single
   - id: "1606256309890"
     alias: "^Office: Computer Turned Off For A Period Of Time"
@@ -445,47 +428,47 @@ automation:
                 id: router
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":computer: :tv: Computer turned off for more than 10 minutes."
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_desk_lights_off
-                - service: script.send_to_home_log
-                  data:
-                    messsage: Turned off desk lights.
-                - service: switch.turn_off
-                  target:
-                    entity_id: switch.goxlr
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":computer: :tv: Computer turned off for more than 10 minutes. Turned
-                      off :level_slider: goXLR"
-                - service: script.office_turn_off_backup_drive
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":computer: :tv: Computer turned off for more than 10 minutes."
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.office_desk_lights_off
+                  - service: script.send_to_home_log
+                    data:
+                      messsage: Turned off desk lights.
+                  - service: switch.turn_off
+                    target:
+                      entity_id: switch.goxlr
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":computer: :tv: Computer turned off for more than 10 minutes. Turned
+                        off :level_slider: goXLR"
+                  - service: script.office_turn_off_backup_drive
           - conditions:
               - condition: trigger
                 id: pc
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":computer: :tv: Computer turned off for more than 10 minutes."
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.office_desk_lights_off
-                - service: script.send_to_home_log
-                  data:
-                    messsage: Turned off desk lights.
-                - service: switch.turn_off
-                  target:
-                    entity_id: switch.goxlr
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":computer: :tv: Computer turned off for more than 10 minutes. Turned
-                      off :level_slider: goXLR"
-                - service: script.office_turn_off_backup_drive
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":computer: :tv: Computer turned off for more than 10 minutes."
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.office_desk_lights_off
+                  - service: script.send_to_home_log
+                    data:
+                      messsage: Turned off desk lights.
+                  - service: switch.turn_off
+                    target:
+                      entity_id: switch.goxlr
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":computer: :tv: Computer turned off for more than 10 minutes. Turned
+                        off :level_slider: goXLR"
+                  - service: script.office_turn_off_backup_drive
         default: []
     mode: single
   # Curtains
@@ -498,10 +481,10 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
-        - service: script.office_open_curtains
+          - service: script.send_to_home_log
+            data:
+              message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
+          - service: script.office_open_curtains
     mode: single
   - id: "1622374233310"
     alias: "^Office: Close Office Curtains At Night"
@@ -546,10 +529,10 @@ automation:
                 id: summer
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
-                - service: script.office_close_curtains
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
+                  - service: script.office_close_curtains
           - conditions:
               - or:
                   - condition: state
@@ -562,10 +545,10 @@ automation:
                 id: winter
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
-                - service: script.office_close_curtains
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
+                  - service: script.office_close_curtains
         default: []
     mode: single
   - id: "1641549235689"
@@ -579,10 +562,10 @@ automation:
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "Webhook: Closing office curtains."
-        - service: script.office_close_curtains
+          - service: script.send_to_home_log
+            data:
+              message: "Webhook: Closing office curtains."
+          - service: script.office_close_curtains
     mode: single
   - id: "1641549235690"
     alias: "^Office: Open Curtains"
@@ -595,10 +578,10 @@ automation:
         value_template: "{{ trigger.json.key|string == states('input_text.office_curtains_key') }}"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "Webhook: Closing office curtains."
-        - service: script.office_open_curtains
+          - service: script.send_to_home_log
+            data:
+              message: "Webhook: Closing office curtains."
+          - service: script.office_open_curtains
     mode: single
   # Lights
   - id: "1614555883547"
@@ -612,41 +595,41 @@ automation:
         value_template: "{{ trigger.json.key|string == states('input_text.office_keylight_key') }}"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":bulb: Toggle Key light"
-        - service: light.toggle
-          data: {}
-          target:
-            entity_id:
-              - light.elgato_key_light_left
-              - light.elgato_key_light_right
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: binary_sensor.workday_sensor
-                  state: "on"
-                - condition: time
-                  after: "09:00:00"
-                  before: "17:30:00"
-                  weekday:
-                    - mon
-                    - tue
-                    - wed
-                    - thu
-                    - fri
-                - condition: state
-                  entity_id: media_player.spotify_danny
-                  state: playing
-              sequence:
-                - service: media_player.media_stop
-                  data: {}
-                  target:
+          - service: script.send_to_home_log
+            data:
+              message: ":bulb: Toggle Key light"
+          - service: light.toggle
+            data: {}
+            target:
+              entity_id:
+                - light.elgato_key_light_left
+                - light.elgato_key_light_right
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.workday_sensor
+                    state: "on"
+                  - condition: time
+                    after: "09:00:00"
+                    before: "17:30:00"
+                    weekday:
+                      - mon
+                      - tue
+                      - wed
+                      - thu
+                      - fri
+                  - condition: state
                     entity_id: media_player.spotify_danny
-                - service: script.send_to_home_log
-                  data:
-                    message: ":stop_button: Turning off music."
-          default: []
+                    state: playing
+                sequence:
+                  - service: media_player.media_stop
+                    data: {}
+                    target:
+                      entity_id: media_player.spotify_danny
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":stop_button: Turning off music."
+            default: []
     mode: single
   # Smoke alarm
   - id: "1646778627153"
@@ -659,17 +642,17 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_direct_notification
-          data:
-            title: ":skull_and_crossbones: CO Detected in the office"
-            message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
-        - service: script.send_to_home_log
-          data:
-            message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
-        - service: script.set_central_heating_to_off
-          data: {}
-        - service: script.set_how_water_to_home_mode
-          data: {}
+          - service: script.send_direct_notification
+            data:
+              title: ":skull_and_crossbones: CO Detected in the office"
+              message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
+          - service: script.send_to_home_log
+            data:
+              message: ":skull_and_crossbones: Carbon Monide detected in the :office: office."
+          - service: script.set_central_heating_to_off
+            data: {}
+          - service: script.set_how_water_to_home_mode
+            data: {}
     mode: single
   - id: "1646778909669"
     alias: "^Office: Smoked Detected"
@@ -681,17 +664,17 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_direct_notification
-          data:
-            title: ":smoking: Smoke detected in the office"
-            message: ":smoking: Smoke detected in the :office: office."
-        - service: script.send_to_home_log
-          data:
-            message: ":smoking: Smoke detected in the :office: office."
-        - service: script.set_central_heating_to_off
-          data: {}
-        - service: script.set_how_water_to_home_mode
-          data: {}
+          - service: script.send_direct_notification
+            data:
+              title: ":smoking: Smoke detected in the office"
+              message: ":smoking: Smoke detected in the :office: office."
+          - service: script.send_to_home_log
+            data:
+              message: ":smoking: Smoke detected in the :office: office."
+          - service: script.set_central_heating_to_off
+            data: {}
+          - service: script.set_how_water_to_home_mode
+            data: {}
     mode: single
 
 group:
