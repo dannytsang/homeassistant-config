@@ -1406,3 +1406,27 @@
         - service: script.check_terinas_work_laptop_status
           data: {}
   mode: single
+- id: "1654008759007"
+  alias: "Calendar: Family"
+  description: ""
+  trigger:
+    - platform: calendar
+      event: start
+      entity_id: calendar.family
+  condition: []
+  action:
+    - if:
+        - condition: not
+          conditions:
+            - condition: state
+              entity_id: group.adult_people
+              state: home
+        - condition: template
+          value_template:
+            "{{ state_attr('calendar.family','location') is defined
+            and state_attr('calendar.family','location')|length > 0 }}"
+      then:
+        - service: script.send_direct_notification
+          data:
+            message: Trigger holiday mode from calendar event.
+  mode: queued
