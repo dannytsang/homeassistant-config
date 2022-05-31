@@ -115,5 +115,5 @@ A public folder for holding any files such as images that does not need authenti
 ## Tags / Releases 🏷️
 I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed.
 
-# Miscellaneous
+# Miscellaneous 🦺
 I tried the [Conbee II](https://phoscon.de/en/conbee2) USB stick and it was good however it was tied to a computer running Deconz which makes it harder to put in the house in a central location compared to the a hub like [Philips Hue](#controllers) or [SmartThings](#controllers).
