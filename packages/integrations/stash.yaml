@@ -8,11 +8,13 @@ automation:
         minutes: "0"
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: "Updating :bearded_person: Stash."
-      - service: rest_command.update_stash
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: "Updating :bearded_person: Stash."
+        - service: rest_command.update_stash
     mode: single
+
 rest_command:
   update_stash:
     url: !secret stash_url

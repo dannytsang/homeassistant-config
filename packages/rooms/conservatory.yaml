@@ -10,8 +10,9 @@ alert:
     can_acknowledge: true
     skip_first: true
     notifiers:
-      - mobile_app_dannys_phone
-      - mobile_app_terina_s_phone
+      - notify.mobile_app_dannys_phone
+      - notify.mobile_app_terina_s_phone
+
 automation:
   - id: "1617735040678"
     alias: "^Conservatory: Motion Detected And Alarm Armed"
@@ -62,14 +63,15 @@ automation:
           - condition: template
             value_template: "{{ state_attr('light.conservatory', 'brightness') == none }}"
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and it's dark ({{ states('sensor.conservatory_motion_light_level') }} lux < 25 lux). Turning on Lights."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.conservatory_turn_on_light
-        data:
-          transition: 2
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and it's dark ({{ states('sensor.conservatory_motion_light_level') }} lux < 25 lux). Turning on Lights."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.conservatory_turn_on_light
+            data:
+              transition: 2
     mode: single
   - id: "1610234794461"
     alias: "^Conservatory: No Motion Detected Dim Lights"
@@ -88,16 +90,17 @@ automation:
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
-            conservatory lights."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.conservatory_dim_light
-        data:
-          transition: 2
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
+                conservatory lights."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.conservatory_dim_light
+            data:
+              transition: 2
     mode: single
   - id: "1610238960657"
     alias: "^Conservatory: No Motion Turning Turn Lights Off"
@@ -115,14 +118,15 @@ automation:
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":no_pedestrians: No motion in conservatory. Turning lights off."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.conservatory_turn_off_light
-        data:
-          transition: 2
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":no_pedestrians: No motion in conservatory. Turning lights off."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.conservatory_turn_off_light
+            data:
+              transition: 2
     mode: single
   # Camera
   - id: "1629146628067"
@@ -162,28 +166,29 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":door: Conservatory door opened."
-      - service: script.send_to_home_log
-        data:
-          message: "Turning conservatory camera :camera_with_flash: on."
-      - service: script.conservatory_turn_on_camera
-      - if:
-          - condition: not
-            conditions:
-              - condition: state
-                entity_id: climate.thermostat
-                state: "off"
-        then:
+      - parallel:
           - service: script.send_to_home_log
             data:
-              message: "Turning off the heating."
-          - service: climate.set_hvac_mode
+              message: ":door: Conservatory door opened."
+          - service: script.send_to_home_log
             data:
-              hvac_mode: "off"
-            target:
-              entity_id: climate.thermostat
+              message: "Turning conservatory camera :camera_with_flash: on."
+          - service: script.conservatory_turn_on_camera
+          - if:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "off"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning off the heating."
+              - service: climate.set_hvac_mode
+                data:
+                  hvac_mode: "off"
+                target:
+                  entity_id: climate.thermostat
     mode: single
   - id: "1628985156167"
     alias: "Conservatory: Door Closed"
@@ -196,23 +201,23 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":door: Conservatory door closed."
-        - service: script.conservatory_turn_off_camera
-        - if:
-            - condition: state
-              entity_id: climate.thermostat
-              state: "off"
-          then:
-            - service: script.send_to_home_log
-              data:
-                message: "Setting heating to schedule (auto) mode."
-            - service: climate.set_hvac_mode
-              data:
-                hvac_mode: "auto"
-              target:
+          - service: script.send_to_home_log
+            data:
+              message: ":door: Conservatory door closed."
+          - service: script.conservatory_turn_off_camera
+          - if:
+              - condition: state
                 entity_id: climate.thermostat
+                state: "off"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Setting heating to schedule (auto) mode."
+              - service: climate.set_hvac_mode
+                data:
+                  hvac_mode: "auto"
+                target:
+                  entity_id: climate.thermostat
     mode: single
 
 group:

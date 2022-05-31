@@ -20,12 +20,13 @@ automation:
             state: Guest
             entity_id: input_select.home_mode
     action:
-      - service: script.send_to_home_log
-        data:
-          message: Opening Leo's bedroom blinds
-      - service: cover.open_cover
-        target:
-          entity_id: cover.leos_blinds
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Opening Leo's bedroom blinds
+          - service: cover.open_cover
+            target:
+              entity_id: cover.leos_blinds
     mode: single
   - id: "1629844319596"
     alias: "^Leo's Bedroom: Timed Close Blinds"
@@ -45,49 +46,50 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.leos_window
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: Leo's
-                    window is open. Skipping closing blinds. :warning:"
-          - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: No Children
-              - condition: trigger
-                id: sunset
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
-                    Leo's blinds"
-              - service: cover.close_cover
-                target:
-                  entity_id: cover.leos_blinds
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.leos_window
-                state: "off"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
-                    Leo's blinds"
-              - service: cover.close_cover
-                target:
-                  entity_id: cover.leos_blinds
-        default: []
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.leos_window
+                    state: "on"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: Leo's
+                        window is open. Skipping closing blinds. :warning:"
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+                  - condition: trigger
+                    id: sunset
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
+                        Leo's blinds"
+                  - service: cover.close_cover
+                    target:
+                      entity_id: cover.leos_blinds
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.leos_window
+                    state: "off"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
+                        Leo's blinds"
+                  - service: cover.close_cover
+                    target:
+                      entity_id: cover.leos_blinds
+            default: []
     mode: single
   - id: "1617376203344"
     alias: "^Leo's Room: Close Blinds Before Sun Rise"
@@ -104,12 +106,13 @@ automation:
         entity_id: binary_sensor.leos_window
         state: "off"
     action:
-      - service: cover.close_cover
-        target:
-          entity_id: cover.leos_blinds
-      - service: script.send_to_home_log
-        data:
-          message: ":city_sunset: :window: closing Leo's blinds."
+      - parallel:
+          - service: cover.close_cover
+            target:
+              entity_id: cover.leos_blinds
+          - service: script.send_to_home_log
+            data:
+              message: ":city_sunset: :window: closing Leo's blinds."
     mode: single
   - id: "1617376413056"
     alias: "^Leo's Room: Open Blinds In The Morning"
@@ -129,12 +132,13 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
     action:
-      - data:
-          message: ":sunrise: :window: Opening Leo's blinds"
-        service: script.send_to_home_log
-      - service: cover.open_cover
-        target:
-          entity_id: cover.leos_blinds
+      - parallel:
+          - data:
+              message: ":sunrise: :window: Opening Leo's blinds"
+            service: script.send_to_home_log
+          - service: cover.open_cover
+            target:
+              entity_id: cover.leos_blinds
     mode: single
   - id: "1617458869658"
     alias: "^Leo's Room: Open Blinds In The Morning When No One Is In Bed"
@@ -166,12 +170,13 @@ automation:
             entity_id: input_select.home_mode
             state: Guest
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
-      - service: cover.open_cover
-        target:
-          entity_id: cover.leos_blinds
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
+          - service: cover.open_cover
+            target:
+              entity_id: cover.leos_blinds
     mode: single
   - id: "1650915676886"
     alias: "^Leo's Bedroom: Turn Off Spotify At Night"
@@ -188,17 +193,19 @@ automation:
         entity_id: media_player.spotify_danny
         state: playing
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
-            25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning off :musical_note:
-            music in Leo's Bedroom :radio: Echo."
-      - service: media_player.media_pause
-        data: {}
-        target:
-          entity_id: media_player.spotify_danny
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
+                25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning off :musical_note:
+                music in Leo's Bedroom :radio: Echo."
+          - service: media_player.media_pause
+            data: {}
+            target:
+              entity_id: media_player.spotify_danny
     mode: single
+
 input_boolean:
   enable_leos_bed_presence:
     name: Enable Leo's Bed Sensor
@@ -209,6 +216,7 @@ input_boolean:
   enable_leos_door_automations:
     name: Enable Leo's Door Automation
     icon: mdi:door
+
 sensor:
   # Aggregated sensors
   - platform: min_max
@@ -217,6 +225,7 @@ sensor:
       - sensor.leos_bed_temperature
       - sensor.leos_door_temperature
       - sensor.leos_window_temperature
+
 template:
   - binary_sensor:
       - name: Leos Bed Occupied
