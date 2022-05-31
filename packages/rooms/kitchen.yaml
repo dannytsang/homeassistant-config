@@ -274,17 +274,21 @@ automation:
                 - or:
                     - condition: numeric_state
                       entity_id: sensor.kitchen_motion_light_level
-                      below: "25"
+                      below: input_number.kitchen_light_level_threshold
                     - condition: numeric_state
                       entity_id: sensor.kitchen_motion_2_light_level
-                      below: "50"
+                      below: input_number.kitchen_light_level_2_threshold
               sequence:
                 - service: script.send_to_home_log
                   data:
                     message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
-                      kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
-                      states('sensor.kitchen_motion_2_light_level') }} lux < 25 & 50). Turning
-                      kitchen table lights on to full brightness."
+                      kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} 
+                      & {{ states('sensor.kitchen_motion_2_light_level') }} 
+                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
+                      < {{ states('input_number.kitchen_light_level_threshold') }}-
+                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
+                      Turning kitchen table lights on to full brightness."
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_table_lights_on
@@ -319,17 +323,21 @@ automation:
                 - or:
                     - condition: numeric_state
                       entity_id: sensor.kitchen_motion_light_level
-                      below: "25"
+                      below: input_number.kitchen_light_level_threshold
                     - condition: numeric_state
                       entity_id: sensor.kitchen_motion_2_light_level
-                      below: "50"
+                      below: input_number.kitchen_light_level_2_threshold
               sequence:
                 - service: script.send_to_home_log
                   data:
                     message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
                       kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
-                      states('sensor.kitchen_motion_2_light_level') }} lux < 25 & 50). Turning
-                      kitchen cooker lights on to full brightness."
+                      states('sensor.kitchen_motion_2_light_level') }} 
+                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
+                      < {{ states('input_number.kitchen_light_level_threshold') }}-
+                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
+                      Turning kitchen cooker lights on to full brightness."
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_cooker_lights_on
