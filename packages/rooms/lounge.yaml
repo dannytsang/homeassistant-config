@@ -55,10 +55,10 @@ automation:
                   entity_id: device_tracker.lap_ctc0501
                   state: home
                 - or:
-                    - below: "81"
+                    - below: input_number.lounge_light_level_2_threshold
                       condition: numeric_state
                       entity_id: sensor.lounge_motion_2_light_level
-                    - below: "65"
+                    - below: input_number.lounge_light_level_3_threshold
                       condition: numeric_state
                       entity_id: sensor.lounge_motion_3_light_level
               sequence:
@@ -66,8 +66,11 @@ automation:
                     message:
                       ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
                       in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
-                      }} & {{ states('sensor.lounge_motion_3_light_level') }} lux < 65-85
-                      lux) and Terina''s work computer is on. Turning lounge lights on."
+                      }} & {{ states('sensor.lounge_motion_3_light_level') }} 
+                      {{ state_attr('sensor.lounge_motion_2_light_level','unit_of_measurement') }} < 
+                      {{ states('input_number.lounge_light_level_2_threshold') }}-
+                      {{ states('input_number.lounge_light_level_3_threshold') }} 
+                      {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }}) and Terina''s work computer is on. Turning lounge lights on."
                   service: script.send_to_home_log
                 - service: scene.turn_on
                   target:

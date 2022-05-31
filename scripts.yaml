@@ -302,3 +302,59 @@ office_turn_on_leos_vm:
       continue_on_timeout: false
   mode: single
   icon: mdi:microsoft-windows
+check_terinas_work_laptop_status:
+  alias: Check If Terina's Work Laptop Status
+  sequence:
+    - service: script.send_to_home_log
+      data:
+        message: "Checking Terina's :briefcase: work :laptop: laptop status."
+    - if:
+        - condition: state
+          entity_id: device_tracker.lap_ctc0501
+          state: home
+      then:
+        - service: script.terinas_work_laptop_turned_on
+          data: {}
+      else:
+        - service: script.terinas_work_laptop_turned_off
+          data: {}
+  mode: single
+  icon: mdi:laptop
+terinas_work_laptop_turned_off:
+  alias: People Terina's Work Laptop Turned Off
+  sequence:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Setting higher threshold for lounge lights 30 and 25 respectively.
+        - service: input_number.set_value
+          data:
+            value: 30
+          target:
+            entity_id: input_number.lounge_light_level_2_threshold
+        - service: input_number.set_value
+          data:
+            value: 25
+          target:
+            entity_id: input_number.lounge_light_level_3_threshold
+  mode: single
+  icon: mdi:laptop-off
+terinas_work_laptop_turned_on:
+  alias: People Terina's Work Laptop Turned On
+  sequence:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Setting lower threshold for lounge lights 81 and 65 respectively.
+        - service: input_number.set_value
+          data:
+            value: 81
+          target:
+            entity_id: input_number.lounge_light_level_2_threshold
+        - service: input_number.set_value
+          data:
+            value: 65
+          target:
+            entity_id: input_number.lounge_light_level_3_threshold
+  mode: single
+  icon: mdi:laptop
