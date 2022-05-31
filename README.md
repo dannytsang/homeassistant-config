@@ -1,5 +1,5 @@
 # Danny's Home Assistant 🏡
-<a href="https://travis-ci.com/github/dannytsang/homeassistant-config" target="_blank"><img src="https://img.shields.io/travis/com/dannytsang/homeassistant-config?style=plastic"/></a>
+[![Home Assistant CI](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml/badge.svg)](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml)
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 
 # Introduction 📢
