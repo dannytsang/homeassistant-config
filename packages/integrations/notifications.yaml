@@ -87,15 +87,14 @@ script:
             entity_id: input_boolean.enable_notifications
             state: "on"
         then:
-          - service: notify.slack_notify
+          - service: script.post_slack_notification
             data:
               message: "{{ message }}"
-              title: "{{ title|default('', true) }}"
               target: "home_log"
   send_direct_notification:
-    alias: Send A Direct Mesage To a Person
+    alias: Send Direct Mesage To a Person
     icon: mdi:message-outline
-    description: "Post a direct text message to adults in the house."
+    description: "Send a direct text message to adults in the house."
     fields:
       message:
         description: Message to post
@@ -121,10 +120,11 @@ script:
                     value_template: "{% if people is not defined or 
                     people is not match('person.*') %}True{% endif %}"
                 sequence:
-                  - service: script.post_slack_direct_notification
+                  - service: script.post_slack_notification
                     data:
                       message: "{{ message }}"
                       title: "{{ title }}"
+                      target: "general"
                       people: "@danny @terina"
               # If both adults mentioned.
               - conditions:
@@ -143,10 +143,11 @@ script:
                             entity_id: input_select.terina_direct_notification_preference
                             state: Slack
                         sequence:
-                          - service: script.post_slack_direct_notification
+                          - service: script.post_slack_notification
                             data:
                               message: "{{ message }}"
                               title: "{{ title }}"
+                              target: "general"
                               people: "@danny @terina"
                     # If not, check each person's preference.
                     default:
@@ -343,10 +344,11 @@ script:
                         entity_id: input_select.danny_direct_notification_preference
                         state: Slack
                     sequence:
-                      - service: script.post_slack_direct_notification
+                      - service: script.post_slack_notification
                         data:
                           message: "{{ message }}"
                           title: "{{ title }}"
+                          target: "general"
                           people: "@danny"
                 default: []
           # Check if Terina was mentioned.
@@ -354,47 +356,35 @@ script:
               - condition: template
                 value_template: "{{ 'person.terina' in people.split(',') }}"
             sequence:
-              - service: script.post_slack_direct_notification
+              - service: script.post_slack_notification
                 data:
                   message: "{{ message }}"
                   title: "{{ title }}"
+                  target: "general"
                   people: "@terina"
     mode: queued
     max: 10
   # Slack specific Scripts
-  post_slack_direct_notification:
-    alias: Post Slack Direct Message
+  post_slack_notification:
+    alias: Post Slack Message
     icon: mdi:slack
-    description: "Post a direct text message to adults in the house."
+    description: "Post a text message to Slack."
     fields:
       message:
         description: Message to post
         required: true
       people:
-        description: People to message e.g. @danny
+        description: (optional)People to message e.g. @danny
+      target:
+        description: Slack channel to post the message to.
         required: true
     sequence:
-      - choose:
-          - conditions:
-              # cannot seem to find a way of matching an '@' symbol in jinja2.
-              - condition: template
-                value_template: "{% if people is defined and 
-                people|length > 0 %}True{% endif %}"
-            sequence:
-              - service: notify.slack_notify
-                data:
-                  message: "{{ people }} {{ message }}"
-                  target: "general"
-                  data:
-                    blocks: []
-        default:
-          # If no one was specified
-          - service: notify.slack_notify
-            data:
-              message: "@danny @terina {{ message }}"
-              target: "general"
-              data:
-                blocks: []
+      - service: notify.slack_notify
+        data:
+          message: "{{ people }} {{ message }}"
+          target: "{{ target }}"
+          data:
+            blocks: []
     mode: queued
     max: 10
   post_to_slack_home_log_with_local_attachments:
