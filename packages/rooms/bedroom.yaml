@@ -27,15 +27,16 @@ automation:
         entity_id: input_boolean.enable_bed_presence
         state: "on"
     action:
-      - data:
-          title: Close bedroom blinds
-          message:
-            ":sleeping_accommodation: :window: Someone is in bed ({{states('sensor.bed_sensor')}}),
-            bedroom window is closed and it's getting late. Closing blinds."
-        service: script.send_to_home_log
-      - service: cover.close_cover
-        target:
-          entity_id: cover.bedroom_blind
+      - parallel:
+        - data:
+            title: Close bedroom blinds
+            message:
+              ":sleeping_accommodation: :window: Someone is in bed ({{states('sensor.bed_sensor')}}),
+              bedroom window is closed and it's getting late. Closing blinds."
+          service: script.send_to_home_log
+        - service: cover.close_cover
+          target:
+            entity_id: cover.bedroom_blind
     mode: single
   - id: "1600127180656"
     alias: "^Bedroom: Close Blinds Before Sunrise"
@@ -56,15 +57,16 @@ automation:
         entity_id: binary_sensor.bedroom_window
         state: "off"
     action:
-      - data:
-          message:
-            ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-            :sunrise: Bedroom blind is open and it's nearly sunrise. Closing
-            blinds"
-        service: script.send_to_home_log
-      - service: cover.close_cover
-        target:
-          entity_id: cover.bedroom_blind
+      - parallel:
+        - data:
+            message:
+              ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+              :sunrise: Bedroom blind is open and it's nearly sunrise. Closing
+              blinds"
+          service: script.send_to_home_log
+        - service: cover.close_cover
+          target:
+            entity_id: cover.bedroom_blind
     mode: single
   - id: "1622667464880"
     alias: "^Bedroom: Window Closed At Night"
@@ -87,14 +89,15 @@ automation:
             entity_id: cover.bedroom_blind
             state: "closed"
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":window: :city_sunset: Bedroom window closed and it's dark. Closing
-            blinds."
-      - service: cover.set_cover_position
-        data:
-          position: 50
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":window: :city_sunset: Bedroom window closed and it's dark. Closing
+              blinds."
+        - service: cover.set_cover_position
+          data:
+            position: 50
     mode: single
   - id: "1615689096351"
     alias: "^Bedroom: Window Closed And Someone Is In Bed At Night"
@@ -116,41 +119,42 @@ automation:
       - condition: sun
         after: sunset
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_bed_presence
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.bed_occupied
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  title: Close bedroom blinds
-                  message:
-                    ":sleeping_accommodation: :window: Bedroom window shut, someone is
-                    in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
-                    blinds."
-              - service: cover.close_cover
-                target:
-                  entity_id: cover.bedroom_blind
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_bed_presence
-                state: "off"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  title: Close bedroom blinds
-                  message:
-                    ":sleeping_accommodation: :window: Bedroom window shut, someone is
-                    in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
-                    blinds."
-              - service: cover.close_cover
-                target:
-                  entity_id: cover.bedroom_blind
-        default: []
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_bed_presence
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.bed_occupied
+                  state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    title: Close bedroom blinds
+                    message:
+                      ":sleeping_accommodation: :window: Bedroom window shut, someone is
+                      in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
+                      blinds."
+                - service: cover.close_cover
+                  target:
+                    entity_id: cover.bedroom_blind
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_bed_presence
+                  state: "off"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    title: Close bedroom blinds
+                    message:
+                      ":sleeping_accommodation: :window: Bedroom window shut, someone is
+                      in bed ({{states('sensor.bed_sensor')}}) and it's getting late. Closing
+                      blinds."
+                - service: cover.close_cover
+                  target:
+                    entity_id: cover.bedroom_blind
+          default: []
     mode: single
   - id: "1601641292576"
     alias: "^Bedroom: Open Blind When No One Is In Bed"
@@ -178,15 +182,16 @@ automation:
         state: "on"
     action:
       - delay: 00:01:00
-      - data:
-          title: Open Blinds
-          message:
-            ":bed: :window: No one is in bed ({{states('sensor.bed_sensor')}}).
-            Opening the blinds."
-        service: script.send_to_home_log
-      - service: cover.open_cover
-        target:
-          entity_id: cover.bedroom_blind
+      - parallel:
+        - data:
+            title: Open Blinds
+            message:
+              ":bed: :window: No one is in bed ({{states('sensor.bed_sensor')}}).
+              Opening the blinds."
+          service: script.send_to_home_log
+        - service: cover.open_cover
+          target:
+            entity_id: cover.bedroom_blind
     mode: single
   # Door
   - id: "1615209552353"
@@ -212,57 +217,58 @@ automation:
             entity_id: input_select.home_mode
             state: Guest
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_bed_presence
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.bed_occupied
-                state: "on"
-              - condition: trigger
-                id: leo
-            sequence:
-              - service: script.other_bedroom_door_opening_warning
-                data:
-                  bedroom: "leo"
-          - conditions:
-              - condition: sun
-                after: sunset
-              - condition: trigger
-                id: leo
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":boy: :door: Leo's door opened and bedroom light is on. Sending
-                    warning."
-              - service: script.other_bedroom_door_opening_warning
-                data:
-                  bedroom: "leo"
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_bed_presence
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.bed_occupied
-                state: "on"
-              - condition: trigger
-                id: ashlee
-            sequence:
-              - service: script.other_bedroom_door_opening_warning
-                data:
-                  bedroom: "ashlee"
-          - conditions:
-              - condition: sun
-                after: sunset
-              - condition: trigger
-                id: ashlee
-            sequence:
-              - service: script.other_bedroom_door_opening_warning
-                data:
-                  bedroom: "ashlee"
-        default: []
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_bed_presence
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.bed_occupied
+                  state: "on"
+                - condition: trigger
+                  id: leo
+              sequence:
+                - service: script.other_bedroom_door_opening_warning
+                  data:
+                    bedroom: "leo"
+            - conditions:
+                - condition: sun
+                  after: sunset
+                - condition: trigger
+                  id: leo
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                      warning."
+                - service: script.other_bedroom_door_opening_warning
+                  data:
+                    bedroom: "leo"
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_bed_presence
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.bed_occupied
+                  state: "on"
+                - condition: trigger
+                  id: ashlee
+              sequence:
+                - service: script.other_bedroom_door_opening_warning
+                  data:
+                    bedroom: "ashlee"
+            - conditions:
+                - condition: sun
+                  after: sunset
+                - condition: trigger
+                  id: ashlee
+              sequence:
+                - service: script.other_bedroom_door_opening_warning
+                  data:
+                    bedroom: "ashlee"
+          default: []
     mode: queued
     max: 10
   # Motion triggers
@@ -292,54 +298,55 @@ automation:
           below: "100"
           attribute: brightness
     action:
-      - choose:
-          - conditions:
-            - condition: numeric_state
-              entity_id: cover.bedroom_blind
-              attribute: current_position
-              below: "31"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":bed: :paw_prints: :window: :low_brightness: Motioned detected in the bedroom
-                    and the blinds are down. Turning lights on low brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.bedroom_dim_light
-          - conditions:
-              - condition: time
-                after: "06:30:00"
-              - condition: sun
-                before: sunset
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
-                    before sunset. Turning lights on full brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.bedroom_turn_on_light
-          - conditions:
-            - or: 
-              - condition: sun
-                after: sunset
-              - condition: time
-                before: "06:30:00"
-            - condition: state
-              entity_id: input_boolean.enable_bedroom_motion_trigger
-              state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
-                    after sunset. Turning lights on low brightness."
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.bedroom_dim_light
-        default: []
+      - parallel:
+        - choose:
+            - conditions:
+              - condition: numeric_state
+                entity_id: cover.bedroom_blind
+                attribute: current_position
+                below: "31"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :paw_prints: :window: :low_brightness: Motioned detected in the bedroom
+                      and the blinds are down. Turning lights on low brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bedroom_dim_light
+            - conditions:
+                - condition: time
+                  after: "06:30:00"
+                - condition: sun
+                  before: sunset
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :paw_prints: :high_brightness: Motioned detected in the bedroom
+                      before sunset. Turning lights on full brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bedroom_turn_on_light
+            - conditions:
+              - or: 
+                - condition: sun
+                  after: sunset
+                - condition: time
+                  before: "06:30:00"
+              - condition: state
+                entity_id: input_boolean.enable_bedroom_motion_trigger
+                state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :paw_prints: :low_brightness: Motioned detected in the bedroom
+                      after sunset. Turning lights on low brightness."
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.bedroom_dim_light
+          default: []
     mode: single
   - id: "1621713867762"
     alias: "^Bedroom: No Motion"
@@ -362,12 +369,13 @@ automation:
         entity_id: input_boolean.enable_bedroom_motion_trigger
         state: "on"
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":bed: No motion detected for 1 minute in the bedroom. Turning lights off."
-      - service: scene.turn_on
-        target:
-          entity_id: scene.bedroom_turn_off_light
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bed: No motion detected for 1 minute in the bedroom. Turning lights off."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.bedroom_turn_off_light
     mode: single
   # Time
   - id: "1621875409014"
@@ -395,54 +403,55 @@ automation:
         entity_id: binary_sensor.bedroom_tv_powered_on
         state: "off"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.workday_sensor
-                state: "on"
-              # Check if there's an event with "A/L in the work calendar" and the event is on.
-              - condition: template
-                value_template: "{{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and 
-                'A/L' not in state_attr('calendar.work_calendar','message')|string and 
-                states('calendar.work_calendar') == 'off' }}"
-              - condition: trigger
-                id: "workday"
-            sequence:
-              - service: cover.open_cover
-                target:
-                  entity_id: cover.bedroom_blind
-              - service: script.send_to_home_log
-                data:
-                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
-                  :window: Opening blinds because it's closed and its 09:30 on a weekday!"
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.workday_sensor
-                state: "off"
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: No Children
-              - condition: trigger
-                id: "093000"
-            sequence:
-              - service: cover.open_cover
-                target:
-                  entity_id: cover.bedroom_blind
-              - service: script.send_to_home_log
-                data:
-                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because it's closed and its 09:30 on a weekend!"
-          - conditions:
-              - condition: trigger
-                id: "103000"
-            sequence:
-              - service: cover.open_cover
-                target:
-                  entity_id: cover.bedroom_blind
-              - service: script.send_to_home_log
-                data:
-                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because it's closed and its 10:30!"
-        default: []
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.workday_sensor
+                  state: "on"
+                # Check if there's an event with "A/L in the work calendar" and the event is on.
+                - condition: template
+                  value_template: "{{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and 
+                  'A/L' not in state_attr('calendar.work_calendar','message')|string and 
+                  states('calendar.work_calendar') == 'off' }}"
+                - condition: trigger
+                  id: "workday"
+              sequence:
+                - service: cover.open_cover
+                  target:
+                    entity_id: cover.bedroom_blind
+                - service: script.send_to_home_log
+                  data:
+                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
+                    :window: Opening blinds because it's closed and its 09:30 on a weekday!"
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.workday_sensor
+                  state: "off"
+                - not:
+                    - condition: state
+                      entity_id: input_select.home_mode
+                      state: No Children
+                - condition: trigger
+                  id: "093000"
+              sequence:
+                - service: cover.open_cover
+                  target:
+                    entity_id: cover.bedroom_blind
+                - service: script.send_to_home_log
+                  data:
+                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because it's closed and its 09:30 on a weekend!"
+            - conditions:
+                - condition: trigger
+                  id: "103000"
+              sequence:
+                - service: cover.open_cover
+                  target:
+                    entity_id: cover.bedroom_blind
+                - service: script.send_to_home_log
+                  data:
+                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because it's closed and its 10:30!"
+          default: []
     mode: single
   - id: "1621875567853"
     alias: "^Bedroom: Evening Timed Blinds"
@@ -459,25 +468,26 @@ automation:
         attribute: current_position
         above: input_number.bedroom_blind_open_closed
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
-          :city_sunset: :window: It's getting dark, closing bedroom's blinds."
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.bedroom_window
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":warning: :window: Bedroom window is still open. Waiting until
-                    it's closed before closing blinds. :warning:"
-        default:
-          - service: cover.close_cover
-            target:
-              entity_id: cover.bedroom_blind
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
+            :city_sunset: :window: It's getting dark, closing bedroom's blinds."
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.bedroom_window
+                  state: "on"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":warning: :window: Bedroom window is still open. Waiting until
+                      it's closed before closing blinds. :warning:"
+          default:
+            - service: cover.close_cover
+              target:
+                entity_id: cover.bedroom_blind
     mode: single
   # Plugs / switches
   - id: "1581800266867"
@@ -490,12 +500,13 @@ automation:
         to: "'on'"
     condition: []
     action:
-      - data: {}
-        entity_id: switch.blanket
-        service: switch.turn_off
-      - data:
-          message: Electric blanket has been on for 1 hour. Turning electric blanket off.
-        service: script.send_to_home_log
+      - parallel:
+        - data: {}
+          entity_id: switch.blanket
+          service: switch.turn_off
+        - data:
+            message: Electric blanket has been on for 1 hour. Turning electric blanket off.
+          service: script.send_to_home_log
   - id: "1624194131454"
     alias: "^Bedroom: TV Turned On During Bright Day"
     description: ""
@@ -516,66 +527,67 @@ automation:
         attribute: current_position
         above: "40"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_direct_notifications
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.bedroom_window
-                state: "on"
-              - condition: numeric_state
-                entity_id: weather.home
-                attribute: wind_speed
-                above: "10"
-            sequence:
-              - service: script.send_actionable_notification_with_2_buttons
-                data:
-                  message: Do you want to close the blinds?
-                  title: 📺🛌TV On & Window Is Open
-                  people: person.danny
-                  action1_title: "Yes"
-                  action1_name: set_bedroom_blinds_30
-                  action2_title: "No"
-                  action2_name: ignore
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_direct_notifications
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.bedroom_window
-                state: "on"
-              - condition: numeric_state
-                entity_id: weather.home
-                attribute: wind_speed
-                below: "10"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":tv: :bed: Bedroom TV turned on and it's bright. The window is open however it is below 10km/h. Lowering bedroom
-                    blinds."
-              - service: cover.set_cover_position
-                target:
-                  entity_id: cover.bedroom_blind
-                data:
-                  position: 20
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.bedroom_window
-                state: "off"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
-                    blinds."
-              - service: cover.set_cover_position
-                target:
-                  entity_id: cover.bedroom_blind
-                data:
-                  position: 20
-        default: []
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_direct_notifications
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.bedroom_window
+                  state: "on"
+                - condition: numeric_state
+                  entity_id: weather.home
+                  attribute: wind_speed
+                  above: "10"
+              sequence:
+                - service: script.send_actionable_notification_with_2_buttons
+                  data:
+                    message: Do you want to close the blinds?
+                    title: 📺🛌TV On & Window Is Open
+                    people: person.danny
+                    action1_title: "Yes"
+                    action1_name: set_bedroom_blinds_30
+                    action2_title: "No"
+                    action2_name: ignore
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_direct_notifications
+                  state: "on"
+                - condition: state
+                  entity_id: binary_sensor.bedroom_window
+                  state: "on"
+                - condition: numeric_state
+                  entity_id: weather.home
+                  attribute: wind_speed
+                  below: "10"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":tv: :bed: Bedroom TV turned on and it's bright. The window is open however it is below 10km/h. Lowering bedroom
+                      blinds."
+                - service: cover.set_cover_position
+                  target:
+                    entity_id: cover.bedroom_blind
+                  data:
+                    position: 20
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.bedroom_window
+                  state: "off"
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":tv: :bed: Bedroom TV turned on and it's bright. Lowering bedroom
+                      blinds."
+                - service: cover.set_cover_position
+                  target:
+                    entity_id: cover.bedroom_blind
+                  data:
+                    position: 20
+          default: []
     mode: single
   - id: "1624194439043"
     alias: "^Bedroom: TV Turned Off"
@@ -601,12 +613,13 @@ automation:
       - condition: time
         after: "08:30"
     action:
-      - service: script.send_to_home_log
-        data:
-          message: ":tv: :bed: Bedroom TV turned off. Opening Blinds."
-      - service: cover.open_cover
-        target:
-          entity_id: cover.bedroom_blind
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":tv: :bed: Bedroom TV turned off. Opening Blinds."
+        - service: cover.open_cover
+          target:
+            entity_id: cover.bedroom_blind
     mode: single
   - id: "1644769166837"
     alias: "^Bedroom: Danny's Alarm"
@@ -617,43 +630,44 @@ automation:
         to: alarm_alert_start
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: person.danny
-                state: home
-              - condition: state
-                entity_id: input_boolean.enable_bedroom_blind_automations
-                state: "on"
-              - condition: numeric_state
-                entity_id: cover.bedroom_blind
-                attribute: current_position
-                below: input_number.bedroom_blind_open_closed
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":bed: :alarm_clock: Sleep as Android alarm triggered. Opening
-                    bedroom blinds in 1 minute."
-              - delay:
-                  hours: 0
-                  minutes: 5
-                  seconds: 0
-                  milliseconds: 0
-              - service: cover.open_cover
-                data: {}
-                target:
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: person.danny
+                  state: home
+                - condition: state
+                  entity_id: input_boolean.enable_bedroom_blind_automations
+                  state: "on"
+                - condition: numeric_state
                   entity_id: cover.bedroom_blind
-          - conditions:
-              - condition: state
-                entity_id: person.danny
-                state: home
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":bed: :alarm_clock: Sleep as Android alarm triggered."
-        default: []
+                  attribute: current_position
+                  below: input_number.bedroom_blind_open_closed
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :alarm_clock: Sleep as Android alarm triggered. Opening
+                      bedroom blinds in 1 minute."
+                - delay:
+                    hours: 0
+                    minutes: 5
+                    seconds: 0
+                    milliseconds: 0
+                - service: cover.open_cover
+                  data: {}
+                  target:
+                    entity_id: cover.bedroom_blind
+            - conditions:
+                - condition: state
+                  entity_id: person.danny
+                  state: home
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :alarm_clock: Sleep as Android alarm triggered."
+          default: []
     mode: single
   - id: "1633272413519"
     alias: "^Bedroom: Turn Off Heated Blanket"
@@ -669,15 +683,17 @@ automation:
           milliseconds: 0
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":bed: :hotsprings: Heated blanket has been on for :hourglass: an hour.
-            Turning heated blanket off."
-      - service: switch.turn_off
-        target:
-          entity_id: switch.blanket
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              ":bed: :hotsprings: Heated blanket has been on for :hourglass: an hour.
+              Turning heated blanket off."
+        - service: switch.turn_off
+          target:
+            entity_id: switch.blanket
     mode: single
+
 input_boolean:
   enable_bed_presence:
     name: Enable Bed Sensor
@@ -688,12 +704,14 @@ input_boolean:
   enable_bedroom_motion_trigger:
     name: Enable motion trigger for bedroom
     icon: mdi:motion-sensor
+
 input_number:
   bedroom_blind_open_closed:
     name: Bedroom Blind Open Closed Threshold
     min: 0
     max: 100
     initial: 15
+
 scene:
   - id: "1621715555428"
     name: "Bedroom: Turn On Light"
@@ -873,6 +891,7 @@ scene:
         supported_features: 63
         state: "off"
     icon: mdi:lightbulb
+
 script:
   bedroom_leos_door_opened_notification:
     alias: Bedroom Leo's Door Opened Notification
@@ -918,6 +937,7 @@ script:
         target:
           entity_id: scene.bedroom_desk_lamps_on
     mode: single
+
 sensor:
   # Aggregated sensors
   - platform: min_max
@@ -933,6 +953,7 @@ sensor:
       - sensor.bedroom_motion_2_temperature
       - sensor.bedroom_temperature_2
     type: mean
+
 template:
   - binary_sensor:
     - name: Bedroom TV Powered On
