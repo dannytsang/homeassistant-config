@@ -180,7 +180,7 @@ script:
     mode: queued
     max: 10
   send_home_log_with_local_attachments:
-    alias: Post To Home Log With Local Attachments
+    alias: Send To Home Log With Local Attachments
     icon: mdi:message-image-outline
     description: "Post a message with a file attachment to the home_log channel."
     fields:
@@ -196,7 +196,7 @@ script:
       - condition: state
         entity_id: input_boolean.enable_notifications
         state: "on"
-      - service: script.post_to_slack_home_log_with_local_attachments
+      - service: script.post_to_slack_with_attachments
         data:
           message: "{{ message }}"
           title: "{{ title }}"
@@ -205,7 +205,7 @@ script:
     mode: queued
     max: 10
   send_home_log_with_url:
-    alias: Post To Home Log With URL
+    alias: Send To Home Log With URL
     icon: mdi:message-bookmark-outline
     description: "Post a message with a URL to the home_log channel."
     fields:
@@ -219,7 +219,7 @@ script:
       - condition: state
         entity_id: input_boolean.enable_notifications
         state: "on"
-      - service: script.post_to_slack_home_log_with_url
+      - service: script.post_to_slack_with_attachments
         data:
           message: "{{ message }}"
           title: "{{ title }}"
@@ -387,40 +387,11 @@ script:
             blocks: []
     mode: queued
     max: 10
-  post_to_slack_home_log_with_local_attachments:
+  post_to_slack_with_attachments:
     alias: Post To Slack Home Log With Local Attachments
     icon: mdi:slack
-    description: "Post a message with a file attachment to the home_log channel."
-    fields:
-      message:
-        description: Message to post
-        required: true
-      title:
-        description: (optional)Title to the message posted.
-      channel:
-        description: "Slack channel to post to including the #"
-        required: true
-      filePath:
-        description: File path to attach to post.
-        required: true
-    sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - service: notify.slack_notify
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
-          target: "{{ channel }}"
-          data:
-            file:
-              path: "{{ filePath }}"
-    mode: queued
-    max: 10
-  post_to_slack_home_log_with_url:
-    alias: Post To Home Log With URL
-    icon: mdi:slack
-    description: "Post a message with a URL to the home_log channel."
+    description: "Post a message with a file or URL attachment to the home_log channel.
+    Only a file or URL can be set. Not both or neither."
     fields:
       message:
         description: Message to post
@@ -428,23 +399,65 @@ script:
       title:
         description: (optional)Title to the message posted.
       target:
-        description: "Slack channel to post without the #."
+        description: "Slack channel to post to including the #"
         required: true
+      filePath:
+        description: File path to attach to post.
       url:
         description: Link to file.
-        required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - service: notify.slack_notify
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
-          target: "home_log"
-          data:
-            file:
-              url: "{{ url }}"
+      - choose:
+        # Check at least filePath or url is set.
+        - conditions:
+            - condition: template
+              value_template: "{% if filePath is not defined and 
+              url is not defined %}True{% endif %}"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message: ":warning: File or URL not set. Original messsage:\n{{ message}}"
+                title: "Missing file or URL for Slack"
+                people: person.danny
+        - conditions:
+            - condition: template
+              value_template: "{% if filePath is defined and 
+              url is defined %}True{% endif %}"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message: ":warning: File and URL are set when only one or the other can.
+                Original messsage:\n{{ message}}"
+                title: "Missing file or URL for Slack"
+                people: person.danny
+        # If a filePath is set.
+        - conditions:
+            - condition: template
+              value_template: "{% if filePath is defined and 
+              url is not defined %}True{% endif %}"
+          sequence:
+            - service: notify.slack_notify
+              data:
+                message: "{{ message }}"
+                title: "{{ title|default('', true) }}"
+                target: "{{ target }}"
+                data:
+                  file:
+                    path: "{{ filePath }}"
+        # If a URL is set.
+        - conditions:
+            - condition: template
+              value_template: "{% if filePath is not defined and 
+              url is defined %}True{% endif %}"
+          sequence:
+            - service: notify.slack_notify
+              data:
+                message: "{{ message }}"
+                title: "{{ title|default('', true) }}"
+                target: "{{ target }}"
+                data:
+                  file:
+                    url: "{{ url }}"
+        default: []
     mode: queued
     max: 10
   # Mobile
