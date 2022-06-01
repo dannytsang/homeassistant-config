@@ -109,7 +109,7 @@ script:
       # Check if notifications is turned on.
       - if:
           - condition: state
-            entity_id: input_boolean.enable_notifications
+            entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
           # Check if the message is directed at someone.
@@ -530,9 +530,6 @@ script:
         description: Third event name if action is selected.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_direct_notifications
-        state: "on"
       - service: notify.mobile_app_dannys_phone
         data:
           message: "{{ message }}"
@@ -594,9 +591,6 @@ script:
         description: File path to attach to post.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
       - service: notify.slack_notify
         data:
           message: "{{ message }}"
