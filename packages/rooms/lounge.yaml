@@ -64,13 +64,14 @@ automation:
               sequence:
                 - data:
                     message:
-                      ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
-                      in the lounge, it's dark ({{ states('sensor.lounge_motion_2_light_level')
+                      "It's dark ({{ states('sensor.lounge_motion_2_light_level')
                       }} & {{ states('sensor.lounge_motion_3_light_level') }} 
                       {{ state_attr('sensor.lounge_motion_2_light_level','unit_of_measurement') }} < 
                       {{ states('input_number.lounge_light_level_2_threshold') }}-
                       {{ states('input_number.lounge_light_level_3_threshold') }} 
                       {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }}) and Terina''s work computer is on. Turning lounge lights on."
+                    title: ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
+                      in the lounge"
                   service: script.send_to_home_log
                 - service: scene.turn_on
                   target:
@@ -86,14 +87,15 @@ automation:
               sequence:
                 - data:
                     message:
-                      ":paw_prints: :bulb: :high_brightness: Motion detected in the lounge
-                      and it's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
+                      "It's dark ({{ states('sensor.lounge_motion_2_light_level') }} &
                       {{ states('sensor.lounge_motion_3_light_level') }} 
                       {{ state_attr('sensor.lounge_motion_2_light_level','unit_of_measurement') }} < 
                       {{ states('input_number.lounge_light_level_2_threshold') }}-
                       {{ states('input_number.lounge_light_level_3_threshold') }} 
                       {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }}).
                       Turning lounge lights on."
+                    title: ":paw_prints: :computer: :bulb: :high_brightness: Motion detected
+                      in the lounge"
                   service: script.send_to_home_log
                 - service: scene.turn_on
                   target:
@@ -121,8 +123,8 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":no_pedestrians: :bulb: :low_brightness: No motion detected and :tv:TV
-              is turned off in the lounge for 5 minutes. Dimming lights"
+              "For 5 minutes and :tv: TV is turned off. Dimming lights"
+            title: ":no_pedestrians: :bulb: :low_brightness: No motion in the lounge"
         - service: scene.turn_on
           target:
             entity_id: scene.lounge_dim_lights
@@ -150,8 +152,9 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":no_pedestrians: No motion detected in the lounge for 10 minutes and
+              "For 10 minutes and
               :tv:TV is turned off. Turning lounge :bulb: lights off."
+            title: ":no_pedestrians: No motion in the lounge"
         - service: scene.turn_on
           target:
             entity_id: scene.lounge_lights_off
@@ -235,8 +238,8 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":bulb: :low_brightness: TV turned off for 5 minutes. Dimming lounge
-              lights."
+              "For 5 minutes. Dimming lounge lights."
+            title: ":bulb: :low_brightness: TV turned off"
         - service: scene.turn_on
           target:
             entity_id: scene.lounge_dim_lights
@@ -266,7 +269,8 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: TV turned off for 10 minutes. Turning lounge lights off.
+            message: For 10 minutes. Turning lounge lights off.
+            title: ":tv: TV turned off"
         - service: scene.turn_on
           target:
             entity_id: scene.lounge_lights_off
@@ -290,6 +294,7 @@ automation:
             message:
               ":warning: :thermometer: Bay window is above 35c. Turning server fan
               on."
+            title: "Ubibot via IFTTT"
         - service: switch.turn_on
           target:
             entity_id: switch.server_fan
@@ -310,10 +315,10 @@ automation:
             message:
               ":thermometer: :snowflake: Bay window below high temperature. Turning
               server fan off."
+            title: "Ubibot via IFTTT"
         - service: switch.turn_off
           target:
             entity_id: switch.server_fan
-
     mode: single
   - id: "1611063957341"
     alias: "^Lounge: Server Fan Running Longer Than 1 Hour"
@@ -392,7 +397,8 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":door: :window: Lounge door/window opened."
+              "Turning lounge :camera_with_flash: camera on."
+            title: ":door: :window: Lounge door/window opened"
         - service: script.lounge_turn_on_camera
     mode: single
   - id: "1631454249839"
@@ -408,7 +414,8 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: ":door: :window: All doors/windows closed in the lounge."
+            message: "Turning lounge :camera: camera off."
+            title: ":door: :window: All lounge doors/windows closed"
         - service: script.lounge_turn_off_camera
     mode: single
   # Switches
@@ -649,6 +656,7 @@ script:
       - service: script.send_to_home_log
         data:
           message: "Changing Onkyo to :tv: VCR/DVR input."
+          title: "Harmony Remote"
       - delay:
           hours: 0
           minutes: 0
@@ -663,6 +671,7 @@ script:
       - service: script.send_to_home_log
         data:
           message: "Changed Onkyo to :tv: VCR/DVR input."
+          title: "Harmony Remote"
       - service: remote.send_command
         data:
           device: Samsung TV
