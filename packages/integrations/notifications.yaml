@@ -393,7 +393,7 @@ script:
           sequence:
             - service: notify.slack_notify
               data:
-                message: "{{ people }} {{ message }}"
+                message: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
                 target: "{{ target }}"
                 data:
                   blocks:
@@ -404,18 +404,18 @@ script:
                   - type: section
                     text:
                       type: plain_text
-                      text: "{{ people }} {{ message }}"
+                      text: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
         default:
           - service: notify.slack_notify
             data:
-              message: "{{ people }} {{ message }}"
+              message: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
               target: "{{ target }}"
               data:
                 blocks:
                 - type: section
                   text:
                     type: plain_text
-                    text: "{{ people }} {{ message }}"
+                    text: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
     mode: queued
     max: 10
   post_to_slack_with_attachments:
