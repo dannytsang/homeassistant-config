@@ -375,18 +375,46 @@ script:
       message:
         description: Message to post
         required: true
+      title:
+        description: (optional)Title to the message posted.
       people:
         description: (optional)People to message e.g. @danny
       target:
         description: Slack channel to post the message to.
         required: true
     sequence:
-      - service: notify.slack_notify
-        data:
-          message: "{{ people }} {{ message }}"
-          target: "{{ target }}"
-          data:
-            blocks: []
+      - choose:
+        # Check at least filePath or url is set.
+        - conditions:
+            - condition: template
+              value_template: "{% if title is defined and 
+              title|length > 0 %}True{% endif %}"
+          sequence:
+            - service: notify.slack_notify
+              data:
+                message: "{{ people }} {{ message }}"
+                target: "{{ target }}"
+                data:
+                  blocks:
+                  - type: section
+                    text:
+                      type: mrkdwn
+                      text: "*{{ title }}*"
+                  - type: section
+                    text:
+                      type: plain_text
+                      text: "{{ people }} {{ message }}"
+        default:
+          - service: notify.slack_notify
+            data:
+              message: "{{ people }} {{ message }}"
+              target: "{{ target }}"
+              data:
+                blocks:
+                - type: section
+                  text:
+                    type: plain_text
+                    text: "{{ people }} {{ message }}"
     mode: queued
     max: 10
   post_to_slack_with_attachments:
