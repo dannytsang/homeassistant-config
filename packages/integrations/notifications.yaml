@@ -309,9 +309,10 @@ script:
             action3_name: "{{ action3_name }}"
     mode: single
   post_direct_notification_by_person:
-    alias: Post a direct message based on a persons selected messaging platform.
+    alias: "Post a direct message based on a persons selected messaging platform"
     icon: mdi:message-outline
-    description: "Post a direct text message to adults in the house."
+    description: "Post a direct text message to adults in the house. Please use 
+    a send script to decouple from the messaging platform."
     fields:
       message:
         description: Message to post
@@ -368,7 +369,8 @@ script:
   post_slack_notification:
     alias: Post Slack Message
     icon: mdi:slack
-    description: "Post a text message to Slack."
+    description: "Post a text message to Slack. Please use a send script to 
+    decouple from the messaging platform."
     fields:
       message:
         description: Message to post
@@ -388,10 +390,11 @@ script:
     mode: queued
     max: 10
   post_to_slack_with_attachments:
-    alias: Post To Slack Home Log With Local Attachments
+    alias: "Post To Slack Home Log With File Or URL Attachments"
     icon: mdi:slack
-    description: "Post a message with a file or URL attachment to the home_log channel.
-    Only a file or URL can be set. Not both or neither."
+    description: "Post a message with a file or URL attachment to the home_log 
+    channel. Only a file or URL can be set. Not both or neither. Please use a 
+    send script to decouple from the messaging platform."
     fields:
       message:
         description: Message to post
@@ -457,12 +460,29 @@ script:
                 data:
                   file:
                     url: "{{ url }}"
+            - service: notify.slack_notify
+              data:
+                message: "{{ message }}"
+                title: "{{ title|default('', true) }}"
+                target: "{{ target }}"
+                data:
+                  blocks:
+                    - type: section
+                      text:
+                        type: mrkdwn
+                        text: "#{{ title|default('', true) }}\n{{ message }}"
+                      accessory:
+                        type: image
+                        image_url: "{{ url }}"
+                        alt_text: "{{ title|default('Failed to load image', true) }}"
         default: []
     mode: queued
     max: 10
   # Mobile
   post_mobile_actionable_notification_with_2_buttons:
-    alias: Post Actionable Notification With 2 Buttons
+    alias: "Post Actionable Notification With 2 Buttons"
+    description: "Post Actionable Notification With 2 Buttons. Please use a send script to 
+    decouple from the messaging platform."
     fields:
       message:
         description: Message to post
@@ -505,7 +525,9 @@ script:
     max: 10
     icon: mdi:forum
   post_mobile_actionable_notification_with_3_buttons:
-    alias: Post Actionable Notification With 3 Buttons
+    alias: "Post Actionable Notification With 3 Buttons"
+    description: "Post Actionable Notification With 3 Buttons. Please use a send script to 
+    decouple from the messaging platform."
     fields:
       message:
         description: Message to post
@@ -546,9 +568,10 @@ script:
     icon: mdi:forum
   # Telegram specific Scripts
   post_telegram_direct_notification:
-    alias: Send Telegram Direct Message
+    alias: "Send Telegram Direct Message"
     icon: mdi:android-messages
-    description: "Post a direct text message to adults in the house."
+    description: "Post a direct text message to adults in the house. Please use 
+    a send script to decouple from the messaging platform."
     max: 10
     mode: queued
     fields:
@@ -578,9 +601,10 @@ script:
               title: "{{ title|default('', true) }}"
               target: "{{ states('input_text.telegram_danny_chat_id') }}"
   post_to_telegram_home_log_with_local_attachments:
-    alias: Post To Slack Home Log With Local Attachments
+    alias: "Post To Telegram With Local Attachments"
     icon: mdi:android-messages
-    description: "Post a message with a file attachment to the home_log channel."
+    description: "Post a message with a file attachment to the home_log channel.
+    Please use a send script to decouple from the messaging platform."
     fields:
       message:
         description: Message to post
