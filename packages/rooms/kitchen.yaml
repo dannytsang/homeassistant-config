@@ -61,8 +61,9 @@ automation:
                 - service: script.send_to_home_log
                   data:
                     message:
-                      ":no_pedestrians: No motion detected after :city_sunrise:
-                      and before :city_sunset: Turning kitchen all lights off."
+                      "After :city_sunrise: and before :city_sunset:. 
+                      Turning kitchen all lights off."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_all_lights_off
@@ -78,8 +79,8 @@ automation:
                 - service: script.send_to_home_log
                   data:
                     message:
-                      ":no_pedestrians: No motion detected after :city_sunset: and before
-                      :clock1130: Dimming kitchen side lights."
+                      "After :city_sunset: and before :clock1130: Dimming kitchen side lights."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_dim_side_lights
@@ -91,8 +92,8 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":no_pedestrians: No motion detected after :clock1130:
-                      Turning kitchen all lights off."
+                    message: "After :clock1130:. Turning kitchen all lights off."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_main_lights_off
@@ -110,9 +111,9 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: >-
-                      :no_pedestrians: No motion detected after :city_sunrise: and before
-                      :city_sunset: Turning main kitchen lights off.
+                    message: "After :city_sunrise: and before :city_sunset:. 
+                      Turning main kitchen lights off."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_main_lights_off
@@ -130,8 +131,9 @@ automation:
                 - service: script.send_to_home_log
                   data:
                     message:
-                      ":no_pedestrians: No motion detected after :city_sunset: and before
-                      :city_sunrise: Dimming kitchen main lights."
+                      "After :city_sunset: and before :city_sunrise:. 
+                      Dimming kitchen main lights."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_main_lights_dim
@@ -147,8 +149,9 @@ automation:
                 - service: script.send_to_home_log
                   data:
                     message:
-                      ":no_pedestrians: No motion detected after :city_sunset: and before
-                      :city_sunrise: Turning kitchen main lights off."
+                      "After :city_sunset: and before :city_sunrise:. 
+                      Turning kitchen main lights off."
+                    title: ":no_pedestrians: No motion in the :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_main_lights_off
@@ -193,7 +196,6 @@ automation:
                     message: ':clock{{ now().strftime("%I") | int }}{% if now().minute | int > 25 
                     and now().minute | int < 35 %}30{% else %}{% endif %}: :bulb: 
                       Turning off kitchen lights'
-
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_main_lights_off
@@ -281,14 +283,15 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
-                      kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} 
+                    message: "It's dark ({{ states('sensor.kitchen_motion_light_level') }} 
                       & {{ states('sensor.kitchen_motion_2_light_level') }} 
                       {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
                       < {{ states('input_number.kitchen_light_level_threshold') }}-
                       {{ states('input_number.kitchen_light_level_2_threshold') }} 
                       {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
                       Turning kitchen table lights on to full brightness."
+                    title: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                      :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_table_lights_on
@@ -330,14 +333,15 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
-                      kitchen and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                    message: "It's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
                       states('sensor.kitchen_motion_2_light_level') }} 
                       {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
                       < {{ states('input_number.kitchen_light_level_threshold') }}-
                       {{ states('input_number.kitchen_light_level_2_threshold') }} 
                       {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
                       Turning kitchen cooker lights on to full brightness."
+                    title: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                      :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_cooker_lights_on
@@ -382,8 +386,9 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
-                      :cook: kitchen. Turning side lights on to full brightness."
+                    message: "Turning side lights on to full brightness."
+                    title: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                      :cook: kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_side_lights_on
@@ -412,8 +417,9 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: ":paw_prints: :bulb: :high_brightness: Motion detected in the
-                :cook: kitchen. Turning side lights on to full brightness."
+            message: "Turning side lights on to full brightness."
+            title: ":paw_prints: :bulb: :high_brightness: Motion detected in the
+                :cook: kitchen"
         - service: scene.turn_on
           target:
             entity_id: scene.kitchen_side_lights_on
@@ -436,8 +442,8 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":coffee: Coffee machine has been on for 30 minutes. Turning off coffee
-              machine."
+              "Has been on for 30 minutes. Turning off coffee machine."
+            title: ":coffee: Coffee machine"
         - service: switch.turn_off
           target:
             entity_id: switch.coffee_machine
@@ -454,7 +460,8 @@ automation:
     condition: []
     action:
       - data:
-          message: ":door: :snowflake: Fridge door is open."
+          message: "Opened."
+          title: ":door: :snowflake: Fridge door"
         service: script.send_to_home_log
     mode: single
   - id: "1595678900778"
@@ -468,7 +475,8 @@ automation:
     condition: []
     action:
       - data:
-          message: ":door: :snowflake: Fridge door closed."
+          message: "Closed."
+          title: ":door: :snowflake: Fridge door"
         service: script.send_to_home_log
     mode: single
   - id: "1595679010793"
@@ -486,12 +494,12 @@ automation:
         - service: script.send_direct_notification
           data:
             message:
-              ":warning: :door: :snowflake: Fridge door has been open for more than
-              4 minutes!"
+              "Fridge door has been open for more than 4 minutes!"
+            title: ":warning: :door: :snowflake: Fridge door is open"
         - data:
             message:
-              ":warning: :door: :snowflake: Fridge door has been open for more than
-              4 minutes!"
+              "Fridge door has been open for more than 4 minutes!"
+            title: ":warning: :door: :snowflake: Fridge door is open"
           service: script.send_to_home_log
     mode: single
 
