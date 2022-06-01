@@ -15,6 +15,7 @@ camera:
   - platform: local_file
     file_path: !secret camera_deepstack_upstairs
     name: deepstack_upstairs_latest
+
 image_processing:
   # Object
   - platform: deepstack_object
@@ -119,6 +120,7 @@ image_processing:
         confidence: 25
     source:
       - entity_id: camera.upstairs
+
 input_text:
   double_take_url:
     name: Double Take URL
@@ -176,6 +178,7 @@ input_text:
     initial: !secret camera_frigate_upstairs_person_public
     name: Latest Frigate Upstairs Person Picture
     icon: mdi:account-box
+
 script:
   conservatory_camera_process_image:
     alias: Conservatory Camera Process Image
@@ -210,10 +213,12 @@ script:
             data:
               message: >-
                 The following detected in the conservatory:{% for object in state_attr('image_processing.deepstack_object_conservatory','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+              title: "Deepstack Results"
         else:
           - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in conservatory."
+              title: ":brain: Deepstack Results"
     mode: single
   driveway_camera_process_objects:
     alias: Driveway camera process objects
@@ -253,6 +258,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in the driveway."
+              title: ":brain: Deepstack Results"
     mode: single
   front_garden_door_bell_camera_process_image:
     alias: Front Garden Doorbell Process Camera
@@ -312,6 +318,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected at the front door."
+              title: ":brain: Deepstack Results"
     mode: single
   lounge_camera_process_objects:
     alias: Lounge camera process objects
@@ -351,6 +358,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected in the lounge."
+              title: ":brain: Deepstack Results"
     mode: single
   stairs_camera_process_image:
     alias: Stairs Camera Process Image
@@ -390,7 +398,9 @@ script:
           - service: script.send_to_home_log
             data:
               message: ":white_check_mark: Nothing detected on the stairs."
+              title: ":brain: Deepstack Results"
     mode: single
+
 shell_command:
   copy_conservatory_deepstack_files: !secret copy_conservatory_deepstack_files_command
   copy_driveway_deepstack_files: !secret copy_driveway_deepstack_files_command

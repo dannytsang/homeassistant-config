@@ -17,11 +17,20 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: ":paw_prints: :door: {% set count = namespace(value=0) %}{% for door in state_attr('binary_sensor.back_doors','entity_id') %}{% if states(door) == 'on' %}{%if count.value > 1 %}and {%endif%}{{ state_attr(door,'friendly_name') }}{% set count.value = count.value + 1 %}{% endif %}{% endfor %}{% if count.value >= 2 %} are {%else%} is {% endif %}open and motion detected in the back garden. :camera_with_flash: Capturing image for processing."
+            message: ":paw_prints: :door: 
+              {% set count = namespace(value=0) %}
+              {% for door in state_attr('binary_sensor.back_doors','entity_id') %}
+              {% if states(door) == 'on' %}{%if count.value > 1 %}and {%endif%}
+              {{ state_attr(door,'friendly_name') }}
+              {% set count.value = count.value + 1 %}{% endif %}{% endfor %}
+              {% if count.value >= 2 %} are {%else%} is {% endif %}
+              open and motion detected in the back garden. :camera_with_flash: 
+                Capturing image for processing."
         - service: script.conservatory_camera_process_image
           data:
             title: Back Garden Snapshot
-            message: Motion Detected In Back Garden And Shed/Conservatory Door Open
+            message: "Motion Detected In Back Garden And :door: 
+              Shed/Conservatory Door Open"
     mode: queued
     max: 10
   - id: "1618158789152"
