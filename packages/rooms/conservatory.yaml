@@ -66,12 +66,13 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":paw_prints: :bulb: :high_brightness: Motion detected in conservatory and 
-              it's dark ({{ states('sensor.conservatory_motion_light_level') }} 
+              message: "It's dark ({{ states('sensor.conservatory_motion_light_level') }} 
               {{ state_attr('sensor.conservatory_motion_light_level','unit_of_measurement') }} < 
               ({{ states('input_number.conservatory_light_level_threshold') }} 
               {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}). 
               Turning on Lights."
+              title: ":paw_prints: :bulb: :high_brightness: Motion detected
+                        in the conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_on_light
@@ -99,8 +100,8 @@ automation:
           - service: script.send_to_home_log
             data:
               message:
-                ":no_pedestrians: :bulb: :low_brightness: No motion detected. Dimming
-                conservatory lights."
+                "Dimming conservatory lights."
+              title: ":no_pedestrians: :bulb: :low_brightness: No motion in the conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_dim_light
@@ -126,7 +127,8 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":no_pedestrians: No motion in conservatory. Turning lights off."
+              message: "Turning lights off."
+              title: ":no_pedestrians: No motion in the conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_off_light
@@ -232,11 +234,6 @@ group:
     entities:
       - sensor.conservatory_motion_temperature
       - sensor.conservatory_bucket_temperature
-
-input_boolean:
-  enable_conservatory_motion_trigger:
-    name: Enable motion trigger for conservatory
-    icon: mdi:motion-sensor
 
 scene:
   - id: "1610234583738"
