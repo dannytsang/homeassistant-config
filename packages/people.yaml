@@ -17,49 +17,49 @@ automation:
         state: "on"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: alarm_control_panel.house_alarm
-                  state: armed_away
-                - condition: state
-                  entity_id: input_boolean.enable_morning_routine
-                  state: "off"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":house: :running: Someone arrived home."
-                - service: script.set_alarm_to_disarmed_mode
-                - service: script.conservatory_turn_off_camera
-                - service: script.lounge_turn_off_camera
-                - service: script.upstairs_turn_off_camera
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_morning_routine
-                  state: "on"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
-                - service: script.set_alarm_to_disarmed_mode
-                - service: script.send_to_home_log
-                  data:
-                    message: "Turning on downstairs :camera_with_flash: cameras."
-                - service: script.conservatory_turn_on_camera
-                - service: script.lounge_turn_on_camera
-                - service: script.front_garden_turn_on_camera
-          default: []
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: climate.thermostat
-                  state: "off"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: Heating is off.
-                - service: script.set_central_heating_to_home_mode
-          default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: armed_away
+                  - condition: state
+                    entity_id: input_boolean.enable_morning_routine
+                    state: "off"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":house: :running: Someone arrived home."
+                  - service: script.set_alarm_to_disarmed_mode
+                  - service: script.conservatory_turn_off_camera
+                  - service: script.lounge_turn_off_camera
+                  - service: script.upstairs_turn_off_camera
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_morning_routine
+                    state: "on"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
+                  - service: script.set_alarm_to_disarmed_mode
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Turning on downstairs :camera_with_flash: cameras."
+                  - service: script.conservatory_turn_on_camera
+                  - service: script.lounge_turn_on_camera
+                  - service: script.front_garden_turn_on_camera
+            default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "off"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Heating is off.
+                  - service: script.set_central_heating_to_home_mode
+            default: []
     mode: single
   - id: "1613333442249"
     alias: "^People: No One Home And 3D Printing"
@@ -231,38 +231,38 @@ automation:
         state: "on"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - not:
-                    - condition: state
-                      entity_id: input_select.home_mode
-                      state: Guest
-              sequence:
-                - service: script.send_direct_notification
-                  data:
-                    message:
-                      ":warning: :door: :window: The following entrances are still open:
-                      {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-                      %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-                      }} {% endif %}{% endfor %}"
-                    title: No one is home and couldn't turn on the alarm
-          default: []
-        - choose:
-            - conditions:
-                - not:
-                    - condition: state
-                      entity_id: input_select.home_mode
-                      state: Guest
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":warning: :door: :window: The following entrances are still open:
-                      {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-                      %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-                      }} {% endif %}{% endfor %}"
-                    title: No one is home and couldn't turn on the alarm
-          default: []
+          - choose:
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: Guest
+                sequence:
+                  - service: script.send_direct_notification
+                    data:
+                      message:
+                        ":warning: :door: :window: The following entrances are still open:
+                        {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                        %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                        }} {% endif %}{% endfor %}"
+                      title: No one is home and couldn't turn on the alarm
+            default: []
+          - choose:
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: Guest
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":warning: :door: :window: The following entrances are still open:
+                        {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                        %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                        }} {% endif %}{% endfor %}"
+                      title: No one is home and couldn't turn on the alarm
+            default: []
     mode: single
 
 proximity:

@@ -35,20 +35,20 @@ automation:
         state: "on"
     action:
       - parallel:
-        - service: script.send_direct_notification
-          data:
-            message:
-              ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-              {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-              %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-              }} {% endif %}{% endfor %}"
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-              {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
-              %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-              }} {% endif %}{% endfor %}"
+          - service: script.send_direct_notification
+            data:
+              message:
+                ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
+                {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                }} {% endif %}{% endfor %}"
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
+                {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                }} {% endif %}{% endfor %}"
     mode: single
   - id: "1619466600288"
     alias: "^Time: Delete Old Camera Files"
@@ -87,12 +87,12 @@ automation:
     condition: []
     action:
       - parallel:
-        - data: {}
-          entity_id: input_boolean.enable_morning_routine
-          service: input_boolean.turn_on
-        - data:
-            message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
-          service: script.send_to_home_log
+          - data: {}
+            entity_id: input_boolean.enable_morning_routine
+            service: input_boolean.turn_on
+          - data:
+              message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
+            service: script.send_to_home_log
     mode: single
   - id: "1582406380123"
     alias: "^Timed: Turn Off Downstairs Lights at 2am"
@@ -103,21 +103,16 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
-              25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
-              light off."
-        - service: scene.turn_on
-          target:
-            entity_id: scene.turn_off_downstairs_lights
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
+                25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
+                light off."
+          - service: scene.turn_on
+            target:
+              entity_id: scene.turn_off_downstairs_lights
     mode: single
-
-input_boolean:
-  enable_morning_routine:
-    name: Morning routine automations
-    icon: mdi:weather-sunset-up
 
 script:
   morning_script:
