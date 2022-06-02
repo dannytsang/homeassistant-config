@@ -385,7 +385,7 @@ script:
         required: true
     sequence:
       - choose:
-        # Check at least filePath or url is set.
+        # Check a title was set
         - conditions:
             - condition: template
               value_template: "{% if title is defined and 
@@ -393,29 +393,29 @@ script:
           sequence:
             - service: notify.slack_notify
               data:
-                message: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
+                message: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
                 target: "{{ target }}"
                 data:
                   blocks:
                   - type: section
                     text:
-                      type: mrkdwn
+                      type: header
                       text: "*{{ title }}*"
                   - type: section
                     text:
                       type: plain_text
-                      text: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
+                      text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
         default:
           - service: notify.slack_notify
             data:
-              message: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
+              message: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
               target: "{{ target }}"
               data:
                 blocks:
                 - type: section
                   text:
                     type: plain_text
-                    text: "{{ iif(title is defined,people|default('', true)+' ','') }}{{ message }}"
+                    text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
     mode: queued
     max: 10
   post_to_slack_with_attachments:
