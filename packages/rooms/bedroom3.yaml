@@ -43,6 +43,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+                  title: "Close Ashlee's :bed: bedroom blinds"
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
@@ -56,6 +57,7 @@ automation:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                     > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: It's getting dark, closing Ashlee's blinds."
+                  title: "Close Ashlee's :bed: bedroom blinds"
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
@@ -103,6 +105,7 @@ automation:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                     > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Opening Ashlee's blinds"
+                  title: "Open Ashlee's :bed: bedroom blinds"
                 service: script.send_to_home_log
               - service: cover.open_cover
                 target:
@@ -119,16 +122,7 @@ automation:
                     opening Ashlee's bedroom blinds."
         default: []
     mode: single
-input_boolean:
-  enable_ashlees_bed_presence:
-    name: Enable Ashlee's Bed Sensor
-    icon: mdi:bed-single-outline
-  enable_ashlees_blind_automations:
-    name: Enable Ashlees Blind Automation
-    icon: mdi:window-open
-  enable_ashlees_door_automations:
-    name: Enable Ashlee's Door Automation
-    icon: mdi:door
+
 sensor:
   # Aggregated sensors
   - platform: min_max
@@ -137,6 +131,7 @@ sensor:
       - sensor.ashlees_bed_temperature
       - sensor.ashlees_door_temperature
       - sensor.ashlees_window_temperature
+
 template:
   - binary_sensor:
       - name: Ashlees Bed Occupied

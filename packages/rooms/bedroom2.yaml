@@ -72,6 +72,7 @@ automation:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
+                      title: "Close Leo's :bed: bedroom blinds"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_blinds
@@ -86,6 +87,7 @@ automation:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
+                      title: "Close Leo's :bed: bedroom blinds"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_blinds
@@ -113,6 +115,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: ":city_sunset: :window: closing Leo's blinds."
+              title: "Close Leo's :bed: bedroom blinds"
     mode: single
   - id: "1617376413056"
     alias: "^Leo's Room: Open Blinds In The Morning"
@@ -135,6 +138,7 @@ automation:
       - parallel:
           - data:
               message: ":sunrise: :window: Opening Leo's blinds"
+              title: "Open Leo's :bed: bedroom blinds"
             service: script.send_to_home_log
           - service: cover.open_cover
             target:
@@ -163,7 +167,7 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
       - condition: state
-        entity_id: input_boolean.enable_leos_bed_presence
+        entity_id: input_boolean.enable_leos_bed_sensor
         state: "on"
       - not:
           - condition: state
@@ -174,6 +178,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
+              title: "Close Leo's :bed: bedroom blinds"
           - service: cover.open_cover
             target:
               entity_id: cover.leos_blinds
@@ -205,17 +210,6 @@ automation:
             target:
               entity_id: media_player.spotify_danny
     mode: single
-
-input_boolean:
-  enable_leos_bed_presence:
-    name: Enable Leo's Bed Sensor
-    icon: mdi:bed-single
-  enable_leos_blind_automations:
-    name: Enable Leos Blind Automation
-    icon: mdi:window-open
-  enable_leos_door_automations:
-    name: Enable Leo's Door Automation
-    icon: mdi:door
 
 sensor:
   # Aggregated sensors
