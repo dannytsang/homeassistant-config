@@ -17,8 +17,9 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: ":door: :bulb: :high_brightness: Door opened and it's dark 
+                  message: ":door: :bulb: :high_brightness: It's dark 
                   ({{ states('sensor.porch_motion_light_level') }} < 100). Turning on light."
+                  title: "Front door opened"
               - service: scene.turn_on
                 target:
                   entity_id: scene.porch_light_on
@@ -26,9 +27,10 @@ automation:
       - service: script.send_to_home_log
         data:
           message:
-            ':door: Incrementing front door counter :abacus:
-            from {{ states("counter.front_door") }} to {{ states("counter.front_door")
-            | int + state_attr("counter.front_door", "step") | int }}.'
+            ":door: Incrementing front door counter :abacus:
+            from {{ states('counter.front_door') }} to {{ states('counter.front_door')
+            | int + state_attr('counter.front_door', 'step') | int }}."
+          title: "Front door opened"
       - service: counter.increment
         data: {}
         entity_id: counter.front_door
@@ -52,6 +54,7 @@ automation:
           message:
             ":door: :abacus: Front door has been opened for more than 20 secs.
             Resetting counter  from {{ states('counter.front_door') }} to 0."
+          title: "Front door opened"
       - service: counter.reset
         data: {}
         entity_id: counter.front_door
@@ -74,6 +77,7 @@ automation:
             message:
               ":people_holding_hands: Someone is home, notifying front :door: door
               is open"
+            title: "Front door opened"
         - service: script.front_door_open_notification
           data: {}
     mode: single
@@ -92,8 +96,9 @@ automation:
         - service: script.send_to_home_log
           data:
             message:
-              ":door: :abacus: Front  door has been closed for more than 20 secs.
+              ":abacus: For more than 20 secs.
               Resetting counter  from {{ states('counter.front_door') }} to 0"
+            title: "Front door closed"
         - service: counter.reset
           target:
             entity_id: counter.front_door
@@ -132,7 +137,8 @@ automation:
             entity_id: scene.porch_lights_off
         - service: script.send_to_home_log
           data:
-            message: ":door: Front door closed for 1 minute. Turning off porch light."
+            message: "For 1 minute. Turning off porch light."
+            title: "Front door closed"
         - choose:
           - conditions:
               - condition: state
@@ -141,7 +147,8 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "Front door closed. Turning stairs light off as fall back."
+                  message: "Turning stairs light off as fall back."
+                  title: "Front door closed"
               - service: scene.turn_on
                 target:
                   entity_id:
@@ -155,21 +162,14 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "Front door closed. Turning office light off as fall back."
+                  message: "Turning office light off as fall back."
+                  title: "Front door closed"
               - service: scene.turn_on
                 target:
                   entity_id:
                     - scene.office_turn_off_light_notification
           default: []
     mode: single
-
-input_boolean:
-  enable_porch_light_override:
-    name: Enable Bathroom Override Feature
-    icon: mdi:door
-  porch_light_override:
-    name: Bathroom Light Override
-    icon: mdi:lightbulb
 
 scene:
   - id: "1606157607021"
