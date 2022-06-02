@@ -90,7 +90,7 @@ script:
           - service: script.post_slack_notification
             data:
               message: "{{ message }}"
-              title: "{{ title }}"
+              title: "{{ title|default(none, true) }}"
               target: "home_log"
   send_direct_notification:
     alias: Send Direct Mesage To a Person
@@ -118,13 +118,12 @@ script:
               # If people parameter is not set
               - conditions:
                   - condition: template
-                    value_template: "{% if people is not defined or 
-                    people is not match('person.*') %}True{% endif %}"
+                    value_template: "{{ people is not defined or people is not match('person.*') }}"
                 sequence:
                   - service: script.post_slack_notification
                     data:
                       message: "{{ message }}"
-                      title: "{{ title }}"
+                      title: "{{ title|default(none, true) }}"
                       target: "general"
                       people: "@danny @terina"
               # If both adults mentioned.
@@ -147,7 +146,7 @@ script:
                           - service: script.post_slack_notification
                             data:
                               message: "{{ message }}"
-                              title: "{{ title }}"
+                              title: "{{ title|default(none, true) }}"
                               target: "general"
                               people: "@danny @terina"
                     # If not, check each person's preference.
@@ -155,19 +154,19 @@ script:
                       - service: script.post_direct_notification_by_person
                         data:
                           message: "{{ message }}"
-                          title: "{{ title }}"
+                          title: "{{ title|default(none, true) }}"
                           people: "{{ people }}"
               # Check if the person entity has been passed. 
               # The underly script will notify the right people if it does.
               - conditions:
                   - condition: template
-                    value_template: "{% if people is defined and people is match('person.*') %}True{% endif %}"
+                    value_template: "{{ people is defined and people is match('person.*') }}"
                 sequence:
                   # Checked preferred messaging platform.
                   - service: script.post_direct_notification_by_person
                     data:
                       message: "{{ message }}"
-                      title: "{{ title }}"
+                      title: "{{ title|default(none, true) }}"
                       people: "{{ people }}"
             # Catch all but modified message.
             default:
@@ -176,7 +175,7 @@ script:
                   message: ":warning: Unknown recipient.\n
                   message: {{ message }}\n
                   people: {{ people }}"
-                  title: "{{ title }}"
+                  title: "{{ title|default(none, true) }}"
                   people: "person.danny"
     mode: queued
     max: 10
@@ -200,7 +199,7 @@ script:
       - service: script.post_to_slack_with_attachments
         data:
           message: "{{ message }}"
-          title: "{{ title }}"
+          title: "{{ title|default(none, true) }}"
           target: "home_log"
           filePath: "{{ filePath }}"
     mode: queued
@@ -223,7 +222,7 @@ script:
       - service: script.post_to_slack_with_attachments
         data:
           message: "{{ message }}"
-          title: "{{ title }}"
+          title: "{{ title|default(none, true) }}"
           target: "home_log"
           url: "{{ url }}"
     mode: queued
@@ -259,7 +258,7 @@ script:
       - service: script.post_mobile_actionable_notification_with_2_buttons
         data:
           message: "{{ message }}"
-          title: "{{ title }}"
+          title: "{{ title|default(none, true) }}"
           people: "{{ people }}"
           action1_title: "{{ action1_title }}"
           action1_name: "{{ action1_name }}"
@@ -300,7 +299,7 @@ script:
       - service: script.post_mobile_actionable_notification_with_3_buttons
         data:
           message: "{{ message }}"
-          title: "{{ title }}"
+          title: "{{ title|default(none, true) }}"
           data:
             action1_title: "{{ action1_title }}"
             action1_name: "{{ action1_name }}"
@@ -340,7 +339,7 @@ script:
                       - service: script.post_telegram_direct_notification
                         data:
                           message: "{{ message }}"
-                          title: "{{ title }}"
+                          title: "{{ title|default(none, true) }}"
                   - conditions:
                       - condition: state
                         entity_id: input_select.danny_direct_notification_preference
@@ -349,7 +348,7 @@ script:
                       - service: script.post_slack_notification
                         data:
                           message: "{{ message }}"
-                          title: "{{ title }}"
+                          title: "{{ title|default(none, true) }}"
                           target: "general"
                           people: "@danny"
                 default: []
@@ -361,7 +360,7 @@ script:
               - service: script.post_slack_notification
                 data:
                   message: "{{ message }}"
-                  title: "{{ title }}"
+                  title: "{{ title|default(none, true) }}"
                   target: "general"
                   people: "@terina"
     mode: queued
@@ -388,8 +387,7 @@ script:
         # Check a title was set
         - conditions:
             - condition: template
-              value_template: "{% if title is defined and 
-              title|length > 0 %}True{% endif %}"
+              value_template: "{{ title is defined and title|length > 0 }}"
           sequence:
             - service: notify.slack_notify
               data:
@@ -442,8 +440,7 @@ script:
         # Check at least filePath or url is set.
         - conditions:
             - condition: template
-              value_template: "{% if filePath is not defined and 
-              url is not defined %}True{% endif %}"
+              value_template: "{{ filePath is not defined and url is not defined }}"
           sequence:
             - service: script.send_direct_notification
               data:
@@ -452,8 +449,7 @@ script:
                 people: person.danny
         - conditions:
             - condition: template
-              value_template: "{% if filePath is defined and 
-              url is defined %}True{% endif %}"
+              value_template: "{{filePath is defined and url is defined }}"
           sequence:
             - service: script.send_direct_notification
               data:
@@ -464,8 +460,7 @@ script:
         # If a filePath is set.
         - conditions:
             - condition: template
-              value_template: "{% if filePath is defined and 
-              url is not defined %}True{% endif %}"
+              value_template: "{{filePath is defined and url is not defined }}"
           sequence:
             - service: notify.slack_notify
               data:
@@ -478,16 +473,14 @@ script:
         # If a URL is set.
         - conditions:
             - condition: template
-              value_template: "{% if filePath is not defined and 
-              url is defined %}True{% endif %}"
+              value_template: "{{ filePath is not defined and url is defined }}"
           sequence:
             # Check if a title has been set
             - choose:
                 # Check at least filePath or url is set.
                 - conditions:
                     - condition: template
-                      value_template: "{% if title is defined and 
-                      title|length > 0 %}True{% endif %}"
+                      value_template: "{{ title is defined and title|length > 0 }}"
                   sequence:
                     - service: notify.slack_notify
                       data:
