@@ -752,98 +752,6 @@
       data:
         message: ":repeat: Entering No Children mode."
   mode: single
-- id: "1630529131585"
-  alias: "People: Kids Leave The House"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.children_people
-      from: home
-      to: not_home
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_home_presence_detection
-      state: "on"
-    - not:
-        - condition: state
-          entity_id: device_tracker.udmpro
-          state: unavailable
-  action:
-    - choose:
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: Guest
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":boy: :girl: Children have left the :house_with_garden: house.
-                  Setting home mode to No Children."
-            - service: input_select.select_option
-              target:
-                entity_id: input_select.home_mode
-              data:
-                option: No Children
-        - conditions:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: Guest
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":boy: :girl: Children have left the :house_with_garden: house.
-                  Home mode is currently in :busts_in_silhouette: guest."
-      default: []
-  mode: single
-- id: "1630529257560"
-  alias: "People: Kids Come Home"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: group.children_people
-      from: not_home
-      to: home
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_home_presence_detection
-      state: "on"
-    - not:
-        - condition: state
-          entity_id: device_tracker.udmpro
-          state: unavailable
-  action:
-    - choose:
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: Guest
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":boy: :girl: Children have come :house_with_garden: home. Setting
-                  home mode to normal."
-            - service: input_select.select_option
-              target:
-                entity_id: input_select.home_mode
-              data:
-                option: Normal
-        - conditions:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: Guest
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":boy: :girl: Children have come :house_with_garden: home. Home
-                  mode is currently in :busts_in_silhouette: guest."
-      default: []
-  mode: single
 - id: "1634576629865"
   alias: "NFC Tag: Scanned Locked By User"
   description: ""
@@ -1430,3 +1338,26 @@
           data:
             message: Trigger holiday mode from calendar event.
   mode: queued
+- id: "1654201032697"
+  alias: "People: Danny Leaves Home"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - person.danny
+      to: away
+      for:
+        hours: 1
+        minutes: 0
+        seconds: 0
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Updating :car car location
+        title: Danny is not home
+    - service: button.press
+      data: {}
+      target:
+        entity_id: button.bmw_find_vehicle
+  mode: single
