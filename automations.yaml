@@ -907,7 +907,7 @@
     - platform: event
       event_type: feedreader
       event_data:
-        feed_url: "{{ states('input_text.weather_warning_feed') }}"
+        feed_url: input_text.weather_warning_feed
   condition: []
   action:
     - service: script.post_direct_message_to_danny
@@ -1330,9 +1330,7 @@
               entity_id: group.adult_people
               state: home
         - condition: template
-          value_template:
-            "{{ state_attr('calendar.family','location') is defined
-            and state_attr('calendar.family','location') }}"
+          value_template: "{{ state_attr('calendar.family','location') is defined }}"
       then:
         - service: script.send_direct_notification
           data:
