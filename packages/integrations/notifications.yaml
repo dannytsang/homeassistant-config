@@ -52,10 +52,18 @@ input_select:
     icon: mdi:cellphone-information
 
 input_text:
+  slack_danny_id:
+    name: Danny's Slack ID
+    icon: mdi:slack
+    initial: !secret slack_danny_id
   telegram_danny_chat_id:
     name: Danny's Telegram Chat ID
     icon: mdi:android-messages
     initial: !secret telegram_danny_chat_id
+  slack_terina_id:
+    name: Terina's Slack ID
+    icon: mdi:slack
+    initial: !secret slack_terina_id
 
 notify:
   - name: slack_notify
@@ -125,7 +133,7 @@ script:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
                       target: "general"
-                      people: "@danny @terina"
+                      people: "{{ states('input_text.slack_danny_id') }} {{ states('input_text.slack_terina_id') }}"
               # If both adults mentioned.
               - conditions:
                   - condition: template
@@ -148,7 +156,7 @@ script:
                               message: "{{ message }}"
                               title: "{{ title|default(none, true) }}"
                               target: "general"
-                              people: "@danny @terina"
+                              people: "{{ states('input_text.slack_danny_id') }} {{ states('input_text.slack_terina_id') }}"
                     # If not, check each person's preference.
                     default:
                       - service: script.post_direct_notification_by_person
@@ -350,7 +358,7 @@ script:
                           message: "{{ message }}"
                           title: "{{ title|default(none, true) }}"
                           target: "general"
-                          people: "@danny"
+                          people: "{{ states('input_text.slack_danny_id') }}"
                 default: []
           # Check if Terina was mentioned.
           - conditions:
@@ -362,7 +370,7 @@ script:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
                   target: "general"
-                  people: "@terina"
+                  people: "{{ states('input_text.slack_terina_id') }}"
     mode: queued
     max: 10
   # Slack specific Scripts
@@ -378,7 +386,7 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: (optional)People to message e.g. @danny
+        description: (optional)Slack User ID to message e.g. <@ABCDEFG>
       target:
         description: Slack channel to post the message to.
         required: true
@@ -402,7 +410,7 @@ script:
                         emoji: true
                     - type: section
                       text:
-                        type: plain_text
+                        type: mrkdwn
                         text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
         default:
           - service: notify.slack_notify
@@ -413,7 +421,7 @@ script:
                 blocks:
                 - type: section
                   text:
-                    type: plain_text
+                    type: mrkdwn
                     text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
     mode: queued
     max: 10
