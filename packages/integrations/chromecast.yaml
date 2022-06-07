@@ -11,25 +11,28 @@ automation:
         event: start
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: Checking Magic Mirror.
-      - if:
-          - not:
-              - condition: state
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Checking if Chromecast is still casting.
+            title: ":mirror: Magic Mirror"
+        - if:
+            - not:
+                - condition: state
+                  entity_id: media_player.stairs_chromecast
+                  state: playing
+                - condition: state
+                  entity_id: media_player.stairs_chromecast
+                  attribute: app_name
+                  state: Home Assistant Lovelace
+          then:
+            - service: script.send_to_home_log
+              data:
+                message: Casting Home Assistant.
+                title: ":mirror: Magic Mirror"
+            - service: cast.show_lovelace_view
+              data:
                 entity_id: media_player.stairs_chromecast
-                state: playing
-              - condition: state
-                entity_id: media_player.stairs_chromecast
-                attribute: app_name
-                state: Home Assistant Lovelace
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: Casting Home Assistant to Magic Mirror.
-          - service: cast.show_lovelace_view
-            data:
-              entity_id: media_player.stairs_chromecast
-              dashboard_path: lovelace-magicmirror
-              view_path: home
+                dashboard_path: lovelace-magicmirror
+                view_path: home
     mode: single
