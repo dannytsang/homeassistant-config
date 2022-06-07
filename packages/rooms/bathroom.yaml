@@ -385,12 +385,12 @@ automation:
       - service: script.send_to_home_log
         data:
           message: "Opened. Incrementing counter :abacus: from 
-            {{ states('counter.bathroom_door') }} to {{ states('counter.bathroom_door')
-            | int + state_attr('counter.bathroom_door', 'step') | int }}."
+            {{ states('counter.bathroom_door_opened_closed') }} to {{ states('counter.bathroom_door_opened_closed')
+            | int + state_attr('counter.bathroom_door_opened_closed', 'step') | int }}."
           title: ":bathtub: Bathroom :door:"
       - service: counter.increment
         data: {}
-        entity_id: counter.bathroom_door
+        entity_id: counter.bathroom_door_opened_closed
     mode: single
   - id: "1611164672680"
     alias: "^Bathroom: Door Closed And It's Dark"
@@ -448,25 +448,25 @@ automation:
         for: 00:00:20
     condition:
       - condition: numeric_state
-        entity_id: counter.bathroom_door
+        entity_id: counter.bathroom_door_opened_closed
         below: "2"
     action:
       - service: script.send_to_home_log
         data:
           message: "Opened for more than 20 secs. Resetting :abacus: counter 
-            from {{ states('counter.bathroom_door')
+            from {{ states('counter.bathroom_door_opened_closed')
             }} to 0"
           title: ":bathtub: Bathroom :door:"
       - service: counter.reset
         data: {}
-        entity_id: counter.bathroom_door
+        entity_id: counter.bathroom_door_opened_closed
     mode: single
   - id: "1613697803282"
     alias: "^Bathroom: Door Closed And Opened In Succession"
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: counter.bathroom_door
+        entity_id: counter.bathroom_door_opened_closed
         above: "1"
     condition:
       - condition: state
@@ -482,7 +482,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message:
-                    ":door: Door closed and opened {{ states('counter.bathroom_door')
+                    ":door: Door closed and opened {{ states('counter.bathroom_door_opened_closed')
                     }}x in 30 seconds, keeping :bulb: lights on for 10 minutes."
                   title: ":bathtub: Bathroom :door:"
               - service: script.bathroom_flash_light
@@ -497,7 +497,7 @@ automation:
                   entity_id: scene.bathroom_light_on
               - service: counter.reset
                 data: {}
-                entity_id: counter.bathroom_door
+                entity_id: counter.bathroom_door_opened_closed
               - service: input_boolean.turn_on
                 data: {}
                 entity_id: input_boolean.bathroom_light_override
@@ -509,7 +509,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message:
-                    ":door: Door closed and opened {{ states('counter.bathroom_door')
+                    ":door: Door closed and opened {{ states('counter.bathroom_door_opened_closed')
                     }} in 30 seconds, resetting lights to :paw_prints: motion detection."
                   title: ":bathtub: Bathroom :door:"
               - service: script.bathroom_flash_light
@@ -526,7 +526,7 @@ automation:
                   transition: 2
               - service: counter.reset
                 data: {}
-                entity_id: counter.bathroom_door
+                entity_id: counter.bathroom_door_opened_closed
               - service: input_boolean.turn_off
                 data: {}
                 entity_id: input_boolean.bathroom_light_override
@@ -629,14 +629,6 @@ automation:
             data:
               position: 30
     mode: single
-
-counter:
-  bathroom_door:
-    name: Bathroom Door Open Close
-    restore: false
-    initial: 0
-    minimum: 0
-    step: 1
 
 scene:
   - id: "1610310643539"

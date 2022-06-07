@@ -28,12 +28,12 @@ automation:
         data:
           message:
             ":door: Incrementing front door counter :abacus:
-            from {{ states('counter.front_door') }} to {{ states('counter.front_door')
-            | int + state_attr('counter.front_door', 'step') | int }}."
+            from {{ states('counter.front_door_opened_closed') }} to {{ states('counter.front_door_opened_closed')
+            | int + state_attr('counter.front_door_opened_closed', 'step') | int }}."
           title: "Front door opened"
       - service: counter.increment
         data: {}
-        entity_id: counter.front_door
+        entity_id: counter.front_door_opened_closed
     mode: single
   - id: "1614033445487"
     alias: "^Porch: Front Door Opened Once For More than 20 seconds"
@@ -46,18 +46,18 @@ automation:
         for: 00:00:20
     condition:
       - condition: numeric_state
-        entity_id: counter.front_door
+        entity_id: counter.front_door_opened_closed
         below: "2"
     action:
       - service: script.send_to_home_log
         data:
           message:
             ":door: :abacus: Front door has been opened for more than 20 secs.
-            Resetting counter  from {{ states('counter.front_door') }} to 0."
+            Resetting counter  from {{ states('counter.front_door_opened_closed') }} to 0."
           title: "Front door opened"
       - service: counter.reset
         data: {}
-        entity_id: counter.front_door
+        entity_id: counter.front_door_opened_closed
   - id: "1611931052908"
     alias: "^Porch: Front Door Open Indicator"
     description: ""
@@ -97,11 +97,11 @@ automation:
           data:
             message:
               ":abacus: For more than 20 secs.
-              Resetting counter  from {{ states('counter.front_door') }} to 0"
+              Resetting counter  from {{ states('counter.front_door_opened_closed') }} to 0"
             title: "Front door closed"
         - service: counter.reset
           target:
-            entity_id: counter.front_door
+            entity_id: counter.front_door_opened_closed
     mode: single
   - id: "1611931640441"
     alias: "^Porch: Front Door Closed"
