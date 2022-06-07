@@ -211,10 +211,12 @@ script:
     fields:
       message:
         description: Message to post
+        required: true
       title:
         description: (optional)Title to the message posted.
       url:
         description: (optional)Link to file.
+        required: true
     sequence:
       - condition: state
         entity_id: input_boolean.enable_notifications
@@ -490,18 +492,36 @@ script:
                         target: "{{ target }}"
                         data:
                           blocks:
+                            - type: header
+                              text:
+                                type: "plain_text"
+                                text: "{{ title }}"
+                                emoji: true
                             - type: section
                               text:
                                 type: mrkdwn
-                                text: "*{{ title|default('', true) }}*"
-                            - type: section
-                              text:
-                                type: plain_text
                                 text: "{{ message }}"
                               accessory:
                                 type: image
                                 image_url: "{{ url }}"
                                 alt_text: "{{ title|default('Failed to load image', true) }}"
+              # No title set
+              default:
+                - service: notify.slack_notify
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default('', true) }}"
+                    target: "{{ target }}"
+                    data:
+                      blocks:
+                        - type: section
+                          text:
+                            type: mrkdwn
+                            text: "{{ message }}"
+                          accessory:
+                            type: image
+                            image_url: "{{ url }}"
+                            alt_text: "{{ title|default('Failed to load image', true) }}"
         default:
           # No title set
           - service: notify.slack_notify
