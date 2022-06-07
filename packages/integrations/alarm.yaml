@@ -12,7 +12,8 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":no_bell: Alarmed disarmed."
+              message: ":no_bell: disarmed."
+              title: ":bell: Alarm"
           - service: script.send_to_home_log
             data:
               message: ":camera: Turning off indoor cameras."
@@ -58,6 +59,7 @@ automation:
                 data:
                   message: ":running: :house_with_garden: Danny is not home. 
                   :no_bell: Alarm not turned on and a check will be performed later."
+                  title: ":bell: Alarm"
           - conditions:
             - condition: state
               entity_id: person.danny
@@ -73,6 +75,7 @@ automation:
                 data:
                   message: ":house_with_garden: :woman_dancing: Terina is not 
                   home. :no_bell: Alarm not turned on and a check will be performed later."
+                  title: ":bell: Alarm"
           - conditions:
             - condition: state
               entity_id: person.danny
@@ -148,8 +151,8 @@ automation:
           - service: script.send_to_home_log
             data:
               message:
-                ":bell: :camera_with_flash: Alarmed set to away mode (all sensors on).
-                Turning on all cameras."
+                " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
+              title: ":bell: Alarm"
           - service: script.conservatory_turn_on_camera
           - service: script.lounge_turn_on_camera
           - service: script.upstairs_turn_on_camera
@@ -166,8 +169,8 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          title: Alarm Offline
-          message: ":warning: :no_bell: Alarm has disconnected from @home_assistant :warning:"
+          title: ":bell: Alarm"
+          message: ":warning: Disconnected from @home_assistant :warning:"
     mode: single
 
 group:
@@ -198,6 +201,7 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: "Turning :bell: alarm on in away mode."
+                  title: ":bell: Alarm"
               - service: alarm_control_panel.alarm_arm_away
                 data: {}
                 target:
@@ -218,6 +222,7 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: "Turning :no_bell: alarm off."
+                  title: ":bell: Alarm"
               - service: alarm_control_panel.alarm_disarm
                 data: {}
                 target:
@@ -238,6 +243,7 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: "Changing :bell: alarm to home mode(door sensors only)."
+                  title: ":bell: Alarm"
               - service: alarm_control_panel.alarm_arm_home
                 data: {}
                 target:
