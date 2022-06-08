@@ -1,5 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Blinds
   - id: "1605925028960"
     alias: "^Ashlee's Room: Timed Close Blinds"
     description: ""
@@ -62,6 +63,38 @@ automation:
                 target:
                   entity_id: cover.ashlees_blinds
         default: []
+    mode: single
+  - id: "1622891806607"
+    alias: "^Ashlee's Room: Window Closed After Dark"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.ashlees_window
+        from: "on"
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: cover.ashlees_blinds
+        state: open
+      - condition: state
+        entity_id: input_boolean.enable_ashlees_blind_automations
+        state: "on"
+      - condition: time
+        after: "19:00:00"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":window: Window closed and it's dark. Closing blinds."
+          title: "Ashlee's :bed: Bedroom"
+      - service: cover.close_cover
+        target:
+          entity_id: cover.ashlees_blinds
+        data: {}
     mode: single
   - id: "1605775729191"
     alias: "^Ashlee's Room: Turn Off Lamp After An Hour"
