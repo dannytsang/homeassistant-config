@@ -312,7 +312,30 @@ automation:
             off lights."
           title: ":man: Danny"
         service: script.send_to_home_log
-
+  # Terina
+  - id: "1582754128581"
+    alias: "^People: Terina Arrives Home"
+    description: ""
+    trigger:
+      - entity_id: person.terina
+        from: not_home
+        platform: state
+        to: home
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.lounge_motion_2_light_level
+        below: "55"
+    action:
+      - service: scene.turn_on
+        target:
+          entity_id:
+            - scene.lounge_lights
+            - scene.kitchen_side_lights_on
+      - data:
+          message:
+            ":crescent_moon: :dancer: :house: :bulb: Terina arrived home and its
+            dark so turning on the lights."
+        service: script.send_to_home_log
 proximity:
   danny_dannys_parents:
     ignored_zones:
