@@ -1,6 +1,21 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Possible states: https://docs.sleep.urbandroid.org/services/automation.html#events
-input_text:
-  sleep_as_android:
-    name: Sleep As Android
-    icon: mdi:sleep
+automation:
+  - id: "1614285576722"
+    alias: "^Sleep As Android"
+    description: ""
+    trigger:
+      - platform: webhook
+        webhook_id: sleep_as_android
+    condition: []
+    action:
+      - service: input_text.set_value
+        entity_id: input_text.sleep_as_android
+        data:
+          value: "{{ trigger.json.event }}"
+      - service: script.send_to_home_log
+        data:
+          message: "Changed to {{ trigger.json.event }}"
+          title: ":zzz: Sleep as :robot: Android"
+    mode: queued
+    max: 10
