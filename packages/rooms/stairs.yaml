@@ -948,14 +948,15 @@ automation:
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
     action:
-      - service: switch.turn_off
-        target:
-          entity_id: switch.magic_mirror_screen
-      - data:
-          message:
-            ":no_pedestrians: :mirror: Turning off Magic Mirror based on time and
-            no motion nearby."
-        service: script.send_to_home_log
+      parallel:
+        - service: switch.turn_off
+          target:
+            entity_id: switch.magic_mirror_screen
+        - data:
+            message:
+              "Turning off :mirror: Magic Mirror based on time of the day."
+            title: ":no_pedestrians: No motioned detected on the :laddar: stairs"
+          service: script.send_to_home_log
     mode: single
   - id: "1630760046947"
     alias: "^Stairs: Close Blinds At Night"
@@ -973,6 +974,7 @@ automation:
         - service: script.send_to_home_log
           data:
             message: ":city_sunrise: :window: Closing stairs blinds."
+            title: ":laddar: Stairs"
         - service: cover.close_cover
           target:
             entity_id: cover.stairs_blinds
@@ -991,7 +993,8 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: ":sunrise: :window: Opening stairs blinsd."
+            message: ":sunrise: :window: Opening stairs blinds."
+            title: ":laddar: Stairs"
         - service: cover.open_cover
           target:
             entity_id: cover.stairs_blinds
