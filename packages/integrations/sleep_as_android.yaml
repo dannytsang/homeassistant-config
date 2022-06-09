@@ -9,13 +9,14 @@ automation:
         webhook_id: sleep_as_android
     condition: []
     action:
-      - service: input_text.set_value
-        entity_id: input_text.sleep_as_android
-        data:
-          value: "{{ trigger.json.event }}"
-      - service: script.send_to_home_log
-        data:
-          message: "Changed to {{ trigger.json.event }}"
-          title: ":zzz: Sleep as :robot: Android"
+      parallel:
+        - service: input_text.set_value
+          entity_id: input_text.sleep_as_android
+          data:
+            value: "{{ trigger.json.event }}"
+        - service: script.send_to_home_log
+          data:
+            message: "Changed to {{ trigger.json.event }}"
+            title: ":zzz: Sleep as :robot_face: Android"
     mode: queued
     max: 10
