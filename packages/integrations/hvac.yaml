@@ -5,72 +5,106 @@ script:
     icon: mdi:hvac
     sequence:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Setting heating to :running: away mode."
-              title: ":hotsprings: :droplet: Boiler"
-          - service: climate.set_temperature
-            data:
-              hvac_mode: heat
-              temperature: 7
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "heat"
+                  - condition: state
+                    entity_id: climate.thermostat
+                    attribute: temperature
+                    state: 7
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Setting heating to :running: away mode."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: climate.set_temperature
+                data:
+                  hvac_mode: heat
+                  temperature: 7
     mode: single
   set_central_heating_to_home_mode:
     alias: Set Central Heating To Home Mode
     icon: mdi:hvac
     sequence:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Setting heating to :house_with_garden: home mode."
-              title: ":hotsprings: :droplet: Boiler"
-          - service: climate.set_hvac_mode
-            data:
-              hvac_mode: auto
-            target:
-              entity_id: climate.thermostat
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "auto"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Setting heating to :house_with_garden: home mode."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: climate.set_hvac_mode
+                data:
+                  hvac_mode: auto
+                target:
+                  entity_id: climate.thermostat
     mode: single
   set_central_heating_to_off:
     alias: Set Central Heating Off
     icon: mdi:hvac-off
     sequence:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Setting heating to off."
-              title: ":hotsprings: :droplet: Boiler"
-          - service: climate.set_hvac_mode
-            data:
-              hvac_mode: off
-            target:
-              entity_id: climate.thermostat
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "off"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Setting heating to off."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: climate.set_hvac_mode
+                data:
+                  hvac_mode: off
+                target:
+                  entity_id: climate.thermostat
     mode: single
   set_how_water_to_home_mode:
     alias: Set Hot Water To Home
     icon: mdi:hvac
     sequence:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Turning on the hot water."
-              title: ":hotsprings: :droplet: Boiler"
-          - service: water_heater.set_operation_mode
-            data:
-              operation_mode: "auto"
-            target:
-              entity_id: water_heater.hot_water
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: water_heater.hot_water
+                    state: "auto"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning on the hot water."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: water_heater.set_operation_mode
+                data:
+                  operation_mode: "auto"
+                target:
+                  entity_id: water_heater.hot_water
     mode: single
   set_how_water_to_away_mode:
     alias: Set Hot Water To Off
     icon: mdi:hvac-off
     sequence:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Turning off the hot water."
-              title: ":hotsprings: :droplet: Boiler"
-          - service: water_heater.set_operation_mode
-            data:
-              operation_mode: "off"
-            target:
-              entity_id: water_heater.hot_water
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: water_heater.hot_water
+                    state: "off"
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning off the hot water."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: water_heater.set_operation_mode
+                data:
+                  operation_mode: "off"
+                target:
+                  entity_id: water_heater.hot_water
     mode: single
