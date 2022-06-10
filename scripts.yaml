@@ -133,48 +133,6 @@ nfc_bedroom_right:
     - service: script.turn_everything_off
   mode: single
   icon: mdi:nfc
-other_bedroom_door_opening_warning:
-  alias: Other Bedroom Door Opening Warning
-  fields:
-    bedroom:
-      name: Bedroom
-      description: Which bedroom door was opened.
-      required: true
-  sequence:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{bedroom == 'leo'}}"
-          sequence:
-            - service: script.bedroom_leos_door_opened_notification
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":boy: :door: Leo's door opened and bedroom light is on. Sending
-                  warning."
-        - conditions:
-            - condition: template
-              value_template: "{{bedroom == 'ashlee'}}"
-          sequence:
-            - service: script.bedroom_ashlees_door_opened_notification
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
-                  warning."
-      default: []
-    - if:
-        - condition: state
-          entity_id: media_player.bedroom_chromecast
-          state: playing
-      then:
-        - service: media_player.media_play_pause
-          target:
-            entity_id: media_player.bedroom_chromecast
-        - service: script.send_to_home_log
-          data:
-            message: ":tv: Bedroom Chromecast was on, pausing TV."
-  mode: single
 check_terinas_work_laptop_status:
   alias: Check If Terina's Work Laptop Status
   sequence:
