@@ -277,3 +277,24 @@ scene:
         icon: mdi:led-strip-variant
         supported_features: 63
         state: "on"
+
+script:
+  3d_printer_left_unattended:
+    alias: 3D Printer Left Unattended
+    sequence:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.octoprint_estimated_finish_time
+            state: unknown
+          - condition: state
+            entity_id: binary_sensor.octoprint_printing
+            state: "on"
+      - service: script.send_direct_notification
+        data:
+          message:
+            ":printer: 3D printer is printing and no one is :house_with_garden:
+            home."
+          title: ":printer: :black_square_button: 3D printer"
+    mode: single
+    icon: mdi:printer-3d

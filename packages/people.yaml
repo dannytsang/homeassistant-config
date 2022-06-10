@@ -61,28 +61,6 @@ automation:
                   - service: script.set_central_heating_to_home_mode
             default: []
     mode: single
-  - id: "1613333442249"
-    alias: "^People: No One Home And 3D Printing"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.adult_people
-        to: not_home
-        for: 00:01:00
-    condition:
-      - not:
-          - condition: state
-            entity_id: sensor.octoprint_estimated_finish_time
-            state: unknown
-      - condition: state
-        entity_id: binary_sensor.octoprint_printing
-        state: "on"
-    action:
-      - service: script.send_direct_notification
-        data:
-          title: 3D Printing
-          message: ":printer: 3D printer is printing and no one is :house_with_garden: home."
-    mode: single
   - id: "1595524992208"
     alias: "^People: No One Home And Locked"
     description: ""
@@ -209,6 +187,7 @@ automation:
                           - service: script.everybody_leave_home
                 default:
                   - service: script.everybody_leave_home
+      - service: script.3d_printer_left_unattended
     mode: single
   - id: "1594554327310"
     alias: "^People: No One Home And House Is Not Locked"
@@ -263,6 +242,7 @@ automation:
                         }} {% endif %}{% endfor %}"
                       title: No one is home and couldn't turn on the alarm
             default: []
+      - service: script.3d_printer_left_unattended
     mode: single
   # Danny
   - id: "1581867286886"
