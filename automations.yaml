@@ -1156,32 +1156,11 @@
               entity_id: group.adult_people
               state: home
         - condition: template
-          value_template: "{{ state_attr('calendar.family','location') is defined }}"
+          value_template:
+            "{{ state_attr('calendar.family','location') is defined
+            }}"
       then:
         - service: script.send_direct_notification
           data:
             message: Trigger holiday mode from calendar event.
   mode: queued
-- id: "1654201032697"
-  alias: "People: Danny Leaves Home"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - person.danny
-      to: away
-      for:
-        hours: 1
-        minutes: 0
-        seconds: 0
-  condition: []
-  action:
-    - service: script.send_to_home_log
-      data:
-        message: Updating :car car location
-        title: Danny is not home
-    - service: button.press
-      data: {}
-      target:
-        entity_id: button.bmw_find_vehicle
-  mode: single
