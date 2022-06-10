@@ -1,25 +1,3 @@
-test:
-  alias: Test
-  sequence:
-    - service: light.turn_on
-      data:
-        color_name: cyan
-        flash: short
-        brightness: 255
-      target:
-        entity_id: light.office_light
-  mode: single
-post_direct_message_to_danny:
-  alias: Post Direct Message to Danny
-  sequence:
-    - condition: state
-      entity_id: input_boolean.enable_direct_notifications
-      state: "on"
-    - service: notify.mobile_app_dannys_phone
-      data:
-        message: "{{ message }}"
-        title: "{{ title|default('', true) }}"
-  mode: single
 police_effect:
   alias: Police Effect
   sequence:
@@ -241,67 +219,6 @@ other_bedroom_door_opening_warning:
           data:
             message: ":tv: Bedroom Chromecast was on, pausing TV."
   mode: single
-office_pc_turned_off_notification:
-  alias: Office PC Turned Off Notification
-  sequence:
-    - service: scene.turn_on
-      data:
-        transition: 1
-      target:
-        entity_id: scene.office_pc_turned_off_notification
-    - delay:
-        hours: 0
-        minutes: 0
-        seconds: 1
-        milliseconds: 0
-    - service: scene.turn_on
-      data:
-        transition: 1
-      target:
-        entity_id: scene.office_turn_off_light_notification
-  mode: single
-office_turn_on_leos_vm:
-  alias: "Office: Turn On Leo's VM"
-  sequence:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: switch.turk_docker_deepstack
-              state: "on"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":ship: Turning off Deepstack."
-            - service: switch.turn_off
-              data: {}
-              target:
-                entity_id: switch.turk_docker_deepstack
-            - wait_for_trigger:
-                - platform: state
-                  entity_id: switch.turk_docker_deepstack
-                  to: "off"
-                  for:
-                    hours: 0
-                    minutes: 0
-                    seconds: 0
-              continue_on_timeout: false
-              timeout: "60"
-      default: []
-    - service: script.send_to_home_log
-      data:
-        message: ":computer: Turning on Leo's VM."
-    - service: switch.turn_on
-      data: {}
-      target:
-        entity_id: switch.turk_vm_leos_windows_10
-    - wait_for_trigger:
-        - platform: state
-          entity_id: switch.turk_vm_leos_windows_10
-          to: "on"
-      timeout: "60"
-      continue_on_timeout: false
-  mode: single
-  icon: mdi:microsoft-windows
 check_terinas_work_laptop_status:
   alias: Check If Terina's Work Laptop Status
   sequence:
