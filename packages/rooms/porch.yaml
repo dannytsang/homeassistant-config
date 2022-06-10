@@ -235,6 +235,50 @@ script:
           - service: script.lounge_flash_lounge_lights_red
     mode: single
     icon: mdi:nfc
+  front_door_open_notification:
+    alias: Front Door Open Notification
+    sequence:
+      - service: scene.create
+        data:
+          scene_id: current_stairs_light
+          snapshot_entities:
+            - light.stairs
+      - service: scene.create
+        data:
+          scene_id: current_stairs_light2
+          snapshot_entities:
+            - light.stairs_2
+      - service: scene.create
+        data:
+          scene_id: current_office_light_1
+          snapshot_entities:
+            - light.office_light
+      - service: scene.turn_on
+        target:
+          entity_id:
+            - scene.front_door_open_notification
+    mode: single
+    icon: mdi:door-open
+  porch_override_notification:
+    alias: Porch Override Notification
+    sequence:
+      - repeat:
+          count: "2"
+          sequence:
+            - service: light.turn_on
+              data:
+                brightness: 255
+                color_name: blue
+              entity_id: light.porch
+            - service: light.turn_on
+              data:
+                brightness: 178
+                color_name: white
+              entity_id: light.porch
+      - service: scene.turn_on
+        target:
+          entity_id: scene.porch_light_on
+    mode: single
 
 template:
   # Replicate Switchbot contact sensor to know if someone is entering or leaving. Thanks to @damieng5
