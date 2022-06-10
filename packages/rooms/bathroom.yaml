@@ -627,7 +627,29 @@ automation:
             target:
               entity_id: cover.bathroom_blinds
             data:
-              position: 30
+              position: input_number.bathroom_blind_closed_preset
+    mode: single
+  - id: "1624661497604"
+    alias: "Bathroom: Window Closed At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_window
+        from: "on"
+        to: "off"
+    condition:
+      - condition: time
+        after: 00:00:00
+      - condition: sun
+        before: sunrise
+        before_offset: -01:00:00
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":window: Bathroom window closed. Closing blinds."
+      - service: cover.set_cover_position
+        data:
+          position: input_number.bathroom_blind_closed_preset
     mode: single
 
 scene:

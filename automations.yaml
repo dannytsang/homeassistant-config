@@ -21,23 +21,6 @@
         target: "#home_log #general"
       service: notify.slack_notify
   mode: single
-- id: "1589654316361"
-  alias: "Bedroom: Chromecast Offline"
-  description: ""
-  trigger:
-    - entity_id: device_tracker.chromecast_bedroom
-      for: 00:05:00
-      platform: state
-      to: not_home
-  condition:
-    - not:
-        - condition: state
-          entity_id: device_tracker.udmpro
-          state: unavailable
-  action:
-    - data:
-        message: ":warning: Bedroom Chromecast is offline! :warning:"
-      service: script.send_to_home_log
 - id: "1589654392712"
   alias: "Utility: Unifi AP Offline"
   description: ""
@@ -147,18 +130,6 @@
     - data:
         message: Water no longer detected in the conservatory
       service: script.send_to_home_log
-  mode: single
-- id: "1600719083284"
-  alias: Test2
-  description: ""
-  trigger:
-    - platform: time
-      at: "12:00"
-  condition: []
-  action:
-    - service: light.turn_off
-      target:
-        area_id: office
   mode: single
 - id: "1604998439600"
   alias: "House: Water detected"
@@ -483,28 +454,6 @@
         entity_id: input_boolean.alarm_office_door
   mode: queued
   max: 10
-- id: "1624661497604"
-  alias: "Bathroom: Window Closed At Night"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: binary_sensor.bathroom_window
-      from: "on"
-      to: "off"
-  condition:
-    - condition: time
-      after: 00:00:00
-    - condition: sun
-      before: sunrise
-      before_offset: -01:00:00
-  action:
-    - service: script.send_to_home_log
-      data:
-        message: ":window: Bathroom window closed. Closing blinds."
-    - service: cover.set_cover_position
-      data:
-        position: 20
-  mode: single
 - id: "1625924056779"
   alias: Mobile Notification Action Router
   description: ""
