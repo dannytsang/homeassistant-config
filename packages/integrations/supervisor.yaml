@@ -15,16 +15,12 @@ automation:
         from: "off"
     condition: []
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message:
-                ":writing_hand: File editor has been on for more than an hour.
-                Turning File editor off."
-              title: ":plus: Add-on"
-          - service: hassio.addon_stop
-            data:
-              addon: core_configurator
+      - service: script.stop_add_on
+        data:
+          addonEntityId: core_configurator
+          message:
+            ":writing_hand: File editor has been on for more than an hour.
+            Turning File editor off."
     mode: single
   - id: "1638101748989"
     alias: "^Add-ons: Automatically Disable SSH"
@@ -41,12 +37,28 @@ automation:
         to: "on"
     condition: []
     action:
+      - service: script.stop_add_on
+        data:
+          addonEntityId: core_ssh
+          message: SSH has been on for more than an hour. Turning SSH off.
+    mode: single
+
+script:
+  stop_add_on:
+    alias: Stop Add-on
+    fields:
+      addonEntityId:
+        description: Add-on entity ID e.g. core_configurator
+        required: true
+      message:
+        description: Message to post
+        required: true
+    sequence:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: SSH has been on for more than an hour. Turning SSH off.
-              title: ":plus: Add-on"
+              message: "{{ message|default(none, true) }}"
+              title: ":heavy_plus_sign: Add-on"
           - service: hassio.addon_stop
             data:
-              addon: core_ssh
-    mode: single
+              addon: "{{ addonEntityId }}"
