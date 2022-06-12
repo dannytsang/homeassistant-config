@@ -220,8 +220,7 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message:
-                "Dor 10 minutes and :desktop_computer: is connected. Turning office light off."
+              message: "For 10 minutes and :desktop_computer: is connected. Turning office light off."
               title: ":no_pedestrians: No motion in the office"
           - service: scene.turn_on
             target:
@@ -279,16 +278,15 @@ automation:
                       message:
                         ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
                         }}c)."
-                  - service: notify.mobile_app_dannys_phone
+                  - service: script.send_actionable_notification_with_2_buttons
                     data:
                       message: Turn on office fan?
-                      data:
-                        actions:
-                          - title: "Yes"
-                            action: switch_on_office_fan
-                          - title: "No"
-                            action: ignore
                       title: ♨️🏢Office temperature is 29c+
+                      people: person.danny
+                      action1_title: "Yes"
+                      action1_name: switch_on_office_fan
+                      action2_title: "No"
+                      action2_name: ignore
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.office_area_temperature

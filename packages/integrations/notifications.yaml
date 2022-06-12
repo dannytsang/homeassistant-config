@@ -197,15 +197,17 @@ script:
         description: File path to attach to post.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - service: script.post_to_slack_with_attachments
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default(none, true) }}"
-          target: "home_log"
-          filePath: "{{ filePath }}"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_notifications
+            state: "on"
+        then:
+          - service: script.post_to_slack_with_attachments
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
+              target: "home_log"
+              filePath: "{{ filePath }}"
     mode: queued
     max: 10
   send_home_log_with_url:
@@ -222,15 +224,17 @@ script:
         description: (optional)Link to file.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_notifications
-        state: "on"
-      - service: script.post_to_slack_with_attachments
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default(none, true) }}"
-          target: "home_log"
-          url: "{{ url }}"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_notifications
+            state: "on"
+        then:
+          - service: script.post_to_slack_with_attachments
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
+              target: "home_log"
+              url: "{{ url }}"
     mode: queued
     max: 10
   send_actionable_notification_with_2_buttons:
@@ -258,18 +262,20 @@ script:
         description: Second event name if action is selected.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_direct_notifications
-        state: "on"
-      - service: script.post_mobile_actionable_notification_with_2_buttons
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default(none, true) }}"
-          people: "{{ people }}"
-          action1_title: "{{ action1_title }}"
-          action1_name: "{{ action1_name }}"
-          action2_title: "{{ action2_title }}"
-          action2_name: "{{ action2_name }}"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_direct_notifications
+            state: "on"
+        then:
+          - service: script.post_mobile_actionable_notification_with_2_buttons
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
+              people: "{{ people }}"
+              action1_title: "{{ action1_title }}"
+              action1_name: "{{ action1_name }}"
+              action2_title: "{{ action2_title }}"
+              action2_name: "{{ action2_name }}"
     mode: queued
     max: 10
   send_actionable_notification_with_3_buttons:
@@ -281,6 +287,9 @@ script:
         required: true
       title:
         description: (optional)Title to the message posted.
+      people:
+        description: People to message e.g. Danny, Terina
+        required: true
       action1_title:
         description: First action text.
       action1_name:
@@ -299,20 +308,23 @@ script:
         description: Third event name if action is selected.
         required: true
     sequence:
-      - condition: state
-        entity_id: input_boolean.enable_direct_notifications
-        state: "on"
-      - service: script.post_mobile_actionable_notification_with_3_buttons
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default(none, true) }}"
-          data:
-            action1_title: "{{ action1_title }}"
-            action1_name: "{{ action1_name }}"
-            action2_title: "{{ action2_title }}"
-            action2_name: "{{ action2_name }}"
-            action3_title: "{{ action3_title }}"
-            action3_name: "{{ action3_name }}"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_direct_notifications
+            state: "on"
+        then:
+          - service: script.post_mobile_actionable_notification_with_3_buttons
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
+              people: "{{ people }}"
+              data:
+                action1_title: "{{ action1_title }}"
+                action1_name: "{{ action1_name }}"
+                action2_title: "{{ action2_title }}"
+                action2_name: "{{ action2_name }}"
+                action3_title: "{{ action3_title }}"
+                action3_name: "{{ action3_name }}"
     mode: single
   post_direct_notification_by_person:
     alias: "Post a direct message based on a persons selected messaging platform"
@@ -600,6 +612,9 @@ script:
         required: true
       title:
         description: (optional)Title to the message posted.
+      people:
+        description: People to message e.g. Danny, Terina
+        required: true
       action1_title:
         description: First action text.
       action1_name:
@@ -618,18 +633,43 @@ script:
         description: Third event name if action is selected.
         required: true
     sequence:
-      - service: notify.mobile_app_dannys_phone
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
-          data:
-            actions:
-              - title: "{{ action1_title }}"
-                action: "{{ action1_name }}"
-              - title: "{{ action2_title }}"
-                action: "{{ action2_name }}"
-              - title: "{{ action3_title }}"
-                action: "{{ action3_name }}"
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ 'person.danny' in people.split(',') }}"
+              sequence:
+                - service: notify.mobile_app_dannys_phone
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default('', true) }}"
+                    data:
+                      actions:
+                        - title: "{{ action1_title }}"
+                          action: "{{ action1_name }}"
+                        - title: "{{ action2_title }}"
+                          action: "{{ action2_name }}"
+                        - title: "{{ action3_title }}"
+                          action: "{{ action3_name }}"
+          default: []
+        - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ 'person.terina' in people.split(',') }}"
+              sequence:
+                - service: notify.mobile_app_terinas_phone
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default('', true) }}"
+                    data:
+                      actions:
+                        - title: "{{ action1_title }}"
+                          action: "{{ action1_name }}"
+                        - title: "{{ action2_title }}"
+                          action: "{{ action2_name }}"
+                        - title: "{{ action3_title }}"
+                          action: "{{ action3_name }}"
+          default: []
     mode: single
     icon: mdi:forum
   # Telegram specific Scripts
