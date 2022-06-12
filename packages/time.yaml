@@ -8,14 +8,14 @@ automation:
         at: "22:00:00"
     condition:
       - condition: state
-        entity_id: group.alarmed_doors_and_windows
+        entity_id: binary_sensor.alarmed_doors_and_windows
         state: "on"
     action:
       - service: script.send_to_home_log
         data:
           message:
             ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-            {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+            {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
             %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
             }} {% endif %}{% endfor %}"
     mode: single
@@ -31,7 +31,7 @@ automation:
         at: 00:00:00
     condition:
       - condition: state
-        entity_id: group.alarmed_doors_and_windows
+        entity_id: binary_sensor.alarmed_doors_and_windows
         state: "on"
     action:
       - parallel:
@@ -39,14 +39,14 @@ automation:
             data:
               message:
                 ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-                {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
                 %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
                 }} {% endif %}{% endfor %}"
           - service: script.send_to_home_log
             data:
               message:
                 ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-                {% for entity in state_attr('group.alarmed_doors_and_windows','entity_id')
+                {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
                 %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
                 }} {% endif %}{% endfor %}"
     mode: single
@@ -61,7 +61,8 @@ automation:
       parallel:
         - service: script.send_to_home_log
           data:
-            message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+            message:
+              ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
               Deleting :camera: files"
         - service: delete.files_in_folder
           data:
