@@ -768,43 +768,6 @@
           - input_boolean.enable_lounge_motion_triggers
           - input_boolean.enable_stairs_motion_triggers
   mode: single
-- id: "1649891307330"
-  alias: "Time: Check If Scheduled Mode"
-  description: Check if the schedule mode is set for the same day as today.
-  trigger:
-    - platform: time
-      at: input_datetime.start_of_next_mode
-  condition:
-    - condition: state
-      entity_id: input_boolean.enable_scheduled_mode
-      state: "on"
-  action:
-    - choose:
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_mode
-                  state: input_select.next_scheduled_home_mode
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  Scheduled mode change to {{ states('input_select.next_scheduled_home_mode')
-                  }}
-            - service: input_select.select_option
-              data:
-                option: "{{ states('input_select.next_scheduled_home_mode') }}"
-              target:
-                entity_id: input_select.home_mode
-      default:
-        - service: script.send_to_home_log
-          data:
-            message: Current mode and scheduled mode are the same.
-    - service: input_boolean.turn_off
-      data: {}
-      target:
-        entity_id: input_boolean.enable_scheduled_mode
-  mode: single
 - id: "1650032888798"
   alias: "Frigate: Event"
   description: ""
@@ -823,19 +786,6 @@
         message: A {{trigger.payload_json['after']['label']}} was detected.
         url: http://{{states('input_text.frigate_domain')}}:5000/api/frigate/notifications/{{trigger.payload_json['after']['id']}}/thumbnail.jpg?format=android
   mode: queued
-- id: "1650058720311"
-  alias: Enter Holiday Mode
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: input_select.home_mode
-      to: Holiday
-  condition: []
-  action:
-    - service: script.send_to_home_log
-      data:
-        message: Entering Holiday Mode
-  mode: single
 - id: "1651783825090"
   alias: "Calendar: Family Timed Event"
   description: ""

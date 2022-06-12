@@ -1,0 +1,54 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  # Change modes
+  - id: "1649891307330"
+    alias: "^Mode: Check If Scheduled Mode"
+    description: Check if the schedule mode is set for the same day as today.
+    trigger:
+      - platform: time
+        at: input_datetime.start_of_next_mode
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_scheduled_mode
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: input_select.next_scheduled_home_mode
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    Scheduled mode change to {{ states('input_select.next_scheduled_home_mode')
+                    }}
+              - service: input_select.select_option
+                data:
+                  option: "{{ states('input_select.next_scheduled_home_mode') }}"
+                target:
+                  entity_id: input_select.home_mode
+        default:
+          - service: script.send_to_home_log
+            data:
+              message: Current mode and scheduled mode are the same.
+      - service: input_boolean.turn_off
+        data: {}
+        target:
+          entity_id: input_boolean.enable_scheduled_mode
+    mode: single
+  # Handle mode changes
+  - id: "1631138390675"
+    alias: "^Home Mode: Changed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_select.home_mode
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":repeat: Entering {{ states('input_select.home_mode') }} mode."
+          title: "Home Mode"
+    mode: single
