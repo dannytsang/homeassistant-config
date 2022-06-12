@@ -59,6 +59,7 @@ automation:
                         ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: Leo's
                         window is open. Skipping closing blinds. :warning:"
+                      title: "Leo's :bed: bedroom"
               - conditions:
                   - condition: state
                     entity_id: input_select.home_mode
@@ -72,7 +73,7 @@ automation:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
-                      title: "Close Leo's :bed: bedroom blinds"
+                      title: "Leo's :bed: bedroom"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_blinds
@@ -87,7 +88,7 @@ automation:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
-                      title: "Close Leo's :bed: bedroom blinds"
+                      title: "Leo's :bed: bedroom"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_blinds
@@ -115,7 +116,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: ":city_sunset: :window: closing Leo's blinds."
-              title: "Close Leo's :bed: bedroom blinds"
+              title: "Leo's :bed: bedroom"
     mode: single
   - id: "1617376413056"
     alias: "^Leo's Room: Open Blinds In The Morning"
@@ -138,7 +139,7 @@ automation:
       - parallel:
           - data:
               message: ":sunrise: :window: Opening Leo's blinds"
-              title: "Open Leo's :bed: bedroom blinds"
+              title: "Leo's :bed: bedroom"
             service: script.send_to_home_log
           - service: cover.open_cover
             target:
@@ -178,11 +179,64 @@ automation:
           - service: script.send_to_home_log
             data:
               message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
-              title: "Close Leo's :bed: bedroom blinds"
+              title: "Leo's :bed: bedroom"
           - service: cover.open_cover
             target:
               entity_id: cover.leos_blinds
     mode: single
+  - id: "1619254173098"
+    alias: "Leo's Room: Window Closed At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_window
+        to: "off"
+        from: "on"
+    condition:
+      - condition: state
+        entity_id: cover.leos_blinds
+        state: open
+      - condition: time
+        after: "18:30:00"
+      - condition: state
+        entity_id: input_boolean.enable_leos_blind_automations
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_bed_sensor
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.leos_bed_occupied
+                state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":window: :bed: Leo's window closed and someone is in bed. Closing
+                    blinds."
+                  title: "Leo's :bed: bedroom"
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.leos_blinds
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_leos_bed_sensor
+                state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":window: :bed: Leo's window closed and someone is in bed. Closing
+                    blinds."
+                  title: "Leo's :bed: bedroom"
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.leos_blinds
+        default: []
+    mode: single
+  # Music
   - id: "1650915676886"
     alias: "^Leo's Bedroom: Turn Off Spotify At Night"
     description: ""
@@ -205,6 +259,7 @@ automation:
                 ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
                 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning off :musical_note:
                 music in Leo's Bedroom :radio: Echo."
+              title: "Leo's :bed: bedroom"
           - service: media_player.media_pause
             data: {}
             target:
