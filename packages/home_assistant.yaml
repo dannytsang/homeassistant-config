@@ -10,7 +10,8 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          message: "@home_assistant :black_square_for_stop: shutting down."
+          message: "{{ states('input_text.slack_home_assistant_id') }} :black_square_for_stop: Shutting down."
+          title: "Home Assistant"
     mode: single
   - id: "1608489396143"
     alias: "^Home Assistant: Start Up"
@@ -22,11 +23,12 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          message: "@home_assistant :arrow_forward: has started."
+          message: "{{ states('input_text.slack_home_assistant_id') }} :arrow_forward: Started."
+          title: "Home Assistant"
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "@home_assistant Performing startup checks."
+              message: "{{ states('input_text.slack_home_assistant_id') }} Performing startup checks."
           - service: script.check_terinas_work_laptop_status
             data: {}
           - service: script.3d_printer_check_light
