@@ -909,7 +909,7 @@
   action:
     - service: script.send_to_home_log
       data:
-        message: "Bedside lights turned off."
+        message: Bedside lights turned off.
         title: ":bed: Bedroom"
     - parallel:
         - if:
@@ -947,7 +947,7 @@
           then:
             - service: script.send_to_home_log
               data:
-                message: "Turning bedroom ambient light off."
+                message: Turning bedroom ambient light off.
             - service: scene.turn_on
               target:
                 entity_id: scene.bedroom_turn_off_ambient_light
@@ -1038,4 +1038,89 @@
         message: Cleaning complete
         title: ":robot_face: :broom: Vacuum docked"
         filePath: "{{states('external_camera_folder')}}{{states('camera.t8_live_map')}}"
+  mode: single
+- id: "1655063863296"
+  alias: "People: Long Distance Away From Home"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: proximity.danny_home
+      above: input_number.long_distance_away_from_home
+    - platform: numeric_state
+      entity_id: proximity.terina_home
+      above: input_number.long_distance_away_from_home
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: >-
+                {{ states('proximity.terina_home')|int(0) >
+                states('input_number.long_distance_away_from_home')|int(0) - 1 }}
+            - condition: template
+              value_template: >-
+                {{ states('proximity.danny_home')|int(0) >
+                states('input_number.long_distance_away_from_home')|int(0) - 1 }}
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Everyone far is away.
+            - if:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: input_select.home_mode
+                      state: Holiday
+              then:
+                - service: script.send_to_home_log
+                  data:
+                    message: Changing to holiday mode
+                - service: input_select.select_option
+                  data:
+                    option: Holiday
+                  target:
+                    entity_id: input_select.home_mode
+      default: []
+  mode: single
+- id: "1655063863297"
+  alias: "People: Near Home"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: proximity.danny_home
+      below: input_number.distance_close_to_home
+    - platform: numeric_state
+      entity_id: proximity.terina_home
+      below: input_number.distance_close_to_home
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_select.home_mode
+              state: Holiday
+            - condition: template
+              value_template: >-
+                {{ state_attr('proximity.danny_home','dir_of_travel') == 'towards' }} or
+                {{ state_attr('proximity.terina_home','dir_of_travel') == 'towards' }}
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Someone heading home.
+            - if:
+                - condition: not
+                  conditions:
+                    - condition: state
+                      entity_id: input_select.home_mode
+                      state: Holiday
+              then:
+                - service: script.send_to_home_log
+                  data:
+                    message: Changing to normal mode
+                - service: input_select.select_option
+                  data:
+                    option: Normal
+                  target:
+                    entity_id: input_select.home_mode
+      default: []
   mode: single
