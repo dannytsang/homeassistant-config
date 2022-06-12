@@ -51,3 +51,27 @@ automation:
                 4 minutes!"
             service: script.send_to_home_log
     mode: single
+
+template:
+  - trigger:
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_current_consumption
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        above: "9"
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_current_consumption
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        below: "10"
+      - platform: homeassistant
+        event: start
+    binary_sensor:
+      - name: "Washing Machine Powered On"
+        device_class: "running"
+        icon: "mdi:washing-machine{{ '' if states('sensor.washing_machine_current_consumption') | float(0) > 9 else '-off' }}"
+        state: "{{ states('sensor.washing_machine_current_consumption') | float(0) > 9 }}"
