@@ -39,17 +39,33 @@ automation:
         to: "on"
     condition: []
     action:
-      - parallel:
-          - service: script.send_direct_notification
-            data:
-              message:
-                ":warning: :door: :snowflake: Freezer door has been open for more than
-                4 minutes!"
-          - data:
-              message:
-                ":warning: :door: :snowflake: Freezer door has been open for more than
-                4 minutes!"
-            service: script.send_to_home_log
+      - service: script.send_to_home_log
+        data:
+          message: "Reloading Smartthings integration to see if the sensor lagged out."
+          title: "Utility freezer door is open"
+      - service: rest_command.reload_smartthings
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - if:
+          - condition: state
+            entity_id: binary_sensor.freezer_contact
+            state: "on"
+        then:
+          - parallel:
+              - service: script.send_direct_notification
+                data:
+                  message:
+                    ":warning: :door: :snowflake: Freezer door has been open for more than
+                    4 minutes!"
+              - data:
+                  message:
+                    ":warning: :door: :snowflake: Freezer door has been open for more than
+                    4 minutes!"
+                service: script.send_to_home_log
     mode: single
   # Washing Machine
   - id: "1595679010794"
