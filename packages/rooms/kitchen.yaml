@@ -490,17 +490,34 @@ automation:
         to: "on"
     condition: []
     action:
-      - parallel:
-        - service: script.send_direct_notification
-          data:
-            message:
-              "Fridge door has been open for more than 4 minutes!"
-            title: ":warning: :door: :snowflake: Fridge door is open"
-        - data:
-            message:
-              "Fridge door has been open for more than 4 minutes!"
-            title: ":warning: :door: :snowflake: Fridge door is open"
-          service: script.send_to_home_log
+      - service: script.send_to_home_log
+        data:
+          message:
+            "Reloading Smartthings integration to see if the sensor lagged out."
+          title: "Kitchen fridge door is open"
+      - service: rest_command.reload_smartthings
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - if:
+          - condition: state
+            entity_id: binary_sensor.fridge_door
+            state: "on"
+        then:
+          - parallel:
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Fridge door has been open for more than 4 minutes!"
+                title: ":warning: :door: :snowflake: Fridge door is open"
+            - data:
+                message:
+                  "Fridge door has been open for more than 4 minutes!"
+                title: ":warning: :door: :snowflake: Fridge door is open"
+              service: script.send_to_home_log
     mode: single
 
 scene:
