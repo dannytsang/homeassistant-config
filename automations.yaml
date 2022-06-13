@@ -1054,13 +1054,13 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: >-
-                {{ states('proximity.terina_home')|int(0) >
-                states('input_number.long_distance_away_from_home')|int(0) - 1 }}
+              value_template:
+                "{{ states('proximity.terina_home')|int(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
             - condition: template
-              value_template: >-
-                {{ states('proximity.danny_home')|int(0) >
-                states('input_number.long_distance_away_from_home')|int(0) - 1 }}
+              value_template:
+                "{{ states('proximity.danny_home')|int(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1100,9 +1100,10 @@
               entity_id: input_select.home_mode
               state: Holiday
             - condition: template
-              value_template: >-
-                {{ state_attr('proximity.danny_home','dir_of_travel') == 'towards' }} or
-                {{ state_attr('proximity.terina_home','dir_of_travel') == 'towards' }}
+              value_template:
+                "{{ state_attr('proximity.danny_home','dir_of_travel')
+                == 'towards' }} or {{ state_attr('proximity.terina_home','dir_of_travel')
+                == 'towards' }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1123,4 +1124,21 @@
                   target:
                     entity_id: input_select.home_mode
       default: []
+  mode: single
+- id: "1655154158871"
+  alias: "Driveway: Motion Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - camera.driveway
+        - binary_sensor.driveway_motion
+      from: "off"
+      to: "on"
+  condition: []
+  action:
+    - service: script.driveway_camera_process_objects
+      data:
+        title: Driveway Snapshot
+        message: Motion detected on the driveway
   mode: single
