@@ -20,6 +20,7 @@ automation:
         state: "on"
     action:
       - choose:
+          # Window is still open
           - conditions:
               - condition: state
                 entity_id: binary_sensor.ashlees_window
@@ -32,6 +33,7 @@ automation:
                     > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Ashlee's window is still open. Waiting until
                     it's closed before closing blinds. :warning:"
                   title: "Ashlee's :bed: bedroom"
+          # No children mode
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
@@ -49,6 +51,26 @@ automation:
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
+          # Bed sensor enabled
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_bed_sensor
+                state: "on"
+              - condition: trigger
+                id: sunset
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    :city_sunset: :window: It's getting dark and no one is in Ashlee's :bed: bed,
+                    closing Ashlee's blinds."
+                  title: "Ashlee's :bed: bedroom"
+              - service: cover.close_cover
+                target:
+                  entity_id: cover.ashlees_blinds
+          # Window closed
           - conditions:
               - condition: state
                 entity_id: binary_sensor.ashlees_window
@@ -86,7 +108,7 @@ automation:
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
       - condition: time
-        after: "19:00:00"
+        after: "19:30:00"
     action:
       - service: script.send_to_home_log
         data:
