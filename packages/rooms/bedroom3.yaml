@@ -56,6 +56,9 @@ automation:
               - condition: state
                 entity_id: input_boolean.enable_ashlees_bed_sensor
                 state: "on"
+              - condition: state
+                entity_id: binary_sensor.ashlees_window
+                state: "off"
               - condition: trigger
                 id: sunset
             sequence:
@@ -70,10 +73,13 @@ automation:
               - service: cover.close_cover
                 target:
                   entity_id: cover.ashlees_blinds
-          # Window closed
+          # Bed sensor is off
           - conditions:
               - condition: state
                 entity_id: binary_sensor.ashlees_window
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_ashlees_bed_sensor
                 state: "off"
             sequence:
               - service: script.send_to_home_log
