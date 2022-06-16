@@ -1056,3 +1056,28 @@ scene:
         friendly_name: Kitchen Right 2
         supported_features: 35
         state: "on"
+
+script:
+  kitchen_turn_off_camera:
+    alias: Kitchen Turn Off Camera
+    sequence:
+      - service: script.send_to_home_log
+        data:
+          message: "Turning kitchen :camera: camera detection off."
+      - service: switch.turn_off
+        target:
+          entity_id:
+            - switch.kitchen_detect
+            - switch.kitchen_snapshots
+    mode: single
+    icon: mdi:cctv
+  kitchen_turn_on_camera:
+    alias: Kitchen Turn On Camera
+    sequence:
+      - service: switch.turn_on
+        target:
+          entity_id:
+            - switch.kitchen_detect
+            - switch.kitchen_snapshots
+    mode: single
+    icon: mdi:cctv
