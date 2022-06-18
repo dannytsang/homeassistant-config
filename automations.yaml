@@ -786,28 +786,6 @@
           ":cook: The {{states('sensor.meater_probe_cooking')}} has started
           cooking."
   mode: single
-- id: "1652535595571"
-  alias: "Ashlee's Bedroom: Door Knock And Light Is On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.ashlees_door
-      from: "on"
-      to: "off"
-  condition:
-    - condition: state
-      entity_id: switch.ashlees_main_light_switch
-      state: "on"
-  action:
-    - service: script.send_to_home_log
-      data:
-        message: ":door: Door knock detected and light is on. Turning light off."
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.ashlees_main_light_switch
-  mode: single
 - id: "1653739708849"
   alias: "Telegram: Event Received"
   description: ""
@@ -1196,14 +1174,16 @@
                     - condition: time
                       after: input_datetime.childrens_bed_time
                     - condition: time
-                      before: "05:00:00"
+                      before: 05:00:00
                 - condition: state
                   entity_id: binary_sensor.ashlees_window
                   state: "off"
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: "Someone is in Ashlee's :bed: bed after :clock730:. Closing blinds."
+                    message:
+                      "Someone is in Ashlee's :bed: bed after :clock730:. Closing
+                      blinds."
                     title: "Ashlee's :bed: bedroom"
                 - service: cover.close_cover
                   data: {}
