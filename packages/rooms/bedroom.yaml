@@ -550,10 +550,6 @@ automation:
                 - condition: state
                   entity_id: binary_sensor.bedroom_window
                   state: "on"
-                - condition: numeric_state
-                  entity_id: weather.home
-                  attribute: wind_speed
-                  above: "10"
               sequence:
                 - service: script.send_actionable_notification_with_2_buttons
                   data:
@@ -564,30 +560,6 @@ automation:
                     action1_name: set_bedroom_blinds_30
                     action2_title: "No"
                     action2_name: ignore
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_direct_notifications
-                  state: "on"
-                - condition: state
-                  entity_id: binary_sensor.bedroom_window
-                  state: "on"
-                - condition: numeric_state
-                  entity_id: weather.home
-                  attribute: wind_speed
-                  below: "10"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":tv: :bed: Bedroom TV turned on and it's bright. The window is open however 
-                      it is below 10km/h. Lowering bedroom
-                      blinds."
-                    title: "Close :bed: bedroom blinds"
-                - service: cover.set_cover_position
-                  target:
-                    entity_id: cover.bedroom_blind
-                  data:
-                    position: 20
             - conditions:
                 - condition: state
                   entity_id: binary_sensor.bedroom_window
