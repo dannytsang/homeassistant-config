@@ -187,35 +187,6 @@ automation:
       - data: {}
         service: script.morning_script
     mode: single
-  - id: "1610918759041"
-    alias: "^Lounge: Restart Harmony Hub"
-    description: ""
-    trigger:
-      - platform: time
-        at: 03:00:00
-    condition:
-      - condition: time
-        weekday:
-          - mon
-      - condition: state
-        entity_id: binary_sensor.tv_powered_on
-        state: "off"
-    action:
-      - service: script.send_to_home_log
-        data:
-          message: ":TV: Restarting Harmony hub."
-      - service: switch.turn_off
-        target:
-          entity_id: switch.harmony_hub_plug
-      - delay:
-          hours: 0
-          minutes: 1
-          seconds: 0
-          milliseconds: 0
-      - service: switch.turn_on
-        target:
-          entity_id: switch.harmony_hub_plug
-    mode: single
   - id: "1610388245160"
     alias: "^Lounge: TV Turned Off Dim Lights"
     description: "TV is turned off and dim lights if there has been no motion."
@@ -420,6 +391,35 @@ automation:
         - service: script.lounge_turn_off_camera
     mode: single
   # Switches
+  - id: "1610918759041"
+    alias: "^Lounge: Restart Harmony Hub"
+    description: ""
+    trigger:
+      - platform: time
+        at: 03:00:00
+    condition:
+      - condition: time
+        weekday:
+          - mon
+      - condition: state
+        entity_id: binary_sensor.tv_powered_on
+        state: "off"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":TV: Restarting Harmony hub."
+      - service: switch.turn_off
+        target:
+          entity_id: switch.harmony_hub_plug
+      - delay:
+          hours: 0
+          minutes: 1
+          seconds: 0
+          milliseconds: 0
+      - service: switch.turn_on
+        target:
+          entity_id: switch.harmony_hub_plug
+    mode: single
   - id: "1610388192224"
     alias: "^Lounge: TV Turned On"
     description: ""
@@ -723,8 +723,8 @@ template:
         state: "{{ states('sensor.playstation_plug_power_meter') | float(0) > 15 }}"
       - name: TV Powered On
         device_class: "running"
-        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_power_meter') | float(0) > 20 else '-off' }}"
-        state: "{{ states('sensor.tv_plug_power_meter') | float(0) > 20 }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_power_meter') | float(0) > 10 else '-off' }}"
+        state: "{{ states('sensor.tv_plug_power_meter') | float(0) > 10 }}"
       - name: Sky Powered On
         device_class: "running"
         icon: "mdi:television-classic{{ '' if states('sensor.sky_power_meter') | float(0) > 15 else '-off' }}"
