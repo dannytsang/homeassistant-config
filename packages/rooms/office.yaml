@@ -232,14 +232,14 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.office_area_temperature
+        entity_id: sensor.office_area_mean_temperature
         above: "26"
       - platform: numeric_state
-        entity_id: sensor.office_area_temperature
+        entity_id: sensor.office_area_mean_temperature
         above: "29"
         for: 00:01:00
       - platform: numeric_state
-        entity_id: sensor.office_area_temperature
+        entity_id: sensor.office_area_mean_temperature
         for: 00:01:00
         above: "31"
     condition:
@@ -262,21 +262,21 @@ automation:
                     data:
                       message:
                         ":hotsprings: :people_holding_hands: Office temperature is high
-                        ({{states('sensor.office_area_temperature') }}c) and someone is home.
+                        ({{states('sensor.office_area_mean_temperature') }}c) and someone is home.
                         Turning on fan."
                   - service: switch.turn_on
                     target:
                       entity_id: switch.office_fan
           - conditions:
               - condition: numeric_state
-                entity_id: sensor.office_area_temperature
+                entity_id: sensor.office_area_mean_temperature
                 above: "29"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
                     data:
                       message:
-                        ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_temperature')
+                        ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_mean_temperature')
                         }}c)."
                   - service: script.send_actionable_notification_with_2_buttons
                     data:
@@ -289,7 +289,7 @@ automation:
                       action2_name: ignore
           - conditions:
               - condition: numeric_state
-                entity_id: sensor.office_area_temperature
+                entity_id: sensor.office_area_mean_temperature
                 above: "31"
             sequence:
               - parallel:
