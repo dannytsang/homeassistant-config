@@ -1192,30 +1192,6 @@ script:
   office_turn_on_leos_vm:
     alias: "Office: Turn On Leo's VM"
     sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: switch.turk_docker_deepstack
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: ":ship: Turning off Deepstack."
-              - service: switch.turn_off
-                data: {}
-                target:
-                  entity_id: switch.turk_docker_deepstack
-              - wait_for_trigger:
-                  - platform: state
-                    entity_id: switch.turk_docker_deepstack
-                    to: "off"
-                    for:
-                      hours: 0
-                      minutes: 0
-                      seconds: 0
-                continue_on_timeout: false
-                timeout: "60"
-        default: []
       - service: script.send_to_home_log
         data:
           message: ":computer: Turning on Leo's VM."
@@ -1227,7 +1203,7 @@ script:
           - platform: state
             entity_id: switch.turk_vm_leos_windows_10
             to: "on"
-        timeout: "60"
+        timeout: "180"
         continue_on_timeout: false
     mode: single
     icon: mdi:microsoft-windows
