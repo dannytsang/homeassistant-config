@@ -1023,8 +1023,6 @@
   trigger:
     - platform: numeric_state
       entity_id: proximity.danny_home
-      # https://community.home-assistant.io/t/problem-with-proximity-automation-i-need-your-help-solved/13073/52
-      # Get around if proximity has a value of "not set" which is not compatible with numeric state
       value_template: "{{ states('proximity.danny_home') | float(0) }}"
       above: input_number.long_distance_away_from_home
     - platform: numeric_state
@@ -1036,11 +1034,13 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ states('proximity.terina_home')|float(0) >
-                states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
+              value_template:
+                "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
             - condition: template
-              value_template: "{{ states('proximity.danny_home')|float(0) >
-                states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
+              value_template:
+                "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1214,4 +1214,19 @@
   action:
     - service: script.3d_printer_check_light
       data: {}
+  mode: single
+- id: "1656355431187"
+  alias: "Bedroom: Hue Remote"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: hue_event
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: "Hue Remote\n
+          id: {{trigger.event.data.data.id}}\n
+          type: {{trigger.event.data.data.type}}"
+        title: ":bed: Bedroom"
   mode: single
