@@ -146,6 +146,26 @@ automation:
           started {{states('sensor.octoprint_start_time')}}"
           title: ":printer: :black_square_button: 3D printer"
     mode: single
+  - id: "1656239435552"
+    alias: "^3D Printer: Light Turned on"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - light.prusa
+        to: "on"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_3d_printer_automations
+        state: "on"
+    action:
+      - service: script.3d_printer_check_light
+        data: {}
+    mode: single
 
 scene:
   - id: "1623014393915"
