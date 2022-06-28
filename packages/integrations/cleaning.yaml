@@ -40,6 +40,33 @@ automation:
           message: ":battery: Fully charged"
           title: ":robot_face: :broom: Vacuum"
     mode: single
+  - id: "1654865901253"
+    alias: "Deebot: Finished Cleaning"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - vacuum.t8
+        to: docked
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition: []
+    action:
+      - service: camera.snapshot
+        data:
+          filename: "{{states('external_camera_folder')}}{{states('camera.t8_live_map')}}"
+        target:
+          entity_id: camera.t8_live_map
+      - delay:
+          seconds: 2
+      - service: script.send_home_log_with_local_attachments
+        data:
+          message: Cleaning complete
+          title: ":robot_face: :broom: Vacuum docked"
+          filePath: "{{states('external_camera_folder')}}{{states('camera.t8_live_map')}}"
+    mode: single
 
 input_text:
   vacuum_camera_folder:
