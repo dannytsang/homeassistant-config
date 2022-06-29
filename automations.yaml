@@ -1151,10 +1151,64 @@
   trigger:
     - platform: event
       event_type: hue_event
+      event_data:
+        id: bedroom_switch_button
   condition: []
   action:
     - service: script.send_to_home_log
       data:
-        message: "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}"
+        message: "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n unique ID: {{trigger.event.data.unique_id}}"
         title: ":bed: Bedroom"
-  mode: single
+  mode: queued
+  max: 10
+- id: "1656355431188"
+  alias: "Ashlee's Bedroom: Hue Remote Short Presses"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: hue_event
+      event_data:
+        id: ashlee_s_switch_button
+        type: short_release
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '1096f89c-ec38-4b07-afc0-67a6294443af'}}"
+          sequence:
+            - service: light.toggle
+              data: {}
+              target:
+                entity_id: light.ashlees_main_light
+            - service: script.send_to_home_log
+              data:
+                message: ":bulb: Toggling light."
+                title: ":bed: Ashlee's Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '0c3030ec-fe67-4f11-9682-01a6ff9b10d1'}}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Hue buttom on remote pressed.
+                title: ":bed: Ashlee's Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '0c27554e-9338-4bd2-8cff-6255654fca42'}}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Dim buttom on remote pressed.
+                title: ":bed: Ashlee's Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == 'a4594566-7671-449a-b348-2d9822d62f38'}}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Bright buttom on remote pressed.
+                title: ":bed: Ashlee's Bedroom"
+      default: []
+  mode: queued
+  max: 10
