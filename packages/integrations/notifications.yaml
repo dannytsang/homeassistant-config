@@ -168,13 +168,14 @@ script:
       filePath:
         description: File path to attach to post.
         required: true
+        example: "/config/www/myImage.jpg"
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_notifications
             state: "on"
         then:
-          - service: script.post_to_slack_with_attachments
+          - service: script.post_to_slack_with_local_attachments
             data:
               message: "{{ message }}"
               title: "{{ title|default(none, true) }}"
@@ -201,7 +202,7 @@ script:
             entity_id: input_boolean.enable_notifications
             state: "on"
         then:
-          - service: script.post_to_slack_with_attachments
+          - service: script.post_to_slack_with_url_attachment
             data:
               message: "{{ message }}"
               title: "{{ title|default(none, true) }}"
@@ -377,7 +378,7 @@ script:
         # Check a title was set
         - conditions:
             - condition: template
-              value_template: "{{ title is defined and title|length > 0 }}"
+              value_template: "{{ title is defined }}"
           sequence:
             - service: notify.slack_notify
               data:
@@ -407,7 +408,7 @@ script:
                     text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
     mode: queued
     max: 10
-  post_to_slack_with_attachments:
+  post_to_slack_with_url_attachment:
     alias: "Post To Slack Home Log With File Or URL Attachments"
     icon: mdi:slack
     description: "Post a message with a file or URL attachment to the home_log 
@@ -422,110 +423,85 @@ script:
       target:
         description: "Slack channel to post to including the #"
         required: true
-      filePath:
-        description: File path to attach to post.
+        example: "#general"
       url:
         description: Link to file.
+        example: "https://picsum.photos/200/300"
     sequence:
+      # Check if a title has been set
       - choose:
-        # Check at least filePath or url is set.
-        - conditions:
-            - condition: template
-              value_template: "{{ filePath is not defined and url is not defined }}"
-          sequence:
-            - service: script.send_direct_notification
-              data:
-                message: ":warning: File or URL not set. Original messsage:\n{{ message}}"
-                title: "Missing file or URL for Slack"
-                people: person.danny
-        - conditions:
-            - condition: template
-              value_template: "{{filePath is defined and url is defined }}"
-          sequence:
-            - service: script.send_direct_notification
-              data:
-                message: ":warning: File and URL are set when only one or the other can.
-                Original messsage:\n{{ message}}"
-                title: "Missing file or URL for Slack"
-                people: person.danny
-        # If a filePath is set.
-        - conditions:
-            - condition: template
-              value_template: "{{filePath is defined and url is not defined }}"
-          sequence:
-            - service: notify.slack_notify
-              data:
-                message: "{{ message }}"
-                title: "{{ title|default('', true) }}"
-                target: "{{ target }}"
+          # Check at least filePath or url is set.
+          - conditions:
+              - condition: template
+                value_template: "{{ title is defined }}"
+            sequence:
+              - service: notify.slack_notify
                 data:
-                  file:
-                    path: "{{ filePath }}"
-        # If a URL is set.
-        - conditions:
-            - condition: template
-              value_template: "{{ filePath is not defined and url is defined }}"
-          sequence:
-            # Check if a title has been set
-            - choose:
-                # Check at least filePath or url is set.
-                - conditions:
-                    - condition: template
-                      value_template: "{{ title is defined and title|length > 0 }}"
-                  sequence:
-                    - service: notify.slack_notify
-                      data:
-                        message: "{{ message }}"
-                        title: "{{ title|default('', true) }}"
-                        target: "{{ target }}"
-                        data:
-                          blocks:
-                            - type: header
-                              text:
-                                type: "plain_text"
-                                text: "{{ title }}"
-                                emoji: true
-                            - type: section
-                              text:
-                                type: mrkdwn
-                                text: "{{ message }}"
-                              accessory:
-                                type: image
-                                image_url: "{{ url }}"
-                                alt_text: "{{ title|default('Failed to load image', true) }}"
-              # No title set
-              default:
-                - service: notify.slack_notify
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  target: "{{ target }}"
                   data:
-                    message: "{{ message }}"
-                    title: "{{ title|default('', true) }}"
-                    target: "{{ target }}"
-                    data:
-                      blocks:
-                        - type: section
-                          text:
-                            type: mrkdwn
-                            text: "{{ message }}"
-                          accessory:
-                            type: image
-                            image_url: "{{ url }}"
-                            alt_text: "{{ title|default('Failed to load image', true) }}"
+                    blocks:
+                      - type: header
+                        text:
+                          type: "plain_text"
+                          text: "{{ title }}"
+                          emoji: true
+                      - type: section
+                        text:
+                          type: mrkdwn
+                          text: "{{ message }}"
+                        accessory:
+                          type: image
+                          image_url: "{{ url }}"
+                          alt_text: "{{ title|default('Failed to load image', true) }}"
+        # No title set
         default:
-          # No title set
           - service: notify.slack_notify
             data:
               message: "{{ message }}"
+              title: "{{ title|default('', true) }}"
               target: "{{ target }}"
               data:
                 blocks:
                   - type: section
                     text:
-                      type: plain_text
+                      type: mrkdwn
                       text: "{{ message }}"
                     accessory:
                       type: image
                       image_url: "{{ url }}"
                       alt_text: "{{ title|default('Failed to load image', true) }}"
+    mode: queued
+    max: 10
+  post_to_slack_with_local_attachments:
+    alias: "Post To Slack Home Log With File Or URL Attachments"
+    icon: mdi:slack
+    description: "Post a message with a file or URL attachment to the home_log 
+    channel. Only a file or URL can be set. Not both or neither. Please use a 
+    send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      target:
+        description: "Slack channel to post to including the #"
+        required: true
+        example: "#general"
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - service: notify.slack_notify
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default('', true) }}"
+          target: "{{ target }}"
+          data:
+            file:
+              path: "{{ filePath }}"
     mode: queued
     max: 10
   # Mobile
