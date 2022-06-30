@@ -1157,7 +1157,9 @@
   action:
     - service: script.send_to_home_log
       data:
-        message: "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n unique ID: {{trigger.event.data.unique_id}}"
+        message:
+          "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n\
+          \ unique ID: {{trigger.event.data.unique_id}}"
         title: ":bed: Bedroom"
   mode: queued
   max: 10
@@ -1189,26 +1191,41 @@
             - condition: template
               value_template: "{{ trigger.event.data.unique_id == '0c3030ec-fe67-4f11-9682-01a6ff9b10d1'}}"
           sequence:
-            - service: script.send_to_home_log
-              data:
-                message: Hue buttom on remote pressed.
-                title: ":bed: Ashlee's Bedroom"
-        - conditions:
-            - condition: template
-              value_template: "{{ trigger.event.data.unique_id == '0c27554e-9338-4bd2-8cff-6255654fca42'}}"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: Dim buttom on remote pressed.
-                title: ":bed: Ashlee's Bedroom"
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp"
+                    title: ":bed: Ashlee's Bedroom"
+                - service: switch.toggle
+                  data: {}
+                  target:
+                    entity_id: switch.ashlees_lamp
         - conditions:
             - condition: template
               value_template: "{{ trigger.event.data.unique_id == 'a4594566-7671-449a-b348-2d9822d62f38'}}"
           sequence:
-            - service: script.send_to_home_log
-              data:
-                message: Bright buttom on remote pressed.
-                title: ":bed: Ashlee's Bedroom"
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Bright buttom on remote pressed. Opening :window: Ashlee's blinds."
+                    title: ":bed: Ashlee's Bedroom"
+                - service: cover.open_cover
+                  data: {}
+                  target:
+                    entity_id: cover.ashlees_blinds
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '0c27554e-9338-4bd2-8cff-6255654fca42'}}"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Dim buttom on remote pressed. Closing :window: Ashlee's blinds."
+                    title: ":bed: Ashlee's Bedroom"
+                - service: cover.close_cover
+                  data: {}
+                  target:
+                    entity_id: cover.ashlees_blinds
       default: []
   mode: queued
   max: 10
