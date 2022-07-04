@@ -15,24 +15,6 @@ input_select:
       - Telegram
     icon: mdi:cellphone-information
 
-input_text:
-  slack_danny_id:
-    name: Danny's Slack ID
-    icon: mdi:slack
-    initial: !secret slack_danny_id
-  telegram_danny_chat_id:
-    name: Danny's Telegram Chat ID
-    icon: mdi:android-messages
-    initial: !secret telegram_danny_chat_id
-  slack_home_assistant_id:
-    name: Home Assistant Bots's Slack ID
-    icon: mdi:slack
-    initial: !secret slack_home_assistant_id
-  slack_terina_id:
-    name: Terina's Slack ID
-    icon: mdi:slack
-    initial: !secret slack_terina_id
-
 notify:
   - name: slack_notify
     platform: slack
@@ -101,7 +83,7 @@ script:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
                       target: "general"
-                      people: "{{ states('input_text.slack_danny_id') }} {{ states('input_text.slack_terina_id') }}"
+                      people: "{{ states('input_text.dannys_slack_id') }} {{ states('input_text.terinas_slack_id') }}"
               # If both adults mentioned.
               - conditions:
                   - condition: template
@@ -124,7 +106,7 @@ script:
                               message: "{{ message }}"
                               title: "{{ title|default(none, true) }}"
                               target: "general"
-                              people: "{{ states('input_text.slack_danny_id') }} {{ states('input_text.slack_terina_id') }}"
+                              people: "{{ states('input_text.dannys_slack_id') }} {{ states('input_text.terinas_slack_id') }}"
                     # If not, check each person's preference.
                     default:
                       - service: script.post_direct_notification_by_person
@@ -341,7 +323,7 @@ script:
                           message: "{{ message }}"
                           title: "{{ title|default(none, true) }}"
                           target: "general"
-                          people: "{{ states('input_text.slack_danny_id') }}"
+                          people: "{{ states('input_text.dannys_slack_id') }}"
                 default: []
           # Check if Terina was mentioned.
           - conditions:
@@ -353,7 +335,7 @@ script:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
                   target: "general"
-                  people: "{{ states('input_text.slack_terina_id') }}"
+                  people: "{{ states('input_text.terinas_slack_id') }}"
     mode: queued
     max: 10
   # Slack specific Scripts
@@ -647,13 +629,13 @@ script:
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
-                  target: "{{ states('input_text.telegram_danny_chat_id') }}"
+                  target: "{{ states('input_text.dannys_telegram_chat_id') }}"
         default:
           - service: telegram_bot.send_message
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
-              target: "{{ states('input_text.telegram_danny_chat_id') }}"
+              target: "{{ states('input_text.dannys_telegram_chat_id') }}"
   post_to_telegram_home_log_with_local_attachments:
     alias: "Post To Telegram With Local Attachments"
     icon: mdi:android-messages
