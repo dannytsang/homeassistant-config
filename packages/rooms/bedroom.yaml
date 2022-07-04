@@ -955,6 +955,38 @@ script:
                   message: ":tv: Bedroom Chromecast was on, pausing TV."
     mode: single
 
+sensor:
+  - platform: history_stats
+    name: Bedroom TV Uptime Today
+    entity_id: binary_sensor.bedroom_tv_powered_on
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Bedroom TV Uptime Yesterday
+    entity_id: binary_sensor.bedroom_tv_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Bedroom TV Uptime This Week
+    entity_id: binary_sensor.bedroom_tv_powered_on
+    state: "on"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Bedroom TV Uptime Last 30 Days
+    entity_id: binary_sensor.bedroom_tv_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
+
 template:
   - binary_sensor:
     - name: Bedroom TV Powered On
