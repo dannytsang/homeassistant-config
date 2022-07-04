@@ -1182,32 +1182,62 @@ sensor:
   # historical stats
   # Computer
   - platform: history_stats
-    name: JD Computer Usage Today
+    name: PC Uptime Today
     entity_id: group.jd_computer
-    state: "on"
+    state: "home"
     type: time
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
   - platform: history_stats
-    name: Sam Computer Usage Today
-    entity_id: group.sam_computer
-    state: "on"
-    type: time
-    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
-    end: "{{ now() }}"
-  - platform: history_stats
-    name: JD Computer Usage Yesterday
+    name: PC Uptime Yesterday
     entity_id: group.jd_computer
-    state: "on"
+    state: "home"
     type: time
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       hours: 24
   - platform: history_stats
-    name: Sam Computer Usage Yesterday
-    entity_id: group.sam_computer
-    state: "on"
+    name: PC Uptime This Week
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: PC Uptime Last 30 Days
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
+  - platform: history_stats
+    name: Work Computer Uptime Today
+    entity_id: group.work_computer
+    state: "home"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Work Computer Uptime Yesterday
+    entity_id: group.work_computer
+    state: "home"
     type: time
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       hours: 24
+  - platform: history_stats
+    name: Work Computer Uptime This Week
+    entity_id: group.work_computer
+    state: "home"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Work Computer Uptime Last 30 Days
+    entity_id: group.work_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
