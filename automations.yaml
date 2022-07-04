@@ -1153,14 +1153,52 @@
       event_type: hue_event
       event_data:
         id: bedroom_switch_button
+        type: short_release
   condition: []
   action:
-    - service: script.send_to_home_log
-      data:
-        message:
-          "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n\
-          \ unique ID: {{trigger.event.data.unique_id}}"
-        title: ":bed: Bedroom"
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '1'}}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: "Power button pressed."
+                title: ":bed: Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '0'}}"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Hue buttom on remote pressed."
+                    title: ":bed: Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == 'a'}}"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Bright buttom on remote pressed."
+                    title: ":bed: Bedroom"
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.unique_id == '0'}}"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Dim buttom on remote pressed."
+                    title: ":bed: Bedroom"
+      default:
+        - service: script.send_to_home_log
+          data:
+            message:
+              "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n\
+              \ unique ID: {{trigger.event.data.unique_id}}"
+            title: ":bed: Bedroom"
   mode: queued
   max: 10
 - id: "1656355431188"
@@ -1179,14 +1217,14 @@
             - condition: template
               value_template: "{{ trigger.event.data.unique_id == '1096f89c-ec38-4b07-afc0-67a6294443af'}}"
           sequence:
+            - service: script.send_to_home_log
+              data:
+                message: "Power button pressed. :bulb: Toggling light."
+                title: ":bed: Ashlee's Bedroom"
             - service: light.toggle
               data: {}
               target:
                 entity_id: light.ashlees_main_light
-            - service: script.send_to_home_log
-              data:
-                message: ":bulb: Toggling light."
-                title: ":bed: Ashlee's Bedroom"
         - conditions:
             - condition: template
               value_template: "{{ trigger.event.data.unique_id == '0c3030ec-fe67-4f11-9682-01a6ff9b10d1'}}"
@@ -1194,7 +1232,7 @@
             - parallel:
                 - service: script.send_to_home_log
                   data:
-                    message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp"
+                    message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp."
                     title: ":bed: Ashlee's Bedroom"
                 - service: switch.toggle
                   data: {}
