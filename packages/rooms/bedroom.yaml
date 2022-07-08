@@ -685,6 +685,62 @@ automation:
           target:
             entity_id: switch.blanket
     mode: single
+  - id: "1656355431187"
+    alias: "^Bedroom: Hue Remote"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: hue_event
+        event_data:
+          id: bedroom_switch_button
+          type: short_release
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.unique_id == '1'}}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Power button pressed.
+                  title: ":bed: Bedroom"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.unique_id == '0'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Hue buttom on remote pressed.
+                      title: ":bed: Bedroom"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.unique_id == 'a'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Bright buttom on remote pressed.
+                      title: ":bed: Bedroom"
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.unique_id == '0'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Dim buttom on remote pressed.
+                      title: ":bed: Bedroom"
+        default:
+          - service: script.send_to_home_log
+            data:
+              message:
+                "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n\
+                \ unique ID: {{trigger.event.data.unique_id}}"
+              title: ":bed: Bedroom"
+    mode: queued
+    max: 10
 
 scene:
   - id: "1621715555428"

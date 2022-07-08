@@ -212,6 +212,54 @@ automation:
                   title: "Ashlee's :bed: bedroom"
         default: []
     mode: single
+  - id: "1655237597647"
+    alias: "^Ashlee's Bedroom: Someone Is In Bed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.ashlees_bed_occupied
+        from: "off"
+        to: "on"
+        for:
+          hours: 0
+          minutes: 0
+          seconds: 30
+    condition: []
+    action:
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_bed_sensor
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_blind_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: cover.ashlees_blinds
+                    state: open
+                  - or:
+                      - condition: time
+                        after: input_datetime.childrens_bed_time
+                      - condition: time
+                        before: 05:00:00
+                  - condition: state
+                    entity_id: binary_sensor.ashlees_window
+                    state: "off"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        "Someone is in Ashlee's :bed: bed after :clock730:. Closing
+                        blinds."
+                      title: "Ashlee's :bed: bedroom"
+                  - service: cover.close_cover
+                    data: {}
+                    target:
+                      entity_id: cover.ashlees_blinds
+            default: []
+    mode: single
   # Switches
   - id: "1655235874989"
     alias: "^Ashlee's Bedroom: Turn Off Fan After 1 Hour"
