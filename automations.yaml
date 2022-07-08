@@ -74,11 +74,11 @@
           ":warning: :battery: Lounge UPS battery has less than 5 minutes left
           :battery: :warning:"
       service: script.send_to_home_log
-    - data:
+    - service: script.send_direct_notification
+      data:
         message:
           ":warning: :battery: Lounge UPS battery has less than 5 minutes left
           :battery: :warning:"
-      service: script.send_direct_notification
   mode: single
 - id: "1591705795121"
   alias: "Office: Server UPS On Battery With Less Than 5 Minutes"
@@ -97,12 +97,11 @@
           ":warning: :battery: Server UPS battery has less than 5 minutes left
           :battery: :warning:"
       service: script.send_to_home_log
-    - data:
+    - service: script.send_direct_notification
+      data:
         message:
           ":warning: :battery: Server UPS battery has less than 5 minutes left
           :battery: :warning:"
-        target: "#general"
-      service: script.send_direct_notification
   mode: single
 - id: "1594146384568"
   alias: "Conservatory: Water Detected"
@@ -175,12 +174,11 @@
           ":warning: :battery: Server UPS battery has less than 5 minutes left
           :battery: :warning:"
       service: script.send_to_home_log
-    - data:
+    - service: script.send_direct_notification
+      data:
         message:
           ":warning: :battery: Server UPS battery has less than 5 minutes left
           :battery: :warning:"
-        target: "#general"
-      service: script.send_direct_notification
   mode: single
 - id: "1613264719942"
   alias: "Office: Alarm Armed Home Mode & Motion Detected"
@@ -1163,7 +1161,7 @@
           sequence:
             - service: script.send_to_home_log
               data:
-                message: "Power button pressed."
+                message: Power button pressed.
                 title: ":bed: Bedroom"
         - conditions:
             - condition: template
@@ -1172,7 +1170,7 @@
             - parallel:
                 - service: script.send_to_home_log
                   data:
-                    message: "Hue buttom on remote pressed."
+                    message: Hue buttom on remote pressed.
                     title: ":bed: Bedroom"
         - conditions:
             - condition: template
@@ -1181,7 +1179,7 @@
             - parallel:
                 - service: script.send_to_home_log
                   data:
-                    message: "Bright buttom on remote pressed."
+                    message: Bright buttom on remote pressed.
                     title: ":bed: Bedroom"
         - conditions:
             - condition: template
@@ -1190,7 +1188,7 @@
             - parallel:
                 - service: script.send_to_home_log
                   data:
-                    message: "Dim buttom on remote pressed."
+                    message: Dim buttom on remote pressed.
                     title: ":bed: Bedroom"
       default:
         - service: script.send_to_home_log
@@ -1201,3 +1199,41 @@
             title: ":bed: Bedroom"
   mode: queued
   max: 10
+- id: "1657231864164"
+  alias: "Plant: Spider Plant Needs Fertiliser"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.chlorophytum_comosum_soil_conductivity
+      below: "201"
+  condition: []
+  action:
+    - parallel:
+        - service: script.send_direct_notification
+          data:
+            message: ":droplet: :wilted_flower: Needs watering"
+            title: ":sunflower: Spider plant"
+        - service: script.send_to_home_log
+          data:
+            message: ":droplet: :wilted_flower: Needs watering"
+            title: ":sunflower: Spider plant"
+  mode: single
+- id: "1657231864165"
+  alias: "Plant: Snake Plant Needs Fertiliser"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.chlorophytum_comosum_soil_conductivity
+      below: "301"
+  condition: []
+  action:
+    - parallel:
+        - service: script.send_direct_notification
+          data:
+            message: ":droplet: :wilted_flower: Needs watering"
+            title: ":sunflower: Snake plant"
+        - service: script.send_to_home_log
+          data:
+            message: ":droplet: :wilted_flower: Needs watering"
+            title: ":sunflower: Snake plant"
+  mode: single
