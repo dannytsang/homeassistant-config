@@ -455,6 +455,18 @@
         - conditions:
             - condition: template
               value_template:
+                "{{ trigger.event.data.action == 'switch_on_fridge_freezer'
+                }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Turning on fridge freezer event received.
+            - service: switch.turn_on
+              target:
+                entity_id: switch.fridge_freezer
+        - conditions:
+            - condition: template
+              value_template:
                 "{{ trigger.event.data.action == 'guest_mode_arm_alarm_and_turn_off_devices'
                 }}"
           sequence:
@@ -804,10 +816,10 @@
         - service: script.send_to_home_log
           data:
             message:
-              "Recieved Telegram event:\n command: {{trigger.event.data.command}}\n\
-              \ args: {{trigger.event.data.args}}\n from_first: {{trigger.event.data.from_first}}\n\
-              \ from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n\
-              \ chat_id: {{trigger.event.data.chat_id}}\n chat: {{trigger.event.data.chat}}"
+              "Recieved Telegram event:\n command: {{trigger.event.data.command}}\n
+              args: {{trigger.event.data.args}}\n from_first: {{trigger.event.data.from_first}}\n
+              from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n
+              chat_id: {{trigger.event.data.chat_id}}\n chat: {{trigger.event.data.chat}}"
   mode: queued
 - id: "1653739708850"
   alias: "Telegram: Message Received"
@@ -820,10 +832,10 @@
     - service: script.send_to_home_log
       data:
         message:
-          ":speech_balloon: Recieved Telegram event:\n chat: {{trigger.event.data.chat}}\n\
-          \ from_first: {{trigger.event.data.from_first}}\n from_last: {{trigger.event.data.from_last}}\n\
-          \ user_id: {{trigger.event.data.user_id}}\n chat_id: {{trigger.event.data.chat_id}}\n\
-          \ text: {{trigger.event.data.text}}"
+          ":speech_balloon: Recieved Telegram event:\n chat: {{trigger.event.data.chat}}\n
+          from_first: {{trigger.event.data.from_first}}\n from_last: {{trigger.event.data.from_last}}\n
+          user_id: {{trigger.event.data.user_id}}\n chat_id: {{trigger.event.data.chat_id}}\n
+          text: {{trigger.event.data.text}}"
   mode: queued
 - id: "1653739708851"
   alias: "Telegram: Callback Received"
@@ -836,11 +848,11 @@
     - service: script.send_to_home_log
       data:
         message:
-          ":speech_balloon: Recieved Telegram event:\n data: {{trigger.event.data.data}}\n\
-          \ message: {{trigger.event.data.message}}\n from_first: {{trigger.event.data.from_first}}\n\
-          \ from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n\
-          \ id: {{trigger.event.data.id}}\n chat_id: {{trigger.event.data.chat_id}}\n\
-          \ text: {{trigger.event.data.text}}"
+          ":speech_balloon: Recieved Telegram event:\n data: {{trigger.event.data.data}}\n
+          message: {{trigger.event.data.message}}\n from_first: {{trigger.event.data.from_first}}\n
+          from_last: {{trigger.event.data.from_last}}\n user_id: {{trigger.event.data.user_id}}\n
+          id: {{trigger.event.data.id}}\n chat_id: {{trigger.event.data.chat_id}}\n
+          text: {{trigger.event.data.text}}"
   mode: queued
 - id: "1653857006776"
   alias: "Porch: Heating Turned On Check Entrances"
@@ -1080,7 +1092,9 @@
   mode: single
 - id: "1655154158871"
   alias: "Driveway: Motion Detected"
-  description: "Use motion from camera to trigger object detection. A workaround for frigate being unreliable"
+  description:
+    Use motion from camera to trigger object detection. A workaround for
+    frigate being unreliable
   trigger:
     - platform: state
       entity_id:
@@ -1170,4 +1184,33 @@
           data:
             message: ":droplet: :wilted_flower: Needs watering."
             title: ":sunflower: Snake plant"
+  mode: single
+- id: "1657801925106"
+  alias: "Kitchen: Fridge Plug Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - switch.fridge
+      to: "off"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  condition: []
+  action:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Fridge Freezer plug is turned off.
+            title: ":cook: Kitchen"
+        - service: script.send_actionable_notification_with_2_buttons
+          data:
+            message: Fridge Freezer plug is turned off. Turn on?
+            title: ":cook: Kitchen"
+            people: person.danny
+            action1_title: "Yes"
+            action1_name: switch_on_fridge_freezer
+            action2_title: "No"
+            action2_name: ignore
   mode: single
