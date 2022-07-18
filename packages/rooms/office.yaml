@@ -48,7 +48,7 @@ automation:
                       entity_id: scene.office_main_light_on
                   - service: script.send_to_home_log
                     data:
-                      title: Office Motion Detected
+                      title: ":office: Office"
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
                         and it's dark ({{ states('sensor.office_motion_light_level') }} & 
@@ -82,7 +82,7 @@ automation:
                       entity_id: scene.office_main_light_off
                   - service: script.send_to_home_log
                     data:
-                      title: Office Motion Detected
+                      title: ":office: Office"
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
                         and bright ({{ states('sensor.office_motion_light_level') }} & 
@@ -141,6 +141,7 @@ automation:
                         {{ states('input_number.office_light_level_2_threshold') }}
                         {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
                         Turning office lights on.
+                      title: ":office: Office"
         default: []
     mode: single
   - id: "1606170234725"
@@ -197,6 +198,7 @@ automation:
               message:
                 ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
                 and :desktop_computer: is not connected. Turning office and desk lights off."
+              title: ":office: Office"
             service: script.send_to_home_log
           - service: scene.turn_on
             target:
@@ -220,8 +222,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "For 10 minutes and :desktop_computer: is connected. Turning office light off."
-              title: ":no_pedestrians: No motion in the office"
+              message: ":no_pedestrians: No motion in the office for 10 minutes 
+              and :desktop_computer: is connected. Turning office light off."
+              title: ":office: Office"
           - service: scene.turn_on
             target:
               entity_id: scene.office_main_light_off
@@ -264,6 +267,7 @@ automation:
                         ":hotsprings: :people_holding_hands: Office temperature is high
                         ({{states('sensor.office_area_mean_temperature') }}c) and someone is home.
                         Turning on fan."
+                      title: ":office: Office"
                   - service: switch.turn_on
                     target:
                       entity_id: switch.office_fan
@@ -278,6 +282,7 @@ automation:
                       message:
                         ":warning: :hotsprings: Office temperature is above 29c ({{states('sensor.office_area_mean_temperature')
                         }}c)."
+                      title: ":office: Office"
                   - service: script.send_actionable_notification_with_2_buttons
                     data:
                       message: Turn on office fan?
@@ -298,6 +303,7 @@ automation:
                       message:
                         ":warning: :hotsprings: Office temperature is above 31c. Turning
                         fan on."
+                      title: ":office: Office"
                   - service: switch.turn_on
                     target:
                       entity_id: switch.office_fan
@@ -329,6 +335,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: Turned off office Fan after 1 hour.
+                  title: ":office: Office"
           - conditions:
               - condition: trigger
                 id: 2h
@@ -336,6 +343,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: Turned off office Fan after 2 hours.
+                  title: ":office: Office"
         default: []
       - service: switch.turn_off
         target:
@@ -370,6 +378,7 @@ automation:
               message:
                 ":window: :city_sunset: Office window closed and it's dark. Closing
                 curtains."
+              title: ":office: Office"
           - service: script.office_close_curtains
     mode: single
   # Computer related automations
@@ -501,11 +510,25 @@ automation:
         at: 08:00:00
     condition: []
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
-          - service: script.office_open_curtains
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: weather.home_weather
+                attribute: temperature
+                above: "20"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    "Temperature forecast to be over 20c ({{ state_attr('weather.home_weather', 'temperature')}}c).
+                    Not opening curtains."
+                  title: ":office: Office"
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
+              - service: script.office_open_curtains
     mode: single
   - id: "1622374233310"
     alias: "^Office: Close Office Curtains At Night"
@@ -538,6 +561,7 @@ automation:
                   message:
                     ":warning: :window: Office window is still open so not closing
                     curtains. before closing curtains. :warning:"
+                  title: ":office: Office"
           - conditions:
               - or:
                   - condition: state
@@ -553,6 +577,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
+                      title: ":office: Office"
                   - service: script.office_close_curtains
           - conditions:
               - or:
@@ -569,6 +594,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
+                      title: ":office: Office"
                   - service: script.office_close_curtains
         default: []
     mode: single
@@ -586,6 +612,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: "Webhook: Closing office curtains."
+              title: ":office: Office"
           - service: script.office_close_curtains
     mode: single
   - id: "1641549235690"
@@ -602,6 +629,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: "Webhook: Closing office curtains."
+              title: ":office: Office"
           - service: script.office_open_curtains
     mode: single
   # Lights
