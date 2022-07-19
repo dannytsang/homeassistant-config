@@ -353,6 +353,61 @@ automation:
     mode: queued
     max: 10
 
+script:
+  ashlees_bedroom_close_blinds_by_weather:
+    alias: Ashlee's Bedroom Close Blinds Based Weather
+    description: "Close Leo's bedroom blinds depending on the weather."
+    fields:
+      temperature:
+        description: Temperature in celcius.
+        required: true
+      weather_condition:
+        description: Text weather condition e.g. lightning-rainy
+        required: true
+    sequence:
+      # Only run the weather check if it's during the day otherwise it might be closed for evening.
+      - if:
+          - condition: sun
+            before: sunset
+          - condition: state
+            entity_id: input_boolean.enable_ashlees_blind_automations
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ weather_condition in ['sunny','partlycloudy'] }}"
+                sequence:
+                  - choose:
+                      # Check if window is open.
+                      - conditions:
+                          - condition: numeric_state
+                            entity_id: cover.bedroom_blind
+                            attribute: current_position
+                            below: input_number.bedroom_blind_open_closed_threshold
+                          - condition: state
+                            entity_id: binary_sensor.bedroom_window
+                            state: "on"
+                        sequence:
+                          # TODO: replace with actionable notification
+                          - service: script.send_to_home_log
+                            data:
+                              message:
+                                "It's going to be hot ({{ temperature }} {{ weather_condition }}) and
+                                the :window: window is open preventing the blinds from closing."
+                              title: "Ashlee's :bed: Bedroom"
+                    default:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
+                          title: "Ashlee's :bed: Bedroom"
+                      - service: cover.close_cover
+                        target:
+                          entity_id: cover.ashlees_blinds
+            default: []
+    mode: single
+    icon: mdi:roller-shade-closed
+
 template:
   - binary_sensor:
       - name: Ashlees Bed Occupied

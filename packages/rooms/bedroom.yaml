@@ -16,7 +16,7 @@ automation:
         attribute: current_position
         above: input_number.bedroom_blind_open_closed_threshold
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: sun
         after: sunset
@@ -51,7 +51,7 @@ automation:
         attribute: current_position
         above: input_number.bedroom_blind_open_closed_threshold
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: state
         entity_id: binary_sensor.bedroom_window
@@ -78,7 +78,7 @@ automation:
         to: "off"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: sun
         after: sunset
@@ -114,7 +114,7 @@ automation:
         attribute: current_position
         above: input_number.bedroom_blind_open_closed_threshold
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: sun
         after: sunset
@@ -175,7 +175,7 @@ automation:
         after_offset: -01:00:00
         before: sunset
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: state
         entity_id: input_boolean.enable_bed_sensor
@@ -401,7 +401,7 @@ automation:
         attribute: current_position
         below: input_number.bedroom_blind_open_closed_threshold
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: state
         entity_id: binary_sensor.bedroom_tv_powered_on
@@ -472,7 +472,7 @@ automation:
         at: "22:00:00"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: numeric_state
         entity_id: cover.bedroom_blind
@@ -531,7 +531,7 @@ automation:
         to: "on"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: sun
         before: sunset
@@ -593,7 +593,7 @@ automation:
         attribute: current_position
         below: "100"
       - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automationss
+        entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
       - condition: sun
         before: sunset
@@ -627,7 +627,7 @@ automation:
                   entity_id: person.danny
                   state: home
                 - condition: state
-                  entity_id: input_boolean.enable_bedroom_blind_automationss
+                  entity_id: input_boolean.enable_bedroom_blind_automations
                   state: "on"
                 - condition: numeric_state
                   entity_id: cover.bedroom_blind
@@ -1010,6 +1010,60 @@ script:
                 data:
                   message: ":tv: Bedroom Chromecast was on, pausing TV."
     mode: single
+  bedroom_close_blinds_by_weather:
+    alias: Bedroom Close Blinds Based Weather
+    description: "Close bedroom blinds depending on the weather."
+    fields:
+      temperature:
+        description: Temperature in celcius.
+        required: true
+      weather_condition:
+        description: Text weather condition e.g. lightning-rainy
+        required: true
+    sequence:
+      # Only run the weather check if it's during the day otherwise it might be closed for evening.
+      - if:
+          - condition: sun
+            before: sunset
+          - condition: state
+            entity_id: input_boolean.enable_bedroom_blind_automations
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ weather_condition in ['sunny','partlycloudy'] }}"
+                sequence:
+                  - choose:
+                    # Check if window is open.
+                    - conditions:
+                        - condition: numeric_state
+                          entity_id: cover.bedroom_blind
+                          attribute: current_position
+                          below: input_number.bedroom_blind_open_closed_threshold
+                        - condition: state
+                          entity_id: binary_sensor.bedroom_window
+                          state: "on"
+                      sequence:
+                        # TODO: replace with actionable notification
+                        - service: script.send_to_home_log
+                          data:
+                            message:
+                              "It's going to be hot ({{ temperature }} {{ weather_condition }}) and 
+                              the :window: window is open preventing the blinds from closing."
+                            title: ":bed: Bedroom"
+                    default:
+                      - service: script.send_to_home_log
+                        data:
+                          message:
+                            "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
+                          title: ":bed: Bedroom"
+                      - service: cover.close_cover
+                        target:
+                          entity_id: cover.bedroom_blind
+            default: []
+    mode: single
+    icon: mdi:roller-shade-closed
 
 sensor:
   - platform: history_stats
