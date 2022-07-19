@@ -515,7 +515,7 @@ automation:
               - condition: numeric_state
                 entity_id: weather.home_weather
                 attribute: temperature
-                above: "20"
+                above: "23"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -1149,6 +1149,56 @@ script:
         data:
           event: open_office_left_curtain
     mode: single
+  office_close_curtains_by_weather:
+    alias: Office Close Curtains Based Weather
+    description: "Close office curtains depending on the weather."
+    fields:
+      temperature:
+        description: Temperature in celcius.
+        required: true
+      weather_condition:
+        description: Text weather condition e.g. lightning-rainy
+        required: true
+    sequence:
+      # Only run the weather check if it's during the day otherwise it might be closed for evening.
+      - if:
+          - condition: sun
+            before: sunset
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ weather_condition in ['sunny','partlycloudy'] }}"
+                sequence:
+                  - choose:
+                    # Check if window is open.
+                    - conditions:
+                        - or:
+                            - condition: state
+                              entity_id: binary_sensor.office_window_right
+                              state: "on"
+                            - condition: state
+                              entity_id: binary_sensor.office_window_left
+                              state: "on"
+                      sequence:
+                        # TODO: replace with actionable notification
+                        - service: script.send_to_home_log
+                          data:
+                            message:
+                              "It's going to be hot ({{ temperature }} {{ weather_condition }}) and 
+                              the :window: window is open preventing the curtains from closing."
+                            title: ":office: Office"
+                    default:
+                      - service: script.send_to_home_log
+                        data:
+                          message:
+                            "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing curtains."
+                          title: ":office: Office"
+                      - service: script.office_close_curtains
+                        data: {}
+            default: []
+    mode: single
+    icon: mdi:curtains-closed
   # PC
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive

@@ -1,4 +1,21 @@
 # Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1622374233311"
+    alias: "^Weather: Forecast To Be Hot"
+    description: "Watches weather forecast for hot temperatures"
+    trigger:
+      - platform: numeric_state
+        entity_id: weather.home_weather
+        attribute: temperature
+        above: "24"
+    condition: []
+    action:
+      - service: script.office_close_curtains_by_weather
+        data:
+          temperature: "{{ state('weather.weather_home', 'temperature') }}"
+          weather_condition: "{{ states('weather.weather_home') }}"
+    mode: single
+
 sensor:
   # https://community.home-assistant.io/t/uk-met-office-severe-weather-warnings/189680/4?u=tuxinator94
   - platform: feedparser
