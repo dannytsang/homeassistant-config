@@ -7,19 +7,29 @@
       to: triggered
   condition: []
   action:
-    - data:
-        data:
-          attachments:
-            - color: "#a51018"
-              fields:
-                - short: false
-                  title: Priority
-                  value: High
-              text: Ring alarm has been triggered
-              title: ":warning: :bell: :mega:"
-        message: "@danny @terina"
-        target: "#home_log #general"
-      service: notify.slack_notify
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Has triggered!
+            title: ":rotating_light: Alarm"
+        - service: script.send_actionable_notification_with_2_buttons
+          data:
+            message: Triggered! Turn off
+            title: ":rotating_light: Alarm"
+            people: person.danny
+            action1_title: "Yes"
+            action1_name: switch_of_alarm
+            action2_title: "No"
+            action2_name: ignore
+        - service: script.send_actionable_notification_with_2_buttons
+          data:
+            message: Triggered! Turn off
+            title: ":rotating_light: Alarm"
+            people: person.terina
+            action1_title: "Yes"
+            action1_name: switch_of_alarm
+            action2_title: "No"
+            action2_name: ignore
   mode: single
 - id: "1589654392712"
   alias: "Utility: Unifi AP Offline"
@@ -500,6 +510,15 @@
               data:
                 message: Guest mode override. Turning devices off only.
             - service: script.everybody_leave_home
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'switch_of_alarm'
+                }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Alarm override. Turning Alarm off.
+            - service: script.set_alarm_to_disarmed_mode
       default: []
   mode: single
 - id: "1627509008928"
