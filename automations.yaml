@@ -479,9 +479,7 @@
             - service: script.everybody_leave_home
         - conditions:
             - condition: template
-              value_template:
-                "{{ trigger.event.data.action == 'switch_off_alarm'
-                }}"
+              value_template: "{{ trigger.event.data.action == 'switch_off_alarm' }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1124,4 +1122,20 @@
             action1_name: switch_on_fridge_freezer
             action2_title: "No"
             action2_name: ignore
+  mode: single
+- id: "1658438667856"
+  alias: "Sleep As Android: Started Tracking"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - input_text.sleep_as_android
+      to: sleep_tracking_started
+  condition: []
+  action:
+    - service: script.send_direct_notification
+      data:
+        person: person.danny
+        message: sleep tracking started.
+        title: Sleep As Android
   mode: single
