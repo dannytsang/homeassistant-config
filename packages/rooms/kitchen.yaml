@@ -519,6 +519,77 @@ automation:
                 title: ":warning: :door: :snowflake: Fridge door is open"
               service: script.send_to_home_log
     mode: single
+  # Freezer
+  - id: "1595678795896"
+    alias: "^Kitchen: Freezer Door Open"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.freezer_door
+        from: "off"
+        platform: state
+        to: "on"
+    condition: []
+    action:
+      - data:
+          message: ":door: :snowflake: Freezer door opened."
+          title: ":cook: Kitchen"
+        service: script.send_to_home_log
+    mode: single
+  - id: "1595678900779"
+    alias: "^Kitchen: Freezer Door Closed"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.freezer_door
+        from: "on"
+        platform: state
+        to: "off"
+    condition: []
+    action:
+      - data:
+          message: ":door: :snowflake: Freezer door closed."
+          title: ":cook: Kitchen"
+        service: script.send_to_home_log
+    mode: single
+  - id: "1595679010794"
+    alias: "^Kitchen: Freezer Open For A Long Period Of Time"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.freezer_door
+        for: 00:04:00
+        from: "off"
+        platform: state
+        to: "on"
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message:
+            "Reloading Smartthings integration to see if the sensor lagged out."
+          title: "Kitchen freezer door is open"
+      - service: rest_command.reload_smartthings
+        data: {}
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 5
+          milliseconds: 0
+      - if:
+          - condition: state
+            entity_id: binary_sensor.freezer_door
+            state: "on"
+        then:
+          - parallel:
+            - service: script.send_direct_notification
+              data:
+                message:
+                  ":warning: :door: :snowflake: Freezer door has been open for more than 4 minutes! :warning:"
+                title: ":cook: Kitchen"
+            - data:
+                message:
+                  ":warning: :door: :snowflake: Freezer door has been open for more than 4 minutes! :warning:"
+                title: ":cook: Kitchen"
+              service: script.send_to_home_log
+    mode: single
 
 scene:
   - id: "1629659728757"
