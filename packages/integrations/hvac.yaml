@@ -6,22 +6,26 @@ script:
     sequence:
       - parallel:
           - if:
-              - not:
-                  - condition: state
-                    entity_id: climate.thermostat
-                    state: "heat"
-                  - condition: state
-                    entity_id: climate.thermostat
-                    attribute: temperature
-                    state: 7
+              - or:
+                  - not:
+                      - condition: state
+                        entity_id: climate.thermostat
+                        state: "heat"
+                  - not:
+                      - condition: state
+                        entity_id: climate.thermostat
+                        attribute: temperature
+                        state: 7
             then:
               - service: script.send_to_home_log
                 data:
                   message: "Setting heating to :running: away mode."
                   title: ":hotsprings: :droplet: Boiler"
               - service: climate.set_temperature
+                target:
+                  entity_id: climate.thermostat
                 data:
-                  hvac_mode: heat
+                  hvac_mode: "heat"
                   temperature: 7
     mode: single
   set_central_heating_to_home_mode:

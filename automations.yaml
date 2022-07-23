@@ -1013,21 +1013,24 @@
             - service: script.send_to_home_log
               data:
                 message: Everyone far is away.
-            - if:
-                - condition: not
-                  conditions:
-                    - condition: state
-                      entity_id: input_select.home_mode
-                      state: Holiday
-              then:
-                - service: script.send_to_home_log
-                  data:
-                    message: Changing to holiday mode
-                - service: input_select.select_option
-                  data:
-                    option: Holiday
-                  target:
-                    entity_id: input_select.home_mode
+            - parallel:
+                - if:
+                    - condition: not
+                      conditions:
+                        - condition: state
+                          entity_id: input_select.home_mode
+                          state: Holiday
+                  then:
+                    - service: script.send_to_home_log
+                      data:
+                        message: Changing to holiday mode
+                    - service: input_select.select_option
+                      data:
+                        option: Holiday
+                      target:
+                        entity_id: input_select.home_mode
+                - service: script.home_mode_turn_on_holiday_mode
+                  data: {}
       default: []
   mode: single
 - id: "1655063863297"
