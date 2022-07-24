@@ -199,7 +199,7 @@ script:
     mode: queued
     max: 10
   send_actionable_notification_with_2_buttons:
-    alias: Post Actionable Notification With 2 Buttons
+    alias: Send Actionable Notification With 2 Buttons
     icon: mdi:message-draw
     fields:
       message:
@@ -240,7 +240,7 @@ script:
     mode: queued
     max: 10
   send_actionable_notification_with_3_buttons:
-    alias: Post Actionable Notification With 3 Buttons
+    alias: Send Actionable Notification With 3 Buttons
     icon: mdi:message-draw
     fields:
       message:
@@ -522,9 +522,23 @@ script:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ state_attr('person.danny','id') == 'danny' }}"
+                value_template: "{{ state_attr(people,'id') == 'danny' }}"
             sequence:
               - service: notify.mobile_app_dannys_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    actions:
+                      - title: "{{ action1_title }}"
+                        action: "{{ action1_name }}"
+                      - title: "{{ action2_title }}"
+                        action: "{{ action2_name }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ state_attr(people,'id') == 'terina' }}"
+            sequence:
+              - service: notify.mobile_app_terina_s_phone
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
