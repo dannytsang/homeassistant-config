@@ -38,6 +38,27 @@ automation:
         target:
           entity_id: input_boolean.enable_scheduled_mode
     mode: single
+  - id: "1658594276643"
+    alias: "^Home Mode: Set Scheduled Home Mode"
+    description: ""
+    trigger:
+      - platform: time
+        at: 00:00:01
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_scheduled_mode
+        state: "off"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: Updating Scheduled Home Mode to current date and time.
+          title: Home Mode
+      - service: input_datetime.set_datetime
+        data:
+          # https://community.home-assistant.io/t/assign-current-date-and-time-to-my-input-datetime/214493/10
+          datetime: "{{ now().timestamp() | timestamp_local }}"
+        entity_id: input_datetime.start_of_next_mode
+    mode: single
   # Handle mode changes
   - id: "1631138390675"
     alias: "^Home Mode: Changed"
