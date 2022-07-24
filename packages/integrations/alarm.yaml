@@ -168,7 +168,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: sensor.house_alarm_info
+        entity_id: alarm_control_panel.house_alarm
         to: unavailable
     condition: []
     action:
@@ -176,6 +176,55 @@ automation:
         data:
           title: ":bell: Alarm"
           message: ":warning: Disconnected from {{ states('input_text.home_assistant_bot_s_slack_id') }} :warning:"
+    mode: single
+  - id: "1658658845650"
+    alias: "^Alarm: Disconnected For A Period Of Time"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+        - alarm_control_panel.house_alarm
+        to: unavailable
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    condition: []
+    action:
+    - service: script.send_to_home_log
+      data:
+        message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
+        title: ":bell: Alarm"
+    - service: hassio.addon_restart
+      data:
+        addon: fdb328a7_ring_mqtt
+    - wait_for_trigger:
+        - platform: state
+          entity_id:
+            - alarm_control_panel.house_alarm
+          from: "unavailable"
+      timeout: input_number.restart_ring_mqtt_add_on_timeout
+      continue_on_timeout: true
+    - choose:
+      - conditions:
+          - condition: state
+            entity_id: alarm_control_panel.house_alarm
+            state: "unavailable"
+        sequence:
+          - service: script.send_to_home_log
+            data:
+              message: Restarting Ring MQTT add-on failed.
+      - conditions:
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: alarm_control_panel.house_alarm
+                state: "unavailable"
+        sequence:
+          - service: script.send_to_home_log
+            data:
+              message: Ring MQTT restarted successfully.
+      default: []
     mode: single
   - id: "1589026420341"
     alias: "^Alarm: Triggered"
