@@ -504,7 +504,7 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: People to message e.g. Danny, Terina
+        description: People to message e.g. person.danny, person.terina
         required: true
       action1_title:
         description: First action text.
@@ -522,9 +522,9 @@ script:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ state_attr(people,'id') == 'danny' }}"
+                value_template: "{{ 'person.danny' in people.split(',') }}"
             sequence:
-              - service: notify.mobile_app_dannys_phone
+              - service: notify.mobile_app_dannys_phone 
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
@@ -536,7 +536,7 @@ script:
                         action: "{{ action2_name }}"
           - conditions:
               - condition: template
-                value_template: "{{ state_attr(people,'id') == 'terina' }}"
+                value_template: "{{ 'person.terina' in people.split(',') }}"
             sequence:
               - service: notify.mobile_app_terina_s_phone
                 data:
@@ -563,7 +563,7 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: People to message e.g. Danny, Terina
+        description: People to message e.g. person.danny, person.terina
         required: true
       action1_title:
         description: First action text.
