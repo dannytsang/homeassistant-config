@@ -66,7 +66,7 @@ script:
               # If people parameter is not set
               - conditions:
                   - condition: template
-                    value_template: "{{ people is not defined or people is not match('person.*') }}"
+                    value_template: "{{ people is not none or people is not match('person.*') }}"
                 sequence:
                   - service: script.post_slack_notification
                     data:
@@ -108,7 +108,7 @@ script:
               # The underly script will notify the right people if it does.
               - conditions:
                   - condition: template
-                    value_template: "{{ people is defined and people is match('person.*') }}"
+                    value_template: "{{ people is not none and people is match('person.*') }}"
                 sequence:
                   # Checked preferred messaging platform.
                   - service: script.post_direct_notification_by_person
@@ -350,11 +350,11 @@ script:
         # Check a title was set
         - conditions:
             - condition: template
-              value_template: "{{ title is defined }}"
+              value_template: "{{ title is not none }}"
           sequence:
             - service: notify.slack_notify
               data:
-                message: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
+                message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
                 target: "{{ target }}"
                 data:
                   blocks:
@@ -366,18 +366,18 @@ script:
                     - type: section
                       text:
                         type: mrkdwn
-                        text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
+                        text: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
         default:
           - service: notify.slack_notify
             data:
-              message: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
+              message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
               target: "{{ target }}"
               data:
                 blocks:
                 - type: section
                   text:
                     type: mrkdwn
-                    text: "{{ iif(people is defined,people|default('', true)+' ','') }}{{ message }}"
+                    text: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
     mode: queued
     max: 10
   post_to_slack_with_url_attachment:
@@ -405,7 +405,7 @@ script:
           # Check at least filePath or url is set.
           - conditions:
               - condition: template
-                value_template: "{{ title is defined }}"
+                value_template: "{{ title is not none }}"
             sequence:
               - service: notify.slack_notify
                 data:
