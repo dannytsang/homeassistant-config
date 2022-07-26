@@ -1090,7 +1090,42 @@
   action:
     - service: script.send_direct_notification
       data:
-        person: person.danny
-        message: sleep tracking started.
+        message: Sleep tracking started.
         title: Sleep As Android
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message: Starting sleep timer.
+                title: Sleep As Android
+            - service: timer.cancel
+              data: {}
+              target:
+                entity_id: timer.sleep
+            - service: timer.start
+              data: {}
+              target:
+                entity_id: timer.sleep
+      default: []
+  mode: single
+- id: "1658842750488"
+  alias: "Timer: Sleep Timer Complete"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: timer.finished
+      event_data:
+        id: timer.sleep
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Sleep timer finished. Turning everything off.
+        title: Sleep As Android
+    - service: script.bedroom_sleep
+      data: {}
   mode: single
