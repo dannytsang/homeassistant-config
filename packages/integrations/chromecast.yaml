@@ -9,7 +9,14 @@ automation:
         minutes: "0"
       - platform: homeassistant
         event: start
-    condition: []
+    condition:
+      - or:
+        - condition: state
+          entity_id: input_select.home_mode
+          state: guest
+        - condition: state
+          entity_id: group.adult_people
+          state: home
     action:
       parallel:
         - service: script.send_to_home_log
