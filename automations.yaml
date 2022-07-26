@@ -1129,3 +1129,55 @@
     - service: script.bedroom_sleep
       data: {}
   mode: single
+- id: "1658843567854"
+  alias: "Sleep As Android: Awake"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - input_text.sleep_as_android
+      to: awake
+  condition:
+    - condition: state
+      entity_id: timer.sleep
+      state: active
+  action:
+    - service: timer.pause
+      data: {}
+      target:
+        entity_id: timer.sleep
+    - service: script.send_to_home_log
+      data:
+        message: Pausing sleep timer.
+        title: Sleep As Android
+  mode: single
+- id: "1658843828191"
+  alias: "Sleep As Android: Fall Asleep"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - input_text.sleep_as_android
+      from: awake
+  condition:
+    - condition: state
+      entity_id: timer.sleep
+      state: paused
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Fell back asleep. Starting unpausing timer.
+        title: Sleep As Android
+    - service: timer.start
+      data: {}
+      target:
+        entity_id: timer.sleep
+    # TODO: Add additional time to timer for waking up and falling asleep
+    # https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
+    #{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0] %}
+    #{% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1] %}
+    #{% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2] %}
+    #{% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) + (seconds | int) %}
+    #{{ state_attr('timer.sleep', 'duration') }}
+    #{{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}
+  mode: single
