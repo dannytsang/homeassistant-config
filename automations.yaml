@@ -1172,12 +1172,29 @@
       data: {}
       target:
         entity_id: timer.sleep
-    # TODO: Add additional time to timer for waking up and falling asleep
-    # https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
-    #{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0] %}
-    #{% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1] %}
-    #{% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2] %}
-    #{% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) + (seconds | int) %}
-    #{{ state_attr('timer.sleep', 'duration') }}
-    #{{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}
+  mode: single
+# TODO: Add additional time to timer for waking up and falling asleep
+# https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
+#{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0] %}
+#{% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1] %}
+#{% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2] %}
+#{% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) + (seconds | int) %}
+#{{ state_attr('timer.sleep', 'duration') }}
+#{{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}
+- id: "1658855072523"
+  alias: "Car: Update Car"
+  description: ""
+  trigger:
+    - platform: event
+      event_type: timer.finished
+      event_data:
+        id: timer.update_dannys_car
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Updating.
+        title: ":car: Car"
+    - service: script.car_update_location
+      data: {}
   mode: single
