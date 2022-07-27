@@ -1182,7 +1182,7 @@
 #{{ state_attr('timer.sleep', 'duration') }}
 #{{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}
 - id: "1658855072523"
-  alias: "Car: Update Car"
+  alias: "Car: Update Danny's Car"
   description: ""
   trigger:
     - platform: event
@@ -1195,6 +1195,24 @@
       data:
         message: Updating.
         title: ":car: Car"
-    - service: script.car_update_location
+    - service: script.dannys_car_update_location
       data: {}
+  mode: single
+- id: "1658933814561"
+  alias: "Car: Updated"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - device_tracker.435i
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Updated.
+        title: "Danny's :car: Car"
+    - service: counter.reset
+      data: {}
+      target:
+        entity_id: counter.dannys_car_update_attempts
   mode: single
