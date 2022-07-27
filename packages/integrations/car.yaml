@@ -88,7 +88,9 @@ script:
                         target:
                           entity_id: timer.update_dannys_car
                       - service: timer.start
-                        data: {}
+                        data:
+                          # Set timmer to 1 how from now.
+                          duration: "{{ (as_timestamp(now()) + 3600) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}"
                         target:
                           entity_id: timer.update_dannys_car
                   # Update car failed and equal to or above max attempt.
@@ -109,3 +111,10 @@ script:
                 default: []
     mode: single
     icon: mdi:car
+
+template:
+  - sensor:
+    - name: "Danny's Car Longitude"
+      state: "{{ state_attr('device_tracker.435i', 'longitude') }}"
+    - name: "Danny's Car Latitude"
+      state: "{{ state_attr('device_tracker.435i', 'latitude') }}"
