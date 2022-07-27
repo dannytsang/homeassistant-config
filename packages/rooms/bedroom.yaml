@@ -384,11 +384,14 @@ automation:
   # Time
   - id: "1621875409014"
     alias: "^Bedroom: Morning Timed Open Blinds"
-    description: ""
+    description: "TODO: Take into account high temperature."
     trigger:
       - platform: time
         at: "08:15:00"
         id: "workday"
+      - platform: time
+        at: "09:00:00"
+        id: "090000"
       - platform: time
         at: "09:30:00"
         id: "093000"
@@ -407,62 +410,78 @@ automation:
         entity_id: binary_sensor.bedroom_tv_powered_on
         state: "off"
     action:
-      - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: binary_sensor.workday_sensor
-                  state: "on"
-                # Check if there's an event with "A/L in the work calendar" and the event is on.
-                - condition: template
-                  value_template: "{{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and 
-                  'A/L' not in state_attr('calendar.work_calendar','message')|string and 
-                  states('calendar.work_calendar') == 'off' }}"
-                - condition: trigger
-                  id: "workday"
-              sequence:
-                - service: cover.open_cover
-                  target:
-                    entity_id: cover.bedroom_blind
-                - service: script.send_to_home_log
-                  data:
-                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
-                    :window: Opening blinds because it's closed and its 09:30 on a weekday!"
-                    title: "Open :bed: bedroom blinds"
-            - conditions:
-                - condition: state
-                  entity_id: binary_sensor.workday_sensor
-                  state: "off"
-                - not:
-                    - condition: state
-                      entity_id: input_select.home_mode
-                      state: No Children
-                - condition: trigger
-                  id: "093000"
-              sequence:
-                - service: cover.open_cover
-                  target:
-                    entity_id: cover.bedroom_blind
-                - service: script.send_to_home_log
-                  data:
-                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and 
-                    now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because 
-                    it's closed and its 09:30 on a weekend!"
-                    title: "Open :bed: bedroom blinds"
-            - conditions:
-                - condition: trigger
-                  id: "103000"
-              sequence:
-                - service: cover.open_cover
-                  target:
-                    entity_id: cover.bedroom_blind
-                - service: script.send_to_home_log
-                  data:
-                    message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and 
-                    now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because 
-                    it's closed and its 10:30!"
-                    title: "Open :bed: bedroom blinds"
-          default: []
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "on"
+              # Check if there's an event with "A/L in the work calendar" and the event is on.
+              - condition: template
+                value_template: "{{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and 
+                'A/L' not in state_attr('calendar.work_calendar','message')|string and 
+                states('calendar.work_calendar') == 'off' }}"
+              - condition: trigger
+                id: "workday"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.send_to_home_log
+                data:
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
+                  :window: Opening blinds because it's closed and its 08:15 on a weekday!"
+                  title: ":bed: Bedroom"
+          - conditions:
+              # Non workday and no children
+              - condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "off"
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: No Children
+              - condition: trigger
+                id: "093000"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.send_to_home_log
+                data:
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and 
+                  now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because 
+                  it's closed and its 09:30 on a weekend!"
+                  title: ":bed: Bedroom"
+          - conditions:
+              - condition: trigger
+                id: "090000"
+              - condition: state
+                entity_id: group.adult_people
+                state: "not_home"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.send_to_home_log
+                data:
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and 
+                  now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because 
+                  it's closed, no one is home and its 09:00!"
+                  title: ":bed: Bedroom"
+          - conditions:
+              - condition: trigger
+                id: "103000"
+            sequence:
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.bedroom_blind
+              - service: script.send_to_home_log
+                data:
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and 
+                  now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds because 
+                  it's closed and its 10:30!"
+                  title: ":bed: Bedroom"
+        default: []
     mode: single
   - id: "1621875567853"
     alias: "^Bedroom: Evening Timed Blinds"
