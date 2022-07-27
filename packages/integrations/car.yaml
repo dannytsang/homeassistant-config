@@ -1,4 +1,10 @@
 # Created by Danny Tsang <danny@tsang.uk>
+#
+# #Key
+# counter.dannys_car_update_attempts - Number of times called to update the car details.
+# counter.dannys_car_location_checked - Number of successful location updates.
+# input_boolean.check_dannys_car_location - Turns on or off car location updates.
+# timer.update_dannys_car - Delays between each request to update car details.
 proximity:
   danny_car_home:
     zone: home
@@ -8,17 +14,98 @@ proximity:
     unit_of_measurement: mi
 
 script:
-  car_update_location:
-    alias: Car Update Location
+  dannys_car_update_location:
+    alias: Car Update Danny's Location
     sequence:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Updating location."
-              title: ":car: Car"
-          - service: button.press
-            data: {}
-            target:
-              entity_id: button.bmw_find_vehicle
+      - choose:
+          - conditions:
+            - condition: state
+              entity_id: input_boolean.check_dannys_car_location
+              state: "on"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Updating location."
+                      title: "Danny's :car: Car"
+                  - service: button.press
+                    data: {}
+                    target:
+                      entity_id: button.bmw_find_vehicle
+                  - service: counter.increment
+                    data: {}
+                    target:
+                      entity_id: counter.car_update_attempts
+              - wait_for_trigger:
+                  - platform: state
+                    entity_id:
+                      - device_tracker.435i
+                timeout: "300"
+              # Wait for car updated automation to reset the counter if the update was successful.
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 5
+                  milliseconds: 0
+              - choose:
+                  # Update car successful due to number of attempts not being reset.
+                  - conditions:
+                      - condition: numeric_state
+                        entity_id: counter.dannys_car_update_attempts
+                        below: input_number.dannys_car_max_location_update_attempts
+                      - condition: numeric_state
+                        entity_id: counter.dannys_car_update_attempts
+                        below: 1
+                    sequence:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Update location was successful 
+                          ({{ states('counter.dannys_car_update_attempts')/states('input_number.dannys_car_max_location_update_attempts')}}). 
+                          Restarting car update timer."
+                          title: "Danny's :car: Car"
+                      - service: timer.cancel
+                        data: {}
+                        target:
+                          entity_id: timer.update_dannys_car
+                      - service: timer.start
+                        data: {}
+                        target:
+                          entity_id: timer.update_dannys_car
+                  # Update car failed and below max attempts.
+                  - conditions:
+                      - condition: numeric_state
+                        entity_id: counter.dannys_car_update_attempts
+                        below: input_number.dannys_car_max_location_update_attempts
+                    sequence:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Update location was unsuccessful 
+                          ({{ states('counter.dannys_car_update_attempts')/states('input_number.dannys_car_max_location_update_attempts')}}). 
+                          Restarting car update timer."
+                          title: "Danny's :car: Car"
+                      - service: timer.cancel
+                        data: {}
+                        target:
+                          entity_id: timer.update_dannys_car
+                      - service: timer.start
+                        data: {}
+                        target:
+                          entity_id: timer.update_dannys_car
+                  # Update car failed and equal to or above max attempt.
+                  - conditions:
+                      - or:
+                        - condition: state
+                          entity_id: counter.dannys_car_update_attempts
+                          state: input_number.dannys_car_max_location_update_attempts
+                        - condition: numeric_state
+                          entity_id: counter.dannys_car_update_attempts
+                          above: input_number.dannys_car_max_location_update_attempts
+                    sequence:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Update location was unsuccessful and exceeded maximum attempts 
+                          ({{ states('counter.dannys_car_update_attempts')/states('input_number.dannys_car_max_location_update_attempts')}})."
+                          title: "Danny's :car: Car"
+                default: []
     mode: single
     icon: mdi:car
