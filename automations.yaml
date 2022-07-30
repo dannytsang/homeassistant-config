@@ -1029,6 +1029,8 @@
                     option: Normal
                   target:
                     entity_id: input_select.home_mode
+            - service: script.turn_everything_off
+              data: {}
       default: []
   mode: single
 - id: "1655154158871"
@@ -1215,4 +1217,88 @@
       data: {}
       target:
         entity_id: counter.dannys_car_update_attempts
+  mode: single
+- id: "1659198098255"
+  alias: "House: Fake Presence"
+  description: ""
+  trigger:
+    - platform: sun
+      event: sunset
+      offset: 0
+    - platform: time_pattern
+      hours: "17"
+      minutes: /15
+    - platform: time_pattern
+      hours: "18"
+      minutes: /15
+    - platform: time_pattern
+      hours: "19"
+      minutes: /15
+    - platform: time_pattern
+      hours: "20"
+      minutes: /15
+    - platform: time_pattern
+      hours: "21"
+      minutes: /15
+    - platform: time_pattern
+      hours: "22"
+      minutes: /15
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.house_alarm
+      state: armed_away
+    - condition: state
+      entity_id: group.adult_people
+      state: not_home
+    - condition: sun
+      after: sunset
+      after_offset: -02:00:00
+    - or:
+        - condition: template
+          value_template:
+            "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+            - 1 }}"
+        - condition: template
+          value_template:
+            "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+            - 1 }}"
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Changing lights to prentend to be at home.
+    - service: script.downstairs_random_light
+      data: {}
+    - service: script.upstairs_random_lights
+      data: {}
+  mode: single
+- id: "1659199066864"
+  alias: "Home: Turn Off Scheduled Fake Presence"
+  description: ""
+  trigger:
+    - platform: time
+      at: "23:00:00"
+  condition:
+    - condition: state
+      entity_id: alarm_control_panel.house_alarm
+      state: armed_away
+    - condition: state
+      entity_id: group.adult_people
+      state: not_home
+    - condition: sun
+      after: sunset
+    - or:
+        - condition: template
+          value_template:
+            "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+            - 1 }}"
+        - condition: template
+          value_template:
+            "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+            - 1 }}"
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Turning off all lights from faking someone at home.
+    - service: script.turn_everything_off
+      data: {}
   mode: single
