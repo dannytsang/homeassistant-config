@@ -7,14 +7,30 @@ automation:
       - platform: time_pattern
         minutes: 0
         hours: "/2"
+      - platform: time_pattern
+        minutes: 0
+        hours: "/6"
     condition: []
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: "Updating."
-              title: ":bearded_person: Stash"
-          - service: rest_command.update_stash
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Updating."
+                      title: ":bearded_person: Stash"
+                  - service: rest_command.update_stash
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Updating."
+                  title: ":bearded_person: Stash"
+              - service: rest_command.update_stash
     mode: single
 
 rest_command:
