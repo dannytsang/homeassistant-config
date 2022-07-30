@@ -140,3 +140,34 @@ bedroom_sleep:
       data: {}
   mode: single
   icon: mdi:sleep
+# https://community.home-assistant.io/t/random-light-schedule/10135/56
+downstairs_random_light:
+  alias: Downstairs Random Light
+  sequence:
+    - service: homeassistant.toggle
+      data:
+        entity_id:
+          "{% set group_id = 'light.downstairs_random_lights' %}  {% set max_on
+          = 3 %}     {% set lights_on_count = expand(group_id) | selectattr('state',
+          'eq', 'on')| list | length %} {% if lights_on_count > max_on %}\n  {% set
+          lights_on_entities = expand(group_id) | selectattr('state', 'eq', 'on')| map(attribute='entity_id')
+          | list %}\n  {{ lights_on_entities | random }}\n{% else %}\n  {% set group_lights_entities
+          =  expand(group_id) | map(attribute='entity_id') | list %}\n  {{ group_lights_entities
+          | random }}\n{% endif %}"
+  mode: single
+  icon: mdi:lightbulb-group
+upstairs_random_lights:
+  alias: Upstairs Random Lights
+  sequence:
+    - service: homeassistant.toggle
+      data:
+        entity_id:
+          "{% set group_id = 'light.upstairs_random_lights' %}  {% set max_on
+          = 1 %}     {% set lights_on_count = expand(group_id) | selectattr('state',
+          'eq', 'on')| list | length %} {% if lights_on_count > max_on %}\n  {% set
+          lights_on_entities = expand(group_id) | selectattr('state', 'eq', 'on')| map(attribute='entity_id')
+          | list %}\n  {{ lights_on_entities | random }}\n{% else %}\n  {% set group_lights_entities
+          =  expand(group_id) | map(attribute='entity_id') | list %}\n  {{ group_lights_entities
+          | random }}\n{% endif %}"
+  mode: single
+  icon: mdi:lightbulb-group
