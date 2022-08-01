@@ -45,6 +45,33 @@ automation:
     mode: queued
     max: 10
   # Sleep Timer
+  - id: "1658438667856"
+    alias: "^Sleep As Android: Started Tracking"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - input_text.sleep_as_android
+        to: sleep_tracking_started
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            sequence:
+              # Reset timer
+              - service: timer.cancel
+                data: {}
+                target:
+                  entity_id: timer.sleep
+              - service: timer.start
+                data: {}
+                target:
+                  entity_id: timer.sleep
+        default: []
+    mode: single
   - id: "1658843567854"
     alias: "^Sleep As Android: Awake"
     description: ""
