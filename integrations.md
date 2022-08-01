@@ -1,3 +1,4 @@
+[<- Back](README.md)
 # Integrations 🖧
 There are too many to list and changes now and then so I will list the ones that will help explain configurations. These may include integrations from [HACS](https://hacs.xyz/).
 
