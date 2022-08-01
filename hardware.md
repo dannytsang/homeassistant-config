@@ -107,7 +107,7 @@ I like their hardware relays and fits into 35mm back boxes and allows switches t
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
 
-## SwitcBot
+## SwitchBot
 The first curtain rod devices. It uses bluetooth which isn't great for range so I pair it with the hub mini
 * Curtain Rod (1)
 * [Hub Mini](https://uk.switch-bot.com/products/switchbot-hub-mini)
