@@ -33,11 +33,11 @@ More details [here](integrations.md).
 # GitHub 🐱🐙
 This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
 
-Whilst [Home Assistant](https://home-assistant.io) offer backup solution, it is a bit of all or nothing restore process where as Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
+Whilst [Home Assistant](https://home-assistant.io) offer backup solution, it is a bit of all or nothing restore process whereas Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
+
+The goal is to use the web front end as much as possible and there has been a growing trend to move away from text (YAML) files however the version advantage is the reason i still use and store things here.
 
 ## Setup ⚙️
-I use the UI as much as possible to create and maintain changes. There's currently a general movement towards the UI within [Home Assistant](https://home-assistant.io) such as setup of integrations being removed from the configuration files. I generally support this move to make it easier for everyone.
-
 All changes are performed in the UI where possible and if they are held in configuration files then it will end up in Git where possible.
 
 I use the Visual Studio Code add-on to edit files in [Home Assistant](https://home-assistant.io) or if I really have to the File Editor add-on on my mobile deives.
