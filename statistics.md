@@ -1,4 +1,5 @@
-## Statistics 📊
+[<- Back](README.md)
+# Statistics 📊
 I have 2425 states (📈143) in Home Assistant.
 By domain these are:
 - 1 alarm_control_panel
