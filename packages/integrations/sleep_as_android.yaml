@@ -1,6 +1,7 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Possible states: https://docs.sleep.urbandroid.org/services/automation.html#events
 automation:
+  # General
   - id: "1614285576722"
     alias: "^Sleep As Android"
     description: ""
@@ -41,5 +42,29 @@ automation:
                     message: "Changed to {{ trigger.json.event }}"
                     title: ":zzz: Sleep as :robot_face: Android"
         default: []
+    mode: queued
+    max: 10
+  # Sleep Timer
+  - id: "1658843567854"
+    alias: "^Sleep As Android: Awake"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - input_text.sleep_as_android
+        to: awake
+    condition:
+      - condition: state
+        entity_id: timer.sleep
+        state: active
+    action:
+      - service: timer.pause
+        data: {}
+        target:
+          entity_id: timer.sleep
+      - service: script.send_to_home_log
+        data:
+          message: Pausing sleep timer.
+          title: Sleep As Android
     mode: queued
     max: 10
