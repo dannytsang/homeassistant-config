@@ -1,0 +1,34 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/meater/
+automation:
+  - id: "1652029607668"
+    alias: "^Kitchen: Temperature Reaches target"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.meater_probe_target
+        above: sensor.meater_probe_internal
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message:
+            '":cook: :thermometer: The {{states(''sensor.meater_probe_cooking'')}}
+            has reached temperature."'
+    mode: single
+  - id: "1652029734731"
+    alias: "^Kitchen: Cooking Has Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.meater_probe_cook_state
+        to: started cookiing
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message:
+            ":cook: The {{states('sensor.meater_probe_cooking')}} has started
+            cooking."
+    mode: single
