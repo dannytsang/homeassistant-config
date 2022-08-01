@@ -1015,11 +1015,9 @@
               data:
                 message: Someone heading home.
             - if:
-                - condition: not
-                  conditions:
-                    - condition: state
-                      entity_id: input_select.home_mode
-                      state: Holiday
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: Holiday
               then:
                 - service: script.send_to_home_log
                   data:
@@ -1113,26 +1111,24 @@
   action:
     - service: timer.start
       data:
-        duration: "{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0] %}
-        {% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1] %}
-        {% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2] %}
-        {% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) + (seconds | int) + (states('input_number.sleep_as_android_time_to_add')|int(0)) %}
-        {{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}"
+        # https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
+        duration:
+          "{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0]
+          %} {% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1]
+          %} {% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2]
+          %} {% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) +
+          (seconds | int) + (states('input_number.sleep_as_android_time_to_add')|int(0))
+          %} {{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d
+          %H:%M:%S') }}"
       target:
         entity_id: timer.sleep
     - service: script.send_to_home_log
       data:
-        message: "Fell back asleep. Unpausing timer and adding 15 minutes. New time remaining:
-          {{ state_attr('timer.sleep', 'remaining') }}"
+        message:
+          "Fell back asleep. Unpausing timer and adding 15 minutes. New time
+          remaining: {{ state_attr('timer.sleep', 'remaining') }}"
         title: ":zzz: Sleep as :robot_face: Android"
   mode: single
-# TODO: Add additional time to timer for waking up and falling asleep
-# https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
-#{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0] %}
-#{% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1] %}
-#{% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2] %}
-#{% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) + (seconds | int) %}
-#{{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}
 - id: "1658855072523"
   alias: "Car: Update Danny's Car"
   description: ""
