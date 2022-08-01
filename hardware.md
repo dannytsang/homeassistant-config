@@ -19,14 +19,6 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 ## Broadlink
 An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4 Pro](https://www.ibroadlink.com/products/ir+rf).
 
-## <strike><a name="currentcost"></a>CurrentCost</strike>
-<strike>A long standing device I had before [Home Assistant](https://home-assistant.io), it uses a clamp and battery to read electricity usage from the meter. Later, they came out with plugs that sense power draw as well. All of this is using [Energy@Home](https://github.com/dannytsang/energyathome) to store readings and present it in [Home Assistant](https://home-assistant.io).</strike>
-* <strike>[Data Cable](http://www.currentcost.com/product-datacable.html)</strike>
-* <strike>[Envi](http://www.currentcost.com/product-cc128.html)</strike>
-* <strike>[Individual Application Monitors](http://www.currentcost.com/product-iams.html)</strike>
-
-Replaced with SmartThings and GlowMarkt.
-
 ## Elgato
 I love Elgato products. They are generally well designed however you do pay a price.
 * [Key Light](https://www.elgato.com/en/key-light)
@@ -34,6 +26,7 @@ I love Elgato products. They are generally well designed however you do pay a pr
 
 ## Expressif
 Makes chips and used in popular commercial IOT applications like [Tuya](https://www.tuya.com/). I use Wemos variant of the older ESP8266 (see below) and the newer ESP32. To manage all of these, I use ESPHome.
+* [ESP32 CP2102](https://www.espressif.com/en/products/socs/esp32)
 
 ## GLEDOPTO
 Third party WLED to Zigbee controller.
@@ -44,11 +37,9 @@ Really like the casting feature to share content however found it was relatiely 
 * [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
 * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 
-## <strike><a name="currentcost"></a>Hive Home</strike>
-<strike>Probably the first smart house item we purchased in 2010. There are a lot better options now and it works but has reliablility issues and would look to replace at some point.</strike>
-* <strike>Hive 1 (SLT2)</strike>
-
-Looking to replace this with [Tado](#tado).
+## <a name="hive"></a>Hive Home
+Probably the first smart house item we purchased in 2010. I have since upgraded to gen 2 of the hardware which has improved on reliablilty on the hub.
+* Hive 2 (SLT3)
 
 ## Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
@@ -108,20 +99,28 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
 * [Smart Plug 2019](https://www.samsung.com/uk/smartthings/outlet/smartthings-smart-plug-gp-wou019bbdwg/)
 * [Water Leak Sensors v3](https://www.samsung.com/uk/smartthings/sensors-plug-f-wtr-uk-v3/)
 
+## Shelly
+I like their hardware relays and fits into 35mm back boxes and allows switches to function normally.
+* [Plus 1PM](https://shelly.cloud/shelly-plus-1pm/)
+
 ## Sonoff
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
 
-## <a name="tado"></a>Tado
-Smart home heating system which I am looking to replace Hive. The [Hive](#hive) system has stability issues (see above). It's currently being tested because I am also having issues with Tado.
-* [Wireless Thermostat V3+](https://www.tado.com/gb-en/wireless-smart-thermostat-specifications-overview)
-* [Radiator Valves](https://www.tado.com/gb-en/smart-radiator-thermostat-specifications-overview)
+## SwitcBot
+The first curtain rod devices. It uses bluetooth which isn't great for range so I pair it with the hub mini
+* Curtain Rod (1)
+* [Hub Mini](https://uk.switch-bot.com/products/switchbot-hub-mini)
+
+## TP Link
+Bought one of these as a potential replacement to the Belkin Wemos which had the killer feature of time to switch off when it was powered on built into the app/plugs. The TP Link did not have that but it does have all the other features like power monitoring. This has been installed behind a hard to reach metal white goods where Zigbee was not strong enough to reach but WiFi was.
+* [HS110](https://www.tp-link.com/uk/home-networking/smart-plug/hs110/)
 
 ## Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
 * [Unifi AC Lite](https://www.ui.com/unifi/unifi-ap-ac-lite/)
-* [Unifi Security Gateway](https://www.ui.com/unifi-routing/usg/)
-* Unifi Swtich 8
+* [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro)
+* [Unifi Swtich 8](https://store.ui.com/collections/unifi-network-switching/products/unifi-switch-8)
 * [Unifi Switch 24](https://store.ui.com/collections/unifi-network-switching/products/usw-24)
 
 ## Wemos
