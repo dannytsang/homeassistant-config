@@ -444,6 +444,18 @@
         - conditions:
             - condition: template
               value_template:
+                "{{ trigger.event.data.action == 'switch_on_freezer'
+                }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Turning on freezer event received.
+            - service: switch.turn_on
+              target:
+                entity_id: switch.freezer
+        - conditions:
+            - condition: template
+              value_template:
                 "{{ trigger.event.data.action == 'guest_mode_arm_alarm_and_turn_off_devices'
                 }}"
           sequence:
@@ -975,12 +987,14 @@
               entity_id: input_select.home_mode
               state: Holiday
             - or:
-              - condition: template
-                value_template:
-                  "{{ state_attr('proximity.danny_home','dir_of_travel') == 'towards' }}"
-              - condition: template
-                value_template:
-                  "{{ state_attr('proximity.terina_home','dir_of_travel') == 'towards' }}"
+                - condition: template
+                  value_template:
+                    "{{ state_attr('proximity.danny_home','dir_of_travel')
+                    == 'towards' }}"
+                - condition: template
+                  value_template:
+                    "{{ state_attr('proximity.terina_home','dir_of_travel')
+                    == 'towards' }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1038,6 +1052,35 @@
     - parallel:
         - service: script.send_to_home_log
           data:
+            message: Freezer plug is turned off.
+            title: "Utility Room"
+        - service: script.send_actionable_notification_with_2_buttons
+          data:
+            message: Freezer plug is turned off. Turn on?
+            title: "Utility Room"
+            people: person.danny
+            action1_title: "Yes"
+            action1_name: switch_on_freezer
+            action2_title: "No"
+            action2_name: ignore
+  mode: single
+- id: "1657801925106"
+  alias: "Kitchen: Fridge Plug Turned Off"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - switch.fridge_freezer
+      to: "off"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  condition: []
+  action:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
             message: Fridge Freezer plug is turned off.
             title: ":cook: Kitchen"
         - service: script.send_actionable_notification_with_2_buttons
@@ -1082,7 +1125,6 @@
   action:
     - service: timer.start
       data:
-        # https://community.home-assistant.io/t/add-time-to-running-timer/120730/10
         duration:
           "{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0]
           %} {% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1]
@@ -1240,4 +1282,28 @@
         message: Turning off all lights from faking someone at home.
     - service: script.turn_everything_off
       data: {}
+  mode: single
+- id: "1659390515112"
+  alias: "Conservatory: Leak Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.conservatory_bucket_water
+      from: "off"
+      to: "on"
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Leak detected
+        title: Conservatory
+    - service: script.send_direct_notification
+      data:
+        message: Leak detected
+        title: Conservatory
   mode: single
