@@ -1125,14 +1125,11 @@
   action:
     - service: timer.start
       data:
+        # https://community.home-assistant.io/t/add-time-to-running-timer/120730/12
         duration:
-          "{% set hours = state_attr('timer.sleep', 'remaining').split(':')[0]
-          %} {% set minutes = state_attr('timer.sleep', 'remaining').split(':')[1]
-          %} {% set seconds = state_attr('timer.sleep', 'remaining').split(':')[2]
-          %} {% set seconds_total = (hours | int * 60 * 60) + (minutes | int * 60) +
-          (seconds | int) + (states('input_number.sleep_as_android_time_to_add')|int(0))
-          %} {{ (as_timestamp(now()) + seconds_total) | timestamp_custom('%Y:%m:%d
-          %H:%M:%S') }}"
+          "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
+          {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
+          {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}"
       target:
         entity_id: timer.sleep
     - service: script.send_to_home_log
