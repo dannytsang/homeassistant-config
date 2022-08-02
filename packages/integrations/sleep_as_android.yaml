@@ -10,38 +10,33 @@ automation:
         webhook_id: sleep_as_android
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.sleep_as_android_notification_level
-                state: "Start/Stop"
-              - condition: template
-                value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
-            sequence:
-              parallel:
-                - service: input_text.set_value
-                  entity_id: input_text.sleep_as_android
-                  data:
-                    value: "{{ trigger.json.event }}"
-                - service: script.send_to_home_log
-                  data:
-                    message: "Changed to {{ trigger.json.event }}"
-                    title: ":zzz: Sleep as :robot_face: Android"
-          - conditions:
-              - condition: state
-                entity_id: input_select.sleep_as_android_notification_level
-                state: "All"
-            sequence:
-              parallel:
-                - service: input_text.set_value
-                  entity_id: input_text.sleep_as_android
-                  data:
-                    value: "{{ trigger.json.event }}"
-                - service: script.send_to_home_log
-                  data:
-                    message: "Changed to {{ trigger.json.event }}"
-                    title: ":zzz: Sleep as :robot_face: Android"
-        default: []
+      - parallel:
+          - service: input_text.set_value
+            entity_id: input_text.sleep_as_android
+            data:
+              value: "{{ trigger.json.event }}"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.sleep_as_android_notification_level
+                    state: "Start/Stop"
+                  - condition: template
+                    value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Changed to {{ trigger.json.event }}"
+                      title: ":zzz: Sleep as :robot_face: Android"
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.sleep_as_android_notification_level
+                    state: "All"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Changed to {{ trigger.json.event }}"
+                      title: ":zzz: Sleep as :robot_face: Android"
+            default: []
     mode: queued
     max: 10
   # Sleep Timer
