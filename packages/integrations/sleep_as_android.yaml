@@ -30,6 +30,20 @@ automation:
               - conditions:
                   - condition: state
                     entity_id: input_select.sleep_as_android_notification_level
+                    state: "Start/Stop/Alarms"
+                  - or:
+                    - condition: template
+                      value_template: "{{ 'alarm' in trigger.json.event }}"
+                    - condition: template
+                      value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Changed to {{ trigger.json.event }}"
+                      title: ":zzz: Sleep as :robot_face: Android"
+              - conditions:
+                  - condition: state
+                    entity_id: input_select.sleep_as_android_notification_level
                     state: "All"
                 sequence:
                   - service: script.send_to_home_log
