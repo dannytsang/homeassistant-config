@@ -9,10 +9,6 @@ input_text:
     initial: !secret telegram_danny_chat_id
 
 notify:
-  - name: slack_notify
-    platform: slack
-    api_key: !secret slack
-    default_channel: "home_log"
   - platform: telegram
     name: telegram
     chat_id: !secret telegram_danny_chat_id
@@ -355,7 +351,7 @@ script:
             - condition: template
               value_template: "{{ title is not none }}"
           sequence:
-            - service: notify.slack_notify
+            - service: notify.danny_tsang
               data:
                 message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
                 target: "{{ target }}"
@@ -371,7 +367,7 @@ script:
                         type: mrkdwn
                         text: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
         default:
-          - service: notify.slack_notify
+          - service: notify.danny_tsang
             data:
               message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
               target: "{{ target }}"
@@ -410,7 +406,7 @@ script:
               - condition: template
                 value_template: "{{ title is not none }}"
             sequence:
-              - service: notify.slack_notify
+              - service: notify.danny_tsang
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
@@ -432,7 +428,7 @@ script:
                           alt_text: "{{ title|default('Failed to load image', true) }}"
         # No title set
         default:
-          - service: notify.slack_notify
+          - service: notify.danny_tsang
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
@@ -469,7 +465,7 @@ script:
         description: File path to attach to post.
         required: true
     sequence:
-      - service: notify.slack_notify
+      - service: notify.danny_tsang
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
@@ -658,7 +654,7 @@ script:
         description: File path to attach to post.
         required: true
     sequence:
-      - service: notify.slack_notify
+      - service: notify.danny_tsang
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
