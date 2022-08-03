@@ -1123,22 +1123,24 @@
       entity_id: timer.sleep
       state: paused
   action:
-    - service: timer.start
-      data:
-        # https://community.home-assistant.io/t/add-time-to-running-timer/120730/12
-        duration:
-          "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
-          {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
-          {% set new_ts = iif(ts > states('input_number.sleep_timer_duration')|int(0), states('input_number.sleep_timer_duration')|int(0)*60, ts) %}
-          {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
-      target:
-        entity_id: timer.sleep
-    - service: script.send_to_home_log
-      data:
-        message:
-          "Fell back asleep. Unpausing timer and adding 15 minutes. New time
-          remaining: {{ state_attr('timer.sleep', 'remaining') }}"
-        title: ":zzz: Sleep as :robot_face: Android"
+    - parallel:
+        - service: timer.start
+          data:
+            # https://community.home-assistant.io/t/add-time-to-running-timer/120730/12
+            duration:
+              "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
+              {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
+              {% set new_ts = iif(ts > states('input_number.sleep_timer_duration')|int(0), states('input_number.sleep_timer_duration')|int(0)*60, ts) %}
+              {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
+          target:
+            entity_id: timer.sleep
+        - service: script.send_to_home_log
+          data:
+            message:
+              "Fell back asleep. :arrow_forward: Unpausing :hourglass_flowing_sand:
+              timer and adding 15 minutes. New time
+              remaining: {{ state_attr('timer.sleep', 'remaining') }}"
+            title: ":zzz: Sleep as :robot_face: Android"
   mode: single
 - id: "1658855072523"
   alias: "Car: Update Danny's Car"
