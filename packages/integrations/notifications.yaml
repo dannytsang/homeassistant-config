@@ -683,3 +683,29 @@ script:
           target: "{{ target }}"
     mode: queued
     max: 10
+  post_to_discord_with_local_attachments:
+    alias: "Post To Discord Home Log With File Attachments"
+    icon: mdi:message
+    description: "Post a message with a file attachment to the home_log 
+    channel. Please use a 
+    send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      target:
+        description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
+        required: true
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - service: notify.home_assistant
+        data:
+          message: "{{ message }}"
+          target: "{{ target }}"
+          data:
+            images: 
+              - "{{ filePath }}"
+    mode: queued
+    max: 10
