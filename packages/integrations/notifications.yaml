@@ -340,7 +340,7 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: (optional)Slack User ID to message e.g. <@ABCDEFG>
+        description: (optional)Slack user ID to message e.g. <@ABCDEFG>
       target:
         description: Slack channel to post the message to.
         required: true
@@ -672,7 +672,7 @@ script:
         description: Message to post
         required: true
       people:
-        description: (optional)Slack User ID to message e.g. <@ABCDEFG>
+        description: (optional)Discord user ID to message e.g. <@123456>
       target:
         description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
         required: true
@@ -693,6 +693,8 @@ script:
       message:
         description: Message to post
         required: true
+      people:
+        description: (optional)Discord user ID to message e.g. <@123456>
       target:
         description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
         required: true
@@ -702,7 +704,7 @@ script:
     sequence:
       - service: notify.home_assistant
         data:
-          message: "{{ message }}"
+          message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
           target: "{{ target }}"
           data:
             images: 
