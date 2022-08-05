@@ -229,6 +229,7 @@ image_processing:
       - entity_id: camera.upstairs
 
 script:
+  # Process camera images
   conservatory_camera_process_image:
     alias: Conservatory Camera Process Image
     icon: mdi:camera
@@ -489,6 +490,20 @@ script:
               message: ":white_check_mark: Nothing detected on the stairs."
               title: ":brain: Deepstack Results"
     mode: single
+  # General
+  turn_on_downstairs_cameras:
+    alias: Turn On Downstairs Cameras
+    icon: mdi:camera
+    description: "Turn on camera detection for all downstairs cameras."
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Turning on downstairs :camera_with_flash: cameras."
+          - service: script.conservatory_turn_on_camera
+          - service: script.kitchen_turn_on_camera
+          - service: script.lounge_turn_on_camera
+          - service: script.front_garden_turn_on_camera
 
 shell_command:
   copy_conservatory_deepstack_files: !secret copy_conservatory_deepstack_files_command
