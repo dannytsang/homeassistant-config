@@ -5,19 +5,19 @@ script:
     alias: Set Central Heating To Away Mode
     icon: mdi:hvac
     sequence:
-      - parallel:
-          - if:
-              - or:
-                  - not:
-                      - condition: state
-                        entity_id: climate.thermostat
-                        state: "heat"
-                  - not:
-                      - condition: state
-                        entity_id: climate.thermostat
-                        attribute: temperature
-                        state: 7
-            then:
+      - if:
+          - or:
+              - not:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    state: "heat"
+              - not:
+                  - condition: state
+                    entity_id: climate.thermostat
+                    attribute: temperature
+                    state: 7
+        then:
+          - parallel:
               - service: script.send_to_home_log
                 data:
                   message: "Setting heating to :running: away mode."
@@ -33,13 +33,13 @@ script:
     alias: Set Central Heating To Home Mode
     icon: mdi:hvac
     sequence:
-      - parallel:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: climate.thermostat
-                    state: "auto"
-            then:
+      - if:
+          - not:
+              - condition: state
+                entity_id: climate.thermostat
+                state: "auto"
+        then:
+          - parallel:
               - service: script.send_to_home_log
                 data:
                   message: "Setting heating to :house_with_garden: home mode."
@@ -54,13 +54,13 @@ script:
     alias: Set Central Heating Off
     icon: mdi:hvac-off
     sequence:
-      - parallel:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: climate.thermostat
-                    state: "off"
-            then:
+      - if:
+          - not:
+              - condition: state
+                entity_id: climate.thermostat
+                state: "off"
+        then:
+          - parallel:
               - service: script.send_to_home_log
                 data:
                   message: "Setting heating to off."
@@ -75,34 +75,56 @@ script:
     alias: Set Hot Water To Home
     icon: mdi:hvac
     sequence:
-      - parallel:
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_hive_hacs_integration
+            state: "on"
+        then:
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: water_heater.hot_water
+                    state: "eco"
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Turning on the hot water."
+                      title: ":hotsprings: :droplet: Boiler"
+                  - service: water_heater.set_operation_mode
+                    data:
+                      operation_mode: "eco"
+                    target:
+                      entity_id: water_heater.hot_water
+        else:
           - if:
               - not:
                   - condition: state
                     entity_id: water_heater.hot_water
                     state: "auto"
             then:
-              - service: script.send_to_home_log
-                data:
-                  message: "Turning on the hot water."
-                  title: ":hotsprings: :droplet: Boiler"
-              - service: water_heater.set_operation_mode
-                data:
-                  operation_mode: "auto"
-                target:
-                  entity_id: water_heater.hot_water
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Turning on the hot water."
+                      title: ":hotsprings: :droplet: Boiler"
+                  - service: water_heater.set_operation_mode
+                    data:
+                      operation_mode: "auto"
+                    target:
+                      entity_id: water_heater.hot_water
     mode: single
   set_how_water_to_away_mode:
     alias: Set Hot Water To Off
     icon: mdi:hvac-off
     sequence:
-      - parallel:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: water_heater.hot_water
-                    state: "off"
-            then:
+      - if:
+          - not:
+              - condition: state
+                entity_id: water_heater.hot_water
+                state: "off"
+        then:
+          - parallel:
               - service: script.send_to_home_log
                 data:
                   message: "Turning off the hot water."
