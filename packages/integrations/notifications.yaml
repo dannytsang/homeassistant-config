@@ -640,12 +640,14 @@ script:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.dannys_telegram_chat_id') }}"
+                continue_on_error: true
         default:
           - service: telegram_bot.send_message
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
               target: "{{ states('input_text.dannys_telegram_chat_id') }}"
+            continue_on_error: true
   post_to_telegram_home_log_with_local_attachments:
     alias: "Post To Telegram With Local Attachments"
     icon: mdi:message-reply-text
@@ -666,6 +668,7 @@ script:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
           file: "{{ filePath }}"
+        continue_on_error: true
     mode: queued
     max: 10
   # Discord specific Scripts
@@ -688,6 +691,7 @@ script:
         data:
           message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
           target: "{{ target }}"
+        continue_on_error: true
     mode: queued
     max: 10
   post_to_discord_with_local_attachments:
@@ -716,5 +720,6 @@ script:
           data:
             images: 
               - "{{ filePath }}"
+        continue_on_error: true
     mode: queued
     max: 10
