@@ -30,13 +30,6 @@ automation:
     trigger:
       - at: 00:00:00
         platform: time
-        id: midnight
-      - at: 01:00:00
-        platform: time
-      - at: 02:00:00
-        platform: time
-      - at: 05:00:00
-        platform: time
     condition:
       - condition: state
         entity_id: group.adult_people
@@ -76,8 +69,6 @@ automation:
             - condition: state
               entity_id: person.terina
               state: home
-            - condition: trigger
-              id: midnight
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -97,8 +88,6 @@ automation:
             - condition: state
               entity_id: person.terina
               state: home
-            - condition: trigger
-              id: midnight
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -122,8 +111,6 @@ automation:
                 value_template:
                   "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
                   - 1 }}"
-            - condition: trigger
-              id: midnight
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -143,8 +130,6 @@ automation:
               value_template:
                 "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
                 - 1 }}"
-            - condition: trigger
-              id: midnight
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -155,6 +140,45 @@ automation:
                   title: ":bell: Alarm"
               - service: script.set_alarm_to_home_mode
               - service: script.turn_on_downstairs_cameras
+        default: []
+    mode: single
+  - id: "1587680439012"
+    alias: "^Alarm: Arm Overnight Home Mode 2"
+    description: ""
+    trigger:
+      - at: 01:00:00
+        platform: time
+      - at: 02:00:00
+        platform: time
+      - at: 05:00:00
+        platform: time
+    condition:
+      - condition: state
+        entity_id: group.adult_people
+        state: home
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: disarmed
+      - condition: state
+        entity_id: binary_sensor.alarmed_doors_and_windows
+        state: "off"
+    action:
+      - choose:
+          # Everyone home
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - condition: state
+              entity_id: person.terina
+              state: home
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "Everyone is home. Turning alarm on."
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
+          # Danny not home
           - conditions:
             - not:
               - condition: state
@@ -166,9 +190,11 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: ":running: :house_with_garden: Danny is not home."
+                  message: ":running: :house_with_garden: Danny is not home. 
+                  Turning alarm on."
               - service: script.set_alarm_to_home_mode
               - service: script.turn_on_downstairs_cameras
+          # Terina not home
           - conditions:
             - condition: state
               entity_id: person.danny
@@ -181,7 +207,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":house_with_garden: :woman_dancing: Terina is not 
-                  home."
+                  home. Turning alarm on."
               - service: script.set_alarm_to_home_mode
               - service: script.turn_on_downstairs_cameras
         default: []
