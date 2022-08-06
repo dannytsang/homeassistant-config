@@ -153,6 +153,9 @@ automation:
       - at: 07:30:00
         platform: time
         id: school_day
+      - at: 09:00:00
+        platform: time
+        id: no_children
     condition:
       - condition: state
         entity_id: cover.ashlees_blinds
@@ -194,6 +197,26 @@ automation:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                     > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Opening Ashlee's blinds"
+                  title: "Ashlee's :bed: bedroom"
+                service: script.send_to_home_log
+              - service: cover.open_cover
+                target:
+                  entity_id: cover.ashlees_blinds
+          - conditions:
+              - condition: state
+                state: No Children
+                entity_id: input_select.home_mode
+              - condition: state
+                state: "on"
+                entity_id: binary_sensor.workday_sensor
+              - condition: trigger
+                id: no_children
+            sequence:
+              - data:
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Opening blinds 
+                    with {{ states('input_select.home_mode') }} on a non working day."
                   title: "Ashlee's :bed: bedroom"
                 service: script.send_to_home_log
               - service: cover.open_cover
