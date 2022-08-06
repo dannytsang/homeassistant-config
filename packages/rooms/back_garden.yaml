@@ -26,11 +26,12 @@ automation:
               {% if count.value >= 2 %}are{%else%}is{% endif %}
               open and motion detected in the back garden. :camera_with_flash: 
               Capturing image for processing."
+            title: ":deciduous_tree: Back Garden"
         - service: script.conservatory_camera_process_image
-          data:
-            title: Back Garden Snapshot
-            message: "Motion Detected In Back Garden And :door: 
-              Shed/Conservatory Door Open"
+          data:            
+            message: "Motion Detected In and :door: Shed/Conservatory Door Open.
+            Sending image for processing."
+            title: ":deciduous_tree: Back Garden"
     mode: queued
     max: 10
   - id: "1618158789152"
@@ -43,64 +44,69 @@ automation:
         to: "off"
     condition: []
     action:
-      - parallel:
-        - choose:
-            - conditions:
-                - not:
-                    - condition: state
-                      entity_id: alarm_control_panel.house_alarm
-                      state: disarmed
-                - condition: state
-                  entity_id: binary_sensor.conservatory_door
-                  state: "on"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                    camera on because alarm is armed and conservatory door is open."
-            - conditions:
+      - choose:
+          - conditions:
               - not:
                   - condition: state
                     entity_id: alarm_control_panel.house_alarm
                     state: disarmed
               - condition: state
                 entity_id: binary_sensor.conservatory_door
-                state: "off"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                    camera on because alarm is armed."
-            - conditions:
-              - condition: state
-                entity_id: binary_sensor.conservatory_door
                 state: "on"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                    camera on because conservatory door is open."
-            - conditions:
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: Door closed. Keeping conservatory
+                  :camera: camera on because :bell: alarm is armed and conservatory door is open."
+                  title: ":hut: Shed"
+          - conditions:
+            - not:
                 - condition: state
                   entity_id: alarm_control_panel.house_alarm
-                  state: "disarmed"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":door: :hut: :camera: Shed door closed. Turning conservatory
-                    camera off."
-                - service: script.conservatory_turn_off_camera
-            - conditions:
-                - not:
-                    - condition: state
-                      entity_id: alarm_control_panel.house_alarm
-                      state: "disarmed"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":door: :hut: :bell: Shed door closed. Keeping conservatory
-                    camera on because alarm is armed."
-          default: []
+                  state: disarmed
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "off"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: Door closed. Keeping conservatory
+                  camera on because :bell: alarm is armed."
+                  title: ":hut: Shed"
+          - conditions:
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: Door closed. Keeping conservatory
+                  :camera: camera on because conservatory :door: door is open."
+                  title: ":hut: Shed"
+          - conditions:
+              - condition: state
+                entity_id: alarm_control_panel.house_alarm
+                state: "disarmed"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":door: Door closed. Turning conservatory
+                      :camera: camera off."
+                      title: ":hut: Shed"
+                  - service: script.conservatory_turn_off_camera
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: "disarmed"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":door: Door closed. Keeping conservatory
+                  camera on because :bell: alarm is armed."
+                  title: ":hut: Shed"
+        default: []
     mode: single
   - id: "1618158730212"
     alias: "^Shed: Door Opened"
