@@ -42,6 +42,7 @@ script:
           - service: script.post_discord_notification
             data:
               message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
               target: "{{ states('input_text.discord_home_log_channel_id') }}"
   send_direct_notification:
     alias: Send Direct Mesage To a Person
@@ -681,17 +682,32 @@ script:
       message:
         description: Message to post
         required: true
+      title:
+        description: (optional)Title to the message posted.
       people:
         description: (optional)Discord user ID to message e.g. <@123456>
       target:
         description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
         required: true
     sequence:
-      - service: notify.home_assistant
-        data:
-          message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
-          target: "{{ target }}"
-        continue_on_error: true
+      - choose:
+        # Check a title was set
+        - conditions:
+            - condition: template
+              value_template: "{{ title is not none }}"
+          sequence:
+            - service: notify.home_assistant
+              data:
+                message: "**{{ title|default('', true) }}**
+                \n{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
+                target: "{{ target }}"
+              continue_on_error: true
+        default:
+          - service: notify.home_assistant
+            data:
+              message: "{{ iif(people is not none,people|default('', true)+' ','') }}{{ message }}"
+              target: "{{ target }}"
+            continue_on_error: true
     mode: queued
     max: 10
   post_to_discord_with_local_attachments:
