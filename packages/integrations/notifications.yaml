@@ -34,16 +34,24 @@ script:
             entity_id: input_boolean.enable_notifications
             state: "on"
         then:
-          - service: script.post_slack_notification
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-              target: "{{ states('input_text.slack_home_log_channel_id') }}"
-          - service: script.post_discord_notification
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-              target: "{{ states('input_text.discord_home_log_channel_id') }}"
+          - if:
+            - condition: template
+              value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
+            then:
+              - service: script.post_slack_notification
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                  target: "{{ states('input_text.slack_home_log_channel_id') }}"
+          - if:
+            - condition: template
+              value_template: "{{ 'Discord' in states('input_text.home_log_platforms') }}"
+            then:
+              - service: script.post_discord_notification
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                  target: "{{ states('input_text.discord_home_log_channel_id') }}"
   send_direct_notification:
     alias: Send Direct Mesage To a Person
     icon: mdi:message-outline
@@ -89,12 +97,10 @@ script:
                   # Check if both have the same preferred messaging platform.
                   - choose:
                       - conditions:
-                          - condition: state
-                            entity_id: input_select.dannys_direct_notification_preference
-                            state: Slack
-                          - condition: state
-                            entity_id: input_select.terinas_direct_notification_preference
-                            state: Slack
+                          - condition: template
+                            value_template: "{{ 'Slack' in states('input_text.dannys_direct_notification_preference') }}"
+                          - condition: template
+                            value_template: "{{ 'Slack' in states('input_text.terinas_direct_notification_preference') }}"
                         sequence:
                           - service: script.post_slack_notification
                             data:
@@ -316,18 +322,16 @@ script:
               # Checked preferred messaging platform.
               - choose:
                   - conditions:
-                      - condition: state
-                        entity_id: input_select.dannys_direct_notification_preference
-                        state: Telegram
+                      - condition: template
+                        value_template: "{{ 'Telegram' in states('input_text.home_log_platforms') }}"
                     sequence:
                       - service: script.post_telegram_direct_notification
                         data:
                           message: "{{ message }}"
                           title: "{{ title|default(none, true) }}"
                   - conditions:
-                      - condition: state
-                        entity_id: input_select.dannys_direct_notification_preference
-                        state: Slack
+                      - condition: template
+                        value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
                     sequence:
                       - service: script.post_slack_notification
                         data:
