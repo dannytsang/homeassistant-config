@@ -185,12 +185,19 @@ script:
             entity_id: input_boolean.enable_notifications
             state: "on"
         then:
-          - service: script.post_to_slack_with_url_attachment
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-              target: "home_log"
-              url: "{{ url }}"
+          - parallel:
+              - service: script.post_to_slack_with_url_attachment
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                  target: "home_log"
+                  url: "{{ url }}"
+              - service: script.post_to_discord_with_url_attachment
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                  target: "{{ states('input_text.discord_home_log_channel_id') }}"
+                  url: "{{ url }}"
     mode: queued
     max: 10
   send_actionable_notification_with_2_buttons:
@@ -694,8 +701,10 @@ script:
       people:
         description: (optional)Discord user ID to message e.g. <@123456>
       target:
-        description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
+        description: "List of Discord channel or user ID to post the message to. 
+        If a user is set then they will not be tagged but notified of the post."
         required: true
+        example: "['1234', '4567']"
     sequence:
       - choose:
         # Check a title was set
@@ -717,6 +726,56 @@ script:
             continue_on_error: true
     mode: queued
     max: 10
+  post_to_discord_with_url_attachment:
+    alias: "Post To Discord a URL Attachments"
+    icon: mdi:slack
+    description: "Post a message with a file or URL attachment. Please use a 
+    send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      target:
+        description: "List of Discord channel or user ID to post the message to. 
+        If a user is set then they will not be tagged but notified of the post."
+        required: true
+        example: "['1234', '4567']"
+      url:
+        description: Link to file.
+        example: "https://picsum.photos/200/300"
+    sequence:
+      # Check if a title has been set
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: notify.danny_tsang
+                data:
+                  message: ""
+                  target: "{{ target }}"
+                  data:
+                    embed:
+                      title: "{{ title }}"
+                      description: "{{ message }}"
+                      image:
+                        url: "{{ url }}"
+        # No title set
+        default:
+          - service: notify.danny_tsang
+            data:
+              message: ""
+              target: "{{ target }}"
+              data:
+                embed:
+                  description: "{{ message }}"
+                  image:
+                    url: "{{ url }}"
+        continue_on_error: true
+    mode: queued
+    max: 10
   post_to_discord_with_local_attachments:
     alias: "Post To Discord Home Log With File Attachments"
     icon: mdi:message
@@ -730,10 +789,13 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: (optional)Discord user ID to message e.g. <@123456>
+        description: (optional)Discord user ID to message.
+        example: "<@123456>"
       target:
-        description: List of Discord channel ID to post the message to. e.g ["1234", "4567"]
+        description: "List of Discord channel or user ID to post the message to. 
+        If a user is set then they will not be tagged but notified of the post."
         required: true
+        example: "['1234', '4567']"
       filePath:
         description: File path to attach to post.
         required: true
