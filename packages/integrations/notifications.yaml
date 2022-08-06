@@ -56,8 +56,9 @@ script:
         description: Title to post
       people:
         description:
-          (optional)People to message using people entity e.g. person.danny.
+          (optional)People to message using people entity in a comma separated list.
           If no one is specified, it will go to everyone.
+        example: person.danny,person.terina
     sequence:
       # Check if notifications is turned on.
       - if:
@@ -299,11 +300,13 @@ script:
         description: Message to post
         required: true
       title:
-        description: Title to post
+        description: (Optional)Title to post
       people:
-        description: People to message using people entity e.g. person.danny.
+        description:
+          (optional)People to message using people entity in a comma separated list.
           If no one is specified, it will go to everyone.
         required: true
+        example: person.danny,person.terina
     sequence:
       - choose:
           - conditions:
@@ -349,7 +352,7 @@ script:
   # Slack specific Scripts
   post_slack_notification:
     alias: Post Slack Message
-    icon: mdi:slack
+    icon: mdi:message-reply
     description: "Post a text message to Slack. Please use a send script to 
     decouple from the messaging platform."
     fields:
@@ -359,10 +362,12 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: (optional)Slack user ID to message e.g. <@ABCDEFG>
+        description: (optional)Slack user ID to message.
+        example: "<@ABCDEFG>"
       target:
-        description: Slack channel to post the message to.
+        description: Slack channel to post the message to without the hash symbol.
         required: true
+        example: "general"
     sequence:
       - choose:
         # Check a title was set
@@ -401,7 +406,7 @@ script:
     max: 10
   post_to_slack_with_url_attachment:
     alias: "Post To Slack Home Log With File Or URL Attachments"
-    icon: mdi:slack
+    icon: mdi:message-image
     description: "Post a message with a file or URL attachment to the home_log 
     channel. Only a file or URL can be set. Not both or neither. Please use a 
     send script to decouple from the messaging platform."
@@ -412,9 +417,9 @@ script:
       title:
         description: (optional)Title to the message posted.
       target:
-        description: "Slack channel to post to including the #"
+        description: Slack channel to post the message to without the hash symbol.
         required: true
-        example: "#general"
+        example: "general"
       url:
         description: Link to file.
         example: "https://picsum.photos/200/300"
@@ -468,7 +473,7 @@ script:
     max: 10
   post_to_slack_with_local_attachments:
     alias: "Post To Slack Home Log With File Or URL Attachments"
-    icon: mdi:slack
+    icon: mdi:message-image
     description: "Post a message with a file or URL attachment to the home_log 
     channel. Only a file or URL can be set. Not both or neither. Please use a 
     send script to decouple from the messaging platform."
@@ -479,9 +484,9 @@ script:
       title:
         description: (optional)Title to the message posted.
       target:
-        description: "Slack channel to post to including the #"
+        description: Slack channel to post the message to without the hash symbol.
         required: true
-        example: "#general"
+        example: "general"
       filePath:
         description: File path to attach to post.
         required: true
@@ -689,7 +694,7 @@ script:
   # Discord specific Scripts
   post_discord_notification:
     alias: Post Discord Message
-    icon: mdi:message
+    icon: mdi:message-reply
     description: "Post a text message to Discord. Please use a send script to 
     decouple from the messaging platform."
     fields:
@@ -728,7 +733,7 @@ script:
     max: 10
   post_to_discord_with_url_attachment:
     alias: "Post To Discord a URL Attachments"
-    icon: mdi:slack
+    icon: mdi:message-image
     description: "Post a message with a file or URL attachment. Please use a 
     send script to decouple from the messaging platform."
     fields:
@@ -778,7 +783,7 @@ script:
     max: 10
   post_to_discord_with_local_attachments:
     alias: "Post To Discord Home Log With File Attachments"
-    icon: mdi:message
+    icon: mdi:message-image
     description: "Post a message with a file attachment to the home_log 
     channel. Please use a 
     send script to decouple from the messaging platform."
