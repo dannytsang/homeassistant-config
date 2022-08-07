@@ -432,12 +432,110 @@ script:
       action3_name:
         description: Third event name if action is selected.
         required: true
+    variables:
+      # Get people's preferred messaging platform
+      mobile: "{% set platforms = namespace(slack=[]) %}
+        {% set persons = states('input_text.direct_message_list') if people|default('', true)|length == 0  else people %}
+        {% for p in persons %}
+          {% if p == 'person.danny'%}
+            {% if 'Slack'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
+              {% set platforms.slack = platforms.slack + [p] %}
+            {% endif %}
+          {% elif p == 'person.terina'%}
+            {% if 'Slack'|lower in states('input_text.terinas_direct_notification_preference') %}
+              {% set platforms.slack = platforms.slack + [p] %}
+            {% endif %}
+          {% elif p == 'person.leo'%}
+            {% if 'Slack'|lower in states('input_text.leos_direct_notification_preference') %}
+              {% set platforms.slack = platforms.slack + [p] %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ platforms.slack }}"
+      telegram: "{% set platforms = namespace(telegram=[]) %}
+        {% for p in persons %}
+          {% if p == 'person.danny'%}
+            {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.terina'%}
+            {% if 'Telegram'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.leo'%}
+            {% if 'Telegram'|lower in states('input_text.leos_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ platforms.telegram }}"
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
+          - repeat:
+              for_each: "{{ telegram|default([], true) }}"
+              sequence:
+                - service: script.post_telegram_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    target: "general"
+                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
+          - repeat:
+              for_each: "{{ mobile|default([], true) }}"
+              sequence:
+                - choose:
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.danny' }}"
+                      sequence:
+                        - service: notify.mobile_app_dannys_phone
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                                - title: "{{ action3_title }}"
+                                  action: "{{ action3_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.terina' }}"
+                      sequence:
+                        - service: notify.mobile_app_terina_s_phone 
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                                - title: "{{ action3_title }}"
+                                  action: "{{ action3_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.leo' }}"
+                      sequence:
+                        - service: notify.mobile_app_ipad_air_4th_generation
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                                - title: "{{ action3_title }}"
+                                  action: "{{ action3_name }}"
           - service: script.post_mobile_actionable_notification_with_3_buttons
             data:
               message: "{{ message }}"
@@ -604,77 +702,6 @@ script:
         continue_on_error: true
     mode: queued
     max: 10
-  # Mobile
-  post_mobile_actionable_notification_with_3_buttons:
-    alias: "Post Actionable Notification With 3 Buttons"
-    description: "Post Actionable Notification With 3 Buttons. Please use a send script to 
-    decouple from the messaging platform."
-    fields:
-      message:
-        description: Message to post
-        required: true
-      title:
-        description: (optional)Title to the message posted.
-      people:
-        description: People to message e.g. person.danny, person.terina
-        required: true
-      action1_title:
-        description: First action text.
-      action1_name:
-        description: First vent name if action is selected.
-        required: true
-      action2_title:
-        description: Second action text.
-        required: true
-      action2_name:
-        description: Second event name if action is selected.
-        required: true
-      action3_title:
-        description: Third action text.
-        required: true
-      action3_name:
-        description: Third event name if action is selected.
-        required: true
-    sequence:
-      - parallel:
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ 'person.danny' in people }}"
-              sequence:
-                - service: notify.mobile_app_dannys_phone
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default('', true) }}"
-                    data:
-                      actions:
-                        - title: "{{ action1_title }}"
-                          action: "{{ action1_name }}"
-                        - title: "{{ action2_title }}"
-                          action: "{{ action2_name }}"
-                        - title: "{{ action3_title }}"
-                          action: "{{ action3_name }}"
-          default: []
-        - choose:
-            - conditions:
-                - condition: template
-                  value_template: "{{ 'person.terina' in people }}"
-              sequence:
-                - service: notify.mobile_app_terina_s_phone
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default('', true) }}"
-                    data:
-                      actions:
-                        - title: "{{ action1_title }}"
-                          action: "{{ action1_name }}"
-                        - title: "{{ action2_title }}"
-                          action: "{{ action2_name }}"
-                        - title: "{{ action3_title }}"
-                          action: "{{ action3_name }}"
-          default: []
-    mode: single
-    icon: mdi:forum
   # Telegram specific Scripts
   post_telegram_direct_notification:
     alias: "Send Telegram Direct Message"
