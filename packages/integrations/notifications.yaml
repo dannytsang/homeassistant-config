@@ -70,7 +70,8 @@ script:
     variables:
       # Get people's preferred messaging platform
       slack: "{% set platforms = namespace(slack=[]) %}
-        {% for p in people %}
+        {% set persons = states('input_text.direct_message_list') if people|default('', true)|length == 0  else people %}
+        {% for p in persons %}
           {% if p == 'person.danny'%}
             {% if 'Slack'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
               {% set platforms.slack = platforms.slack + [p] %}
@@ -87,7 +88,7 @@ script:
         {% endfor %}
         {{ platforms.slack }}"
       discord: "{% set platforms = namespace(discord=[]) %}
-        {% for p in people %}
+        {% for p in persons %}
           {% if p == 'person.danny'%}
             {% if 'Discord'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
               {% set platforms.discord = platforms.discord + [p] %}
@@ -104,7 +105,7 @@ script:
         {% endfor %}
         {{ platforms.discord }}"
       mobile: "{% set platforms = namespace(mobile=[]) %}
-        {% for p in people %}
+        {% for p in persons %}
           {% if p == 'person.danny'%}
             {% if 'Mobile'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
               {% set platforms.mobile = platforms.mobile + [p] %}
@@ -121,7 +122,7 @@ script:
         {% endfor %}
         {{ platforms.mobile }}"
       telegram: "{% set platforms = namespace(telegram=[]) %}
-        {% for p in people %}
+        {% for p in persons %}
           {% if p == 'person.danny'%}
             {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
               {% set platforms.telegram = platforms.telegram + [p] %}
@@ -144,68 +145,40 @@ script:
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
-          # Check if the message is directed at someone.
-          - choose:
-              # If people parameter is not set
-              - conditions:
-                  - condition: template
-                    value_template: "{{ people is not none or people is not match('person.*') }}"
-                sequence:
-                  - service: script.post_slack_notification
-                    data:
-                      message: "{{ message }}"
-                      title: "{{ title|default(none, true) }}"
-                      target: "general"
-                      people: "{{ states('input_text.dannys_slack_id') }} {{ states('input_text.terinas_slack_id') }}"
-              # If both adults mentioned.
-              - conditions:
-                  - condition: template
-                    value_template: "{{ 'person.danny' in people }}"
-                  - condition: template
-                    value_template: "{{ 'person.terina' in people }}"
-                sequence:
-                  # Check if both have the same preferred messaging platform.
-                  - choose:
-                      - conditions:
-                          - condition: template
-                            value_template: "{{ 'Slack' in states('input_text.dannys_direct_notification_preference') }}"
-                          - condition: template
-                            value_template: "{{ 'Slack' in states('input_text.terinas_direct_notification_preference') }}"
-                        sequence:
-                          - service: script.post_slack_notification
-                            data:
-                              message: "{{ message }}"
-                              title: "{{ title|default(none, true) }}"
-                              target: "general"
-                              people: "{{ states('input_text.dannys_slack_id') }} {{ states('input_text.terinas_slack_id') }}"
-                    # If not, check each person's preference.
-                    default:
-                      - service: script.post_direct_notification_by_person
-                        data:
-                          message: "{{ message }}"
-                          title: "{{ title|default(none, true) }}"
-                          people: "{{ people }}"
-              # Check if the person entity has been passed. 
-              # The underly script will notify the right people if it does.
-              - conditions:
-                  - condition: template
-                    value_template: "{{ people is not none and people is match('person.*') }}"
-                sequence:
-                  # Checked preferred messaging platform.
-                  - service: script.post_direct_notification_by_person
-                    data:
-                      message: "{{ message }}"
-                      title: "{{ title|default(none, true) }}"
-                      people: "{{ people }}"
-            # Catch all but modified message.
-            default:
-              - service: script.post_direct_notification_by_person
+          # Check anyone has set Slack for their direct messages
+          - if:
+              - condition: template
+                value_template: "{{ slack|default('', true)|length > 0 }}"
+            then:
+              - service: script.post_slack_notification
                 data:
-                  message: ":warning: Unknown recipient.\n
-                  message: {{ message }}\n
-                  people: {{ people }}"
+                  message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
-                  people: "person.danny"
+                  target: "general"
+                  people: "{{ slack|join(' ')|replace('person.danny', states('input_text.dannys_slack_id'))
+                  |replace('person.terina', states('input_text.terinas_slack_id'))
+                  |replace('person.leo', states('input_text.leos_slack_id')) }}"
+          - if:
+              - condition: template
+                value_template: "{{ discord|default('', true)|length > 0 }}"
+            then:
+              - service: script.post_discord_notification
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                  target: "general"
+                  people: "{{ discord|join(' ')|replace('person.danny', states('input_text.dannys_discord_chat_id'))
+                  |replace('person.terina', states('input_text.terinas_discord_chat_id'))
+                  |replace('person.leo', states('input_text.leos_discord_chat_id')) }}"
+          - repeat:
+              for_each: "{{ telegram|default('', true)|length > 0 }}"
+              sequence:
+                - service: script.post_telegram_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    target: "general"
+                    people: "{{ discord|join(' ')|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
     mode: queued
     max: 10
   send_home_log_with_local_attachments:
@@ -366,63 +339,6 @@ script:
                 action3_title: "{{ action3_title }}"
                 action3_name: "{{ action3_name }}"
     mode: single
-  post_direct_notification_by_person:
-    alias: "Post a direct message based on a persons selected messaging platform"
-    icon: mdi:message-outline
-    description: "Post a direct text message to adults in the house. Please use 
-    a send script to decouple from the messaging platform."
-    fields:
-      message:
-        description: Message to post
-        required: true
-      title:
-        description: (Optional)Title to post
-      people:
-        description:
-          (optional)People to message using people entity in a comma separated list.
-          If no one is specified, it will go to everyone.
-        required: true
-        example: person.danny,person.terina
-    sequence:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ 'person.danny' in people }}"
-            sequence:
-              # Checked preferred messaging platform.
-              - choose:
-                  - conditions:
-                      - condition: template
-                        value_template: "{{ 'Telegram' in states('input_text.home_log_platforms') }}"
-                    sequence:
-                      - service: script.post_telegram_direct_notification
-                        data:
-                          message: "{{ message }}"
-                          title: "{{ title|default(none, true) }}"
-                  - conditions:
-                      - condition: template
-                        value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
-                    sequence:
-                      - service: script.post_slack_notification
-                        data:
-                          message: "{{ message }}"
-                          title: "{{ title|default(none, true) }}"
-                          target: "general"
-                          people: "{{ states('input_text.dannys_slack_id') }}"
-                default: []
-          # Check if Terina was mentioned.
-          - conditions:
-              - condition: template
-                value_template: "{{ 'person.terina' in people }}"
-            sequence:
-              - service: script.post_slack_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "general"
-                  people: "{{ states('input_text.terinas_slack_id') }}"
-    mode: queued
-    max: 10
   # Slack specific Scripts
   post_slack_notification:
     alias: Post Slack Message
