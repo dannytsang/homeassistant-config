@@ -53,10 +53,11 @@
       service: script.send_to_home_log
     - service: script.send_direct_notification
       data:
-        message:
-          ":warning: Less than 5 minutes left on :battery: :warning:"
+        message: ":warning: Less than 5 minutes left on :battery: :warning:"
         title: ":battery: Lounge UPS"
-        people: ['person.danny', 'person.terina']
+        people:
+          - person.danny
+          - person.terina
   mode: single
 - id: "1591705795121"
   alias: "Office: Server UPS On Battery With Less Than 5 Minutes"
@@ -77,10 +78,11 @@
       service: script.send_to_home_log
     - service: script.send_direct_notification
       data:
-        message:
-          ":warning: Less than 5 minutes left on :battery: battery :warning:"
+        message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
         title: ":battery: Server UPS"
-        people: ['person.danny', 'person.terina']
+        people:
+          - person.danny
+          - person.terina
   mode: single
 - id: "1594146384568"
   alias: "Conservatory: Water Detected"
@@ -155,10 +157,11 @@
       service: script.send_to_home_log
     - service: script.send_direct_notification
       data:
-        message:
-          ":warning: Less than 5 minutes left on :battery: battery :warning:"
+        message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
         title: ":battery: PC UPS"
-        people: ['person.danny', 'person.terina']
+        people:
+          - person.danny
+          - person.terina
   mode: single
 - id: "1613264719942"
   alias: "Office: Alarm Armed Home Mode & Motion Detected"
@@ -446,9 +449,7 @@
                 entity_id: switch.fridge_freezer
         - conditions:
             - condition: template
-              value_template:
-                "{{ trigger.event.data.action == 'switch_on_freezer'
-                }}"
+              value_template: "{{ trigger.event.data.action == 'switch_on_freezer' }}"
           sequence:
             - service: script.send_to_home_log
               data:
@@ -656,7 +657,8 @@
       data:
         message: Updated weather feed.
         title: ":cloud: Weather"
-        people: ["person.danny"]
+        people:
+          - person.danny
   mode: single
 - id: "1646257483770"
   alias: Privacy Mode Turned On
@@ -968,7 +970,8 @@
         - service: script.send_direct_notification
           data:
             message: Trigger holiday mode from calendar event.
-            people: ["person.danny"]
+            people:
+              - person.danny
   mode: queued
 - id: "1655063863297"
   alias: "People: Near Home"
@@ -1056,12 +1059,13 @@
         - service: script.send_to_home_log
           data:
             message: Freezer plug is turned off.
-            title: "Utility Room"
+            title: Utility Room
         - service: script.send_actionable_notification_with_2_buttons
           data:
             message: Freezer plug is turned off. Turn on?
-            title: "Utility Room"
-            people: ["person.danny"]
+            title: Utility Room
+            people:
+              - person.danny
             action1_title: "Yes"
             action1_name: switch_on_freezer
             action2_title: "No"
@@ -1090,7 +1094,8 @@
           data:
             message: Fridge Freezer plug is turned off. Turn on?
             title: ":cook: Kitchen"
-            people: ["person.danny"]
+            people:
+              - person.danny
             action1_title: "Yes"
             action1_name: switch_on_fridge_freezer
             action2_title: "No"
@@ -1260,4 +1265,62 @@
       data:
         message: Leak detected
         title: Conservatory
+  mode: single
+- id: "1659861914053"
+  alias: "Sleep As Android: Danny Asleep For A Period Of Time"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.danny_asleep
+      to: "on"
+      for:
+        hours: 0
+        minutes: 15
+        seconds: 0
+  condition:
+    - condition: state
+      entity_id: timer.sleep
+      state: active
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Asleep for 15 minutes. Taking 5 minutes off the timer.
+    # Pause to get the remainging time value.
+    - service: timer.pause
+      data: {}
+      target:
+        entity_id: timer.sleep
+    - if:
+        - condition: template
+          value_template:
+            "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
+            {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
+            {{ (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) > 0 }}"
+      then:
+        - service: timer.start
+          data:
+            duration:
+              "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
+              {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
+              {% set new_ts = ts if (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) < 0 else (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) %}
+              {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
+          target:
+            entity_id: timer.sleep
+        - service: script.send_to_home_log
+          data:
+            message:
+              "Danny has been asleep for more than 15 minutes.
+              Taking {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes 
+              off sleeper timer. New time remaining: 
+              {{ state_attr('timer.sleep', 'remaining') }}"
+            title: ":zzz: Sleep as :robot_face: Android"
+      else:
+        - service: script.send_to_home_log
+          data:
+            message:
+              "Danny has been asleep for more than 15 minutes with less than
+              {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes
+              to go ({{ state_attr('timer.sleep', 'remaining') }})."
+            title: ":zzz: Sleep as :robot_face: Android"
   mode: single
