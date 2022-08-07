@@ -178,7 +178,36 @@ script:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
                     target: "general"
-                    people: "{{ discord|join(' ')|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
+                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
+          - repeat:
+              for_each: "{{ mobile|default('', true)|length > 0 }}"
+              sequence:
+                - choose:
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.danny' }}"
+                      sequence:
+                        - service: notify.mobile_app_dannys_phone
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default(none, true) }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.terina' }}"
+                      sequence:
+                        - service: notify.mobile_app_terina_s_phone
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default(none, true) }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.leo' }}"
+                      sequence:
+                        - service: notify.mobile_app_ipad_air_4th_generation
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default(none, true) }}"
+                  default: []
     mode: queued
     max: 10
   send_home_log_with_local_attachments:
