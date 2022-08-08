@@ -25,8 +25,9 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: "Turning stairs light strip on."
-                    title: ":paw_prints: :bulb: :high_brightness: Motion on the :ladder: downstairs"
+                    message: ":paw_prints: Motion on lower :ladder: stairs and it's night time. 
+                    Turning ambient :bulb: light on :low_brightness: dim."
+                    title: ":ladder: Stairs"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.stairs_light_2_on
@@ -44,8 +45,9 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: "It's night time. Turning stairs light strip on dim."
-                    title: ":paw_prints: :bulb: :low_brightness: Motion on the :ladder: downstairs"
+                    message: ":paw_prints: Motion on lower :ladder: stairs and it's night time. 
+                    Turning ambient :bulb: light on :low_brightness: dim."
+                    title: ":ladder: Stairs"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.stairs_light_2_dim
@@ -81,13 +83,14 @@ automation:
       - parallel:
         - service: script.send_to_home_log
           data:
-            message: "Before bed time and it's dark 
+            message: ":paw_prints: Motion on the :ladder: upstairs, before bed time 
+            and it's dark 
             ({{ states('sensor.stairs_motion_light_level') }} 
             {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
             {{ states('input_number.stairs_light_level_threshold') }} 
             {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}). 
-            Turning stairs light on."
-            title: ":paw_prints: :bulb: :high_brightness: Motion on the :ladder: upstairs"
+            Turning :bulb: light on."
+            title: ":ladder: Stairs"
         - service: scene.turn_on
           target:
             entity_id:
@@ -126,13 +129,14 @@ automation:
         below: "5"
     action:
       - data:
-          message: "Before bed time, light is on and it's dark 
+          message: ":paw_prints: Motion on upstairs, before bed time, :bulb: light is on 
+          and it's dark 
           ({{ states('sensor.stairs_motion_light_level') }} 
           {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} < 
           {{ states('input_number.stairs_light_level_threshold') }} 
           {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}).  
-          Turning stairs light on."
-          title: ":paw_prints: :bulb: :high_brightness: Motion on the :ladder: upstairs"
+          Turning :high_brightness: :bulb: light on."
+          title: ":ladder: Stairs"
         service: script.send_to_home_log
       - service: scene.turn_on
         target:
@@ -1046,9 +1050,6 @@ automation:
           data:
             title: ":skull_and_crossbones: CO Detected on the stairs"
             message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
-        - service: script.send_to_home_log
-          data:
-            message: ":skull_and_crossbones: Carbon Monide detected on the stairs."
         - service: script.set_central_heating_to_off
           data: {}
         - service: script.set_how_water_to_home_mode
@@ -1067,9 +1068,6 @@ automation:
         - service: script.send_direct_notification
           data:
             title: ":smoking: Smoke detected on the stairs"
-            message: ":smoking: Smoke detected on the stairs."
-        - service: script.send_to_home_log
-          data:
             message: ":smoking: Smoke detected on the stairs."
         - service: script.set_central_heating_to_off
           data: {}

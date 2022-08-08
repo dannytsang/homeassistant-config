@@ -121,6 +121,7 @@ automation:
                         The following entrances are still open:\n {% for entity in state_attr('binary_sensor.external_doors_and_windows','entity_id')
                         %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
                         }} {% endif %}{% endfor %}\n"
+                      title: ":bell: Alarm"
             default:
               - choose:
                   - conditions:
@@ -207,27 +208,12 @@ automation:
                   - service: script.send_direct_notification
                     data:
                       message:
-                        ":warning: :door: :window: The following entrances are still open:
+                        "No one is home and couldn't turn on the alarm because 
+                        the following entrances are still open:
                         {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
                         %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
                         }} {% endif %}{% endfor %}"
-                      title: No one is home and couldn't turn on the alarm
-            default: []
-          - choose:
-              - conditions:
-                  - not:
-                      - condition: state
-                        entity_id: input_select.home_mode
-                        state: Guest
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message:
-                        ":warning: :door: :window: The following entrances are still open:
-                        {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
-                        %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-                        }} {% endif %}{% endfor %}"
-                      title: No one is home and couldn't turn on the alarm
+                      title: ":warning: :bell: Alarm :warning:"
             default: []
       - service: script.3d_printer_left_unattended
     mode: single

@@ -145,6 +145,10 @@ script:
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
+          - service: script.send_to_home_log
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
           # Check anyone has set Slack for their direct messages
           - if:
               - condition: template
