@@ -621,14 +621,30 @@ automation:
       - condition: time
         after: "08:30"
     action:
-      - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "Opening Blinds."
-            title: ":bed: Bedroom :tv: TV turned off"
-        - service: cover.open_cover
-          target:
-            entity_id: cover.bedroom_blind
+      - choose:
+        - conditions:
+          - condition: numeric_state
+            entity_id: weather.home
+            attribute: temperature
+            above: input_number.forecast_high_temperature
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: ":tv: TV turned off but above weather is above 
+                {{ states('input_number.forecast_high_temperature') }}
+                ({{ state_attr('weather.home', 'temperature') }})
+                {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}. 
+                Keeping blinds closed."
+                title: ":bed: Bedroom"
+        default:
+          - parallel:
+            - service: script.send_to_home_log
+              data:
+                message: ":tv: TV turned off. Opening Blinds."
+                title: ":bed: Bedroom"
+            - service: cover.open_cover
+              target:
+                entity_id: cover.bedroom_blind
     mode: single
   - id: "1644769166837"
     alias: "^Bedroom: Danny's Alarm"
