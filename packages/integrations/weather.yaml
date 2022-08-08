@@ -8,8 +8,13 @@ automation:
       - platform: numeric_state
         entity_id: weather.home_weather
         attribute: temperature
-        above: "24"
-    condition: []
+        above: input_number.forecast_high_temperature
+      - platform: time
+        at: "14:00:00"
+    condition:
+      - condition: numeric_state
+        entity_id: weather.home_weather
+        above: input_number.forecast_high_temperature
     action:
       - service: script.office_close_curtains_by_weather
         data:
