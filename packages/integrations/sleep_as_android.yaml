@@ -80,7 +80,8 @@ automation:
                 - service: script.send_to_home_log
                   data:
                     message: "Sleep :hourglass_flowing_sand: timer :arrow_forward: started. Time remaining:
-                      {{ state_attr('timer.sleep', 'remaining') }}"
+                      {% set new_ts = states('input_number.sleep_timer_duration')|int(60) * 60 %}
+                      {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
                     title: ":zzz: Sleep as :robot_face: Android"
         default: []
     mode: single
