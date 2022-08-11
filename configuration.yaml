@@ -18,7 +18,8 @@ automation ui: !include automations.yaml
 automation manual: !include_dir_merge_list automations/
 binary_sensor: !include binary_sensor.yaml
 counter: !include counter.yaml
-
+frontend:
+  themes: !include_dir_merge_named themes
 input_text: !include input_text.yaml
 notify: !include notify.yaml
 scene: !include scenes.yaml
@@ -28,30 +29,6 @@ script manual: !include_dir_merge_named scripts/
 sensor: !include sensor.yaml
 sensor manual: !include_dir_merge_list sensors/
 timer: !include timer.yaml
-
-cloud:
-color_extractor:
-conversation:
-# https://github.com/chomupashchuk/delete-file-home-assistant
-delete:
-discovery:
-ffmpeg:
-prometheus:
-  namespace: hass
-media_player:
-system_health:
-wake_on_lan:
-
-#logger:
-#default: info
-#logs:
-#  homeassistant.components.logger: debug
-
-recorder:
-  db_url: !secret recorderdb
-
-frontend:
-  themes: !include_dir_merge_named themes
 
 calendar:
   - platform: todoist
@@ -64,8 +41,21 @@ calendar:
         include_projects:
           - Groceries
 
+cloud:
+
+color_extractor:
+
+conversation:
+
+# https://github.com/chomupashchuk/delete-file-home-assistant
+delete:
+
+discovery:
+
 downloader:
   download_dir: !secret camera_folder
+
+ffmpeg:
 
 http:
   use_x_forwarded_for: true
@@ -73,6 +63,22 @@ http:
     - !secret trusted_proxy1
 ifttt:
   key: !secret ifttt
+
+logger:
+  default: warning
+  logs:
+    homeassistant.components.slack: debug
+
+media_player:
+
+prometheus:
+  namespace: hass
+
+recorder:
+  db_url: !secret recorderdb
+  exclude:
+     entities:
+      - sensor.dannys_phone_last_notification
 
 sonoff:
   username: !secret sonoff_username
@@ -83,3 +89,6 @@ telegram_bot:
     api_key: !secret telegram_key
     allowed_chat_ids:
       - !secret telegram_danny_chat_id
+system_health:
+
+wake_on_lan:
