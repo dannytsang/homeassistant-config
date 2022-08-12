@@ -9,33 +9,47 @@ automation:
         entity_id: weather.home_weather
         attribute: temperature
         above: input_number.forecast_high_temperature
-      - platform: time
-        at: "14:00:00"
+      - platform: numeric_state
+        entity_id:
+          - sensor.front_garden_motion_light_level
+          - sensor.back_garden_motion_light_level
+        above: input_number.close_blinds_brightness_threshold
     condition:
       - condition: numeric_state
         entity_id: weather.home_weather
         above: input_number.forecast_high_temperature
     action:
-      - service: script.office_close_curtains_by_weather
-        data:
-          temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
-          weather_condition: "{{ states('weather.home_weather') }}"
-      - service: script.bedroom_close_blinds_by_weather
-        data:
-          temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
-          weather_condition: "{{ states('weather.home_weather') }}"
-      - service: script.leos_bedroom_close_blinds_by_weather
-        data:
-          temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
-          weather_condition: "{{ states('weather.home_weather') }}"
-      - service: script.ashlees_bedroom_close_blinds_by_weather
-        data:
-          temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
-          weather_condition: "{{ states('weather.home_weather') }}"
-      - service: script.bathroom_close_blinds_by_weather
-        data:
-          temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
-          weather_condition: "{{ states('weather.home_weather') }}"
+      - parallel:
+          - if:
+              - condition: numeric_state
+                entity_id: sensor.front_garden_motion_light_level
+                above: input_number.close_blinds_brightness_threshold
+            then:
+              - service: script.office_close_curtains_by_weather
+                data:
+                  temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
+                  weather_condition: "{{ states('weather.home_weather') }}"
+              - service: script.bedroom_close_blinds_by_weather
+                data:
+                  temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
+                  weather_condition: "{{ states('weather.home_weather') }}"
+              - service: script.ashlees_bedroom_close_blinds_by_weather
+                data:
+                  temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
+                  weather_condition: "{{ states('weather.home_weather') }}"
+          - if:
+              - condition: numeric_state
+                entity_id: sensor.back_garden_motion_light_level
+                above: input_number.close_blinds_brightness_threshold
+            then:
+              - service: script.leos_bedroom_close_blinds_by_weather
+                data:
+                  temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
+                  weather_condition: "{{ states('weather.home_weather') }}"
+              - service: script.bathroom_close_blinds_by_weather
+                data:
+                  temperature: "{{ state_attr('weather.home_weather', 'temperature') }}"
+                  weather_condition: "{{ states('weather.home_weather') }}"
     mode: single
 
 sensor:
