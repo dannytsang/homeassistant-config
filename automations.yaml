@@ -1050,36 +1050,7 @@
             action2_title: "No"
             action2_name: ignore
   mode: single
-- id: "1657801925107"
-  alias: "Kitchen: Fridge Plug Turned Off"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - switch.fridge_freezer
-      to: "off"
-      for:
-        hours: 0
-        minutes: 1
-        seconds: 0
-  condition: []
-  action:
-    - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: Fridge Freezer plug is turned off.
-            title: ":cook: Kitchen"
-        - service: script.send_actionable_notification_with_2_buttons
-          data:
-            message: Fridge Freezer plug is turned off. Turn on?
-            title: ":cook: Kitchen"
-            people:
-              - person.danny
-            action1_title: "Yes"
-            action1_name: switch_on_fridge_freezer
-            action2_title: "No"
-            action2_name: ignore
-  mode: single
+
 - id: "1658855072523"
   alias: "Car: Update Danny's Car"
   description: ""
@@ -1240,62 +1211,4 @@
       data:
         message: Leak detected
         title: Conservatory
-  mode: single
-- id: "1659861914053"
-  alias: "Sleep As Android: Danny Asleep For A Period Of Time"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - binary_sensor.danny_asleep
-      to: "on"
-      for:
-        hours: 0
-        minutes: 15
-        seconds: 0
-  condition:
-    - condition: state
-      entity_id: timer.sleep
-      state: active
-  action:
-    - service: script.send_to_home_log
-      data:
-        message: Asleep for 15 minutes. Taking 5 minutes off the timer.
-    # Pause to get the remainging time value.
-    - service: timer.pause
-      data: {}
-      target:
-        entity_id: timer.sleep
-    - if:
-        - condition: template
-          value_template:
-            "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
-            {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
-            {{ (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) > 0 }}"
-      then:
-        - service: timer.start
-          data:
-            duration:
-              "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
-              {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
-              {% set new_ts = ts if (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) < 0 else (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) %}
-              {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
-          target:
-            entity_id: timer.sleep
-        - service: script.send_to_home_log
-          data:
-            message:
-              "Danny has been asleep for more than 15 minutes.
-              Taking {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes 
-              off sleeper timer. New time remaining: 
-              {{ state_attr('timer.sleep', 'remaining') }}"
-            title: ":zzz: Sleep as :robot_face: Android"
-      else:
-        - service: script.send_to_home_log
-          data:
-            message:
-              "Danny has been asleep for more than 15 minutes with less than
-              {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes
-              to go ({{ state_attr('timer.sleep', 'remaining') }})."
-            title: ":zzz: Sleep as :robot_face: Android"
   mode: single
