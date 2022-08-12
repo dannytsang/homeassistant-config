@@ -623,16 +623,23 @@ automation:
     action:
       - choose:
         - conditions:
-          - condition: numeric_state
-            entity_id: weather.home
-            attribute: temperature
-            above: input_number.forecast_high_temperature
+          - or:
+            - condition: numeric_state
+              entity_id: weather.home_weather
+              attribute: temperature
+              above: input_number.forecast_high_temperature
+            - condition: numeric_state
+              entity_id: weather.home_hourly
+              attribute: temperature
+              above: input_number.forecast_high_temperature
           sequence:
             - service: script.send_to_home_log
               data:
                 message: ":tv: TV turned off but above weather is above 
                 {{ states('input_number.forecast_high_temperature') }}
-                ({{ state_attr('weather.home', 'temperature') }})
+                ({{ {{ state_attr('weather.home_weather', 'temperature')|float(0) 
+                if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0) 
+                else state_attr('weather.home_hourly', 'temperature')|float(0) }} }})
                 {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}. 
                 Keeping blinds closed."
                 title: ":bed: Bedroom"
