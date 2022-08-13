@@ -139,79 +139,80 @@ script:
         {% endfor %}
         {{ platforms.telegram }}"
     sequence:
-      # Check if notifications is turned on.
-      - if:
-          - condition: state
-            entity_id: input_boolean.enable_direct_notifications
-            state: "on"
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-          # Check anyone has set Slack for their direct messages
-          - if:
-              - condition: template
-                value_template: "{{ slack|default('', true)|length > 0 }}"
-            then:
-              - service: script.post_slack_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "general"
-                  people: "{{ slack|join(' ')|replace('person.danny', states('input_text.dannys_slack_id'))
-                  |replace('person.terina', states('input_text.terinas_slack_id'))
-                  |replace('person.leo', states('input_text.leos_slack_id')) }}"
-          - if:
-              - condition: template
-                value_template: "{{ discord|default('', true)|length > 0 }}"
-            then:
-              - service: script.post_discord_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "general"
-                  people: "{{ discord|join(' ')|replace('person.danny', states('input_text.dannys_discord_chat_id'))
-                  |replace('person.terina', states('input_text.terinas_discord_chat_id'))
-                  |replace('person.leo', states('input_text.leos_discord_chat_id')) }}"
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - service: script.post_telegram_direct_notification
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: "{{ message }}"
+            title: "{{ title|default(none, true) }}"
+        # Check if notifications is turned on.
+        - if:
+            - condition: state
+              entity_id: input_boolean.enable_direct_notifications
+              state: "on"
+          then:
+            # Check anyone has set Slack for their direct messages
+            - if:
+                - condition: template
+                  value_template: "{{ slack|default('', true)|length > 0 }}"
+              then:
+                - service: script.post_slack_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
                     target: "general"
-                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
-          - repeat:
-              for_each: "{{ mobile|default([], true) }}"
-              sequence:
-                - choose:
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.danny' }}"
-                      sequence:
-                        - service: notify.mobile_app_dannys_phone
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.terina' }}"
-                      sequence:
-                        - service: notify.mobile_app_terina_s_phone
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.leo' }}"
-                      sequence:
-                        - service: notify.mobile_app_ipad_air_4th_generation
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                  default: []
+                    people: "{{ slack|join(' ')|replace('person.danny', states('input_text.dannys_slack_id'))
+                    |replace('person.terina', states('input_text.terinas_slack_id'))
+                    |replace('person.leo', states('input_text.leos_slack_id')) }}"
+            - if:
+                - condition: template
+                  value_template: "{{ discord|default('', true)|length > 0 }}"
+              then:
+                - service: script.post_discord_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    target: "general"
+                    people: "{{ discord|join(' ')|replace('person.danny', states('input_text.dannys_discord_chat_id'))
+                    |replace('person.terina', states('input_text.terinas_discord_chat_id'))
+                    |replace('person.leo', states('input_text.leos_discord_chat_id')) }}"
+            - repeat:
+                for_each: "{{ telegram|default([], true) }}"
+                sequence:
+                  - service: script.post_telegram_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default(none, true) }}"
+                      target: "general"
+                      people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
+            - repeat:
+                for_each: "{{ mobile|default([], true) }}"
+                sequence:
+                  - choose:
+                      - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.danny' }}"
+                        sequence:
+                          - service: notify.mobile_app_dannys_phone
+                            data:
+                              message: "{{ message }}"
+                              title: "{{ title|default(none, true) }}"
+                      - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.terina' }}"
+                        sequence:
+                          - service: notify.mobile_app_terina_s_phone
+                            data:
+                              message: "{{ message }}"
+                              title: "{{ title|default(none, true) }}"
+                      - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.leo' }}"
+                        sequence:
+                          - service: notify.mobile_app_ipad_air_4th_generation
+                            data:
+                              message: "{{ message }}"
+                              title: "{{ title|default(none, true) }}"
+                    default: []
     mode: queued
     max: 10
   send_home_log_with_local_attachments:
