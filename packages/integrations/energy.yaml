@@ -1,0 +1,24 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  # Solar
+  - id: "1660317032653"
+    alias: "^Energy: Growatt Unavailable"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_sph6000_last_data_update
+        to: unavailable
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Growatt is unavilable.
+          title: ":sunny: :zap: :electric_plug: Solar"
+          people:
+            - person.danny
+    mode: single

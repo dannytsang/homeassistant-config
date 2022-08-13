@@ -1211,27 +1211,6 @@
         message: Leak detected
         title: Conservatory
   mode: single
-- id: "1660317032653"
-  alias: "Energy: Growatt Unavailable"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - sensor.growatt_sph6000_last_data_update
-      to: unavailable
-      for:
-        hours: 0
-        minutes: 5
-        seconds: 0
-  condition: []
-  action:
-    - service: script.send_direct_notification
-      data:
-        message: Growatt is unavilable.
-        title: ":sunny: :zap: :electric_plug: Solar"
-        people:
-          - person.danny
-  mode: single
 - id: "1660326219450"
   alias: "Weather: Morning Check For Hot Day Forecast"
   description: ""
@@ -1255,6 +1234,7 @@
     - service: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned off.
+        title: ":sun_small_cloud: Weather"
     - service: script.set_how_water_to_away_mode
       data: {}
   mode: single
@@ -1281,6 +1261,40 @@
     - service: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned on.
+        title: ":sun_small_cloud: Weather"
     - service: script.set_how_water_to_home_mode
       data: {}
+  mode: single
+- id: "1660403632839"
+  alias: New Automation
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.growatt_sph6000_last_data_update
+      for:
+        hours: 0
+        minutes: 30
+        seconds: 0
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: sensor.growatt_sph6000_last_data_update
+          state: unavailable
+        - condition: template
+          value_template: ""
+  action:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message:
+              Growatt integration has not been updated for over x (). Reloading
+              integration.
+            title: ":sunny: :zap: :electric_plug: Solar"
+        # https://community.home-assistant.io/t/can-i-write-an-automation-to-reload-restart-an-integration/301020/35?u=tuxinator94
+        - service: homeassistant.reload_config_entry
+          data: {}
+          target:
+            entity_id: sensor.growatt_sph6000_last_data_update
   mode: single
