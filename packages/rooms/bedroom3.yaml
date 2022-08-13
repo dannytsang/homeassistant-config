@@ -203,8 +203,10 @@ automation:
     trigger:
       - at: 08:00:00
         platform: time
+        id: workday
       - at: 09:00:00
         platform: time
+        id: non_workday
     condition:
       - condition: state
         entity_id: input_select.home_mode
@@ -215,6 +217,8 @@ automation:
               - condition: state
                 state: "off"
                 entity_id: binary_sensor.workday_sensor
+              - condition: trigger
+                id: workday
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -230,6 +234,8 @@ automation:
               - condition: state
                 state: "on"
                 entity_id: binary_sensor.workday_sensor
+              - condition: trigger
+                id: non_workday
             sequence:
               - service: script.send_to_home_log
                 data:
