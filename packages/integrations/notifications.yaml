@@ -90,6 +90,7 @@ script:
         {% endfor %}
         {{ platforms.slack }}"
       discord: "{% set platforms = namespace(discord=[]) %}
+        {% set persons = people|default('', true) %}
         {% for p in persons.split(',') %}
           {% if p == 'person.danny'%}
             {% if 'Discord'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
@@ -107,6 +108,7 @@ script:
         {% endfor %}
         {{ platforms.discord }}"
       mobile: "{% set platforms = namespace(mobile=[]) %}
+        {% set persons = people|default('', true) %}
         {% for p in persons.split(',') %}
           {% if p == 'person.danny'%}
             {% if 'Mobile'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
@@ -124,6 +126,7 @@ script:
         {% endfor %}
         {{ platforms.mobile }}"
       telegram: "{% set platforms = namespace(telegram=[]) %}
+        {% set persons = people|default('', true) %}
         {% for p in persons.split(',') %}
           {% if p == 'person.danny'%}
             {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
@@ -280,6 +283,24 @@ script:
           {% endif %}
         {% endfor %}
         {{ platforms.discord }}"
+      telegram: "{% set platforms = namespace(telegram=[]) %}
+        {% set persons = people|default('', true) %}
+        {% for p in persons.split(',') %}
+          {% if p == 'person.danny'%}
+            {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.terina'%}
+            {% if 'Telegram'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.leo'%}
+            {% if 'Telegram'|lower in states('input_text.leos_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ platforms.telegram }}"
     sequence:
       - parallel:
           - if:
@@ -338,6 +359,17 @@ script:
                       |replace('person.leo', states('input_text.leos_discord_chat_id')) }}"
                       filePath: "{{ filePath }}"
                     continue_on_error: true
+              - repeat:
+                  for_each: "{{ telegram|default([], true) }}"
+                  sequence:
+                    - service: script.post_to_discord_with_local_attachments
+                      data:
+                        message: "{{ message }}"
+                        title: "{{ title|default(none, true) }}"
+                        target: "general"
+                        people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
+                        filePath: "{{ filePath }}"
+                      continue_on_error: true
     mode: queued
     max: 10
   send_home_log_with_url:
@@ -905,7 +937,7 @@ script:
   post_to_discord_with_url_attachment:
     alias: "Post To Discord a URL Attachments"
     icon: mdi:message-image
-    description: "Post a message with a file or URL attachment. Please use a 
+    description: "Post a message with a URL attachment. Please use a 
     send script to decouple from the messaging platform."
     fields:
       message:
@@ -956,8 +988,7 @@ script:
     alias: "Post To Discord Home Log With File Attachments"
     icon: mdi:message-image
     description: "Post a message with a file attachment to the home_log 
-    channel. Please use a 
-    send script to decouple from the messaging platform."
+    channel. Please use a send script to decouple from the messaging platform."
     fields:
       message:
         description: Message to post
