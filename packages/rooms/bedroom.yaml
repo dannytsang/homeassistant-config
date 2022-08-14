@@ -1149,21 +1149,21 @@ sensor:
 template:
   - binary_sensor:
     - name: Bedroom TV Powered On
-      icon: "mdi:television-classic{{ '' if states('sensor.bedroom_right_socket_1_power_meter') | float > 40 else '-off' }}"
+      icon: "mdi:television-classic{{ '' if states('sensor.bedroom_right_socket_1_power_meter') | float(0) > 40 else '-off' }}"
       device_class: running
-      state: "{{ states('sensor.bedroom_right_socket_1_power_meter') | float > 40 }}"
+      state: "{{ states('sensor.bedroom_right_socket_1_power_meter') | float(0) > 40 }}"
     - name: Bed Occupied
       icon: >- 
-        mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | float >= 0.15
-        or states('sensor.bed_bottom_left') | float >= 0.15 or
-        states('sensor.bed_top_right') | float >= 0.15 or
-        states('sensor.bed_bottom_right') | float >= 0.1 else '' }}
+        mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | float(0) >= 0.15
+        or states('sensor.bed_bottom_left') | float(0) >= 0.15 or
+        states('sensor.bed_top_right') | float(0) >= 0.15 or
+        states('sensor.bed_bottom_right') | float(0) >= 0.1 else '' }}
       device_class: occupancy
       state: >-
-        {% if states('sensor.bed_top_left') | float >= 0.15 or
-            states('sensor.bed_top_right') | float >= 0.15 or 
-            states('sensor.bed_bottom_left') | float >= 0.15 or
-            states('sensor.bed_bottom_right') | float >= 0.1 %}
+        {% if states('sensor.bed_top_left') | float(0) >= 0.15 or
+            states('sensor.bed_top_right') | float(0) >= 0.15 or 
+            states('sensor.bed_bottom_left') | float(0) >= 0.15 or
+            states('sensor.bed_bottom_right') | float(0) >= 0.1 %}
           on
         {% else %}
           off
