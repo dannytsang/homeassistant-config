@@ -445,6 +445,43 @@ automation:
         default:
           - service: script.lounge_select_game_input
     mode: single
+  # People / Devices
+  - id: "1654005357582"
+    alias: "^Lounge: Terina's Work Laptop Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - device_tracker.lap_ctc0501
+        not_from: unavailable
+        to: not_home
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Terina's work laptop turned off.
+          - service: script.check_terinas_work_laptop_status
+            data: {}
+    mode: single
+  - id: "1654005357583"
+    alias: "^Lounge: Terina's Work Laptop Turned On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - device_tracker.lap_ctc0501
+        not_from: unavailable
+        to: not_home
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Terina's work laptop turned on.
+          - service: script.check_terinas_work_laptop_status
+            data: {}
+    mode: single
 
 scene:
   - id: "1582387315374"
