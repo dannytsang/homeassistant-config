@@ -23,8 +23,8 @@ automation:
     action:
       - service: script.conservatory_camera_process_image
         data:
-          message: "conservatory and :bell: Alarm armed."
-          title: ":paw_prints: Motion detected in conservatory"
+          message: ":paw_prints: Motion detected in theconservatory and :bell: Alarm armed."
+          title: "Conservatory"
     mode: single
   - id: "1610234394136"
     alias: "^Conservatory: Motion Detected And It's Dark"
@@ -52,12 +52,13 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "It's dark ({{ states('sensor.conservatory_motion_light_level') }} 
+              message: ":paw_prints: Motion detected and 
+              it's dark ({{ states('sensor.conservatory_motion_light_level') }} 
               {{ state_attr('sensor.conservatory_motion_light_level','unit_of_measurement') }} < 
               ({{ states('input_number.conservatory_light_level_threshold') }} 
               {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}). 
               Turning on :bulb: :high_brightness: lights."
-              title: ":paw_prints: Motion detected in the conservatory"
+              title: "Conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_on_light
@@ -85,8 +86,8 @@ automation:
           - service: script.send_to_home_log
             data:
               message:
-                "Dimming conservatory :low_brightness: :bulb: lights."
-              title: ":no_pedestrians: No motion in the conservatory"
+                ":no_pedestrians: No motion. Dimming conservatory :low_brightness: :bulb: lights."
+              title: "Conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_dim_light
@@ -112,8 +113,8 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "Turning lights off."
-              title: ":no_pedestrians: No motion in the conservatory"
+              message: ":no_pedestrians: No motion. Turning lights off."
+              title: "Conservatory"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_off_light
@@ -161,7 +162,8 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":door: Conservatory door opened."
+              message: ":door: Door opened."
+              title: "Conservatory"
           - service: script.send_to_home_log
             data:
               message: "Turning conservatory camera :camera_with_flash: on."
@@ -176,6 +178,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: "Turning off the heating."
+                  title: "Conservatory"
               - service: climate.set_hvac_mode
                 data:
                   hvac_mode: "off"
@@ -205,6 +208,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: "Setting heating to schedule (auto) mode."
+                  title: "Conservatory"
               - service: climate.set_hvac_mode
                 data:
                   hvac_mode: "auto"
