@@ -212,6 +212,139 @@ automation:
               - service: script.turn_on_downstairs_cameras
         default: []
     mode: single
+  - id: "1587680439013"
+    alias: "^Alarm: Arm Overnight When Doors And Windows Shut"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.alarmed_doors_and_windows
+        from: "on"
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: group.adult_people
+        state: home
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: disarmed
+      - condition: state
+        entity_id: binary_sensor.alarmed_doors_and_windows
+        state: "off"
+      - condition: time
+        after: "00:00:00"
+      - condition: time
+        before: "05:00:00"
+    action:
+      - choose:
+          # Everyone home
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - condition: state
+              entity_id: person.terina
+              state: home
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "All alarmed :door: doors and :window: windows are now closed.
+                  Turning :bell: alarm on."
+                  title: ":bell: Alarm"
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
+          # Danny not home and not long distance
+          - conditions:
+            - not:
+              - condition: state
+                entity_id: person.danny
+                state: home
+              - condition: template
+                value_template:
+                  "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                  - 1 }}"
+            - condition: state
+              entity_id: person.terina
+              state: home
+            - condition: time
+              before: "02:00:00"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "All alarmed :door: doors and :window: windows are now closed. 
+                  :running: :house_with_garden: Danny is not home. 
+                  :no_bell: Alarm not turned on and a check will be performed later."
+                  title: ":bell: Alarm"
+          # Danny not home and long distance away
+          - conditions:
+            - not:
+              - condition: state
+                entity_id: person.danny
+                state: home
+            - condition: template
+              value_template:
+                "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
+            - condition: state
+              entity_id: person.terina
+              state: home
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "All alarmed :door: doors and :window: windows are now closed. 
+                  :running: :house_with_garden: Danny is not home and more than 
+                  {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
+                  ({{ states('proximity.danny_home')|float(0) }}). 
+                  Turning alarm on."
+                  title: ":bell: Alarm"
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
+          # Terina not home and not long distance
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - not:
+              - condition: state
+                entity_id: person.terina
+                state: home
+              - condition: template
+                value_template:
+                  "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                  - 1 }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "All alarmed :door: doors and :window: windows are now closed. 
+                  :house_with_garden: :woman_dancing: Terina is not 
+                  home. :no_bell: Alarm not turned on and a check will be performed later."
+                  title: ":bell: Alarm"
+          # midnight trigger: Terina not home and long distance away
+          - conditions:
+            - condition: state
+              entity_id: person.danny
+              state: home
+            - not:
+              - condition: state
+                entity_id: person.terina
+                state: home
+            - condition: template
+              value_template:
+                "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                - 1 }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "All alarmed :door: doors and :window: windows are now closed. 
+                  :house_with_garden: :woman_dancing: Terina is not home and more than 
+                  {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
+                  ({{ states('proximity.terina_home')|float(0) }}). 
+                  Turning alarm on."
+                  title: ":bell: Alarm"
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
+        default: []
+    mode: single
   - id: "1630366065607"
     alias: "^Alarm: Armed"
     description: ""
