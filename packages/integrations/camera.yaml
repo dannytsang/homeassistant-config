@@ -460,34 +460,107 @@ script:
       title:
         description: Header to the message posted.
     sequence:
+      - service: script.process_image
+    mode: single
+  process_image:
+    alias: Process Image
+    icon: mdi:camera
+    description: "Generic script to process images."
+    fields:
+      message:
+        description: Message to post
+        example: example message
+      title:
+        description: (optional)Header to the message posted.
+        example: example title
+      entity_id:
+        description: image_processing entity ID send to Deepstack.
+        example: image_processing.driveway
+    variables:
+      device: "{% if 'conservatory' in entity_id %}
+      conservatory
+      {% elif 'driveway' in entity_id %}
+      driveway
+      {% elif 'kitchen' in entity_id %}
+      kitchen
+      {% elif 'lounge' in entity_id %}
+      lounge
+      {% elif 'upstairs' in entity_id %}
+      upstairs
+      {% endif%}"
+    sequence:
       - service: image_processing.scan
         target:
-          entity_id: image_processing.deepstack_object_upstairs
+          entity_id: "{{ entity_id }}"
       - delay:
           hours: 0
           minutes: 0
           seconds: 10
           milliseconds: 0
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_upstairs
-                above: "0"
-            sequence:
-              - service: shell_command.copy_upstairs_deepstack_files
-              - service: script.send_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: "{{ states('input_text.latest_deepstack_upstairs_file_path') }}"
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    The following detected upstairs:{% for object in state_attr('image_processing.deepstack_object_upstairs','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
+      - if:
+        - condition: template
+          value_template: "{{ states(entity_id) > 0}}"
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ device == 'conservatory' }}"
+                sequence:
+                  - service: shell_command.copy_conservatory_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ device == 'driveway' }}"
+                sequence:
+                  - service: shell_command.copy_driveway_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_driveway_file_path') }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ device == 'kitchen' }}"
+                sequence:
+                  - service: shell_command.copy_kitchen_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_kitchen_file_path') }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ device == 'lounge' }}"
+                sequence:
+                  - service: shell_command.copy_lounge_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_lounge_file_path') }}"
+              - conditions:
+                  - condition: template
+                    value_template: "{{ device == 'upstairs' }}"
+                sequence:
+                  - service: shell_command.copy_upstairs_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_upstairs_file_path') }}"
+            default: []
           - service: script.send_to_home_log
             data:
-              message: ":white_check_mark: Nothing detected on the stairs."
+              message: >-
+                The following detected {{ device }}:{% for object in state_attr('image_processing.deepstack_object_upstairs','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: ":white_check_mark: Nothing detected in the {{ device }}."
               title: ":brain: Deepstack Results"
     mode: single
   # General
