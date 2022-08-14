@@ -240,35 +240,11 @@ script:
       title:
         description: Header to the message posted.
     sequence:
-      - service: image_processing.scan
-        target:
+      - service: script.process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
           entity_id: image_processing.deepstack_object_conservatory
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 10
-          milliseconds: 0
-      - if:
-          - condition: numeric_state
-            entity_id: image_processing.deepstack_object_conservatory
-            above: "0"
-        then:
-          - service: shell_command.copy_conservatory_deepstack_files
-          - service: script.send_home_log_with_local_attachments
-            data:
-              title: "{{ title }}"
-              message: "{{ message }}"
-              filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                The following detected in the conservatory:{% for object in state_attr('image_processing.deepstack_object_conservatory','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-              title: "Deepstack Results"
-        else:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected in conservatory."
-              title: ":brain: Deepstack Results"
     mode: single
   driveway_camera_process_objects:
     alias: Driveway camera process objects
@@ -280,35 +256,11 @@ script:
       title:
         description: Header to the message posted.
     sequence:
-      - service: image_processing.scan
-        target:
+      - service: script.process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
           entity_id: image_processing.deepstack_object_driveway
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 10
-          milliseconds: 0
-      - if:
-          - condition: numeric_state
-            entity_id: image_processing.deepstack_object_driveway
-            above: "0"
-        then:
-          - service: shell_command.copy_driveway_deepstack_files
-          - service: script.send_home_log_with_local_attachments
-            data:
-              title: "{{ title }}"
-              message: "{{ message }}"
-              filePath: "{{states('input_text.latest_deepstack_driveway_file_path')}}"
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                The following detected in the driveway:{% for object in state_attr('image_processing.deepstack_object_driveway','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-              title: ":brain: Deepstack Results"
-        else:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected in the driveway."
-              title: ":brain: Deepstack Results"
     mode: single
   front_garden_door_bell_camera_process_image:
     alias: Front Garden Doorbell Process Camera
@@ -380,35 +332,11 @@ script:
       title:
         description: Header to the message posted.
     sequence:
-      - service: image_processing.scan
-        target:
+      - service: script.process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
           entity_id: image_processing.deepstack_object_kitchen
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 10
-          milliseconds: 0
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_kitchen
-                above: "0"
-            sequence:
-              - service: shell_command.copy_kitchen_deepstack_files
-              - service: script.send_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: "{{ states('input_text.latest_deepstack_kitchen_file_path') }}"
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    The following detected upstairs:{% for object in state_attr('image_processing.deepstack_object_kitchen','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected on the kitchen."
-              title: ":brain: Deepstack Results"
     mode: single
   lounge_camera_process_objects:
     alias: Lounge camera process objects
@@ -420,35 +348,11 @@ script:
       title:
         description: Header to the message posted.
     sequence:
-      - service: image_processing.scan
-        target:
+      - service: script.process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
           entity_id: image_processing.deepstack_object_lounge
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 10
-          milliseconds: 0
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: image_processing.deepstack_object_lounge
-                above: "0"
-            sequence:
-              - service: shell_command.copy_lounge_deepstack_files
-              - service: script.send_home_log_with_local_attachments
-                data:
-                  title: "{{ title }}"
-                  message: "{{ message }}"
-                  filePath: "{{ states('input_text.latest_deepstack_lounge_file_path') }}"
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    The following detected in the lounge:{% for object in state_attr('image_processing.deepstack_object_lounge','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
-        default:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected in the lounge."
-              title: ":brain: Deepstack Results"
     mode: single
   stairs_camera_process_image:
     alias: Stairs Camera Process Image
@@ -461,6 +365,10 @@ script:
         description: Header to the message posted.
     sequence:
       - service: script.process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
+          entity_id: image_processing.deepstack_object_upstairs
     mode: single
   process_image:
     alias: Process Image
