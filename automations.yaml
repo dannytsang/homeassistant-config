@@ -1234,8 +1234,7 @@
   description: ""
   trigger:
     - platform: state
-      entity_id:
-        - sensor.growatt_sph6000_last_data_update
+      entity_id: sensor.growatt_sph6000_last_data_update
       for:
         hours: 0
         minutes: 20
@@ -1250,24 +1249,25 @@
           state: unavailable
         # https://community.home-assistant.io/t/how-to-calculate-subtract-two-date-time-from-eachother/8197/14?u=tuxinator94
         - condition: template
-          value_template: "{% set duration = 
-          as_timestamp(now()) - ((as_timestamp(states('sensor.growatt_sph6000_last_data_update')))|float(0))  %}
-          {{duration|int(0) >= (states('input_number.growatt_max_last_updated')|float(0) * 60) }}"
+          value_template: >-
+            "{% set duration = as_timestamp(now()) - ((as_timestamp(states('sensor.growatt_sph6000_last_data_update')))|float(0)) %}
+            {{duration|int(0) >= (states('input_number.growatt_max_last_updated')|float(0) * 60) }}"
   action:
     - parallel:
         - service: script.send_to_home_log
           data:
-            message: "Growatt integration has not been updated for over 
-              {% set duration = as_timestamp(now()) - 
+            message: "Growatt integration has not been updated for over
+              {% set duration = as_timestamp(now()) -
               ((as_timestamp(states('sensor.growatt_sph6000_last_data_update')))|float(0)) %}
               {{ states('input_number.growatt_max_last_updated')|int(0) }} (
-              {{ (duration / 60)|round(0, 'floor') }}) 
-              {{ state_attr('input_number.growatt_max_last_updated', 'unit_of_measurement') }}. 
+              {{ (duration / 60)|round(0, 'floor') }})
+              {{ state_attr('input_number.growatt_max_last_updated', 'unit_of_measurement') }}.
               Reloading integration."
             title: ":sunny: :zap: :electric_plug: Solar"
         # https://community.home-assistant.io/t/can-i-write-an-automation-to-reload-restart-an-integration/301020/35?u=tuxinator94
         - service: homeassistant.reload_config_entry
           data: {}
           target:
-            entity_id: sensor.growatt_sph6000_last_data_update
+            entity_id:
+              - sensor.growatt_sph6000_last_data_update
   mode: single
