@@ -208,7 +208,7 @@ automation:
                   - service: script.send_direct_notification
                     data:
                       message:
-                        "No one is home and couldn't turn on the alarm because 
+                        "No one is home and couldn't turn on the alarm because
                         the following entrances are still open:
                         {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
                         %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
@@ -554,3 +554,15 @@ script:
               entity_id: input_number.lounge_light_level_3_threshold
     mode: single
     icon: mdi:laptop
+
+template:
+  - sensor:
+      - name: "Destination Address"
+        unique_id: "f01b1d6b-9bbd-4261-945b-581d864eb4a4"
+        icon: mdi:map-marker
+        state: "{{ states('input_text.destination_address') }}"
+  - sensor:
+      - name: "Origin Address"
+        unique_id: "71c7a6cb-f480-4835-aed7-6e05a8c53dfe"
+        icon: mdi:map-marker-outline
+        state: "{{ states('input_text.origin_address') }}"
