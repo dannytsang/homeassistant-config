@@ -1229,3 +1229,21 @@
     - service: script.set_how_water_to_home_mode
       data: {}
   mode: single
+- id: "1660598586325"
+  alias: Travel Time By Car Updated
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.google_travel_time_by_car
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: "Updated.
+        \nOrigin: {{ state_attr('sensor.google_travel_time_by_car', 'origin_addresses') }}
+        \nDestination: {{ state_attr('sensor.google_travel_time_by_car', 'destination_addresses') }}
+        \nDistance: {{ state_attr('sensor.google_travel_time_by_car', 'distance') }}
+        \nTime: {{ state_attr('sensor.google_travel_time_by_car', 'duration_in_traffic') }}"
+        title: Travel Time By Car
+  mode: single
