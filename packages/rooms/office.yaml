@@ -533,6 +533,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
+                  title: ":office: Office"
               - service: script.office_open_curtains
     mode: single
   - id: "1622374233310"
@@ -1131,8 +1132,13 @@ script:
               entity_id: cover.office_curtain_right
               state: "unavailable"
         then:
-          - service: script.office_close_curtains_fallback
-            data: {}
+          - parallel:
+            - service: script.send_to_home_log
+              data:
+                message: "Using API as a fallback to closing curtains."
+                title: ":office: Office"
+            - service: script.office_close_curtains_fallback
+              data: {}
         else:
           - service: cover.close_cover
             target:
@@ -1153,8 +1159,13 @@ script:
               entity_id: cover.office_curtain_right
               state: "unavailable"
         then:
-          - service: script.office_open_curtains_fallback
-            data: {}
+          - parallel:
+            - service: script.send_to_home_log
+              data:
+                message: "Using API as a fallback to opening curtains."
+                title: ":office: Office"
+            - service: script.office_open_curtains_fallback
+              data: {}
         else:
           - service: cover.open_cover
             target:
@@ -1171,8 +1182,15 @@ script:
           entity_id: 
             - cover.office_curtains_left
             - cover.office_curtains_right
-      # There seems to be a delay (with switchbot API?) when curtain position
-      # changes making this fairly redundant and leave it on the slow refresh
+      - alias: "There seems to be a delay (with switchbot API?) when curtain position 
+      changes making this fairly redundant and leave it on the slow refresh"
+        wait_for_trigger:
+          - platform: state
+            entity_id:
+              - cover.office_curtain_left
+              - cover.office_curtain_right
+        timeout: "600"
+
       - service: homeassistant.update_entity
         data: {}
         target:
@@ -1200,8 +1218,14 @@ script:
           entity_id: 
             - cover.office_curtains_left
             - cover.office_curtains_right
-      # There seems to be a delay (with switchbot API?) when curtain position
-      # changes making this fairly redundant and leave it on the slow refresh
+      - alias: "There seems to be a delay (with switchbot API?) when curtain position 
+      changes making this fairly redundant and leave it on the slow refresh"
+        wait_for_trigger:
+          - platform: state
+            entity_id:
+              - cover.office_curtain_left
+              - cover.office_curtain_right
+        timeout: "600"
       - service: homeassistant.update_entity
         data: {}
         target:
