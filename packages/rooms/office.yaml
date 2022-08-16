@@ -1122,52 +1122,94 @@ script:
     alias: Office Close Curtains
     icon: mdi:curtains-closed
     sequence:
+      - if:
+          - or:
+            - condition: state
+              entity_id: cover.office_curtain_left
+              state: "unavailable"
+            - condition: state
+              entity_id: cover.office_curtain_right
+              state: "unavailable"
+        then:
+          - service: script.office_close_curtains_fallback
+            data: {}
+        else:
+          - service: cover.close_cover
+            target:
+              entity_id:
+                - cover.office_curtain_left
+                - cover.office_curtain_right
+    mode: single
+  office_open_curtains:
+    alias: Office Open Curtains
+    icon: mdi:curtains
+    sequence:
+      - if:
+          - or:
+            - condition: state
+              entity_id: cover.office_curtain_left
+              state: "unavailable"
+            - condition: state
+              entity_id: cover.office_curtain_right
+              state: "unavailable"
+        then:
+          - service: script.office_open_curtains_fallback
+            data: {}
+        else:
+          - service: cover.open_cover
+            target:
+              entity_id: 
+                - cover.office_curtain_left
+                - cover.office_curtain_right
+    mode: single
+  office_close_curtains_fallback:
+    alias: Office Close Curtains
+    icon: mdi:curtains-closed
+    sequence:
+      - service: cover.close_cover
+        target:
+          entity_id: 
+            - cover.office_curtains_left
+            - cover.office_curtains_right
+      # There seems to be a delay (with switchbot API?) when curtain position
+      # changes making this fairly redundant and leave it on the slow refresh
+      - service: homeassistant.update_entity
+        data: {}
+        target:
+          entity_id:
+            - cover.office_curtain_right
+            - cover.office_curtain_left
+    mode: single
+  office_close_curtains_fallback2:
+    alias: Office Close Curtains
+    icon: mdi:curtains-closed
+    sequence:
       - service: ifttt.trigger
         data:
           event: close_office_left_curtain
       - service: ifttt.trigger
         data:
           event: close_office_right_curtain
-      # There seems to be a delay (with switchbot API?) when curtain position
-      # changes making this fairly redundant and leave it on the slow refresh
-      - service: homeassistant.update_entity
-        data: {}
-        target:
-          entity_id:
-            - cover.office_curtain_right
-            - cover.office_curtain_left
     mode: single
-  office_open_curtains:
+  office_open_curtains_fallback:
     alias: Office Open Curtains
     icon: mdi:curtains
     sequence:
       - service: cover.open_cover
         target:
-          entity_id: cover.office_curtain_left
-      - service: cover.open_cover
-        target:
-          entity_id: cover.office_curtain_right
+          entity_id: 
+            - cover.office_curtains_left
+            - cover.office_curtains_right
       # There seems to be a delay (with switchbot API?) when curtain position
       # changes making this fairly redundant and leave it on the slow refresh
       - service: homeassistant.update_entity
         data: {}
         target:
           entity_id:
-            - cover.office_curtain_right
-            - cover.office_curtain_left
+            - cover.office_curtains_right
+            - cover.office_curtains_left
     mode: single
-  office_close_curtains_fallback:
-    alias: Office Close Curtains
-    icon: mdi:curtains-closed
-    sequence:
-      - service: cover.open_cover
-        target:
-          entity_id: cover.office_curtains_left
-      - service: cover.open_cover
-        target:
-          entity_id: cover.office_curtains_right
-    mode: single
-  office_open_curtains_fallback:
+  office_open_curtains_fallback2:
     alias: Office Open Curtains
     icon: mdi:curtains
     sequence:
