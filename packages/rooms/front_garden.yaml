@@ -159,6 +159,25 @@ automation:
         default: []
     mode: queued
     max: 10
+  - id: "1655154158871"
+    alias: "^Driveway: Motion Detected"
+    description:
+      Use motion from camera to trigger object detection. A workaround for
+      frigate being unreliable
+    trigger:
+      - platform: state
+        entity_id:
+          - camera.driveway
+          - binary_sensor.driveway_motion
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - service: script.driveway_camera_process_objects
+        data:
+          title: Driveway Snapshot
+          message: Motion detected on the driveway
+    mode: single
 
 script:
   front_garden_motion_notification:
