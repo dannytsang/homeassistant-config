@@ -409,6 +409,10 @@ script:
           - condition: state
             entity_id: input_boolean.enable_ashlees_blind_automations
             state: "on"
+          - condition: numeric_state
+            entity_id: cover.ashlees_blinds
+            attribute: current_position
+            above: input_number.blind_open_position_threshold
         then:
           - choose:
               - conditions:
@@ -418,10 +422,6 @@ script:
                   - choose:
                       # Check if window is open.
                       - conditions:
-                          - condition: numeric_state
-                            entity_id: cover.bedroom_blind
-                            attribute: current_position
-                            below: input_number.blind_closed_position_threshold
                           - condition: state
                             entity_id: binary_sensor.bedroom_window
                             state: "on"
