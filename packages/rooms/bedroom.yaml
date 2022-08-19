@@ -558,7 +558,7 @@ automation:
       - condition: numeric_state
         entity_id: cover.bedroom_blind
         attribute: current_position
-        above: "40"
+        above: input_number.blind_open_position_threshold
     action:
       - parallel:
         - choose:
@@ -610,7 +610,7 @@ automation:
       - condition: numeric_state
         entity_id: cover.bedroom_blind
         attribute: current_position
-        below: "100"
+        below: input_number.bedroom_blind_open_closed_threshold
       - condition: state
         entity_id: input_boolean.enable_bedroom_blind_automations
         state: "on"
@@ -1173,3 +1173,21 @@ template:
         top_right: "{{ states('sensor.bed_top_right') }}"
         bottom_left: "{{ states('sensor.bed_bottom_left') }}"
         bottom_right: "{{ states('sensor.bed_bottom_right') }}"
+    - name: Bedroom Blind Anticipated State
+      device_class: opening
+      state: 
+        "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold'|float(10000))
+        and states('sun.sun') == 'above_horizon' 
+        and states('weather.home_weather') < states('input_number.forecast_high_temperature')|float(24) 
+        and states('weather.home_hourly') < states('input_number.forecast_high_temperature')|float(24) 
+        and states('binary_sensor.bedroom_tv_powered_on') == 'off'
+        and weather_condition in ['sunny','partlycloudy'] 
+        and states('binary_sensor.bedroom_window') }}"
+      attributes:
+        brightness: "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold'|float(10000)) }}"
+        sun: "{{ states('sun.sun') == 'above_horizon' }}"
+        temperature_forecast: "{{ states('weather.home_weather') < states('input_number.forecast_high_temperature')|float(24) }}"
+        temperature_hour_forecast: "{{ states('weather.home_hourly') < states('input_number.forecast_high_temperature')|float(24) }}"
+        tv_running: "{{ states('binary_sensor.bedroom_tv_powered_on') == 'off' }}"
+        weather: "{{ weather_condition in ['sunny','partlycloudy'] }}"
+        window: "{{ states('binary_sensor.bedroom_window') }}"
