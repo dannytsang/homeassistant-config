@@ -1221,12 +1221,21 @@
   action:
     - service: script.send_to_home_log
       data:
-        message: |
-          "Updated.
-          Origin: {{ state_attr('sensor.google_travel_time_by_car', 'origin_addresses') }}
-          Destination: {{ state_attr('sensor.google_travel_time_by_car', 'destination_addresses') }}
-          Distance: {{ state_attr('sensor.google_travel_time_by_car', 'distance') }}
-          Time: {{ state_attr('sensor.google_travel_time_by_car', 'duration_in_traffic') }}"
+        message: '"Updated.
+
+          Origin: {{ state_attr(''sensor.google_travel_time_by_car'', ''origin_addresses'')
+          }}
+
+          Destination: {{ state_attr(''sensor.google_travel_time_by_car'', ''destination_addresses'')
+          }}
+
+          Distance: {{ state_attr(''sensor.google_travel_time_by_car'', ''distance'')
+          }}
+
+          Time: {{ state_attr(''sensor.google_travel_time_by_car'', ''duration_in_traffic'')
+          }}"
+
+          '
         title: Travel Time By Car
   mode: single
 - id: "1660858653319"
@@ -1243,10 +1252,101 @@
     - service: script.send_direct_notification
       data:
         message:
-          "Charge battery tonight because solar production will be less than 6.1
-          ({{ states('sensor.energy_production_tomorrow') }})
-          {{ state_attr('sensor.energy_production_tomorrow', 'unit_of_measurement') }}"
+          Charge battery tonight because solar production will be less than 6.1
+          ({{ states('sensor.energy_production_tomorrow') }}) {{ state_attr('sensor.energy_production_tomorrow',
+          'unit_of_measurement') }}
         title: Solar
         people:
           - person.danny
+  mode: single
+- id: "1660894232444"
+  alias: "Front Garden: Below Direct Sun Light"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.front_garden_motion_light_level
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+      below: input_number.close_blinds_brightness_threshold
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message:
+          "Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold') }}
+          ({{ states('sensor.front_garden_motion_light_level') }}){{ state_attr('sensor.front_garden_motion_light_level', 'unit_of_measurement') }}.
+          Opening blinds/curtains."
+        title: Front Garden
+    - service: script.office_open_curtains
+      data: {}
+    - if:
+        - condition: numeric_state
+          entity_id: cover.bedroom_blind
+          attribute: current_position
+          below: input_number.blind_close_position_threshold
+        - condition: sun
+          before: sunset
+        - condition: state
+          entity_id: binary_sensor.bedroom_tv_powered_on
+          state: "off"
+      then:
+        - service: cover.open_cover
+          target:
+            entity_id: cover.bedroom_blind
+    - if:
+        - condition: numeric_state
+          entity_id: cover.ashlees_blinds
+          attribute: current_position
+          below: input_number.blind_close_position_threshold
+        - condition: time
+          before: input_datetime.childrens_bed_time
+      then:
+        - service: cover.open_cover
+          target:
+            entity_id: cover.ashlees_blinds
+  mode: single
+- id: "1660894232445"
+  alias: "Back Garden: Below Direct Sun Light"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.front_garden_motion_light_level
+      for:
+        hours: 0
+        minutes: 10
+        seconds: 0
+      below: input_number.close_blinds_brightness_threshold
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message:
+          "Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold') }}
+          ({{ states('sensor.front_garden_motion_light_level') }}){{ state_attr('sensor.front_garden_motion_light_level', 'unit_of_measurement') }}.
+          Opening blinds/curtains."
+        title: Back Garden
+    - if:
+        - condition: numeric_state
+          entity_id: cover.bedroom_blind
+          attribute: current_position
+          below: input_number.blind_close_position_threshold
+        - condition: time
+          before: input_datetime.childrens_bed_time
+      then:
+        - service: cover.open_cover
+          target:
+            entity_id: cover.leos_blinds
+    - if:
+        - condition: numeric_state
+          entity_id: cover.ashlees_blinds
+          attribute: current_position
+          below: input_number.blind_close_position_threshold
+        - condition: sun
+          before: sunset
+      then:
+        - service: cover.open_cover
+          target:
+            entity_id: cover.bathroom_blinds
   mode: single
