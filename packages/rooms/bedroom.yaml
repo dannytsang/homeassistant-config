@@ -1176,10 +1176,10 @@ template:
     - name: Bedroom Blind Anticipated State
       device_class: opening
       state: 
-        "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold'|float(10000))
+        "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
         and states('sun.sun') == 'above_horizon' 
-        and states('weather.home_weather') < states('input_number.forecast_high_temperature')|float(24) 
-        and states('weather.home_hourly') < states('input_number.forecast_high_temperature')|float(24) 
+        and state_attr('weather.home_weather', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24) 
+        and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24) 
         and states('binary_sensor.bedroom_tv_powered_on') == 'off'
         and weather_condition in ['sunny','partlycloudy'] 
         and states('binary_sensor.bedroom_window') }}"
