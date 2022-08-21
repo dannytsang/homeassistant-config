@@ -1367,25 +1367,6 @@
           entity_id: sensor.total_solar_forecast_estimated_energy_production_next_hour
           above: "0"
   action:
-    - service: script.send_direct_notification
-      data:
-        message: >-
-          :battery: Battery charged 
-          ({{ states('sensor.growatt_sph6000_statement_of_charge')~
-          state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }})
-          and estimated to produce
-          {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour')~
-          state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }} 
-          in the next hour.
-
-
-          There's approximately
-          {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) -
-          states('sensor.growatt_sph6000_solar_energy_today')|float(0))|round(2) ~
-          state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }}
-          to be produced to the end of the day.
-        title: ":sunny: :zap: :electric_plug: Solar"
-        people:
-          - person.danny
-          - person.terina
+    - service: script.energy_notify_excess_solar
+      data: {}
   mode: single
