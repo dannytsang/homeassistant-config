@@ -1275,9 +1275,9 @@
     - service: script.send_to_home_log
       data:
         message:
-          "Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold') }}
-          ({{ states('sensor.front_garden_motion_light_level') }}){{ state_attr('sensor.front_garden_motion_light_level', 'unit_of_measurement') }}.
-          Opening blinds/curtains."
+          Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold')
+          }} ({{ states('sensor.front_garden_motion_light_level') }}){{ state_attr('sensor.front_garden_motion_light_level',
+          'unit_of_measurement') }}. Opening blinds/curtains.
         title: Front Garden
     - service: script.office_open_curtains
       data: {}
@@ -1323,9 +1323,9 @@
     - service: script.send_to_home_log
       data:
         message:
-          "Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold') }}
-          ({{ states('sensor.back_garden_motion_light_level') }}){{ state_attr('sensor.back_garden_motion_light_level', 'unit_of_measurement') }}.
-          Opening blinds/curtains."
+          Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold')
+          }} ({{ states('sensor.back_garden_motion_light_level') }}){{ state_attr('sensor.back_garden_motion_light_level',
+          'unit_of_measurement') }}. Opening blinds/curtains.
         title: Back Garden
     - if:
         - condition: numeric_state
@@ -1349,4 +1349,43 @@
         - service: cover.open_cover
           target:
             entity_id: cover.bathroom_blinds
+  mode: single
+- id: "1661076689668"
+  alias: "Energy: Battery Charged And Forecasted Excess Solar"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.growatt_sph6000_statement_of_charge
+      above: "98"
+  condition:
+    - condition: or
+      conditions:
+        - condition: numeric_state
+          entity_id: sensor.total_solar_forecast_estimated_energy_production_this_hour
+          above: "0"
+        - condition: numeric_state
+          entity_id: sensor.total_solar_forecast_estimated_energy_production_next_hour
+          above: "0"
+  action:
+    - service: script.send_direct_notification
+      data:
+        message: >-
+          :battery: Battery charged 
+          ({{ states('sensor.growatt_sph6000_statement_of_charge')~
+          state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }})
+          and estimated to produce
+          {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour')~
+          state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }} 
+          in the next hour.
+
+
+          There's approximately
+          {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) -
+          states('sensor.growatt_sph6000_solar_energy_today')|float(0))|round(2) ~
+          state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }}
+          to be produced to the end of the day.
+        title: ":sunny: :zap: :electric_plug: Solar"
+        people:
+          - person.danny
+          - person.terina
   mode: single
