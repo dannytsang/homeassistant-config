@@ -203,7 +203,8 @@ energy_notify_excess_solar:
       {% if states(p) == 'home' %}
       {% set people.home = people.home + [p] %}
       {% endif %}
-      {% endfor %}"
+      {% endfor %}
+      {{ people.home }}"
   sequence:
     - service: script.send_direct_notification
       data:
@@ -218,10 +219,9 @@ energy_notify_excess_solar:
 
 
           There's approximately
-          {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) -
-          states('sensor.growatt_sph6000_solar_energy_today')|float(0))|round(2) ~
+          {{ states('sensor.power_production_next_24hours')|float(0)~
           state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }}
-          to be produced to the end of the day.
+          to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M  ') }}).
         title: ":sunny: :zap: :electric_plug: Solar"
         people: "{{ people_home }}"
   mode: single
