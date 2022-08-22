@@ -218,6 +218,56 @@ automation:
       - service: script.bedroom_sleep
         data: {}
     mode: single
+  - id: "1644769166837"
+    alias: "^Bedroom: Danny's Alarm"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_text.sleep_as_android
+        to: alarm_alert_start
+    condition: []
+    action:
+      - parallel:
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: person.danny
+                  state: home
+                - condition: state
+                  entity_id: input_boolean.enable_bedroom_blind_automations
+                  state: "on"
+                - condition: numeric_state
+                  entity_id: cover.bedroom_blind
+                  attribute: current_position
+                  below: input_number.blind_closed_position_threshold
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":alarm_clock: Alarm triggered. Opening bedroom 
+                      blinds in 1 minute."
+                    title: ":zzz: Sleep as :robot_face: Android"
+                - delay:
+                    hours: 0
+                    minutes: 5
+                    seconds: 0
+                    milliseconds: 0
+                - service: cover.open_cover
+                  data: {}
+                  target:
+                    entity_id: cover.bedroom_blind
+            - conditions:
+                - condition: state
+                  entity_id: person.danny
+                  state: home
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message:
+                      ":bed: :alarm_clock: alarm triggered."
+                    title: ":zzz: Sleep as :robot_face: Android"
+          default: []
+    mode: single
 
 template:
   - binary_sensor:
