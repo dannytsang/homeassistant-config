@@ -44,7 +44,6 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
         state: disarmed
-      
     action:
       - choose:
         - conditions:
@@ -359,8 +358,9 @@ script:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "{{ message }} :running: :house_with_garden: Danny is not home. 
-                  :no_bell: Alarm not turned on and a check will be performed later."
+                  message: >-
+                    {{ message }} :running: :house_with_garden: Danny is not home.
+                    :no_bell: Alarm not turned on and a check will be performed later.
                   title: ":bell: Alarm"
           # Danny not home and not long distance after last check
           - conditions:
@@ -380,10 +380,11 @@ script:
             sequence:
               - service: script.send_direct_notification
                 data:
-                  message: "{{ message }} :running: :house_with_garden: Danny is not home. 
-                  :no_bell: Alarm not turned on."
+                  message: >-
+                    {{ message }} :running: :house_with_garden: Danny is not home.
+                    :no_bell: Alarm not turned on.
                   title: ":warning: :bell: Alarm"
-                  people: 
+                  people:
                     - person.danny
                     - person.terina
           # Danny not home and long distance away
@@ -402,10 +403,11 @@ script:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "{{ message }} :running: :house_with_garden: Danny is not home and more than 
-                  {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
-                  ({{ states('proximity.danny_home')|float(0) }}). 
-                  Turning alarm on."
+                  message: >-
+                    {{ message }} :running: :house_with_garden: Danny is not home and more than
+                    {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
+                    ({{ states('proximity.danny_home')|float(0) }}).
+                    Turning alarm on.
                   title: ":bell: Alarm"
               - service: script.set_alarm_to_home_mode
               - service: script.turn_on_downstairs_cameras
@@ -427,8 +429,9 @@ script:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "{{ message }} :house_with_garden: :woman_dancing: Terina is not 
-                  home. :no_bell: Alarm not turned on and a check will be performed later."
+                  message: >-
+                    {{ message }} :house_with_garden: :woman_dancing: Terina is not
+                    home. :no_bell: Alarm not turned on and a check will be performed later.
                   title: ":bell: Alarm"
           # Terina not home and not long distance and after last check
           - conditions:
@@ -448,10 +451,11 @@ script:
             sequence:
               - service: script.send_direct_notification
                 data:
-                  message: "{{ message }} :house_with_garden: :woman_dancing: Terina is not 
-                  home. :no_bell: Alarm not turned on."
+                  message: >-
+                    {{ message }} :house_with_garden: :woman_dancing: Terina is not
+                    home. :no_bell: Alarm not turned on.
                   title: ":warning: :bell: Alarm"
-                  people: 
+                  people:
                     - person.danny
                     - person.terina
           # Terina not home and long distance away
@@ -470,10 +474,11 @@ script:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "{{ message }} :house_with_garden: :woman_dancing: Terina is not home and more than 
-                  {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
-                  ({{ states('proximity.terina_home')|float(0) }}). 
-                  Turning alarm on."
+                  message: >-
+                    {{ message }} :house_with_garden: :woman_dancing: Terina is not home and more than
+                    {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
+                    ({{ states('proximity.terina_home')|float(0) }}).
+                    Turning alarm on.
                   title: ":bell: Alarm"
               - service: script.set_alarm_to_home_mode
               - service: script.turn_on_downstairs_cameras
