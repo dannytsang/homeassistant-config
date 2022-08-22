@@ -30,7 +30,7 @@ automation:
       - parallel:
         - data:
             message: >-
-              :sleeping_accommodation: Someone is in bed, :window: window is closed and 
+              :sleeping_accommodation: Someone is in bed, :window: window is closed and
               it's getting late. Closing blinds.
             title: ":bed: bedroom"
           service: script.send_to_home_log
@@ -332,7 +332,7 @@ automation:
                   target:
                     entity_id: scene.bedroom_turn_on_ambient_light
             - conditions:
-              - or: 
+              - or:
                 - condition: sun
                   after: sunset
                 - condition: time
@@ -420,9 +420,10 @@ automation:
                 state: "on"
               # Check if there's an event with "A/L in the work calendar" and the event is on.
               - condition: template
-                value_template: "{{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and 
-                'A/L' not in state_attr('calendar.work_calendar','message')|string and 
-                states('calendar.work_calendar') == 'off' }}"
+                value_template: >-
+                  {{ 'Danny' not in state_attr('calendar.work_calendar','message')|string and
+                  'A/L' not in state_attr('calendar.work_calendar','message')|string and 
+                  states('calendar.work_calendar') == 'off' }}
               - condition: trigger
                 id: "workday"
             sequence:
@@ -506,8 +507,8 @@ automation:
         - service: script.send_to_home_log
           data:
             message: >-
-              :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 
-              It's getting :city_sunset: dark, closing bedroom's blinds."
+              :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+              It's after :city_sunset: sunset, closing bedroom's blinds.
             title: ":bed: Bedroom"
         - choose:
             - conditions:
@@ -579,7 +580,7 @@ automation:
                   data:
                     message: Do you want to close the blinds?
                     title: 📺🛌TV On & Window Is Open
-                    people: 
+                    people:
                       - person.danny
                     action1_title: "Yes"
                     action1_name: set_bedroom_blinds_30
@@ -642,13 +643,13 @@ automation:
             - service: script.send_to_home_log
               data:
                 message: >-
-                  :tv: TV turned off but above weather is above 
+                  :tv: TV turned off but above weather is above
                   {{ states('input_number.forecast_high_temperature') }}
-                  ({{ state_attr('weather.home_weather', 'temperature')|float(0) 
-                  if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0) 
+                  ({{ state_attr('weather.home_weather', 'temperature')|float(0)
+                  if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0)
                   else state_attr('weather.home_hourly', 'temperature')|float(0) }} }})
-                  {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}. 
-                  Keeping blinds closed."
+                  {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}.
+                  Keeping blinds closed.
                 title: ":bed: Bedroom"
         default:
           - parallel:
@@ -1048,15 +1049,16 @@ script:
                         # TODO: replace with actionable notification
                         - service: script.send_to_home_log
                           data:
-                            message:
-                              "It's going to be hot ({{ temperature }} {{ weather_condition }}) and 
-                              the :window: window is open preventing the blinds from closing."
+                            message: >-
+                              It's going to be hot ({{ temperature }} {{ weather_condition }}) and
+                              the :window: window is open preventing the blinds from closing.
                             title: ":bed: Bedroom"
                     default:
                       - service: script.send_to_home_log
                         data:
-                          message:
-                            "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
+                          message: >-
+                            It's going to be hot ({{ temperature }} {{ weather_condition }}).
+                            Closing blinds.
                           title: ":bed: Bedroom"
                       - service: cover.close_cover
                         target:
@@ -1111,7 +1113,7 @@ template:
       device_class: running
       state: "{{ states('sensor.bedroom_right_socket_1_power_meter') | float(0) > 40 }}"
     - name: Bed Occupied
-      icon: >- 
+      icon: >-
         mdi:bed-double{{ '-outline' if states('sensor.bed_top_left') | float(0) >= 0.15
         or states('sensor.bed_bottom_left') | float(0) >= 0.15 or
         states('sensor.bed_top_right') | float(0) >= 0.15 or
@@ -1133,14 +1135,14 @@ template:
         bottom_right: "{{ states('sensor.bed_bottom_right') }}"
     - name: Bedroom Blind Anticipated State
       device_class: opening
-      state: 
-        "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-        and states('sun.sun') == 'above_horizon' 
-        and state_attr('weather.home_weather', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24) 
-        and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24) 
+      state: >-
+        {{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+        and states('sun.sun') == 'above_horizon'
+        and state_attr('weather.home_weather', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+        and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
         and states('binary_sensor.bedroom_tv_powered_on') == 'off'
-        and weather_condition in ['sunny','partlycloudy'] 
-        and states('binary_sensor.bedroom_window') }}"
+        and weather_condition in ['sunny','partlycloudy']
+        and states('binary_sensor.bedroom_window') }}
       attributes:
         brightness: "{{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold'|float(10000)) }}"
         sun: "{{ states('sun.sun') == 'above_horizon' }}"
