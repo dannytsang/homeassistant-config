@@ -15,77 +15,76 @@ automation:
         state: "on"
     action:
       - parallel:
-        - service: switch.turn_on
-          target:
-            entity_id: switch.prusa_fan
-        - service: script.send_to_home_log
-          data:
-            message: "Printer priming. Turning on extruder :dash: fan."
-            title: ":printer: :black_square_button: 3D printer"
-        - wait_for_trigger:
-            - platform: numeric_state
-              entity_id: sensor.octoprint_estimated_finish_time
-              above: "0"
-          timeout: "60"
-        - service: script.send_to_home_log
-          data:
-            message:
-              "Printer started. Estimated time to completion:
-              {{ states('sensor.octoprint_estimated_finish_time') }}."
-            title: ":printer: :black_square_button: 3D printer"
-        - choose:
-            - conditions:
-                - condition: sun
-                  after: sunset
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":city_sunset: Printing started after sunset. Turning
-                      Printer :high_brightness: :bulb: light on."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_on
-            - conditions:
-                - condition: sun
-                  before: sunrise
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":city_sunset: Printing started before sunrise. Turning
-                      Printer :high_brightness: :bulb: light on."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_on
-            - conditions:
-                - condition: sun
-                  after: sunrise
-                  before: sunset
-                - condition: state
-                  entity_id: light.prusa
-                  state: "on"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":sunny: Printing started during the day. Turning
-                      Printer light off."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_off
-          default:
-            - service: script.send_to_home_log
-              data:
-                message: ":sunrise: Printing started after sunrise. Not turning
-                  on printer light."
-                title: ":printer: :black_square_button: 3D printer"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.3d_printer_light_off
+          - service: switch.turn_on
+            target:
+              entity_id: switch.prusa_fan
+          - service: script.send_to_home_log
+            data:
+              message: "Printer priming. Turning on extruder :dash: fan."
+              title: ":printer: :black_square_button: 3D printer"
+          - wait_for_trigger:
+              - platform: numeric_state
+                entity_id: sensor.octoprint_estimated_finish_time
+                above: "0"
+            timeout: "60"
+          - service: script.send_to_home_log
+            data:
+              message: "Printer started. Estimated time to completion:
+                {{ states('sensor.octoprint_estimated_finish_time') }}."
+              title: ":printer: :black_square_button: 3D printer"
+          - choose:
+              - conditions:
+                  - condition: sun
+                    after: sunset
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":city_sunset: Printing started after sunset. Turning
+                        Printer :high_brightness: :bulb: light on."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_on
+              - conditions:
+                  - condition: sun
+                    before: sunrise
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":city_sunset: Printing started before sunrise. Turning
+                        Printer :high_brightness: :bulb: light on."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_on
+              - conditions:
+                  - condition: sun
+                    after: sunrise
+                    before: sunset
+                  - condition: state
+                    entity_id: light.prusa
+                    state: "on"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":sunny: Printing started during the day. Turning
+                        Printer light off."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_off
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":sunrise: Printing started after sunrise. Not turning
+                    on printer light."
+                  title: ":printer: :black_square_button: 3D printer"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_off
     mode: single
   - id: "1619873649348"
     alias: "^3D Printer: 50% Complete"
@@ -263,65 +262,80 @@ script:
             home."
           title: ":printer: :black_square_button: 3D printer"
           people:
-            - 'person.danny'
-            - 'person.terina'
+            - "person.danny"
+            - "person.terina"
     mode: single
     icon: mdi:printer-3d
   3d_printer_check_light:
     alias: 3D Printer Check Light
     sequence:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: light.prusa
-                  state: "off"
-                - condition: numeric_state
-                  entity_id: sensor.conservatory_motion_light_level
-                  below: "100"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":city_sunset: :printer: It's getting dark and it's printing.
-                      Turning :high_brightness: :bulb: lights on."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_on
-            - conditions:
-                - condition: state
-                  entity_id: light.prusa
-                  state: "on"
-                - condition: numeric_state
-                  entity_id: sensor.conservatory_motion_light_level
-                  above: "100"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":city_sunrise: It's getting bright and it's printing.
-                      Turning lights off."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_off
-            - conditions:
-                - condition: state
-                  entity_id: light.prusa
-                  state: "off"
-                - condition: trigger
-                  id: sunset
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message:
-                      ":city_sunset: :printer: Sun is setting and it's printing.
-                      Turning :high_brightness: :bulb: lights on."
-                    title: ":printer: :black_square_button: 3D printer"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.3d_printer_light_on
-          default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.prusa
+                    state: "on"
+                  - condition: state
+                    entity_id: sensor.octoprint_current_state
+                    state: "unavailable"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Printer is offline. Turning light off."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_off
+              - conditions:
+                  - condition: state
+                    entity_id: light.prusa
+                    state: "off"
+                  - condition: numeric_state
+                    entity_id: sensor.conservatory_motion_light_level
+                    below: "100"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":city_sunset: :printer: It's getting dark and it's printing.
+                        Turning :high_brightness: :bulb: lights on."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_on
+              - conditions:
+                  - condition: state
+                    entity_id: light.prusa
+                    state: "on"
+                  - condition: numeric_state
+                    entity_id: sensor.conservatory_motion_light_level
+                    above: "100"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":city_sunrise: It's getting bright and it's printing.
+                        Turning lights off."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_off
+              - conditions:
+                  - condition: state
+                    entity_id: light.prusa
+                    state: "off"
+                  - condition: trigger
+                    id: sunset
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":city_sunset: :printer: Sun is setting and it's printing.
+                        Turning :high_brightness: :bulb: lights on."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_on
+            default: []
     mode: single
     icon: mdi:printer-3d
