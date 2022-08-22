@@ -274,19 +274,107 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":paw_prints: :bulb: :high_brightness: Motion detected and 
-                      it's dark ({{ states('sensor.kitchen_motion_light_level') }} 
-                      & {{ states('sensor.kitchen_motion_2_light_level') }} 
-                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
-                      < {{ states('input_number.kitchen_light_level_threshold') }}-
-                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
-                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
-                      Turning kitchen table lights on to full brightness."
+                    message: >-
+                      :paw_prints: Motion detected and it's dark
+                      ({{ states('sensor.kitchen_motion_light_level') }} 
+                      & {{ states('sensor.kitchen_motion_2_light_level') }}
+                      < {{ states('input_number.kitchen_light_level_threshold') }} &
+                      {{ states('input_number.kitchen_light_level_2_threshold') }}
+                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                      Turning table :bulb: lights on to :high_brightness: full brightness.
                     title: ":cook: Kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_table_lights_on
-          default: []
+          default:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  :paw_prints: Motion detected and it's not dark
+                  ({{ states('sensor.kitchen_motion_light_level') }} 
+                  & {{ states('sensor.kitchen_motion_2_light_level') }} 
+                  < {{ states('input_number.kitchen_light_level_threshold') }} &
+                  {{ states('input_number.kitchen_light_level_2_threshold') }}
+                  {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}).
+                title: ":cook: Kitchen"
+    mode: queued
+    max: 10
+  - id: "1606158191307"
+    alias: "^Kitchen: Motion Detected Table Lights On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_area_motion
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.kitchen_light_trigger
+        to: "on"
+    condition:
+      - or:
+          - and:
+            - condition: state
+              entity_id: light.kitchen_left
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_left
+              attribute: brightness
+              below: 100
+          - and:
+            - condition: state
+              entity_id: light.kitchen_middle
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_middle
+              attribute: brightness
+              below: 100
+          - and:
+            - condition: state
+              entity_id: light.kitchen_right
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_right
+              attribute: brightness
+              below: 100
+    action:
+      - parallel:
+        - choose:
+            - conditions:
+                - or:
+                    - condition: numeric_state
+                      entity_id: sensor.kitchen_motion_light_level
+                      below: input_number.kitchen_light_level_threshold
+                    - condition: numeric_state
+                      entity_id: sensor.kitchen_motion_2_light_level
+                      below: input_number.kitchen_light_level_2_threshold
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message: >-
+                      :paw_prints: Motion detected and it's dark
+                      ({{ states('sensor.kitchen_motion_light_level') }} 
+                      & {{ states('sensor.kitchen_motion_2_light_level') }} 
+                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
+                      < {{ states('input_number.kitchen_light_level_threshold') }} &
+                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
+                      Turning table :bulb: lights on from :low_brightness: dim to :high_brightness: full brightness.
+                    title: ":cook: Kitchen"
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.kitchen_table_lights_on
+          default:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  :paw_prints: Motion detected and it's not dark
+                  ({{ states('sensor.kitchen_motion_light_level') }} 
+                  & {{ states('sensor.kitchen_motion_2_light_level') }} 
+                  {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
+                  < {{ states('input_number.kitchen_light_level_threshold') }} &
+                  {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                  Leaving table :bulb: lights on :low_brightness: dim.
+                title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191306"
@@ -324,19 +412,105 @@ automation:
               sequence:
                 - service: script.send_to_home_log
                   data:
-                    message: ":paw_prints: :bulb: :high_brightness: Motion detected 
-                      and it's dark ({{ states('sensor.kitchen_motion_light_level') }} & {{
-                      states('sensor.kitchen_motion_2_light_level') }} 
-                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }} 
-                      < {{ states('input_number.kitchen_light_level_threshold') }}-
-                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                    message: >-
+                      :paw_prints: Motion detected and it's dark
+                      ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                      states('sensor.kitchen_motion_2_light_level') }}
+                      < {{ states('input_number.kitchen_light_level_threshold') }} &
+                      {{ states('input_number.kitchen_light_level_2_threshold') }}
                       {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
-                      Turning kitchen cooker lights on to full brightness."
+                      Turning kitchen cooker :bulb: lights on to :high_brightness: full brightness.
                     title: ":cook: Kitchen"
                 - service: scene.turn_on
                   target:
                     entity_id: scene.kitchen_cooker_lights_on
-          default: []
+          default:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  :paw_prints: Motion detected and it's not dark
+                  ({{ states('sensor.kitchen_motion_light_level') }} &
+                  {{ states('sensor.kitchen_motion_2_light_level') }}
+                  < {{ states('input_number.kitchen_light_level_threshold') }} &
+                  {{ states('input_number.kitchen_light_level_2_threshold') }}
+                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                title: ":cook: Kitchen"
+    mode: queued
+    max: 10
+  - id: "1606158191309"
+    alias: "^Kitchen: Motion Detected Cooker Lights On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_area_motion
+        to: "on"
+      - platform: state
+        entity_id: binary_sensor.kitchen_light_trigger
+        to: "on"
+    condition:
+      - or:
+          - and:
+            - condition: state
+              entity_id: light.kitchen_left_2
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_left_2
+              attribute: brightness
+              below: 100
+          - and:
+            - condition: state
+              entity_id: light.kitchen_middle_2
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_middle_2
+              attribute: brightness
+              below: 100
+          - and:
+            - condition: state
+              entity_id: light.kitchen_right_2
+              state: "on"
+            - condition: numeric_state
+              entity_id: light.kitchen_right_2
+              attribute: brightness
+              below: 100
+    action:
+      - parallel:
+        - choose:
+            - conditions:
+                - or:
+                    - condition: numeric_state
+                      entity_id: sensor.kitchen_motion_light_level
+                      below: input_number.kitchen_light_level_threshold
+                    - condition: numeric_state
+                      entity_id: sensor.kitchen_motion_2_light_level
+                      below: input_number.kitchen_light_level_2_threshold
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message: >-
+                      :paw_prints: Motion detected and it's dark
+                      ({{ states('sensor.kitchen_motion_light_level') }} & {{
+                      states('sensor.kitchen_motion_2_light_level') }} 
+                      < {{ states('input_number.kitchen_light_level_threshold') }} &
+                      {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
+                      Turning kitchen cooker :bulb: lights on from :low_brightness: dim to :high_brightness: full brightness.
+                    title: ":cook: Kitchen"
+                - service: scene.turn_on
+                  target:
+                    entity_id: scene.kitchen_cooker_lights_on
+          default:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  :paw_prints: Motion detected and not it's dark
+                  ({{ states('sensor.kitchen_motion_light_level') }} &
+                  {{ states('sensor.kitchen_motion_2_light_level') }} 
+                  < {{ states('input_number.kitchen_light_level_threshold') }} &
+                  {{ states('input_number.kitchen_light_level_2_threshold') }} 
+                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}). 
+                  Leaving cooker :bulb: lights on :low_brightness: dim.
+                title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191304"
