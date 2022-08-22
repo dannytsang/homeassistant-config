@@ -20,9 +20,9 @@ script:
     sequence:
       - choose:
           - conditions:
-            - condition: state
-              entity_id: input_boolean.check_dannys_car_location
-              state: "on"
+              - condition: state
+                entity_id: input_boolean.check_dannys_car_location
+                state: "on"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -60,7 +60,7 @@ script:
                     sequence:
                       - service: script.send_to_home_log
                         data:
-                          message: >- 
+                          message: >-
                             Update location was successful
                             ({{ states('counter.dannys_car_update_attempts') }}/{{ states('input_number.dannys_car_max_location_update_attempts')|int }}).
                             Restarting car update timer."
@@ -99,12 +99,12 @@ script:
                   # Update car failed and equal to or above max attempt.
                   - conditions:
                       - or:
-                        - condition: state
-                          entity_id: counter.dannys_car_update_attempts
-                          state: input_number.dannys_car_max_location_update_attempts
-                        - condition: numeric_state
-                          entity_id: counter.dannys_car_update_attempts
-                          above: input_number.dannys_car_max_location_update_attempts
+                          - condition: state
+                            entity_id: counter.dannys_car_update_attempts
+                            state: input_number.dannys_car_max_location_update_attempts
+                          - condition: numeric_state
+                            entity_id: counter.dannys_car_update_attempts
+                            above: input_number.dannys_car_max_location_update_attempts
                     sequence:
                       - service: script.send_to_home_log
                         data:
@@ -118,7 +118,7 @@ script:
 
 template:
   - sensor:
-    - name: "Danny's Car Longitude"
-      state: "{{ state_attr('device_tracker.435i', 'longitude') }}"
-    - name: "Danny's Car Latitude"
-      state: "{{ state_attr('device_tracker.435i', 'latitude') }}"
+      - name: "Danny's Car Longitude"
+        state: "{{ state_attr('device_tracker.435i', 'longitude') }}"
+      - name: "Danny's Car Latitude"
+        state: "{{ state_attr('device_tracker.435i', 'latitude') }}"
