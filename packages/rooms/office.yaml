@@ -49,14 +49,15 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       title: ":office: Office"
-                      message: ":paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_light_level') }} & 
-                        {{ states('sensor.office_motion_2_light_level') }} 
-                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and it's dark ({{ states('sensor.office_motion_light_level') }} &
+                        {{ states('sensor.office_motion_2_light_level') }}
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold') }}
                         {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
-                        Turning office up lights."
+                        Turning office up lights.
           - conditions:
               - and:
                   - condition: numeric_state
@@ -82,14 +83,15 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       title: ":office: Office"
-                      message: ":paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_light_level') }} & 
-                        {{ states('sensor.office_motion_2_light_level') }} 
-                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and bright ({{ states('sensor.office_motion_light_level') }} &
+                        {{ states('sensor.office_motion_2_light_level') }}
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold') }}
-                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
-                        Turning office lights off."
+                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
+                        Turning office lights off.
         default: []
     mode: single
   - id: "1632064858461"
@@ -130,14 +132,15 @@ automation:
                       entity_id: scene.office_main_light_on
                   - service: script.send_to_home_log
                     data:
-                      message: ":paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_light_level') }} & 
-                        {{ states('sensor.office_motion_2_light_level') }} 
-                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} < 
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        and it's dark ({{ states('sensor.office_motion_light_level') }} &
+                        {{ states('sensor.office_motion_2_light_level') }}
+                        {{ state_attr('sensor.office_motion_light_level','unit_of_measurement') }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold') }}
-                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}). 
-                        Turning office lights on."
+                        {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
+                        Turning office lights on.
                       title: ":office: Office"
         default: []
     mode: single
@@ -219,8 +222,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":no_pedestrians: No motion in the office for 10 minutes 
-              and :desktop_computer: is connected. Turning office light off."
+              message: >-
+                :no_pedestrians: No motion in the office for 10 minutes
+                and :desktop_computer: is connected. Turning office light off.
               title: ":office: Office"
           - service: scene.turn_on
             target:
@@ -521,13 +525,13 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message:
-                    "Temperature forecast to be over {{ states('input_number.forecast_high_temperature') }}c 
-                    ({{ state_attr('weather.home_weather', 'temperature')|float(0) 
-                    if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0) 
+                  message: >-
+                    Temperature forecast to be over {{ states('input_number.forecast_high_temperature') }}c
+                    ({{ state_attr('weather.home_weather', 'temperature')|float(0)
+                    if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0)
                     else state_attr('weather.home_hourly', 'temperature')|float(0) }}
                     {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}).
-                    Not opening curtains."
+                    Not opening curtains.
                   title: ":office: Office"
         default:
           - parallel:
@@ -1170,7 +1174,7 @@ script:
         else:
           - service: cover.open_cover
             target:
-              entity_id: 
+              entity_id:
                 - cover.office_curtain_left
                 - cover.office_curtain_right
     mode: single
@@ -1180,10 +1184,10 @@ script:
     sequence:
       - service: cover.close_cover
         target:
-          entity_id: 
+          entity_id:
             - cover.office_curtains_left
             - cover.office_curtains_right
-      - alias: "There seems to be a delay (with switchbot API?) when curtain position 
+      - alias: "There seems to be a delay (with switchbot API?) when curtain position
       changes making this fairly redundant and leave it on the slow refresh"
         wait_for_trigger:
           - platform: state
@@ -1216,11 +1220,12 @@ script:
     sequence:
       - service: cover.open_cover
         target:
-          entity_id: 
+          entity_id:
             - cover.office_curtains_left
             - cover.office_curtains_right
-      - alias: "There seems to be a delay (with switchbot API?) when curtain position 
-      changes making this fairly redundant and leave it on the slow refresh"
+      - alias: >-
+          There seems to be a delay (with switchbot API?) when curtain position
+          changes making this fairly redundant and leave it on the slow refresh
         wait_for_trigger:
           - platform: state
             entity_id:
@@ -1283,9 +1288,9 @@ script:
                         # TODO: replace with actionable notification
                         - service: script.send_to_home_log
                           data:
-                            message:
-                              "It's going to be hot ({{ temperature }} {{ weather_condition }}) and 
-                              the :window: window is open preventing the curtains from closing."
+                            message: >-
+                              It's going to be hot ({{ temperature }} {{ weather_condition }}) and
+                              the :window: window is open preventing the curtains from closing.
                             title: ":office: Office"
                     default:
                       - service: script.send_to_home_log

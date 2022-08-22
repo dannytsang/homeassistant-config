@@ -46,48 +46,48 @@ automation:
         state: disarmed
     action:
       - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.alarmed_doors_and_windows
-              state: "on"
-            - condition: time
-              weekday:
-                - mon
-                - tue
-                - wed
-                - thu
-                - fri
-          sequence:
-            - service: script.send_direct_notification
-              data:
-                message: "Did not turned on because a door or window is open."
-                title: ":warning: :bell: Alarm"
-                people:
-                  - person.danny
-                  - person.terina
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.alarmed_doors_and_windows
-              state: "on"
-            - condition: time
-              weekday:
-                - sat
-                - sun
-          sequence:
-            - service: script.send_direct_notification
-              data:
-                message: "Did not turned on because a door or window is open."
-                title: ":warning: :bell: Alarm"
-                people:
-                  - person.danny
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.alarmed_doors_and_windows
-              state: "off"
-          sequence:
-            - service: script.arm_alarm_overnight
-              data:
-                message: "It's late."
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.alarmed_doors_and_windows
+                state: "on"
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: "Did not turned on because a door or window is open."
+                  title: ":warning: :bell: Alarm"
+                  people:
+                    - person.danny
+                    - person.terina
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.alarmed_doors_and_windows
+                state: "on"
+              - condition: time
+                weekday:
+                  - sat
+                  - sun
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: "Did not turned on because a door or window is open."
+                  title: ":warning: :bell: Alarm"
+                  people:
+                    - person.danny
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.alarmed_doors_and_windows
+                state: "off"
+            sequence:
+              - service: script.arm_alarm_overnight
+                data:
+                  message: "It's late."
         default: []
     mode: single
   - id: "1587680439013"
@@ -130,8 +130,7 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message:
-                " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
+              message: " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
               title: ":bell: Alarm"
           - service: script.conservatory_turn_on_camera
           - service: script.kitchen_turn_on_camera
@@ -159,7 +158,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-        - alarm_control_panel.house_alarm
+          - alarm_control_panel.house_alarm
         to: unavailable
         for:
           hours: 0
@@ -167,40 +166,40 @@ automation:
           seconds: 0
     condition: []
     action:
-    - service: script.send_to_home_log
-      data:
-        message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
-        title: ":bell: Alarm"
-    - service: hassio.addon_restart
-      data:
-        addon: fdb328a7_ring_mqtt
-    - wait_for_trigger:
-        - platform: state
-          entity_id:
-            - alarm_control_panel.house_alarm
-          from: "unavailable"
-      timeout: input_number.restart_ring_mqtt_add_on_timeout
-      continue_on_timeout: true
-    - choose:
-      - conditions:
-          - condition: state
-            entity_id: alarm_control_panel.house_alarm
-            state: "unavailable"
-        sequence:
-          - service: script.send_to_home_log
-            data:
-              message: Restarting Ring MQTT add-on failed.
-      - conditions:
-          - condition: not
-            conditions:
+      - service: script.send_to_home_log
+        data:
+          message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
+          title: ":bell: Alarm"
+      - service: hassio.addon_restart
+        data:
+          addon: fdb328a7_ring_mqtt
+      - wait_for_trigger:
+          - platform: state
+            entity_id:
+              - alarm_control_panel.house_alarm
+            from: "unavailable"
+        timeout: input_number.restart_ring_mqtt_add_on_timeout
+        continue_on_timeout: true
+      - choose:
+          - conditions:
               - condition: state
                 entity_id: alarm_control_panel.house_alarm
                 state: "unavailable"
-        sequence:
-          - service: script.send_to_home_log
-            data:
-              message: Ring MQTT restarted successfully.
-      default: []
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Restarting Ring MQTT add-on failed.
+          - conditions:
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: "unavailable"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Ring MQTT restarted successfully.
+        default: []
     mode: single
   - id: "1589026420341"
     alias: "^Alarm: Triggered"
@@ -327,12 +326,12 @@ script:
       - choose:
           # Everyone home
           - conditions:
-            - condition: state
-              entity_id: person.danny
-              state: home
-            - condition: state
-              entity_id: person.terina
-              state: home
+              - condition: state
+                entity_id: person.danny
+                state: home
+              - condition: state
+                entity_id: person.terina
+                state: home
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -342,19 +341,19 @@ script:
               - service: script.turn_on_downstairs_cameras
           # Danny not home and not long distance
           - conditions:
-            - not:
+              - not:
+                  - condition: state
+                    entity_id: person.danny
+                    state: home
+                  - condition: template
+                    value_template:
+                      "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                      - 1 }}"
               - condition: state
-                entity_id: person.danny
+                entity_id: person.terina
                 state: home
-              - condition: template
-                value_template:
-                  "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-            - condition: state
-              entity_id: person.terina
-              state: home
-            - condition: time
-              before: "02:00:00"
+              - condition: time
+                before: "02:00:00"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -364,19 +363,19 @@ script:
                   title: ":bell: Alarm"
           # Danny not home and not long distance after last check
           - conditions:
-            - not:
+              - not:
+                  - condition: state
+                    entity_id: person.danny
+                    state: home
+                  - condition: template
+                    value_template:
+                      "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                      - 1 }}"
               - condition: state
-                entity_id: person.danny
+                entity_id: person.terina
                 state: home
-              - condition: template
-                value_template:
-                  "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-            - condition: state
-              entity_id: person.terina
-              state: home
-            - condition: time
-              before: "02:00:00"
+              - condition: time
+                before: "02:00:00"
             sequence:
               - service: script.send_direct_notification
                 data:
@@ -389,17 +388,17 @@ script:
                     - person.terina
           # Danny not home and long distance away
           - conditions:
-            - not:
+              - not:
+                  - condition: state
+                    entity_id: person.danny
+                    state: home
+              - condition: template
+                value_template:
+                  "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                  - 1 }}"
               - condition: state
-                entity_id: person.danny
+                entity_id: person.terina
                 state: home
-            - condition: template
-              value_template:
-                "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                - 1 }}"
-            - condition: state
-              entity_id: person.terina
-              state: home
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -413,19 +412,19 @@ script:
               - service: script.turn_on_downstairs_cameras
           # Terina not home and not long distance
           - conditions:
-            - condition: state
-              entity_id: person.danny
-              state: home
-            - not:
               - condition: state
-                entity_id: person.terina
+                entity_id: person.danny
                 state: home
-              - condition: template
-                value_template:
-                  "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-            - condition: time
-              before: "02:00:00"
+              - not:
+                  - condition: state
+                    entity_id: person.terina
+                    state: home
+                  - condition: template
+                    value_template:
+                      "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                      - 1 }}"
+              - condition: time
+                before: "02:00:00"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -435,19 +434,19 @@ script:
                   title: ":bell: Alarm"
           # Terina not home and not long distance and after last check
           - conditions:
-            - condition: state
-              entity_id: person.danny
-              state: home
-            - not:
               - condition: state
-                entity_id: person.terina
+                entity_id: person.danny
                 state: home
-              - condition: template
-                value_template:
-                  "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-            - condition: time
-              after: "02:00:30"
+              - not:
+                  - condition: state
+                    entity_id: person.terina
+                    state: home
+                  - condition: template
+                    value_template:
+                      "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                      - 1 }}"
+              - condition: time
+                after: "02:00:30"
             sequence:
               - service: script.send_direct_notification
                 data:
@@ -460,17 +459,17 @@ script:
                     - person.terina
           # Terina not home and long distance away
           - conditions:
-            - condition: state
-              entity_id: person.danny
-              state: home
-            - not:
               - condition: state
-                entity_id: person.terina
+                entity_id: person.danny
                 state: home
-            - condition: template
-              value_template:
-                "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                - 1 }}"
+              - not:
+                  - condition: state
+                    entity_id: person.terina
+                    state: home
+              - condition: template
+                value_template:
+                  "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                  - 1 }}"
             sequence:
               - service: script.send_to_home_log
                 data:
