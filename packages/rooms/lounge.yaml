@@ -82,7 +82,8 @@ automation:
                         condition: numeric_state
                         entity_id: sensor.lounge_motion_3_light_level
                 sequence:
-                  - data:
+                  - service: script.send_to_home_log
+                    data:
                       message: >-
                         :paw_prints: Motion detected and it's dark
                         ({{ states('sensor.lounge_motion_2_light_level') }} &
@@ -91,9 +92,8 @@ automation:
                         {{ states('input_number.lounge_light_level_3_threshold') }}
                         {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
                         and Terina's work :computer: computer is on. Turning
-                        :bulb: lights on.
+                        :bulb: :high_brightness: lights on.
                       title: ":couch_and_lamp: Lounge"
-                    service: script.send_to_home_log
                   - service: scene.turn_on
                     target:
                       entity_id: scene.lounge_lights
@@ -121,7 +121,7 @@ automation:
             data:
               message: >-
                 :no_pedestrians: No motion for 5 minutes and :tv: TV is turned off.
-                :low_brightness: Dimming :bulb: lights
+                :bulb: :low_brightness: Dimming lights
               title: ":couch_and_lamp: Lounge"
           - service: scene.turn_on
             target:
@@ -185,7 +185,7 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: ":tv: TV turned off for 5 minutes. :low_brightness: Dimming :bulb: lights."
+              message: ":tv: TV turned off for 5 minutes. :bulb: :low_brightness: Dimming lights."
               title: ":couch_and_lamp: Lounge"
           - service: scene.turn_on
             target:

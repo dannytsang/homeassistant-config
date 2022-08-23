@@ -48,7 +48,6 @@ automation:
                       entity_id: scene.office_main_light_on
                   - service: script.send_to_home_log
                     data:
-                      title: ":office: Office"
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
                         and it's dark ({{ states('sensor.office_motion_light_level') }} &
@@ -57,7 +56,8 @@ automation:
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold') }}
                         {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
-                        Turning office up lights.
+                        Turning up :bulb: :high_brightness: lights.
+                      title: ":office: Office"
           - conditions:
               - and:
                   - condition: numeric_state
@@ -82,7 +82,6 @@ automation:
                       entity_id: scene.office_main_light_off
                   - service: script.send_to_home_log
                     data:
-                      title: ":office: Office"
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
                         and bright ({{ states('sensor.office_motion_light_level') }} &
@@ -92,6 +91,7 @@ automation:
                         {{ states('input_number.office_light_level_2_threshold') }}
                         {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
                         Turning office lights off.
+                      title: ":office: Office"
         default: []
     mode: single
   - id: "1632064858461"
@@ -140,7 +140,7 @@ automation:
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold') }}
                         {{ state_attr('input_number.office_light_level_threshold','unit_of_measurement') }}).
-                        Turning office lights on.
+                        Turning :bulb: :high_brightness: lights on.
                       title: ":office: Office"
         default: []
     mode: single
@@ -161,9 +161,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message:
-                ":no_pedestrians: No motion detected in the office after 5 minutes.
-                Dimming lights."
+              message: >-
+                :no_pedestrians: No motion detected in the office after 5 minutes.
+                :bulb: :low_brightness:Dimming lights.
           - service: scene.turn_on
             target:
               entity_id: scene.office_main_lights_dim
@@ -195,9 +195,9 @@ automation:
     action:
       - parallel:
           - data:
-              message:
-                ":no_pedestrians: :bulb: No motion detected in the office for 6 minutes
-                and :desktop_computer: is not connected. Turning office and desk lights off."
+              message: >-
+                :no_pedestrians: :bulb: No motion detected in the office for 6 minutes
+                and :desktop_computer: is not connected. Turning office and desk lights off.
               title: ":office: Office"
             service: script.send_to_home_log
           - service: scene.turn_on
@@ -224,7 +224,7 @@ automation:
             data:
               message: >-
                 :no_pedestrians: No motion in the office for 10 minutes
-                and :desktop_computer: is connected. Turning office light off.
+                and :desktop_computer: is connected. Turning lights off.
               title: ":office: Office"
           - service: scene.turn_on
             target:
@@ -280,15 +280,16 @@ automation:
               - parallel:
                   - service: script.send_to_home_log
                     data:
-                      message:
-                        ":warning: :hotsprings: Office temperature is above 29c (
-                        {{ states('sensor.office_area_mean_temperature') }}c)."
+                      message: >-
+                        :warning: :hotsprings: Office temperature is above 29c
+                        ({{ states('sensor.office_area_mean_temperature') }}c).
                       title: ":office: Office"
                   - service: script.send_actionable_notification_with_2_buttons
                     data:
                       message: Turn on office fan?
                       title: ♨️🏢Office temperature is 29c+
-                      people: ['person.danny']
+                      people: 
+                        - person.danny
                       action1_title: "Yes"
                       action1_name: switch_on_office_fan
                       action2_title: "No"
@@ -301,9 +302,9 @@ automation:
               - parallel:
                   - service: script.send_to_home_log
                     data:
-                      message:
-                        ":warning: :hotsprings: Office temperature is above 31c. Turning
-                        fan on."
+                      message: >-
+                        :warning: :hotsprings: Temperature is above 31c. Turning
+                        fan on.
                       title: ":office: Office"
                   - service: switch.turn_on
                     target:
@@ -328,27 +329,28 @@ automation:
         from: "off"
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: trigger
-                id: 1h
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: Turned off office Fan after 1 hour.
-                  title: ":office: Office"
-          - conditions:
-              - condition: trigger
-                id: 2h
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: Turned off office Fan after 2 hours.
-                  title: ":office: Office"
-        default: []
-      - service: switch.turn_off
-        target:
-          entity_id: switch.office_fan
+      parallel:
+        - choose:
+            - conditions:
+                - condition: trigger
+                  id: 1h
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message: Turned off office Fan after 1 hour.
+                    title: ":office: Office"
+            - conditions:
+                - condition: trigger
+                  id: 2h
+              sequence:
+                - service: script.send_to_home_log
+                  data:
+                    message: Turned off office Fan after 2 hours.
+                    title: ":office: Office"
+          default: []
+        - service: switch.turn_off
+          target:
+            entity_id: switch.office_fan
     mode: single
   - id: "1622666920056"
     alias: "^Office: Window Closed At Night"
@@ -376,9 +378,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message:
-                ":window: :city_sunset: Office window closed and it's dark. Closing
-                curtains."
+              message: >-
+                :window: :city_sunset: Office window closed and it's dark. Closing
+                curtains.
               title: ":office: Office"
           - service: script.office_close_curtains
     mode: single

@@ -14,30 +14,30 @@ automation:
           - conditions:
               - condition: template
                 value_template: >-
-                  {{ state_attr('media_player.spotify_danny','media_position') !=
+                  {{ state_attr('media_player.spotify_danny', 'media_position') !=
                   none and
-                  state_attr('media_player.spotify_danny','media_duration') !=
+                  state_attr('media_player.spotify_danny', 'media_duration') !=
                   none and
-                  state_attr('media_player.spotify_danny','media_title') !=
+                  state_attr('media_player.spotify_danny', 'media_title') !=
                   none and
-                  state_attr('media_player.spotify_danny','media_artist') !=
+                  state_attr('media_player.spotify_danny', 'media_artist') !=
                   none }}
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: "Playing *{{ state_attr('media_player.spotify_danny',
+                  message: >-
+                    Playing *{{ state_attr('media_player.spotify_danny',
                     'media_title') }}* by _{{ state_attr('media_player.spotify_danny',
-                    'media_artist') }}_ and is at {{ state_attr('media_player.spotify_danny','media_position') |
-                    int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.spotify_danny','media_duration') |
+                    'media_artist') }}_ and is at {{ state_attr('media_player.spotify_danny', 'media_position') |
+                    int | timestamp_custom('%H:%M:%S') }}/{{ state_attr('media_player.spotify_danny', 'media_duration') |
                     int | timestamp_custom('%H:%M:%S') }} ({{ ((state_attr('media_player.spotify_danny',
                     'media_position') | int / state_attr('media_player.spotify_danny',
-                    'media_duration') | int) * 100) | round(2, 'common') }}%) way through."
+                    'media_duration') | int) * 100) | round(2, 'common') }}%) way through.
                   title: ":musical_note: Spotify"
         default:
           - service: script.send_to_home_log
             data:
-              message: "Playing *{{ state_attr('media_player.spotify_danny',
-                'media_content_type') }}*."
+              message: "Playing *{{ state_attr('media_player.spotify_danny', 'media_content_type') }}*."
               title: ":musical_note: Spotify"
     mode: queued
     max: 10
