@@ -82,13 +82,10 @@ automation:
           entity_id: camera.bedroom_tv
         data:
           filename: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
-      - delay:
-          seconds: 2
-      - service: script.send_home_log_with_local_attachments
+      - service: script.roku_turned_basic_notification
         data:
-          message: ":tv: Bedroom Roku paused."
-          title: "Roku paused"
-          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
+          entity_id: "media_player.bedroom_roku_streaming_stick"
+          display_state: "paused"
     mode: queued
     max: 10
   - id: "1613051229067"
@@ -105,13 +102,10 @@ automation:
           entity_id: camera.bedroom_tv
         data:
           filename: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
-      - delay:
-          seconds: 2
-      - service: script.send_home_log_with_local_attachments
+      - service: script.roku_turned_basic_notification
         data:
-          message: ":tv: Bedroom Roku turned on."
-          title: "Lounge Roku turned on"
-          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
+          entity_id: "media_player.bedroom_roku_streaming_stick"
+          display_state: "turned on"
     mode: queued
     max: 10
   # Roku: Lounge
@@ -195,13 +189,10 @@ automation:
           entity_id: camera.lounge_tv
         data:
           filename: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
-      - delay:
-          seconds: 2
-      - service: script.send_home_log_with_local_attachments
+      - service: script.roku_turned_basic_notification
         data:
-          message: ":tv: Lounge Roku paused."
-          title: "Roku paused"
-          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+          entity_id: "media_player.lounge_roku_streaming_stick"
+          display_state: "paused"
     mode: queued
     max: 10
   - id: "1613051229066"
@@ -218,12 +209,33 @@ automation:
           entity_id: camera.lounge_tv
         data:
           filename: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
+      - service: script.roku_turned_basic_notification
+        data:
+          entity_id: "media_player.lounge_roku_streaming_stick"
+          display_state: "turned on"
+    mode: queued
+    max: 10
+
+script:
+  roku_turned_basic_notification:
+    alias: Roku Turned On Notification
+    fields:
+      entity_id:
+        description: Entity ID of the Roku player.
+        required: true
+      display_state:
+        description: The friendly state in text.
+        required: true
+        example: "'turned on', 'paused', etc"
+    variables:
+      title: "{{ ':couch_and_lamp: Lounge' if entity_id|default('') == 'media_player.lounge_roku_streaming_stick' else ':bed: Bedroom' }}"
+      file_path: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') if entity_id|default('') == 'media_player.lounge_roku_streaming_stick' else states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
+    sequence:
       - delay:
           seconds: 2
       - service: script.send_home_log_with_local_attachments
         data:
-          message: ":tv: Lounge Roku turned on."
-          title: "Lounge Roku turned on"
-          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_lounge_tv_file_path') }}"
-    mode: queued
-    max: 10
+          message: "Roku {{ display_state }}."
+          title: "{{ title }}"
+          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ file_path }}"
+    mode: single
