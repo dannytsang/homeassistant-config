@@ -195,33 +195,3 @@ update_travel_time_by_car:
             title: ":world_map: Travel Time By Car"
   mode: single
   icon: mdi:car
-energy_notify_excess_solar:
-  alias: Energy Notify Excess Solar
-  variables:
-    people_home: "{% set people = namespace(home=[]) %}
-      {% for p in state_attr('group.adult_people', 'entity_id')|default([]) %}
-      {% if states(p) == 'home' %}
-      {% set people.home = people.home + [p] %}
-      {% endif %}
-      {% endfor %}
-      {{ people.home }}"
-  sequence:
-    - service: script.send_direct_notification
-      data:
-        message: >-
-          :battery: Battery charged
-          ({{ states('sensor.growatt_sph6000_statement_of_charge')~
-          state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }})
-          and estimated to produce
-          {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour')~
-          state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }}
-          in the next hour.
-
-
-          There's approximately
-          {{ (states('sensor.power_production_next_24hours')|float(0)/1000) }} kW
-          to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
-        title: ":sunny: :zap: :electric_plug: Solar"
-        people: "{{ people_home }}"
-  mode: single
-  icon: mdi:solar-power
