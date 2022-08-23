@@ -11,25 +11,22 @@ automation:
         entity_id: input_boolean.enable_github_integration
         state: "on"
     action:
-      - parallel:
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: "{{ trigger.json.key|string == states('input_text.github_pull_key') }}"
-                sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.json.key|string == states('input_text.github_pull_key') }}"
+            sequence:
+              - parallel:
                   - service: script.send_to_home_log
                     data:
-                      message: "Pulling changes."
-                      title: ":construction_worker: :hammer_and_wrench: GitHub
-                        build passed :white_check_mark:"
+                      message: "build :white_check_mark: passed. Pulling changes."
+                      title: ":construction_worker: :hammer_and_wrench: GitHub"
                   - service: hassio.addon_start
                     data:
                       addon: core_git_pull
-            default:
-              - service: script.send_to_home_log
-                data:
-                  message: "Incorrect :key: key was sent :warning:"
-                  title:
-                    ":warning: :construction_worker: :hammer_and_wrench: GitHub
-                    build passed :white_check_mark:"
+        default:
+          - service: script.send_to_home_log
+            data:
+              message: "Build :white_check_mark: passed but ncorrect :key: key was sent."
+              title: ":warning: :construction_worker: :hammer_and_wrench: GitHub :warning:"
     mode: single
