@@ -20,88 +20,84 @@ automation:
         to: "on"
     condition:
       - and:
-        - condition: state
-          entity_id: input_boolean.enable_lounge_motion_triggers
-          state: "on"
-        - or:
-          - below: input_number.lounge_light_level_2_threshold
-            condition: numeric_state
-            entity_id: sensor.lounge_motion_2_light_level
-          - below: input_number.lounge_light_level_3_threshold
-            condition: numeric_state
-            entity_id: sensor.lounge_motion_3_light_level
-        - or:
-          - condition: numeric_state
-            entity_id: light.lounge_left_lamp
-            attribute: brightness
-            below: "190"
-          - condition: numeric_state
-            entity_id: light.lounge_right_lamp
-            attribute: brightness
-            below: "190"
-          - condition: template
-            value_template:
-              "{{ state_attr('light.lounge_left_lamp', 'brightness')
-              == none }}"
-          - condition: template
-            value_template:
-              "{{ state_attr('light.lounge_right_lamp', 'brightness')
-              == none }}"
+          - condition: state
+            entity_id: input_boolean.enable_lounge_motion_triggers
+            state: "on"
+          - or:
+              - below: input_number.lounge_light_level_2_threshold
+                condition: numeric_state
+                entity_id: sensor.lounge_motion_2_light_level
+              - below: input_number.lounge_light_level_3_threshold
+                condition: numeric_state
+                entity_id: sensor.lounge_motion_3_light_level
+          - or:
+              - condition: numeric_state
+                entity_id: light.lounge_left_lamp
+                attribute: brightness
+                below: "190"
+              - condition: numeric_state
+                entity_id: light.lounge_right_lamp
+                attribute: brightness
+                below: "190"
+              - condition: template
+                value_template: "{{ state_attr('light.lounge_left_lamp', 'brightness') == none }}"
+              - condition: template
+                value_template: "{{ state_attr('light.lounge_right_lamp', 'brightness') == none }}"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: device_tracker.lap_ctc0501
-                  state: home
-                - or:
-                    - below: input_number.lounge_light_level_2_threshold
-                      condition: numeric_state
-                      entity_id: sensor.lounge_motion_2_light_level
-                    - below: input_number.lounge_light_level_3_threshold
-                      condition: numeric_state
-                      entity_id: sensor.lounge_motion_3_light_level
-              sequence:
-                - data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.lounge_motion_2_light_level')
-                      }} & {{ states('sensor.lounge_motion_3_light_level') }} <
-                      {{ states('input_number.lounge_light_level_2_threshold') }} &
-                      {{ states('input_number.lounge_light_level_3_threshold') }}
-                      {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
-                      and Terina's work :computer: computer is on. Turning lounge
-                      :bulb: :high_brightness: lights on.
-                    title: ":couch_and_lamp: Lounge"
-                  service: script.send_to_home_log
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.lounge_lights
-            - conditions:
-                - or:
-                    - below: input_number.lounge_light_level_2_threshold
-                      condition: numeric_state
-                      entity_id: sensor.lounge_motion_2_light_level
-                    - below: input_number.lounge_light_level_3_threshold
-                      condition: numeric_state
-                      entity_id: sensor.lounge_motion_3_light_level
-              sequence:
-                - data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.lounge_motion_2_light_level') }} &
-                      {{ states('sensor.lounge_motion_3_light_level') }} <
-                      {{ states('input_number.lounge_light_level_2_threshold') }} &
-                      {{ states('input_number.lounge_light_level_3_threshold') }}
-                      {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
-                      and Terina's work :computer: computer is on. Turning
-                      :bulb: lights on.
-                    title: ":couch_and_lamp: Lounge"
-                  service: script.send_to_home_log
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.lounge_lights
-          default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: device_tracker.lap_ctc0501
+                    state: home
+                  - or:
+                      - below: input_number.lounge_light_level_2_threshold
+                        condition: numeric_state
+                        entity_id: sensor.lounge_motion_2_light_level
+                      - below: input_number.lounge_light_level_3_threshold
+                        condition: numeric_state
+                        entity_id: sensor.lounge_motion_3_light_level
+                sequence:
+                  - data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.lounge_motion_2_light_level')
+                        }} & {{ states('sensor.lounge_motion_3_light_level') }} <
+                        {{ states('input_number.lounge_light_level_2_threshold') }} &
+                        {{ states('input_number.lounge_light_level_3_threshold') }}
+                        {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
+                        and Terina's work :computer: computer is on. Turning lounge
+                        :bulb: :high_brightness: lights on.
+                      title: ":couch_and_lamp: Lounge"
+                    service: script.send_to_home_log
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights
+              - conditions:
+                  - or:
+                      - below: input_number.lounge_light_level_2_threshold
+                        condition: numeric_state
+                        entity_id: sensor.lounge_motion_2_light_level
+                      - below: input_number.lounge_light_level_3_threshold
+                        condition: numeric_state
+                        entity_id: sensor.lounge_motion_3_light_level
+                sequence:
+                  - data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.lounge_motion_2_light_level') }} &
+                        {{ states('sensor.lounge_motion_3_light_level') }} <
+                        {{ states('input_number.lounge_light_level_2_threshold') }} &
+                        {{ states('input_number.lounge_light_level_3_threshold') }}
+                        {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
+                        and Terina's work :computer: computer is on. Turning
+                        :bulb: lights on.
+                      title: ":couch_and_lamp: Lounge"
+                    service: script.send_to_home_log
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights
+            default: []
     mode: queued
     max: 10
   - id: "1606170045630"
@@ -121,17 +117,17 @@ automation:
         below: input_number.tv_plug_powered_on_threshold
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              :no_pedestrians: No motion for 5 minutes and :tv: TV is turned off.
-              :low_brightness: Dimming :bulb: lights
-            title: ":couch_and_lamp: Lounge"
-        - service: scene.turn_on
-          target:
-            entity_id: scene.lounge_dim_lights
-          data:
-            transition: 2
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion for 5 minutes and :tv: TV is turned off.
+                :low_brightness: Dimming :bulb: lights
+              title: ":couch_and_lamp: Lounge"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.lounge_dim_lights
+            data:
+              transition: 2
     mode: single
   - id: "1605567425876"
     alias: "^Lounge: No Motion After 10 Minutes"
@@ -151,17 +147,17 @@ automation:
         below: input_number.tv_plug_powered_on_threshold
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              :no_pedestrians: No motion for 10 minutes and
-              :tv: TV is turned off. Turning lounge lights off.
-            title: ":couch_and_lamp: Lounge"
-        - service: scene.turn_on
-          target:
-            entity_id: scene.lounge_lights_off
-          data:
-            transition: 2
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion for 10 minutes and
+                :tv: TV is turned off. Turning lounge lights off.
+              title: ":couch_and_lamp: Lounge"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.lounge_lights_off
+            data:
+              transition: 2
     mode: single
   - id: "1610388245160"
     alias: "^Lounge: TV Turned Off Dim Lights"
@@ -180,22 +176,22 @@ automation:
         state: "off"
       - condition: state
         entity_id: binary_sensor.lounge_area_motion
-        state: 'off'
+        state: "off"
         for:
           hours: 0
           minutes: 5
           seconds: 0
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":tv: TV turned off for 5 minutes. :low_brightness: Dimming :bulb: lights."
-            title: ":couch_and_lamp: Lounge"
-        - service: scene.turn_on
-          target:
-            entity_id: scene.lounge_dim_lights
-          data:
-            transition: 2
+          - service: script.send_to_home_log
+            data:
+              message: ":tv: TV turned off for 5 minutes. :low_brightness: Dimming :bulb: lights."
+              title: ":couch_and_lamp: Lounge"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.lounge_dim_lights
+            data:
+              transition: 2
     mode: single
   - id: "1610409803685"
     alias: "^Lounge: TV Turned Off Turn Off Lights"
@@ -214,22 +210,22 @@ automation:
         state: "off"
       - condition: state
         entity_id: binary_sensor.lounge_area_motion
-        state: 'off'
+        state: "off"
         for:
           hours: 0
           minutes: 10
           seconds: 0
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: ":tv: TV turned off for 10 minutes. Turning lights off."
-            title: ":couch_and_lamp: Lounge"
-        - service: scene.turn_on
-          target:
-            entity_id: scene.lounge_lights_off
-          data:
-            transition: 2
+          - service: script.send_to_home_log
+            data:
+              message: ":tv: TV turned off for 10 minutes. Turning lights off."
+              title: ":couch_and_lamp: Lounge"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.lounge_lights_off
+            data:
+              transition: 2
     mode: single
   # Alarm
   - id: "1588859622571"
@@ -268,15 +264,15 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":warning: :thermometer: Bay window is above 35c. Turning server fan
-              on."
-            title: "Ubibot via IFTTT"
-        - service: switch.turn_on
-          target:
-            entity_id: switch.server_fan
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":warning: :thermometer: Bay window is above 35c. Turning server fan
+                on."
+              title: "Ubibot via IFTTT"
+          - service: switch.turn_on
+            target:
+              entity_id: switch.server_fan
     mode: single
   - id: "1608493853210"
     alias: "^Lounge: Bay Window Below High Temperature"
@@ -289,15 +285,15 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":thermometer: :snowflake: Bay window below high temperature. Turning
-              server fan off."
-            title: "Ubibot via IFTTT"
-        - service: switch.turn_off
-          target:
-            entity_id: switch.server_fan
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":thermometer: :snowflake: Bay window below high temperature. Turning
+                server fan off."
+              title: "Ubibot via IFTTT"
+          - service: switch.turn_off
+            target:
+              entity_id: switch.server_fan
     mode: single
   - id: "1611063957341"
     alias: "^Lounge: Server Fan Running Longer Than 1 Hour"
@@ -310,27 +306,27 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message:
-              Server fan has been running for more than 1 hour. Consider turning
-              Fan off.
-            title: ":couch_and_lamp: Lounge"
-        - if:
-            - condition: state
-              entity_id: input_boolean.enable_direct_notifications
-              state: "on"
-          then:
-            - service: script.send_actionable_notification_with_2_buttons
-              data:
-                message: Turn off server fan?
-                title: Server fan on for over 1 hour
-                people:
-                  - person.danny
-                action1_title: "Yes"
-                action1_name: server_fan_off
-                action2_title: "No"
-                action2_name: ignore
+          - service: script.send_to_home_log
+            data:
+              message:
+                Server fan has been running for more than 1 hour. Consider turning
+                Fan off.
+              title: ":couch_and_lamp: Lounge"
+          - if:
+              - condition: state
+                entity_id: input_boolean.enable_direct_notifications
+                state: "on"
+            then:
+              - service: script.send_actionable_notification_with_2_buttons
+                data:
+                  message: Turn off server fan?
+                  title: Server fan on for over 1 hour
+                  people:
+                    - person.danny
+                  action1_title: "Yes"
+                  action1_name: server_fan_off
+                  action2_title: "No"
+                  action2_name: ignore
     mode: single
   # Camera
   - id: "1630015457540"
@@ -374,13 +370,13 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              :door: :window: Door/window opened.
-              Turning lounge :camera_with_flash: camera on.
-            title: ":couch_and_lamp: Lounge"
-        - service: script.lounge_turn_on_camera
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :door: :window: Door/window opened.
+                Turning lounge :camera_with_flash: camera on.
+              title: ":couch_and_lamp: Lounge"
+          - service: script.lounge_turn_on_camera
     mode: single
   - id: "1631454249839"
     alias: "^Lounge: Door Or Windows Closed"
@@ -393,11 +389,11 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "All :door: :window: doors/windows closed. Turning lounge :camera: camera off."
-            title: ":couch_and_lamp: Lounge"
-        - service: script.lounge_turn_off_camera
+          - service: script.send_to_home_log
+            data:
+              message: "All :door: :window: doors/windows closed. Turning lounge :camera: camera off."
+              title: ":couch_and_lamp: Lounge"
+          - service: script.lounge_turn_off_camera
     mode: single
   # Switches
   - id: "1610918759041"
@@ -440,12 +436,12 @@ automation:
     condition: []
     action:
       - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.playstation_powered_on
-              state: 'off'
-          sequence:
-            - service: script.lounge_select_vcr_dvr_input
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.playstation_powered_on
+                state: "off"
+            sequence:
+              - service: script.lounge_select_vcr_dvr_input
         default:
           - service: script.lounge_select_game_input
     mode: single
@@ -636,19 +632,19 @@ script:
     alias: Lounge Turn Off Camera
     sequence:
       - choose:
-        - conditions:
-            - or:
-                - not:
-                    - condition: state
-                      entity_id: alarm_control_panel.house_alarm
-                      state: disarmed
-                - condition: state
-                  entity_id: binary_sensor.front_door
-                  state: "on"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: "Alarm is on or front door is open. Keeping lounge:camera_with_flash: camera detection on."
+          - conditions:
+              - or:
+                  - not:
+                      - condition: state
+                        entity_id: alarm_control_panel.house_alarm
+                        state: disarmed
+                  - condition: state
+                    entity_id: binary_sensor.front_door
+                    state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "Alarm is on or front door is open. Keeping lounge:camera_with_flash: camera detection on."
         default:
           - service: script.send_to_home_log
             data:
