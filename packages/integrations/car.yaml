@@ -6,6 +6,27 @@
 # counter.dannys_car_location_checked - Number of successful location updates.
 # input_boolean.check_dannys_car_location - Turns on or off car location updates.
 # timer.update_dannys_car - Delays between each request to update car details.
+automation:
+  - id: "1660598586325"
+    alias: "^Car: Travel Time By Car Updated"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.google_travel_time_by_car
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            Updated.
+            Origin: {{ state_attr(''sensor.google_travel_time_by_car'', ''origin_addresses'') }}
+            Destination: {{ state_attr(''sensor.google_travel_time_by_car'', ''destination_addresses'') }}
+            Distance: {{ state_attr(''sensor.google_travel_time_by_car'', ''distance'') }}
+            Time: {{ state_attr(''sensor.google_travel_time_by_car'', ''duration_in_traffic'') }}
+          title: "Travel Time By :car: Car"
+    mode: single
+
 proximity:
   danny_car_home:
     zone: home
