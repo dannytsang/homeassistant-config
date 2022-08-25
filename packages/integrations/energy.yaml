@@ -91,6 +91,27 @@ automation:
       - service: script.energy_notify_excess_solar
         data: {}
     mode: single
+  - id: "1660858653319"
+    alias: "^Energy: Notify To Charge Battery Overnight"
+    description: ""
+    trigger:
+      - platform: time
+        at: "21:00:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.energy_production_tomorrow
+        below: "6.1"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message:
+            Charge battery tonight because solar production will be less than 6.1
+            ({{ states('sensor.energy_production_tomorrow') }}) {{ state_attr('sensor.energy_production_tomorrow',
+            'unit_of_measurement') }}
+          title: Solar
+          people:
+            - person.danny
+    mode: single
 
 script:
   energy_notify_excess_solar:
