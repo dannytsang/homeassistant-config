@@ -34,9 +34,6 @@ automation:
         platform: time
       - at: 02:00:00
         platform: time
-      - at: 02:05:00
-        platform: time
-        id: last
     condition:
       - condition: state
         entity_id: group.adult_people
@@ -60,7 +57,9 @@ automation:
             sequence:
               - service: script.send_direct_notification
                 data:
-                  message: "Did not turned on because a door or window is open."
+                  message: >-
+                    Did not turned on because a door or window is still open.
+                    Trying again later
                   title: ":warning: :bell: Alarm"
                   people:
                     - person.danny
@@ -76,10 +75,49 @@ automation:
             sequence:
               - service: script.send_direct_notification
                 data:
-                  message: "Did not turned on because a door or window is open."
+                  message: >-
+                    Did not turned on because a door or window is still open.
+                    Trying again later
                   title: ":warning: :bell: Alarm"
                   people:
                     - person.danny
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.alarmed_doors_and_windows
+                state: "off"
+            sequence:
+              - service: script.arm_alarm_overnight
+                data:
+                  message: "It's late."
+        default: []
+    mode: single
+  - id: "1587680439015"
+    alias: "^Alarm: Arm Overnight Home Mode Final Check"
+    description: ""
+    trigger:
+      - at: 02:05:00
+        platform: time
+    condition:
+      - condition: state
+        entity_id: group.adult_people
+        state: home
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: disarmed
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.alarmed_doors_and_windows
+                state: "on"
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: "Did not turned on because a door or window is open."
+                  title: ":warning: :bell: Alarm :warning:"
+                  people:
+                    - person.danny
+                    - person.terina
           - conditions:
               - condition: state
                 entity_id: binary_sensor.alarmed_doors_and_windows
