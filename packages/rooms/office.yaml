@@ -1425,3 +1425,36 @@ sensor:
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       days: 30
+
+template:
+  - trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.office_window_left
+          - binary_sensor.office_window_right
+          - input_number.close_blinds_brightness_threshold
+          - input_number.forecast_high_temperature
+          - sensor.front_garden_motion_light_level
+          - sun.sun
+          - weather.home_weather
+          - weather.home_hourly
+    binary_sensor:
+      - name: Office Curtain Anticipated State
+        unique_id: 20930498-7de2-4151-ae84-9c5566dcafe9
+        device_class: opening
+        state: >-
+          {{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          and states('sun.sun') == 'above_horizon'
+          and state_attr('weather.home_weather', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and weather_condition in ['sunny','partlycloudy']
+          and states('binary_sensor.office_window_left')
+          and states('binary_sensor.office_window_right') }}
+        attributes:
+          brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          sun: "{{ states('sun.sun') == 'above_horizon' }}"
+          temperature_forecast: "{{ states('weather.home_weather')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          weather: "{{ weather_condition|default([]) in ['sunny','partlycloudy'] }}"
+          window_left: "{{ states('binary_sensor.office_window_left') }}"
+          window_right: "{{ states('binary_sensor.office_window_right') }}"
