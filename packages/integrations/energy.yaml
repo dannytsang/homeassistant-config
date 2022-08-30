@@ -148,6 +148,7 @@ script:
 
 template:
   - sensor:
+      # Forecast
       - name: "Total Solar Forecast Estimated energy production - next hour"
         unique_id: 5203e039-773f-4aaf-9328-aa114cbaec9c
         state: "{{ states('sensor.energy_next_hour_2')|float(0) + states('sensor.energy_next_hour_2')|float(0) }}"
@@ -181,5 +182,10 @@ template:
       - name: "Total Solar Forecast Estimated power production next 24 hours"
         unique_id: 327211fc-7224-454a-b8e6-cafa3c2cbafd
         state: "{{ states('sensor.power_production_next_24hours')|float(0) + states('sensor.power_production_next_24hours_2')|float(0) }}"
+        unit_of_measurement: "kWh"
+        device_class: "energy"
+      - name: "Battery Charge Remaining"
+        unique_id: 6d205780-4eaa-4340-a45f-71bbe7ccea5cx`
+        state: "{{ ((states('input_number.solar_battery_size')|float(0)) * ((states('sensor.growatt_sph6000_statement_of_charge')|float(0))/100))|round(2) }}"
         unit_of_measurement: "kWh"
         device_class: "energy"
