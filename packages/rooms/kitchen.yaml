@@ -42,118 +42,118 @@ automation:
     condition: []
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: time
-                  after: "00:00:00"
-                - condition: sun
-                  before: sunset
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
-                      Turning ambient lights off.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_side_lights_off
-                  data:
-                    transition: 2
-            - conditions:
-                - and:
-                  - condition: sun
-                    after: sunset
+          - choose:
+              - conditions:
                   - condition: time
-                    before: "23:30:00"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after :city_sunset: and before :clock1130:.
-                      Dimming ambient :bulb: :low_brightness: lights.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_dim_side_lights
-                  data:
-                    transition: 2
-            - conditions:
-                - condition: time
-                  after: "23:30:00"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after
-                      :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:.
-                      Turning all lights off."
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_off
-                  data:
-                    transition: 2
-          default: []
-        - choose:
-            - conditions:
-                - condition: time
-                  after: "00:00:00"
-                - condition: sun
-                  before: sunset
-                - condition: trigger
-                  id: first_no_motion
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
-                      Turning main kitchen lights off.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_off
-                  data:
-                    transition: 2
-            - conditions:
-                - and:
+                    after: "00:00:00"
                   - condition: sun
-                    after: sunset
+                    before: sunset
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
+                        Turning ambient lights off.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_side_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - and:
+                      - condition: sun
+                        after: sunset
+                      - condition: time
+                        before: "23:30:00"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunset: and before :clock1130:.
+                        Dimming ambient :bulb: :low_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_dim_side_lights
+                    data:
+                      transition: 2
+              - conditions:
                   - condition: time
-                    before: "23:59:59"
+                    after: "23:30:00"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:.
+                        Turning all lights off."
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+            default: []
+          - choose:
+              - conditions:
+                  - condition: time
+                    after: "00:00:00"
+                  - condition: sun
+                    before: sunset
                   - condition: trigger
                     id: first_no_motion
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
-                      :low_brightness: Dimming main :bulb: :low_brightness: lights.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_dim
-            - conditions:
-                - and:
-                  - condition: sun
-                    after: sunset
-                  - condition: time
-                    before: "23:59:59"
-                  - condition: trigger
-                    id: second_no_motion
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
-                      Turning main lights off.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_off
-                  data:
-                    transition: 2
-          default: []
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
+                        Turning main kitchen lights off.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - and:
+                      - condition: sun
+                        after: sunset
+                      - condition: time
+                        before: "23:59:59"
+                      - condition: trigger
+                        id: first_no_motion
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
+                        :low_brightness: Dimming main :bulb: :low_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_dim
+              - conditions:
+                  - and:
+                      - condition: sun
+                        after: sunset
+                      - condition: time
+                        before: "23:59:59"
+                      - condition: trigger
+                        id: second_no_motion
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
+                        Turning main lights off.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+            default: []
     mode: single
   - id: "1606294735952"
     alias: "^Kitchen: Turn Off Lights In The Morning"
@@ -175,47 +175,47 @@ automation:
         state: "on"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: time
-                  weekday:
-                    - mon
-                    - tue
-                    - wed
-                    - thu
-                    - fri
-                - condition: trigger
-                  id: weekday
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                      Turning main lights off.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_off
-                  data:
-                    transition: 2
-            - conditions:
-                - condition: time
-                  weekday:
-                    - sat
-                    - sun
-                - condition: trigger
-                  id: weekend
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: ":clock{{ now().strftime('%H')}}: Turning main lights off."
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_main_lights_off
-                  data:
-                    transition: 2
-          default: []
+          - choose:
+              - conditions:
+                  - condition: time
+                    weekday:
+                      - mon
+                      - tue
+                      - wed
+                      - thu
+                      - fri
+                  - condition: trigger
+                    id: weekday
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        Turning main lights off.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: time
+                    weekday:
+                      - sat
+                      - sun
+                  - condition: trigger
+                    id: weekend
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":clock{{ now().strftime('%H')}}: Turning main lights off."
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+            default: []
     mode: single
   - id: "1588197104336"
     alias: "^Kitchen: Timed Turn On Lights (Dim)"
@@ -228,25 +228,25 @@ automation:
     condition:
       - and:
           - not:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: Guest
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
           - condition: state
             entity_id: group.adult_people
             state: home
     action:
       - parallel:
-        - service: scene.turn_on
-          target:
-            entity_id: scene.kitchen_dim_side_lights
-          data:
-            transition: 2
-        - data:
-            message: >-
-              :bulb:  At least one person is :house_with_garden: home.
-              Dimming ambient :bulb: :low_brightness: lights.
-            title: ":cook: Kitchen"
-          service: script.send_to_home_log
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_dim_side_lights
+            data:
+              transition: 2
+          - data:
+              message: >-
+                :bulb:  At least one person is :house_with_garden: home.
+                Dimming ambient :bulb: :low_brightness: lights.
+              title: ":cook: Kitchen"
+            service: script.send_to_home_log
     mode: single
   - id: "1606158191303"
     alias: "^Kitchen: Motion Detected Table Lights Off"
@@ -271,41 +271,41 @@ automation:
             state: "off"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_light_level
-                      below: input_number.kitchen_light_level_threshold
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_2_light_level
-                      below: input_number.kitchen_light_level_2_threshold
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.kitchen_motion_light_level') }}
-                      & {{ states('sensor.kitchen_motion_2_light_level') }}
-                      < {{ states('input_number.kitchen_light_level_threshold') }} &
-                      {{ states('input_number.kitchen_light_level_2_threshold') }}
-                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                      Turning table :bulb: :high_brightness: lights on.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_table_lights_on
-          default:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :paw_prints: Motion detected and it's not dark
-                  ({{ states('sensor.kitchen_motion_light_level') }}
-                  & {{ states('sensor.kitchen_motion_2_light_level') }}
-                  < {{ states('input_number.kitchen_light_level_threshold') }} &
-                  {{ states('input_number.kitchen_light_level_2_threshold') }}
-                  {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}).
-                title: ":cook: Kitchen"
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_light_level
+                        below: input_number.kitchen_light_level_threshold
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_2_light_level
+                        below: input_number.kitchen_light_level_2_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.kitchen_motion_light_level') }}
+                        & {{ states('sensor.kitchen_motion_2_light_level') }}
+                        < {{ states('input_number.kitchen_light_level_threshold') }} &
+                        {{ states('input_number.kitchen_light_level_2_threshold') }}
+                        {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                        Turning table :bulb: :high_brightness: lights on.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_table_lights_on
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :paw_prints: Motion detected and it's not dark
+                    ({{ states('sensor.kitchen_motion_light_level') }}
+                    & {{ states('sensor.kitchen_motion_2_light_level') }}
+                    < {{ states('input_number.kitchen_light_level_threshold') }} &
+                    {{ states('input_number.kitchen_light_level_2_threshold') }}
+                    {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}).
+                  title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191307"
@@ -321,69 +321,69 @@ automation:
     condition:
       - or:
           - and:
-            - condition: state
-              entity_id: light.kitchen_left
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_left
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_left
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_left
+                attribute: brightness
+                below: 100
           - and:
-            - condition: state
-              entity_id: light.kitchen_middle
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_middle
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_middle
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_middle
+                attribute: brightness
+                below: 100
           - and:
-            - condition: state
-              entity_id: light.kitchen_right
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_right
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_right
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_right
+                attribute: brightness
+                below: 100
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_light_level
-                      below: input_number.kitchen_light_level_threshold
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_2_light_level
-                      below: input_number.kitchen_light_level_2_threshold
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.kitchen_motion_light_level') }}
-                      & {{ states('sensor.kitchen_motion_2_light_level') }}
-                      {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}
-                      < {{ states('input_number.kitchen_light_level_threshold') }} &
-                      {{ states('input_number.kitchen_light_level_2_threshold') }}
-                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                      Turning up table :bulb: :high_brightness: lights.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_table_lights_on
-          default:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :paw_prints: Motion detected and it's not dark
-                  ({{ states('sensor.kitchen_motion_light_level') }}
-                  & {{ states('sensor.kitchen_motion_2_light_level') }}
-                  {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}
-                  < {{ states('input_number.kitchen_light_level_threshold') }} &
-                  {{ states('input_number.kitchen_light_level_2_threshold') }}
-                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                  Leaving table :bulb: :low_brightness: lights on dim.
-                title: ":cook: Kitchen"
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_light_level
+                        below: input_number.kitchen_light_level_threshold
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_2_light_level
+                        below: input_number.kitchen_light_level_2_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.kitchen_motion_light_level') }}
+                        & {{ states('sensor.kitchen_motion_2_light_level') }}
+                        {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}
+                        < {{ states('input_number.kitchen_light_level_threshold') }} &
+                        {{ states('input_number.kitchen_light_level_2_threshold') }}
+                        {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                        Turning up table :bulb: :high_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_table_lights_on
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :paw_prints: Motion detected and it's not dark
+                    ({{ states('sensor.kitchen_motion_light_level') }}
+                    & {{ states('sensor.kitchen_motion_2_light_level') }}
+                    {{ state_attr('sensor.kitchen_motion_light_level','unit_of_measurement') }}
+                    < {{ states('input_number.kitchen_light_level_threshold') }} &
+                    {{ states('input_number.kitchen_light_level_2_threshold') }}
+                    {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                    Leaving table :bulb: :low_brightness: lights on dim.
+                  title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191306"
@@ -409,41 +409,41 @@ automation:
             state: "off"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_light_level
-                      below: input_number.kitchen_light_level_threshold
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_2_light_level
-                      below: input_number.kitchen_light_level_2_threshold
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.kitchen_motion_light_level') }} &
-                      {{ states('sensor.kitchen_motion_2_light_level') }}
-                      < {{ states('input_number.kitchen_light_level_threshold') }} &
-                      {{ states('input_number.kitchen_light_level_2_threshold') }}
-                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                      Turning kitchen cooker :bulb: :high_brightness: lights on.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_cooker_lights_on
-          default:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :paw_prints: Motion detected and it's not dark
-                  ({{ states('sensor.kitchen_motion_light_level') }} &
-                  {{ states('sensor.kitchen_motion_2_light_level') }}
-                  < {{ states('input_number.kitchen_light_level_threshold') }} &
-                  {{ states('input_number.kitchen_light_level_2_threshold') }}
-                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                title: ":cook: Kitchen"
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_light_level
+                        below: input_number.kitchen_light_level_threshold
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_2_light_level
+                        below: input_number.kitchen_light_level_2_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.kitchen_motion_light_level') }} &
+                        {{ states('sensor.kitchen_motion_2_light_level') }}
+                        < {{ states('input_number.kitchen_light_level_threshold') }} &
+                        {{ states('input_number.kitchen_light_level_2_threshold') }}
+                        {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                        Turning kitchen cooker :bulb: :high_brightness: lights on.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_cooker_lights_on
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :paw_prints: Motion detected and it's not dark
+                    ({{ states('sensor.kitchen_motion_light_level') }} &
+                    {{ states('sensor.kitchen_motion_2_light_level') }}
+                    < {{ states('input_number.kitchen_light_level_threshold') }} &
+                    {{ states('input_number.kitchen_light_level_2_threshold') }}
+                    {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                  title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191309"
@@ -459,67 +459,67 @@ automation:
     condition:
       - or:
           - and:
-            - condition: state
-              entity_id: light.kitchen_left_2
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_left_2
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_left_2
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_left_2
+                attribute: brightness
+                below: 100
           - and:
-            - condition: state
-              entity_id: light.kitchen_middle_2
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_middle_2
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_middle_2
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_middle_2
+                attribute: brightness
+                below: 100
           - and:
-            - condition: state
-              entity_id: light.kitchen_right_2
-              state: "on"
-            - condition: numeric_state
-              entity_id: light.kitchen_right_2
-              attribute: brightness
-              below: 100
+              - condition: state
+                entity_id: light.kitchen_right_2
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_right_2
+                attribute: brightness
+                below: 100
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_light_level
-                      below: input_number.kitchen_light_level_threshold
-                    - condition: numeric_state
-                      entity_id: sensor.kitchen_motion_2_light_level
-                      below: input_number.kitchen_light_level_2_threshold
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected and it's dark
-                      ({{ states('sensor.kitchen_motion_light_level') }} &
-                      {{ states('sensor.kitchen_motion_2_light_level') }}
-                      < {{ states('input_number.kitchen_light_level_threshold') }} &
-                      {{ states('input_number.kitchen_light_level_2_threshold') }}
-                      {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                      Turning up cooker :bulb: :high_brightness: lights.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_cooker_lights_on
-          default:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :paw_prints: Motion detected and not it's dark
-                  ({{ states('sensor.kitchen_motion_light_level') }} &
-                  {{ states('sensor.kitchen_motion_2_light_level') }}
-                  < {{ states('input_number.kitchen_light_level_threshold') }} &
-                  {{ states('input_number.kitchen_light_level_2_threshold') }}
-                  {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
-                  Leaving cooker :bulb: :low_brightness: lights on dim.
-                title: ":cook: Kitchen"
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_light_level
+                        below: input_number.kitchen_light_level_threshold
+                      - condition: numeric_state
+                        entity_id: sensor.kitchen_motion_2_light_level
+                        below: input_number.kitchen_light_level_2_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.kitchen_motion_light_level') }} &
+                        {{ states('sensor.kitchen_motion_2_light_level') }}
+                        < {{ states('input_number.kitchen_light_level_threshold') }} &
+                        {{ states('input_number.kitchen_light_level_2_threshold') }}
+                        {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                        Turning up cooker :bulb: :high_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_cooker_lights_on
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :paw_prints: Motion detected and not it's dark
+                    ({{ states('sensor.kitchen_motion_light_level') }} &
+                    {{ states('sensor.kitchen_motion_2_light_level') }}
+                    < {{ states('input_number.kitchen_light_level_threshold') }} &
+                    {{ states('input_number.kitchen_light_level_2_threshold') }}
+                    {{ state_attr('input_number.kitchen_light_level_threshold','unit_of_measurement') }}).
+                    Leaving cooker :bulb: :low_brightness: lights on dim.
+                  title: ":cook: Kitchen"
     mode: queued
     max: 10
   - id: "1606158191304"
@@ -542,32 +542,32 @@ automation:
             state: "on"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: light.kitchen_cabinet_light
-                      attribute: brightness
-                      below: "100"
-                    - condition: numeric_state
-                      entity_id: light.kitchen_down_light
-                      attribute: brightness
-                      below: "100"
-                    - condition: numeric_state
-                      entity_id: light.kitchen_drawers
-                      attribute: brightness
-                      below: "100"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected.
-                      Turning up ambient :bulb: :high_brightness: lights.
-                    title: ":cook: Kitchen"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.kitchen_side_lights_on
-          default: []
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: light.kitchen_cabinet_light
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_down_light
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_drawers
+                        attribute: brightness
+                        below: "100"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected.
+                        Turning up ambient :bulb: :high_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_side_lights_on
+            default: []
     mode: queued
     max: 10
   - id: "1606158191305"
@@ -590,15 +590,15 @@ automation:
             state: "off"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              :paw_prints: Motion detected.
-              Turning ambient :bulb: :high_brightness: lights on.
-            title: ":cook: Kitchen"
-        - service: scene.turn_on
-          target:
-            entity_id: scene.kitchen_side_lights_on
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :paw_prints: Motion detected.
+                Turning ambient :bulb: :high_brightness: lights on.
+              title: ":cook: Kitchen"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_side_lights_on
     mode: single
   - id: "1619356833117"
     alias: "^Kitchen: Turn Off Coffee Machine"
@@ -615,15 +615,15 @@ automation:
         state: "on"
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              :coffee: Coffee machine has been on for 30 minutes.
-              Turning off coffee machine.
-            title: ":cook: Kitchen"
-        - service: switch.turn_off
-          target:
-            entity_id: switch.coffee_machine
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :coffee: Coffee machine has been on for 30 minutes.
+                Turning off coffee machine.
+              title: ":cook: Kitchen"
+          - service: switch.turn_off
+            target:
+              entity_id: switch.coffee_machine
     mode: single
   # Fridge
   - id: "1595678795895"
@@ -686,11 +686,11 @@ automation:
             state: "on"
         then:
           - parallel:
-            - service: script.send_direct_notification
-              data:
-                message: >-
-                  :snowflake: Fridge :door: door is open has been open for more than 4 minutes!
-                title: ":warning: :cook: Kitchen :warning:"
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    :snowflake: Fridge :door: door is open has been open for more than 4 minutes!
+                  title: ":warning: :cook: Kitchen :warning:"
     mode: single
   # Freezer
   - id: "1595678795896"
@@ -753,10 +753,10 @@ automation:
             state: "on"
         then:
           - parallel:
-            - service: script.send_direct_notification
-              data:
-                message: ":snowflake: Freezer :door: door has been open for more than 4 minutes!"
-                title: ":warning: :cook: Kitchen :warning:"
+              - service: script.send_direct_notification
+                data:
+                  message: ":snowflake: Freezer :door: door has been open for more than 4 minutes!"
+                  title: ":warning: :cook: Kitchen :warning:"
     mode: single
   - id: "1657801925107"
     alias: "^Kitchen: Fridge Plug Turned Off"
@@ -1393,3 +1393,11 @@ script:
             - switch.kitchen_detect
             - switch.kitchen_snapshots
     mode: single
+
+template:
+  - binary_sensor:
+      - name: Dishwasher Powered On
+        unique_id: 63be053e-e80c-4b19-b6a4-32ec1405bb8f
+        icon: "mdi:dishwasher{{ '' if states('sensor.dishwasher_power') | float(0) >= 10 else '-off' }}"
+        device_class: running
+        state: "{{ states('sensor.dishwasher_power') | float(0) >= 10 }}"
