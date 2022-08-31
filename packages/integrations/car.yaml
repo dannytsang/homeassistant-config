@@ -133,8 +133,9 @@ script:
                           entity_id: timer.update_dannys_car
                       - service: timer.start
                         data:
-                          # Set timmer to 1 how from now.
-                          duration: "{{ (as_timestamp(now()) + 3600) | timestamp_custom('%Y:%m:%d %H:%M:%S') }}"
+                          duration: >-
+                            {% set new_ts = (states('input_number.default_update_car_location')|int(0) * 60) %}
+                            {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                         target:
                           entity_id: timer.update_dannys_car
                   # Update car failed and equal to or above max attempt.
