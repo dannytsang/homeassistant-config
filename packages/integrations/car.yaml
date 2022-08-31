@@ -7,6 +7,23 @@
 # input_boolean.check_dannys_car_location - Turns on or off car location updates.
 # timer.update_dannys_car - Delays between each request to update car details.
 automation:
+  - id: "1658855072523"
+    alias: "^Car: Update Danny's Car"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.update_dannys_car
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: Updating.
+          title: ":car: Car"
+      - service: script.dannys_car_update_location
+        data: {}
+    mode: single
   - id: "1660598586325"
     alias: "^Car: Travel Time By Car Updated"
     description: ""
@@ -90,12 +107,11 @@ script:
                             ({{ states('counter.dannys_car_update_attempts') }}/{{ states('input_number.dannys_car_max_location_update_attempts')|int }}).
                             Restarting car update timer."
                           title: "Danny's :car: Car"
-                      - service: timer.cancel
-                        data: {}
-                        target:
-                          entity_id: timer.update_dannys_car
                       - service: timer.start
-                        data: {}
+                        data:
+                          duration: >-
+                            {% set new_ts = (states('input_number.default_update_car_location')|int(0) * 60) %}
+                            {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                         target:
                           entity_id: timer.update_dannys_car
                   # Update car failed and below max attempts.
