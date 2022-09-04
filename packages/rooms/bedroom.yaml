@@ -1143,25 +1143,22 @@ template:
           - input_number.forecast_high_temperature
           - sensor.front_garden_motion_light_level
           - sun.sun
-          - weather.home_weather
           - weather.home_hourly
     binary_sensor:
       - name: Bedroom Blind Anticipated State
         unique_id: 978fb6f0-42db-4c71-ab13-9037e82da73a
         device_class: opening
         state: >-
-          {{ states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-          and states('sun.sun') == 'above_horizon'
-          and state_attr('weather.home_weather', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          {{ not(states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          and not(states('sun.sun') == 'above_horizon')
+          and states('binary_sensor.bedroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and states('binary_sensor.bedroom_tv_powered_on') == 'off'
-          and weather_condition in ['sunny','partlycloudy']
-          and states('binary_sensor.bedroom_window') }}
+          and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature_forecast: "{{ states('weather.home_weather')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           tv_running: "{{ states('binary_sensor.bedroom_tv_powered_on')|default('off') == 'off' }}"
-          weather: "{{ weather_condition|default([]) in ['sunny','partlycloudy'] }}"
+          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
           window: "{{ states('binary_sensor.bedroom_window') }}"

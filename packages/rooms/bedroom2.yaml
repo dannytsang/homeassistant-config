@@ -394,3 +394,28 @@ template:
           top_right: "{{ states('sensor.leos_bed_top_right') }}"
           bottom_left: "{{ states('sensor.leos_bed_bottom_left') }}"
           bottom_right: "{{ states('sensor.leos_bed_bottom_right') }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.leos_window
+          - input_number.close_blinds_brightness_threshold
+          - input_number.forecast_high_temperature
+          - sensor.back_garden_motion_light_level
+          - sun.sun
+          - weather.home_hourly
+    binary_sensor:
+      - name: Leo's Bedroom Blind Anticipated State
+        unique_id: a80c96a7-50bb-4d5b-a950-352763d3d6fd
+        device_class: opening
+        state: >-
+          {{ not(states('sensor.back_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          and not(states('sun.sun') == 'above_horizon')
+          and states('binary_sensor.leos_window') == 'off')
+          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
+        attributes:
+          brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          sun: "{{ states('sun.sun') == 'above_horizon' }}"
+          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
+          window: "{{ states('binary_sensor.leos_window') }}"

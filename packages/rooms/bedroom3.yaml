@@ -469,3 +469,28 @@ template:
           top_middle: "{{ states('sensor.ashlees_bed_middle_top') }}"
           bottom_middle: "{{ states('sensor.ashlees_bed_middle_bottom') }}"
           bottom: "{{ states('sensor.ashlees_bed_bottom') }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.ashlees_window
+          - input_number.close_blinds_brightness_threshold
+          - input_number.forecast_high_temperature
+          - sensor.front_garden_motion_light_level
+          - sun.sun
+          - weather.home_hourly
+    binary_sensor:
+      - name: Ashlee's Bedroom Blind Anticipated State
+        unique_id: 48b99f2d-c634-418d-bfd0-19c2e2ce640f
+        device_class: opening
+        state: >-
+          {{ not(states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          and not(states('sun.sun') == 'above_horizon')
+          and states('binary_sensor.ashlees_window') == 'off')
+          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
+        attributes:
+          brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          sun: "{{ states('sun.sun') == 'above_horizon' }}"
+          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
+          window: "{{ states('binary_sensor.ashlees_window') }}"

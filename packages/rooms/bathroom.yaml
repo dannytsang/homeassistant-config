@@ -827,3 +827,30 @@ script:
             default: []
     mode: single
     icon: mdi:roller-shade-closed
+
+template:
+  - trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.bathroom_window
+          - input_number.close_blinds_brightness_threshold
+          - input_number.forecast_high_temperature
+          - sensor.back_garden_motion_light_level
+          - sun.sun
+          - weather.home_hourly
+    binary_sensor:
+      - name: Bathroom Blind Anticipated State
+        unique_id: f299bb0f-c8aa-48b6-b2d7-8c6db84b6074
+        device_class: opening
+        state: >-
+          {{ not(states('sensor.back_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          and not(states('sun.sun') == 'above_horizon')
+          and states('binary_sensor.bathroom_window') == 'off')
+          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
+        attributes:
+          brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          sun: "{{ states('sun.sun') == 'above_horizon' }}"
+          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
+          window: "{{ states('binary_sensor.bathroom_window') }}"
