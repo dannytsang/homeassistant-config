@@ -418,12 +418,14 @@ script:
               - service: script.send_direct_notification
                 data:
                   message: >-
-                    {{ message }} :running: :house_with_garden: Danny is not home.
-                    :no_bell: Alarm not turned on.
+                    {{ message }} :running: :house_with_garden: Danny is not home
+                    and this is the final check. :no_bell: Alarm turned on.
                   title: ":warning: :bell: Alarm"
                   people:
                     - person.danny
                     - person.terina
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
           # Danny not home and long distance away
           - conditions:
               - not:
@@ -490,11 +492,13 @@ script:
                 data:
                   message: >-
                     {{ message }} :house_with_garden: :woman_dancing: Terina is not
-                    home. :no_bell: Alarm not turned on.
-                  title: ":warning: :bell: Alarm"
+                    home and this is the final check. :no_bell: Alarm turned on.
+                  title: ":bell: Alarm"
                   people:
                     - person.danny
                     - person.terina
+              - service: script.set_alarm_to_home_mode
+              - service: script.turn_on_downstairs_cameras
           # Terina not home and long distance away
           - conditions:
               - condition: state
