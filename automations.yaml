@@ -1331,13 +1331,12 @@
     - choose:
         - conditions:
             - condition: template
-              value_template:
-                "{{ (state_attr('calendar.tsang_children','location')|default('',
+              value_template: "{{ (trigger.calendar_event.location|default('',
                 true))|length > 0 }}"
           sequence:
             - service: input_text.set_value
               data:
-                value: "{{ state_attr('calendar.tsang_children','location') }}"
+                value: "{{ trigger.calendar_event.location }}"
               target:
                 entity_id: input_text.destination_address
             - service: input_text.set_value
@@ -1349,6 +1348,12 @@
               data: {}
               target:
                 entity_id: sensor.google_travel_time_by_car
+            - wait_for_trigger:
+                - platform: state
+                  entity_id:
+                    - sensor.google_travel_time_by_car
+              timeout: "60"
+              continue_on_timeout: false
             - service: script.send_direct_notification
               data:
                 message:
