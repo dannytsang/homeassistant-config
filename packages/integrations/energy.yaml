@@ -197,7 +197,12 @@ template:
         unit_of_measurement: "kWh"
         device_class: "energy"
       - name: "Battery Charge Remaining"
-        unique_id: 6d205780-4eaa-4340-a45f-71bbe7ccea5cx`
+        unique_id: 6d205780-4eaa-4340-a45f-71bbe7ccea5cx
         state: "{{ ((states('input_number.solar_battery_size')|float(0)) * ((states('sensor.growatt_sph6000_statement_of_charge')|float(0))/100))|round(2) }}"
+        unit_of_measurement: "kW"
+        device_class: "power"
+      - name: "Battery Charge Remaining (Hours)"
+        unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
+        state: "{{ ((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_sph6000_load_consumption'))|float(0))|round(2) }}"
         unit_of_measurement: "kWh"
         device_class: "energy"
