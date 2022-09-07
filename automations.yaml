@@ -1331,8 +1331,9 @@
     - choose:
         - conditions:
             - condition: template
-              value_template: "{{ (trigger.calendar_event.location|default('',
-                true))|length > 0 }}"
+              value_template:
+                "{{ (trigger.calendar_event.location|default('', true))|length
+                > 0 }}"
           sequence:
             - service: input_text.set_value
               data:
@@ -1341,7 +1342,9 @@
                 entity_id: input_text.destination_address
             - service: input_text.set_value
               data:
-                value: "{{ state_attr('person.danny','longitude') }},{{ state_attr('person.danny','latitude') }}"
+                value:
+                  "{{ state_attr('person.danny','longitude') }},{{ state_attr('person.danny','latitude')
+                  }}"
               target:
                 entity_id: input_text.origin_address
             - service: homeassistant.update_entity
@@ -1365,3 +1368,47 @@
       default: []
   mode: queued
   max: 10
+- id: "1662589192400"
+  alias: "Central Heating: Turn On Hot Water"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - schedule.hot_water
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: water_heater.hot_water
+      state: "off"
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Turning on hot water from schedule.
+        title: Central Heating
+    - service: water_heater.turn_on
+      data: {}
+  mode: single
+- id: "1662589333109"
+  alias: "Central Heating: Turn Off Hot Water"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - schedule.hot_water
+      to: "off"
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 30
+  condition:
+    - condition: state
+      entity_id: water_heater.hot_water
+      state: "on"
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Turning off hot water from schedule.
+        title: Central Heating
+    - service: script.set_how_water_to_home_mode
+      data: {}
+  mode: single
