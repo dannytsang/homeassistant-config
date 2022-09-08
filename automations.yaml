@@ -1382,18 +1382,32 @@
         - schedule.hot_water
       to: "on"
   condition:
-    - condition: not
-      conditions:
+    - condition: state
+      entity_id: input_boolean.enable_hot_water_automations
+      state: "on"
+    - not:
         - condition: state
           entity_id: water_heater.hot_water
           state: "on"
+        
   action:
-    - service: script.send_to_home_log
-      data:
-        message: Turning on hot water from schedule.
-        title: Central Heating
-    - service: water_heater.turn_on
-      data: {}
+    - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Holiday
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: In Holiday mode. Skipping turning on hot water.
+                title: Central Heating
+      default:
+        - service: script.send_to_home_log
+          data:
+            message: Turning on hot water from schedule.
+            title: Central Heating
+        - service: water_heater.turn_on
+          data: {}
   mode: single
 - id: "1662589333109"
   alias: "Central Heating: Turn Off Hot Water"
@@ -1409,13 +1423,28 @@
         seconds: 30
   condition:
     - condition: state
-      entity_id: water_heater.hot_water
+      entity_id: input_boolean.enable_hot_water_automations
       state: "on"
+    - not:
+        - condition: state
+          entity_id: water_heater.hot_water
+          state: "off"
   action:
-    - service: script.send_to_home_log
-      data:
-        message: Turning off hot water from schedule.
-        title: Central Heating
-    - service: script.set_how_water_to_home_mode
-      data: {}
+    - choose:
+        - conditions:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Holiday
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: In Holiday mode. Skipping turning off hot water.
+                title: Central Heating
+      default:
+        - service: script.send_to_home_log
+          data:
+            message: Turning off hot water from schedule.
+            title: Central Heating
+        - service: script.set_how_water_to_home_mode
+          data: {}
   mode: single
