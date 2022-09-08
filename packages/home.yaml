@@ -73,6 +73,30 @@ automation:
           message: ":repeat: Entering {{ states('input_select.home_mode') }} mode."
           title: "Home Mode"
     mode: single
+  # Privacy Mode
+  - id: "1646257483770"
+    alias: "^Home: Privacy Mode Turned On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: input_boolean.privacy_mode
+        to: "on"
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":detective: Privacy mode enabled."
+      - service: script.send_to_home_log
+        data:
+          message: ":camera: Turning conservatory camera recording and detction off."
+      - service: script.conservatory_turn_off_camera
+        data: {}
+      - service: script.send_to_home_log
+        data:
+          message: ":camera: Turning lounge camera recording and detction off."
+      - service: script.lounge_turn_off_camera
+        data: {}
+    mode: single
 
 script:
   home_mode_turn_on_holiday_mode:
