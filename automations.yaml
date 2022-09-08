@@ -1317,13 +1317,17 @@
           - person.terina
   mode: single
 - id: "1662412986333"
-  alias: "Travel: Travel Time To Next Event"
+  alias: "Calendar: Travel Time To Next Event"
   description: ""
   trigger:
     - platform: calendar
       event: start
       offset: "-2:0:0"
       entity_id: calendar.children
+    - platform: calendar
+      event: start
+      offset: "-2:0:0"
+      entity_id: calendar.family
   condition:
     - condition: template
       value_template: "{{ trigger.calendar_event.all_day == false }}"
@@ -1360,8 +1364,9 @@
             - service: script.send_direct_notification
               data:
                 message:
-                  "It will take {{ states('sensor.google_travel_time_by_car')~state_attr('sensor.google_travel_time_by_car', 'unit_of_measurement') }}
-                  to get to {{ state_attr('calendar.tsang_children', 'message') }}."
+                  It will take {{ states('sensor.google_travel_time_by_car')~state_attr('sensor.google_travel_time_by_car',
+                  'unit_of_measurement') }} to get to {{ state_attr(trigger.entity_id,
+                  'message') }}.
                 title: ":car: Travel"
                 people:
                   - person.danny
@@ -1377,9 +1382,11 @@
         - schedule.hot_water
       to: "on"
   condition:
-    - condition: state
-      entity_id: water_heater.hot_water
-      state: "off"
+    - condition: not
+      conditions:
+        - condition: state
+          entity_id: water_heater.hot_water
+          state: "on"
   action:
     - service: script.send_to_home_log
       data:
