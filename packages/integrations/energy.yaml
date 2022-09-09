@@ -201,8 +201,17 @@ template:
         state: "{{ ((states('input_number.solar_battery_size')|float(0)) * ((states('sensor.growatt_sph6000_statement_of_charge')|float(0))/100))|round(2) }}"
         unit_of_measurement: "kW"
         device_class: "power"
-      - name: "Battery Charge Remaining (Hours)"
+      - name: "Battery Run Time"
         unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
-        state: "{{ ((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_sph6000_load_consumption'))|float(0))|round(2) }}"
-        unit_of_measurement: "kWh"
-        device_class: "energy"
+        state: "{{ now() + timedelta( seconds = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_sph6000_load_consumption')|float(0))) * 60 * 60)|round(0)) }}"
+        attributes:
+          time_remaining: "{% set ts = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_sph6000_load_consumption')|float(0))) * 60 * 60)|round(0) %}
+            {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}"
+        device_class: "timestamp"
+      - name: "Battery Charge Remaining"
+        unique_id: 003ce6a3-6d56-44f6-91a8-098b0543d7d0
+        state: "{{ now() + timedelta( seconds = (((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0))/(states('sensor.growatt_sph6000_load_consumption')|float(0)))*60*60)|round(0)) }}"
+        attributes:
+          time_remaining: "{% set ts = (((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0))/(states('sensor.growatt_sph6000_load_consumption')|float(0)))*60*60)|round(0) %}
+            {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}"
+        device_class: "timestamp"
