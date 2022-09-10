@@ -77,7 +77,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.growatt_sph6000_statement_of_charge
-        above: "98"
+        above: input_number.battery_charged_notification
     condition:
       - condition: or
         conditions:
@@ -126,10 +126,14 @@ script:
         {% endfor %}
         {{ people.home }}"
       message: >-
-        :battery: Battery charged
+        :battery: Battery charged to
         ({{ states('sensor.growatt_sph6000_statement_of_charge')~
-        state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }})
-        and estimated to produce
+        state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }}).
+        {% if (states('sensor.growatt_sph6000_battery_charging')|float(0)) > 0 %}
+        It will take around {{ state_attr('sensor.time_to_charge_battery', 'time_remaining') }}
+        to charge the battery.
+        {% endif %}
+        It's estimated to produce
         {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour') ~ ' ' ~
         state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }}
         in the next hour.
@@ -140,6 +144,7 @@ script:
         (states('sensor.growatt_sph6000_solar_energy_today')|float(0)))|round(2) ~ ' ' ~
         state_attr('sensor.growatt_sph6000_solar_energy_today', 'unit_of_measurement') }}
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
+      title: Solar
     sequence:
       - if:
           - condition: template
