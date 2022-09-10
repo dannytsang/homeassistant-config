@@ -73,7 +73,7 @@ script:
     mode: single
   set_how_water_to_home_mode:
     alias: Set Hot Water To Home
-    icon: mdi:hvac
+    icon: mdi:water-boiler-auto
     sequence:
       - if:
           - condition: state
@@ -116,7 +116,7 @@ script:
     mode: single
   set_how_water_to_away_mode:
     alias: Set Hot Water To Off
-    icon: mdi:hvac-off
+    icon: mdi:water-boiler-off
     sequence:
       - if:
           - not:
@@ -132,6 +132,27 @@ script:
               - service: water_heater.set_operation_mode
                 data:
                   operation_mode: "off"
+                target:
+                  entity_id: water_heater.hot_water
+    mode: single
+  set_how_water_to_on:
+    alias: Set Hot Water To On
+    icon: mdi:water-boiler
+    sequence:
+      - if:
+          - not:
+              - condition: state
+                entity_id: water_heater.hot_water
+                state: "on"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning on the hot water."
+                  title: ":hotsprings: :droplet: Boiler"
+              - service: water_heater.set_operation_mode
+                data:
+                  operation_mode: "on"
                 target:
                   entity_id: water_heater.hot_water
     mode: single
