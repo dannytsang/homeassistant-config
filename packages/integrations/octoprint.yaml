@@ -247,14 +247,13 @@ script:
   3d_printer_left_unattended:
     alias: 3D Printer Left Unattended
     sequence:
-      - condition: not
-        conditions:
+      - not:
           - condition: state
             entity_id: sensor.octoprint_estimated_finish_time
             state: unknown
-          - condition: state
-            entity_id: binary_sensor.octoprint_printing
-            state: "on"
+      - condition: state
+        entity_id: binary_sensor.octoprint_printing
+        state: "on"
       - service: script.send_direct_notification
         data:
           message:
