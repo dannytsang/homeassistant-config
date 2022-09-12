@@ -18,20 +18,18 @@ automation:
         - service: script.send_to_home_log
           data:
             message: >-
-              :paw_prints: :door:
+              :paw_prints: Motion detected and :door: Shed/Conservatory door open
               {% set count = namespace(value=0) %}
               {% for door in state_attr('binary_sensor.back_doors','entity_id') %}
               {% if states(door) == 'on' %}{%if count.value > 1 %}and {%endif%}
               {{ state_attr(door,'friendly_name') }}
               {% set count.value = count.value + 1 %}{% endif %}{% endfor %}
               {% if count.value >= 2 %}are{%else%}is{% endif %}
-              open and motion detected in the back garden. :camera_with_flash:
-              Capturing image for processing.
+              open. :camera_with_flash: Capturing image for processing.
             title: ":deciduous_tree: Back Garden"
         - service: script.conservatory_camera_process_image
           data:
-            message: "Motion Detected In and :door: Shed/Conservatory Door Open.
-            Sending image for processing."
+            message: "Sending image for processing."
             title: ":deciduous_tree: Back Garden"
     mode: queued
     max: 10
