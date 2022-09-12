@@ -229,9 +229,9 @@ template:
     sensor:
       - name: "Time To Charge Battery"
         unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
-        state: "{{ now() + timedelta( seconds = ((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0))/(states('sensor.growatt_sph6000_battery_charging')|float(0)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999) }}"
+        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_sph6000_battery_charging')|float(0)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999) }}"
         attributes:
           time_remaining: >-
-            {% set ts = ((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0))/(states('sensor.growatt_sph6000_battery_charging')|float(0)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999 %}
+            {% set ts = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_sph6000_battery_charging')|float(0)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999 %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
