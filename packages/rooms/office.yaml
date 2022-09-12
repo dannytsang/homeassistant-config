@@ -1147,11 +1147,59 @@ script:
             - service: script.office_close_curtains_fallback
               data: {}
         else:
-          - service: cover.close_cover
-            target:
-              entity_id:
-                - cover.office_curtain_left
-                - cover.office_curtain_right
+          - choose:
+            - conditions:
+                - condition: numeric_state
+                  entity_id: cover.office_curtain_left
+                  attribute: current_position
+                  above: input_number.blind_close_position_threshold
+                - condition: numeric_state
+                  entity_id: cover.office_curtain_right
+                  attribute: current_position
+                  above: input_number.blind_close_position_threshold
+              sequence:
+                - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Closing both curtains."
+                      title: ":office: Office"
+                  - service: cover.close_cover
+                    target:
+                      entity_id:
+                        - cover.office_curtain_left
+                        - cover.office_curtain_right
+            default:
+              - parallel:
+                - if:
+                    - condition: numeric_state
+                      entity_id: cover.office_curtain_left
+                      attribute: current_position
+                      above: input_number.blind_close_position_threshold
+                  then:
+                    - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Closing left curtains."
+                          title: ":office: Office"
+                      - service: cover.close_cover
+                        target:
+                          entity_id:
+                            - cover.office_curtain_left
+                - if:
+                    - condition: numeric_state
+                      entity_id: cover.office_curtain_right
+                      attribute: current_position
+                      above: input_number.blind_close_position_threshold
+                  then:
+                    - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Closing right curtains."
+                          title: ":office: Office"
+                      - service: cover.close_cover
+                        target:
+                          entity_id:
+                            - cover.office_curtain_right
     mode: single
   office_open_curtains:
     alias: Office Open Curtains
@@ -1174,11 +1222,59 @@ script:
             - service: script.office_open_curtains_fallback
               data: {}
         else:
-          - service: cover.open_cover
-            target:
-              entity_id:
-                - cover.office_curtain_left
-                - cover.office_curtain_right
+          - choose:
+            - conditions:
+                - condition: numeric_state
+                  entity_id: cover.office_curtain_left
+                  attribute: current_position
+                  below: input_number.blind_open_position_threshold
+                - condition: numeric_state
+                  entity_id: cover.office_curtain_right
+                  attribute: current_position
+                  below: input_number.blind_open_position_threshold
+              sequence:
+                - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Opening both curtains."
+                      title: ":office: Office"
+                  - service: cover.open_cover
+                    target:
+                      entity_id:
+                        - cover.office_curtain_left
+                        - cover.office_curtain_right
+            default:
+              - parallel:
+                - if:
+                    - condition: numeric_state
+                      entity_id: cover.office_curtain_left
+                      attribute: current_position
+                      below: input_number.blind_open_position_threshold
+                  then:
+                    - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Opening left curtains."
+                          title: ":office: Office"
+                      - service: cover.open_cover
+                        target:
+                          entity_id:
+                            - cover.office_curtain_left
+                - if:
+                    - condition: numeric_state
+                      entity_id: cover.office_curtain_right
+                      attribute: current_position
+                      below: input_number.blind_open_position_threshold
+                  then:
+                    - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Opening right curtains."
+                          title: ":office: Office"
+                      - service: cover.open_cover
+                        target:
+                          entity_id:
+                            - cover.office_curtain_right
     mode: single
   office_close_curtains_fallback:
     alias: Office Close Curtains
@@ -1342,25 +1438,6 @@ script:
         target:
           entity_id: scene.office_turn_off_light_notification
     mode: single
-  # VM
-  office_turn_on_leos_vm:
-    alias: "Office: Turn On Leo's VM"
-    sequence:
-      - service: script.send_to_home_log
-        data:
-          message: ":computer: Turning on Leo's VM."
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.turk_vm_leos_windows_10
-      - wait_for_trigger:
-          - platform: state
-            entity_id: switch.turk_vm_leos_windows_10
-            to: "on"
-        timeout: "180"
-        continue_on_timeout: false
-    mode: single
-    icon: mdi:microsoft-windows
 
 sensor:
   # historical stats
