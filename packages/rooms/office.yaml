@@ -1446,12 +1446,12 @@ template:
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.office_window_left') == 'off'
           and states('binary_sensor.office_window_right') == 'off')
-          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and (state_attr('weather.home_hourly', 'temperature')|float(0)) > (states('input_number.forecast_high_temperature')|float(24))
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) > states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window_left: "{{ states('binary_sensor.office_window_left') }}"
-          window_right: "{{ states('binary_sensor.office_window_right') }}"
+          window_left: "{{ states('binary_sensor.office_window_left') == 'off' }}"
+          window_right: "{{ states('binary_sensor.office_window_right') == 'off' }}"
