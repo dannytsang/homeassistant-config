@@ -1342,8 +1342,8 @@
               data:
                 message:
                   It will take {{ states('sensor.google_travel_time_by_car')~state_attr('sensor.google_travel_time_by_car',
-                  'unit_of_measurement') }} to get to {{ state_attr(trigger.entity_id,
-                  'message') }}.
+                  'unit_of_measurement') }} to get to {{ state_attr(trigger.entity_id, 'message')
+                  }}.
                 title: ":car: Travel"
                 people:
                   - person.danny
@@ -1369,9 +1369,9 @@
   action:
     - choose:
         - conditions:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: Holiday
+            - condition: state
+              entity_id: input_select.home_mode
+              state: Holiday
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1408,9 +1408,9 @@
   action:
     - choose:
         - conditions:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: Holiday
+            - condition: state
+              entity_id: input_select.home_mode
+              state: Holiday
           sequence:
             - service: script.send_to_home_log
               data:
@@ -1423,4 +1423,36 @@
             title: Central Heating
         - service: script.set_how_water_to_home_mode
           data: {}
+  mode: single
+- id: "1663588514009"
+  alias: "Energy: Consecutive Low Solar Generation"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: input_number.consecutive_forecast_days_below_solar_generation
+      above: 6
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message:
+          It has been {{ states('input_number.consecutive_forecast_days_below_solar_generation')
+          }} days with low solar generation.
+        title: Solar
+        people:
+          - person.danny
+  mode: single
+- id: "1663589154517"
+  alias: "Energy: Solar Production exceed threshold"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.total_solar_forecast_estimated_energy_production_today
+      above: input_number.solar_generation_minimum_threshold
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Production above threshold. Resetting Forecast
+        title: Solar
   mode: single

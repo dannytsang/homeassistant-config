@@ -92,26 +92,39 @@ automation:
         data: {}
     mode: single
   - id: "1660858653319"
-    alias: "^Energy: Notify To Charge Battery Overnight"
+    alias: "^Energy: Solar Forecast To Be Low"
     description: ""
     trigger:
       - platform: time
         at: "21:00:00"
-    condition:
-      - condition: numeric_state
-        entity_id: sensor.energy_production_tomorrow
-        below: input_number.solar_generation_minimum_threshold
+    condition: []
     action:
-      - service: script.send_direct_notification
-        data:
-          message: >-
-            Charge battery tonight because solar production will be less than
-            {{ states('input_number.solar_generation_minimum_threshold') }}
-            ({{ states('sensor.energy_production_tomorrow') }}) {{ state_attr('sensor.energy_production_tomorrow',
-            'unit_of_measurement') }} tomorrow.
-          title: Solar
-          people:
-            - person.danny
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
+                below: input_number.solar_generation_minimum_threshold
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Generation below threshold tomorrow. Incrementing consecutive days.
+                      title: Solar
+                  - service: input_number.increment
+                    data: {}
+                    target:
+                      entity_id: input_number.consecutive_forecast_days_below_solar_generation
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: Generation above threshold tomorrow. Resetting count to 0.
+                  title: Solar
+              - service: input_number.set_value
+                data:
+                  value: 0
+                target:
+                  entity_id: input_number.consecutive_forecast_days_below_solar_generation
     mode: single
 
 script:
@@ -207,10 +220,10 @@ template:
         unit_of_measurement: "kW"
         device_class: "power"
   - trigger:
-    - platform: state
-      entity_id:
-        - sensor.battery_charge_remaining
-        - sensor.growatt_sph6000_load_consumption
+      - platform: state
+        entity_id:
+          - sensor.battery_charge_remaining
+          - sensor.growatt_sph6000_load_consumption
     sensor:
       - name: "Battery Run Time"
         unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
@@ -222,11 +235,11 @@ template:
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
   - trigger:
-    - platform: state
-      entity_id:
-        - input_number.solar_battery_size
-        - sensor.battery_charge_remaining
-        - sensor.growatt_sph6000_load_consumption
+      - platform: state
+        entity_id:
+          - input_number.solar_battery_size
+          - sensor.battery_charge_remaining
+          - sensor.growatt_sph6000_load_consumption
     sensor:
       - name: "Time To Charge Battery"
         unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
