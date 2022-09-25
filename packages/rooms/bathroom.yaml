@@ -836,6 +836,8 @@ template:
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.back_garden_motion_light_level
+          - sensor.bathroom_area_mean_temperature
+          - sensor.bathroom_window_temperature
           - sun.sun
           - weather.home_hourly
       - platform: time_pattern
@@ -849,10 +851,14 @@ template:
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.bathroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and (states('sensor.bathroom_area_mean_temperature')|float(0)) <= 23.5
+          and (states('sensor.bathroom_window_temperature')|float(0)) <= 24
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
+          temperature: "{{ (states('sensor.bathroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
           window: "{{ states('binary_sensor.bathroom_window') == 'off' }}"
+          window_temperature: "{{ (states('sensor.bathroom_window_temperature')|float(0)) > 24 }}"
