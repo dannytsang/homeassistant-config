@@ -8,13 +8,25 @@ from typing import Any, Awaitable, Callable, TypeVar
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_NAME
-from homeassistant.core import CALLBACK_TYPE, HomeAssistant, callback
+from homeassistant.core import CALLBACK_TYPE, HomeAssistant, ServiceCall, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from aiochroma import Color
 from .bridge import ChromaBridge
-from .const import CONF_REQ_RELOAD, DEFAULT_SCAN_INTERVAL, DOMAIN, KEY_COORDINATOR
+from .const import (
+    CONF_REQ_RELOAD,
+    DEFAULT_MESSAGE_BACKGROUND,
+    DEFAULT_MESSAGE_BRIGHTNESS,
+    DEFAULT_MESSAGE_REPEATS,
+    DEFAULT_MESSAGE_SLEEP,
+    DEFAULT_MESSAGE_SPACING,
+    DEFAULT_MESSAGE_TAIL,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    KEY_COORDINATOR,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -106,6 +118,36 @@ class Chroma:
             await self._api.async_connect()
         except OSError as ex:
             raise ConfigEntryNotReady from ex
+
+        # Services -->
+        async def async_service_send_message(service: ServiceCall):
+            """Send message to the keyboard."""
+
+            data = service.data
+
+            _LOGGER.debug(f"Calling service Send Message with parameters: {data}")
+
+            (r, g, b) = data.get("color")
+            color = Color(r, g, b)
+            (r, g, b) = data.get("background", DEFAULT_MESSAGE_BACKGROUND)
+            background = Color(r, g, b)
+
+            await self._api._api.async_keyboard_sequence(
+                message=data.get("message"),
+                color=color,
+                background=background,
+                brightness=data.get("brightness", DEFAULT_MESSAGE_BRIGHTNESS),
+                tail=data.get("tail", DEFAULT_MESSAGE_TAIL),
+                repeats=data.get("repeats", DEFAULT_MESSAGE_REPEATS),
+                spacing=data.get("spacing", DEFAULT_MESSAGE_SPACING),
+                sleep=data.get("sleep", DEFAULT_MESSAGE_SLEEP),
+            )
+
+        if "keyboard" in self._options["devices"]:
+            self.hass.services.async_register(
+                DOMAIN, "service_send_message", async_service_send_message
+            )
+        # <-- Services
 
         self._firmware = self._api._identity["version"]
 
