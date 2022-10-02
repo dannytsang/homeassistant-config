@@ -1477,3 +1477,93 @@
         people:
           - person.danny
   mode: single
+- id: "1664743590782"
+  alias: "Energy: Battery Charged Today"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.growatt_sph6000_statement_of_charge
+      above: input_number.growatt_battery_charged_threshold
+  condition:
+    - condition: state
+      entity_id: input_boolean.battery_charged_today
+      state: "off"
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Battery charged today
+        title: Solar
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.battery_charged_today
+    - if:
+        - condition: numeric_state
+          entity_id: input_number.consecutive_days_battery_not_charged
+          above: 0
+      then:
+        - service: script.send_to_home_log
+          data:
+            message: Resseting days not fully charged.
+            title: Solar
+        - service: input_number.set_value
+          data:
+            value: 0
+          target:
+            entity_id: input_number.consecutive_days_battery_not_charged
+  mode: single
+- id: "1664743700827"
+  alias: "Energy: Reset Battery Charged Today"
+  description: ""
+  trigger:
+    - platform: time
+      at: 00:00:00
+  condition: []
+  action:
+    - choose:
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.battery_charged_today
+              state: "on"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: Resetting battery charged today.
+                    title: Solar
+                - service: input_boolean.turn_off
+                  data: {}
+                  target:
+                    entity_id: input_boolean.battery_charged_today
+        - conditions:
+            - condition: state
+              entity_id: input_boolean.battery_charged_today
+              state: "off"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Battery did not fully charge today. Adding a day to count.
+                title: Solar
+            - service: input_number.increment
+              data: {}
+              target:
+                entity_id: input_number.consecutive_days_battery_not_charged
+  mode: single
+- id: "1664744505278"
+  alias: "Energy: Consecutive Days Battery Not Charged"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: input_number.consecutive_days_battery_not_charged
+      above: 6
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message:
+          It has been {{ states('input_number.consecutive_days_battery_not_charged')
+          }} days where the battery has not been charged fully.
+        title: Solar
+        people:
+          - person.danny
+  mode: single
