@@ -156,6 +156,8 @@ script:
         {{ ((states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) -
         (states('sensor.growatt_sph6000_solar_energy_today')|float(0)))|round(2) ~ ' ' ~
         state_attr('sensor.growatt_sph6000_solar_energy_today', 'unit_of_measurement') }}
+        ( out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) ~ ' '
+        ~ state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }})
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
       title: Solar
     sequence:
