@@ -483,6 +483,17 @@
               data:
                 message: Alarm override. Turning Alarm off.
             - service: script.set_alarm_to_disarmed_mode
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.event.data.action == 'switch_off_attic_lights' }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Turning attic lights off event.
+            - service: switch.turn_off
+              data: {}
+              target:
+                entity_id: switch.attic_lights
       default: []
   mode: single
 - id: "1627509008928"
@@ -1566,4 +1577,30 @@
         title: Solar
         people:
           - person.danny
+  mode: single
+- id: "1664827040573"
+  alias: "Attic: Lights On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - switch.attic_lights
+      to: "on"
+      for:
+        hours: 0
+        minutes: 15
+        seconds: 0
+  condition: []
+  action:
+    - service: script.send_actionable_notification_with_2_buttons
+      data:
+        message: Lights have been on for 15 minutes. Turn off?
+        title: Attic
+        people:
+          - person.danny
+          - person.terina
+        action1_title: "Yes"
+        action1_name: switch_off_attic_lights
+        action2_title: "No"
+        action2_name: ignore
   mode: single
