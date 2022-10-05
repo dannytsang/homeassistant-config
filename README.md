@@ -12,7 +12,7 @@ This project contains configuration files for [Home Assistant](https://home-assi
 More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
 
 ## Statistics 📊
-I have 2668 states (📈160) in Home Assistant. More details [here](statistics.md).
+I have 2786 states (📈118) in Home Assistant. More details [here](statistics.md).
 
 # Hardware 🔩
 More details [here](hardware.md).
