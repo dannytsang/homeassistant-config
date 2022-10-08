@@ -73,13 +73,20 @@ automation:
           message: ":repeat: Entering {{ states('input_select.home_mode') }} mode."
           title: "Home Mode"
       - choose:
-        - conditions:
-            - condition: state
-              entity_id: input_select.home_mode
-              state: "Holiday"
-          sequence:
-            - service: script.home_mode_turn_on_holiday_mode
-              data: {}
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - service: script.home_mode_turn_on_holiday_mode
+                data: {}
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Normal"
+            sequence:
+              - service: script.home_mode_turn_on_normal_mode
+                data: {}
         default: []
     mode: single
   # Privacy Mode
@@ -119,5 +126,18 @@ script:
       - service: script.send_to_home_log
         data:
           message: "Finished setting up :airplane: holiday mode"
+          title: Home Mode
+    mode: single
+  home_mode_turn_on_normal_mode:
+    alias: Home Mode Turn On Normal Mode
+    icon: mdi:home
+    sequence:
+      - service: script.set_central_heating_to_home_mode
+        data: {}
+      - service: script.set_how_water_to_home_mode
+        data: {}
+      - service: script.send_to_home_log
+        data:
+          message: "Finished setting up normal mode"
           title: Home Mode
     mode: single
