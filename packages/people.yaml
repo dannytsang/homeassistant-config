@@ -263,6 +263,55 @@ automation:
                     data: {}
         default: []
     mode: single
+  - id: "1655063863297"
+    alias: "People: Near Home"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: proximity.danny_home
+        value_template: "{{ states('proximity.danny_home') | float(99999) }}"
+        below: input_number.distance_close_to_home
+      - platform: numeric_state
+        entity_id: proximity.terina_home
+        value_template: "{{ states('proximity.terina_home') | float(99999) }}"
+        below: input_number.distance_close_to_home
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Holiday
+              - or:
+                  - condition: template
+                    value_template:
+                      "{{ state_attr('proximity.danny_home','dir_of_travel')
+                      == 'towards' }}"
+                  - condition: template
+                    value_template:
+                      "{{ state_attr('proximity.terina_home','dir_of_travel')
+                      == 'towards' }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Someone heading home.
+              - if:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Holiday
+                then:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Changing to normal mode
+                  - service: input_select.select_option
+                    data:
+                      option: Normal
+                    target:
+                      entity_id: input_select.home_mode
+              - service: script.turn_everything_off
+                data: {}
+        default: []
+    mode: single
   # Danny
   - id: "1581867286886"
     alias: "^People: Danny Arrives Home"
