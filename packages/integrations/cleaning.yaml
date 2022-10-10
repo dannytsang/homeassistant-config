@@ -54,6 +54,15 @@ automation:
       - service: script.send_home_log_with_local_attachments
         data:
           message: Cleaning complete
-          title: ":robot_face: :broom: Vacuum docked"
+          title: ":robot_face: :broom: Vacuum"
           filePath: "{{states('input_text.camera_external_folder_path')}}{{states('camera.t8_live_map')}}"
     mode: single
+
+rest_command:
+  # https://community.home-assistant.io/t/add-service-integration-reload/231940/42
+  reload_deebot:
+    url: !secret deebot_restcommand_reload_url
+    method: POST
+    headers:
+      authorization: !secret deebot_restcommand_reload_token
+      content-type: "application/json"

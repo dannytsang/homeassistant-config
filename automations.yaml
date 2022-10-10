@@ -1426,3 +1426,24 @@
         action2_title: "No"
         action2_name: ignore
   mode: single
+- id: "1665427179029"
+  alias: "Vacuum: Reload Integration"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - vacuum.t8
+      to: unavailable
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+  condition: []
+  action:
+    - service: script.send_to_home_log
+      data:
+        message: Reloading integration.
+        title: ":robot_face: :broom: Vacuum"
+    - service: rest_command.reload_deebot
+      data: {}
+  mode: single
