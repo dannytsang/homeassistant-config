@@ -231,18 +231,16 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: template
-                value_template:
-                  "{{ states('proximity.terina_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-              - condition: template
-                value_template:
-                  "{{ states('proximity.danny_home')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
+              - condition: numeric_state
+                entity_id: proximity.terina_home
+                above: input_number.long_distance_away_from_home
+              - condition: numeric_state
+                entity_id: proximity.danny_home
+                above: input_number.long_distance_away_from_home
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: Everyone far is away.
+                  message: Everyone far is away from home.
               - parallel:
                   - if:
                       - condition: not
@@ -253,7 +251,8 @@ automation:
                     then:
                       - service: script.send_to_home_log
                         data:
-                          message: Changing to holiday mode
+                          message: Changing to holiday mode.
+                          title: Home Mode
                       - service: input_select.select_option
                         data:
                           option: Holiday
