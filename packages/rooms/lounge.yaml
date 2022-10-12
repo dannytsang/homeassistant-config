@@ -435,15 +435,65 @@ automation:
         to: "on"
     condition: []
     action:
-      - choose:
-          - conditions:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":tv: TV Turned on."
+              title: ":couch_and_lamp: Lounge"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.playstation_powered_on
+                    state: "off"
+                sequence:
+                  - service: script.lounge_select_vcr_dvr_input
+            default:
+              - service: script.lounge_select_game_input
+          - if:
               - condition: state
-                entity_id: binary_sensor.playstation_powered_on
+                entity_id: light.lounge_tv
                 state: "off"
-            sequence:
-              - service: script.lounge_select_vcr_dvr_input
-        default:
-          - service: script.lounge_select_game_input
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Turning on :tv: TV backlight."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: light.turn_on
+                    data: {}
+                    target:
+                      entity_id: light.lounge_tv
+    mode: single
+  - id: "1610388192224"
+    alias: "^Lounge: TV Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.tv_powered_on
+        from: "on"
+        to: "off"
+        for: 00:00:30
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":tv: TV Turned off."
+              title: ":couch_and_lamp: Lounge"
+          - if:
+              - condition: state
+                entity_id: light.lounge_tv
+                state: "on"
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Turning off :tv: TV backlight."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: light.turn_off
+                    data: {}
+                    target:
+                      entity_id: light.lounge_tv
     mode: single
   # People / Devices
   - id: "1654005357582"
