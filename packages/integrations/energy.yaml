@@ -269,7 +269,7 @@ template:
       # Forecast
       - name: "Total Solar Forecast Estimated energy production - next hour"
         unique_id: 5203e039-773f-4aaf-9328-aa114cbaec9c
-        state: "{{ states('sensor.energy_next_hour_2')|float(0) + states('sensor.energy_next_hour_2')|float(0) }}"
+        state: "{{ states('sensor.energy_next_hour')|float(0) + states('sensor.energy_next_hour_2')|float(0) }}"
         unit_of_measurement: "kWh"
         device_class: "energy"
       - name: "Total Solar Forecast Estimated energy production - this hour"
@@ -290,8 +290,13 @@ template:
       - name: "Total Solar Forecast Estimated power production - now"
         unique_id: 86156911-5980-43bf-b8a9-1d6a7e4ad3cb
         state: "{{ states('sensor.power_production_now')|float(0) + states('sensor.power_production_now_2')|float(0) }}"
-        unit_of_measurement: "kWh"
-        device_class: "energy"
+        unit_of_measurement: "W"
+        device_class: "power"
+      - name: "Total Solar Forecast Estimated power production - now (kW)"
+        unique_id: 7018a713-4305-45eb-9cd6-b7b9a2ab44a3
+        state: "{{ (states('sensor.power_production_now')|float(0) + states('sensor.power_production_now_2')|float(0))/1000 }}"
+        unit_of_measurement: "kW"
+        device_class: "power"
       - name: "Total Solar Forecast Estimated power production next 12 hours"
         unique_id: c366200e-74c2-49fb-a08a-b706a3120bf3
         state: "{{ states('sensor.power_production_next_12hours')|float(0) + states('sensor.power_production_next_12hours_2')|float(0) }}"
