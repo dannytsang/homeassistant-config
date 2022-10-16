@@ -480,20 +480,40 @@ automation:
             data:
               message: ":tv: TV Turned off."
               title: ":couch_and_lamp: Lounge"
-          - if:
-              - condition: state
-                entity_id: light.lounge_tv
-                state: "on"
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Turning off :tv: TV backlight."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: light.turn_off
-                    data: {}
-                    target:
-                      entity_id: light.lounge_tv
+          - sequence:
+              - if:
+                  - condition: state
+                    entity_id: light.lounge_tv
+                    state: "on"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Turning off :tv: TV backlight."
+                          title: ":couch_and_lamp: Lounge"
+                      - service: light.turn_off
+                        data: {}
+                        target:
+                          entity_id: light.lounge_tv
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 5
+                  milliseconds: 0
+              - if:
+                  - condition: state
+                    entity_id: light.tv_backlight
+                    state: "on"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: "Turning off :tv: TV backlight (WLED)."
+                          title: ":couch_and_lamp: Lounge"
+                      - service: light.turn_off
+                        data: {}
+                        target:
+                          entity_id: light.tv_backlight
     mode: single
   # People / Devices
   - id: "1654005357582"
