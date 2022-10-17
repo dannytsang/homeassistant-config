@@ -11,13 +11,10 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
-      - or:
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closed
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closing
+      - condition: numeric_state
+        entity_id: cover.leos_blinds
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
       - not:
           - condition: state
             state: Guest
@@ -49,13 +46,10 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
         state: "off"
-      - or:
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closed
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closing
+      - condition: numeric_state
+        entity_id: cover.leos_blinds
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
       - condition: state
         state: No Children
         entity_id: input_select.home_mode
@@ -83,9 +77,10 @@ automation:
         id: sunset
     condition:
       - not:
-          - condition: state
+          - condition: numeric_state
             entity_id: cover.leos_blinds
-            state: closed
+            attribute: current_position
+            below: input_number.blind_closed_position_threshold
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
@@ -149,6 +144,10 @@ automation:
       - condition: state
         entity_id: cover.leos_blinds
         state: open
+      - condition: numeric_state
+        entity_id: cover.leos_blinds
+        attribute: current_position
+        above: input_number.blind_open_position_threshold
       - condition: state
         entity_id: binary_sensor.leos_window
         state: "off"
@@ -169,13 +168,10 @@ automation:
       - at: 09:30:00
         platform: time
     condition:
-      - or:
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closed
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closing
+      - condition: numeric_state
+        entity_id: cover.leos_blinds
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
@@ -201,13 +197,10 @@ automation:
       - condition: time
         after: 07:00:00
         before: "12:00:00"
-      - or:
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closed
-          - condition: state
-            entity_id: cover.leos_blinds
-            state: closing
+      - condition: numeric_state
+        entity_id: cover.leos_blinds
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
@@ -237,9 +230,10 @@ automation:
         to: "off"
         from: "on"
     condition:
-      - condition: state
+      - condition: numeric_state
         entity_id: cover.leos_blinds
-        state: open
+        attribute: current_position
+        above: input_number.blind_open_position_threshold
       - condition: time
         after: "18:30:00"
       - condition: state

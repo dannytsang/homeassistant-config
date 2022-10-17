@@ -12,9 +12,10 @@ automation:
         id: sunset
     condition:
       - not:
-          - condition: state
+          - condition: numeric_state
             entity_id: cover.ashlees_blinds
-            state: closed
+            attribute: current_position
+            below: input_number.blind_closed_position_threshold
       - condition: state
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
@@ -107,9 +108,10 @@ automation:
           minutes: 1
           seconds: 0
     condition:
-      - condition: state
+      - condition: numeric_state
         entity_id: cover.ashlees_blinds
-        state: open
+        attribute: current_position
+        above: input_number.bedroom_blind_closed_threshold
       - condition: state
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
@@ -152,9 +154,10 @@ automation:
       - at: 08:00:00
         platform: time
     condition:
-      - condition: state
+      - condition: numeric_state
         entity_id: cover.ashlees_blinds
-        state: closed
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
       - condition: state
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
@@ -273,9 +276,10 @@ automation:
                   - condition: state
                     entity_id: input_boolean.enable_ashlees_blind_automations
                     state: "on"
-                  - condition: state
+                  - condition: numeric_state
                     entity_id: cover.ashlees_blinds
-                    state: open
+                    attribute: current_position
+                    below: input_number.blind_closed_position_threshold
                   - or:
                       - condition: time
                         after: input_datetime.childrens_bed_time
