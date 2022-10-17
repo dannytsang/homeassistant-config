@@ -238,10 +238,10 @@ automation:
                 entity_id: proximity.danny_home
                 above: input_number.long_distance_away_from_home
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: Everyone far is away from home.
               - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Everyone far is away from home.
                   - if:
                       - condition: not
                         conditions:
@@ -249,19 +249,19 @@ automation:
                             entity_id: input_select.home_mode
                             state: Holiday
                     then:
-                      - service: script.send_to_home_log
-                        data:
-                          message: Changing to holiday mode.
-                          title: Home Mode
-                      - service: input_select.select_option
-                        data:
-                          option: Holiday
-                        target:
-                          entity_id: input_select.home_mode
-                  - service: script.home_mode_turn_on_holiday_mode
-                    data: {}
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: Changing to holiday mode.
+                              title: Home Mode
+                          - service: input_select.select_option
+                            data:
+                              option: Holiday
+                            target:
+                              entity_id: input_select.home_mode
         default: []
-    mode: single
+    mode: queued
+    max: 10
   - id: "1655063863297"
     alias: "People: Near Home"
     description: ""
