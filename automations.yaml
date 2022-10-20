@@ -508,18 +508,20 @@
   mode: queued
   max: 10
 - id: "1645568214221"
-  alias: "Weather: Warning"
+  alias: "Weather: Warning Notification"
   description: ""
   trigger:
-    - platform: event
-      event_type: feedreader
-      event_data:
-        feed_url: input_text.weather_warning_rss_url
+    - platform: numeric_state
+      entity_id: sensor.met_office_rss_weather_warnings
+      above: 0
   condition: []
   action:
     - service: script.send_direct_notification
       data:
-        message: Updated weather feed.
+        message: >-
+          {{ state_attr('sensor.met_office_rss_weather_warnings','entries')[0].title }}
+
+          {{ state_attr('sensor.met_office_rss_weather_warnings','entries')[0].link }}
         title: ":cloud: Weather"
         people:
           - person.danny
