@@ -156,3 +156,27 @@ script:
                 target:
                   entity_id: water_heater.hot_water
     mode: single
+
+sensor:
+  # historical stats
+  - platform: history_stats
+    name: Heating On Duration Today
+    entity_id: sensor.thermostat_action
+    state: "heating"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Heating On Duration Yesterday
+    entity_id: sensor.thermostat_action
+    state: "heating"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+
+template:
+  - sensor:
+      - name: "Thermostat Action"
+        unique_id: 8dff3606-6aaf-4713-a668-140e71271416
+        state: "{{ state_attr('climate.thermostat', 'hvac_action') }}"
