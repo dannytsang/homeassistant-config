@@ -8,6 +8,7 @@ automation:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         from: "OL CHRG"
         platform: state
         to: "OL"
@@ -26,15 +27,17 @@ automation:
     trigger:
       - entity_id:
           - sensor.computer_ups_status_data
-          - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         from: "OB DISCHRG"
         to: "OL CHRG"
         id: battery_to_charge
       - entity_id:
-          - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
+          - sensor.lounge_ups_status_data
+          - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         to: "OL CHRG"
         id: "charge"
@@ -52,7 +55,8 @@ automation:
                     title: >-
                       :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
                       'sensor.pc_ups_status_data': ':desktop_computer: PC',
-                      'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+                      'sensor.server_ups_status_data': 'Server',
+                      'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
             - conditions:
                 - condition: trigger
                   id: battery_to_charge
@@ -74,6 +78,7 @@ automation:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         to: unavailable
     condition: []
@@ -85,7 +90,8 @@ automation:
           title: >-
             :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
             'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+            'sensor.server_ups_status_data': 'Server',
+            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
             :warning:
   - id: "1590564041899"
     alias: "^UPS: UPS On Battery"
@@ -95,6 +101,7 @@ automation:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         to: OB DISCHRG
     condition: []
@@ -105,7 +112,8 @@ automation:
           title: >-
             :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
             'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+            'sensor.server_ups_status_data': 'Server',
+            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
             :warning:
     mode: single
   - id: "1591963855738"
@@ -116,6 +124,7 @@ automation:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         to: OL OFF
     condition: []
@@ -127,7 +136,8 @@ automation:
           title: >-
             :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
             'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+            'sensor.server_ups_status_data': 'Server',
+            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
             :warning:
     mode: single
   - id: "1591705427771"
@@ -138,6 +148,7 @@ automation:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
+          - sensor.3d_printer_ups_status_data
         platform: state
         to: ALARM OL RB
     condition: []
@@ -149,12 +160,24 @@ automation:
             :warning: :battery: UPS:
             {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
             'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+            'sensor.server_ups_status_data': 'Server',
+            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
             :warning:
     mode: single
 
 template:
   - sensor:
+      - name: 3D Printer UPS Power
+        unique_id: 31406205-681f-472d-8be1-a7908383de89
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+        state: >
+          {% if states('sensor.3d_printer_ups_status') in ['OL', 'OL CHRG'] -%}
+            {{ (states('sensor.3d_printer_ups_load') | float(0) / 100) * 405 | float(0) }}
+          {%- else -%}
+            0
+          {%- endif %}
       - name: Lounge UPS Power
         unique_id: b34e6d2e-8a46-489a-afcb-551a0e4b9f0a
         device_class: "power"
