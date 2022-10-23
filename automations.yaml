@@ -1031,14 +1031,17 @@
         minutes: 10
         seconds: 0
       below: input_number.close_blinds_brightness_threshold
-  condition: []
+  condition:
+    - condition: state
+      entity_id: sensor.season
+      state: "summer"
   action:
     - service: script.send_to_home_log
       data:
         message:
           Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold')
-          }} ({{ states('sensor.front_garden_motion_light_level') }}){{ state_attr('sensor.front_garden_motion_light_level',
-          'unit_of_measurement') }}. Opening blinds/curtains.
+          }} ({{ states('sensor.front_garden_motion_light_level') }}{{ state_attr('sensor.front_garden_motion_light_level',
+          'unit_of_measurement') }}). Opening office blinds/curtains.
         title: Front Garden
     - service: script.office_open_curtains
       data: {}
