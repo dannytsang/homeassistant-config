@@ -592,25 +592,6 @@
         message: A {{trigger.payload_json['after']['label']}} was detected.
         url: http://{{states('input_text.frigate_domain')}}:5000/api/frigate/notifications/{{trigger.payload_json['after']['id']}}/thumbnail.jpg?format=android
   mode: queued
-- id: "1651783825090"
-  alias: "Calendar: Family Timed Event"
-  description: ""
-  trigger:
-    - platform: calendar
-      event: start
-      entity_id: calendar.family
-  condition: []
-  action:
-    - if:
-        - condition: template
-          value_template: "{{ trigger.calendar_event.all_day == false }}"
-      then:
-        - service: script.send_to_home_log
-          data:
-            message:
-              ":date: {{ trigger.calendar_event.friendly_name }}- {{ trigger.calendar_event.message
-              }}"
-  mode: single
 - id: "1653739708849"
   alias: "Telegram: Event Received"
   description: ""
@@ -772,25 +753,38 @@
       entity_id: calendar.family
   condition: []
   action:
-    - if:
-        - condition: not
-          conditions:
-            - condition: state
-              entity_id: group.adult_people
-              state: home
-        - condition: template
-          value_template:
-            "{{ state_attr('calendar.family','location') is defined
-            }}"
-      then:
-        - service: script.send_direct_notification
-          data:
-            message: >-
-              Trigger holiday mode from calendar event.
-              Event: {{ state_attr('calendar.family', 'message')}}
-              Location: {{ state_attr('calendar.family', 'location')}}
-            people:
-              - person.danny
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.calendar_event.all_day == false }}"
+            - condition: template
+              value_template:
+                "{{ state_attr(trigger.entity_id,'location') is defined
+                }}"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Trigger holiday mode from calendar event. Event: {{ state_attr(trigger.entity_id,
+                  'message')}} Location: {{ state_attr(trigger.entity_id, 'location')}}"
+                people:
+                  - person.danny
+        - conditions:
+            - condition: template
+              value_template: "{{ trigger.calendar_event.all_day == false }}"
+            - condition: template
+              value_template:
+                "{{ state_attr(trigger.entity_id,'location') is defined
+                }}"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Trigger holiday mode from all day Family calendar event. Event:
+                  {{ state_attr('calendar.family', 'message')}} Location: {{ state_attr('calendar.family',
+                  'location')}}"
+                people:
+                  - person.danny
   mode: queued
 - id: "1657801925106"
   alias: "Kitchen: Freezer Plug Turned Off"
@@ -1034,7 +1028,7 @@
   condition:
     - condition: state
       entity_id: sensor.season
-      state: "summer"
+      state: summer
   action:
     - service: script.send_to_home_log
       data:
@@ -1135,63 +1129,6 @@
           - person.danny
           - person.terina
   mode: single
-- id: "1662412986333"
-  alias: "Calendar: Travel Time To Next Event"
-  description: ""
-  trigger:
-    - platform: calendar
-      event: start
-      offset: "-2:0:0"
-      entity_id: calendar.children
-    - platform: calendar
-      event: start
-      offset: "-2:0:0"
-      entity_id: calendar.family
-  condition:
-    - condition: template
-      value_template: "{{ trigger.calendar_event.all_day == false }}"
-  action:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template:
-                "{{ (trigger.calendar_event.location|default('', true))|length
-                > 0 }}"
-          sequence:
-            - service: input_text.set_value
-              data:
-                value: "{{ trigger.calendar_event.location }}"
-              target:
-                entity_id: input_text.destination_address
-            - service: input_text.set_value
-              data:
-                value:
-                  "{{ state_attr('person.danny','longitude') }},{{ state_attr('person.danny','latitude')
-                  }}"
-              target:
-                entity_id: input_text.origin_address
-            - service: homeassistant.update_entity
-              data: {}
-              target:
-                entity_id: sensor.google_travel_time_by_car
-            - wait_for_trigger:
-                - platform: state
-                  entity_id:
-                    - sensor.google_travel_time_by_car
-              timeout: "60"
-              continue_on_timeout: false
-            - service: script.send_direct_notification
-              data:
-                message:
-                  It will take {{ states('sensor.google_travel_time_by_car')~state_attr('sensor.google_travel_time_by_car',
-                  'unit_of_measurement') }} to get to {{ state_attr(trigger.entity_id, 'message')
-                  }}.
-                title: ":car: Travel"
-                people:
-                  - person.danny
-      default: []
-  mode: queued
-  max: 10
 - id: "1662589192400"
   alias: "Central Heating: Turn On Hot Water"
   description: ""
@@ -1379,12 +1316,12 @@
     - platform: state
       entity_id:
         - water_heater.hot_water
-      to: "eco"
+      to: eco
   condition: []
   action:
     - service: script.send_to_home_log
       data:
-        message: Centreal heating mode changed to {{ states('sensor.thermostat_mode') }}
+        message: Central heating mode changed to {{ states('sensor.thermostat_mode') }}
         title: ":hotsprings: :droplet: Boiler"
     - choose:
         - conditions:
@@ -1408,7 +1345,7 @@
     - platform: state
       entity_id:
         - water_heater.hot_water
-      to: "eco"
+      to: eco
     - platform: state
       entity_id:
         - water_heater.hot_water
@@ -1434,4 +1371,3 @@
             - service: script.set_how_water_to_away_mode
               data: {}
   mode: single
-  
