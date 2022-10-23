@@ -764,9 +764,15 @@
           sequence:
             - service: script.send_direct_notification
               data:
-                message:
-                  "Trigger holiday mode from calendar event. Event: {{ state_attr(trigger.entity_id,
-                  'message')}} Location: {{ state_attr(trigger.entity_id, 'location')}}"
+                message: >-
+                  Trigger holiday mode from calendar event.
+                  
+                  Event: {{ state_attr(trigger.entity_id,
+                  'message')}}
+                  
+                  Location: {{ state_attr(trigger.entity_id, 'location')}}
+                  {% set new_ts = (as_timestamp(state_attr(trigger.entity_id, 'end_time'))-as_timestamp(state_attr(trigger.entity_id, 'start_time')))|int(0) %}
+                  Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
                   - person.danny
         - conditions:
@@ -779,10 +785,14 @@
           sequence:
             - service: script.send_direct_notification
               data:
-                message:
-                  "Trigger holiday mode from all day Family calendar event. Event:
-                  {{ state_attr('calendar.family', 'message')}} Location: {{ state_attr('calendar.family',
-                  'location')}}"
+                message: >-
+                  "Trigger holiday mode from all day Family calendar event.
+
+                  Event: {{ state_attr(trigger.entity_id, 'message')}}
+                  
+                  Location: {{ state_attr(trigger.entity_id, 'location')}}
+                  {% set new_ts = (as_timestamp(state_attr(trigger.entity_id, 'end_time'))-as_timestamp(state_attr(trigger.entity_id, 'start_time')))|int(0) %}
+                  Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
                   - person.danny
   mode: queued
