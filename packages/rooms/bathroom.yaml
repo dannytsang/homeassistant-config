@@ -2,7 +2,7 @@
 automation:
   # Motion
   - id: "1610307951215"
-    alias: "^Bathroom: Motion Detected, Light Off And It's Dark"
+    alias: "Bathroom: Motion Detected, Light Off And It's Dark"
     description: ""
     trigger:
       - platform: state
@@ -35,18 +35,18 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_light_level') }} <
-                      {{ states('input_number.bathroom_light_level_threshold') }}
-                      {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
-                      and it's :clock12: late. :bed: Bedroom lights are still on so turning :bathtub: bathroom
-                      :bulb: :high_brightness: light on.
-                    title: ":bathtub: Bathroom"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.bathroom_light_on
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_light_level') }} <
+                        {{ states('input_number.bathroom_light_level_threshold') }}
+                        {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
+                        and it's :clock12: late. :bed: Bedroom lights are still on so turning :bathtub: bathroom
+                        :bulb: :high_brightness: light on.
+                      title: ":bathtub: Bathroom"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.bathroom_light_on
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.bathroom_motion_2_light_level
@@ -77,18 +77,18 @@ automation:
                 below: input_number.bathroom_light_level_threshold
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
-                      guest mode ({{ states('sensor.bathroom_motion_light_level') }} <
-                      {{ states('input_number.bathroom_light_level_threshold') }}
-                      {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
-                      Turning :bulb: :high_brightness: lights on.
-                    title: ":bathtub: Bathroom"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.bathroom_light_on
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
+                        guest mode ({{ states('sensor.bathroom_motion_light_level') }} <
+                        {{ states('input_number.bathroom_light_level_threshold') }}
+                        {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
+                        Turning :bulb: :high_brightness: lights on.
+                      title: ":bathtub: Bathroom"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.bathroom_light_on
           - conditions:
               - not:
                   - condition: state
@@ -99,22 +99,22 @@ automation:
                 below: input_number.bathroom_light_level_threshold
             sequence:
               - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected, it's dark
-                      ({{ states('sensor.bathroom_motion_light_level') }}
-                      < {{ states('input_number.bathroom_light_level_threshold') }}
-                      {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
-                      Turning :bulb: :high_brightness: lights on.
-                    title: ":bathtub: Bathroom"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.bathroom_light_on
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected, it's dark
+                        ({{ states('sensor.bathroom_motion_light_level') }}
+                        < {{ states('input_number.bathroom_light_level_threshold') }}
+                        {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
+                        Turning :bulb: :high_brightness: lights on.
+                      title: ":bathtub: Bathroom"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.bathroom_light_on
         default: []
     mode: single
   - id: "1610307951216"
-    alias: "^Bathroom: Motion Detected, Light is On And It's Dark"
+    alias: "Bathroom: Motion Detected, Light is On And It's Dark"
     description: ""
     trigger:
       - platform: state
@@ -201,7 +201,7 @@ automation:
         default: []
     mode: single
   - id: "1610314735644"
-    alias: "^Bathroom: No Motion Detected"
+    alias: "Bathroom: No Motion Detected"
     description: ""
     trigger:
       - platform: state
@@ -228,72 +228,72 @@ automation:
         state: "on"
     action:
       - choose:
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.bathroom_door
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.bathroom_light_override
-              state: "off"
-            - condition: trigger
-              id: door_open
-            - condition: time
-              before: "22:00:00"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message:
-                  ":no_pedestrians: No motion again and door is open. Turning
-                  light off."
-                title: ":bathtub: Bathroom"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.bathroom_turn_off_light
-              data:
-                transition: 2
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.bathroom_door
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.bathroom_light_override
-              state: "off"
-            - condition: trigger
-              id: door_open_night
-            - condition: time
-              after: "22:00:00"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :no_pedestrians: No motion and :door: door is open after :clock10: 22:00.
-                  Turning light off."
-                title: ":bathtub: Bathroom"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.bathroom_turn_off_light
-              data:
-                transition: 2
-        - conditions:
-            - condition: state
-              entity_id: binary_sensor.bathroom_door
-              state: "off"
-            - condition: trigger
-              id: door_closed
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: ":no_pedestrians: No motion. Turning light off."
-                title: ":bathtub: Bathroom"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.bathroom_turn_off_light
-              data:
-                transition: 2
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "off"
+              - condition: trigger
+                id: door_open
+              - condition: time
+                before: "22:00:00"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":no_pedestrians: No motion again and door is open. Turning
+                    light off."
+                  title: ":bathtub: Bathroom"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_turn_off_light
+                data:
+                  transition: 2
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.bathroom_light_override
+                state: "off"
+              - condition: trigger
+                id: door_open_night
+              - condition: time
+                after: "22:00:00"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :no_pedestrians: No motion and :door: door is open after :clock10: 22:00.
+                    Turning light off."
+                  title: ":bathtub: Bathroom"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_turn_off_light
+                data:
+                  transition: 2
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door
+                state: "off"
+              - condition: trigger
+                id: door_closed
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: ":no_pedestrians: No motion. Turning light off."
+                  title: ":bathtub: Bathroom"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_turn_off_light
+                data:
+                  transition: 2
         default: []
     mode: single
   - id: "1611164800136"
-    alias: "^Bathroom: No Motion Detected Dimming Lights"
+    alias: "Bathroom: No Motion Detected Dimming Lights"
     description: ""
     trigger:
       - platform: state
@@ -355,7 +355,8 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: ":no_pedestrians: No motion  and :door: door is open after :clock10: 22:00.
+                  message:
+                    ":no_pedestrians: No motion  and :door: door is open after :clock10: 22:00.
                     :bulb: :low_brightness: Dimming light."
                   title: ":bathtub: Bathroom"
               - service: scene.turn_on
@@ -372,8 +373,7 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message:
-                    " and :no_pedestrians: No motion :door: door is closed. :bulb: :low_brightness: Dimming light."
+                  message: " and :no_pedestrians: No motion :door: door is closed. :bulb: :low_brightness: Dimming light."
                   title: ":bathtub: Bathroom"
               - service: scene.turn_on
                 target:
@@ -384,7 +384,7 @@ automation:
     mode: single
   # Door
   - id: "1613684184857"
-    alias: "^Bathroom: Door Opened"
+    alias: "Bathroom: Door Opened"
     description: ""
     trigger:
       - platform: state
@@ -406,7 +406,7 @@ automation:
         entity_id: counter.bathroom_door_opened_closed
     mode: single
   - id: "1611164672680"
-    alias: "^Bathroom: Door Closed And It's Dark"
+    alias: "Bathroom: Door Closed And It's Dark"
     description: ""
     trigger:
       - platform: state
@@ -422,25 +422,25 @@ automation:
         below: input_number.bathroom_light_level_threshold
     action:
       - choose:
-        - conditions:
-            - or:
-                - condition: sun
-                  before: sunrise
-                - condition: time
-                  before: "05:30:00"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :paw_prints: Motion detected, it's dark
-                  ({{ states('sensor.bathroom_motion_light_level') }} <
-                  {{ states('input_number.bathroom_light_level_threshold') }}
-                  {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
-                  and it's :clock12: late. Turning night :bulb: :low_brightness: light on.
-                title: ":bathtub: Bathroom"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.bathroom_night_light
+          - conditions:
+              - or:
+                  - condition: sun
+                    before: sunrise
+                  - condition: time
+                    before: "05:30:00"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :paw_prints: Motion detected, it's dark
+                    ({{ states('sensor.bathroom_motion_light_level') }} <
+                    {{ states('input_number.bathroom_light_level_threshold') }}
+                    {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
+                    and it's :clock12: late. Turning night :bulb: :low_brightness: light on.
+                  title: ":bathtub: Bathroom"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.bathroom_night_light
         default:
           - service: script.send_to_home_log
             data:
@@ -479,7 +479,7 @@ automation:
         entity_id: counter.bathroom_door_opened_closed
     mode: single
   - id: "1613697803282"
-    alias: "^Bathroom: Door Closed And Opened In Succession"
+    alias: "Bathroom: Door Closed And Opened In Succession"
     description: ""
     trigger:
       - platform: numeric_state
@@ -550,7 +550,7 @@ automation:
         default: []
     mode: single
   - id: "1613695680298"
-    alias: "^Bathroom: Light Override Dim"
+    alias: "Bathroom: Light Override Dim"
     description: ""
     trigger:
       - platform: state
@@ -569,7 +569,7 @@ automation:
           entity_id: scene.bathroom_dim_lights
     mode: single
   - id: "1613695788304"
-    alias: "^Bathroom: Light Override Turn Off"
+    alias: "Bathroom: Light Override Turn Off"
     description: ""
     trigger:
       - platform: state
@@ -591,7 +591,7 @@ automation:
     mode: single
   # Blinds
   - id: "1621203193434"
-    alias: "^Bathroom: Open Blinds In The Morning"
+    alias: "Bathroom: Open Blinds In The Morning"
     description: ""
     trigger:
       - platform: time
@@ -614,7 +614,7 @@ automation:
           entity_id: cover.bathroom_blinds
     mode: single
   - id: "1621203351544"
-    alias: "^Bathroom: Close Blinds At Night"
+    alias: "Bathroom: Close Blinds At Night"
     description: ""
     trigger:
       - platform: time
@@ -641,8 +641,7 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message:
-                    ":window: Window is still open. Waiting until
+                  message: ":window: Window is still open. Waiting until
                     it's closed before closing blinds."
                   title: ":bathtub: Bathroom"
         default:

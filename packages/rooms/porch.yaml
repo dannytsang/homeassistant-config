@@ -1,7 +1,7 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   - id: "1606157753577"
-    alias: "^Porch: Front Door Open Turn Light On"
+    alias: "Porch: Front Door Open Turn Light On"
     description: ""
     trigger:
       - platform: state
@@ -38,7 +38,7 @@ automation:
         entity_id: counter.front_door_opened_closed
     mode: single
   - id: "1614033445487"
-    alias: "^Porch: Front Door Opened Once For More than 20 seconds"
+    alias: "Porch: Front Door Opened Once For More than 20 seconds"
     description: ""
     trigger:
       - platform: state
@@ -61,7 +61,7 @@ automation:
         data: {}
         entity_id: counter.front_door_opened_closed
   - id: "1611931052908"
-    alias: "^Porch: Front Door Open Indicator"
+    alias: "Porch: Front Door Open Indicator"
     description: ""
     trigger:
       - platform: state
@@ -74,17 +74,17 @@ automation:
         state: home
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              front :door: door is open and:people_holding_hands: someone is home.
-              Turning on notification :bulb: :high_brightness: light.
-            title: "Porch"
-        - service: script.front_door_open_notification
-          data: {}
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                front :door: door is open and:people_holding_hands: someone is home.
+                Turning on notification :bulb: :high_brightness: light.
+              title: "Porch"
+          - service: script.front_door_open_notification
+            data: {}
     mode: single
   - id: "1615224190495"
-    alias: "^Porch: Front Door Closed For More than 20 seconds"
+    alias: "Porch: Front Door Closed For More than 20 seconds"
     description: ""
     trigger:
       - platform: state
@@ -95,18 +95,18 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              Front door closed for more than 20 secs.
-              Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
-            title: "Porch"
-        - service: counter.reset
-          target:
-            entity_id: counter.front_door_opened_closed
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Front door closed for more than 20 secs.
+                Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
+              title: "Porch"
+          - service: counter.reset
+            target:
+              entity_id: counter.front_door_opened_closed
     mode: single
   - id: "1611931640441"
-    alias: "^Porch: Front Door Closed"
+    alias: "Porch: Front Door Closed"
     description: ""
     trigger:
       - platform: state
@@ -116,15 +116,15 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "Front :door: door closed."
-            title: "Porch"
-        - service: script.front_door_closed_notification
-          data: {}
+          - service: script.send_to_home_log
+            data:
+              message: "Front :door: door closed."
+              title: "Porch"
+          - service: script.front_door_closed_notification
+            data: {}
     mode: single
   - id: "1606157835544"
-    alias: "^Porch: Front Door Closed Turn Off Porch Light"
+    alias: "Porch: Front Door Closed Turn Off Porch Light"
     description: ""
     trigger:
       - platform: state
@@ -135,45 +135,45 @@ automation:
     condition: []
     action:
       - parallel:
-        - service: scene.turn_on
-          target:
-            entity_id: scene.porch_lights_off
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              Front :door: door closed for 1 minute.
-              Turning off light.
-            title: "Porch"
-        - choose:
-          - conditions:
-              - condition: state
-                entity_id: light.stairs
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: "Front door closed. Turning stairs light off as fall back."
-                  title: "Porch"
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.stairs_light_off
-          default: []
-        - choose:
-          - conditions:
-              - condition: state
-                entity_id: light.office_light
-                state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: "Front door closed. Turning office light off as fall back."
-                  title: "Porch"
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.office_turn_off_light_notification
-          default: []
+          - service: scene.turn_on
+            target:
+              entity_id: scene.porch_lights_off
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Front :door: door closed for 1 minute.
+                Turning off light.
+              title: "Porch"
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.stairs
+                    state: "on"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Front door closed. Turning stairs light off as fall back."
+                      title: "Porch"
+                  - service: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_off
+            default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.office_light
+                    state: "on"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Front door closed. Turning office light off as fall back."
+                      title: "Porch"
+                  - service: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.office_turn_off_light_notification
+            default: []
     mode: single
 
 scene:
@@ -289,16 +289,16 @@ template:
   # Replicate Switchbot contact sensor to know if someone is entering or leaving. Thanks to @damieng5
   # https://www.switch-bot.com/products/contact-sensor
   - trigger:
-    - platform: state
-      entity_id: binary_sensor.front_door
+      - platform: state
+        entity_id: binary_sensor.front_door
     sensor:
-    - name: Door Entry Direction
-      unique_id: 97c1df2b-dcde-4aba-884c-acfc59c140aa
-      icon: >-
-        mdi:{% if states('binary_sensor.porch_motion') == 'on' %}location-exit
-        {% elif states('binary_sensor.porch_motion') == 'on' %}location-enter
-        {% else %}alert-circle-outline{% endif %}
-      state: >-
-        {% if states('binary_sensor.porch_motion') == 'on' %}leaving
-        {% elif states('binary_sensor.porch_motion') == 'off' %}entering
-        {% else %}unknown{% endif %}
+      - name: Door Entry Direction
+        unique_id: 97c1df2b-dcde-4aba-884c-acfc59c140aa
+        icon: >-
+          mdi:{% if states('binary_sensor.porch_motion') == 'on' %}location-exit
+          {% elif states('binary_sensor.porch_motion') == 'on' %}location-enter
+          {% else %}alert-circle-outline{% endif %}
+        state: >-
+          {% if states('binary_sensor.porch_motion') == 'on' %}leaving
+          {% elif states('binary_sensor.porch_motion') == 'off' %}entering
+          {% else %}unknown{% endif %}
