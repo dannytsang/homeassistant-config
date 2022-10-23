@@ -317,10 +317,15 @@ script:
               message: >-
                 The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected at the front door."
-              title: ":brain: Deepstack Results"
+          - if:
+              - condition: state
+                entity_id: input_select.deepstack_notification_level
+                state: All
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: ":white_check_mark: Nothing detected at the front door."
+                  title: ":brain: Deepstack Results"
     mode: single
   kitchen_camera_process_image:
     alias: kitchen Camera Process Image
@@ -466,10 +471,15 @@ script:
               message: >-
                 The following detected {{ device }}:{% for object in state_attr('image_processing.deepstack_object_upstairs','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
-          - service: script.send_to_home_log
-            data:
-              message: ":white_check_mark: Nothing detected in the {{ device }}."
-              title: ":brain: Deepstack Results"
+          - if:
+              - condition: state
+                entity_id: input_select.deepstack_notification_level
+                state: All
+            then:
+              - service: script.send_to_home_log
+                data:
+                  message: ":white_check_mark: Nothing detected in the {{ device }}."
+                  title: ":brain: Deepstack Results"
     mode: single
   # General
   turn_on_downstairs_cameras:
