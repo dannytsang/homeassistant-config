@@ -1,5 +1,72 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/hive/
+automation:
+  - id: "1666470473971"
+    alias: "HVAC: Heating Mode Changed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.thermostat_mode
+        to: SCHEDULE
+      - platform: state
+        entity_id:
+          - water_heater.hot_water
+        to: eco
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: Central heating mode changed to {{ states('sensor.thermostat_mode') }}
+          title: ":hotsprings: :droplet: Boiler"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Holiday
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: In holiday mode so heating schould not be on. Turning heating off.
+                  title: ":hotsprings: :droplet: Boiler"
+                  people:
+                    - person.danny
+              - service: script.set_central_heating_to_away_mode
+                data: {}
+    mode: single
+  - id: "1666470473972"
+    alias: "HVAC: Hot Water Mode Changed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - water_heater.hot_water
+        to: eco
+      - platform: state
+        entity_id:
+          - water_heater.hot_water
+        to: "on"
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: Hot water mode changed to {{ states('water_heater.hot_water') }}
+          title: ":hotsprings: :droplet: Boiler"
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Holiday
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: In holiday mode so hot water schould not be on. Turning hot water off.
+                  title: ":hotsprings: :droplet: Boiler"
+                  people:
+                    - person.danny
+              - service: script.set_how_water_to_away_mode
+                data: {}
+    mode: single
 script:
   set_central_heating_to_away_mode:
     alias: Set Central Heating To Away Mode
