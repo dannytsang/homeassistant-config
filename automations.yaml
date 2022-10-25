@@ -765,19 +765,23 @@
             - service: script.send_direct_notification
               data:
                 message: >-
-                  Trigger holiday mode from calendar event.
+                  Trigger holiday mode from {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar event.
                   
                   Event: {{ state_attr(trigger.entity_id,
                   'message')}}
                   
                   Location: {{ state_attr(trigger.entity_id, 'location')}}
+
+                  Start Time: {{ state_attr(trigger.entity_id, 'start_time')}}
+
+                  End Time: {{ state_attr(trigger.entity_id, 'end_time')}}
                   {% set new_ts = (as_timestamp(state_attr(trigger.entity_id, 'end_time'))-as_timestamp(state_attr(trigger.entity_id, 'start_time')))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
                   - person.danny
         - conditions:
             - condition: template
-              value_template: "{{ trigger.calendar_event.all_day == false }}"
+              value_template: "{{ trigger.calendar_event.all_day == true }}"
             - condition: template
               value_template:
                 "{{ state_attr(trigger.entity_id,'location') is defined
@@ -786,15 +790,38 @@
             - service: script.send_direct_notification
               data:
                 message: >-
-                  "Trigger holiday mode from all day Family calendar event.
+                  "Trigger holiday mode from all day {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar event.
 
                   Event: {{ state_attr(trigger.entity_id, 'message')}}
                   
                   Location: {{ state_attr(trigger.entity_id, 'location')}}
+
+                  Start Time: {{ state_attr(trigger.entity_id, 'start_time')}}
+
+                  End Time: {{ state_attr(trigger.entity_id, 'end_time')}}
                   {% set new_ts = (as_timestamp(state_attr(trigger.entity_id, 'end_time'))-as_timestamp(state_attr(trigger.entity_id, 'start_time')))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
                   - person.danny
+      default:
+        - service: script.send_direct_notification
+          data:
+            message: >-
+              "Unknown trigger from {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar.
+
+              Event: {{ state_attr(trigger.entity_id, 'message')}}
+
+              All Day: {{ state_attr(trigger.entity_id, 'all_day')}}
+              
+              Location: {{ state_attr(trigger.entity_id, 'location')}}
+
+              Start Time: {{ state_attr(trigger.entity_id, 'start_time')}}
+
+              End Time: {{ state_attr(trigger.entity_id, 'end_time')}}
+              {% set new_ts = (as_timestamp(state_attr(trigger.entity_id, 'end_time'))-as_timestamp(state_attr(trigger.entity_id, 'start_time')))|int(0) %}
+              Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+            people:
+              - person.danny
   mode: queued
 - id: "1657801925106"
   alias: "Kitchen: Freezer Plug Turned Off"
@@ -1222,7 +1249,7 @@
       above: 6
   condition: []
   action:
-    - service: script.send_to_home_log
+    - service: script.send_direct_notification
       data:
         message:
           It has been {{ states('input_number.consecutive_forecast_days_below_solar_generation')
@@ -1242,7 +1269,7 @@
       to: "on"
   condition: []
   action:
-    - service: script.send_to_home_log
+    - service: script.send_direct_notification
       data:
         message: Update is available.
         title: Home Assistant
@@ -1258,7 +1285,7 @@
       above: 6
   condition: []
   action:
-    - service: script.send_to_home_log
+    - service: script.send_direct_notification
       data:
         message:
           It has been {{ states('input_number.consecutive_days_battery_not_charged')
