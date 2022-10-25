@@ -18,6 +18,9 @@ camera:
     file_path: !secret camera_deepstack_lounge
     name: deepstack_lounge_latest
   - platform: local_file
+    file_path: !secret camera_deepstack_office
+    name: deepstack_office_latest
+  - platform: local_file
     file_path: !secret camera_deepstack_upstairs
     name: deepstack_upstairs_latest
 
@@ -151,6 +154,27 @@ image_processing:
     port: !secret deepstack_port
     timeout: 20
     api_key: !secret deepstack_api_key
+    save_file_folder: !secret image_processing_office
+    save_file_format: png
+    save_timestamped_file: true
+    always_save_latest_file: true
+    scale: 0.75
+    targets:
+      - target: person
+        confidence: 70
+      - target: cat
+        confidence: 50
+      - target: dog
+        confidence: 50
+      - target: knife
+        confidence: 25
+    source:
+      - entity_id: camera.office_snapshot
+  - platform: deepstack_object
+    ip_address: !secret deepstack_host
+    port: !secret deepstack_port
+    timeout: 20
+    api_key: !secret deepstack_api_key
     save_file_folder: !secret image_processing_upstairs
     save_file_format: png
     save_timestamped_file: true
@@ -215,6 +239,18 @@ image_processing:
     show_boxes: true
     source:
       - entity_id: camera.lounge
+  - platform: deepstack_face
+    ip_address: !secret deepstack_host
+    port: !secret deepstack_port
+    api_key: !secret deepstack_api_key
+    timeout: 20
+    save_file_folder: !secret image_processing_office
+    save_timestamped_file: true
+    save_faces: true
+    save_faces_folder: !secret image_processing_faces
+    show_boxes: true
+    source:
+      - entity_id: camera.office_snapshot
   - platform: deepstack_face
     ip_address: !secret deepstack_host
     port: !secret deepstack_port
@@ -359,6 +395,22 @@ script:
           title: "{{ title }}"
           entity_id: image_processing.deepstack_object_lounge
     mode: single
+  office_camera_process_image:
+    alias: Office Camera Process Image
+    icon: mdi:camera
+    description: "Send Office camera image for processing and post a message."
+    fields:
+      message:
+        description: Message to post
+      title:
+        description: Header to the message posted.
+    sequence:
+      - service: script.object_process_image
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
+          entity_id: image_processing.deepstack_object_office
+    mode: single
   stairs_camera_process_image:
     alias: Stairs Camera Process Image
     icon: mdi:camera
@@ -457,6 +509,16 @@ script:
                       filePath: "{{ states('input_text.latest_deepstack_lounge_file_path') }}"
               - conditions:
                   - condition: template
+                    value_template: "{{ device == 'office' }}"
+                sequence:
+                  - service: shell_command.copy_office_deepstack_files
+                  - service: script.send_home_log_with_local_attachments
+                    data:
+                      title: "{{ title }}"
+                      message: "{{ message }}"
+                      filePath: "{{ states('input_text.latest_deepstack_office_file_path') }}"
+              - conditions:
+                  - condition: template
                     value_template: "{{ device == 'upstairs' }}"
                 sequence:
                   - service: shell_command.copy_upstairs_deepstack_files
@@ -502,4 +564,5 @@ shell_command:
   copy_front_door_deepstack_files: !secret copy_front_door_deepstack_files_command
   copy_kitchen_deepstack_files: !secret copy_kitchen_deepstack_files_command
   copy_lounge_deepstack_files: !secret copy_lounge_deepstack_files_command
+  copy_office_deepstack_files: !secret copy_office_deepstack_files_command
   copy_upstairs_deepstack_files: !secret copy_upstairs_deepstack_files_command
