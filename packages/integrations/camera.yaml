@@ -38,7 +38,7 @@ image_processing:
     scale: 0.75
     targets:
       - target: person
-        confidence: 30
+        confidence: 50
       - target: cat
         confidence: 50
       - target: dog
@@ -77,7 +77,7 @@ image_processing:
     scale: 0.75
     targets:
       - target: person
-        confidence: 40
+        confidence: 50
       - target: cat
         confidence: 75
       - target: dog
@@ -98,7 +98,7 @@ image_processing:
     scale: 0.75
     targets:
       - target: person
-        confidence: 25
+        confidence: 50
       - target: cat
         confidence: 50
       - target: dog
@@ -112,27 +112,6 @@ image_processing:
     port: !secret deepstack_port
     timeout: 20
     api_key: !secret deepstack_api_key
-    save_file_folder: !secret image_processing_front_door
-    save_file_format: png
-    save_timestamped_file: true
-    always_save_latest_file: true
-    scale: 0.75
-    targets:
-      - target: person
-        confidence: 40
-      - target: cat
-        confidence: 75
-      - target: dog
-        confidence: 75
-      - target: knife
-        confidence: 50
-    source:
-      - entity_id: camera.front_door
-  - platform: deepstack_object
-    ip_address: !secret deepstack_host
-    port: !secret deepstack_port
-    timeout: 20
-    api_key: !secret deepstack_api_key
     save_file_folder: !secret image_processing_lounge
     save_file_format: png
     save_timestamped_file: true
@@ -140,7 +119,7 @@ image_processing:
     scale: 0.75
     targets:
       - target: person
-        confidence: 25
+        confidence: 50
       - target: cat
         confidence: 50
       - target: dog
@@ -182,7 +161,7 @@ image_processing:
     scale: 0.75
     targets:
       - target: person
-        confidence: 40
+        confidence: 50
       - target: cat
         confidence: 50
       - target: dog
@@ -348,10 +327,26 @@ script:
               title: "{{ title }}"
               message: "{{ message }}"
               filePath: "{{ states('input_text.latest_deepstack_front_door_file_path') }}"
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+          - if:
+              - not:
+                - condition: state
+                  entity_id: group.adult_people
+                  state: "home"
+              - condition: template
+                value_template: "{{ 'person' in state_attr('image_processing.deepstack_object_front_door','targets_found') }}"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+                  people:
+                    - person.danny
+                    - person.terina
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    The following detected at the front door:{% for object in state_attr('image_processing.deepstack_object_front_door','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
           - if:
               - condition: state
@@ -440,7 +435,7 @@ script:
         example: example title
       entity_id:
         description: image_processing entity ID send to Deepstack.
-        example: image_processing.driveway
+        example: image_processing.deepstack_object_driveway
     variables:
       device: "{% if 'conservatory' in entity_id %}
       conservatory
@@ -452,6 +447,17 @@ script:
       lounge
       {% elif 'upstairs' in entity_id %}
       upstairs
+      {% endif%}"
+      latestImageFilePathEntityId: "{% if 'conservatory' in entity_id %}
+      input_text.latest_deepstack_conservatory_file_path
+      {% elif 'driveway' in entity_id %}
+      input_text.latest_deepstack_driveway_file_path
+      {% elif 'kitchen' in entity_id %}
+      input_text.latest_deepstack_kitchen_file_path
+      {% elif 'lounge' in entity_id %}
+      input_text.latest_deepstack_lounge_file_path
+      {% elif 'upstairs' in entity_id %}
+      input_text.latest_deepstack_upstairs_file_path
       {% endif%}"
     sequence:
       - service: image_processing.scan
@@ -466,72 +472,34 @@ script:
         - condition: template
           value_template: "{{ states(entity_id) > 0}}"
         then:
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'conservatory' }}"
-                sequence:
-                  - service: shell_command.copy_conservatory_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_conservatory_file_path') }}"
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'driveway' }}"
-                sequence:
-                  - service: shell_command.copy_driveway_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_driveway_file_path') }}"
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'kitchen' }}"
-                sequence:
-                  - service: shell_command.copy_kitchen_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_kitchen_file_path') }}"
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'lounge' }}"
-                sequence:
-                  - service: shell_command.copy_lounge_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_lounge_file_path') }}"
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'office' }}"
-                sequence:
-                  - service: shell_command.copy_office_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_office_file_path') }}"
-              - conditions:
-                  - condition: template
-                    value_template: "{{ device == 'upstairs' }}"
-                sequence:
-                  - service: shell_command.copy_upstairs_deepstack_files
-                  - service: script.send_home_log_with_local_attachments
-                    data:
-                      title: "{{ title }}"
-                      message: "{{ message }}"
-                      filePath: "{{ states('input_text.latest_deepstack_upstairs_file_path') }}"
-            default: []
-          - service: script.send_to_home_log
+          - service: script.make_latest_camera_files_public
             data:
-              message: >-
-                The following detected {{ device }}:{% for object in state_attr('image_processing.deepstack_object_upstairs','targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+              entity_id: entity_id
+          - service: script.send_home_log_with_local_attachments
+            data:
+              title: "{{ title }}"
+              message: "{{ message }}"
+              filePath: "{{ states(latestImageFilePathEntityId) }}"
+          - if:
+              - not:
+                - condition: state
+                  entity_id: group.adult_people
+                  state: "home"
+              - condition: template
+                value_template: "{{ 'person' in state_attr(entity_id, 'targets_found') }}"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    The following detected at the front door:{% for object in state_attr(entity_id, 'targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
+                  people:
+                    - person.danny
+                    - person.terina
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    The following detected {{ device }}:{% for object in state_attr(entity_id, 'targets_found') %}{% for key, value in object.items() %}{{ '\n* ' ~ key ~ ' (' ~ value ~ '%)' }}{% endfor %}{% endfor %}
         else:
           - if:
               - condition: state
@@ -542,6 +510,57 @@ script:
                 data:
                   message: ":white_check_mark: Nothing detected in the {{ device }}."
                   title: ":brain: Deepstack Results"
+    mode: queued
+    max: 10
+  make_latest_camera_files_public:
+    alias: Make Latest Camera Files Public
+    icon: mdi:file
+    fields:
+      entity_id:
+        description: image_processing entity ID send to Deepstack.
+        example: image_processing.deepstack_object_driveway
+    sequence:
+      - parallel:
+          - choose:
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_conservatory' }}"
+              sequence:
+                - service: shell_command.copy_conservatory_deepstack_files
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_driveway' }}"
+              sequence:
+                - service: shell_command.copy_driveway_deepstack_files
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_kitchen' }}"
+              sequence:
+                - service: shell_command.copy_kitchen_deepstack_files
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_lounge' }}"
+              sequence:
+                - service: shell_command.copy_lounge_deepstack_files
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_office_snapshot' }}"
+              sequence:
+                - service: shell_command.copy_office_deepstack_files
+            - conditions:
+                - condition: template
+                  value_template: "{{ entity_id == 'image_processing.deepstack_object_upstairs' }}"
+              sequence:
+                - service: shell_command.copy_upstairs_deepstack_files
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: "Trying to making camera image public but unknown camera processor {{ entity_id }}."
+                  title: ":warning: Copy"
+          - service: script.send_to_home_log
+            data:
+              message: "Making camera {{ entity_id }} image public."
+              title: "Copy"
     mode: single
   # General
   turn_on_downstairs_cameras:
