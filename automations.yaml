@@ -759,23 +759,27 @@
               value_template: "{{ trigger.calendar_event.all_day == false }}"
             - condition: template
               value_template:
-                "{{ state_attr(trigger.entity_id,'location') is defined
+                "{{ (trigger.calendar_event.location|default(none, true)) is defined
                 }}"
           sequence:
             - service: script.send_direct_notification
               data:
                 message: >-
-                  Trigger holiday mode from {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar event.
-                  
-                  Event: {{ trigger.calendar_event.summary }}
+                  Trigger holiday mode from Family calendar event.
 
-                  All Day: {{ trigger.calendar_event.all_day }}
-                  
-                  Location: {{ trigger.calendar_event.location }}
+                  Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
 
-                  Start Time: {{ trigger.calendar_event.start }}
+                  Event Type: {{ trigger.event|default('N/A', true) }}
 
-                  End Time: {{ trigger.calendar_event.end }}
+                  Offset: {{ trigger.offset|default('N/A', true) }}
+
+                  All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
+
+                  Location: {{ trigger.calendar_event.location|default('N/A', true) }}
+
+                  Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
+
+                  End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
                   {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
@@ -785,23 +789,27 @@
               value_template: "{{ trigger.calendar_event.all_day == true }}"
             - condition: template
               value_template:
-                "{{ state_attr(trigger.entity_id,'location') is defined
+                "{{ (trigger.calendar_event.location|default(none, true)) is defined
                 }}"
           sequence:
             - service: script.send_direct_notification
               data:
                 message: >-
-                  "Trigger holiday mode from all day {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar event.
+                  "Trigger holiday mode from all day Family calendar event.
 
-                  Event: {{ trigger.calendar_event.summary }}
+                  Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
 
-                  All Day: {{ trigger.calendar_event.all_day }}
-                  
-                  Location: {{ trigger.calendar_event.location }}
+                  Event Type: {{ trigger.event|default('N/A', true) }}
 
-                  Start Time: {{ trigger.calendar_event.start }}
+                  Offset: {{ trigger.offset|default('N/A', true) }}
 
-                  End Time: {{ trigger.calendar_event.end }}
+                  All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
+
+                  Location: {{ trigger.calendar_event.location|default('N/A', true) }}
+
+                  Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
+
+                  End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
                   {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
                 people:
@@ -810,17 +818,21 @@
         - service: script.send_direct_notification
           data:
             message: >-
-              "Unknown trigger from {{ state_attr(trigger.entity_id, 'friendly_name')}} calendar.
+              "Unknown trigger from Family calendar.
 
-              Event: {{ trigger.calendar_event.summary }}
+              Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
 
-              All Day: {{ trigger.calendar_event.all_day }}
-              
-              Location: {{ trigger.calendar_event.location }}
+              Event Type: {{ trigger.event|default('N/A', true) }}
 
-              Start Time: {{ trigger.calendar_event.start }}
+              Offset: {{ trigger.offset|default('N/A', true) }}
 
-              End Time: {{ trigger.calendar_event.end }}
+              All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
+
+              Location: {{ trigger.calendar_event.location|default('N/A', true) }}
+
+              Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
+
+              End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
               {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
               Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
             people:
