@@ -60,25 +60,96 @@ script:
     alias: Home Mode Turn On Holiday Mode
     icon: mdi:airplane
     sequence:
-      - service: script.set_central_heating_to_away_mode
-        data: {}
-      - service: script.set_how_water_to_away_mode
-        data: {}
-      - service: script.send_to_home_log
-        data:
-          message: "Finished setting up :airplane: holiday mode"
-          title: Home Mode
+      - parallel:
+          - service: script.set_central_heating_to_away_mode
+            data: {}
+          - service: script.set_how_water_to_away_mode
+            data: {}
+          - service: script.send_to_home_log
+            data:
+              message: "Finished setting up :airplane: holiday mode"
+              title: Home Mode
     mode: single
   home_mode_turn_on_normal_mode:
     alias: Home Mode Turn On Normal Mode
     icon: mdi:home
     sequence:
-      - service: script.set_central_heating_to_home_mode
-        data: {}
-      - service: script.set_how_water_to_home_mode
-        data: {}
+      - parallel:
+          - service: script.set_central_heating_to_home_mode
+            data: {}
+          - service: script.set_how_water_to_home_mode
+            data: {}
+          - service: script.send_to_home_log
+            data:
+              message: "Finished setting up normal mode"
+              title: Home Mode
+          - service: script.normal_mode_swtich_on
+            data: {}
+    mode: single
+  # Mode scripts
+  holiday_mode_swtich_off:
+    alias: Holiday Mode Switch Off
+    icon: mdi:power-plug-off
+    sequence:
       - service: script.send_to_home_log
         data:
-          message: "Finished setting up normal mode"
+          message: "Turning off Kitchen"
           title: Home Mode
-    mode: single
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id:
+            - switch.coffee_machine
+            - switch.kettle
+      - service: script.send_to_home_log
+        data:
+          message: "Turning off Lounge"
+          title: Home Mode
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id:
+            - switch.harmony_hub_plug
+            - switch.playstation_plug
+      - service: script.send_to_home_log
+        data:
+          message: "Turning off Office"
+          title: Home Mode
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id:
+            - switch.pc_accessories_plug
+  normal_mode_swtich_on:
+    alias: Normal Mode Switch On
+    icon: mdi:power-plug
+    sequence:
+      - service: script.send_to_home_log
+        data:
+          message: "Turning on Kitchen"
+          title: Home Mode
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id:
+            - switch.coffee_machine
+            - switch.kettle
+      - service: script.send_to_home_log
+        data:
+          message: "Turning on Lounge"
+          title: Home Mode
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id:
+            - switch.harmony_hub_plug
+            - switch.playstation_plug
+      - service: script.send_to_home_log
+        data:
+          message: "Turning on Office"
+          title: Home Mode
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id:
+            - switch.pc_accessories_plug
