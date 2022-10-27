@@ -64,6 +64,26 @@ automation:
                   temperature: "{{ state_attr(trigger.entity_id, 'temperature') }}"
                   weather_condition: "{{ states(trigger.entity_id) }}"
     mode: single
+  - id: "1645568214221"
+    alias: "Weather: Warning Notification"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.met_office_rss_weather_warnings
+        above: 0
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: >-
+            {{ state_attr('sensor.met_office_rss_weather_warnings','entries')[0].title }}
+
+            {{ state_attr('sensor.met_office_rss_weather_warnings','entries')[0].link }}
+          title: ":cloud: Weather"
+          people:
+            - person.danny
+            - person.terina
+    mode: single
 
 sensor:
   # https://community.home-assistant.io/t/uk-met-office-severe-weather-warnings/189680/4?u=tuxinator94

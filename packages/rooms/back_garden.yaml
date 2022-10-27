@@ -126,3 +126,21 @@ automation:
             title: ":hut: Shed"
         - service: script.conservatory_turn_on_camera
     mode: single
+  - id: "1618158998129"
+    alias: "Shed: Motion Detected When Door Is Closed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.shed_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.shed_door
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: ":paw_prints: Motion detected in the shed and the door is shut."
+          title: ":hut: Shed"
+    mode: single
