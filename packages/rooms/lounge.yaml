@@ -104,10 +104,10 @@ automation:
     alias: "Lounge: No Motion After 5 Minutes And TV Is Off Dim Lights"
     description: ""
     trigger:
-      - platform: state
-        entity_id: binary_sensor.lounge_area_motion
-        to: "off"
-        for: 00:05:00
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.lounge_dim_lights
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
@@ -133,11 +133,10 @@ automation:
     alias: "Lounge: No Motion After 10 Minutes"
     description: ""
     trigger:
-      - platform: state
-        entity_id: binary_sensor.lounge_area_motion
-        from: "on"
-        to: "off"
-        for: 00:10:00
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.lounge_turn_off_lights
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
