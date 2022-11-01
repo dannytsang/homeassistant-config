@@ -148,7 +148,6 @@ nfc_bedroom_right:
     - service: script.turn_everything_off
   mode: single
   icon: mdi:nfc
-# https://community.home-assistant.io/t/random-light-schedule/10135/56
 downstairs_random_light:
   alias: Downstairs Random Light
   sequence:
@@ -206,9 +205,10 @@ car_set_next_update_location:
           sequence:
             - service: timer.start
               data:
-                duration: >-
-                  {% set new_ts = (states('input_number.default_update_car_location')|int(0) * 60) %}
-                  {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+                duration:
+                  "{% set new_ts = (states('input_number.default_update_car_location')|int(0)
+                  * 60) %} {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts %
+                  3600) // 60, (new_ts % 3600) % 60) }}"
               target:
                 entity_id: timer.update_dannys_car
         - conditions:
@@ -225,11 +225,70 @@ car_set_next_update_location:
           sequence:
             - service: timer.start
               data:
-                duration: >-
-                  {% set new_ts = ((states('input_number.default_update_car_location')|int(0) * 60) * 6) %}
-                  {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+                duration:
+                  "{% set new_ts = ((states('input_number.default_update_car_location')|int(0)
+                  * 60) * 6) %} {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts
+                  % 3600) // 60, (new_ts % 3600) % 60) }}"
               target:
                 entity_id: timer.update_dannys_car
       default: []
   mode: single
   icon: mdi:car
+lounge_start_dim_lights_timer:
+  alias: Lounge Start Dim Lights Timer
+  fields:
+    duration:
+      description: Timer duration in hh:mm:ss.
+      required: true
+      example: 00:10:00
+  sequence:
+    - parallel:
+        - if:
+            - condition: state
+              entity_id: timer.lounge_turn_off_lights
+              state: active
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: Cancelling turn off lights timer.
+                    title: ":couch_and_lamp: Lounge"
+                - service: timer.cancel
+                  data: {}
+                  target:
+                    entity_id: timer.lounge_turn_off_lights
+        - service: timer.start
+          data:
+            duration: "{{ duration }}"
+          target:
+            entity_id: timer.lounge_dim_lights
+  mode: single
+lounge_start_turn_off_lights_timer:
+  alias: Lounge Start Dim Lights Timer
+  fields:
+    duration:
+      description: Timer duration in hh:mm:ss.
+      required: true
+      example: 00:10:00
+  sequence:
+    - parallel:
+        - if:
+            - condition: state
+              entity_id: timer.lounge_dim_lights
+              state: active
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: Cancelling dim lights timer.
+                    title: ":couch_and_lamp: Lounge"
+                - service: timer.cancel
+                  data: {}
+                  target:
+                    entity_id: timer.lounge_dim_lights
+        - service: timer.start
+          data:
+            duration: "{{ duration }}"
+          target:
+            entity_id: timer.lounge_turn_off_lights
+  mode: single
