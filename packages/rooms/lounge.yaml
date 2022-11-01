@@ -1,5 +1,70 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Motion
+  - id: "1667250129171"
+    alias: "Lounge: No Motion"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.lounge_area_motion
+        from: "on"
+        to: "off"
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":no_pedestrians: No motion."
+              title: ":couch_and_lamp: Lounge"
+          - service: script.lounge_start_dim_lights_timer
+            data:
+              duration: "00:05:00"
+    mode: single
+  - id: "1667250700034"
+    alias: "Lounge: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.lounge_area_motion
+        to: "off"
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":paw_prints: Motion detected."
+              title: ":couch_and_lamp: Lounge"
+          - if:
+              - condition: state
+                entity_id: timer.lounge_dim_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Cancelling dim lights timer."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_dim_lights
+          - if:
+              - condition: state
+                entity_id: timer.lounge_turn_off_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Cancelling lights off timer."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_turn_off_lights
+    mode: single
   # Lights related automation.
   - id: "1583956425622"
     alias: "Lounge: Dark And Motion Detected"
@@ -191,6 +256,25 @@ automation:
               entity_id: scene.lounge_dim_lights
             data:
               transition: 2
+    mode: single
+  - id: "1667251574589"
+    alias: "Lounge: Dim Light Timer Finished"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.lounge_dim_lights
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Dim light timer finished. Starting light off timer."
+              title: ":couch_and_lamp: Lounge"
+          - service: script.lounge_start_turn_off_lights_timer
+            data:
+              duration: "00:05:00"
     mode: single
   # Alarm
   - id: "1588859622571"
