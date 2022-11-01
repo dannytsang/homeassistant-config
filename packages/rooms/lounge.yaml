@@ -36,34 +36,8 @@ automation:
             data:
               message: ":paw_prints: Motion detected."
               title: ":couch_and_lamp: Lounge"
-          - if:
-              - condition: state
-                entity_id: timer.lounge_dim_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling dim lights timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_dim_lights
-          - if:
-              - condition: state
-                entity_id: timer.lounge_turn_off_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling lights off timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_turn_off_lights
+          - service: script.lounge_stop_light_timers
+            data: {}
     mode: single
   # Lights related automation.
   - id: "1583956425622"
@@ -906,7 +880,7 @@ script:
               - parallel:
                   - service: script.send_to_home_log
                     data:
-                      message: Cancelling turn off lights timer.
+                      message: "Cancelling turn off lights :hourglass_flowing_sand: timer."
                       title: ":couch_and_lamp: Lounge"
                   - service: timer.cancel
                     data: {}
@@ -935,7 +909,7 @@ script:
               - parallel:
                   - service: script.send_to_home_log
                     data:
-                      message: Cancelling dim lights timer.
+                      message: "Cancelling dim lights :hourglass_flowing_sand: timer."
                       title: ":couch_and_lamp: Lounge"
                   - service: timer.cancel
                     data: {}
@@ -946,6 +920,38 @@ script:
               duration: "{{ duration }}"
             target:
               entity_id: timer.lounge_turn_off_lights
+    mode: single
+  lounge_stop_light_timers:
+    alias: Lounge Stop Light Timers
+    sequence:
+      - if:
+          - condition: state
+            entity_id: timer.lounge_dim_lights
+            state: active
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Cancelling dim lights :hourglass_flowing_sand: timer."
+                  title: ":couch_and_lamp: Lounge"
+              - service: timer.cancel
+                data: {}
+                target:
+                  entity_id: timer.lounge_dim_lights
+      - if:
+          - condition: state
+            entity_id: timer.lounge_turn_off_lights
+            state: active
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Cancelling lights off :hourglass_flowing_sand: timer."
+                  title: ":couch_and_lamp: Lounge"
+              - service: timer.cancel
+                data: {}
+                target:
+                  entity_id: timer.lounge_turn_off_lights
     mode: single
 
 sensor:
