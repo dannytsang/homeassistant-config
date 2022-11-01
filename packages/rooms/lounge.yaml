@@ -192,40 +192,6 @@ automation:
             data:
               transition: 2
     mode: single
-  - id: "1610409803685"
-    alias: "Lounge: TV Turned Off Turn Off Lights"
-    description: "TV is turned off and turn lights off if there has been no motion."
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.tv_plug_power_meter
-        for: 00:10:00
-        below: input_number.tv_plug_powered_on_threshold
-    condition:
-      - condition: state
-        entity_id: light.lounge_lamps
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.lounge_area_motion
-        state: "off"
-      - condition: state
-        entity_id: binary_sensor.lounge_area_motion
-        state: "off"
-        for:
-          hours: 0
-          minutes: 10
-          seconds: 0
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":tv: TV turned off for 10 minutes. Turning lights off."
-              title: ":couch_and_lamp: Lounge"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_lights_off
-            data:
-              transition: 2
-    mode: single
   # Alarm
   - id: "1588859622571"
     alias: "Lounge: Motion Detected In The Morning"
