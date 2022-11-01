@@ -273,6 +273,48 @@ automation:
     mode: queued
     max: 10
   # Motion triggers
+  - id: "1621713217275"
+    alias: "Bedroom: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_area_motion
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        state: "on"
+    action:
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: timer.bedroom_dim_ambient_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":paw_prints: Motion detected. Cancelling dim ambient lights :hourglass_flowing_sand: timer."
+                      title: ":bed: Bedroom"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.bedroom_dim_ambient_lights
+          - if:
+              - condition: state
+                entity_id: timer.bedroom_turn_off_ambient_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":paw_prints: Motion detected. Cancelling turn off ambient lights :hourglass_flowing_sand: timer."
+                      title: ":bed: Bedroom"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.bedroom_turn_off_ambient_lights
   - id: "1621713217274"
     alias: "Bedroom: Motion Detected"
     description: ""
@@ -281,10 +323,10 @@ automation:
         entity_id: binary_sensor.bedroom_area_motion
         from: "off"
         to: "on"
-      - platform: state
-        entity_id: input_boolean.enable_bedroom_motion_trigger
-        to: "on"
     condition:
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        state: "on"
       - or:
           - condition: template
             value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
@@ -352,7 +394,7 @@ automation:
                       entity_id: scene.bedroom_dim_ambient_light
             default: []
     mode: single
-  - id: "1621713867762"
+  - id: "1621713867763"
     alias: "Bedroom: No Motion"
     description: ""
     trigger:
@@ -360,7 +402,31 @@ automation:
         entity_id: binary_sensor.bedroom_area_motion
         from: "on"
         to: "off"
-        for: 00:02:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_bedroom_motion_trigger
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion.
+              title: " :bed: Bedroom"
+          - service: timer.start
+            data:
+              duration: "00:02:00"
+            target:
+              entity_id: timer.bedroom_turn_off_ambient_lights
+    mode: single
+  - id: "1621713867762"
+    alias: "Bedroom: No Motion Turn Off Ambient Lights"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.bedroom_turn_off_ambient_lights
     condition:
       - or:
           - condition: state
