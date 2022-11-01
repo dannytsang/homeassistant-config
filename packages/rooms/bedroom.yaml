@@ -529,23 +529,42 @@ automation:
     mode: single
   # Plugs / switches
   - id: "1581800266867"
-    alias: "Turn off Electric Blanket After 1 hour"
+    alias: "Bedroom: Turn off Electric Blanket After 1 hour"
     description: ""
     trigger:
-      - entity_id: switch.blanket
-        for: 01:00:00
-        platform: state
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.bedroom_turn_off_heated_blanket
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Electric blanket has been on for 1 hour. Turning electric blanket off.
+              title: ":bed: Bedroom"
+          - service: switch.turn_off
+            entity_id: switch.blanket
+            data: {}
+  - id: "1581800266868"
+    alias: "Bedroom: Electric Blanket Turned On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: switch.blanket
         to: "'on'"
     condition: []
     action:
       - parallel:
-          - data: {}
-            entity_id: switch.blanket
-            service: switch.turn_off
-          - data:
-              message: Electric blanket has been on for 1 hour. Turning electric blanket off.
+          - service: script.send_to_home_log
+            data:
+              message: Electric blanket has turned on.
               title: ":bed: Bedroom"
-            service: script.send_to_home_log
+          - service: timer.start
+            data:
+              duration: 01:00:00
+            target:
+              entity_id: timer.bedroom_turn_off_heated_blanket
   - id: "1624194131454"
     alias: "Bedroom: TV Turned On During Bright Day"
     description: ""
