@@ -795,6 +795,65 @@ script:
           entity_id: scene.current_lounge_lights
     mode: single
     icon: mdi:lamp
+  # Timers
+  lounge_start_dim_lights_timer:
+    alias: Lounge Start Dim Lights Timer
+    fields:
+      duration:
+        description: Timer duration in hh:mm:ss.
+        required: true
+        example: 00:10:00
+    sequence:
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: timer.lounge_turn_off_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Cancelling turn off lights timer.
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_turn_off_lights
+          - service: timer.start
+            data:
+              duration: "{{ duration }}"
+            target:
+              entity_id: timer.lounge_dim_lights
+    mode: single
+  lounge_start_turn_off_lights_timer:
+    alias: Lounge Start Dim Lights Timer
+    fields:
+      duration:
+        description: Timer duration in hh:mm:ss.
+        required: true
+        example: 00:10:00
+    sequence:
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: timer.lounge_dim_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Cancelling dim lights timer.
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_dim_lights
+          - service: timer.start
+            data:
+              duration: "{{ duration }}"
+            target:
+              entity_id: timer.lounge_turn_off_lights
+    mode: single
 
 sensor:
   - platform: history_stats
@@ -833,7 +892,7 @@ template:
       - name: Playstation Powered On
         unique_id: dee5115e-8e1b-4b3d-b6e5-af3da26f574a
         device_class: "running"
-        icon: "mdi:google-controller{{ '' if states('sensor.playstation_plug_power_meter') | float(0) > 15 else '-off' }}"
+        icon: "mdi:controller{{ '' if states('sensor.playstation_plug_power_meter') | float(0) > 15 else '-off' }}"
         state: "{{ states('sensor.playstation_plug_power_meter') | float(0) > 15 }}"
       - name: TV Powered On
         unique_id: 018dca5f-259c-4c2e-94b3-0195359ac572
