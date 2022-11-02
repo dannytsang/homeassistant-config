@@ -34,6 +34,21 @@ automation:
                   data: {}
                   target:
                     entity_id: timer.conservatory_turn_off_lights
+        - if:
+            - condition: state
+              entity_id: timer.magic_mirror_turn_off
+              state: active
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: >-
+                      :paw_prints: Motion detected. Cancelling turn off :mirror: magic mirror :hourglass_flowing_sand: timer.
+                    title: ":ladder: Stairs"
+                - service: timer.cancel
+                  data: {}
+                  target:
+                    entity_id: timer.magic_mirror_turn_off
   - id: "1624918278463"
     alias: "Stairs: Motion Detected For Ambient Lights"
     description: ""
@@ -793,6 +808,10 @@ automation:
     alias: "Stairs: No Motion At Night Turn Off Magic Mirror"
     description: ""
     trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.magic_mirror_turn_off
       - entity_id: binary_sensor.stairs_motion
         for: 00:03:00
         platform: state
