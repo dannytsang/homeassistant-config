@@ -17,9 +17,25 @@ automation:
             data:
               message: ":no_pedestrians: No motion."
               title: ":couch_and_lamp: Lounge"
-          - service: script.lounge_start_dim_lights_timer
+          - if:
+              - condition: state
+                entity_id: timer.lounge_turn_off_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Cancelling turn off lights :hourglass_flowing_sand: timer."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_turn_off_lights
+          - service: timer.start
             data:
               duration: "00:05:00"
+            target:
+              entity_id: timer.lounge_dim_lights
     mode: single
   - id: "1667250700034"
     alias: "Lounge: Motion Detected"
@@ -273,9 +289,25 @@ automation:
             data:
               message: "Dim light timer finished. Starting light off timer."
               title: ":couch_and_lamp: Lounge"
-          - service: script.lounge_start_turn_off_lights_timer
+          - if:
+              - condition: state
+                entity_id: timer.lounge_dim_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Cancelling dim lights :hourglass_flowing_sand: timer."
+                      title: ":couch_and_lamp: Lounge"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.lounge_dim_lights
+          - service: timer.start
             data:
               duration: "00:05:00"
+            target:
+              entity_id: timer.lounge_turn_off_lights
     mode: single
   # Alarm
   - id: "1588859622571"
@@ -889,65 +921,6 @@ script:
           entity_id: scene.current_lounge_lights
     mode: single
     icon: mdi:lamp
-  # Timers
-  lounge_start_dim_lights_timer:
-    alias: Lounge Start Dim Lights Timer
-    fields:
-      duration:
-        description: Timer duration in hh:mm:ss.
-        required: true
-        example: 00:10:00
-    sequence:
-      - parallel:
-          - if:
-              - condition: state
-                entity_id: timer.lounge_turn_off_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling turn off lights :hourglass_flowing_sand: timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_turn_off_lights
-          - service: timer.start
-            data:
-              duration: "{{ duration }}"
-            target:
-              entity_id: timer.lounge_dim_lights
-    mode: single
-  lounge_start_turn_off_lights_timer:
-    alias: Lounge Start Turn Off Lights Timer
-    fields:
-      duration:
-        description: Timer duration in hh:mm:ss.
-        required: true
-        example: 00:10:00
-    sequence:
-      - parallel:
-          - if:
-              - condition: state
-                entity_id: timer.lounge_dim_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling dim lights :hourglass_flowing_sand: timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_dim_lights
-          - service: timer.start
-            data:
-              duration: "{{ duration }}"
-            target:
-              entity_id: timer.lounge_turn_off_lights
-    mode: single
 
 sensor:
   - platform: history_stats
