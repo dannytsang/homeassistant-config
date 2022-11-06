@@ -1245,29 +1245,3 @@
         - service: rest_command.reload_deebot
           data: {}
   mode: single
-- id: "1667424349110"
-  alias: "Sleep As Android: Stop Sleep Timer"
-  description: ""
-  trigger:
-    - platform: time
-      at: 05:00:00
-  condition:
-    - condition: or
-      conditions:
-        - condition: state
-          entity_id: timer.sleep
-          state: active
-        - condition: state
-          entity_id: timer.sleep
-          state: paused
-  action:
-    - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: Cancelling sleep timer.
-            title: ":zzz: Sleep as :robot_face: Android"
-        - service: timer.cancel
-          data: {}
-          target:
-            entity_id: timer.sleep
-  mode: single
