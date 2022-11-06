@@ -1,88 +1,5 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Motion
-  - id: "1667250129171"
-    alias: "Lounge: No Motion"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.lounge_area_motion
-        from: "on"
-        to: "off"
-    condition: []
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":no_pedestrians: No motion."
-              title: ":couch_and_lamp: Lounge"
-          - if:
-              - condition: state
-                entity_id: timer.lounge_turn_off_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling turn off lights :hourglass_flowing_sand: timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_turn_off_lights
-          - service: timer.start
-            data:
-              duration: "00:05:00"
-            target:
-              entity_id: timer.lounge_dim_lights
-    mode: single
-  - id: "1667250700034"
-    alias: "Lounge: Motion Detected"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.lounge_motion
-          - binary_sensor.lounge_motion_2
-          - binary_sensor.lounge_motion_3
-          - binary_sensor.lounge_area_motion
-        to: "off"
-    condition: []
-    action:
-      - parallel:
-          - if:
-              - condition: state
-                entity_id: timer.lounge_dim_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected. Cancelling dim lights :hourglass_flowing_sand: timer.
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_dim_lights
-          - if:
-              - condition: state
-                entity_id: timer.lounge_turn_off_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected. Cancelling lights off :hourglass_flowing_sand: timer.
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_turn_off_lights
-    mode: queued
-    max: 10
   # Lights related automation.
   - id: "1583956425622"
     alias: "Lounge: Dark And Motion Detected"
@@ -187,10 +104,10 @@ automation:
     alias: "Lounge: No Motion After 5 Minutes And TV Is Off Dim Lights"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.lounge_dim_lights
+      - platform: state
+        entity_id: binary_sensor.lounge_area_motion
+        to: "off"
+        for: 00:05:00
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
@@ -216,10 +133,11 @@ automation:
     alias: "Lounge: No Motion After 10 Minutes"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.lounge_turn_off_lights
+      - platform: state
+        entity_id: binary_sensor.lounge_area_motion
+        from: "on"
+        to: "off"
+        for: 00:10:00
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
@@ -275,40 +193,39 @@ automation:
             data:
               transition: 2
     mode: single
-  - id: "1667251574589"
-    alias: "Lounge: Dim Light Timer Finished"
-    description: ""
+  - id: "1610409803685"
+    alias: "Lounge: TV Turned Off Turn Off Lights"
+    description: "TV is turned off and turn lights off if there has been no motion."
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.lounge_dim_lights
-    condition: []
+      - platform: numeric_state
+        entity_id: sensor.tv_plug_power_meter
+        for: 00:10:00
+        below: input_number.tv_plug_powered_on_threshold
+    condition:
+      - condition: state
+        entity_id: light.lounge_lamps
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.lounge_area_motion
+        state: "off"
+      - condition: state
+        entity_id: binary_sensor.lounge_area_motion
+        state: "off"
+        for:
+          hours: 0
+          minutes: 10
+          seconds: 0
     action:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "Dim light timer finished. Starting light off timer."
+              message: ":tv: TV turned off for 10 minutes. Turning lights off."
               title: ":couch_and_lamp: Lounge"
-          - if:
-              - condition: state
-                entity_id: timer.lounge_dim_lights
-                state: active
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Cancelling dim lights :hourglass_flowing_sand: timer."
-                      title: ":couch_and_lamp: Lounge"
-                  - service: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.lounge_dim_lights
-          - service: timer.start
-            data:
-              duration: "00:05:00"
+          - service: scene.turn_on
             target:
-              entity_id: timer.lounge_turn_off_lights
+              entity_id: scene.lounge_lights_off
+            data:
+              transition: 2
     mode: single
   # Alarm
   - id: "1588859622571"
@@ -356,11 +273,6 @@ automation:
           - service: switch.turn_on
             target:
               entity_id: switch.server_fan
-          - service: timer.start
-            data:
-              duration: 01:00:00
-            target:
-              entity_id: timer.server_fan_turn_off
     mode: single
   - id: "1608493853210"
     alias: "Lounge: Bay Window Below High Temperature"
@@ -382,19 +294,15 @@ automation:
           - service: switch.turn_off
             target:
               entity_id: switch.server_fan
-          - service: timer.cancel
-            data: {}
-            target:
-              entity_id: timer.server_fan_turn_off
     mode: single
   - id: "1611063957341"
     alias: "Lounge: Server Fan Running Longer Than 1 Hour"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.server_fan_turn_off
+      - platform: state
+        entity_id: switch.server_fan
+        to: "on"
+        for: 01:00:00
     condition: []
     action:
       - parallel:
@@ -564,7 +472,7 @@ automation:
         entity_id: binary_sensor.tv_powered_on
         from: "on"
         to: "off"
-        for: 00:00:10
+        for: 00:00:30
     condition: []
     action:
       - parallel:

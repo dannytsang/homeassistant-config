@@ -1,38 +1,37 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Motion
-  - id: "1606652871370"
-    alias: "Kitchen: No Motion Turn Off Lights"
+  - id: "1583797341647"
+    alias: "Kitchen: Turn Off Lights At Night"
+    description: ""
+    trigger:
+      - at: "23:30:00"
+        platform: time
+    condition:
+      - condition: state
+        entity_id: light.kitchen_lights
+        state: "on"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+            Turning lights off"
+          title: ":cook: Kitchen"
+      - service: scene.turn_on
+        target:
+          entity_id: scene.kitchen_main_lights_off
+        data:
+          transition: 2
+    mode: single
+  - id: "1606652871369"
+    alias: "Kitchen: No Motion"
     description: ""
     trigger:
       - platform: state
         from: "on"
         to: "off"
+        for: 00:05:00
         entity_id: binary_sensor.kitchen_area_motion
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":no_pedestrians: No motion."
-              title: ":cook: Kitchen"
-          - service: timer.start
-            data:
-              duration: "00:05:00"
-            target:
-              entity_id: timer.kitchen_dim_lights
-    mode: single
-  - id: "1606652871369"
-    alias: "Kitchen: No Motion Turn Off Lights"
-    description: ""
-    trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.kitchen_dim_lights
         id: first_no_motion
       - platform: state
         from: "on"
@@ -40,10 +39,7 @@ automation:
         for: 00:07:00
         entity_id: binary_sensor.kitchen_area_motion
         id: second_no_motion
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
+    condition: []
     action:
       - parallel:
           - choose:
@@ -159,51 +155,102 @@ automation:
                       transition: 2
             default: []
     mode: single
-  - id: "1606158191308"
-    alias: "Kitchen: Motion Detected"
+  - id: "1606294735952"
+    alias: "Kitchen: Turn Off Lights In The Morning"
     description: ""
     trigger:
-      - platform: state
-        entity_id: binary_sensor.kitchen_area_motion
-        to: "on"
+      - platform: time
+        at: 09:00:00
+        id: weekend
+      - platform: time
+        at: 08:50:00
+        id: weekday
     condition:
+      - condition: time
+        weekday:
+          - sat
+          - sun
+      - condition: state
+        entity_id: light.kitchen_lights
+        state: "on"
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
     action:
       - parallel:
-          - if:
-              - condition: state
-                entity_id: timer.kitchen_dim_lights
-                state: active
-            then:
-              - parallel:
+          - choose:
+              - conditions:
+                  - condition: time
+                    weekday:
+                      - mon
+                      - tue
+                      - wed
+                      - thu
+                      - fri
+                  - condition: trigger
+                    id: weekday
+                sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        :paw_prints: Motion detected. Cancelling dim lights :hourglass_flowing_sand: timer.
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        Turning main lights off.
                       title: ":cook: Kitchen"
-                  - service: timer.cancel
-                    data: {}
+                  - service: scene.turn_on
                     target:
-                      entity_id: timer.kitchen_dim_lights
-          - if:
-              - condition: state
-                entity_id: timer.kitchen_turn_off_lights
-                state: active
-            then:
-              - parallel:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: time
+                    weekday:
+                      - sat
+                      - sun
+                  - condition: trigger
+                    id: weekend
+                sequence:
                   - service: script.send_to_home_log
                     data:
-                      message: >-
-                        :paw_prints: Motion detected. Cancelling lights off :hourglass_flowing_sand: timer.
+                      message: ":clock{{ now().strftime('%H')}}: Turning main lights off."
                       title: ":cook: Kitchen"
-                  - service: timer.cancel
-                    data: {}
+                  - service: scene.turn_on
                     target:
-                      entity_id: timer.kitchen_turn_off_lights
-    mode: queued
-    max: 10
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+            default: []
+    mode: single
+  - id: "1588197104336"
+    alias: "Kitchen: Timed Turn On Lights (Dim)"
+    description: ""
+    trigger:
+      - event: sunset
+        platform: sun
+      - platform: time
+        at: 06:45:00
+    condition:
+      - and:
+          - not:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Guest
+          - condition: state
+            entity_id: group.adult_people
+            state: home
+    action:
+      - parallel:
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_dim_side_lights
+            data:
+              transition: 2
+          - data:
+              message: >-
+                :bulb:  At least one person is :house_with_garden: home.
+                Dimming ambient :bulb: :low_brightness: lights.
+              title: ":cook: Kitchen"
+            service: script.send_to_home_log
+    mode: single
   - id: "1606158191303"
     alias: "Kitchen: Motion Detected Table Lights Off"
     description: ""
@@ -574,124 +621,6 @@ automation:
             target:
               entity_id: scene.kitchen_side_lights_on
     mode: single
-  # Timed Lights
-  - id: "1583797341647"
-    alias: "Kitchen: Turn Off Lights At Night"
-    description: ""
-    trigger:
-      - at: "23:30:00"
-        platform: time
-    condition:
-      - condition: state
-        entity_id: light.kitchen_lights
-        state: "on"
-    action:
-      - service: script.send_to_home_log
-        data:
-          message: >-
-            :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-            Turning lights off"
-          title: ":cook: Kitchen"
-      - service: scene.turn_on
-        target:
-          entity_id: scene.kitchen_main_lights_off
-        data:
-          transition: 2
-    mode: single
-  - id: "1606294735952"
-    alias: "Kitchen: Turn Off Lights In The Morning"
-    description: ""
-    trigger:
-      - platform: time
-        at: 09:00:00
-        id: weekend
-      - platform: time
-        at: 08:50:00
-        id: weekday
-    condition:
-      - condition: time
-        weekday:
-          - sat
-          - sun
-      - condition: state
-        entity_id: light.kitchen_lights
-        state: "on"
-    action:
-      - parallel:
-          - choose:
-              - conditions:
-                  - condition: time
-                    weekday:
-                      - mon
-                      - tue
-                      - wed
-                      - thu
-                      - fri
-                  - condition: trigger
-                    id: weekday
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                        Turning main lights off.
-                      title: ":cook: Kitchen"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_main_lights_off
-                    data:
-                      transition: 2
-              - conditions:
-                  - condition: time
-                    weekday:
-                      - sat
-                      - sun
-                  - condition: trigger
-                    id: weekend
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: ":clock{{ now().strftime('%H')}}: Turning main lights off."
-                      title: ":cook: Kitchen"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_main_lights_off
-                    data:
-                      transition: 2
-            default: []
-    mode: single
-  - id: "1588197104336"
-    alias: "Kitchen: Timed Turn On Lights (Dim)"
-    description: ""
-    trigger:
-      - event: sunset
-        platform: sun
-      - platform: time
-        at: 06:45:00
-    condition:
-      - and:
-          - not:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: Guest
-          - condition: state
-            entity_id: group.adult_people
-            state: home
-    action:
-      - parallel:
-          - service: scene.turn_on
-            target:
-              entity_id: scene.kitchen_dim_side_lights
-            data:
-              transition: 2
-          - data:
-              message: >-
-                :bulb:  At least one person is :house_with_garden: home.
-                Dimming ambient :bulb: :low_brightness: lights.
-              title: ":cook: Kitchen"
-            service: script.send_to_home_log
-    mode: single
-  # Switches
   - id: "1619356833117"
     alias: "Kitchen: Turn Off Coffee Machine"
     description: ""

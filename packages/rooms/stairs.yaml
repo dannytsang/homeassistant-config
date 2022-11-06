@@ -2,56 +2,6 @@
 automation:
   # Motion
   - id: "1624918278463"
-    alias: "Stairs: Motion Detected."
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.stairs_motion
-          - binary_sensor.upstairs_motion
-          - binary_sensor.upstairs_motion_2
-          - binary_sensor.upstairs_area_motion
-        from: "off"
-        to: "on"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
-    action:
-      - parallel:
-        - if:
-            - condition: state
-              entity_id: timer.stairs_turn_off_lights
-              state: active
-          then:
-            - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected. Cancelling turn off lights :hourglass_flowing_sand: timer.
-                    title: ":ladder: Stairs"
-                - service: timer.cancel
-                  data: {}
-                  target:
-                    entity_id: timer.conservatory_turn_off_lights
-        - if:
-            - condition: state
-              entity_id: timer.magic_mirror_turn_off
-              state: active
-          then:
-            - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      :paw_prints: Motion detected. Cancelling turn off :mirror: magic mirror :hourglass_flowing_sand: timer.
-                    title: ":ladder: Stairs"
-                - service: timer.cancel
-                  data: {}
-                  target:
-                    entity_id: timer.magic_mirror_turn_off
-    mode: queued
-    max: 10
-  - id: "1624918278463"
     alias: "Stairs: Motion Detected For Ambient Lights"
     description: ""
     trigger:
@@ -694,97 +644,81 @@ automation:
           service: script.send_to_home_log
     mode: queued
     max: 10
-  - id: "1587595847619"
+  - id: "1587595847618"
     alias: "Stairs: No Motion Detected"
     description: ""
     trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.stairs_motion
-          - binary_sensor.upstairs_motion
-          - binary_sensor.upstairs_motion_2
-          - binary_sensor.upstairs_area_motion
+      - entity_id: binary_sensor.upstairs_area_motion
+        for: 00:01:00
+        platform: state
         to: "off"
+        id: upstairs
+      - platform: state
+        entity_id: binary_sensor.stairs_motion
+        to: "off"
+        for: 00:01:00
+        id: bottom_stairs
     condition:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":no_pedestrians: No motion."
-              title: ":ladder: Stairs"
-          - service: timer.start
-            data:
-              duration: 00:01:00
-            target:
-              entity_id: timer.stairs_turn_off_lights
-  - id: "1587595847618"
-    alias: "Stairs: No Motion Detected Turn Off Lights"
-    description: ""
-    trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.stairs_turn_off_lights
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
-    action:
-      - parallel:
-        - if:
-            - condition: state
-              entity_id: light.stairs
-              state: "on"
-          then:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  :no_pedestrians: No motion at the top of the stairs for 1 minute.
-                  Turning light off.
-                title: ":ladder: Stairs"
-            - service: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_off
-              data:
-                transition: 1
-        - if:
-            - condition: state
-              entity_id: light.stairs_2
-              state: "on"
-          then:
-            - parallel:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :no_pedestrians: No motion at the bottom of the stairs for 1 minute.
-                    Turning ambient light off.
-                  title: ":ladder: Stairs"
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_2_off
-                data:
-                  transition: 2
-              - delay:
-                  hours: 0
-                  minutes: 0
-                  seconds: 1
-                  milliseconds: 0
-              - service: light.turn_off
-                target:
+        - choose:
+            - conditions:
+                - condition: trigger
+                  id: upstairs
+              sequence:
+                - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion at the top of the stairs for 1 minute.
+                        Turning light off.
+                      title: ":ladder: Stairs"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_off
+                    data:
+                      transition: 1
+          default: []
+        - choose:
+            - conditions:
+                - condition: state
                   entity_id: light.stairs_2
+                  state: "on"
+              sequence:
+                - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion at the bottom of the stairs for 1 minute.
+                        Turning ambient light off.
+                      title: ":ladder: Stairs"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_2_off
+                    data:
+                      transition: 2
+                  - delay:
+                      hours: 0
+                      minutes: 0
+                      seconds: 1
+                      milliseconds: 0
+                  - service: light.turn_off
+                    target:
+                      entity_id: light.stairs_2
+          default: []
     mode: queued
     max: 10
   - id: "1624918387840"
     alias: "Stairs: No Motion Detected Bottom Of Stairs"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.stairs_turn_off_lights
+      - platform: state
+        entity_id: binary_sensor.stairs_motion
+        to: "off"
+        for: 00:01:00
     condition:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
@@ -810,10 +744,6 @@ automation:
     alias: "Stairs: No Motion At Night Turn Off Magic Mirror"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.magic_mirror_turn_off
       - entity_id: binary_sensor.stairs_motion
         for: 00:03:00
         platform: state

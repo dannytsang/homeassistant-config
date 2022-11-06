@@ -26,43 +26,6 @@ automation:
           message: ":paw_prints: Motion detected in theconservatory and :bell: Alarm armed."
           title: "Conservatory"
     mode: single
-  - id: "1610234394137"
-    alias: "Conservatory: Motion Detected"
-    description: ""
-    trigger:
-      - platform: state
-        to: "on"
-        entity_id: binary_sensor.conservatory_area_motion
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_motion_trigger
-        state: "on"
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":paw_prints: Motion detected."
-              title: "Conservatory"
-          - if:
-              - condition: state
-                entity_id: timer.conservatory_dim_lights
-                state: active
-            then:
-              - service: timer.cancel
-                data: {}
-                target:
-                  entity_id: timer.conservatory_dim_lights
-          - if:
-              - condition: state
-                entity_id: timer.conservatory_turn_off_lights
-                state: active
-            then:
-              - service: timer.cancel
-                data: {}
-                target:
-                  entity_id: timer.conservatory_turn_off_lights
-    mode: queued
-    max: 10
   - id: "1610234394136"
     alias: "Conservatory: Motion Detected And It's Dark"
     description: ""
@@ -103,37 +66,15 @@ automation:
             data:
               transition: 2
     mode: single
-  - id: "1610234794462"
-    alias: "Conservatory: No Motion"
-    description: ""
-    trigger:
-      - platform: state
-        to: "off"
-        entity_id: binary_sensor.conservatory_area_motion
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_motion_trigger
-        state: "on"
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":no_pedestrians: No motion."
-              title: "Conservatory"
-          - service: timer.start
-            data:
-              duration: 00:01:00
-            target:
-              entity_id: timer.conservatory_dim_lights
-    mode: single
   - id: "1610234794461"
     alias: "Conservatory: No Motion Detected Dim Lights"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.conservatory_dim_lights
+      - platform: state
+        to: "off"
+        for: 00:01:00
+        entity_id: binary_sensor.conservatory_area_motion
+        from: "on"
     condition:
       - condition: state
         entity_id: light.conservatory
@@ -152,20 +93,15 @@ automation:
               entity_id: scene.conservatory_dim_light
             data:
               transition: 2
-          - service: timer.start
-            data:
-              duration: 00:01:30
-            target:
-              entity_id: timer.conservatory_turn_off_lights
     mode: single
   - id: "1610238960657"
     alias: "Conservatory: No Motion Turning Turn Lights Off"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.conservatory_turn_off_lights
+      - platform: state
+        entity_id: binary_sensor.conservatory_area_motion
+        to: "off"
+        for: 00:01:30
     condition:
       - condition: state
         entity_id: light.conservatory

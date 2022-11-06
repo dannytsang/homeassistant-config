@@ -306,10 +306,14 @@ automation:
     alias: "Ashlee's Bedroom: Turn Off Fan After 1 Hour"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.ashlees_bedroom_fan_turn_off
+      - platform: state
+        entity_id:
+          - switch.ashlees_fan
+        to: "on"
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
     condition: []
     action:
       - parallel:
@@ -321,27 +325,6 @@ automation:
             data: {}
             target:
               entity_id: switch.ashlees_fan
-    mode: single
-  - id: "165523587499"
-    alias: "Ashlee's Bedroom: Fan Turn On"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - switch.ashlees_fan
-        to: "on"
-    condition: []
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":fan: Fan turned on."
-              title: ":bed: Ashlee's bedroom"
-          - service: timer.start
-            data:
-              duration: 01:00:00
-            target:
-              entity_id: timer.ashlees_bedroom_fan_turn_off
     mode: single
   # Hue Remote
   - id: "1656355431188"

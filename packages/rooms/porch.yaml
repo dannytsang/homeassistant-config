@@ -9,48 +9,33 @@ automation:
         to: "on"
     condition: []
     action:
-      - parallel:
-        - if:
-            - condition: state
-              entity_id: timer.porch_turn_off_lights
-              state: active
-          then:
-            - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: "Cancelling turn off lights :hourglass_flowing_sand: timer."
-                    title: "Porch"
-                - service: timer.cancel
-                  data: {}
-                  target:
-                    entity_id: timer.porch_turn_off_lights
-        - choose:
-            - conditions:
-                - condition: numeric_state
-                  entity_id: sensor.porch_motion_light_level
-                  below: "100"
-              sequence:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      Front :door: door opened it's dark
-                      ({{ states('sensor.porch_motion_light_level') }} < 100).
-                      Turning on :bulb: :high_brightness: light.
-                    title: "Porch"
-                - service: scene.turn_on
-                  target:
-                    entity_id: scene.porch_light_on
-          default: []
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              Front :door: door opened. Incrementing counter :abacus:
-              from {{ states('counter.front_door_opened_closed') }} to {{ states('counter.front_door_opened_closed')
-              | int + state_attr('counter.front_door_opened_closed', 'step') | int }}.
-            title: "Porch"
-        - service: counter.increment
-          data: {}
-          entity_id: counter.front_door_opened_closed
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.porch_motion_light_level
+                below: "100"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Front :door: door opened it's dark
+                    ({{ states('sensor.porch_motion_light_level') }} < 100).
+                    Turning on :bulb: :high_brightness: light.
+                  title: "Porch"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.porch_light_on
+        default: []
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            Front :door: door opened. Incrementing counter :abacus:
+            from {{ states('counter.front_door_opened_closed') }} to {{ states('counter.front_door_opened_closed')
+            | int + state_attr('counter.front_door_opened_closed', 'step') | int }}.
+          title: "Porch"
+      - service: counter.increment
+        data: {}
+        entity_id: counter.front_door_opened_closed
     mode: single
   - id: "1614033445487"
     alias: "Porch: Front Door Opened Once For More than 20 seconds"
@@ -137,21 +122,16 @@ automation:
               title: "Porch"
           - service: script.front_door_closed_notification
             data: {}
-          - service: timer.start
-            data:
-              duration: "00:00:30"
-            target:
-              entity_id: timer.porch_turn_off_lights
-    mode: queued
-    max: 10
+    mode: single
   - id: "1606157835544"
     alias: "Porch: Front Door Closed Turn Off Porch Light"
     description: ""
     trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.porch_turn_off_lights
+      - platform: state
+        entity_id: binary_sensor.front_door
+        from: "on"
+        to: "off"
+        for: 00:01:00
     condition: []
     action:
       - parallel:
