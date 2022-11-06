@@ -1,15 +1,38 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   # Motion
-  - id: "1606652871369"
-    alias: "Kitchen: No Motion"
+  - id: "1606652871370"
+    alias: "Kitchen: No Motion Turn Off Lights"
     description: ""
     trigger:
       - platform: state
         from: "on"
         to: "off"
-        for: 00:05:00
         entity_id: binary_sensor.kitchen_area_motion
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":no_pedestrians: No motion."
+              title: ":cook: Kitchen"
+          - service: timer.start
+            data:
+              duration: "00:05:00"
+            target:
+              entity_id: timer.kitchen_dim_lights
+    mode: single
+  - id: "1606652871369"
+    alias: "Kitchen: No Motion Turn Off Lights"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_dim_lights
         id: first_no_motion
       - platform: state
         from: "on"
@@ -136,6 +159,51 @@ automation:
                       transition: 2
             default: []
     mode: single
+  - id: "1606158191308"
+    alias: "Kitchen: Motion Detected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kitchen_area_motion
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+    action:
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: timer.kitchen_dim_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected. Cancelling dim lights :hourglass_flowing_sand: timer.
+                      title: ":cook: Kitchen"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.kitchen_dim_lights
+          - if:
+              - condition: state
+                entity_id: timer.kitchen_turn_off_lights
+                state: active
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected. Cancelling lights off :hourglass_flowing_sand: timer.
+                      title: ":cook: Kitchen"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.kitchen_turn_off_lights
+    mode: queued
+    max: 10
   - id: "1606158191303"
     alias: "Kitchen: Motion Detected Table Lights Off"
     description: ""
