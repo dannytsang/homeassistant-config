@@ -650,7 +650,7 @@
                 "{{ (trigger.calendar_event.location|default(none, true)) is defined
                 }}"
           sequence:
-            - service: script.send_direct_notification
+            - service: script.send_to_home_log
               data:
                 message: >-
                   Trigger holiday mode from Family calendar event.
@@ -670,6 +670,29 @@
                   End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
                   {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+            - parallel:
+                - service: input_text.set_value
+                  data:
+                    value: zone.home
+                  target:
+                    entity_id: input_text.origin_address
+                - service: input_text.set_value
+                  data:
+                    value: "{{ trigger.calendar_event.location|default('', true) }}"
+                  target:
+                    entity_id: input_text.destination_address
+              alias: Set locations
+            - service: homeassistant.update_entity
+              data: {}
+              target:
+                entity_id: sensor.google_travel_time_by_car
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
+                  {{ states('sensor.destination_address') }}\n\n
+                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                title: ":date: Calendar"
                 people:
                   - person.danny
         - conditions:
@@ -680,7 +703,7 @@
                 "{{ (trigger.calendar_event.location|default(none, true)) is defined
                 }}"
           sequence:
-            - service: script.send_direct_notification
+            - service: script.send_to_home_log
               data:
                 message: >-
                   "Trigger holiday mode from all day Family calendar event.
@@ -700,10 +723,33 @@
                   End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
                   {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+            - parallel:
+                - service: input_text.set_value
+                  data:
+                    value: zone.home
+                  target:
+                    entity_id: input_text.origin_address
+                - service: input_text.set_value
+                  data:
+                    value: "{{ trigger.calendar_event.location|default('', true) }}"
+                  target:
+                    entity_id: input_text.destination_address
+              alias: Set locations
+            - service: homeassistant.update_entity
+              data: {}
+              target:
+                entity_id: sensor.google_travel_time_by_car
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
+                  {{ states('sensor.destination_address') }}\n\n
+                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                title: ":date: Calendar"
                 people:
                   - person.danny
       default:
-        - service: script.send_direct_notification
+        - service: script.send_to_home_log
           data:
             message: >-
               "Unknown trigger from Family calendar.
@@ -723,8 +769,6 @@
               End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
               {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
               Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
-            people:
-              - person.danny
   mode: queued
 - id: "1657801925106"
   alias: "Kitchen: Freezer Plug Turned Off"
