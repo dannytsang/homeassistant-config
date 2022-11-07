@@ -647,7 +647,7 @@
               value_template: "{{ trigger.calendar_event.all_day == false }}"
             - condition: template
               value_template:
-                "{{ (trigger.calendar_event.location|default(none, true)) is defined
+                "{{ (trigger.calendar_event.location|default(none, true)) is not none
                 }}"
           sequence:
             - service: script.send_to_home_log
@@ -700,13 +700,13 @@
               value_template: "{{ trigger.calendar_event.all_day == true }}"
             - condition: template
               value_template:
-                "{{ (trigger.calendar_event.location|default(none, true)) is defined
+                "{{ (trigger.calendar_event.location|default(none, true)) is not none
                 }}"
           sequence:
             - service: script.send_to_home_log
               data:
                 message: >-
-                  "Trigger holiday mode from all day Family calendar event.
+                  Trigger holiday mode from all day Family calendar event.
 
                   Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
 
@@ -722,6 +722,7 @@
 
                   End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
                   {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
+
                   Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
             - parallel:
                 - service: input_text.set_value
@@ -768,6 +769,7 @@
 
               End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
               {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
+
               Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
   mode: queued
 - id: "1657801925106"
