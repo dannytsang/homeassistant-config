@@ -234,3 +234,158 @@ car_set_next_update_location:
       default: []
   mode: single
   icon: mdi:car
+calendar_event_started:
+  alias: Calendar event Started
+  fields:
+    name:
+      name: Event name
+      description: name of the event.
+      required: true
+    event_type:
+      name: Event type
+      description: denote if the it's the start or end of a calendar event.
+    offset:
+      name: Offset
+      description: Time before or after the event type.
+    all_day:
+      name: All day
+      description: if it's an all day event it will be set to true.
+    location:
+      name: Location
+      description: Location of the event.
+    start_time:
+      name: Start time
+      description: Date and time of the start of the event
+    end_time:
+      name: End time
+      description: Date and time of the end of the event
+  variables:
+    duration: "{{ (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) }}"
+    duration_formatted: >-
+      {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
+      {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+  sequence:
+    - choose:
+        - conditions:
+            - condition: template
+              value_template: "{{ all_day == false }}"
+            - condition: template
+              value_template: "{{ location is not none }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  Trigger holiday mode from Family calendar event.
+
+                  Event: {{ name|default('N/A', true) }}
+
+                  Event Type: {{ event_type|default('N/A', true) }}
+
+                  Offset: {{ offset|default('N/A', true) }}
+
+                  All Day: {{ all_day|default('N/A', true) }}
+
+                  Location: {{ location|default('N/A', true) }}
+
+                  Start Time: {{ start_time|default('N/A', true) }}
+
+                  End Time: {{ end_time|default('N/A', true) }}
+
+                  Duration: {{ duration_formatted }}
+            - parallel:
+                - service: input_text.set_value
+                  data:
+                    value: zone.home
+                  target:
+                    entity_id: input_text.origin_address
+                - service: input_text.set_value
+                  data:
+                    value: "{{ location|default('', true) }}"
+                  target:
+                    entity_id: input_text.destination_address
+              alias: Set locations
+            - service: homeassistant.update_entity
+              data: {}
+              target:
+                entity_id: sensor.google_travel_time_by_car
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
+                  {{ states('sensor.destination_address') }}\n\n
+                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                title: ":date: Calendar"
+                people:
+                  - person.danny
+        - conditions:
+            - condition: template
+              value_template: "{{ all_day == true }}"
+            - condition: template
+              value_template: "{{ location is not none }}"
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: >-
+                  Trigger holiday mode from all day Family calendar event.
+
+                  Event: {{ name|default('N/A', true) }}
+
+                  Event Type: {{ event_type|default('N/A', true) }}
+
+                  Offset: {{ offset|default('N/A', true) }}
+
+                  All Day: {{ all_day|default('N/A', true) }}
+
+                  Location: {{ location|default('N/A', true) }}
+
+                  Start Time: {{ start_time|default('N/A', true) }}
+
+                  End Time: {{ end_time|default('N/A', true) }}
+
+                  Duration: {{ duration_formatted }}
+            - parallel:
+                - service: input_text.set_value
+                  data:
+                    value: zone.home
+                  target:
+                    entity_id: input_text.origin_address
+                - service: input_text.set_value
+                  data:
+                    value: "{{ location|default('', true) }}"
+                  target:
+                    entity_id: input_text.destination_address
+              alias: Set locations
+            - service: homeassistant.update_entity
+              data: {}
+              target:
+                entity_id: sensor.google_travel_time_by_car
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
+                  {{ states('sensor.destination_address') }}\n\n
+                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                title: ":date: Calendar"
+                people:
+                  - person.danny
+      default:
+        - service: script.send_to_home_log
+          data:
+            message: >-
+              "Unknown trigger from Family calendar.
+
+              Event: {{ name|default('N/A', true) }}
+
+              Event Type: {{ event_type|default('N/A', true) }}
+
+              Offset: {{ offset|default('N/A', true) }}
+
+              All Day: {{ all_day|default('N/A', true) }}
+
+              Location: {{ location|default('N/A', true) }}
+
+              Start Time: {{ start_time|default('N/A', true) }}
+
+              End Time: {{ end_time|default('N/A', true) }}
+
+              Duration: {{ duration_formatted }}

@@ -641,136 +641,15 @@
       entity_id: calendar.family
   condition: []
   action:
-    - choose:
-        - conditions:
-            - condition: template
-              value_template: "{{ trigger.calendar_event.all_day == false }}"
-            - condition: template
-              value_template:
-                "{{ (trigger.calendar_event.location|default(none, true)) is not none
-                }}"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  Trigger holiday mode from Family calendar event.
-
-                  Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
-
-                  Event Type: {{ trigger.event|default('N/A', true) }}
-
-                  Offset: {{ trigger.offset|default('N/A', true) }}
-
-                  All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
-
-                  Location: {{ trigger.calendar_event.location|default('N/A', true) }}
-
-                  Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
-
-                  End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
-                  {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
-                  Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
-            - parallel:
-                - service: input_text.set_value
-                  data:
-                    value: zone.home
-                  target:
-                    entity_id: input_text.origin_address
-                - service: input_text.set_value
-                  data:
-                    value: "{{ trigger.calendar_event.location|default('', true) }}"
-                  target:
-                    entity_id: input_text.destination_address
-              alias: Set locations
-            - service: homeassistant.update_entity
-              data: {}
-              target:
-                entity_id: sensor.google_travel_time_by_car
-            - service: script.send_direct_notification
-              data:
-                message:
-                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
-                  {{ states('sensor.destination_address') }}\n\n
-                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
-                title: ":date: Calendar"
-                people:
-                  - person.danny
-        - conditions:
-            - condition: template
-              value_template: "{{ trigger.calendar_event.all_day == true }}"
-            - condition: template
-              value_template:
-                "{{ (trigger.calendar_event.location|default(none, true)) is not none
-                }}"
-          sequence:
-            - service: script.send_to_home_log
-              data:
-                message: >-
-                  Trigger holiday mode from all day Family calendar event.
-
-                  Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
-
-                  Event Type: {{ trigger.event|default('N/A', true) }}
-
-                  Offset: {{ trigger.offset|default('N/A', true) }}
-
-                  All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
-
-                  Location: {{ trigger.calendar_event.location|default('N/A', true) }}
-
-                  Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
-
-                  End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
-                  {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
-
-                  Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
-            - parallel:
-                - service: input_text.set_value
-                  data:
-                    value: zone.home
-                  target:
-                    entity_id: input_text.origin_address
-                - service: input_text.set_value
-                  data:
-                    value: "{{ trigger.calendar_event.location|default('', true) }}"
-                  target:
-                    entity_id: input_text.destination_address
-              alias: Set locations
-            - service: homeassistant.update_entity
-              data: {}
-              target:
-                entity_id: sensor.google_travel_time_by_car
-            - service: script.send_direct_notification
-              data:
-                message:
-                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
-                  {{ states('sensor.destination_address') }}\n\n
-                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
-                title: ":date: Calendar"
-                people:
-                  - person.danny
-      default:
-        - service: script.send_to_home_log
-          data:
-            message: >-
-              "Unknown trigger from Family calendar.
-
-              Event: {{ trigger.calendar_event.summary|default('N/A', true) }}
-
-              Event Type: {{ trigger.event|default('N/A', true) }}
-
-              Offset: {{ trigger.offset|default('N/A', true) }}
-
-              All Day: {{ trigger.calendar_event.all_day|default('N/A', true) }}
-
-              Location: {{ trigger.calendar_event.location|default('N/A', true) }}
-
-              Start Time: {{ trigger.calendar_event.start|default('N/A', true) }}
-
-              End Time: {{ trigger.calendar_event.end|default('N/A', true) }}
-              {% set new_ts = (as_timestamp(trigger.calendar_event.end)-as_timestamp(trigger.calendar_event.start))|int(0) %}
-
-              Duration: {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+    - service: script.calendar_event_started
+      data:
+        name: "{{ trigger.calendar_event.summary|default(none, true) }}"
+        event_type: "{{ trigger.event|default(none, true) }}"
+        offset: "{{ trigger.offset|default(none, true) }}"
+        all_day: "{{ trigger.calendar_event.all_day|default(none, true) }}"
+        location: "{{ trigger.calendar_event.location|default(none, true) }}"
+        start_time: "{{ trigger.calendar_event.start|default(none, true) }}"
+        end_time: "{{ trigger.calendar_event.end|default(none, true) }}"
   mode: queued
 - id: "1657801925106"
   alias: "Kitchen: Freezer Plug Turned Off"
