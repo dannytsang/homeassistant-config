@@ -130,6 +130,18 @@ automation:
                 data: {}
                 target:
                   entity_id: switch.attic_lights
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.action == 'update_home_assistant' }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Upgrade Home Assistant event.
+              - service: update.install
+                data:
+                  backup: true
+                target:
+                  entity_id: update.home_assistant_core_update
         default: []
     mode: queued
     max: 10
