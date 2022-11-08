@@ -237,6 +237,10 @@ car_set_next_update_location:
 calendar_event_started:
   alias: Calendar event Started
   fields:
+    entity_id:
+      name: Entity ID
+      description: Calendar entity ID.
+      required: true
     name:
       name: Event name
       description: name of the event.
@@ -275,7 +279,7 @@ calendar_event_started:
             - service: script.send_to_home_log
               data:
                 message: >-
-                  Trigger holiday mode from Family calendar event.
+                  Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event.
 
                   Event: {{ name|default('N/A', true) }}
 
@@ -327,7 +331,7 @@ calendar_event_started:
             - service: script.send_to_home_log
               data:
                 message: >-
-                  Trigger holiday mode from all day Family calendar event.
+                  Trigger all day event from {{ state_attr(entity_id, 'friendly_name') }} calendar.
 
                   Event: {{ name|default('N/A', true) }}
 
@@ -374,7 +378,7 @@ calendar_event_started:
         - service: script.send_to_home_log
           data:
             message: >-
-              "Unknown trigger from Family calendar.
+              "Unknown trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar.
 
               Event: {{ name|default('N/A', true) }}
 
