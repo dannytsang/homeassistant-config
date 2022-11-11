@@ -376,6 +376,7 @@ calendar_event_started:
                   - person.danny
       default:
         - service: script.send_to_home_log
+          continue_on_error: true
           data:
             message: >-
               "Unknown trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar.
@@ -396,3 +397,20 @@ calendar_event_started:
 
               Duration: {{ duration_formatted }}
             title: ":date: Calendar"
+        - service: script.send_direct_notification
+          data:
+            message: >-
+              Unknown calendar trigger. Attempting to see if it's all day using start and end dates.
+
+              Start date: {{ start_time.strftime('%Y-%m-%d %H:%M:%S') }}
+
+              Start date: {{ end_time.strftime('%Y-%m-%d %H:%M:%S') }}
+
+              Same Day: {{ start_time.strftime('%Y-%m-%d') == end_time.strftime('%Y-%m-%d') }}
+
+              Start Time At Midnight: {{ start_time.strftime('%H:%M:%S') == '00:00:00' }}
+
+              End Time At Midnight: {{ end_time.strftime('%H:%M:%S') == '00:00:00' }}
+            title: ":date: Calendar"
+            people:
+              - person.danny
