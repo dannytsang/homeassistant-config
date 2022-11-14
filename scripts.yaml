@@ -268,6 +268,9 @@ calendar_event_started:
     duration_formatted: >-
       {% set new_ts = (as_timestamp(end_time)-as_timestamp(start_time))|int(0) %}
       {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}
+    parsed_start_time: >-
+      {% set dt = start_time.split('T') %}
+      {{ strptime(dt[0].strip()~' '~dt[1], '%Y-%m-%d %H:%M:%S%z', none) }}
   sequence:
     - choose:
         - conditions:
@@ -379,7 +382,7 @@ calendar_event_started:
           continue_on_error: true
           data:
             message: >-
-              "Unknown trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar.
+              Unknown trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar.
 
               Event: {{ name|default('N/A', true) }}
 
@@ -402,15 +405,9 @@ calendar_event_started:
             message: >-
               Unknown calendar trigger. Attempting to see if it's all day using start and end dates.
 
-              Start date: {{ start_time.strftime('%Y-%m-%d %H:%M:%S') }}
+              Start date: {{ start_time }}
 
-              Start date: {{ end_time.strftime('%Y-%m-%d %H:%M:%S') }}
-
-              Same Day: {{ start_time.strftime('%Y-%m-%d') == end_time.strftime('%Y-%m-%d') }}
-
-              Start Time At Midnight: {{ start_time.strftime('%H:%M:%S') == '00:00:00' }}
-
-              End Time At Midnight: {{ end_time.strftime('%H:%M:%S') == '00:00:00' }}
+              End date: {{ end_time }}
             title: ":date: Calendar"
             people:
               - person.danny
