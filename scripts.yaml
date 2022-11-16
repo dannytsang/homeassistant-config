@@ -271,6 +271,9 @@ calendar_event_started:
     parsed_start_time: >-
       {% set dt = start_time.split('T') %}
       {{ strptime(dt[0].strip()~' '~dt[1], '%Y-%m-%d %H:%M:%S%z', none) }}
+    parsed_end_time: >-
+      {% set dt = end_time.split('T') %}
+      {{ strptime(dt[0].strip()~' '~dt[1], '%Y-%m-%d %H:%M:%S%z', none) }}
   sequence:
     - choose:
         - conditions:
@@ -408,6 +411,14 @@ calendar_event_started:
               Start date: {{ start_time }}
 
               End date: {{ end_time }}
+
+              All Day: {{ (as_timestamp(parsed_start_time) | timestamp_custom('%Y-%m-%d')) != (as_timestamp(parsed_start_time) | timestamp_custom('%Y-%m-%d')) }}
+
+              Parsed start date: {{ parsed_start_time }}
+
+              Parsed end date: {{ parsed_end_time }}
+
+              Duration: {{ duration_formatted }}
             title: ":date: Calendar"
             people:
               - person.danny
