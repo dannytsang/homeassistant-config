@@ -277,8 +277,11 @@ calendar_event_started:
   sequence:
     - choose:
         - conditions:
-            - condition: template
-              value_template: "{{ all_day == false }}"
+            - or:
+                - condition: template
+                  value_template: "{{ all_day == false }}"
+                - condition: template
+                  value_template: "{{ (as_timestamp(parsed_start_time) | timestamp_custom('%Y-%m-%d')) == (as_timestamp(parsed_end_time) | timestamp_custom('%Y-%m-%d')) }}"
             - condition: template
               value_template: "{{ location is not none }}"
           sequence:
@@ -329,8 +332,11 @@ calendar_event_started:
                 people:
                   - person.danny
         - conditions:
-            - condition: template
-              value_template: "{{ all_day == true }}"
+            - or:
+                - condition: template
+                  value_template: "{{ all_day == true }}"
+                - condition: template
+                  value_template: "{{ (as_timestamp(parsed_start_time) | timestamp_custom('%Y-%m-%d')) != (as_timestamp(parsed_end_time) | timestamp_custom('%Y-%m-%d')) }}"
             - condition: template
               value_template: "{{ location is not none }}"
           sequence:
@@ -404,6 +410,7 @@ calendar_event_started:
               Duration: {{ duration_formatted }}
             title: ":date: Calendar"
         - service: script.send_direct_notification
+          continue_on_error: true
           data:
             message: >-
               Unknown calendar trigger. Attempting to see if it's all day using start and end dates.
