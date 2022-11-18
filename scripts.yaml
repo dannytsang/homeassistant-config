@@ -324,10 +324,13 @@ calendar_event_started:
                 entity_id: sensor.google_travel_time_by_car
             - service: script.send_direct_notification
               data:
-                message:
-                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
-                  {{ states('sensor.destination_address') }}\n\n
-                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                message: |-
+                  Origin: {{ states('sensor.origin_address') }}
+
+                  Destination: {{ states('sensor.destination_address') }}
+
+
+                  Journey Time: {{ state_attr('sensor.google_travel_time_by_car', 'duration') }} ({{ state_attr('sensor.google_travel_time_by_car', 'distance') }})
                 title: ":date: Calendar"
                 people:
                   - person.danny
@@ -379,10 +382,13 @@ calendar_event_started:
                 entity_id: sensor.google_travel_time_by_car
             - service: script.send_direct_notification
               data:
-                message:
-                  "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:
-                  {{ states('sensor.destination_address') }}\n\n
-                  Journey Time: {{ states('sensor.google_travel_time_by_car') }}"
+                message: |-
+                  Origin: {{ states('sensor.origin_address') }}
+
+                  Destination: {{ states('sensor.destination_address') }}
+
+
+                  Journey Time: {{ state_attr('sensor.google_travel_time_by_car', 'duration') }} ({{ state_attr('sensor.google_travel_time_by_car', 'distance') }})
                 title: ":date: Calendar"
                 people:
                   - person.danny
@@ -409,23 +415,3 @@ calendar_event_started:
 
               Duration: {{ duration_formatted }}
             title: ":date: Calendar"
-        - service: script.send_direct_notification
-          continue_on_error: true
-          data:
-            message: >-
-              Unknown calendar trigger. Attempting to see if it's all day using start and end dates.
-
-              Start date: {{ start_time }}
-
-              End date: {{ end_time }}
-
-              All Day: {{ (as_timestamp(parsed_start_time) | timestamp_custom('%Y-%m-%d')) != (as_timestamp(parsed_end_time) | timestamp_custom('%Y-%m-%d')) }}
-
-              Parsed start date: {{ parsed_start_time }}
-
-              Parsed end date: {{ parsed_end_time }}
-
-              Duration: {{ duration_formatted }}
-            title: ":date: Calendar"
-            people:
-              - person.danny
