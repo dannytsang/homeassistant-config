@@ -243,9 +243,10 @@ automation:
     action:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: sensor.dannys_toothbrush_toothbrush_state
-                state: "running"
+              - not:
+                  - condition: state
+                    entity_id: sensor.dannys_toothbrush_state
+                    state: "unavailable"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -361,7 +362,7 @@ automation:
       - choose:
           - conditions:
               - condition: state
-                entity_id: sensor.dannys_toothbrush_toothbrush_state
+                entity_id: sensor.dannys_toothbrush_state
                 state: "running"
             sequence:
               - service: script.send_to_home_log
@@ -731,6 +732,62 @@ automation:
       - service: cover.set_cover_position
         data:
           position: input_number.bathroom_blind_closed_preset
+    mode: single
+  - id: "1669561588163"
+    alias: "Bathroom: Danny's Toothbrush Is On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.dannys_toothbrush_state
+        to: running
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Danny's :toothbrush: toothbrush is on."
+              title: ":bathtub: Bathroom"
+          - service: timer.cancel
+            data: {}
+            target:
+              entity_id:
+                - timer.bathroom_light_off
+                - timer.bathroom_light_dim
+    mode: single
+  - id: "1669562577595"
+    alias: "Bathroom: Danny's Toothbrush Stopped"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.dannys_toothbrush_state
+        to: unavailable
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+      - platform: state
+        entity_id:
+          - sensor.dannys_toothbrush_state
+        to: unavailable
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: timer.bathroom_light_dim
+            state: active
+          - condition: state
+            entity_id: timer.bathroom_light_off
+            state: active
+    action:
+      - service: script.bathroom_start_dim_light
+        data:
+          message_prefix: "Danny's :toothbrush: toothbrush stopped."
     mode: single
 
 scene:

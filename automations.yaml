@@ -1149,24 +1149,24 @@
   condition: []
   action:
     - choose:
-      - conditions:
-          - not:
-            - condition: state
-              entity_id: input_select.home_assistant_automatic_upgrade
-              state: Disabled
-        sequence:
-          - service: script.send_actionable_notification_with_2_buttons
-            data:
-              message: >-
-                Update from {{ state_attr('update.home_assistant_core_update', 'installed_version') }} to
-                {{ state_attr('update.home_assistant_core_update', 'latest_version') }}?
-              title: Home Assistant
-              people:
-                - person.danny
-              action1_title: "Yes"
-              action1_name: update_home_assistant
-              action2_title: "No"
-              action2_name: ignore
+        - conditions:
+            - not:
+                - condition: state
+                  entity_id: input_select.home_assistant_automatic_upgrade
+                  state: Disabled
+          sequence:
+            - service: script.send_actionable_notification_with_2_buttons
+              data:
+                message: >-
+                  Update from {{ state_attr('update.home_assistant_core_update', 'installed_version') }} to
+                  {{ state_attr('update.home_assistant_core_update', 'latest_version') }}?
+                title: Home Assistant
+                people:
+                  - person.danny
+                action1_title: "Yes"
+                action1_name: update_home_assistant
+                action2_title: "No"
+                action2_name: ignore
       default: []
   mode: single
 - id: "1664744505278"
@@ -1212,60 +1212,4 @@
         action1_name: switch_off_attic_lights
         action2_title: "No"
         action2_name: ignore
-  mode: single
-- id: "1669561588163"
-  alias: "Bathroom: Danny's Toothbrush Is On"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - sensor.dannys_toothbrush_toothbrush_state
-      to: running
-  condition: []
-  action:
-    - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "Danny's :toothbrush: toothbrush is on."
-            title: ":bathtub: Bathroom"
-        - service: timer.cancel
-          data: {}
-          target:
-            entity_id:
-              - timer.bathroom_light_off
-              - timer.bathroom_light_dim
-  mode: single
-- id: "1669562577595"
-  alias: "Bathroom: Danny's Toothbrush Stopped"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - sensor.dannys_toothbrush_toothbrush_state
-      to: unavailable
-      for:
-        hours: 0
-        minutes: 1
-        seconds: 0
-    - platform: state
-      entity_id:
-        - sensor.dannys_toothbrush_toothbrush_state
-      to: unavailable
-      for:
-        hours: 0
-        minutes: 1
-        seconds: 0
-  condition:
-    - condition: not
-      conditions:
-        - condition: state
-          entity_id: timer.bathroom_light_dim
-          state: active
-        - condition: state
-          entity_id: timer.bathroom_light_off
-          state: active
-  action:
-    - service: script.bathroom_start_dim_light
-      data:
-        message_prefix: "Danny's :toothbrush: toothbrush stopped."
   mode: single
