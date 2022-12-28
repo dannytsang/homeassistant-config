@@ -64,66 +64,173 @@ lounge_flash_lounge_lights_red:
 turn_everything_off:
   alias: Turn Everything Off
   sequence:
-    - data:
-        message: ":mirror: Turning off Magic Mirror."
-      service: script.send_to_home_log
-    - service: switch.turn_off
-      target:
-        entity_id: switch.magic_mirror_screen
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off office lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.office_all_lights_off
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off office, bedroom fans."
-    - service: switch.turn_off
-      target:
-        entity_id:
-          - switch.office_fan
-          - switch.fan_3
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off kitchen lights."
-    - service: scene.turn_on
-      target:
-        entity_id:
-          - scene.kitchen_all_lights_off
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off lounge lights."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.lounge_lights_off
-    - service: script.send_to_home_log
-      data:
-        message: ":running: :house: :bulb: Turning off conservatory light."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.conservatory_turn_off_light
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off stairs light."
-    - service: scene.turn_on
-      target:
-        entity_id:
-          - scene.stairs_light_off
-          - scene.stairs_light_2_off
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off porch light."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.porch_lights_off
-    - service: script.send_to_home_log
-      data:
-        message: ":bulb: Turning off bathroom light."
-    - service: scene.turn_on
-      target:
-        entity_id: scene.bathroom_turn_off_light
-    - if:
+    - alias: Turn off Magic Mirror
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":mirror: Turning off Magic Mirror."
+        - service: switch.turn_off
+          target:
+            entity_id: switch.magic_mirror_screen
+    - alias: Turn off office lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off office lights."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.office_all_lights_off
+    - alias: Turn off fans
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off office, bedroom fans."
+        - service: switch.turn_off
+          target:
+            entity_id:
+              - switch.office_fan
+              - switch.fan_3
+    - alias: Turn off kitchen lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off kitchen lights."
+        - service: scene.turn_on
+          target:
+            entity_id:
+              - scene.kitchen_all_lights_off
+    - alias: Turn off lounge lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off lounge lights."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.lounge_lights_off
+    - alias: Turn off conservatory lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":running: :house: :bulb: Turning off conservatory light."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.conservatory_turn_off_light
+    - alias: Turn off stairs lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off stairs light."
+        - service: scene.turn_on
+          target:
+            entity_id:
+              - scene.stairs_light_off
+              - scene.stairs_light_2_off
+    - alias: Turn off porch lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off porch light."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.porch_lights_off
+    - alias: Turn off bathroom lights
+      parallel:
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off bathroom light."
+        - service: scene.turn_on
+          target:
+            entity_id: scene.bathroom_turn_off_light
+    - alias: Turn off streaming devices
+      parallel:
+        - if:
+            - not:
+                - or:
+                    - condition: state
+                      entity_id: media_player.google_tv
+                      state: "off"
+                    - condition: state
+                      entity_id: media_player.google_tv
+                      state: "unavailable"
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Turning Google :tv: TV off."
+                - service: media_player.turn_off
+                  data: {}
+                  target:
+                    entity_id: media_player.google_tv
+        - if:
+            - not:
+                - or:
+                    - condition: state
+                      entity_id: media_player.lounge_roku_streaming_stick
+                      state: "off"
+                    - condition: state
+                      entity_id: media_player.lounge_roku_streaming_stick
+                      state: "unavailable"
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Turning Bedroom Chromecast off."
+                - service: media_player.turn_off
+                  data: {}
+                  target:
+                    entity_id: media_player.lounge_roku_streaming_stick
+        - if:
+            - not:
+                - or:
+                    - condition: state
+                      entity_id: media_player.bedroom_chromecast
+                      state: "off"
+                    - condition: state
+                      entity_id: media_player.bedroom_chromecast
+                      state: "unavailable"
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Turning Bedroom Chromecast off."
+                - service: media_player.turn_off
+                  data: {}
+                  target:
+                    entity_id: media_player.bedroom_chromecast
+        - if:
+            - not:
+                - or:
+                    - condition: state
+                      entity_id: media_player.bedroom_roku_streaming_stick
+                      state: "off"
+                    - condition: state
+                      entity_id: media_player.bedroom_roku_streaming_stick
+                      state: "unavailable"
+          then:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Turning Bedroom Chromecast off."
+                - service: media_player.turn_off
+                  data: {}
+                  target:
+                    entity_id: media_player.bedroom_roku_streaming_stick
+    - alias: Check if lounge TV is on
+      if:
+        - condition: state
+          entity_id: binary_sensor.tv_powered_on
+          state: "on"
+      then:
+        - parallel:
+            - service: script.send_to_home_log
+              data:
+                message: "Turning :couch_and_lamp: Lounge :tv: TV off."
+            - service: remote.turn_off
+              data: {}
+              target:
+                entity_id: remote.living_room
+    - alias: Check if bedroom TV is on
+      if:
         - condition: state
           entity_id: binary_sensor.bedroom_tv_powered_on
           state: "on"
