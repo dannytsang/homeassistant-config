@@ -17,9 +17,18 @@ automation:
       - data:
           message: ":battery: Battery is fully charged."
           title: >-
-            :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-            'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+            :battery: UPS:
+            {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+            :couch_and_lamp: Lounge
+            {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+            Server
+            {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+            Computer
+            {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+            3D Printer
+            {% else %}
+            :warning: Unknown device {{ trigger.entity_id }}
+            {% endif%}
         service: script.send_to_home_log
   - id: "1590564212294"
     alias: "UPS: Charging"
@@ -53,10 +62,18 @@ automation:
                     data:
                       message: ":battery: Battery is :electric_plug: charging."
                       title: >-
-                        :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-                        'sensor.pc_ups_status_data': ':desktop_computer: PC',
-                        'sensor.server_ups_status_data': 'Server',
-                        'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
+                        :battery: UPS:
+                        {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+                        :couch_and_lamp: Lounge
+                        {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+                        Server
+                        {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+                        Computer
+                        {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+                        3D Printer
+                        {% else %}
+                        :warning: Unknown device {{ trigger.entity_id }}
+                        {% endif%}
               - conditions:
                   - condition: trigger
                     id: battery_to_charge
@@ -65,9 +82,18 @@ automation:
                     data:
                       message: ":battery: UPS went from battery to :electric_plug: charging."
                       title: >-
-                        :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-                        'sensor.pc_ups_status_data': ':desktop_computer: PC',
-                        'sensor.server_ups_status_data': 'Server'}[trigger.entity_id] | default('') }}
+                        :battery: UPS:
+                        {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+                        :couch_and_lamp: Lounge
+                        {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+                        Server
+                        {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+                        Computer
+                        {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+                        3D Printer
+                        {% else %}
+                        :warning: Unknown device {{ trigger.entity_id }}
+                        {% endif%}
             default: []
     mode: single
   - id: "1591963855737"
@@ -87,10 +113,18 @@ automation:
         data:
           message: ":battery: Battery is not connected."
           title: >-
-            :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-            'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server',
-            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
+            :warning: :battery: UPS:
+            {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+            :couch_and_lamp: Lounge
+            {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+            Server
+            {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+            Computer
+            {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+            3D Printer
+            {% else %}
+            :warning: Unknown device {{ trigger.entity_id }}
+            {% endif%}
             :warning:
   - id: "1590564041899"
     alias: "UPS: UPS On Battery"
@@ -109,10 +143,18 @@ automation:
         data:
           message: "Running on :battery: battery."
           title: >-
-            :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-            'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server',
-            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
+            :warning: :battery: UPS:
+            {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+            :couch_and_lamp: Lounge
+            {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+            Server
+            {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+            Computer
+            {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+            3D Printer
+            {% else %}
+            :warning: Unknown device {{ trigger.entity_id }}
+            {% endif%}
             :warning:
     mode: single
   - id: "1591963855738"
@@ -132,10 +174,18 @@ automation:
         data:
           message: "Running on :battery: battery because it's 'Online Offline' status."
           title: >-
-            :warning: :battery: UPS: {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-            'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server',
-            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
+            :warning: :battery: UPS:
+            {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+            :couch_and_lamp: Lounge
+            {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+            Server
+            {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+            Computer
+            {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+            3D Printer
+            {% else %}
+            :warning: Unknown device {{ trigger.entity_id }}
+            {% endif%}
             :warning:
     mode: single
   - id: "1591705427771"
@@ -156,10 +206,17 @@ automation:
           message: "Replace battery alarm."
           title: >-
             :warning: :battery: UPS:
-            {{ {'sensor.lounge_ups_status_data': ':couch_and_lamp: Lounge',
-            'sensor.pc_ups_status_data': ':desktop_computer: PC',
-            'sensor.server_ups_status_data': 'Server',
-            'sensor.3d_printer_ups_status_data': ':printer: 3D Printer'}[trigger.entity_id] | default('') }}
+            {% if trigger.entity_id|default('', true) == 'sensor.lounge_ups_status_data' %}
+            :couch_and_lamp: Lounge
+            {% elif trigger.entity_id|default('', true) == 'sensor.server_ups_status_data' %}
+            Server
+            {% elif trigger.entity_id|default('', true) == 'sensor.computer_ups_status_data' %}
+            Computer
+            {% elif trigger.entity_id|default('', true) == 'sensor.3d_printer_ups_status_data' %}
+            3D Printer
+            {% else %}
+            :warning: Unknown device {{ trigger.entity_id }}
+            {% endif%}
             :warning:
     mode: single
 
