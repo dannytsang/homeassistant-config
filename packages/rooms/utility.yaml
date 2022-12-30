@@ -62,6 +62,36 @@ automation:
                 4 minutes!"
               title: "Utility Room"
     mode: single
+  - id: "1657801925106"
+    alias: "Utility: Freezer Plug Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.freezer
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Freezer plug is turned off.
+              title: Utility Room
+          - service: script.send_actionable_notification_with_2_buttons
+            data:
+              message: Freezer plug is turned off. Turn on?
+              title: Utility Room
+              people:
+                - person.danny
+              action1_title: "Yes"
+              action1_name: switch_on_freezer
+              action2_title: "No"
+              action2_name: ignore
+    mode: single
   # Washing Machine
   - id: "1595679010794"
     alias: "Utility: Washing Machine Started"
