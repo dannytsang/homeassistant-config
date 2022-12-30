@@ -1,0 +1,72 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/telegram/
+automation:
+  - id: "1653739708849"
+    alias: "Telegram: Event Received"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: telegram_command
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.command == 'get_camera'}}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Getting camera {{trigger.event.data.args}}
+        default:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Recieved Telegram event:
+                command: {{trigger.event.data.command}}
+                args: {{trigger.event.data.args}}
+                from_first: {{trigger.event.data.from_first}}
+                from_last: {{trigger.event.data.from_last}}
+                user_id: {{trigger.event.data.user_id}}
+                chat_id: {{trigger.event.data.chat_id}}
+                chat: {{trigger.event.data.chat}}
+    mode: queued
+  - id: "1653739708850"
+    alias: "Telegram: Message Received"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: telegram_text
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            :speech_balloon: Recieved Telegram event:
+            chat: {{trigger.event.data.chat}}
+            from_first: {{trigger.event.data.from_first}}
+            from_last: {{trigger.event.data.from_last}}
+            user_id: {{trigger.event.data.user_id}}
+            chat_id: {{trigger.event.data.chat_id}}
+            text: {{trigger.event.data.text}}
+    mode: queued
+  - id: "1653739708851"
+    alias: "Telegram: Callback Received"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: telegram_callback
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            :speech_balloon: Recieved Telegram event:
+            data: {{trigger.event.data.data}}
+            message: {{trigger.event.data.message}}
+            from_first: {{trigger.event.data.from_first}}
+            from_last: {{trigger.event.data.from_last}}
+            user_id: {{trigger.event.data.user_id}}
+            id: {{trigger.event.data.id}}
+            chat_id: {{trigger.event.data.chat_id}}
+            text: {{trigger.event.data.text}}
+    mode: queued
