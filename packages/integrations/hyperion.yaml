@@ -1,0 +1,43 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/hyperion/
+script:
+  hyperion_notification:
+    alias: Hyperion Based Notification
+    fields:
+      entity_id:
+        description: Entity ID of the media player.
+        required: true
+      display_state:
+        description: The friendly state in text.
+        required: true
+        example: "'turned on', 'paused', etc"
+    variables:
+      title: >-
+        {% if entity_id|default('', true) == 'media_player.lounge_roku_streaming_stick' %}
+        :couch_and_lamp: Lounge
+        {% elif entity_id|default('', true) == 'media_player.bedroom_roku_streaming_stick' %}
+        :bed: Bedroom
+        {% elif entity_id|default('', true) == 'media_player.google_tv' %}
+        :couch_and_lamp: Lounge
+        {% else %}
+        :warning: Unknown device
+        {% endif%}
+      device: >-
+        {% if entity_id|default('', true) in ('media_player.lounge_roku_streaming_stick','media_player.bedroom_roku_streaming_stick') %}
+        Roku
+        {% elif entity_id|default('', true) == 'media_player.google_tv' %}
+        Google TV
+        {% else %}
+        :warning: Unknown device
+        {% endif%}
+      file_path: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') if entity_id|default('', true) == 'media_player.lounge_roku_streaming_stick' else states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
+    sequence:
+      - delay:
+          seconds: 2
+      - service: script.send_home_log_with_local_attachments
+        data:
+          message: "{{ device }} {{ display_state }}."
+          title: "{{ title }}"
+          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ file_path }}"
+    mode: queued
+    max: 10
