@@ -1,0 +1,43 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/steam_online/
+automation:
+  - id: "1619254173099"
+    alias: "Steam: Status Change"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: sensor.steam_danny
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_steam_notifications
+        state: on
+    action:
+      - service: script.send_home_log_with_url
+        data:
+          message: "Steam status changed to {{ trigger.to_state.state|default('Unknown', true) }}."
+          title: ":video_game: Steam"
+          url: "{{ state_attr(trigger.entity_id|default('sensor.steam_danny', true), 'entity_picture') }}"
+    mode: queued
+    max: 10
+  - id: "1619254173099"
+    alias: "Steam: Playing Game"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.steam_danny
+        attribute: game
+    condition:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.game|default(none, true) != none }}"
+      - condition: state
+        entity_id: input_boolean.enable_steam_notifications
+        state: on
+    action:
+      - service: script.send_home_log_with_url
+        data:
+          message: "Playing {{ state_attr(trigger.entity_id|default('sensor.steam_danny', true), 'game') }}."
+          title: ":video_game: Steam"
+          url: "{{ trigger.to_state.attributes.game_image_main|default(state_attr(trigger.entity_id|default('sensor.steam_danny', true), 'game_image_main')) }}"
+    mode: queued
+    max: 10
