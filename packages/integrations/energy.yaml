@@ -311,44 +311,74 @@ mqtt:
         {% elif (value_json['values']['pvstatus'] | int == 2) %}
           Fault
         {% else %}
-          Unknown
+          Unknown ({{ value_json['values']['pvstatus'] }})
         {% endif %}
       unique_id: growatt_status
       name: Growatt - State
       icon: mdi:power-settings
 
+    # Usage
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['elocalload_tod'] | float / 10 }}"
+      unique_id: growatt_load_today
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Load Consumption Today
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['elocalload_tot'] | float / 10 }}"
+      unique_id: growatt_load_lifetime
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Load Consumption Lifetime
+
+    # Export
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['pactogridr'] | float / 10000 }}"
+      unique_id: growatt_export_today
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Export To Grid
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['etogrid_tod'] | float / 10 }}"
+      unique_id: growatt_export_today
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Export To Grid Today
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['etogrid_tot'] | float / 10 }}"
+      unique_id: growatt_export_lifetime
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Export To Grid Lifetime
+
     # String 1 (Back)
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv1watt'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv1watt'] | float / 10 }}"
       unique_id: growatt_string1_watt
       device_class: power
       unit_of_measurement: "W"
       name: Growatt - String 1 (Watt)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv1voltage'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv1voltage'] | float / 10 }}"
       unique_id: growatt_string1_voltage
       device_class: voltage
       unit_of_measurement: "V"
       name: Growatt - String 1 (Voltage)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv1current'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv1current'] | float / 10 }}"
       unique_id: growatt_string1_current
       device_class: current
       unit_of_measurement: "A"
       name: Growatt - String 1 (Current)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['epv1today'] | int / 10 }}"
+      value_template: "{{ value_json['values']['epv1today'] | float / 10 }}"
       unique_id: growatt_string1_generated_energy_today
       device_class: energy
       unit_of_measurement: "kWh"
       name: Growatt - String 1 Generated Today
       icon: mdi:solar-power
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['epv1total'] | int / 10 }}"
+      value_template: "{{ value_json['values']['epv1total'] | float / 10 }}"
       unique_id: growatt_string1_generated_energy_total
       device_class: energy
       unit_of_measurement: "kWh"
@@ -357,70 +387,117 @@ mqtt:
 
     # String 2 (Front)
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv2watt'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv2watt'] | float / 10 }}"
       unique_id: growatt_string2_watt
       device_class: power
       unit_of_measurement: "W"
       name: Growatt - String 2 (Watt)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv2voltage'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv2voltage'] | float / 10 }}"
       unique_id: growatt_string2_voltage
       device_class: voltage
       unit_of_measurement: "V"
       name: Growatt - String 2 (Voltage)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pv2current'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pv2current'] | float / 10 }}"
       unique_id: growatt_string2_current
       device_class: current
       unit_of_measurement: "A"
       name: Growatt - String 2 (Current)
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['epv2today'] | int / 10 }}"
+      value_template: "{{ value_json['values']['epv2today'] | float / 10 }}"
       unique_id: growatt_string2_generated_energy_today
       device_class: energy
       unit_of_measurement: "kWh"
       name: Growatt - String 2 Generated Today
       icon: mdi:solar-power
-
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['epv2total'] | int / 10 }}"
+      value_template: "{{ value_json['values']['epv2total'] | float / 10 }}"
       unique_id: growatt_string2_generated_energy_total
       device_class: energy
       unit_of_measurement: "kWh"
       name: Growatt - String 2 Generated energy (Total)
       icon: mdi:solar-power
-
+    # Total
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pvpowerin'] | int / 10 }}"
-      unique_id: growatt_actual_input_power
+      value_template: "{{ value_json['values']['pvpowerin'] | float / 10000 }}"
+      unique_id: growatt_input_power
       device_class: power
-      unit_of_measurement: "W"
-      name: Growatt - Input watt (Actual)
-
+      unit_of_measurement: "kW"
+      name: Growatt - Input watt
+      icon: mdi:solar-power
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pvgridpower3'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pvpowerout'] | float / 10000 }}"
+      unique_id: growatt_output_power
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Growatt - Solar Generation
+      icon: mdi:solar-power
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['pvgridpower'] | float / 10000 }}"
       unique_id: growatt_grid_phase_voltage
-      device_class: voltage
-      unit_of_measurement: "W"
-      name: Growatt - Grid Phase Watts
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Growatt - Grid Phase Power
 
+    # Temperatures
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pvtemperature'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pvtemperature'] | float / 10 }}"
       unique_id: growatt_inverer_temperature
       device_class: temperature
       unit_of_measurement: "°C"
       name: Growatt - Inverter temperature
-
     # Inside inverter temperature
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pvipmtemperature'] | int / 10 }}"
+      value_template: "{{ value_json['values']['pvipmtemperature'] | float / 10 }}"
       unique_id: growatt_ipm_temperature
       device_class: temperature
       unit_of_measurement: "°C"
       name: Growatt - IPM temperature
+
+    # Battery 1
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['SOC'] | int / 10 }}"
+      unique_id: growatt_battery_soc
+      device_class: battery
+      unit_of_measurement: "%"
+      name: Growatt - Battery 1 State of Charge
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['p1charge1'] | float / 10000 }}"
+      unique_id: growatt_battery_charge_rate
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Growatt - Battery 1 Charge Rate
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['eharge1_tod'] | float / 10 }}"
+      unique_id: growatt_battery_charged_today
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Growatt - Battery 1 Charged Today
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['eharge1_tot'] | float / 10 }}"
+      unique_id: growatt_battery_charged_lifetime
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Growatt - Battery 1 Charged Lifetime
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['pdischarge1'] | float / 10000 }}"
+      unique_id: growatt_battery_discharge_rate
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Growatt - Battery 1 Discharged Rate
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['edischarge1_tod'] | float / 10 }}"
+      unique_id: growatt_battery_discharged_today
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Growatt - Battery 1 Discharged Today
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['edischarge1_tot'] | float / 10 }}"
+      unique_id: growatt_battery_discharged_lifetime
+      device_class: energy
+      unit_of_measurement: "kWh"
+      name: Growatt - Battery 1 Discharged Lifetime
 
 template:
   - sensor:
