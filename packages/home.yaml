@@ -337,3 +337,67 @@ script:
                 target:
                   entity_id: remote.bedroom_remote
     mode: single
+  asleep_turn_everything_off:
+    alias: Asleep Turn Everything Off
+    sequence:
+      - alias: Turn off Magic Mirror
+        parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":mirror: Turning off Magic Mirror."
+          - service: switch.turn_off
+            target:
+              entity_id: switch.magic_mirror_screen
+      - if:
+          - not:
+              - or:
+                  - condition: state
+                    entity_id: media_player.bedroom_chromecast
+                    state: "off"
+                  - condition: state
+                    entity_id: media_player.bedroom_chromecast
+                    state: "unavailable"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning Bedroom Chromecast off."
+              - service: media_player.turn_off
+                data: {}
+                target:
+                  entity_id: media_player.bedroom_chromecast
+      - if:
+          - not:
+              - or:
+                  - condition: state
+                    entity_id: media_player.bedroom_roku_streaming_stick
+                    state: "off"
+                  - condition: state
+                    entity_id: media_player.bedroom_roku_streaming_stick
+                    state: "unavailable"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning Bedroom Chromecast off."
+              - service: media_player.turn_off
+                data: {}
+                target:
+                  entity_id: media_player.bedroom_roku_streaming_stick
+      - alias: Check if bedroom TV is on
+        if:
+          - condition: state
+            entity_id: binary_sensor.bedroom_tv_powered_on
+            state: "on"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning :bed: Bedroom :tv: TV off."
+              - service: remote.send_command
+                data:
+                  device: Bedroom TV
+                  command: power
+                target:
+                  entity_id: remote.bedroom_remote
+    mode: single

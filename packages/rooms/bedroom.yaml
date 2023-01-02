@@ -1079,8 +1079,16 @@ script:
   bedroom_sleep:
     alias: Bedroom Sleep
     sequence:
-      - service: script.turn_everything_off
-        data: {}
+      - if:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: "Guest"
+        then:
+          - service: script.asleep_turn_everything_off
+            data: {}
+        else:
+          - service: script.turn_everything_off
+            data: {}
     mode: single
     icon: mdi:sleep
 
