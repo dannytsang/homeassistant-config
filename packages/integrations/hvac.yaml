@@ -319,7 +319,36 @@ sensor:
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       hours: 24
-
+  - platform: history_stats
+    name: Heating On Duration This Week
+    entity_id: sensor.thermostat_action
+    state: "heating"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  # Hot Water
+  - platform: history_stats
+    name: Hot Water TOn Duration Today
+    entity_id: sensor.hotwater_state
+    state: "ON"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Hot Water On Duration Yesterday
+    entity_id: sensor.hotwater_state
+    state: "ON"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Hot Water On Duration This Week
+    entity_id: sensor.hotwater_state
+    state: "ON"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
 template:
   - sensor:
       - name: "Thermostat Action"
