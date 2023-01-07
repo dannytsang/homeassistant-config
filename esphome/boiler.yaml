@@ -1,0 +1,41 @@
+esphome:
+  name: boiler
+
+esp8266:
+  board: esp01_1m
+
+dallas:
+  - pin: GPIO5
+
+sensor:
+  - platform: dallas
+    address: 0x64000000127dd028
+    name: "Boiler Flow Temperature"
+  - platform: dallas
+    address: 0x4a00000015196828
+    name: "Boiler Return Temperature"
+  - platform: uptime
+    name: Uptime Sensor
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret boiler_encryption_api_key
+
+ota:
+  password: !secret boiler_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: !secret boiler_webserver_username
+    password: !secret boiler_webserver_password
+
+captive_portal:
+    
