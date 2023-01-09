@@ -8,12 +8,22 @@ dallas:
   - pin: GPIO5
 
 sensor:
+  # Temperature
   - platform: dallas
     address: 0x64000000127dd028
     name: "Boiler Flow Temperature"
+    id: boilder_flow_temperature
   - platform: dallas
     address: 0x4a00000015196828
     name: "Boiler Return Temperature"
+    id: boilder_return_temperature
+  - platform: template
+    name: "Boiler Delta Temperature"
+    lambda: |-
+      return (id(boilder_flow_temperature).state - id(boilder_return_temperature).state);
+    unit_of_measurement: "°C"
+    update_interval: 30s
+  # Networking
   - platform: uptime
     name: Uptime Sensor
 
