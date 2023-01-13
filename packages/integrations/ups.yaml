@@ -239,6 +239,17 @@ template:
           {%- else -%}
             0
           {%- endif %}
+      - name: Family Computer UPS Power
+        unique_id: b2271d4a-7456-49b8-9530-7595fdbb6caf
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+        state: >
+          {% if states('sensor.family_computer_ups_status_data') in ['OL', 'OL CHRG'] -%}
+            {{ (states('sensor.family_computer_ups_load') | float(0) / 100) * states('sensor.family_computer_ups_nominal_real_power') | float(0) }}
+          {%- else -%}
+            0
+          {%- endif %}
       - name: Lounge UPS Power
         unique_id: b34e6d2e-8a46-489a-afcb-551a0e4b9f0a
         device_class: "power"
