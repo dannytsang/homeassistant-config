@@ -117,14 +117,14 @@ automation:
                           - service: script.send_direct_notification
                             data:
                               message: Generation below threshold tomorrow. Incrementing consecutive days.
-                              title: Solar
+                              title: ":sunny: :zap: Solar"
                               people:
                                 - person.danny
                     default:
                       - service: script.send_to_home_log
                         data:
                           message: Generation below threshold tomorrow. Incrementing consecutive days.
-                          title: Solar
+                          title: ":sunny: :zap: Solar"
                   - service: input_number.increment
                     data: {}
                     target:
@@ -141,14 +141,14 @@ automation:
                       - service: script.send_direct_notification
                         data:
                           message: Generation above threshold tomorrow. Resetting count to 0.
-                          title: Solar
+                          title: ":sunny: :zap: Solar"
                           people:
                             - person.danny
                 default:
                   - service: script.send_to_home_log
                     data:
                       message: Generation above threshold tomorrow. Resetting count to 0.
-                      title: Solar
+                      title: ":sunny: :zap: Solar"
               - service: input_number.set_value
                 data:
                   value: 0
@@ -170,7 +170,7 @@ automation:
       - service: script.send_to_home_log
         data:
           message: Battery charged today
-          title: Solar
+          title: ":sunny: :zap: Solar"
       - service: input_boolean.turn_on
         data: {}
         target:
@@ -183,7 +183,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: Resseting days not fully charged.
-              title: Solar
+              title: ":sunny: :zap: Solar"
           - service: input_number.set_value
             data:
               value: 0
@@ -208,7 +208,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Resetting battery charged today.
-                      title: Solar
+                      title: ":sunny: :zap: Solar"
                   - service: input_boolean.turn_off
                     data: {}
                     target:
@@ -221,7 +221,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: Battery did not fully charge today. Adding a day to count.
-                  title: Solar
+                  title: ":sunny: :zap: Solar"
               - service: input_number.increment
                 data: {}
                 target:
@@ -239,7 +239,7 @@ automation:
       - service: script.send_to_home_log
         data:
           message: Production above threshold. Resetting Forecast
-          title: Solar
+          title: ":sunny: :zap: Solar"
     mode: single
   - id: "1664744505278"
     alias: "Energy: Consecutive Days Battery Not Charged"
@@ -255,7 +255,7 @@ automation:
           message:
             It has been {{ states('input_number.consecutive_days_battery_not_charged')
             }} days where the battery has not been charged fully.
-          title: Solar
+          title: ":sunny: :zap: Solar"
           people:
             - person.danny
     mode: single
@@ -292,7 +292,7 @@ script:
         (out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) ~ ' '
         ~ state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }})
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
-      title: Solar
+      title: ":sunny: :zap: Solar"
     sequence:
       - if:
           - condition: template
