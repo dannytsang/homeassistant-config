@@ -183,7 +183,7 @@ automation:
               transition: 2
     mode: single
   - id: "1606170234726"
-    alias: "Office: No Motion After 5 Minutes And Computer On"
+    alias: "Office: No Motion After 9 Minutes And Computer On"
     description: ""
     trigger:
       - platform: state
@@ -192,9 +192,13 @@ automation:
         for: 00:09:00
         from: "on"
     condition:
-      - condition: state
-        entity_id: group.jd_computer
-        state: home
+      - or:
+          - condition: state
+            entity_id: group.jd_computer
+            state: home
+          - condition: state
+            entity_id: group.work_computer
+            state: home
       - condition: state
         entity_id: input_boolean.enable_office_motion_triggers
         state: "on"
