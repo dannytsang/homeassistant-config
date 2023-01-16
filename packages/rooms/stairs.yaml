@@ -6,7 +6,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.stairs_motion
+        entity_id: binary_sensor.stairs_motion_occupancy
         from: "off"
         to: "on"
     condition: []
@@ -64,13 +64,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -87,8 +87,8 @@ automation:
             message: >-
               :paw_prints: Motion on the :ladder: upstairs, before bed time
               and it's dark
-              ({{ states('sensor.stairs_motion_light_level') }}
-              {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} <
+              ({{ states('sensor.stairs_motion_illuminance') }}
+              {{ state_attr('sensor.stairs_motion_illuminance','unit_of_measurement') }} <
               {{ states('input_number.stairs_light_level_threshold') }}
               {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}).
               Turning :bulb: :high_brightness: light on.
@@ -109,13 +109,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -134,8 +134,8 @@ automation:
           message: >-
             :paw_prints: Motion on upstairs, before bed time, :bulb: light is on
             and it's dark
-            ({{ states('sensor.stairs_motion_light_level') }}
-            {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} <
+            ({{ states('sensor.stairs_motion_illuminance') }}
+            {{ state_attr('sensor.stairs_motion_illuminance','unit_of_measurement') }} <
             {{ states('input_number.stairs_light_level_threshold') }}
             {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }}).
             Turning :bulb: :high_brightness: light on.
@@ -157,13 +157,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -184,7 +184,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion :ladder: upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and in No Children Mode.
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and in No Children Mode.
                     Turning stairs :bulb: :high_brightness: light on.
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -209,7 +209,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion on the and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :people_holding_hands: children's doors are shut.
                     Turning :bulb: :high_brightness: light on.
                   title: ":ladder: Stairs"
@@ -235,7 +235,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion on the :ladder: upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :people_holding_hands: children's :door: doors are open.
                     :bulb: :low_brightness: Dimming light.
                   title: ":ladder: Stairs"
@@ -260,7 +260,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                   :boy: Leo's :door: door is shut. Turning :bulb: :high_brightness: light on."
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -285,7 +285,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :girl: Ashlee's :door: door is shut.
                     Turning :bulb: :high_brightness: light on.
                   title: ":ladder: Stairs"
@@ -306,13 +306,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -337,8 +337,8 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }}
-                    {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} <
+                    ({{ states('sensor.stairs_motion_illuminance') }}
+                    {{ state_attr('sensor.stairs_motion_illuminance','unit_of_measurement') }} <
                     {{ states('input_number.stairs_light_level_threshold') }}
                     {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }})
                     and in No Children Mode. Turning up :bulb: :high_brightness: light.
@@ -365,7 +365,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :people_holding_hands: children's doors are shut.
                     Turning up :bulb: :high_brightness: light.
                   title: ":ladder: Stairs"
@@ -391,7 +391,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :people_holding_hands: children's doors are open.
                     :bulb: :low_brightness: Dimming light.
                   title: ":ladder: Stairs"
@@ -417,7 +417,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :boy: Leo's door is shut. Turning up :bulb: :high_brightness: light.
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -442,7 +442,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
                     :girl: Ashlee's door is shut. Turning up :bulb: :high_brightness: light.
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -461,13 +461,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -492,8 +492,8 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }}
-                    {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} <
+                    ({{ states('sensor.stairs_motion_illuminance') }}
+                    {{ state_attr('sensor.stairs_motion_illuminance','unit_of_measurement') }} <
                     {{ states('input_number.stairs_light_level_threshold') }}
                     {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }})
                     :bed: bedroom light is on and it's :clock12: late but bedroom light(s) are on.
@@ -512,7 +512,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock12: late.
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
                     Turning night :bulb: :low_brightness: light on.
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -523,7 +523,7 @@ automation:
               data:
                 message: >-
                   :paw_prints: Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock12: late.
+                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
                   Night mode is turned off so turning :bulb: :high_brightness: light on.
                 title: ":ladder: Stairs"
             - service: scene.turn_on
@@ -541,13 +541,13 @@ automation:
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
       - platform: state
-        entity_id: binary_sensor.upstairs_motion
+        entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - below: input_number.stairs_light_level_threshold
         condition: numeric_state
-        entity_id: sensor.stairs_motion_light_level
+        entity_id: sensor.stairs_motion_illuminance
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
@@ -576,8 +576,8 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_light_level') }}
-                    {{ state_attr('sensor.stairs_motion_light_level','unit_of_measurement') }} <
+                    ({{ states('sensor.stairs_motion_illuminance') }}
+                    {{ state_attr('sensor.stairs_motion_illuminance','unit_of_measurement') }} <
                     {{ states('input_number.stairs_light_level_threshold') }}
                     {{ state_attr('input_number.stairs_light_level_threshold','unit_of_measurement') }})
                     and it's :clock12: late but bedroom light(s) are on.
@@ -595,7 +595,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: ":paw_prints: Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock1: late.
+                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock1: late.
                   Turning stairs night :bulb: :low_brightness: light up."
                   title: ":ladder: Stairs"
               - service: scene.turn_on
@@ -606,7 +606,7 @@ automation:
               data:
                 message: >-
                   :paw_prints: Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_light_level') }} < 5 lux) and it's :clock12: late.
+                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
                   Night mode is turned off so turning :bulb: :high_brightness: light on.
                 title: ":ladder: Stairs"
             - service: scene.turn_on
@@ -620,12 +620,12 @@ automation:
       - entity_id: binary_sensor.lounge_area_motion
         platform: state
         to: "on"
-      - entity_id: binary_sensor.stairs_motion
+      - entity_id: binary_sensor.stairs_motion_occupancy
         platform: state
         to: "on"
     condition:
       - condition: state
-        entity_id: switch.magic_mirror_screen
+        entity_id: switch.magic_mirror_plug
         state: "off"
       - condition: state
         entity_id: input_boolean.enable_magic_mirror_automations
@@ -637,7 +637,7 @@ automation:
       - parallel:
         - service: switch.turn_on
           target:
-            entity_id: switch.magic_mirror_screen
+            entity_id: switch.magic_mirror_plug
         - data:
             message: "Turning on :mirror: Maggic Mirror."
             title: ":paw_prints: Motion on the :ladder: stairs/lounge"
@@ -654,7 +654,7 @@ automation:
         to: "off"
         id: upstairs
       - platform: state
-        entity_id: binary_sensor.stairs_motion
+        entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:01:00
         id: bottom_stairs
@@ -716,7 +716,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.stairs_motion
+        entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:01:00
     condition:
@@ -744,7 +744,7 @@ automation:
     alias: "Stairs: No Motion At Night Turn Off Magic Mirror"
     description: ""
     trigger:
-      - entity_id: binary_sensor.stairs_motion
+      - entity_id: binary_sensor.stairs_motion_occupancy
         for: 00:03:00
         platform: state
         to: "off"
@@ -755,7 +755,7 @@ automation:
         before: "05:00:00"
         condition: time
       - condition: state
-        entity_id: switch.magic_mirror_screen
+        entity_id: switch.magic_mirror_plug
         state: "on"
       - condition: state
         entity_id: input_boolean.enable_magic_mirror_automations
@@ -764,7 +764,7 @@ automation:
       - parallel:
         - service: switch.turn_off
           target:
-            entity_id: switch.magic_mirror_screen
+            entity_id: switch.magic_mirror_plug
         - data:
             message: >-
               :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
@@ -960,7 +960,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.stairs_motion
+        entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:05:00
         from: "on"
@@ -984,7 +984,7 @@ automation:
       - parallel:
         - service: switch.turn_off
           target:
-            entity_id: switch.magic_mirror_screen
+            entity_id: switch.magic_mirror_plug
         - data:
             message: ":no_pedestrians: No motioned detected. Turning off :mirror: Magic Mirror based on time of the day."
             title: ":ladder: Stairs"
