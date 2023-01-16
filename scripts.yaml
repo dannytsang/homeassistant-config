@@ -156,3 +156,58 @@ car_set_next_update_location:
       default: []
   mode: single
   icon: mdi:car
+turn_off_devices_on_holiday:
+  alias: Turn Off Devices On Holiday
+  sequence:
+    - service: script.send_to_home_log
+      data:
+        message: "Turning off all non-essential things."
+        title: "Home"
+    - alias: Turn off PC accessories plug
+      parallel:
+        - service: switch.turn_off
+          data: {}
+          target:
+            entity_id: switch.pc_accessories_plug
+        - service: script.send_to_home_log
+          data:
+            message: ":bulb: Turning off office accessories."
+    - alias: Turn off TV plugs
+      parallel:
+        - service: switch.turn_off
+          data: {}
+          target:
+            entity_id:
+              - switch.tv_plug
+              - switch.bedroom_tv_plug
+        - service: script.send_to_home_log
+          data:
+            message: "Turning off TV plug."
+    - alias: Turn off TV plugs
+      parallel:
+        - service: switch.turn_off
+          data: {}
+          target:
+            entity_id: switch.entertainment_plug_2
+        - service: script.send_to_home_log
+          data:
+            message: "Turning off entertainment plug."
+    - alias: Turn off TV plugs
+      parallel:
+        - service: switch.turn_off
+          data: {}
+          target:
+            entity_id: switch.harmony_hub_plug
+        - service: script.send_to_home_log
+          data:
+            message: "Turning off Harmony plug."
+    - alias: Turn off Echos
+      parallel:
+        - service: switch.turn_off
+          data: {}
+          target:
+            entity_id: switch.kitchen_echo_plug
+        - service: script.send_to_home_log
+          data:
+            message: "Turning off Echos."
+  mode: single
