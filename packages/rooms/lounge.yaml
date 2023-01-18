@@ -13,10 +13,10 @@ automation:
         entity_id: binary_sensor.lounge_motion
         to: "on"
       - platform: state
-        entity_id: binary_sensor.lounge_motion_2
+        entity_id: binary_sensor.lounge_motion_2_occupancy
         to: "on"
       - platform: state
-        entity_id: binary_sensor.lounge_motion_3
+        entity_id: binary_sensor.lounge_motion_3_occupancy
         to: "on"
     condition:
       - and:
@@ -26,10 +26,10 @@ automation:
           - or:
               - below: input_number.lounge_light_level_2_threshold
                 condition: numeric_state
-                entity_id: sensor.lounge_motion_2_light_level
+                entity_id: sensor.lounge_motion_2_illuminance
               - below: input_number.lounge_light_level_3_threshold
                 condition: numeric_state
-                entity_id: sensor.lounge_motion_3_light_level
+                entity_id: sensor.lounge_motion_3_illuminance
           - or:
               - condition: numeric_state
                 entity_id: light.lounge_left_lamp
@@ -53,16 +53,16 @@ automation:
                   - or:
                       - below: input_number.lounge_light_level_2_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_2_light_level
+                        entity_id: sensor.lounge_motion_2_illuminance
                       - below: input_number.lounge_light_level_3_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_3_light_level
+                        entity_id: sensor.lounge_motion_3_illuminance
                 sequence:
                   - data:
                       message: >-
                         :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.lounge_motion_2_light_level')
-                        }} & {{ states('sensor.lounge_motion_3_light_level') }} <
+                        ({{ states('sensor.lounge_motion_2_illuminance')
+                        }} & {{ states('sensor.lounge_motion_3_illuminance') }} <
                         {{ states('input_number.lounge_light_level_2_threshold') }} &
                         {{ states('input_number.lounge_light_level_3_threshold') }}
                         {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
@@ -77,17 +77,17 @@ automation:
                   - or:
                       - below: input_number.lounge_light_level_2_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_2_light_level
+                        entity_id: sensor.lounge_motion_2_illuminance
                       - below: input_number.lounge_light_level_3_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_3_light_level
+                        entity_id: sensor.lounge_motion_3_illuminance
                 sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.lounge_motion_2_light_level') }} &
-                        {{ states('sensor.lounge_motion_3_light_level') }} <
+                        ({{ states('sensor.lounge_motion_2_illuminance') }} &
+                        {{ states('sensor.lounge_motion_3_illuminance') }} <
                         {{ states('input_number.lounge_light_level_2_threshold') }} &
                         {{ states('input_number.lounge_light_level_3_threshold') }}
                         {{ state_attr('input_number.lounge_light_level_2_threshold','unit_of_measurement') }})
