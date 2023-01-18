@@ -113,7 +113,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_triggers
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.tv_plug_power_meter
+        entity_id: sensor.tv_plug_active_power
         below: input_number.tv_plug_powered_on_threshold
     action:
       - parallel:
@@ -143,7 +143,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_triggers
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.tv_plug_power_meter
+        entity_id: sensor.tv_plug_active_power
         below: input_number.tv_plug_powered_on_threshold
     action:
       - parallel:
@@ -164,7 +164,7 @@ automation:
     description: "TV is turned off and dim lights if there has been no motion."
     trigger:
       - platform: numeric_state
-        entity_id: sensor.tv_plug_power_meter
+        entity_id: sensor.tv_plug_active_power
         below: input_number.tv_plug_powered_on_threshold
         for: 00:05:00
     condition:
@@ -198,7 +198,7 @@ automation:
     description: "TV is turned off and turn lights off if there has been no motion."
     trigger:
       - platform: numeric_state
-        entity_id: sensor.tv_plug_power_meter
+        entity_id: sensor.tv_plug_active_power
         for: 00:10:00
         below: input_number.tv_plug_powered_on_threshold
     condition:
@@ -873,8 +873,8 @@ template:
       - name: TV Powered On
         unique_id: 018dca5f-259c-4c2e-94b3-0195359ac572
         device_class: "running"
-        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_power_meter') | float(0) > 10 else '-off' }}"
-        state: "{{ states('sensor.tv_plug_power_meter') | float(0) > 10 }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_active_power') | float(0) > 10 else '-off' }}"
+        state: "{{ states('sensor.tv_plug_active_power') | float(0) > 10 }}"
       - name: Sky Powered On
         device_class: "running"
         icon: "mdi:television-classic{{ '' if states('sensor.sky_power_meter') | float(0) > 15 else '-off' }}"
