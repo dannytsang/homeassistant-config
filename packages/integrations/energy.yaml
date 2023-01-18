@@ -116,14 +116,22 @@ automation:
                         sequence:
                           - service: script.send_direct_notification
                             data:
-                              message: Generation below threshold tomorrow. Incrementing consecutive days.
+                              message: >-
+                                Generation below threshold tomorrow
+                                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
+                                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                                Incrementing consecutive days.
                               title: ":sunny: :zap: Solar"
                               people:
                                 - person.danny
                     default:
                       - service: script.send_to_home_log
                         data:
-                          message: Generation below threshold tomorrow. Incrementing consecutive days.
+                          message: >-
+                            Generation below threshold tomorrow
+                            ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
+                            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                            Incrementing consecutive days.
                           title: ":sunny: :zap: Solar"
                   - service: input_number.increment
                     data: {}
@@ -140,14 +148,22 @@ automation:
                     sequence:
                       - service: script.send_direct_notification
                         data:
-                          message: Generation above threshold tomorrow. Resetting count to 0.
+                          message: >-
+                            Generation above threshold tomorrow
+                            ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
+                            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                            Resetting count to 0.
                           title: ":sunny: :zap: Solar"
                           people:
                             - person.danny
                 default:
                   - service: script.send_to_home_log
                     data:
-                      message: Generation above threshold tomorrow. Resetting count to 0.
+                      message: >-
+                        Generation above threshold tomorrow
+                        ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
+                        {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                        Resetting count to 0.
                       title: ":sunny: :zap: Solar"
               - service: input_number.set_value
                 data:
