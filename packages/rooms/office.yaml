@@ -777,35 +777,6 @@ automation:
           - service: script.set_how_water_to_home_mode
             data: {}
     mode: single
-  # VM
-  - id: "1650730028373"
-    alias: "Office: Leo's VM Is Turned Off"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: switch.turk_vm_leos_windows_10
-        to: "off"
-        for:
-          hours: 0
-          minutes: 10
-          seconds: 0
-    condition:
-      - not:
-          - condition: state
-            entity_id: device_tracker.udm_pro
-            state: unavailable
-      - condition: state
-        entity_id: switch.turk_docker_deepstack
-        state: "off"
-    action:
-      - service: script.send_to_home_log
-        data:
-          message: Leo's VM has turned off for more than 10 minutes. Turnon on Deepstack.
-      - service: switch.turn_on
-        data: {}
-        target:
-          entity_id: switch.turk_docker_deepstack
-    mode: single
 
 group:
   jd_computer:
