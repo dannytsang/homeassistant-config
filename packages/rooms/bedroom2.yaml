@@ -12,7 +12,7 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         below: input_number.blind_closed_position_threshold
       - not:
@@ -34,7 +34,7 @@ automation:
               title: ":bed: Leo's Bedroom"
           - service: cover.open_cover
             target:
-              entity_id: cover.leos_blinds
+              entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1627285063814"
     alias: "Leo's Bedroom: Timed Open Blinds Weekend No Children Mode"
@@ -47,7 +47,7 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "off"
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         below: input_number.blind_closed_position_threshold
       - condition: state
@@ -64,7 +64,7 @@ automation:
               title: ":bed: Leo's Bedroom"
           - service: cover.open_cover
             target:
-              entity_id: cover.leos_blinds
+              entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1629844319596"
     alias: "Leo's Bedroom: Timed Close Blinds"
@@ -78,7 +78,7 @@ automation:
     condition:
       - not:
           - condition: numeric_state
-            entity_id: cover.leos_blinds
+            entity_id: cover.leos_bedroom_blinds
             attribute: current_position
             below: input_number.blind_closed_position_threshold
       - condition: state
@@ -89,7 +89,7 @@ automation:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: binary_sensor.leos_window
+                    entity_id: binary_sensor.leos_bedroom_window
                     state: "on"
                 sequence:
                   - service: script.send_to_home_log
@@ -115,10 +115,10 @@ automation:
                       title: "Leo's :bed: bedroom"
                   - service: cover.close_cover
                     target:
-                      entity_id: cover.leos_blinds
+                      entity_id: cover.leos_bedroom_blinds
               - conditions:
                   - condition: state
-                    entity_id: binary_sensor.leos_window
+                    entity_id: binary_sensor.leos_bedroom_window
                     state: "off"
                 sequence:
                   - service: script.send_to_home_log
@@ -130,7 +130,7 @@ automation:
                       title: "Leo's :bed: bedroom"
                   - service: cover.close_cover
                     target:
-                      entity_id: cover.leos_blinds
+                      entity_id: cover.leos_bedroom_blinds
             default: []
     mode: single
   - id: "1617376203344"
@@ -142,20 +142,20 @@ automation:
         offset: -02:00:00
     condition:
       - condition: state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         state: open
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         above: input_number.blind_open_position_threshold
       - condition: state
-        entity_id: binary_sensor.leos_window
+        entity_id: binary_sensor.leos_bedroom_window
         state: "off"
     action:
       - parallel:
           - service: cover.close_cover
             target:
-              entity_id: cover.leos_blinds
+              entity_id: cover.leos_bedroom_blinds
           - service: script.send_to_home_log
             data:
               message: ":city_sunset: :window: closing Leo's blinds."
@@ -169,7 +169,7 @@ automation:
         platform: time
     condition:
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         below: input_number.blind_closed_position_threshold
       - condition: state
@@ -183,7 +183,7 @@ automation:
             service: script.send_to_home_log
           - service: cover.open_cover
             target:
-              entity_id: cover.leos_blinds
+              entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1617458869658"
     alias: "Leo's Room: Open Blinds In The Morning When No One Is In Bed"
@@ -198,7 +198,7 @@ automation:
         after: 07:00:00
         before: "12:00:00"
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         below: input_number.blind_closed_position_threshold
       - condition: state
@@ -219,19 +219,19 @@ automation:
               title: "Leo's :bed: bedroom"
           - service: cover.open_cover
             target:
-              entity_id: cover.leos_blinds
+              entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1619254173098"
     alias: "Leo's Room: Window Closed At Night"
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.leos_window
+        entity_id: binary_sensor.leos_bedroom_window
         to: "off"
         from: "on"
     condition:
       - condition: numeric_state
-        entity_id: cover.leos_blinds
+        entity_id: cover.leos_bedroom_blinds
         attribute: current_position
         above: input_number.blind_open_position_threshold
       - condition: time
@@ -257,7 +257,7 @@ automation:
                   title: "Leo's :bed: bedroom"
               - service: cover.close_cover
                 target:
-                  entity_id: cover.leos_blinds
+                  entity_id: cover.leos_bedroom_blinds
           - conditions:
               - condition: state
                 entity_id: input_boolean.enable_leos_bed_sensor
@@ -271,7 +271,7 @@ automation:
                   title: "Leo's :bed: bedroom"
               - service: cover.close_cover
                 target:
-                  entity_id: cover.leos_blinds
+                  entity_id: cover.leos_bedroom_blinds
         default: []
     mode: single
   # Music
@@ -328,7 +328,7 @@ script:
             entity_id: input_boolean.enable_leos_blind_automations
             state: "on"
           - condition: numeric_state
-            entity_id: cover.leos_blinds
+            entity_id: cover.leos_bedroom_blinds
             attribute: current_position
             above: input_number.blind_open_position_threshold
         then:
@@ -358,7 +358,7 @@ script:
                           title: "Leo's :bed: Bedroom"
                       - service: cover.close_cover
                         target:
-                          entity_id: cover.leos_blinds
+                          entity_id: cover.leos_bedroom_blinds
             default: []
     mode: single
     icon: mdi:roller-shade-closed
@@ -391,12 +391,12 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - binary_sensor.leos_window
+          - binary_sensor.leos_bedroom_window
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.back_garden_motion_illuminance
           - sensor.leos_bedroom_area_mean_temperature
-          - sensor.leos_window_temperature
+          - sensor.leos_bedroom_window_temperature
           - sun.sun
           - weather.home_hourly
       - platform: time_pattern
@@ -408,10 +408,10 @@ template:
         state: >-
           {{ not(states('sensor.back_garden_motion_illuminance')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.leos_window') == 'off')
+          and states('binary_sensor.leos_bedroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) <= 23.5
-          and (states('sensor.leos_window_temperature')|float(0)) <= 24
+          and (states('sensor.leos_bedroom_window_temperature')|float(0)) <= 24
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_illuminance')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
@@ -419,5 +419,5 @@ template:
           temperature: "{{ (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.leos_window') == 'off' }}"
-          window_temperature: "{{ (states('sensor.leos_window_temperature')|float(0)) > 24 }}"
+          window: "{{ states('binary_sensor.leos_bedroom_window') == 'off' }}"
+          window_temperature: "{{ (states('sensor.leos_bedroom_window_temperature')|float(0)) > 24 }}"
