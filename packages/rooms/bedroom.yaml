@@ -205,7 +205,7 @@ automation:
         to: "on"
         id: leo
       - platform: state
-        entity_id: binary_sensor.ashlees_door
+        entity_id: binary_sensor.ashlees_bedroom_door
         id: ashlee
         from: "off"
         to: "on"
@@ -290,15 +290,15 @@ automation:
         state: "on"
       - or:
           - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_left','brightness') == none }}"
+            value_template: "{{ state_attr('light.under_bed_left','brightness') == none }}"
           - condition: template
-            value_template: "{{ state_attr('light.under_bed_light_right','brightness') == none }}"
+            value_template: "{{ state_attr('light.under_bed_right','brightness') == none }}"
           - condition: numeric_state
-            entity_id: light.under_bed_light_left
+            entity_id: light.under_bed_left
             below: "100"
             attribute: brightness
           - condition: numeric_state
-            entity_id: light.under_bed_light_right
+            entity_id: light.under_bed_right
             below: "100"
             attribute: brightness
     action:
@@ -367,10 +367,10 @@ automation:
     condition:
       - or:
           - condition: state
-            entity_id: light.under_bed_light_left
+            entity_id: light.under_bed_left
             state: "on"
           - condition: state
-            entity_id: light.under_bed_light_right
+            entity_id: light.under_bed_right
             state: "on"
       - condition: state
         entity_id: input_boolean.enable_bedroom_motion_trigger
@@ -696,35 +696,36 @@ automation:
             target:
               entity_id: switch.bedroom_blanket
     mode: single
+  # Hue Remote
   - id: "1656355431187"
     alias: "Bedroom: Hue Remote"
     description: ""
     trigger:
       - platform: event
-        event_type: smartthings.button
+        event_type: zha_event
         event_data:
-          device_id: 9784493c-7e1c-4652-9c5a-2037cbceb42f
+          device_id: d918845ac83280398424fe9ce885aed5
     condition: []
     action:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button1' }}"
+                value_template: "{{ trigger.event.data.command == 'on_short_release' }}"
             sequence:
               - parallel:
                   - service: light.toggle
                     data: {}
                     target:
                       entity_id:
-                        - light.bedroom_left_lamp
-                        - light.bedroom_right_lamp
+                        - light.bedroom_lamp_left
+                        - light.bedroom_lamp_right
                   - service: script.send_to_home_log
                     data:
                       message: Power button pressed.
                       title: ":bed: Bedroom"
           - conditions:
               - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button2' }}"
+                value_template: "{{ trigger.event.data.component_id == 'off_short_release' }}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -733,7 +734,7 @@ automation:
                       title: ":bed: Bedroom"
           - conditions:
               - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button3' }}"
+                value_template: "{{ trigger.event.data.component_id == 'up_short_release' }}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -742,7 +743,7 @@ automation:
                       title: ":bed: Bedroom"
           - conditions:
               - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button4' }}"
+                value_template: "{{ trigger.event.data.component_id == 'down_short_release' }}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -763,7 +764,7 @@ scene:
   - id: "1621715555428"
     name: "Bedroom: Turn On Ambient Light"
     entities:
-      light.under_bed_light_left:
+      light.under_bed_left:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -780,7 +781,7 @@ scene:
         icon: mdi:led-strip-variant
         supported_features: 63
         state: "on"
-      light.under_bed_light_right:
+      light.under_bed_right:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -801,7 +802,7 @@ scene:
   - id: "1621715588909"
     name: "Bedroom: Dim Ambient Light"
     entities:
-      light.under_bed_light_left:
+      light.under_bed_left:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -818,7 +819,7 @@ scene:
         icon: mdi:led-strip-variant
         supported_features: 63
         state: "on"
-      light.under_bed_light_right:
+      light.under_bed_right:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -839,7 +840,7 @@ scene:
   - id: "1621715612398"
     name: "Bedroom: Turn Off Ambient Light"
     entities:
-      light.under_bed_light_left:
+      light.under_bed_left:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -852,7 +853,7 @@ scene:
         icon: mdi:led-strip-variant
         supported_features: 63
         state: "off"
-      light.under_bed_light_right:
+      light.under_bed_right:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -869,7 +870,7 @@ scene:
   - id: "1615211281868"
     name: "Bedroom: Desk Lamps On"
     entities:
-      light.bedroom_left_lamp:
+      light.bedroom_lamp_left:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -891,7 +892,7 @@ scene:
         icon: mdi:desk-lamp
         supported_features: 63
         state: "on"
-      light.bedroom_right_lamp:
+      light.bedroom_lamp_right:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -917,7 +918,7 @@ scene:
   - id: "1615211309175"
     name: "Bedroom: Desk Lamps Off"
     entities:
-      light.bedroom_left_lamp:
+      light.bedroom_lamp_left:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -927,7 +928,7 @@ scene:
         icon: mdi:desk-lamp
         supported_features: 63
         state: "off"
-      light.bedroom_right_lamp:
+      light.bedroom_lamp_right:
         min_mireds: 153
         max_mireds: 500
         effect_list:
@@ -951,13 +952,13 @@ script:
                 color_name: blue
               target:
                 entity_id:
-                  - light.bedroom_left_lamp
-                  - light.bedroom_right_lamp
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
             - service: light.turn_off
               target:
                 entity_id:
-                  - light.bedroom_left_lamp
-                  - light.bedroom_right_lamp
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
       - service: scene.turn_on
         target:
           entity_id: scene.bedroom_desk_lamps_on
@@ -973,13 +974,13 @@ script:
                 color_name: pink
               target:
                 entity_id:
-                  - light.bedroom_left_lamp
-                  - light.bedroom_right_lamp
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
             - service: light.turn_off
               target:
                 entity_id:
-                  - light.bedroom_left_lamp
-                  - light.bedroom_right_lamp
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
       - service: scene.turn_on
         target:
           entity_id: scene.bedroom_desk_lamps_on
@@ -1134,9 +1135,9 @@ template:
   - binary_sensor:
       - name: Bedroom TV Powered On
         unique_id: 0dcba639-2e46-428e-bb7e-43307fa653b3
-        icon: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_power_meter') | float(0) > 40 else '-off' }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_plug_active_power') | float(0) > 40 else '-off' }}"
         device_class: running
-        state: "{{ states('sensor.bedroom_tv_power_meter') | float(0) > 40 }}"
+        state: "{{ states('sensor.bedroom_tv_plug_active_power') | float(0) > 40 }}"
       - name: Bed Occupied
         icon: >-
           mdi:bed-double{{ '-outline' if (states('sensor.bed_top_left') | float(0)) >= 0.15
@@ -1166,9 +1167,9 @@ template:
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.bedroom_area_mean_temperature
-          - sensor.bedroom_tv_power_meter
+          - sensor.bedroom_tv_plug_active_power
           - sensor.bedroom_window_temperature
-          - sensor.front_garden_motion_light_level
+          - sensor.front_garden_motion_illuminance
           - sun.sun
           - weather.home_hourly
       - platform: time_pattern
@@ -1178,7 +1179,7 @@ template:
         unique_id: 978fb6f0-42db-4c71-ab13-9037e82da73a
         device_class: opening
         state: >-
-          {{ not(states('sensor.front_garden_motion_light_level')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          {{ not(states('sensor.front_garden_motion_illuminance')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.bedroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) > states('input_number.forecast_high_temperature')|float(24)
@@ -1187,7 +1188,7 @@ template:
           and states('binary_sensor.bedroom_tv_powered_on') == 'on'
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_light_level')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          brightness: "{{ (states('sensor.front_garden_motion_illuminance')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
           temperature: "{{ (states('sensor.bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) > states('input_number.forecast_high_temperature')|float(24) }}"
