@@ -161,8 +161,8 @@ turn_off_devices_on_holiday:
   sequence:
     - service: script.send_to_home_log
       data:
-        message: "Turning off all non-essential things."
-        title: "Home"
+        message: Turning off all non-essential things.
+        title: Home
     - alias: Turn off PC accessories plug
       parallel:
         - service: switch.turn_off
@@ -182,7 +182,7 @@ turn_off_devices_on_holiday:
               - switch.bedroom_tv_plug
         - service: script.send_to_home_log
           data:
-            message: "Turning off TV plug."
+            message: Turning off TV plug.
     - alias: Turn off TV plugs
       parallel:
         - service: switch.turn_off
@@ -191,7 +191,7 @@ turn_off_devices_on_holiday:
             entity_id: switch.lounge_entertainment_plug_2
         - service: script.send_to_home_log
           data:
-            message: "Turning off entertainment plug."
+            message: Turning off entertainment plug.
     - alias: Turn off TV plugs
       parallel:
         - service: switch.turn_off
@@ -200,7 +200,7 @@ turn_off_devices_on_holiday:
             entity_id: switch.harmony_hub_plug
         - service: script.send_to_home_log
           data:
-            message: "Turning off Harmony plug."
+            message: Turning off Harmony plug.
     - alias: Turn off Echos
       parallel:
         - service: switch.turn_off
@@ -209,5 +209,35 @@ turn_off_devices_on_holiday:
             entity_id: switch.kitchen_echo_plug
         - service: script.send_to_home_log
           data:
-            message: "Turning off Echos."
+            message: Turning off Echos.
+  mode: single
+arrive_home_lounge_lights:
+  alias: Arrive Home Lounge Lights
+  sequence:
+    - repeat:
+        until:
+          - condition: state
+            entity_id: binary_sensor.front_door
+            state: "on"
+        sequence:
+          - service: scene.turn_on
+            data:
+              transition: 1
+            target:
+              entity_id: scene.lounge_pre_entry_lights_on
+          - delay:
+              hours: 0
+              minutes: 0
+              seconds: 1
+              milliseconds: 0
+          - service: scene.turn_on
+            data:
+              transition: 1
+            target:
+              entity_id: scene.lounge_lights_off
+    - service: scene.turn_on
+      data:
+        transition: 2
+      target:
+        entity_id: scene.lounge_lights
   mode: single

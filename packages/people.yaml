@@ -57,7 +57,8 @@ automation:
                 sequence:
                   - service: script.send_to_home_log
                     data:
-                      message: Heating is off.
+                      message: Heating is off. Turning heating on.
+                      title: ":hotsprings: :droplet: Boiler"
                   - service: script.set_central_heating_to_home_mode
             default: []
     mode: single
@@ -325,17 +326,29 @@ automation:
         entity_id: input_boolean.enable_home_presence_detection
         state: "on"
     action:
-      - service: scene.turn_on
-        target:
-          entity_id:
-            - scene.lounge_lights
-            - scene.kitchen_side_lights_on
-      - service: script.send_to_home_log
-        data:
-          message: >-
-            :house: :running: Arrived home and it's dark.
-            Turning Lounge and kitchen ambient lights on.
-          title: ":man: Danny"
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: light.lounge_lamps
+                state: "off"
+            then:
+              - service: script.arrive_home_lounge_lights
+                data: {}
+          - if:
+              - condition: state
+                entity_id: light.kitchen_side_lights
+                state: "off"
+            then:
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.kitchen_side_lights_on
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :house: :running: Arrived home and it's dark.
+                Turning Lounge and kitchen ambient lights on.
+              title: ":man: Danny"
     mode: single
   - id: "1582456019025"
     alias: "People: Danny Leaves Home"
@@ -383,17 +396,29 @@ automation:
         entity_id: sensor.lounge_motion_2_illuminance
         below: "55"
     action:
-      - service: scene.turn_on
-        target:
-          entity_id:
-            - scene.lounge_lights
-            - scene.kitchen_side_lights_on
-      - service: script.send_to_home_log
-        data:
-          message: >-
-            :dancer: :house: :bulb: Arrived home and it's dark.
-            Turning Lounge and kitchen ambient lights on.
-          title: ":woman: Terina"
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: light.lounge_lamps
+                state: "off"
+            then:
+              - service: script.arrive_home_lounge_lights
+                data: {}
+          - if:
+              - condition: state
+                entity_id: light.kitchen_side_lights
+                state: "off"
+            then:
+              - service: scene.turn_on
+                target:
+                  entity_id:
+                    - scene.kitchen_side_lights_on
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :dancer: :house: :bulb: Arrived home and it's dark.
+                Turning Lounge and kitchen ambient lights on.
+              title: ":woman: Terina"
   - id: "1582456025977"
     alias: "People: Terina Leaves Home"
     description: ""
