@@ -24,7 +24,7 @@ automation:
           # Window is still open
           - conditions:
               - condition: state
-                entity_id: binary_sensor.ashlees_window
+                entity_id: binary_sensor.ashlees_bedroom_window
                 state: "on"
             sequence:
               - service: script.send_to_home_log
@@ -42,7 +42,7 @@ automation:
               - condition: trigger
                 id: sunset
               - condition: state
-                entity_id: binary_sensor.ashlees_window
+                entity_id: binary_sensor.ashlees_bedroom_window
                 state: "off"
             sequence:
               - service: script.send_to_home_log
@@ -58,7 +58,7 @@ automation:
                 entity_id: input_boolean.enable_ashlees_bed_sensor
                 state: "on"
               - condition: state
-                entity_id: binary_sensor.ashlees_window
+                entity_id: binary_sensor.ashlees_bedroom_window
                 state: "off"
               - condition: trigger
                 id: sunset
@@ -77,7 +77,7 @@ automation:
           # Bed sensor is off
           - conditions:
               - condition: state
-                entity_id: binary_sensor.ashlees_window
+                entity_id: binary_sensor.ashlees_bedroom_window
                 state: "off"
               - condition: state
                 entity_id: input_boolean.enable_ashlees_bed_sensor
@@ -100,7 +100,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - binary_sensor.ashlees_window
+          - binary_sensor.ashlees_bedroom_window
         from: "on"
         to: "off"
         for:
@@ -286,7 +286,7 @@ automation:
                       - condition: time
                         before: 05:00:00
                   - condition: state
-                    entity_id: binary_sensor.ashlees_window
+                    entity_id: binary_sensor.ashlees_bedroom_window
                     state: "off"
                 sequence:
                   - service: script.send_to_home_log
@@ -475,11 +475,11 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - binary_sensor.ashlees_window
+          - binary_sensor.ashlees_bedroom_window
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.ashlees_bedroom_area_mean_temperature
-          - sensor.ashlees_window_temperature
+          - sensor.ashlees_bedroom_window_temperature
           - sensor.front_garden_motion_illuminance
           - sun.sun
           - weather.home_hourly
@@ -492,10 +492,10 @@ template:
         state: >-
           {{ not(states('sensor.front_garden_motion_illuminance')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.ashlees_window') == 'off')
+          and states('binary_sensor.ashlees_bedroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and (states('sensor.ashlees_bedroom_area_mean_temperature')|float(0)) <= 23.5
-          and (states('sensor.ashlees_window_temperature')|float(0)) <= 24
+          and (states('sensor.ashlees_bedroom_window_temperature')|float(0)) <= 24
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_illuminance')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
@@ -503,5 +503,5 @@ template:
           temperature: "{{ (states('sensor.ashlees_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.ashlees_window') == 'off' }}"
-          window_temperature: "{{ (states('sensor.ashlees_window_temperature')|float(0)) > 24 }}"
+          window: "{{ states('binary_sensor.ashlees_bedroom_window') == 'off' }}"
+          window_temperature: "{{ (states('sensor.ashlees_bedroom_window_temperature')|float(0)) > 24 }}"
