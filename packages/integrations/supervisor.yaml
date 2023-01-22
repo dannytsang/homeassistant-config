@@ -1,19 +1,56 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/hassio/
 automation:
+  - id: "1674411819883"
+    alias: "Add-Ons: File Editor Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.file_editor_running
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - service: timer.start
+        data:
+          duration: 01:00:00
+        target:
+          entity_id: timer.stop_add_on_file_editor
+    mode: single
+  - id: "1674411819884"
+    alias: "Add-Ons: SSH Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.file_editor_running
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - service: timer.start
+        data:
+          duration: 01:00:00
+        target:
+          entity_id: timer.stop_add_on_ssh
+    mode: single
   - id: "1638101465298"
     alias: "Add-ons: Automatically Disable File Editor"
     description: ""
     trigger:
-      - platform: state
-        entity_id: binary_sensor.file_editor_running
-        to: "on"
-        for:
-          hours: 1
-          minutes: 0
-          seconds: 0
-          milliseconds: 0
-    condition: []
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.stop_add_on_file_editor
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
     action:
       - service: script.stop_add_on
         data:
@@ -26,15 +63,14 @@ automation:
     alias: "Add-ons: Automatically Disable SSH"
     description: ""
     trigger:
-      - platform: state
-        entity_id: binary_sensor.terminal_ssh_running
-        for:
-          hours: 1
-          minutes: 0
-          seconds: 0
-          milliseconds: 0
-        to: "on"
-    condition: []
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.stop_add_on_ssh
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
     action:
       - service: script.stop_add_on
         data:
