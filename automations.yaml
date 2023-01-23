@@ -924,3 +924,20 @@
       data:
         message: Conservatory fell below 3c. Boosting central heating.
   mode: single
+- id: "1674508693884"
+  alias: "Solar: Battery Charge Notification"
+  description: Used for
+  trigger:
+    - platform: time
+      at: "15:30:00"
+  condition: []
+  action:
+    - service: script.send_direct_notification
+      data:
+        message: >- 
+          {{ states('sensor.growatt_sph6000_statement_of_charge') }}%
+          (That is {{ state_attr('sensor.battery_charge_remaining_hours', 'duration') }}) remaining.
+        title: ":house_with_garden: :battery: House Battery"
+        people:
+          - person.danny
+  mode: single
