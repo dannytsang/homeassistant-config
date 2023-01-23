@@ -14,30 +14,64 @@ automation:
         entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
-      - service: timer.start
-        data:
-          duration: 01:00:00
-        target:
-          entity_id: timer.stop_add_on_file_editor
+      - parallel:
+          - service: timer.start
+            data:
+              duration: 01:00:00
+            target:
+              entity_id: timer.stop_add_on_file_editor
+          - service: script.send_to_home_log
+            data:
+              message: "File Editor started."
+              title: ":heavy_plus_sign: Add-on"
     mode: single
   - id: "1674411819884"
-    alias: "Add-Ons: SSH Started"
+    alias: "Add-Ons: Terminal SSH Started"
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - binary_sensor.file_editor_running
+          - binary_sensor.terminal_ssh_running
         to: "on"
     condition:
       - condition: state
         entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
-      - service: timer.start
-        data:
-          duration: 01:00:00
-        target:
-          entity_id: timer.stop_add_on_ssh
+      - parallel:
+          - service: timer.start
+            data:
+              duration: 01:00:00
+            target:
+              entity_id: timer.stop_add_on_terminal_ssh
+          - service: script.send_to_home_log
+            data:
+              message: "Terminal SSH started."
+              title: ":heavy_plus_sign: Add-on"
+    mode: single
+  - id: "1674411819885"
+    alias: "Add-Ons: Web Terminal SSH Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.ssh_web_terminal_running
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - parallel:
+          - service: timer.start
+            data:
+              duration: 01:00:00
+            target:
+              entity_id: timer.stop_add_on_web_terminal_ssh
+          - service: script.send_to_home_log
+            data:
+              message: "Web Terminal SSH started."
+              title: ":heavy_plus_sign: Add-on"
     mode: single
   - id: "1638101465298"
     alias: "Add-ons: Automatically Disable File Editor"
@@ -60,13 +94,13 @@ automation:
             Turning File editor off."
     mode: single
   - id: "1638101748989"
-    alias: "Add-ons: Automatically Disable SSH"
+    alias: "Add-ons: Automatically Disable Terminal SSH"
     description: ""
     trigger:
       - platform: event
         event_type: timer.finished
         event_data:
-          entity_id: timer.stop_add_on_ssh
+          entity_id: timer.stop_add_on_terminal_ssh
     condition:
       - condition: state
         entity_id: input_boolean.enable_stop_add_ons
@@ -75,6 +109,24 @@ automation:
       - service: script.stop_add_on
         data:
           addonEntityId: core_ssh
+          message: SSH has been on for more than an hour. Turning SSH off.
+    mode: single
+  - id: "1638101748990"
+    alias: "Add-ons: Automatically Disable Web Terminal SSH"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.stop_add_on_web_terminal_ssh
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - service: script.stop_add_on
+        data:
+          addonEntityId: a0d7b954_ssh
           message: SSH has been on for more than an hour. Turning SSH off.
     mode: single
 
