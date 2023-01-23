@@ -869,9 +869,10 @@
           sequence:
             - service: script.send_actionable_notification_with_2_buttons
               data:
-                message: >-
-                  Update from {{ state_attr('update.home_assistant_core_update', 'installed_version') }} to
-                  {{ state_attr('update.home_assistant_core_update', 'latest_version') }}?
+                message:
+                  Update from {{ state_attr('update.home_assistant_core_update',
+                  'installed_version') }} to {{ state_attr('update.home_assistant_core_update',
+                  'latest_version') }}?
                 title: Home Assistant
                 people:
                   - person.danny
@@ -906,4 +907,20 @@
         action1_name: switch_off_attic_lights
         action2_title: "No"
         action2_name: ignore
+  mode: single
+- id: "1674478124534"
+  alias: "Conservatory: Cold Temperature"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.conservatory_area_mean_temperature
+      below: 3
+  condition: []
+  action:
+    - service: climate.set_preset_mode
+      data:
+        preset_mode: boost
+    - service: script.send_to_home_log
+      data:
+        message: Conservatory fell below 3c. Boosting central heating.
   mode: single
