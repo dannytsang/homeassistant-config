@@ -1,5 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # Motion
   - id: "1617735040678"
     alias: "Conservatory: Motion Detected And Alarm Armed"
     description: ""
@@ -214,6 +215,27 @@ automation:
                   hvac_mode: "auto"
                 target:
                   entity_id: climate.thermostat
+    mode: single
+  - id: "1661096879151"
+    alias: "Conservatory: Door Closed And Shed Door Open"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.conservatory_door
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.shed_door
+        state: "on"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: ":door: Door closed and :hut: shed :door: door is still open."
+          title: Conservatory
+          people:
+            - person.danny
+            - person.terina
     mode: single
 
 scene:
