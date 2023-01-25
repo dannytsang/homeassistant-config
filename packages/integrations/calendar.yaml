@@ -88,7 +88,8 @@ script:
         {{ strptime(dt[0].strip()~' '~dt[1], '%Y-%m-%d %H:%M:%S%z', none) }}
     sequence:
       - choose:
-          - conditions:
+          - alias: "Non all day event"
+            conditions:
               - or:
                   - condition: template
                     value_template: "{{ all_day == false }}"
@@ -121,7 +122,8 @@ script:
               - service: script.calendar_calculate_travel
                 data:
                   location: "{{ location|default('', true) }}"
-          - conditions:
+          - alias: "All/multiple day event"
+            conditions:
               - or:
                   - condition: template
                     value_template: "{{ all_day == true }}"
