@@ -8,7 +8,10 @@ automation:
       - platform: state
         entity_id: alarm_control_panel.house_alarm
         to: disarmed
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -41,6 +44,9 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
         state: disarmed
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - choose:
           - conditions:
@@ -104,6 +110,9 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
         state: disarmed
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - choose:
           - conditions:
@@ -137,6 +146,7 @@ automation:
           - binary_sensor.alarmed_doors_and_windows
         from: "on"
         to: "off"
+        for: "00:00:30"
     condition:
       - condition: state
         entity_id: group.adult_people
@@ -147,10 +157,12 @@ automation:
       - condition: state
         entity_id: binary_sensor.alarmed_doors_and_windows
         state: "off"
-      - condition: time
-        after: "00:00:00"
-      - condition: time
-        before: "05:00:00"
+      - condition: state
+        entity_id: schedule.alarm_scheduled_home_mode
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - service: script.arm_alarm_overnight
         data:
@@ -163,7 +175,10 @@ automation:
       - platform: state
         entity_id: alarm_control_panel.house_alarm
         to: armed_away
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -183,7 +198,10 @@ automation:
       - platform: state
         entity_id: alarm_control_panel.house_alarm
         to: unavailable
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - service: script.send_to_home_log
         data:
@@ -202,7 +220,10 @@ automation:
           hours: 0
           minutes: 5
           seconds: 0
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - service: script.send_to_home_log
         data:
@@ -246,7 +267,10 @@ automation:
       - entity_id: alarm_control_panel.house_alarm
         platform: state
         to: triggered
-    condition: []
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
