@@ -313,6 +313,32 @@ automation:
         default: []
     mode: single
   # Danny
+  - id: "1674735382445"
+    alias: "People: Danny Arriving Home"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: proximity.danny_home
+        below: input_number.arriving_home_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: armed_home
+      - condition: state
+        entity_id: proximity.danny_home
+        attribute: dir_of_travel
+        state: towards
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Danny is arriving home. Turning alarm off.
+              title: ":man: Danny"
+          - service: script.set_alarm_to_disarmed_mode
+    mode: single
   - id: "1581867286886"
     alias: "People: Danny Arrives Home"
     description: ""
@@ -383,6 +409,32 @@ automation:
         target:
           entity_id: timer.update_dannys_car
   # Terina
+  - id: "1674735382446"
+    alias: "People: Terina Arriving Home"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: proximity.terina_home
+        below: input_number.arriving_home_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_alarm_automations
+        state: "on"
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: armed_home
+      - condition: state
+        entity_id: proximity.danny_home
+        attribute: dir_of_travel
+        state: towards
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Terina is arriving home. Turning alarm off.
+              title: ":woman: Terina"
+          - service: script.set_alarm_to_disarmed_mode
+    mode: single
   - id: "1582754128581"
     alias: "People: Terina Arrives Home"
     description: ""
