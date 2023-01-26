@@ -2,7 +2,7 @@
 automation:
   - id: "1588609147280"
     alias: "People: Someone Arrives Home"
-    description: ""
+    description: "Someone is home."
     trigger:
       - entity_id: group.adult_people
         from: not_home
@@ -61,6 +61,55 @@ automation:
                       title: ":hotsprings: :droplet: Boiler"
                   - service: script.set_central_heating_to_home_mode
             default: []
+    mode: single
+  - id: "1655063863297"
+    alias: "People: Heading Home"
+    description: "Triggers when someone has been away for long distance and heading back home."
+    trigger:
+      - platform: numeric_state
+        entity_id: proximity.danny_home
+        value_template: "{{ states('proximity.danny_home') | float(99999) }}"
+        below: input_number.distance_close_to_home
+      - platform: numeric_state
+        entity_id: proximity.terina_home
+        value_template: "{{ states('proximity.terina_home') | float(99999) }}"
+        below: input_number.distance_close_to_home
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Holiday
+              - or:
+                  - condition: template
+                    value_template:
+                      "{{ state_attr('proximity.danny_home','dir_of_travel')
+                      == 'towards' }}"
+                  - condition: template
+                    value_template:
+                      "{{ state_attr('proximity.terina_home','dir_of_travel')
+                      == 'towards' }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Someone heading home.
+              - if:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Holiday
+                then:
+                  - service: script.send_to_home_log
+                    data:
+                      message: Changing to normal mode
+                  - service: input_select.select_option
+                    data:
+                      option: Normal
+                    target:
+                      entity_id: input_select.home_mode
+              - service: script.turn_everything_off
+                data: {}
+        default: []
     mode: single
   - id: "1595524992208"
     alias: "People: No One Home And Locked"
@@ -263,59 +312,10 @@ automation:
         default: []
     mode: queued
     max: 10
-  - id: "1655063863297"
-    alias: "People: Near Home"
-    description: ""
-    trigger:
-      - platform: numeric_state
-        entity_id: proximity.danny_home
-        value_template: "{{ states('proximity.danny_home') | float(99999) }}"
-        below: input_number.distance_close_to_home
-      - platform: numeric_state
-        entity_id: proximity.terina_home
-        value_template: "{{ states('proximity.terina_home') | float(99999) }}"
-        below: input_number.distance_close_to_home
-    condition: []
-    action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: Holiday
-              - or:
-                  - condition: template
-                    value_template:
-                      "{{ state_attr('proximity.danny_home','dir_of_travel')
-                      == 'towards' }}"
-                  - condition: template
-                    value_template:
-                      "{{ state_attr('proximity.terina_home','dir_of_travel')
-                      == 'towards' }}"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: Someone heading home.
-              - if:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: Holiday
-                then:
-                  - service: script.send_to_home_log
-                    data:
-                      message: Changing to normal mode
-                  - service: input_select.select_option
-                    data:
-                      option: Normal
-                    target:
-                      entity_id: input_select.home_mode
-              - service: script.turn_everything_off
-                data: {}
-        default: []
-    mode: single
   # Danny
   - id: "1674735382445"
     alias: "People: Danny Arriving Home"
-    description: ""
+    description: "Heading towards home and very close."
     trigger:
       - platform: numeric_state
         entity_id: proximity.danny_home
@@ -341,7 +341,7 @@ automation:
     mode: single
   - id: "1581867286886"
     alias: "People: Danny Arrives Home"
-    description: ""
+    description: "At Home."
     trigger:
       - entity_id: person.danny
         from: not_home
@@ -411,7 +411,7 @@ automation:
   # Terina
   - id: "1674735382446"
     alias: "People: Terina Arriving Home"
-    description: ""
+    description: "Heading towards home and very close."
     trigger:
       - platform: numeric_state
         entity_id: proximity.terina_home
@@ -437,7 +437,7 @@ automation:
     mode: single
   - id: "1582754128581"
     alias: "People: Terina Arrives Home"
-    description: ""
+    description: "At Home."
     trigger:
       - entity_id: person.terina
         from: not_home
@@ -473,7 +473,7 @@ automation:
               title: ":woman: Terina"
   - id: "1582456025977"
     alias: "People: Terina Leaves Home"
-    description: ""
+    description: "Heading towards home and very close."
     trigger:
       - entity_id: person.terina
         from: home
