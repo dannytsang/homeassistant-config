@@ -903,3 +903,33 @@
       data:
         message: Conservatory fell below 3c. Boosting central heating.
   mode: single
+- id: "1674916813112"
+  alias: "Bedroom: Lamps Off And Stairs Light On"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - light.bedroom_lamps
+      from: "on"
+      to: "off"
+  condition:
+    - condition: or
+      conditions:
+        - condition: state
+          entity_id: light.stairs
+          state: "on"
+        - condition: state
+          entity_id: light.stairs_2
+          state: "on"
+  action:
+    - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: Bedroom light turned off. Turning stairs lights off.
+            title: ":bed: Bedroom"
+        - service: scene.turn_on
+          data:
+            transition: 2
+          target:
+            entity_id: scene.stairs_light_off
+  mode: single
