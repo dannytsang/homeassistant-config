@@ -300,9 +300,9 @@ automation:
       - platform: time
         at: "15:55:00"
     condition:
-      - condition: numeric_state
-        entity_id: sensor.growatt_sph6000_statement_of_charge
-        above: input_number.growatt_battery_discharge_stop_soc
+      - condition: template
+        value_template: "{{ (states('sensor.growatt_sph6000_statement_of_charge')|int(0)) >
+        ((states('input_number.growatt_battery_discharge_stop_soc')|int(0)) + 1) }}"
     action:
       - service: script.send_direct_notification
         data:
