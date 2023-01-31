@@ -98,30 +98,68 @@ script:
               - condition: template
                 value_template: "{{ location is not none }}"
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event.
+              - parallel:
+                  - service: script.calendar_calculate_travel
+                    data:
+                      location: "{{ location|default('', true) }}"
+                  - choose:
+                      - alias: "Non all day event and no one home"
+                        conditions:
+                          - condition: state
+                            entity_id: input_boolean.enable_home_presence_detection
+                            state: "on"
+                          - condition: state
+                            entity_id: group.adults
+                            state: "not_home"
+                          - condition: state
+                            entity_id: alarm_control_panel.house_alarm
+                            state: armed_away
+                        sequence:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event. No one home so consider away mode.
 
-                    Event: {{ name|default('N/A', true) }}
+                                Event: {{ name|default('N/A', true) }}
 
-                    Event Type: {{ event_type|default('N/A', true) }}
+                                Event Type: {{ event_type|default('N/A', true) }}
 
-                    Offset: {{ offset|default('N/A', true) }}
+                                Offset: {{ offset|default('N/A', true) }}
 
-                    All Day: {{ all_day|default('N/A', true) }}
+                                All Day: {{ all_day|default('N/A', true) }}
 
-                    Location: {{ location|default('N/A', true) }}
+                                Location: {{ location|default('N/A', true) }}
 
-                    Start Time: {{ start_time|default('N/A', true) }}
+                                Start Time: {{ start_time|default('N/A', true) }}
 
-                    End Time: {{ end_time|default('N/A', true) }}
+                                End Time: {{ end_time|default('N/A', true) }}
 
-                    Duration: {{ duration_formatted }}
-                  title: ":date: Calendar"
-              - service: script.calendar_calculate_travel
-                data:
-                  location: "{{ location|default('', true) }}"
+                                Duration: {{ duration_formatted }}
+                              title: ":date: Calendar"
+                              people:
+                                - person.danny
+                    default:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event.
+
+                            Event: {{ name|default('N/A', true) }}
+
+                            Event Type: {{ event_type|default('N/A', true) }}
+
+                            Offset: {{ offset|default('N/A', true) }}
+
+                            All Day: {{ all_day|default('N/A', true) }}
+
+                            Location: {{ location|default('N/A', true) }}
+
+                            Start Time: {{ start_time|default('N/A', true) }}
+
+                            End Time: {{ end_time|default('N/A', true) }}
+
+                            Duration: {{ duration_formatted }}
+                          title: ":date: Calendar"
           - alias: "All/multiple day event"
             conditions:
               - or:
