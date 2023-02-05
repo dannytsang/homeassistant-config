@@ -78,6 +78,9 @@ automation:
       - platform: numeric_state
         entity_id: sensor.growatt_sph6000_statement_of_charge
         above: input_number.battery_charged_notification
+      - platform: numeric_state
+        entity_id: sensor.growatt_sph6000_statement_of_charge
+        above: "99"
     condition:
       - condition: or
         conditions:
@@ -329,7 +332,8 @@ script:
         :battery: Battery charged to
         ({{ states('sensor.growatt_sph6000_statement_of_charge')~
         state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }}).
-        {% if (states('sensor.growatt_sph6000_battery_charging')|float(0)) > 0 %}
+        {% if ((states('sensor.growatt_sph6000_battery_charging')|float(0)) > 0) and
+        state_attr('sensor.time_to_charge_battery', 'time_remaining') is not none %}
         It will take around {{ state_attr('sensor.time_to_charge_battery', 'time_remaining') }}
         to charge the battery.
         {% endif %}
