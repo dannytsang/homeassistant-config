@@ -815,6 +815,45 @@ script:
                 action3_title: "{{ action3_title }}"
                 action3_name: "{{ action3_name }}"
     mode: single
+  send_to_computers:
+    alias: "Send notification to computers"
+    icon: mdi:message-draw
+    description: >-
+      Send notification to computeres.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      filePath:
+        description: File path to attach to post.
+      duration:
+        description: >
+          How long to display the notification in seconds. It will default to 10 seconds if one has not been set.
+        default: 10
+    sequence:
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_computer_notifications
+            state: "on"
+        then:
+          - parallel:
+              - service: script.post_to_hass_agent
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+                  filePath: "{{ filePath }}"
+                  device: notify.jd
+                  duration: "{{ duration }}"
+              - service: script.post_to_hass_agent
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+                  filePath: "{{ filePath }}"
+                  device: notify.sam
+                  duration: "{{ duration }}"
+
   # Slack specific Scripts
   post_slack_notification:
     alias: Post Slack Message
@@ -1181,3 +1220,68 @@ script:
             continue_on_error: true
     mode: queued
     max: 10
+  post_to_hass_agent:
+    alias: "Post To HASS Agent File Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post notification to a desktop client.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      filePath:
+        description: File path to attach to post.
+      device:
+        description: HASS Agent notify service.
+        example: notify.sam
+        required: true
+      duration:
+        description: >
+          How long to display the notification in seconds. It will default to 10 seconds if one has not been set.
+        default: 10
+    sequence:
+        - choose:
+        # Check a title was set
+          - conditions:
+              - condition: template
+                value_template: "{{ filePath is not none }}"
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: "{{ device }}"
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+                  data:
+                    image: "{{ filePath }}"
+                    duration: "{{ duration|default(10, true) }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ filePath is not none }}"
+              - condition: template
+                value_template: "{{ title is none }}"
+            sequence:
+              - service: "{{ device }}"
+                data:
+                  message: "{{ message }}"
+                  data:
+                    image: "{{ filePath }}"
+                    duration: "{{ duration|default(10, true) }}"
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: "{{ device }}"
+                data:
+                  message: "{{ message }}"
+                  data:
+                    image: "{{ filePath }}"
+                    duration: "{{ duration|default(10, true) }}"
+          default:
+            - service: "{{ device }}"
+              data:
+                message: "{{ message }}"
+                data:
+                  duration: "{{ duration|default(10, true) }}"
