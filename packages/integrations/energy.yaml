@@ -102,22 +102,34 @@ automation:
         at: "21:00:00"
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
-                below: input_number.solar_generation_minimum_threshold
-            sequence:
-              - parallel:
-                  - choose:
-                      - conditions:
-                          - alias: Outside of winter season
-                            not:
-                              - condition: state
-                                entity_id: sensor.season
-                                state: winter
-                        sequence:
-                          - service: script.send_direct_notification
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
+                    below: input_number.solar_generation_minimum_threshold
+                sequence:
+                  - parallel:
+                      - choose:
+                          - conditions:
+                              - alias: Outside of winter season
+                                not:
+                                  - condition: state
+                                    entity_id: sensor.season
+                                    state: winter
+                            sequence:
+                              - service: script.send_direct_notification
+                                data:
+                                  message: >-
+                                    Generation below threshold tomorrow
+                                    ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
+                                    {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                                    Incrementing consecutive days.
+                                  title: ":sunny: :zap: Solar"
+                                  people:
+                                    - person.danny
+                        default:
+                          - service: script.send_to_home_log
                             data:
                               message: >-
                                 Generation below threshold tomorrow
@@ -125,31 +137,31 @@ automation:
                                 {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
                                 Incrementing consecutive days.
                               title: ":sunny: :zap: Solar"
+                      - service: input_number.increment
+                        data: {}
+                        target:
+                          entity_id: input_number.consecutive_forecast_days_below_solar_generation
+            default:
+              - parallel:
+                  - choose:
+                      - conditions:
+                          - alias: During winter season
+                            condition: state
+                            entity_id: sensor.season
+                            state: winter
+                        sequence:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Generation above threshold tomorrow
+                                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
+                                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                                Resetting count to 0.
+                              title: ":sunny: :zap: Solar"
                               people:
                                 - person.danny
                     default:
                       - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Generation below threshold tomorrow
-                            ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
-                            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                            Incrementing consecutive days.
-                          title: ":sunny: :zap: Solar"
-                  - service: input_number.increment
-                    data: {}
-                    target:
-                      entity_id: input_number.consecutive_forecast_days_below_solar_generation
-        default:
-          - parallel:
-              - choose:
-                  - conditions:
-                      - alias: During winter season
-                        condition: state
-                        entity_id: sensor.season
-                        state: winter
-                    sequence:
-                      - service: script.send_direct_notification
                         data:
                           message: >-
                             Generation above threshold tomorrow
@@ -157,22 +169,16 @@ automation:
                             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
                             Resetting count to 0.
                           title: ":sunny: :zap: Solar"
-                          people:
-                            - person.danny
-                default:
-                  - service: script.send_to_home_log
+                  - service: input_number.set_value
                     data:
-                      message: >-
-                        Generation above threshold tomorrow
-                        ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
-                        {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                        Resetting count to 0.
-                      title: ":sunny: :zap: Solar"
-              - service: input_number.set_value
-                data:
-                  value: 0
-                target:
-                  entity_id: input_number.consecutive_forecast_days_below_solar_generation
+                      value: 0
+                    target:
+                      entity_id: input_number.consecutive_forecast_days_below_solar_generation
+      - service: input_number.set_value
+        data:
+          value: "{{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) }}"
+        target:
+          entity_id: input_number.total_solar_forecast_estimated_energy_production_tomorrow
     mode: single
   - id: "1664743590782"
     alias: "Energy: Battery Charged Today"
