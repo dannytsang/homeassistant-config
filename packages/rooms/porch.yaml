@@ -9,23 +9,30 @@ automation:
         to: "on"
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.porch_motion_illuminance
-                below: "100"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Front :door: door opened it's dark
-                    ({{ states('sensor.porch_motion_illuminance') }} < 100).
-                    Turning on :bulb: :high_brightness: light.
-                  title: "Porch"
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.porch_light_on
-        default: []
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.porch_motion_illuminance
+                    below: "100"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Front :door: door opened it's dark
+                        ({{ states('sensor.porch_motion_illuminance') }} < 100).
+                        Turning on :bulb: :high_brightness: light.
+                      title: "Porch"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.porch_light_on
+            default: []
+          - service: script.send_to_computers
+            data:
+              message: Opened
+              title: "🚪🛎 Front Door"
+              filePath: /api/camera_proxy/camera.lounge
+              duration: 10
       - service: script.send_to_home_log
         data:
           message: >-
@@ -122,6 +129,12 @@ automation:
               title: "Porch"
           - service: script.front_door_closed_notification
             data: {}
+          - service: script.send_to_computers
+            data:
+              message: Closed.
+              title: "🚪🛎 Front Door"
+              filePath: /api/camera_proxy/camera.lounge
+              duration: 10
     mode: single
   - id: "1606157835544"
     alias: "Porch: Front Door Closed Turn Off Porch Light"
