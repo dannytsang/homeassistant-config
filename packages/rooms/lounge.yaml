@@ -108,6 +108,12 @@ automation:
         entity_id: binary_sensor.lounge_area_motion
         to: "off"
         for: 00:10:00
+        id: doug_off
+      - platform: state
+        entity_id: binary_sensor.lounge_area_motion
+        to: "off"
+        for: 00:15:00
+        id: doug_on
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
@@ -116,18 +122,39 @@ automation:
         entity_id: sensor.tv_plug_active_power
         below: input_number.tv_plug_powered_on_threshold
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                :no_pedestrians: No motion for 5 minutes and :tv: TV is turned off.
-                :bulb: :low_brightness: Dimming lights
-              title: ":couch_and_lamp: Lounge"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_dim_lights
-            data:
-              transition: 2
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: device_tracker.doug
+                state: "home"
+              - condition: trigger
+                id: doug_on
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion for 15 minutes and :tv: TV is off but :computer: computer is on.
+                        :bulb: :low_brightness: Dimming lights
+                      title: ":couch_and_lamp: Lounge"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_dim_lights
+                    data:
+                      transition: 2
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :no_pedestrians: No motion for 15 minutes and :tv: TV and :computer: is off.
+                    :bulb: :low_brightness: Dimming lights
+                  title: ":couch_and_lamp: Lounge"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.lounge_dim_lights
+                data:
+                  transition: 2
     mode: single
   - id: "1605567425876"
     alias: "Lounge: No Motion After 15 Minutes"
@@ -138,6 +165,13 @@ automation:
         from: "on"
         to: "off"
         for: 00:15:00
+        id: doug_off
+      - platform: state
+        entity_id: binary_sensor.lounge_area_motion
+        from: "on"
+        to: "off"
+        for: 00:20:00
+        id: doug_on
     condition:
       - condition: state
         entity_id: input_boolean.enable_lounge_motion_triggers
@@ -146,18 +180,39 @@ automation:
         entity_id: sensor.tv_plug_active_power
         below: input_number.tv_plug_powered_on_threshold
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                :no_pedestrians: No motion for 10 minutes and
-                :tv: TV is turned off. Turning lounge lights off.
-              title: ":couch_and_lamp: Lounge"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_lights_off
-            data:
-              transition: 2
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: device_tracker.doug
+                state: "home"
+              - condition: trigger
+                id: doug_on
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion for 20 minutes and
+                        :tv: TV is off and :computer: computer is on. Turning lounge lights off.
+                      title: ":couch_and_lamp: Lounge"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights_off
+                    data:
+                      transition: 2
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :no_pedestrians: No motion for 15 minutes and
+                    :tv: TV is turned off. Turning lounge lights off.
+                  title: ":couch_and_lamp: Lounge"
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.lounge_lights_off
+                data:
+                  transition: 2
     mode: single
   - id: "1610388245160"
     alias: "Lounge: TV Turned Off Dim Lights"
@@ -181,6 +236,9 @@ automation:
           hours: 0
           minutes: 5
           seconds: 0
+      - condition: state
+        entity_id: device_tracker.doug
+        state: "not_home"
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -215,6 +273,9 @@ automation:
           hours: 0
           minutes: 10
           seconds: 0
+      - condition: state
+        entity_id: device_tracker.doug
+        state: "not_home"
     action:
       - parallel:
           - service: script.send_to_home_log
