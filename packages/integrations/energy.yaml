@@ -377,25 +377,23 @@ script:
 mqtt:
   sensor:
     # Example from: https://github.com/johanmeijer/grott/blob/master/examples/Home%20Assistent/sensors_growatt_eng.yaml
-    # Reference MQTT keys: https://github.com/johanmeijer/grott/wiki/MQTT#pvpowerin
+    # Reference MQTT keys: https://github.com/johanmeijer/grott/wiki/MQTT
     - state_topic: energy/growatt
       value_template: "{{ value_json['device'] }}"
       unique_id: growatt_serial
       name: Growatt - Serial number
       icon: mdi:select-inverse
-
     - state_topic: energy/growatt
-      value_template: "{{ as_timestamp(strptime(value_json['time'], '%Y-%m-%dT%H:%M:%S')) | timestamp_custom('%d-%m-%Y') }}"
+      value_template: "{{ as_timestamp(strptime(value_json['time'], '%Y-%m-%dT%H:%M:%S')) | timestamp_custom('%Y-%m-%d') }}"
       unique_id: growatt_date
+      device_class: date
       name: Growatt - Date
       icon: mdi:calendar
-
     - state_topic: energy/growatt
       value_template: "{{ as_timestamp(strptime(value_json['time'], '%Y-%m-%dT%H:%M:%S')) | timestamp_custom('%H:%M:%S') }}"
       unique_id: growatt_time
       name: Growatt - Time
       icon: mdi:clock-digital
-
     - state_topic: energy/growatt
       value_template: >
         {% if (value_json['values']['pvstatus'] | int == 0) %}
@@ -410,6 +408,11 @@ mqtt:
       unique_id: growatt_status
       name: Growatt - State
       icon: mdi:power-settings
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['totworktime'] | int / 2 }}"
+      unique_id: growatt_working_time
+      unit_of_measurement: "s"
+      name: Growatt - Working Time
 
     # Usage
     - state_topic: energy/growatt
@@ -431,12 +434,6 @@ mqtt:
       unit_of_measurement: "kWh"
       state_class: total
       name: Growatt - Load Consumption Lifetime
-    - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['pactouserr'] | float / 10000 }}"
-      unique_id: growatt_load_2
-      device_class: power
-      unit_of_measurement: "kW"
-      name: Growatt - Load Consumption
 
     # Export
     - state_topic: energy/growatt
@@ -527,7 +524,7 @@ mqtt:
       name: Growatt - String 2 Generated energy (Total)
       icon: mdi:solar-power
 
-    # Total
+    # Solar Total
     - state_topic: energy/growatt
       value_template: "{{ value_json['values']['epvtotal'] | float / 10 }}"
       unique_id: growatt_total_solar_generated_energy_lifetime
@@ -556,6 +553,14 @@ mqtt:
       unit_of_measurement: "kW"
       name: Growatt - Solar Generation
       icon: mdi:solar-power
+    
+    # Grid
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['pactouserr'] | float / 10000 }}"
+      unique_id: growatt_grid_import
+      device_class: power
+      unit_of_measurement: "kW"
+      name: Growatt - Grid Import
     - state_topic: energy/growatt
       value_template: "{{ value_json['values']['pvgridpower'] | float / 10000 }}"
       unique_id: growatt_grid_phase_voltage_watts
