@@ -1,0 +1,44 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1676493888411"
+    alias: "Attic: Hatch Opened"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.attic_hatch
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Attic hatch opened. Turning lights on.
+              title: "Attic"
+          - service: switch.turn_off
+            data: {}
+            target:
+              entity_id: switch.attic_lights
+    mode: single
+  - id: "1676493961946"
+    alias: "Attic: Hatch Closed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.attic_hatch
+        from: "on"
+        to: "off"
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Attic hatch opened. Turning lights off.
+              title: "Attic"
+          - service: switch.turn_off
+            data: {}
+            target:
+              entity_id: switch.attic_lights
+    mode: single
