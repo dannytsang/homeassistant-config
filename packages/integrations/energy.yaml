@@ -76,10 +76,10 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.growatt_sph6000_statement_of_charge
+        entity_id: sensor.growatt_battery_1_state_of_charge
         above: input_number.battery_charged_notification
       - platform: numeric_state
-        entity_id: sensor.growatt_sph6000_statement_of_charge
+        entity_id: sensor.growatt_battery_1_state_of_charge
         above: "98"
     condition:
       - condition: or
@@ -124,7 +124,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.growatt_sph6000_statement_of_charge
+        entity_id: sensor.growatt_battery_1_state_of_charge
         above: input_number.growatt_battery_charged_threshold
     condition:
       - condition: state
@@ -146,7 +146,7 @@ automation:
         then:
           - service: script.send_to_home_log
             data:
-              message: Resseting days not fully charged.
+              message: Resetting days not fully charged.
               title: ":sunny: :zap: Solar"
           - service: input_number.set_value
             data:
@@ -249,13 +249,13 @@ automation:
         at: "15:55:00"
     condition:
       - condition: template
-        value_template: "{{ (states('sensor.growatt_sph6000_statement_of_charge')|int(0)) >
+        value_template: "{{ (states('sensor.growatt_battery_1_state_of_charge')|int(0)) >
         ((states('input_number.growatt_battery_discharge_stop_soc')|int(0)) + 1) }}"
     action:
       - service: script.send_direct_notification
         data:
           message: >-
-            {{ states('sensor.growatt_sph6000_statement_of_charge') }}%
+            {{ states('sensor.growatt_battery_1_state_of_charge') }}%
             (That is {{ state_attr('sensor.battery_charge_remaining_hours', 'duration') }}) remaining.
           title: ":house_with_garden: :battery: House Battery"
           people:
@@ -275,9 +275,9 @@ script:
         {{ people.home }}"
       message: >-
         :battery: Battery charged to
-        ({{ states('sensor.growatt_sph6000_statement_of_charge')~
-        state_attr('sensor.growatt_sph6000_statement_of_charge', 'unit_of_measurement') }}).
-        {% if ((states('sensor.growatt_sph6000_battery_charging')|float(0)) > 0) and
+        ({{ states('sensor.growatt_battery_1_state_of_charge')~
+        state_attr('sensor.growatt_battery_1_state_of_charge', 'unit_of_measurement') }}).
+        {% if ((states('sensor.growatt_battery_1_charge_rate')|float(0)) > 0) and
         state_attr('sensor.time_to_charge_battery', 'time_remaining') is not none %}
         It will take around {{ state_attr('sensor.time_to_charge_battery', 'time_remaining') }}
         to charge the battery.
@@ -286,13 +286,13 @@ script:
         {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour') ~ ' ' ~
         state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }}
         in the next hour.
-        {% if (states('sensor.growatt_sph6000_solar_energy_today')|float(0))|round(2) < (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) %}
+        {% if (states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) < (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) %}
 
 
         There's approximately
         {{ ((states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) -
-        (states('sensor.growatt_sph6000_solar_energy_today')|float(0)))|round(2) ~ ' ' ~
-        state_attr('sensor.growatt_sph6000_solar_energy_today', 'unit_of_measurement') }}
+        (states('sensor.growatt_solar_generated_energy_today')|float(0)))|round(2) ~ ' ' ~
+        state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }}
         (out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) ~ ' '
         ~ state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }})
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
@@ -673,10 +673,10 @@ template:
     sensor:
       - name: "Time To Charge Battery"
         unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
-        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_sph6000_battery_charging')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999) }}"
+        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_battery_1_charge_rate')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999) }}"
         icon: mdi:battery-clock
         attributes:
           duration: >-
-            {% set ts = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_sph6000_battery_charging')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_sph6000_battery_charging')|float(0)) != 0 else 359999 %}
+            {% set ts = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)))/(states('sensor.growatt_battery_1_charge_rate')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999 %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
