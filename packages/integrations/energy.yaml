@@ -103,82 +103,21 @@ automation:
     condition: []
     action:
       - parallel:
-          - choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
-                    below: input_number.solar_generation_minimum_threshold
-                sequence:
-                  - parallel:
-                      - choose:
-                          - conditions:
-                              - alias: Outside of winter season
-                                not:
-                                  - condition: state
-                                    entity_id: sensor.season
-                                    state: winter
-                            sequence:
-                              - service: script.send_direct_notification
-                                data:
-                                  message: >-
-                                    Generation below threshold tomorrow
-                                    ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
-                                    {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                                    Incrementing consecutive days.
-                                  title: ":sunny: :zap: Solar"
-                                  people:
-                                    - person.danny
-                        default:
-                          - service: script.send_to_home_log
-                            data:
-                              message: >-
-                                Generation below threshold tomorrow
-                                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
-                                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                                Incrementing consecutive days.
-                              title: ":sunny: :zap: Solar"
-                      - service: input_number.increment
-                        data: {}
-                        target:
-                          entity_id: input_number.consecutive_forecast_days_below_solar_generation
-            default:
-              - parallel:
-                  - choose:
-                      - conditions:
-                          - alias: During winter season
-                            condition: state
-                            entity_id: sensor.season
-                            state: winter
-                        sequence:
-                          - service: script.send_direct_notification
-                            data:
-                              message: >-
-                                Generation above threshold tomorrow
-                                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
-                                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                                Resetting count to 0.
-                              title: ":sunny: :zap: Solar"
-                              people:
-                                - person.danny
-                    default:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Generation above threshold tomorrow
-                            ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}>{{ states('input_number.solar_generation_minimum_threshold') }}
-                            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                            Resetting count to 0.
-                          title: ":sunny: :zap: Solar"
-                  - service: input_number.set_value
-                    data:
-                      value: 0
-                    target:
-                      entity_id: input_number.consecutive_forecast_days_below_solar_generation
-      - service: input_number.set_value
-        data:
-          value: "{{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) }}"
-        target:
-          entity_id: input_number.total_solar_forecast_estimated_energy_production_tomorrow
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                Generation below threshold tomorrow
+                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
+                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                Incrementing consecutive days.
+              title: ":sunny: :zap: Solar"
+              people:
+                - person.danny
+          - service: input_number.set_value
+            data:
+              value: "{{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) }}"
+            target:
+              entity_id: input_number.total_solar_forecast_estimated_energy_production_tomorrow
     mode: single
   - id: "1664743590782"
     alias: "Energy: Battery Charged Today"
@@ -530,8 +469,9 @@ mqtt:
     - state_topic: energy/growatt
       value_template: "{{ value_json['values']['epvtotal'] | float / 10 }}"
       unique_id: growatt_total_solar_generated_energy_lifetime
-      device_class: power
+      device_class: energy
       unit_of_measurement: "kWh"
+      state_class: total
       name: Growatt - Solar Generated Energy Lifetime
       icon: mdi:solar-power
     - state_topic: energy/growatt
@@ -637,6 +577,7 @@ mqtt:
       value_template: "{{ value_json['values']['pdischarge1'] | float / 10000 }}"
       unique_id: growatt_battery_discharge_rate
       device_class: power
+      state_class: total
       unit_of_measurement: "kW"
       name: Growatt - Battery 1 Discharged Rate
     - state_topic: energy/growatt
