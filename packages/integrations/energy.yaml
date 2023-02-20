@@ -95,7 +95,7 @@ automation:
         data: {}
     mode: single
   - id: "1660858653319"
-    alias: "Energy: Solar Forecast To Be Low"
+    alias: "Energy: Solar Forecast Tomorrow"
     description: ""
     trigger:
       - platform: time
@@ -103,13 +103,33 @@ automation:
     condition: []
     action:
       - parallel:
+          - if:
+              - condition: numeric_state
+                entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
+                below: input_number.solar_generation_minimum_threshold
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Forecast generation is expected to be low
+                    ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<
+                    {{ states('input_number.solar_generation_minimum_threshold') }}
+                    {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+
+                    Incrementing counter from {{ states('input_number.consecutive_forecast_days_below_solar_generation') }} to
+                    {{ (states('input_number.consecutive_forecast_days_below_solar_generation')|int(0)) + 1 }}
+                    {{ state_attr('input_number.consecutive_forecast_days_below_solar_generation', 'unit_of_measurement') }}.
+                  title: ":sunny: :zap: Solar"
+              - service: input_number.increment
+                data: {}
+                target:
+                  entity_id: input_number.consecutive_forecast_days_below_solar_generation
           - service: script.send_direct_notification
             data:
               message: >-
-                Generation below threshold tomorrow
-                ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<{{ states('input_number.solar_generation_minimum_threshold') }}
-                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
-                Incrementing consecutive days.
+                Generation forecast for tomorrow will be
+                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}
+                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}.
               title: ":sunny: :zap: Solar"
               people:
                 - person.danny
