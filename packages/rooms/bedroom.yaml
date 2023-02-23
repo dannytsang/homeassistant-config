@@ -705,15 +705,38 @@ automation:
         event_type: zha_event
         event_data:
           device_id: d918845ac83280398424fe9ce885aed5
+      - platform: state
+        entity_id:
+          - sensor.bedroom_remote_action
+        to: "on_press"
+        id: "on"
+      - platform: state
+        entity_id:
+          - sensor.bedroom_remote_action
+        to: "off_press"
+        id: "off"
+      - platform: state
+        entity_id:
+          - sensor.bedroom_remote_action
+        to: "up_press"
+        id: "up"
+      - platform: state
+        entity_id:
+          - sensor.bedroom_remote_action
+        to: "down_press"
+        id: "down"
     condition: []
     action:
       - choose:
           - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.command == 'on_short_release' }}"
+              - or:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.command == 'on_short_release' }}"
+                  - condition: trigger
+                    id: "on"
             sequence:
               - parallel:
-                  - service: light.toggle
+                  - service: light.turn_on
                     data: {}
                     target:
                       entity_id:
@@ -724,17 +747,29 @@ automation:
                       message: Power button pressed.
                       title: ":bed: Bedroom"
           - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'off_short_release' }}"
+              - or:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.component_id == 'off_short_release' }}"
+                  - condition: trigger
+                    id: "off"
             sequence:
               - parallel:
+                  - service: light.turn_off
+                    data: {}
+                    target:
+                      entity_id:
+                        - light.bedroom_lamp_left
+                        - light.bedroom_lamp_right
                   - service: script.send_to_home_log
                     data:
                       message: Hue buttom on remote pressed.
                       title: ":bed: Bedroom"
           - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'up_short_release' }}"
+              - or:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.component_id == 'up_short_release' }}"
+                  - condition: trigger
+                    id: "up"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -742,8 +777,11 @@ automation:
                       message: Bright buttom on remote pressed.
                       title: ":bed: Bedroom"
           - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'down_short_release' }}"
+              - or:
+                  - condition: template
+                    value_template: "{{ trigger.event.data.component_id == 'down_short_release' }}"
+                  - condition: trigger
+                    id: "down"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -1135,9 +1173,9 @@ template:
   - binary_sensor:
       - name: Bedroom TV Powered On
         unique_id: 0dcba639-2e46-428e-bb7e-43307fa653b3
-        icon: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_plug_active_power') | float(0) > 40 else '-off' }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.bedroom_tv_plug_power') | float(0) > 40 else '-off' }}"
         device_class: running
-        state: "{{ states('sensor.bedroom_tv_plug_active_power') | float(0) > 40 }}"
+        state: "{{ states('sensor.bedroom_tv_plug_power') | float(0) > 40 }}"
       - name: Bed Occupied
         icon: >-
           mdi:bed-double{{ '-outline' if (states('sensor.bed_top_left') | float(0)) >= 0.15
@@ -1167,7 +1205,7 @@ template:
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.bedroom_area_mean_temperature
-          - sensor.bedroom_tv_plug_active_power
+          - sensor.bedroom_tv_plug_power
           - sensor.bedroom_window_temperature
           - sensor.front_garden_motion_illuminance
           - sun.sun
