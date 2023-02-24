@@ -1529,7 +1529,7 @@ template:
           - binary_sensor.office_window_right
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
-          - sensor.front_garden_motion_illuminance
+          - sensor.front_garden_motion_illuminance_lux
           - sensor.office_area_mean_temperature
           - sun.sun
           - weather.home_hourly
@@ -1540,7 +1540,7 @@ template:
         unique_id: 20930498-7de2-4151-ae84-9c5566dcafe9
         device_class: opening
         state: >-
-          {{ not(states('sensor.front_garden_motion_illuminance')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          {{ not(states('sensor.front_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.office_window_left') == 'off'
           and states('binary_sensor.office_window_right') == 'off')
@@ -1548,7 +1548,7 @@ template:
           and (states('sensor.office_area_mean_temperature')|float(0)) <= 23.5
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
           temperature: "{{ (states('sensor.office_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) > states('input_number.forecast_high_temperature')|float(24) }}"

@@ -480,7 +480,7 @@ template:
           - input_number.forecast_high_temperature
           - sensor.ashlees_bedroom_area_mean_temperature
           - sensor.ashlees_bedroom_window_temperature
-          - sensor.front_garden_motion_illuminance
+          - sensor.front_garden_motion_illuminance_lux
           - sun.sun
           - weather.home_hourly
       - platform: time_pattern
@@ -490,7 +490,7 @@ template:
         unique_id: 48b99f2d-c634-418d-bfd0-19c2e2ce640f
         device_class: opening
         state: >-
-          {{ not(states('sensor.front_garden_motion_illuminance')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
+          {{ not(states('sensor.front_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.ashlees_bedroom_window') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
@@ -498,7 +498,7 @@ template:
           and (states('sensor.ashlees_bedroom_window_temperature')|float(0)) <= 24
           and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
         attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
+          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
           temperature: "{{ (states('sensor.ashlees_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
