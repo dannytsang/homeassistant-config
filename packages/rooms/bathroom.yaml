@@ -28,7 +28,7 @@ automation:
               # Bedroom light is on
               - conditions:
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                   - or:
                       - condition: sun
@@ -43,7 +43,7 @@ automation:
                       - service: script.send_to_home_log
                         data:
                           message: >-
-                            :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                            :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                             {{ states('input_number.bathroom_light_level_threshold') }}
                             {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
                             and it's :clock12: late. :bed: Bedroom lights are still on so turning :bathtub: bathroom
@@ -54,7 +54,7 @@ automation:
                           entity_id: scene.bathroom_light_on
               - conditions:
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                   - or:
                       - condition: sun
@@ -65,7 +65,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                         {{ states('input_number.bathroom_light_level_threshold') }}
                         {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}) and
                         it's :clock12: late. Turning night :bulb: :low_brightness: light on.
@@ -78,7 +78,7 @@ automation:
                     entity_id: input_select.home_mode
                     state: Guest
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - parallel:
@@ -86,7 +86,7 @@ automation:
                         data:
                           message: >-
                             :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
-                            guest mode ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                            guest mode ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                             {{ states('input_number.bathroom_light_level_threshold') }}
                             {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
                             Turning :bulb: :high_brightness: lights on.
@@ -100,7 +100,7 @@ automation:
                         entity_id: input_select.home_mode
                         state: Guest
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - parallel:
@@ -108,7 +108,7 @@ automation:
                         data:
                           message: >-
                             :paw_prints: Motion detected, it's dark
-                            ({{ states('sensor.bathroom_motion_2_illuminance') }}
+                            ({{ states('sensor.bathroom_motion_2_illuminance_lux') }}
                             < {{ states('input_number.bathroom_light_level_threshold') }}
                             {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
                             Turning :bulb: :high_brightness: lights on.
@@ -157,7 +157,7 @@ automation:
           - choose:
               - conditions:
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                   - or:
                       - condition: sun
@@ -168,7 +168,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                         {{ states('input_number.bathroom_light_level_threshold') }}
                         {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
                         and it's :clock12: late. Turning stairs night :bulb: :low_brightness: light on.
@@ -181,14 +181,14 @@ automation:
                     entity_id: input_select.home_mode
                     state: Guest
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
-                        guest mode ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                        guest mode ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                         {{ states('input_number.bathroom_light_level_threshold') }}
                         {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
                         Turning :bulb: :high_brightness: lights on.
@@ -202,13 +202,13 @@ automation:
                         entity_id: input_select.home_mode
                         state: Guest
                   - condition: numeric_state
-                    entity_id: sensor.bathroom_motion_2_illuminance
+                    entity_id: sensor.bathroom_motion_2_illuminance_lux
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance') }}
+                        :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_2_illuminance_lux') }}
                         < {{ states('input_number.bathroom_light_level_threshold') }}
                         {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }}).
                         Turning :bulb: :high_brightness: lights on.
@@ -464,7 +464,7 @@ automation:
         entity_id: input_boolean.enable_bathroom_motion_triggers
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.bathroom_motion_2_illuminance
+        entity_id: sensor.bathroom_motion_2_illuminance_lux
         below: input_number.bathroom_light_level_threshold
     action:
       - choose:
@@ -479,7 +479,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: Motion detected, it's dark
-                    ({{ states('sensor.bathroom_motion_2_illuminance') }} <
+                    ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} <
                     {{ states('input_number.bathroom_light_level_threshold') }}
                     {{ state_attr('input_number.bathroom_light_level_threshold','unit_of_measurement') }})
                     and it's :clock12: late. Turning night :bulb: :low_brightness: light on.
@@ -492,7 +492,7 @@ automation:
             data:
               message: >-
                 :paw_prints: Motion detected, :door: door closed and it's dark
-                ({{ states('sensor.bathroom_motion_2_illuminance') }} lux < 30 lux).
+                ({{ states('sensor.bathroom_motion_2_illuminance_lux') }} lux < 30 lux).
                 Turning :bulb: :high_brightness: light on.
               title: ":bathtub: Bathroom"
           - service: scene.turn_on
