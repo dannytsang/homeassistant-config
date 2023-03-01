@@ -433,7 +433,11 @@ automation:
                 :window: :city_sunset: Office window closed and it's dark. Closing
                 curtains.
               title: ":office: Office"
-          - service: script.office_close_curtains
+          - service: cover.set_cover_position
+            data:
+              position: 0
+            target:
+              entity_id: cover.office_blinds
     mode: single
   # Computer related automations
   - id: "1619865008647"
@@ -588,7 +592,11 @@ automation:
                 data:
                   message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
                   title: ":office: Office"
-              - service: script.office_open_curtains
+              - service: cover.set_cover_position
+                data:
+                  position: 25
+                target:
+                  entity_id: cover.office_blinds
     mode: single
   - id: "1622374233310"
     alias: "Office: Close Office Curtains At Night"
@@ -638,7 +646,11 @@ automation:
                     data:
                       message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
                       title: ":office: Office"
-                  - service: script.office_close_curtains
+                  - service: cover.set_cover_position
+                    data:
+                      position: 0
+                    target:
+                      entity_id: cover.office_blinds
           - conditions:
               - or:
                   - condition: state
@@ -655,7 +667,11 @@ automation:
                     data:
                       message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
                       title: ":office: Office"
-                  - service: script.office_close_curtains
+                  - service: cover.set_cover_position
+                    data:
+                      position: 0
+                    target:
+                      entity_id: cover.office_blinds
         default: []
     mode: single
   - id: "1641549235689"
@@ -673,7 +689,11 @@ automation:
             data:
               message: "Webhook: Closing office curtains."
               title: ":office: Office"
-          - service: script.office_close_curtains
+          - service: cover.set_cover_position
+            data:
+              position: 0
+            target:
+              entity_id: cover.office_blinds
     mode: single
   - id: "1641549235690"
     alias: "Office: Open Curtains"
@@ -690,7 +710,11 @@ automation:
             data:
               message: "Webhook: Closing office curtains."
               title: ":office: Office"
-          - service: script.office_open_curtains
+          - service: cover.set_cover_position
+            data:
+              position: 50
+            target:
+              entity_id: cover.office_blinds
     mode: single
   # Lights
   - id: "1614555883547"
@@ -1138,282 +1162,6 @@ scene:
         supported_features: 55
         state: "on"
 script:
-  # Curtains
-  office_close_curtains:
-    alias: Office Close Curtains
-    icon: mdi:curtains-closed
-    sequence:
-      - if:
-          - or:
-            - condition: state
-              entity_id: cover.office_curtain_left
-              state: "unavailable"
-            - condition: state
-              entity_id: cover.office_curtain_right
-              state: "unavailable"
-        then:
-          - parallel:
-            - service: script.send_to_home_log
-              data:
-                message: "Using API as a fallback to closing curtains."
-                title: ":office: Office"
-            - service: script.office_close_curtains_fallback
-              data: {}
-        else:
-          - choose:
-            - conditions:
-                - condition: numeric_state
-                  entity_id: cover.office_curtain_left
-                  attribute: current_position
-                  above: input_number.blind_closed_position_threshold
-                - condition: numeric_state
-                  entity_id: cover.office_curtain_right
-                  attribute: current_position
-                  above: input_number.blind_closed_position_threshold
-              sequence:
-                - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Closing both curtains."
-                      title: ":office: Office"
-                  - service: cover.close_cover
-                    target:
-                      entity_id:
-                        - cover.office_curtain_left
-                        - cover.office_curtain_right
-            default:
-              - parallel:
-                - if:
-                    - condition: numeric_state
-                      entity_id: cover.office_curtain_left
-                      attribute: current_position
-                      above: input_number.blind_closed_position_threshold
-                  then:
-                    - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: "Closing left curtains."
-                          title: ":office: Office"
-                      - service: cover.close_cover
-                        target:
-                          entity_id:
-                            - cover.office_curtain_left
-                - if:
-                    - condition: numeric_state
-                      entity_id: cover.office_curtain_right
-                      attribute: current_position
-                      above: input_number.blind_closed_position_threshold
-                  then:
-                    - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: "Closing right curtains."
-                          title: ":office: Office"
-                      - service: cover.close_cover
-                        target:
-                          entity_id:
-                            - cover.office_curtain_right
-    mode: single
-  office_open_curtains:
-    alias: Office Open Curtains
-    icon: mdi:curtains
-    sequence:
-      - if:
-          - or:
-            - condition: state
-              entity_id: cover.office_curtain_left
-              state: "unavailable"
-            - condition: state
-              entity_id: cover.office_curtain_right
-              state: "unavailable"
-        then:
-          - parallel:
-            - service: script.send_to_home_log
-              data:
-                message: "Using API as a fallback to opening curtains."
-                title: ":office: Office"
-            - service: script.office_open_curtains_fallback
-              data: {}
-        else:
-          - choose:
-            - conditions:
-                - condition: numeric_state
-                  entity_id: cover.office_curtain_left
-                  attribute: current_position
-                  below: input_number.blind_open_position_threshold
-                - condition: numeric_state
-                  entity_id: cover.office_curtain_right
-                  attribute: current_position
-                  below: input_number.blind_open_position_threshold
-              sequence:
-                - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Opening both curtains."
-                      title: ":office: Office"
-                  - service: cover.open_cover
-                    target:
-                      entity_id:
-                        - cover.office_curtain_left
-                        - cover.office_curtain_right
-            default:
-              - parallel:
-                - if:
-                    - condition: numeric_state
-                      entity_id: cover.office_curtain_left
-                      attribute: current_position
-                      below: input_number.blind_open_position_threshold
-                  then:
-                    - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: "Opening left curtains."
-                          title: ":office: Office"
-                      - service: cover.open_cover
-                        target:
-                          entity_id:
-                            - cover.office_curtain_left
-                - if:
-                    - condition: numeric_state
-                      entity_id: cover.office_curtain_right
-                      attribute: current_position
-                      below: input_number.blind_open_position_threshold
-                  then:
-                    - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: "Opening right curtains."
-                          title: ":office: Office"
-                      - service: cover.open_cover
-                        target:
-                          entity_id:
-                            - cover.office_curtain_right
-    mode: single
-  office_close_curtains_fallback:
-    alias: Office Close Curtains
-    icon: mdi:curtains-closed
-    sequence:
-      - service: cover.close_cover
-        target:
-          entity_id:
-            - cover.office_curtains_left
-            - cover.office_curtains_right
-      - alias: "There seems to be a delay (with switchbot API?) when curtain position
-      changes making this fairly redundant and leave it on the slow refresh"
-        wait_for_trigger:
-          - platform: state
-            entity_id:
-              - cover.office_curtain_left
-              - cover.office_curtain_right
-        timeout: "600"
-
-      - service: homeassistant.update_entity
-        data: {}
-        target:
-          entity_id:
-            - cover.office_curtain_right
-            - cover.office_curtain_left
-    mode: single
-  office_close_curtains_fallback2:
-    alias: Office Close Curtains
-    icon: mdi:curtains-closed
-    sequence:
-      - service: ifttt.trigger
-        data:
-          event: close_office_left_curtain
-      - service: ifttt.trigger
-        data:
-          event: close_office_right_curtain
-    mode: single
-  office_open_curtains_fallback:
-    alias: Office Open Curtains
-    icon: mdi:curtains
-    sequence:
-      - service: cover.open_cover
-        target:
-          entity_id:
-            - cover.office_curtains_left
-            - cover.office_curtains_right
-      - alias: >-
-          There seems to be a delay (with switchbot API?) when curtain position
-          changes making this fairly redundant and leave it on the slow refresh
-        wait_for_trigger:
-          - platform: state
-            entity_id:
-              - cover.office_curtain_left
-              - cover.office_curtain_right
-        timeout: "600"
-      - service: homeassistant.update_entity
-        data: {}
-        target:
-          entity_id:
-            - cover.office_curtains_right
-            - cover.office_curtains_left
-    mode: single
-  office_open_curtains_fallback2:
-    alias: Office Open Curtains
-    icon: mdi:curtains
-    sequence:
-      - service: ifttt.trigger
-        data:
-          event: open_office_right_curtain
-      - service: ifttt.trigger
-        data:
-          event: open_office_left_curtain
-    mode: single
-  office_close_curtains_by_weather:
-    alias: Office Close Curtains Based Weather
-    description: "Close office curtains depending on the weather."
-    fields:
-      temperature:
-        description: Temperature in celcius.
-        required: true
-      weather_condition:
-        description: Text weather condition e.g. lightning-rainy
-        required: true
-    sequence:
-      # Only run the weather check if it's during the day otherwise it might be closed for evening.
-      - if:
-          - condition: sun
-            before: sunset
-          - condition: state
-            entity_id: input_boolean.enable_office_curtain_automations
-            state: "on"
-        then:
-          - choose:
-              - conditions:
-                  - condition: template
-                    value_template: "{{ weather_condition in ['sunny','partlycloudy'] }}"
-                sequence:
-                  - choose:
-                    # Check if window is open.
-                    - conditions:
-                        - or:
-                            - condition: state
-                              entity_id: binary_sensor.office_window_right
-                              state: "on"
-                            - condition: state
-                              entity_id: binary_sensor.office_window_left
-                              state: "on"
-                      sequence:
-                        # TODO: replace with actionable notification
-                        - service: script.send_to_home_log
-                          data:
-                            message: >-
-                              It's going to be hot ({{ temperature }} {{ weather_condition }}) and
-                              the :window: window is open preventing the curtains from closing.
-                            title: ":office: Office"
-                    default:
-                      - service: script.send_to_home_log
-                        data:
-                          message:
-                            "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing curtains."
-                          title: ":office: Office"
-                      - service: script.office_close_curtains
-                        data: {}
-            default: []
-    mode: single
-    icon: mdi:curtains-closed
   # PC
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive
