@@ -936,3 +936,24 @@
           target:
             entity_id: scene.stairs_light_off
   mode: single
+- id: "1676807582094"
+  alias: "Porch: Letter Detected"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - binary_sensor.letter_box_accelerometer
+      from: "off"
+      to: "on"
+  condition:
+    - condition: state
+      entity_id: binary_sensor.front_door
+      state: "off"
+  action:
+    - service: script.send_direct_notification
+      data:
+        message: Something has come through the letter box.
+        title: ":door: Front Door"
+        person:
+          - person.danny
+  mode: single
