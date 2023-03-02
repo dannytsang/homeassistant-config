@@ -113,8 +113,7 @@ automation:
                   message: >-
                     Forecast generation is expected to be low
                     ({{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}<
-                    {{ states('input_number.solar_generation_minimum_threshold') }}
-                    {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}).
+                    {{ states('input_number.solar_generation_minimum_threshold', with_unit=True) }}).
 
                     Incrementing counter from {{ states('input_number.consecutive_forecast_days_below_solar_generation') }} to
                     {{ (states('input_number.consecutive_forecast_days_below_solar_generation')|int(0)) + 1 }}
@@ -128,8 +127,7 @@ automation:
             data:
               message: >-
                 Generation forecast for tomorrow will be
-                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}
-                {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow', 'unit_of_measurement') }}.
+                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}.
               title: ":sunny: :zap: Solar"
               people:
                 - person.danny
@@ -295,16 +293,14 @@ script:
         {{ people.home }}"
       message: >-
         :battery: Battery charged to
-        ({{ states('sensor.growatt_battery_1_state_of_charge')~
-        state_attr('sensor.growatt_battery_1_state_of_charge', 'unit_of_measurement') }}).
+        ({{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}).
         {% if ((states('sensor.growatt_battery_1_charge_rate')|float(0)) > 0) and
         state_attr('sensor.time_to_charge_battery', 'time_remaining') is not none %}
         It will take around {{ state_attr('sensor.time_to_charge_battery', 'time_remaining') }}
         to charge the battery.
         {% endif %}
         It's estimated to produce
-        {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour') ~ ' ' ~
-        state_attr('sensor.total_solar_forecast_estimated_energy_production_next_hour', 'unit_of_measurement') }}
+        {{ states('sensor.total_solar_forecast_estimated_energy_production_next_hour', with_unit=True) }}
         in the next hour.
         {% if (states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) < (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) %}
 
