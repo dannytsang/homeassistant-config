@@ -456,9 +456,13 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_triggers
         state: "on"
-      - condition: numeric_state
-        entity_id: sensor.bathroom_motion_2_illuminance_lux
-        below: input_number.bathroom_light_level_threshold
+      - or:
+          - condition: numeric_state
+            entity_id: sensor.bathroom_motion_2_illuminance_lux
+            below: input_number.bathroom_light_level_threshold
+          - condition: state
+            entity_id: sensor.bathroom_motion_2_illuminance_lux
+            state: "unavailable"
     action:
       - choose:
           - conditions:
