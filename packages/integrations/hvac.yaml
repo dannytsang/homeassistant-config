@@ -94,6 +94,21 @@ automation:
                 data:
                   message: In Holiday mode. Skipping turning on hot water.
                   title: Central Heating
+          - conditions:
+              - condition: template
+                value_template: >
+                  {{ (states('sensor.myenergi_eddi_energy_consumed_session')|float(0)) > 
+                  (states('input_number.immersion_heater_hot_water_cut_off')|float(0)) }}
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Eddi has heated the hot water
+                    {{ states('sensor.myenergi_eddi_energy_consumed_session', with_unit=True) }}.
+                    Skipping scheduled turning on hot water.
+                  title: Central Heating
+                  people:
+                    - person.danny
         default:
           - service: script.send_to_home_log
             data:
