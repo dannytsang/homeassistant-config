@@ -1,6 +1,7 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/hive/
 automation:
+  # Central Heating
   - id: "1666470473971"
     alias: "HVAC: Heating Mode Changed"
     description: ""
@@ -34,6 +35,9 @@ automation:
               - service: script.set_central_heating_to_away_mode
                 data: {}
     mode: single
+  # Radiators
+  
+  # Hot Water
   - id: "1666470473972"
     alias: "HVAC: Hot Water Mode Changed"
     description: ""
@@ -316,6 +320,34 @@ script:
                 target:
                   entity_id: water_heater.hot_water
     mode: single
+  hvac_set_trv_to_holiday_mode:
+    alias: HVAC Set TRV To Holiday Mode
+    sequence:
+      - service: script.send_to_home_log
+        data:
+          message: Setting TRVs to holiday mode.
+          title: HVAC
+      - service: climate.set_preset_mode
+        data:
+          preset_mode: holiday
+        target:
+          entity_id: climate.lounge_radiator
+    mode: single
+    icon: mdi:radiator-off
+  hvac_set_trv_to_normal_mode:
+    alias: HVAC Set TRV To Normal Mode
+    sequence:
+      - service: script.send_to_home_log
+        data:
+          message: Setting TRVs to normal mode.
+          title: HVAC
+      - service: climate.set_preset_mode
+        data:
+          preset_mode: manual
+        target:
+          entity_id: climate.lounge_radiator
+    mode: single
+    icon: mdi:radiator
 
 sensor:
   # historical stats
