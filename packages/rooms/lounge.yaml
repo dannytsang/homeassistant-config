@@ -435,6 +435,7 @@ automation:
             target:
               entity_id:
                 - cover.lounge_blinds_left
+                - cover.lounge_blinds_right
           - service: cover.set_cover_tilt_position
             data:
               tilt_position: 50
@@ -442,8 +443,28 @@ automation:
               entity_id:
                 - cover.lounge_blinds_middle
     mode: single
-  - id: "1677969986113"
+  - id: "1677969986112"
     alias: "Lounge: Close Blinds In The Evening"
+    description: ""
+    trigger:
+      - platform: sun
+        event: sunset
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_lounge_blind_automations
+        state: "on"
+    action:
+      - service: cover.set_cover_tilt_position
+        data:
+          tilt_position: 25
+        target:
+          entity_id:
+            - cover.lounge_blinds_left
+            - cover.lounge_blinds_middle
+            - cover.lounge_blinds_right
+    mode: single
+  - id: "1677969986113"
+    alias: "Lounge: Close Blinds In The Evening 2"
     description: ""
     trigger:
       - platform: sun
@@ -464,6 +485,30 @@ automation:
             - cover.lounge_blinds_left
             - cover.lounge_blinds_middle
             - cover.lounge_blinds_right
+    mode: single
+  - id: "1678300398734"
+    alias: "Lounge: Bright Outside"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        above: 5000
+        for: "00:01:00"
+    condition:
+      - condition: numeric_state
+        entity_id: cover.lounge_blinds_right
+        attribute: current_tilt_position
+        above: 25
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: It's bright outside. Partially closing blinds.
+          title: ":couch_and_lamp: Lounge"
+      - service: cover.set_cover_tilt_position
+        data:
+          tilt_position: 25
+        target:
+          entity_id: cover.lounge_blinds_right
     mode: single
   # Camera
   - id: "1630015457540"
