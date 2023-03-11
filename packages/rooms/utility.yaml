@@ -116,29 +116,21 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - service: script.washing_complete_notification
         data:
           message: ":checkered_flag: Finished."
-          title: ":shirt: :soap: Washing Machine"
-    mode: single
-  - id: "1677337054749"
-    alias: "Utility: Washing Finished"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.washing_machine_powered_on
-        from: "on"
-        to: "off"
-    condition: []
-    action:
-      - service: script.washing_complete_notification
-        data: {}
+          title: ":shirt: :soap: :checkered_flag: Washing Machine"
     mode: single
 
 script:
   washing_complete_notification:
     alias: Washing Complete Notification
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
     variables:
       people_home: "{% set people = namespace(home=[]) %}
         {% for p in state_attr('group.adult_people', 'entity_id')|default([]) %}
@@ -147,9 +139,6 @@ script:
         {% endif %}
         {% endfor %}
         {{ people.home }}"
-      message: >-
-        Washing has finished.
-      title: "Utility"
     sequence:
       - if:
           - condition: template
