@@ -121,6 +121,18 @@ automation:
                   message: In Holiday mode. Skipping turning on hot water.
                   title: ":hotsprings: Central Heating"
           - conditions:
+              - condition: state
+                entity_id: climate.thermostat
+                state: "off"
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: Turned off. Skipping turning on hot water.
+                  title: ":hotsprings: Central Heating"
+                  people:
+                    - person.danny
+                    - person. terina
+          - conditions:
               - condition: template
                 value_template: >
                   {{ (states('sensor.myenergi_eddi_energy_consumed_session')|float(0)) > 
