@@ -119,7 +119,7 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning on hot water.
-                  title: Central Heating
+                  title: ":hotsprings: Central Heating"
           - conditions:
               - condition: template
                 value_template: >
@@ -130,16 +130,21 @@ automation:
                 data:
                   message: >-
                     Eddi has heated the hot water
-                    {{ states('sensor.myenergi_eddi_energy_consumed_session', with_unit=True) }}.
+                    {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
+                    (> {{ states('input_number.immersion_heater_hot_water_cut_off')|float(0) }})
+                    {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+
+
                     Skipping scheduled turning on hot water.
-                  title: Central Heating
+                  title: ":hotsprings: Central Heating"
                   people:
                     - person.danny
+                    - person.terina
         default:
           - service: script.send_to_home_log
             data:
               message: Turning on hot water from schedule.
-              title: Central Heating
+              title: ":hotsprings: Central Heating"
           - service: script.set_how_water_to_on
             data: {}
     mode: single
@@ -173,12 +178,12 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning off hot water.
-                  title: Central Heating
+                  title: ":hotsprings: Central Heating"
         default:
           - service: script.send_to_home_log
             data:
               message: Turning off hot water from schedule.
-              title: Central Heating
+              title: ":hotsprings: Central Heating"
           - service: script.set_how_water_to_home_mode
             data: {}
     mode: single
