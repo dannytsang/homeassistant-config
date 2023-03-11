@@ -425,7 +425,7 @@ automation:
             data:
               message: >-
                 :window: :city_sunset: Office window closed and it's dark. Closing
-                curtains.
+                blinds.
               title: ":office: Office"
           - service: cover.set_cover_position
             data:
@@ -549,9 +549,9 @@ automation:
                   - service: script.office_turn_off_backup_drive
         default: []
     mode: single
-  # Curtains
+  # Blinds
   - id: "1622374444832"
-    alias: "Office: Open Curtains In The Morning"
+    alias: "Office: Open Blinds In The Morning"
     description: ""
     trigger:
       - platform: time
@@ -578,22 +578,22 @@ automation:
                     if state_attr('weather.home_weather', 'temperature')|float(0) > state_attr('weather.home_hourly', 'temperature')|float(0)
                     else state_attr('weather.home_hourly', 'temperature')|float(0) }}
                     {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}).
-                    Not opening curtains.
+                    Not opening blinds.
                   title: ":office: Office"
         default:
           - parallel:
               - service: script.send_to_home_log
                 data:
-                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office curtains."
+                  message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Opening office blinds."
                   title: ":office: Office"
               - service: cover.set_cover_position
                 data:
-                  position: 25
+                  position: 50
                 target:
                   entity_id: cover.office_blinds
     mode: single
   - id: "1622374233310"
-    alias: "Office: Close Office Curtains At Night"
+    alias: "Office: Close Office Blinds At Night"
     description: ""
     trigger:
       - platform: sun
@@ -622,7 +622,7 @@ automation:
                 data:
                   message:
                     ":warning: :window: Office window is still open so not closing
-                    curtains. before closing curtains. :warning:"
+                    blinds. before closing blinds. :warning:"
                   title: ":office: Office"
           - conditions:
               - or:
@@ -669,7 +669,7 @@ automation:
         default: []
     mode: single
   - id: "1641549235689"
-    alias: "Office: Close Curtains"
+    alias: "Office: Close Blinds"
     description: ""
     trigger:
       - platform: webhook
@@ -681,7 +681,7 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "Webhook: Closing office curtains."
+              message: "Webhook: Closing office blinds."
               title: ":office: Office"
           - service: cover.set_cover_position
             data:
@@ -690,7 +690,7 @@ automation:
               entity_id: cover.office_blinds
     mode: single
   - id: "1641549235690"
-    alias: "Office: Open Curtains"
+    alias: "Office: Open Blinds"
     description: ""
     trigger:
       - platform: webhook
@@ -702,7 +702,7 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: "Webhook: Closing office curtains."
+              message: "Webhook: Closing office blinds."
               title: ":office: Office"
           - service: cover.set_cover_position
             data:
@@ -1273,7 +1273,7 @@ template:
       - platform: time_pattern
         minutes: "/15"
     binary_sensor:
-      - name: Office Curtain Anticipated State
+      - name: Office Blind Anticipated State
         unique_id: 20930498-7de2-4151-ae84-9c5566dcafe9
         device_class: opening
         state: >-
