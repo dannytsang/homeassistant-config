@@ -679,11 +679,11 @@ template:
     sensor:
       - name: "Battery Run Time"
         unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
-        state: "{{ now() + timedelta( seconds = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_load_consumption')|float(1))) * 60 * 60)|round(0)) }}"
+        state: "{{ now() + timedelta( seconds = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0)) }}"
         icon: mdi:battery-clock-outline
         attributes:
           duration: >-
-            {% set ts = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_load_consumption')|float(0))) * 60 * 60)|round(0) %}
+            {% set ts = (((states('sensor.battery_charge_remaining')|float(0)) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0) %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
   - trigger:
