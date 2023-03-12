@@ -131,7 +131,7 @@ automation:
                   title: ":hotsprings: Central Heating"
                   people:
                     - person.danny
-                    - person. terina
+                    - person.terina
           - conditions:
               - condition: template
                 value_template: >
@@ -198,6 +198,35 @@ automation:
               title: ":hotsprings: Central Heating"
           - service: script.set_how_water_to_home_mode
             data: {}
+    mode: single
+  - id: "1678578286486"
+    alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        above: 1.99
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+      - condition: state
+        entity_id: water_heater.hot_water
+        state: "on"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            Eddi has heated enough hot water
+            {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
+            (> {{ states('input_number.immersion_heater_hot_water_cut_off')|float(0) }})
+            {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}
+            and the hot waiter is on.
+
+            Turning off hot water.
+          title: ":hotsprings: Central Heating"
+      - service: script.set_how_water_to_home_mode
+        data: {}
     mode: single
 script:
   set_central_heating_to_away_mode:
