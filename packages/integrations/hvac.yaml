@@ -199,13 +199,60 @@ automation:
           - service: script.set_how_water_to_home_mode
             data: {}
     mode: single
+  # myEnergi
+  - id: "1677762423485"
+    alias: "Energy: Eddi Diverting Energy"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_eddi_status
+        to: Diverting
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_energy_consumed_session
+            state: unknown
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":fuelpump: Eddi diverting energy.
+
+            It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session',
+            with_unit=True) }} so far."
+          title: myEnergi
+    mode: queued
+    max: 10
+  - id: "1677762423486"
+    alias: "Energy: Eddi Diverted Energy Notification"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        above: 0.9
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        above: input_number.hot_water_solar_diverter_boiler_cut_off
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message:
+            ":fuelpump: Eddi diverted {{ states('sensor.myenergi_eddi_energy_consumed_session',
+            with_unit=True) }}."
+          title: myEnergi
+          people:
+            - person.danny
+    mode: queued
+    max: 10
   - id: "1678578286486"
     alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
     description: ""
     trigger:
       - platform: numeric_state
         entity_id: sensor.myenergi_eddi_energy_consumed_session
-        above: 1.99
+        above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
