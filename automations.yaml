@@ -936,3 +936,23 @@
           target:
             entity_id: scene.stairs_light_off
   mode: single
+- id: "1678625589121"
+  alias: Bin
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - sensor.bin_estimated_distance
+      from: "2"
+    - platform: state
+      entity_id:
+        - sensor.fsc_bp108_300a_estimated_distance_2
+      from: "400"
+  condition: []
+  action:
+    - service: script.send_direct_notification
+      data:
+        message:
+          Bin has changed distance to {{ states('sensor.bin_estimated_distance')
+          }} by {{ trigger.entity_id|default('', true) }}.
+  mode: single
