@@ -190,6 +190,10 @@ automation:
     condition:
       - condition: sun
         after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
       - condition: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         below: input_number.blind_high_brightness_threshold
@@ -202,14 +206,16 @@ automation:
                     entity_id: input_boolean.enable_lounge_blind_automations
                     state: "on"
                   - or:
-                      - condition: numeric_state
-                        entity_id: cover.lounge_blinds_right
-                        attribute: current_tilt_position
-                        above: 25
-                      - condition: numeric_state
-                        entity_id: cover.lounge_blinds_right
-                        attribute: current_tilt_position
-                        above: 25
+                      - not:
+                          - condition: state
+                            entity_id: cover.lounge_blinds_middle
+                            attribute: current_tilt_position
+                            state: "25"
+                      - not:
+                          - condition: state
+                            entity_id: cover.lounge_blinds_right
+                            attribute: current_tilt_position
+                            state: "25"
                   - or:
                       - condition: state
                         entity_id: group.family_computer
@@ -272,7 +278,13 @@ automation:
         entity_id: sensor.front_garden_motion_illuminance_lux
         above: input_number.blind_high_brightness_threshold
         for: "00:01:00"
-    condition: []
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
     action:
       - parallel:
           - alias: "Lounge blinds"
@@ -355,6 +367,10 @@ automation:
           seconds: 0
         below: input_number.blind_low_brightness_threshold
     condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
       - condition: sun
         before: sunset
     action:
