@@ -549,6 +549,43 @@ automation:
                   - service: script.office_turn_off_backup_drive
         default: []
     mode: single
+  - id: "1678741966794"
+    alias: "Office: Computer Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - group.jd_computer
+        from: home
+        to: not_home
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Computer turned off. Opening blinds.
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 50
+            target:
+              entity_id:
+                - cover.office_blinds
+    mode: single
   # Blinds
   - id: "1622374444832"
     alias: "Office: Open Blinds In The Morning"
