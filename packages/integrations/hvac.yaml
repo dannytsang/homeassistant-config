@@ -231,9 +231,6 @@ automation:
       - platform: numeric_state
         entity_id: sensor.myenergi_eddi_energy_consumed_session
         above: 0.9
-      - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session
-        above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition: []
     action:
       - service: script.send_direct_notification
@@ -246,6 +243,22 @@ automation:
             - person.danny
     mode: queued
     max: 10
+  - id: "1678796763426"
+    alias: "HVAC: Eddi Exceed Cut Off Threshold"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        above: input_number.hot_water_solar_diverter_boiler_cut_off
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Consider stopping Eddi
+          title: myEnergi
+          people:
+            - person.danny
+    mode: single
   - id: "1678578286486"
     alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
     description: ""
