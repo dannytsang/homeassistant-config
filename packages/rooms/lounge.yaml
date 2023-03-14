@@ -402,7 +402,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: Opening blinds 25%.
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Opening blinds partially.
               title: ":couch_and_lamp: Lounge"
           - service: cover.set_cover_tilt_position
             data:
@@ -427,7 +429,9 @@ automation:
       - parallel:
           - service: script.send_to_home_log
             data:
-              message: Opening blinds fully.
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Opening blinds fully.
               title: ":couch_and_lamp: Lounge"
           - service: cover.set_cover_tilt_position
             data:
@@ -435,13 +439,8 @@ automation:
             target:
               entity_id:
                 - cover.lounge_blinds_left
-                - cover.lounge_blinds_right
-          - service: cover.set_cover_tilt_position
-            data:
-              tilt_position: 50
-            target:
-              entity_id:
                 - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
     mode: single
   - id: "1677969986112"
     alias: "Lounge: Close Blinds In The Evening"
@@ -454,14 +453,21 @@ automation:
         entity_id: input_boolean.enable_lounge_blind_automations
         state: "on"
     action:
-      - service: cover.set_cover_tilt_position
-        data:
-          tilt_position: 25
-        target:
-          entity_id:
-            - cover.lounge_blinds_left
-            - cover.lounge_blinds_middle
-            - cover.lounge_blinds_right
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Partially closing blinds.
+              title: ":couch_and_lamp: Lounge"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 25
+            target:
+              entity_id:
+                - cover.lounge_blinds_left
+                - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
     mode: single
   - id: "1677969986113"
     alias: "Lounge: Close Blinds In The Evening 2"
@@ -477,14 +483,21 @@ automation:
         entity_id: input_boolean.enable_lounge_blind_automations
         state: "on"
     action:
-      - service: cover.set_cover_tilt_position
-        data:
-          tilt_position: 0
-        target:
-          entity_id:
-            - cover.lounge_blinds_left
-            - cover.lounge_blinds_middle
-            - cover.lounge_blinds_right
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Closing blinds fully.
+              title: ":couch_and_lamp: Lounge"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 0
+            target:
+              entity_id:
+                - cover.lounge_blinds_left
+                - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
     mode: single
   # Camera
   - id: "1630015457540"
