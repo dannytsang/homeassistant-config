@@ -618,23 +618,54 @@ automation:
                     {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}).
                     Not opening blinds.
                   title: ":office: Office"
-          - conditions:
+          - alias: "Really bright and blinds are open already"
+            conditions:
               - condition: numeric_state
                 entity_id: sensor.front_garden_motion_illuminance_lux
-                below: input_number.blind_low_brightness_threshold
+                above: input_number.blind_high_brightness_threshold
+              - condition: numeric_state
+                entity_id: cover.office_blinds
+                attribute: current_tilt_position
+                above: 0
+              - or:
+                  - condition: state
+                    entity_id: group.dannys_work_computer
+                    state: "home"
+                  - condition: state
+                    entity_id: group.jd_computer
+                    state: "home"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                        It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) so opening office blinds fully.
+                        Closing blinds.
                       title: ":office: Office"
                   - service: cover.set_cover_position
                     data:
-                      position: 50
+                      position: 0
                     target:
                       entity_id: cover.office_blinds
+          - alias: "Really bright and blinds are closed already"
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.front_garden_motion_illuminance_lux
+                above: input_number.blind_high_brightness_threshold
+              - or:
+                  - condition: state
+                    entity_id: group.dannys_work_computer
+                    state: "home"
+                  - condition: state
+                    entity_id: group.jd_computer
+                    state: "home"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    Keeping blinds closed.
+                  title: ":office: Office"
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.front_garden_motion_illuminance_lux
@@ -642,6 +673,13 @@ automation:
               - condition: numeric_state
                 entity_id: sensor.front_garden_motion_illuminance_lux
                 below: input_number.blind_high_brightness_threshold
+              - or:
+                  - condition: state
+                    entity_id: group.dannys_work_computer
+                    state: "home"
+                  - condition: state
+                    entity_id: group.jd_computer
+                    state: "home"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -656,12 +694,18 @@ automation:
                     target:
                       entity_id: cover.office_blinds
         default:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                Keeping blinds closed.
-              title: ":office: Office"
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    Opening blinds.
+                  title: ":office: Office"
+              - service: cover.set_cover_position
+                data:
+                  position: 50
+                target:
+                  entity_id: cover.office_blinds
     mode: single
   - id: "1622374233310"
     alias: "Office: Close Office Blinds At Night"
