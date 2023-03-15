@@ -940,10 +940,9 @@
   alias: Bin
   description: ""
   trigger:
-    - platform: state
-      entity_id:
-        - sensor.bin_estimated_distance
-      from: "2"
+    - platform: numeric_state
+      entity_id: sensor.bin_estimated_distance
+      above: 3
   condition: []
   action:
     - service: script.send_direct_notification
@@ -951,4 +950,7 @@
         message:
           Bin has changed distance to {{ states('sensor.bin_estimated_distance')
           }}.
-  mode: single
+        people:
+          - person.danny
+  mode: queued
+  max: 10
