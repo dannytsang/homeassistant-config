@@ -57,7 +57,9 @@ automation:
         data:
           temperature: "{{ states('sensor.thermostat_target_temperature')|float(22) }}"
         target:
-          entity_id: climate.lounge_radiator
+          entity_id:
+            - climate.lounge_radiator
+            - climate.office_radiator
     mode: single
   # Hot Water
   - id: "1666470473972"
@@ -254,7 +256,8 @@ automation:
     action:
       - service: script.send_direct_notification
         data:
-          message: Consider stopping Eddi
+          message: >-
+            Consider stopping :fuelpump: Eddi (divered: {{ states('sensor.myenergi_eddi_energy_consumed_session', with_unit=True) }})
           title: myEnergi
           people:
             - person.danny
@@ -459,7 +462,9 @@ script:
         data:
           preset_mode: holiday
         target:
-          entity_id: climate.lounge_radiator
+          entity_id:
+            - climate.lounge_radiator
+            - climate.office_radiator
     mode: single
     icon: mdi:radiator-off
   hvac_set_trv_to_normal_mode:
@@ -473,7 +478,9 @@ script:
         data:
           preset_mode: manual
         target:
-          entity_id: climate.lounge_radiator
+          entity_id: 
+            - climate.lounge_radiator
+            - climate.office_radiator
     mode: single
     icon: mdi:radiator
 
@@ -574,6 +581,18 @@ template:
       - name: "Lounge Radiator Target Temperature"
         unique_id: 4c2f2439-f6bc-40e6-88c0-10eb2eae8f79
         state: "{{ state_attr('climate.lounge_radiator', 'temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Office Radiator Temperature"
+        unique_id: b3aee9df-eb93-4880-b1f7-0096fc448526
+        state: "{{ state_attr('climate.office_radiator', 'current_temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Office Radiator Target Temperature"
+        unique_id: 009b2414-5db7-4b9b-8ecc-71982e878b2f
+        state: "{{ state_attr('climate.office_radiator', 'temperature') }}"
         icon: mdi:thermometer
         device_class: "temperature"
         unit_of_measurement: "°C"
