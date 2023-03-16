@@ -884,7 +884,9 @@ script:
           sequence:
             - service: notify.danny_tsang
               data:
-                message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                message: >-
+                  {{ iif(people is not none,people|default('', true)~' ','') }}
+                  {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
                 target: "{{ target }}"
                 data:
                   blocks:
@@ -896,18 +898,24 @@ script:
                     - type: section
                       text:
                         type: mrkdwn
-                        text: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                        text: >-
+                          {{ iif(people is not none,people|default('', true)~' ','') }}
+                          {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
         default:
           - service: notify.danny_tsang
             data:
-              message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {{ message }}
               target: "{{ target }}"
               data:
                 blocks:
                 - type: section
                   text:
                     type: mrkdwn
-                    text: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                    text: >-
+                      {{ iif(people is not none,people|default('', true)~' ','') }}
+                      {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
         continue_on_error: true
     mode: queued
     max: 10
@@ -944,7 +952,7 @@ script:
             sequence:
               - service: notify.danny_tsang
                 data:
-                  message: "{{ message }}"
+                  message: "{{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}"
                   title: "{{ title|default('', true) }}"
                   target: "{{ target }}"
                   data:
@@ -957,7 +965,9 @@ script:
                       - type: section
                         text:
                           type: mrkdwn
-                          text: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                          text: >-
+                            {{ iif(people is not none,people|default('', true)~' ','') }}
+                            {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
                         accessory:
                           type: image
                           image_url: "{{ url }}"
@@ -966,7 +976,9 @@ script:
         default:
           - service: notify.danny_tsang
             data:
-              message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
               title: "{{ title|default('', true) }}"
               target: "{{ target }}"
               data:
@@ -974,7 +986,7 @@ script:
                   - type: section
                     text:
                       type: mrkdwn
-                      text: "{{ message }}"
+                      text: "{{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}"
                     accessory:
                       type: image
                       image_url: "{{ url }}"
@@ -1008,7 +1020,9 @@ script:
     sequence:
       - service: notify.danny_tsang
         data:
-          message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+          message: >-
+            {{ iif(people is not none,people|default('', true)~' ','') }}
+            {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
           title: "{{ title|default('', true) }}"
           target: "{{ target }}"
           data:
@@ -1107,14 +1121,20 @@ script:
           sequence:
             - service: notify.home_assistant
               data:
-                message: "**{{ title|default('', true) }}**
-                \n{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                message: >-
+                  **{{ title|default('', true) }}**
+                  
+                  
+                  {{ iif(people is not none,people|default('', true)~' ','') }}
+                  {{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}
                 target: "{{ target }}"
               continue_on_error: true
         default:
           - service: notify.home_assistant
             data:
-              message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}
               target: "{{ target }}"
             continue_on_error: true
     mode: queued
@@ -1154,7 +1174,7 @@ script:
                   data:
                     embed:
                       title: "{{ title }}"
-                      description: "{{ message }}"
+                      description: "{{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}"
                       image:
                         url: "{{ url }}"
         # No title set
@@ -1165,7 +1185,7 @@ script:
               target: "{{ target }}"
               data:
                 embed:
-                  description: "{{ message }}"
+                  description: "{{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}"
                   image:
                     url: "{{ url }}"
         continue_on_error: true
