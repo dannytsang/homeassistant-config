@@ -5,8 +5,8 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 
 ## <a name="controllers"></a>Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
-*   [Philips Hue Hub v2](https://www.philips-hue.com/en-us/p/hue-bridge/046677458478)
-*   [Samsung SmartThings v3](https://www.samsung.com/uk/smartthings/hub-f-hub-uk-v3/)
+*   [Sonoff ZigBee 3.0 Plus P](https://sonoff.tech/product/gateway-and-sensors/sonoff-zigbee-3-0-usb-dongle-plus-p/)
+*   [SMLIGHT SLZB-06](https://smlight.tech/product/slzb-06/)
 
 ## Amazon
 We are an Echo/Alexa household due to the compatibility it has with devices. This is less of an issue since moving to [Home Assistant](https://home-assistant.io).
@@ -16,6 +16,9 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 *   [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
 *   [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
 
+## Aruba
+Replaced Unifi with Aruba for their PPSK, controllerless setup. Basic support in Home Assistant.
+*   [Aruba 515](https://www.arubanetworks.com/en-gb/products/wireless/access-points/indoor-access-points/500-series/)
 ## Broadlink
 An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4 Pro](https://www.ibroadlink.com/products/ir+rf).
 
@@ -28,18 +31,27 @@ I love Elgato products. They are generally well designed however you do pay a pr
 Makes chips and used in popular commercial IOT applications like [Tuya](https://www.tuya.com/). I use Wemos variant of the older ESP8266 (see below) and the newer ESP32. To manage all of these, I use ESPHome.
 *   [ESP32 CP2102](https://www.espressif.com/en/products/socs/esp32)
 
+## Feasycom
+*   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
+
 ## GLEDOPTO
 Third party WLED to Zigbee controller.
-*   RGB CCT 1D
+*   [RGBW CCT 1D](https://www.gledopto.eu/rgbw-controller-zigbee-compatible-eng)
 
 ## Google
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
 *   [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
 *   [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
+*   [Google TV](https://store.google.com/gb/product/chromecast_google_tv?hl=en-GB)
+
+## Growatt
+Solar manufacturer.
+*   SPH3000 Inverter
+*   [GBLI 6532 Battery](https://www.ginverter.com/products/gbli-6532-battery) 
 
 ## <a name="hive"></a>Hive Home
 Probably the first smart house item we purchased in 2010. I have since upgraded to gen 2 of the hardware which has improved on reliablilty on the hub.
-*   Hive 2 (SLT3)
+*   [Hive 2 (SLT3)](https://www.hivehome.com/shop/smart-heating/hive-active-heating?icid=mname%3Amega-menu.iname%3Ahive-active-heating)
 
 ## Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
@@ -63,6 +75,15 @@ The light output is one of the best in terms of lumens. The colours are generall
 ## Logitech
 Until Broadlink came along, Logitech was the only player in town to integrate remote control. The hub has been unstable however there were no alternatives at the time. I haven't integrated any automations as a result.
 *   [Harmony Elite](https://www.logitech.com/en-gb/products/harmony/harmony-elite.915-000257.html?crid=60)
+
+## myEnergi
+UK based solar designer/manufacturer.
+*   [Eddi](https://www.myenergi.com/eddi-power-diverter/) Solar diverter or a fancy relay to turn on electrical devices on or off when there is excess solar.
+*   [Harvi](https://www.myenergi.com/harvi-energy-harvesting-sensor/) Wireless energy monitoring to allow devices like the Eddi to turn on and off when there's excess solar.
+
+## OralB
+A toothbrush manufacturer that now supports bluetooth enabled electric toothbrushes.
+*   [6000N](https://www.oralb.co.uk/en-gb/products/electric-toothbrushes/oral-b-smart-6-6000n-white-electric-toothbrush)
 
 ## <a name="philipshue"></a>Philips Hue
 Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
@@ -109,16 +130,20 @@ Relatively cheap hardware and some unique offering however lacks out of the box 
 
 ## SwitchBot
 The first curtain rod devices. It uses bluetooth which isn't great for range so I pair it with the hub mini
-*   Curtain Rod (1)
+*   [SwitchBot Blind Tilt](https://uk.switch-bot.com/products/switchbot-blind-tilt)
 *   [Hub Mini](https://uk.switch-bot.com/products/switchbot-hub-mini)
 
 ## TP Link
 Bought one of these as a potential replacement to the Belkin Wemos which had the killer feature of time to switch off when it was powered on built into the app/plugs. The TP Link did not have that but it does have all the other features like power monitoring. This has been installed behind a hard to reach metal white goods where Zigbee was not strong enough to reach but WiFi was.
 *   [HS110](https://www.tp-link.com/uk/home-networking/smart-plug/hs110/)
 
+## TuYa
+Very well priced IoT device manufacturer. I am using the temperature sensor for inside the fridge and freezers. The radiator values are closes to the Tado TRVs. It's not as well built but the idea is you don't need to touch it.
+*   [ZigBee Temperature And Humidity Sensor](https://www.aliexpress.com/item/1005003718187629.html) 
+*   [TRV TV02](https://www.aliexpress.com/item/1005003119636318.html)
+
 ## Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
-*   [Unifi AC Lite](https://www.ui.com/unifi/unifi-ap-ac-lite/)
 *   [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro)
 *   [Unifi Swtich 8](https://store.ui.com/collections/unifi-network-switching/products/unifi-switch-8)
 *   [Unifi Switch 24](https://store.ui.com/collections/unifi-network-switching/products/usw-24)
