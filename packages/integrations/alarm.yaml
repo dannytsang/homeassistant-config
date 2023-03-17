@@ -36,12 +36,18 @@ automation:
           - schedule.alarm_scheduled_home_mode
         from: "off"
         to: "on"
-      - at: 00:00:00
-        platform: time
-      - at: 01:00:00
-        platform: time
-      - at: 02:00:00
-        platform: time
+      - platform: time
+        at: 00:00:00
+      - platform: time_pattern
+        hours: "0"
+        minutes: "/30"
+      - platform: time
+        at: 01:00:00
+      - platform: time_pattern
+        hours: "1"
+        minutes: "/30"
+      - platform: time
+        at: 02:00:00
     condition:
       - condition: state
         entity_id: group.adult_people
@@ -58,19 +64,14 @@ automation:
               - condition: state
                 entity_id: binary_sensor.alarmed_doors_and_windows
                 state: "on"
-              - condition: time
-                weekday:
-                  - mon
-                  - tue
-                  - wed
-                  - thu
-                  - fri
             sequence:
               - service: script.send_direct_notification
                 data:
                   message: >-
+                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Did not turned on because a door or window is still open.
-                    Trying again later
+
+                    Trying again later.
                   title: ":warning: :bell: Alarm"
                   people:
                     - person.danny
@@ -78,29 +79,33 @@ automation:
           - conditions:
               - condition: state
                 entity_id: binary_sensor.alarmed_doors_and_windows
-                state: "on"
-              - condition: time
-                weekday:
-                  - sat
-                  - sun
-            sequence:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Did not turned on because a door or window is still open.
-                    Trying again later
-                  title: ":warning: :bell: Alarm"
-                  people:
-                    - person.danny
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.alarmed_doors_and_windows
                 state: "off"
+              - condition: state
+                entity_id: person.danny
+                state: "home"
+                for:
+                  minutes: "5"
+              - condition: state
+                entity_id: person.terina
+                state: "home"
+                for:
+                  minutes: "5"
             sequence:
               - service: script.arm_alarm_overnight
                 data:
                   message: "It's late."
-        default: []
+        default:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Did not turned on because not everyone is home yet.
+
+                Trying again later.
+              title: ":warning: :bell: Alarm"
+              people:
+                - person.danny
+                - person.terina
     mode: single
   - id: "1587680439015"
     alias: "Alarm: Arm Overnight Home Mode Final Check"
@@ -127,7 +132,9 @@ automation:
             sequence:
               - service: script.send_direct_notification
                 data:
-                  message: "Did not turned on because a door or window is open."
+                  message: >-
+                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    Did not turned on because a door or window is open.
                   title: ":warning: :bell: Alarm :warning:"
                   people:
                     - person.danny
