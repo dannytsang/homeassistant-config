@@ -9,7 +9,7 @@ I have always been interested in technology starting from the x10 days. At the t
 
 This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾)
 
-More details to follow. Visit my 📜[blog](https://dannytsang.co.uk).
+More details to follow. Visit my 📜[blog](https://dannytsang.com).
 
 ## Statistics 📊
 I have 26,328 states (📈14,978) in Home Assistant. More details [here](statistics.md).
@@ -18,11 +18,11 @@ I have 26,328 states (📈14,978) in Home Assistant. More details [here](statist
 More details [here](hardware.md).
 
 # Addons ➕
-This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.co.uk).
+This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.com).
+*   [ESPHome](https://esphome.io/)
 *   [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
 *   [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
 *   [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
-*   [Mosquitto broker](https://github.com/home-assistant/addons/tree/master/mosquitto)
 *   [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
 *   [Samba Backup](https://github.com/thomasmauerer/hassio-addons/tree/master/samba-backup)
 *   [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
@@ -33,9 +33,9 @@ More details [here](integrations.md).
 # GitHub 🐱🐙
 This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
 
-Whilst [Home Assistant](https://home-assistant.io) offer backup solution, it is a bit of all or nothing restore process whereas Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
+Whilst [Home Assistant](https://home-assistant.io) offer backup solution depending on your install, it is a bit of all or nothing restore process whereas Git (or any versioning system) would allow incremental changes to be stored and reverted where necessary.
 
-The goal is to use the web front end as much as possible and there has been a growing trend to move away from text (YAML) files however the version advantage is the reason i still use and store things here.
+The goal is to use the web front end as much as possible and there has been a growing trend to move away from text (YAML) files however the versioning advantage is the reason i still use and store things here.
 
 ## Setup ⚙️
 All changes are performed in the UI where possible and if they are held in configuration files then it will end up in Git where possible.
@@ -47,7 +47,7 @@ Visual Studio Code addon includes a Git client so all changes are managed throug
 ## Workflows 🖇️
 The advantage of using a source code management system like Git is the ability to use hooks to trigger actions (as well as other advantages).
 
-I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes.
+I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes. More details on this can be found [here](https://dannytsang.com/home-assistant-partial-continuous-integration-workflow/)
 
 For this reason, the `custom_components` is stored in the repository to allow a successful build and configuration check.
 
@@ -75,7 +75,7 @@ I use split configuration files to help manage and keep the `configuration.yaml`
 A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
 
 ## Tags / Releases 🏷️
-I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed.
+I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed. The `main` branch will contain the latest changes so there is no *latest* tag.
 
 # Miscellaneous 🦺
-I tried the [Conbee II](https://phoscon.de/en/conbee2) USB stick and it was good however it was tied to a computer running Deconz which makes it harder to put in the house in a central location compared to the a hub like [Philips Hue](#controllers) or [SmartThings](#controllers).
+N/A
