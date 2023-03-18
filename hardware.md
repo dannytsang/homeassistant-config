@@ -34,9 +34,16 @@ Makes chips and used in popular commercial IOT applications like [Tuya](https://
 ## Feasycom
 *   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
 
+## Feasycom
+*   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
+
 ## GLEDOPTO
 Third party WLED to Zigbee controller.
 *   [RGBW CCT 1D](https://www.gledopto.eu/rgbw-controller-zigbee-compatible-eng)
+
+## Glowmarkt
+An in home display (IHD) that supports live smart meter reading to APIs and MQTT.
+*   [CAD](https://shop.glowmarkt.com/products/display-and-cad-combined-for-smart-meter-customers)
 
 ## Google
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
@@ -53,6 +60,9 @@ Solar manufacturer.
 Probably the first smart house item we purchased in 2010. I have since upgraded to gen 2 of the hardware which has improved on reliablilty on the hub.
 *   [Hive 2 (SLT3)](https://www.hivehome.com/shop/smart-heating/hive-active-heating?icid=mname%3Amega-menu.iname%3Ahive-active-heating)
 
+## HP
+Rock solid printer however limited support in Home Assistant for mine. For example, it does not say how much toner is left.
+*   [HP M402DW](https://www.printerland.co.uk/product/hp-laserjet-pro-m402dw/138809)
 ## Hyperion
 Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
 *   [SK6812](https://www.aliexpress.com/item/32549394249.html?spm=a2g0s.9042311.0.0.584a4c4d07qBv6)
@@ -62,6 +72,7 @@ Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed
 Love the Ikea blinds. They are easy to get hold of compared to other products and once you get over the pairing, they have worked flawlessly.
 *   [FYRTUR](https://www.ikea.com/gb/en/p/fyrtur-block-out-roller-blind-wireless-battery-operated-grey-60408181/)
 *   [KADRILJ](https://www.ikea.com/gb/en/p/kadrilj-roller-blind-wireless-battery-operated-grey-30408154/)
+*   [TRÅDFRI Signal Repeater](https://www.ikea.com/gb/en/p/tradfri-signal-repeater-80424255/)
 *   [TRÅDFRI GU10](https://www.ikea.com/gb/en/p/tradfri-led-bulb-gu10-400-lumen-wireless-dimmable-white-spectrum-90408603/)
 *   [TRÅDFRI Remote control](https://www.ikea.com/gb/en/p/tradfri-remote-control-30443124/)
 
@@ -136,6 +147,8 @@ The first curtain rod devices. It uses bluetooth which isn't great for range so 
 ## TP Link
 Bought one of these as a potential replacement to the Belkin Wemos which had the killer feature of time to switch off when it was powered on built into the app/plugs. The TP Link did not have that but it does have all the other features like power monitoring. This has been installed behind a hard to reach metal white goods where Zigbee was not strong enough to reach but WiFi was.
 *   [HS110](https://www.tp-link.com/uk/home-networking/smart-plug/hs110/)
+*   [KP115](https://www.tp-link.com/uk/home-networking/smart-plug/kp115/)
+*   [KP303](https://www.tp-link.com/uk/home-networking/smart-plug/kp303/)
 
 ## TuYa
 Very well priced IoT device manufacturer. I am using the temperature sensor for inside the fridge and freezers. The radiator values are closes to the Tado TRVs. It's not as well built but the idea is you don't need to touch it.
