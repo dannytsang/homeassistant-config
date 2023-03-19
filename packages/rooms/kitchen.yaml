@@ -32,13 +32,6 @@ automation:
         to: "off"
         for: 00:05:00
         entity_id: binary_sensor.kitchen_area_motion
-        id: first_no_motion
-      - platform: state
-        from: "on"
-        to: "off"
-        for: 00:07:00
-        entity_id: binary_sensor.kitchen_area_motion
-        id: second_no_motion
     condition: []
     action:
       - parallel:
@@ -101,8 +94,6 @@ automation:
                     after: "00:00:00"
                   - condition: sun
                     before: sunset
-                  - condition: trigger
-                    id: first_no_motion
                 sequence:
                   - service: script.send_to_home_log
                     data:
@@ -121,8 +112,6 @@ automation:
                         after: sunset
                       - condition: time
                         before: "23:59:59"
-                      - condition: trigger
-                        id: first_no_motion
                 sequence:
                   - service: script.send_to_home_log
                     data:
@@ -133,14 +122,80 @@ automation:
                   - service: scene.turn_on
                     target:
                       entity_id: scene.kitchen_main_lights_dim
+            default: []
+    mode: single
+  - id: "1606652871370"
+    alias: "Kitchen: No Motion Turn Off Lights"
+    description: ""
+    trigger:
+      - platform: state
+        from: "on"
+        to: "off"
+        for: 00:07:00
+        entity_id: binary_sensor.kitchen_area_motion
+    condition: []
+    action:
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: time
+                    after: "00:00:00"
+                  - condition: sun
+                    before: sunset
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
+                        Turning ambient lights off.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_side_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - and:
+                      - condition: sun
+                        after: sunset
+                      - condition: time
+                        before: "23:30:00"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after :city_sunset: and before :clock1130:.
+                        Dimming ambient :bulb: :low_brightness: lights.
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_dim_side_lights
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: time
+                    after: "23:30:00"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :no_pedestrians: No motion after
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:.
+                        Turning all lights off."
+                      title: ":cook: Kitchen"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_main_lights_off
+                    data:
+                      transition: 2
+            default: []
+          - choose:
               - conditions:
                   - and:
                       - condition: sun
                         after: sunset
                       - condition: time
                         before: "23:59:59"
-                      - condition: trigger
-                        id: second_no_motion
                 sequence:
                   - service: script.send_to_home_log
                     data:
