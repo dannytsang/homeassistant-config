@@ -2,7 +2,7 @@
 automation:
   # Lights related automation.
   - id: "1583956425622"
-    alias: "Lounge: Dark And Motion Detected"
+    alias: "Lounge: Motion Detected And It's Dark"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
     trigger:
       - entity_id: binary_sensor.lounge_area_motion
@@ -29,7 +29,7 @@ automation:
                 entity_id: sensor.lounge_motion_2_illuminance_lux
               - below: input_number.lounge_light_level_3_threshold
                 condition: numeric_state
-                entity_id: sensor.lounge_motion_3_illuminance_lux_lux
+                entity_id: sensor.lounge_motion_3_illuminance_lux
           - or:
               - condition: numeric_state
                 entity_id: light.lounge_lamp_left
@@ -56,13 +56,13 @@ automation:
                         entity_id: sensor.lounge_motion_2_illuminance_lux
                       - below: input_number.lounge_light_level_3_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_3_illuminance_lux_lux
+                        entity_id: sensor.lounge_motion_3_illuminance_lux
                 sequence:
                   - data:
                       message: >-
                         :paw_prints: Motion detected and it's dark
                         ({{ states('sensor.lounge_motion_2_illuminance_lux')
-                        }} & {{ states('sensor.lounge_motion_3_illuminance_lux_lux') }} <
+                        }} & {{ states('sensor.lounge_motion_3_illuminance_lux') }} <
                         {{ states('input_number.lounge_light_level_2_threshold') }} &
                         {{ states('input_number.lounge_light_level_3_threshold', with_unit=True) }})
                         and Terina's work :computer: computer is on. Turning lounge
@@ -79,14 +79,14 @@ automation:
                         entity_id: sensor.lounge_motion_2_illuminance_lux
                       - below: input_number.lounge_light_level_3_threshold
                         condition: numeric_state
-                        entity_id: sensor.lounge_motion_3_illuminance_lux_lux
+                        entity_id: sensor.lounge_motion_3_illuminance_lux
                 sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected and it's dark
                         ({{ states('sensor.lounge_motion_2_illuminance_lux') }} &
-                        {{ states('sensor.lounge_motion_3_illuminance_lux_lux') }} <
+                        {{ states('sensor.lounge_motion_3_illuminance_lux') }} <
                         {{ states('input_number.lounge_light_level_2_threshold') }} &
                         {{ states('input_number.lounge_light_level_3_threshold', with_unit=True) }})
                         and Terina's work :computer: computer is on. Turning
@@ -117,7 +117,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_triggers
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.tv_plug_active_power
+        entity_id: sensor.tv_plug_power
         below: input_number.tv_plug_powered_on_threshold
     action:
       - choose:
@@ -175,7 +175,7 @@ automation:
         entity_id: input_boolean.enable_lounge_motion_triggers
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.tv_plug_active_power
+        entity_id: sensor.tv_plug_power
         below: input_number.tv_plug_powered_on_threshold
     action:
       - choose:
@@ -217,7 +217,7 @@ automation:
     description: "TV is turned off and dim lights if there has been no motion."
     trigger:
       - platform: numeric_state
-        entity_id: sensor.tv_plug_active_power
+        entity_id: sensor.tv_plug_power
         below: input_number.tv_plug_powered_on_threshold
         for: 00:05:00
     condition:
@@ -254,7 +254,7 @@ automation:
     description: "TV is turned off and turn lights off if there has been no motion."
     trigger:
       - platform: numeric_state
-        entity_id: sensor.tv_plug_active_power
+        entity_id: sensor.tv_plug_power
         for: 00:10:00
         below: input_number.tv_plug_powered_on_threshold
     condition:
@@ -1084,14 +1084,14 @@ template:
       - name: Playstation Powered On
         unique_id: dee5115e-8e1b-4b3d-b6e5-af3da26f574a
         device_class: "running"
-        icon: "mdi:controller{{ '' if states('sensor.playstation_plug_active_power') | float(0) > 15 else '-off' }}"
-        state: "{{ states('sensor.playstation_plug_active_power') | float(0) > 15 }}"
+        icon: "mdi:controller{{ '' if states('sensor.playstation_plug_power') | float(0) > 15 else '-off' }}"
+        state: "{{ states('sensor.playstation_plug_power') | float(0) > 15 }}"
       - name: TV Powered On
         unique_id: 018dca5f-259c-4c2e-94b3-0195359ac572
         device_class: "running"
-        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_active_power') | float(0) > 10 else '-off' }}"
-        state: "{{ states('sensor.tv_plug_active_power') | float(0) > 10 }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.tv_plug_power') | float(0) > 10 else '-off' }}"
+        state: "{{ states('sensor.tv_plug_power') | float(0) > 10 }}"
       - name: Sky Powered On
         device_class: "running"
-        icon: "mdi:television-classic{{ '' if states('sensor.sky_plug_active_power') | float(0) > 15 else '-off' }}"
-        state: "{{ states('sensor.sky_plug_active_power') | float(0) > 15 }}"
+        icon: "mdi:television-classic{{ '' if states('sensor.sky_plug_power') | float(0) > 15 else '-off' }}"
+        state: "{{ states('sensor.sky_plug_power') | float(0) > 15 }}"
