@@ -34,7 +34,7 @@ automation:
                         entity_id: sensor.office_motion_illuminance_lux
                         below: input_number.office_light_level_threshold
                       - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance
+                        entity_id: sensor.office_motion_2_illuminance_lux
                         below: input_number.office_light_level_2_threshold
                   - or:
                       - condition: numeric_state
@@ -54,8 +54,8 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_illuminance') }} &
-                        {{ states('sensor.office_motion_2_illuminance', with_unit=True) }} <
+                        and it's dark ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
                         Turning up :bulb: :high_brightness: lights.
@@ -66,7 +66,7 @@ automation:
                     entity_id: sensor.office_motion_illuminance_lux
                     above: input_number.office_light_level_threshold
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     above: input_number.office_light_level_2_threshold
                   - or:
                       - condition: numeric_state
@@ -86,8 +86,8 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_illuminance') }} &
-                        {{ states('sensor.office_motion_2_illuminance', with_unit=True) }} <
+                        and bright ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
                         Turning office lights off.
@@ -128,7 +128,7 @@ automation:
                         entity_id: sensor.office_motion_illuminance_lux
                         below: input_number.office_light_level_threshold
                       - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance
+                        entity_id: sensor.office_motion_2_illuminance_lux
                         below: input_number.office_light_level_2_threshold
             sequence:
               - parallel:
@@ -139,8 +139,8 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_illuminance') }} &
-                        {{ states('sensor.office_motion_2_illuminance', with_unit=True) }} <
+                        and it's dark ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
                         {{ states('input_number.office_light_level_threshold') }}-
                         {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
                         Turning :bulb: :high_brightness: lights on.
@@ -442,10 +442,6 @@ automation:
         entity_id: group.jd_computer
         from: not_home
         to: home
-      - platform: state
-        entity_id: binary_sensor.microphone
-        from: unavailable
-        to: "on"
     condition: []
     action:
       - parallel:
@@ -488,11 +484,6 @@ automation:
         to: not_home
         from: home
         id: router
-      - platform: state
-        entity_id: binary_sensor.microphone
-        to: unavailable
-        for: "00:10:00"
-        id: pc
     condition:
       - not:
           - condition: state
