@@ -257,17 +257,18 @@ automation:
                         entity_id: group.jd_computer
                         state: "home"
                 sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                        Partially closing blinds.
-                      title: ":office: Office"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 25
-                    target:
-                      entity_id: cover.office_blinds
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                            Partially closing blinds.
+                          title: ":office: Office"
+                      - service: cover.set_cover_tilt_position
+                        data:
+                          tilt_position: 25
+                        target:
+                          entity_id: cover.office_blinds
             default: []
     mode: single
   - id: "1678300398734"
@@ -310,19 +311,20 @@ automation:
                         entity_id: group.terinas_work_computer
                         state: "home"
                 sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                        Closing blinds.
-                      title: ":couch_and_lamp: Lounge"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 0
-                    target:
-                      entity_id:
-                        - cover.lounge_blinds_middle
-                        - cover.lounge_blinds_right
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                            Closing blinds.
+                          title: ":couch_and_lamp: Lounge"
+                      - service: cover.set_cover_tilt_position
+                        data:
+                          tilt_position: 0
+                        target:
+                          entity_id:
+                            - cover.lounge_blinds_middle
+                            - cover.lounge_blinds_right
             default: []
           - alias: "Office blinds"
             choose:
@@ -342,17 +344,18 @@ automation:
                         entity_id: group.jd_computer
                         state: "home"
                 sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                        Closing blinds.
-                      title: ":office: Office"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 0
-                    target:
-                      entity_id: cover.office_blinds
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                            Closing blinds.
+                          title: ":office: Office"
+                      - service: cover.set_cover_tilt_position
+                        data:
+                          tilt_position: 0
+                        target:
+                          entity_id: cover.office_blinds
             default: []
     mode: single
   - id: "1678637987423"
@@ -422,18 +425,19 @@ automation:
                     entity_id: input_boolean.enable_office_blind_automations
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                        Opening Blinds
-                      title: ":office: Office"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 50
-                    target:
-                      entity_id:
-                        - cover.office_blinds
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                            Opening Blinds
+                          title: ":office: Office"
+                      - service: cover.set_cover_tilt_position
+                        data:
+                          tilt_position: 50
+                        target:
+                          entity_id:
+                            - cover.office_blinds
             default: []
     mode: single
 
