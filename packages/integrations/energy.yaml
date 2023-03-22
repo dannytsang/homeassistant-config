@@ -328,10 +328,9 @@ script:
 
         There's approximately
         {{ ((states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) -
-        (states('sensor.growatt_solar_generated_energy_today')|float(0)))|round(2) ~ ' ' ~
-        state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }}
-        (out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) ~ ' '
-        ~ state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }})
+        (states('sensor.growatt_solar_generated_energy_today')|float(0)))|round(2) }}
+        (out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) }})
+        {{ state_attr('input_number.consecutive_forecast_days_below_solar_generation', 'unit_of_measurement') }}
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
         {% endif %}
       title: ":sunny: :zap: Solar"
