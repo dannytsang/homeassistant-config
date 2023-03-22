@@ -839,20 +839,32 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: script.post_to_hass_agent
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title }}"
-                  filePath: "{{ filePath }}"
-                  device: notify.jd
-                  duration: "{{ duration }}"
-              - service: script.post_to_hass_agent
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title }}"
-                  filePath: "{{ filePath }}"
-                  device: notify.sam
-                  duration: "{{ duration }}"
+              - if:
+                  - not:
+                    - condition: state
+                      entity_id: media_player.jd
+                      state: "unavailable"
+                then:
+                  - service: script.post_to_hass_agent
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      filePath: "{{ filePath }}"
+                      device: notify.jd
+                      duration: "{{ duration }}"
+              - if:
+                  - not:
+                    - condition: state
+                      entity_id: media_player.sam
+                      state: "unavailable"
+                then:
+                  - service: script.post_to_hass_agent
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      filePath: "{{ filePath }}"
+                      device: notify.sam
+                      duration: "{{ duration }}"
     mode: queued
     max: 10
 
