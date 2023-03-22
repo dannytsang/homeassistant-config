@@ -397,42 +397,6 @@ automation:
           target:
             entity_id: switch.office_fan
     mode: single
-  - id: "1622666920056"
-    alias: "Office: Window Closed At Night"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: binary_sensor.office_windows
-        from: "on"
-        to: "off"
-        for:
-          hours: 0
-          minutes: 1
-          seconds: 0
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_office_blind_automations
-        state: "on"
-      - or:
-          - condition: sun
-            after: sunset
-            after_offset: -01:00:00
-          - condition: sun
-            before: sunrise
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                :window: :city_sunset: Office window closed and it's dark. Closing
-                blinds.
-              title: ":office: Office"
-          - service: cover.set_cover_tilt_position
-            data:
-              tilt_position: 0
-            target:
-              entity_id: cover.office_blinds
-    mode: single
   # Computer related automations
   - id: "1619865008647"
     alias: "Office: Computer Turned On"
@@ -773,6 +737,42 @@ automation:
                     target:
                       entity_id: cover.office_blinds
         default: []
+    mode: single
+  - id: "1622666920056"
+    alias: "Office: Window Closed At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.office_windows
+        from: "on"
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - or:
+          - condition: sun
+            after: sunset
+            after_offset: -01:00:00
+          - condition: sun
+            before: sunrise
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :window: :city_sunset: Office window closed and it's dark. Closing
+                blinds.
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 0
+            target:
+              entity_id: cover.office_blinds
     mode: single
   # Lights
   - id: "1614555883547"
