@@ -13,24 +13,20 @@ script:
         example: "'turned on', 'paused', etc"
     variables:
       title: >-
-        {% if entity_id|default('', true) == 'media_player.lounge_roku_streaming_stick' %}
+        {% if entity_id|default('', true) == 'media_player.lounge_tv' %}
         :couch_and_lamp: Lounge
-        {% elif entity_id|default('', true) == 'media_player.bedroom_roku_streaming_stick' %}
+        {% elif entity_id|default('', true) == 'media_player.bedroom_tv' %}
         :bed: Bedroom
-        {% elif entity_id|default('', true) == 'media_player.google_tv' %}
-        :couch_and_lamp: Lounge
         {% else %}
         :warning: Unknown device {{ entity_id }}
         {% endif%}
       device: >-
-        {% if entity_id|default('', true) in ('media_player.lounge_roku_streaming_stick','media_player.bedroom_roku_streaming_stick') %}
-        Roku
-        {% elif entity_id|default('', true) == 'media_player.google_tv' %}
+        {% if entity_id|default('', true) in ()'media_player.lounge_tv', 'media_player.bedroom_tv') %}
         Google TV
         {% else %}
         Unknown device {{ entity_id }}
         {% endif%}
-      file_path: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') if entity_id|default('', true) == 'media_player.lounge_roku_streaming_stick' else states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
+      file_path: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') if entity_id|default('', true) == 'media_player.lounge_tv' else states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
     sequence:
       - delay:
           seconds: 2
