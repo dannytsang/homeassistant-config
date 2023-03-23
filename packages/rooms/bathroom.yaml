@@ -688,15 +688,16 @@ automation:
                     it's closed before closing blinds."
                   title: ":bathtub: Bathroom"
         default:
-          - service: script.send_to_home_log
-            data:
-              message: "Closing bathroom blinds"
-              title: ":bathtub: Bathroom"
-          - service: cover.set_cover_position
-            target:
-              entity_id: cover.bathroom_blinds
-            data:
-              position: "{{ states('input_number.bathroom_blind_closed_preset')|int(100) }}"
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Closing bathroom blinds"
+                  title: ":bathtub: Bathroom"
+              - service: cover.set_cover_position
+                target:
+                  entity_id: cover.bathroom_blinds
+                data:
+                  position: "{{ states('input_number.bathroom_blind_closed_preset')|int(100) }}"
     mode: single
   - id: "1624661497604"
     alias: "Bathroom: Window Closed At Night"
@@ -715,7 +716,7 @@ automation:
       - condition: numeric_state
         entity_id: cover.bathroom_blinds
         attribute: current_position
-        above: input_number.blind_open_position_threshold
+        above: input_number.bathroom_blind_closed_threshold
     action:
       - service: script.send_to_home_log
         data:
