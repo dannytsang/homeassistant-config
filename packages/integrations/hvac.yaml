@@ -233,15 +233,50 @@ automation:
       - platform: numeric_state
         entity_id: sensor.myenergi_eddi_energy_consumed_session
         above: input_number.hot_water_solar_diverter_boiler_cut_off
-    condition: []
+    condition:
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_status
+            state: Stopped
     action:
-      - service: script.send_direct_notification
-        data:
-          message: >-
-            Consider stopping :fuelpump: Eddi (divered: {{ states('sensor.myenergi_eddi_energy_consumed_session', with_unit=True) }})
-          title: myEnergi
-          people:
-            - person.danny
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
+                ({{ states('sensor.myenergi_eddi_energy_consumed_session') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+              title: myEnergi
+              people:
+                - person.danny
+          - service: select.select_option
+            data:
+              option: Stopped
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+  - id: "1678796763427"
+    alias: "HVAC: Eddi Turn On."
+    description: ""
+    trigger:
+      - platform: time
+        at: "00:00:00"
+    condition:
+      - condition: state
+        entity_id: sensor.myenergi_eddi_status
+        state: Stopped
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                Turning :fuelpump: Eddi back on.
+              title: myEnergi
+          - service: select.select_option
+            data:
+              option: Normal
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
     mode: single
   - id: "1678578286486"
     alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
@@ -459,7 +494,7 @@ script:
         data:
           preset_mode: manual
         target:
-          entity_id: 
+          entity_id:
             - climate.lounge_radiator
             - climate.office_radiator
     mode: single
@@ -544,6 +579,16 @@ sensor:
     end: "{{ now() }}"
 
 template:
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_eddi_energy_consumed_session
+    sensor:
+      - name: "MyEnergi Eddi Energy Consumed Session 2"
+        unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
+        state: "{{ states('sensor.myenergi_eddi_energy_consumed_session') }}"
+        icon: mdi:flash
+        device_class: "energy"
   - sensor:
       - name: "Thermostat Action"
         unique_id: 8dff3606-6aaf-4713-a668-140e71271416
