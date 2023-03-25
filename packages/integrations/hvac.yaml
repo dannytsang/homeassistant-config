@@ -264,6 +264,10 @@ automation:
       - condition: state
         entity_id: sensor.myenergi_eddi_status
         state: Stopped
+      - not:
+        - condition: state
+          entity_id: input_select.home_mode
+          state: "Holiday"
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -579,16 +583,6 @@ sensor:
     end: "{{ now() }}"
 
 template:
-  - trigger:
-      - platform: state
-        entity_id:
-          - sensor.myenergi_eddi_energy_consumed_session
-    sensor:
-      - name: "MyEnergi Eddi Energy Consumed Session 2"
-        unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
-        state: "{{ states('sensor.myenergi_eddi_energy_consumed_session') }}"
-        icon: mdi:flash
-        device_class: "energy"
   - sensor:
       - name: "Thermostat Action"
         unique_id: 8dff3606-6aaf-4713-a668-140e71271416
