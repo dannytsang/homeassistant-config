@@ -311,7 +311,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: 
+        entity_id:
           - binary_sensor.kitchen_area_motion
           - binary_sensor.kitchen_motion_occupancy
           - binary_sensor.kitchen_motion_2_occupancy
@@ -372,7 +372,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: 
+        entity_id:
           - binary_sensor.kitchen_area_motion
           - binary_sensor.kitchen_motion_occupancy
           - binary_sensor.kitchen_motion_2_occupancy
@@ -737,30 +737,11 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - service: script.send_direct_notification
         data:
           message: >-
-            Fridge :door:door is open.
-            Reloading Smartthings integration to see if the sensor lagged out."
-          title: ":cook: Kitchen"
-      - service: rest_command.reload_smartthings
-        data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 5
-          milliseconds: 0
-      - if:
-          - condition: state
-            entity_id: binary_sensor.kitchen_fridge_door
-            state: "on"
-        then:
-          - parallel:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    :snowflake: Fridge :door: door is open has been open for more than 4 minutes!
-                  title: ":warning: :cook: Kitchen :warning:"
+            :snowflake: Fridge :door: door is open has been open for more than 4 minutes!
+          title: ":warning: :cook: Kitchen :warning:"
     mode: single
   # Freezer
   - id: "1595678795896"
@@ -804,29 +785,10 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - service: script.send_direct_notification
         data:
-          message: >-
-            Freezer door is open.
-            Reloading Smartthings integration to see if the sensor lagged out.
-          title: ":cook: Kitchen"
-      - service: rest_command.reload_smartthings
-        data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 5
-          milliseconds: 0
-      - if:
-          - condition: state
-            entity_id: binary_sensor.kitchen_freezer_door
-            state: "on"
-        then:
-          - parallel:
-              - service: script.send_direct_notification
-                data:
-                  message: ":snowflake: Freezer :door: door has been open for more than 4 minutes!"
-                  title: ":warning: :cook: Kitchen :warning:"
+          message: ":snowflake: Freezer :door: door has been open for more than 4 minutes!"
+          title: ":warning: :cook: Kitchen :warning:"
     mode: single
   - id: "1657801925107"
     alias: "Kitchen: Fridge Freezer Plug Turned Off"

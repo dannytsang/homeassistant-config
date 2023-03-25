@@ -39,28 +39,12 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - service: script.send_direct_notification
         data:
-          message: "Reloading Smartthings integration to see if the sensor lagged out."
-          title: "Utility freezer door is open"
-      - service: rest_command.reload_smartthings
-        data: {}
-      - delay:
-          hours: 0
-          minutes: 0
-          seconds: 5
-          milliseconds: 0
-      - if:
-          - condition: state
-            entity_id: binary_sensor.utility_freezer_door
-            state: "on"
-        then:
-          - service: script.send_direct_notification
-            data:
-              message:
-                ":warning: :door: :snowflake: Freezer door has been open for more than
-                4 minutes!"
-              title: "Utility Room"
+          message:
+            ":warning: :door: :snowflake: Freezer door has been open for more than
+            4 minutes!"
+          title: "Utility Room"
     mode: single
   - id: "1657801925106"
     alias: "Utility: Freezer Plug Turned Off"
