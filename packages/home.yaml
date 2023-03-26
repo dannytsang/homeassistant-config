@@ -493,3 +493,19 @@ script:
                 target:
                   entity_id: remote.bedroom_remote
     mode: single
+
+template:
+  - binary_sensor:
+      # https://github.com/alphasixtyfive/home-assistant-configs/blob/main/open_windows.yaml
+      - name: Home Open Windows
+        state: >-
+          {{ states | selectattr('attributes.device_class', 'eq', 'door') | map(attribute='state') | select('eq', 'on') | list | count > 0 }}
+        attributes:
+          windows: >-
+            {% set ns = namespace(windows = []) %}
+            {%- for item in states | selectattr('attributes.device_class', 'eq', 'door') -%}
+              {%- if item.state == 'on' -%}
+                {% set ns.windows = ns.windows + [item.attributes.friendly_name] %}
+              {%- endif -%}
+            {%- endfor -%}
+            {{ ns.windows }}
