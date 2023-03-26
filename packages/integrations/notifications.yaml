@@ -286,6 +286,23 @@ script:
           {% endif %}
         {% endfor %}
         {{ platforms.telegram }}"
+      whatsapp: "{% set platforms = namespace(telegram=[]) %}
+        {% for p in people|default([]) %}
+          {% if p == 'person.danny' %}
+            {% if 'WhatsApp'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.terina' %}
+            {% if 'WhatsApp'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% elif p == 'person.leo' %}
+            {% if 'WhatsApp'|lower in states('input_text.leos_direct_notification_preference')|lower %}
+              {% set platforms.telegram = platforms.telegram + [p] %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+        {{ platforms.telegram }}"
     sequence:
       - service: script.send_to_home_log
         data:
@@ -366,6 +383,14 @@ script:
                             title: "{{ title|default(none, true) }}"
                           continue_on_error: true
                   default: []
+          - repeat:
+              for_each: "{{ whatsapp|default([], true) }}"
+              sequence:
+                - service: script.post_whatsapp_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    people: "{{ repeat.item }}"
+                  continue_on_error: true
     mode: queued
     max: 10
   send_home_log_with_local_attachments:
