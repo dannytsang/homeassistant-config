@@ -15,11 +15,11 @@ automation:
         data:
           message: >-
             :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-            Turning lights off"
+            Turning ambient lights off"
           title: ":cook: Kitchen"
       - service: scene.turn_on
         target:
-          entity_id: scene.kitchen_main_lights_off
+          entity_id: scene.kitchen_ambient_lights_off
         data:
           transition: 2
     mode: single
@@ -50,7 +50,7 @@ automation:
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_side_lights_off
+                      entity_id: scene.kitchen_accent_lights_off
                     data:
                       transition: 2
               - conditions:
@@ -64,11 +64,11 @@ automation:
                     data:
                       message: >-
                         :no_pedestrians: No motion after :city_sunset: and before :clock1130:.
-                        Dimming ambient :bulb: :low_brightness: lights.
+                        Dimming accent :bulb: :low_brightness: lights.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_dim_side_lights
+                      entity_id: scene.kitchen_dim_accent_lights
                     data:
                       transition: 2
               - conditions:
@@ -80,11 +80,11 @@ automation:
                       message: >-
                         :no_pedestrians: No motion after
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:.
-                        Turning all lights off."
+                        Turning ambient lights off."
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
             default: []
@@ -99,11 +99,11 @@ automation:
                     data:
                       message: >-
                         :no_pedestrians: No motion after :city_sunrise: and before :city_sunset:.
-                        Turning main kitchen lights off.
+                        Turning ambient lights off.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
               - conditions:
@@ -117,11 +117,11 @@ automation:
                     data:
                       message: >-
                         :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
-                        :low_brightness: Dimming main :bulb: :low_brightness: lights.
+                        :low_brightness: Dimming ambient :bulb: :low_brightness: lights.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_dim
+                      entity_id: scene.kitchen_ambient_lights_dim
             default: []
     mode: single
   - id: "1606652871370"
@@ -151,7 +151,7 @@ automation:
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_side_lights_off
+                      entity_id: scene.kitchen_accent_lights_off
                     data:
                       transition: 2
               - conditions:
@@ -165,11 +165,11 @@ automation:
                     data:
                       message: >-
                         :no_pedestrians: No motion after :city_sunset: and before :clock1130:.
-                        Dimming ambient :bulb: :low_brightness: lights.
+                        Dimming accent :bulb: :low_brightness: lights.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_dim_side_lights
+                      entity_id: scene.kitchen_dim_accent_lights
                     data:
                       transition: 2
               - conditions:
@@ -181,11 +181,11 @@ automation:
                       message: >-
                         :no_pedestrians: No motion after
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:.
-                        Turning all lights off."
+                        Turning ambient lights off."
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
             default: []
@@ -201,11 +201,11 @@ automation:
                     data:
                       message: >-
                         :no_pedestrians: No motion after :city_sunset: and before :city_sunrise:.
-                        Turning main lights off.
+                        Turning ambient lights off.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
             default: []
@@ -249,11 +249,11 @@ automation:
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                        Turning main lights off.
+                        Turning ambient lights off.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
               - conditions:
@@ -266,11 +266,11 @@ automation:
                 sequence:
                   - service: script.send_to_home_log
                     data:
-                      message: ":clock{{ now().strftime('%H')}}: Turning main lights off."
+                      message: ":clock{{ now().strftime('%H')}}: Turning ambient lights off."
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.kitchen_main_lights_off
+                      entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
             default: []
@@ -294,17 +294,17 @@ automation:
             state: home
     action:
       - parallel:
-          - service: scene.turn_on
-            target:
-              entity_id: scene.kitchen_dim_side_lights
+          - service: script.send_to_home_log
             data:
-              transition: 2
-          - data:
               message: >-
                 :bulb:  At least one person is :house_with_garden: home.
-                Dimming ambient :bulb: :low_brightness: lights.
+                Dimming accent :bulb: :low_brightness: lights.
               title: ":cook: Kitchen"
-            service: script.send_to_home_log
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_dim_accent_lights
+            data:
+              transition: 2
     mode: single
   - id: "1606158191303"
     alias: "Kitchen: Motion Detected Table Lights Off"
@@ -625,13 +625,13 @@ automation:
                     data:
                       message: >-
                         :paw_prints: Motion detected.
-                        Turning up ambient :bulb: :high_brightness: lights.
+                        Turning up accent :bulb: :high_brightness: lights.
                       title: ":cook: Kitchen"
                   - service: scene.turn_on
                     data:
                       transition: 1
                     target:
-                      entity_id: scene.kitchen_side_lights_on
+                      entity_id: scene.kitchen_accent_lights_on
             default: []
     mode: queued
     max: 10
@@ -662,13 +662,13 @@ automation:
             data:
               message: >-
                 :paw_prints: Motion detected.
-                Turning ambient :bulb: :high_brightness: lights on.
+                Turning accent :bulb: :high_brightness: lights on.
               title: ":cook: Kitchen"
           - service: scene.turn_on
             data:
               transition: 1
             target:
-              entity_id: scene.kitchen_side_lights_on
+              entity_id: scene.kitchen_accent_lights_on
     mode: single
   - id: "1619356833117"
     alias: "Kitchen: Turn Off Coffee Machine"
@@ -822,11 +822,11 @@ automation:
     mode: single
 
 scene:
-  - id: "1629659728757"
-    name: Kitchen Main Lights Dim
+  - id: "kitchen_ambient_lights_dim"
+    name: Kitchen Ambient Lights Dim
     icon: "mdi:lightbulb-spot"
     entities:
-      light.kitchen_main_lights:
+      light.kitchen_ambient_lights:
         min_mireds: 111
         max_mireds: 500
         supported_color_modes:
@@ -837,11 +837,11 @@ scene:
         friendly_name: Kitchen Left
         supported_features: 35
         state: "on"
-  - id: "kitchen_main_lights_off"
-    name: Kitchen Main Lights Off
+  - id: "kitchen_ambient_lights_off"
+    name: Kitchen Ambient Lights Off
     icon: "mdi:lightbulb-spot-off"
     entities:
-      light.kitchen_main_lights:
+      light.kitchen_ambient_lights:
         min_mireds: 111
         max_mireds: 500
         supported_color_modes:
@@ -849,8 +849,8 @@ scene:
         friendly_name: Kitchen Left
         supported_features: 35
         state: "off"
-  - id: "1582659847427"
-    name: Kitchen Lights Off
+  - id: "scene.kitchen_all_lights_off"
+    name: Kitchen All Lights Off
     icon: "mdi:lightbulb-spot-off"
     entities:
       light.kitchen_accent_lights:
@@ -870,7 +870,7 @@ scene:
         supported_features: 63
         icon: mdi:led-strip-variant
         state: "on"
-      light.kitchen_main_lights:
+      light.kitchen_ambient_lights:
         min_mireds: 111
         max_mireds: 500
         supported_color_modes:
@@ -878,8 +878,8 @@ scene:
         friendly_name: Kitchen Left
         supported_features: 35
         state: "off"
-  - id: kitchen_side_lights_on
-    name: Kitchen Side Lights On
+  - id: kitchen_accent_lights_on
+    name: Kitchen Accent Lights On
     icon: mdi:led-strip-variant
     entities:
       light.kitchen_accent_lights:
@@ -906,8 +906,8 @@ scene:
         supported_features: 40
         icon: mdi:led-strip-variant
         state: "on"
-  - id: "1606157928636"
-    name: Kitchen Dim Side Lights
+  - id: "kitchen_dim_accent_lights"
+    name: Kitchen Dim Accent Lights
     icon: mdi:led-strip-variant
     entities:
       light.kitchen_accent_lights:
@@ -934,36 +934,11 @@ scene:
         supported_features: 40
         icon: mdi:led-strip-variant
         state: "on"
-  - id: "1613560870965"
-    name: "Kitchen: Front Door Open Notification"
-    entities:
-      light.kitchen_down_lights:
-        min_mireds: 153
-        max_mireds: 65535
-        effect_list:
-          - colorloop
-          - random
-        brightness: 128
-        hs_color:
-          - 242.588
-          - 100
-        rgb_color:
-          - 10
-          - 0
-          - 255
-        xy_color:
-          - 0.137
-          - 0.041
-        effect: none
-        friendly_name: Kitchen Down Light
-        icon: mdi:string-lights
-        supported_features: 63
-        state: "on"
-  - id: "1629659622092"
+  - id: "kitchen_main_lights_on"
     name: Kitchen Main Lights On
     icon: "mdi:lightbulb-spot"
     entities:
-      light.kitchen_main_lights:
+      light.kitchen_ambient_lights:
         min_mireds: 111
         max_mireds: 500
         supported_color_modes:
@@ -974,8 +949,8 @@ scene:
         friendly_name: Kitchen Left
         supported_features: 35
         state: "on"
-  - id: "1655595690300"
-    name: Kitchen Side Lights Off
+  - id: "kitchen_accent_lights_off"
+    name: Kitchen Accent Lights Off
     icon: "mdi:lightbulb-spot-off"
     entities:
       light.kitchen_accent_lights:
@@ -1063,6 +1038,31 @@ scene:
         color_temp: 369
         friendly_name: Kitchen Right 2
         supported_features: 35
+        state: "on"
+  - id: "1613560870965"
+    name: "Kitchen: Front Door Open Notification"
+    entities:
+      light.kitchen_down_lights:
+        min_mireds: 153
+        max_mireds: 65535
+        effect_list:
+          - colorloop
+          - random
+        brightness: 128
+        hs_color:
+          - 242.588
+          - 100
+        rgb_color:
+          - 10
+          - 0
+          - 255
+        xy_color:
+          - 0.137
+          - 0.041
+        effect: none
+        friendly_name: Kitchen Down Light
+        icon: mdi:string-lights
+        supported_features: 63
         state: "on"
 
 script:
