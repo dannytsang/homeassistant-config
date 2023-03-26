@@ -137,14 +137,14 @@ automation:
           - conditions:
               - condition: template
                 value_template: >
-                  {{ (states('sensor.myenergi_eddi_energy_consumed_session')|float(0)) > 
+                  {{ (states('sensor.myenergi_eddi_energy_consumed_session_daily')|float(0)) > 
                   (states('input_number.immersion_heater_hot_water_cut_off')|float(0)) }}
             sequence:
               - service: script.send_direct_notification
                 data:
                   message: >-
                     Eddi has heated the hot water
-                    {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
+                    {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
                     (> {{ states('input_number.immersion_heater_hot_water_cut_off')|float(0) }})
                     {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
 
@@ -214,14 +214,14 @@ automation:
       - condition: not
         conditions:
           - condition: state
-            entity_id: sensor.myenergi_eddi_energy_consumed_session
+            entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
             state: unknown
     action:
       - service: script.send_to_home_log
         data:
           message: ":fuelpump: Eddi diverting energy.
 
-            It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session',
+            It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session_daily',
             with_unit=True) }} so far."
           title: myEnergi
     mode: queued
@@ -231,7 +231,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
         above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition:
       - not:
@@ -243,8 +243,8 @@ automation:
           - service: script.send_direct_notification
             data:
               message: >-
-                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
-                ({{ states('sensor.myenergi_eddi_energy_consumed_session') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
+                ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
               title: myEnergi
               people:
                 - person.danny
@@ -287,7 +287,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
         above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition:
       - condition: state
@@ -301,7 +301,7 @@ automation:
         data:
           message: >-
             Eddi has heated enough hot water
-            {{ states('sensor.myenergi_eddi_energy_consumed_session') }}
+            {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
             (> {{ states('input_number.immersion_heater_hot_water_cut_off')|float(0) }})
             {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}
             and the hot waiter is on.
