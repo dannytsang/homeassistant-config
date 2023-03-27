@@ -767,6 +767,19 @@ automation:
       - condition: state
         entity_id: group.terinas_work_computer
         state: not_home
+      - or:
+          - condition: state
+            entity_id: cover.lounge_blinds_left
+            attribute: current_tilt_position
+            state: 50
+          - condition: state
+            entity_id: cover.lounge_blinds_middle
+            attribute: current_tilt_position
+            state: 50
+          - condition: state
+            entity_id: cover.lounge_blinds_right
+            attribute: current_tilt_position
+            state: 50
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -774,13 +787,43 @@ automation:
               message: >-
                 All computers turned off. Opening blinds.
               title: ":couch_and_lamp: Lounge"
-          - service: cover.set_cover_tilt_position
-            data:
-              tilt_position: 50
-            target:
-              entity_id:
-                - cover.lounge_blinds_middle
-                - cover.lounge_blinds_right
+          - parallel:
+              - if:
+                  - condition: state
+                    entity_id: cover.lounge_blinds_left
+                    attribute: current_tilt_position
+                    state: 50
+                then:
+                  - service: cover.set_cover_tilt_position
+                    data:
+                      tilt_position: 50
+                    target:
+                      entity_id:
+                        - cover.lounge_blinds_left
+              - if:
+                  - condition: state
+                    entity_id: cover.lounge_blinds_middle
+                    attribute: current_tilt_position
+                    state: 50
+                then:
+                  - service: cover.set_cover_tilt_position
+                    data:
+                      tilt_position: 50
+                    target:
+                      entity_id:
+                        - cover.lounge_blinds_middle
+              - if:
+                  - condition: state
+                    entity_id: cover.lounge_blinds_right
+                    attribute: current_tilt_position
+                    state: 50
+                then:
+                  - service: cover.set_cover_tilt_position
+                    data:
+                      tilt_position: 50
+                    target:
+                      entity_id:
+                        - cover.lounge_blinds_right
     mode: single
 
 scene:
