@@ -105,7 +105,7 @@ automation:
                 entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
                 below: input_number.solar_generation_minimum_threshold
             then:
-              - service: script.send_direct_notification
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     Forecast generation is expected to be low
@@ -116,8 +116,6 @@ automation:
                     {{ (states('input_number.consecutive_forecast_days_below_solar_generation')|int(0)) + 1 }}
                     {{ state_attr('input_number.consecutive_forecast_days_below_solar_generation', 'unit_of_measurement') }}.
                   title: ":sunny: :zap: Solar"
-                  people:
-                    - person.danny
               - service: input_number.increment
                 data: {}
                 target:
