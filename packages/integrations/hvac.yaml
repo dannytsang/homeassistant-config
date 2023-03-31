@@ -138,14 +138,14 @@ automation:
               - condition: template
                 value_template: >
                   {{ (states('sensor.myenergi_eddi_energy_consumed_session_daily')|float(0)) > 
-                  (states('input_number.immersion_heater_hot_water_cut_off')|float(0)) }}
+                  (states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0)) }}
             sequence:
               - service: script.send_direct_notification
                 data:
                   message: >-
                     Eddi has heated the hot water
                     {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
-                    (> {{ states('input_number.immersion_heater_hot_water_cut_off')|float(0) }})
+                    (> {{ states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0) }})
                     {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
 
 
@@ -265,9 +265,9 @@ automation:
         entity_id: sensor.myenergi_eddi_status
         state: Stopped
       - not:
-        - condition: state
-          entity_id: input_select.home_mode
-          state: "Holiday"
+          - condition: state
+            entity_id: input_select.home_mode
+            state: "Holiday"
     action:
       - parallel:
           - service: script.send_to_home_log
