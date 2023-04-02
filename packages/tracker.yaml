@@ -139,6 +139,90 @@ automation:
                       entity_id: input_select.home_mode
         default: []
     mode: single
+  - id: "1680450183660"
+    alias: "People: Near Home"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: proximity.danny_home
+        below: input_number.distance_almost_to_home
+      - platform: numeric_state
+        entity_id: proximity.terina_home
+        below: input_number.distance_almost_to_home
+    condition:
+      - or:
+          - condition: state
+            entity_id: proximity.danny_home
+            attribute: dir_of_travel
+            state: towards
+          - condition: state
+            entity_id: proximity.terina_home
+            attribute: dir_of_travel
+            state: towards
+      - or:
+          - condition: state
+            entity_id: person.danny
+            state: home
+          - condition: state
+            entity_id: person.terina
+            state: home
+    action:
+      - service: input_text.set_value
+        data:
+          value: >-
+            {% if trigger.entity_id == 'proximity.danny_home' %}
+            person.danny
+            {% elif trigger.entity_id == 'proximity.terina_home'%}
+            person.terina
+            {% endif %}
+        target:
+          entity_id: input_text.origin_address
+      - service: input_text.set_value
+        data:
+          value: zone.home
+        target:
+          entity_id: input_text.destination_address
+      - service: homeassistant.update_entity
+        data: {}
+        target:
+          entity_id: sensor.google_travel_time_by_car
+      - if:
+          - condition: state
+            entity_id: person.danny
+            state: home
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                {% if trigger.entity_id == 'proximity.danny_home' %}
+                {{ state_attr('person.danny', 'friendly_name') }}
+                {% elif trigger.entity_id == 'proximity.terina_home'%}
+                {{ state_attr('person.terina', 'friendly_name') }}
+                {% endif %} is
+                {{ states('trigger.entity_id', with_unit=True) }} from home and will
+                arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
+                }}.
+              people:
+                - person.terina
+      - if:
+          - condition: state
+            entity_id: person.terina
+            state: home
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                {% if trigger.entity_id == 'proximity.danny_home' %}
+                {{ state_attr('person.danny', 'friendly_name') }}
+                {% elif trigger.entity_id == 'proximity.terina_home'%}
+                {{ state_attr('person.terina', 'friendly_name') }}
+                {% endif %} is
+                {{ states('trigger.entity_id', with_unit=True) }} from home and will
+                arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
+                }}.
+              people:
+                - person.danny
+    mode: single
   # Leaving Home
   - id: "1595524992208"
     alias: "People: No One Home And Locked"
