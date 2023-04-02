@@ -254,6 +254,26 @@ automation:
           - alias: "Office blinds"
             choose:
               - conditions:
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: azimuth
+                    above: input_number.office_blinds_sun_azimuth_threshold
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: elevation
+                    above: input_number.office_blinds_sun_elevation_threshold
+                sequence:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        Skipping closing blinds because sun is out of the way.
+                        
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }}
+                      title: ":office: Office"
+                      people:
+                        - person.danny
+              - conditions:
                   - condition: state
                     entity_id: input_boolean.enable_office_blind_automations
                     state: "on"
@@ -355,6 +375,26 @@ automation:
             default: []
           - alias: "Office blinds"
             choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: azimuth
+                    above: input_number.office_blinds_sun_azimuth_threshold
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: elevation
+                    above: input_number.office_blinds_sun_elevation_threshold
+                sequence:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        Skipping closing blinds because sun is out of the way.
+
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }}
+                      title: ":office: Office"
+                      people:
+                        - person.danny
               - conditions:
                   - condition: state
                     entity_id: input_boolean.enable_office_blind_automations
