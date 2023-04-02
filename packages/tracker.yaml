@@ -64,15 +64,17 @@ automation:
     mode: single
   - id: "1655063863297"
     alias: "People: Heading Home"
-    description: "Triggers when someone has been away for long distance and heading back home."
+    description:
+      Triggers when someone has been away for long distance and heading back
+      home.
     trigger:
       - platform: numeric_state
         entity_id: proximity.danny_home
-        value_template: "{{ states('proximity.danny_home') | float(99999) }}"
+        value_template: ""
         below: input_number.distance_close_to_home
       - platform: numeric_state
         entity_id: proximity.terina_home
-        value_template: "{{ states('proximity.terina_home') | float(99999) }}"
+        value_template: ""
         below: input_number.distance_close_to_home
     condition: []
     action:
@@ -81,19 +83,47 @@ automation:
               - condition: state
                 entity_id: input_select.home_mode
                 state: Holiday
-              - or:
-                  - condition: template
-                    value_template:
-                      "{{ state_attr('proximity.danny_home','dir_of_travel')
-                      == 'towards' }}"
-                  - condition: template
-                    value_template:
-                      "{{ state_attr('proximity.terina_home','dir_of_travel')
-                      == 'towards' }}"
+              - condition: or
+                conditions:
+                  - condition: state
+                    entity_id: proximity.danny_home
+                    attribute: dir_of_travel
+                    state: towards
+                  - condition: state
+                    entity_id: proximity.terina_home
+                    attribute: dir_of_travel
+                    state: towards
             sequence:
+              - service: input_text.set_value
+                data:
+                  value: >-
+                    {% if trigger.entity_id == 'proximity.danny_home' %}
+                    person.danny
+                    {% elif trigger.entity_id == 'proximity.terina_home'%}
+                    person.terina
+                    {% endif %}
+                target:
+                  entity_id: input_text.origin_address
+              - service: input_text.set_value
+                data:
+                  value: zone.home
+                target:
+                  entity_id: input_text.destination_address
+              - service: homeassistant.update_entity
+                data: {}
+                target:
+                  entity_id: sensor.google_travel_time_by_car
               - service: script.send_to_home_log
                 data:
-                  message: Someone heading home.
+                  message: >-
+                    {% if trigger.entity_id == 'proximity.danny_home' %}
+                    {{ state_attr('person.danny', 'friendly_name') }}
+                    {% elif trigger.entity_id == 'proximity.terina_home'%}
+                    {{ state_attr('person.terina', 'friendly_name') }}
+                    {% endif %} is
+                    {{ states('trigger.entity_id', with_unit=True) }} from home and will
+                    arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
+                    }}.
               - if:
                   - condition: state
                     entity_id: input_select.home_mode
@@ -107,8 +137,6 @@ automation:
                       option: Normal
                     target:
                       entity_id: input_select.home_mode
-              - service: script.turn_everything_off
-                data: {}
         default: []
     mode: single
   # Leaving Home
