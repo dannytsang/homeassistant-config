@@ -224,7 +224,11 @@ automation:
             sequence:
               - service: script.send_to_home_log
                 data:
-                  message: Battery did not fully charge today. Adding a day to count.
+                  message: >-
+                    Battery did not fully charge today
+                    (> {{ states('input_number.growatt_battery_charged_threshold', with_unit=True) }}).
+                    Adding a day to count
+                    ({{ states('input_number.consecutive_days_battery_not_charged') }}).
                   title: ":sunny: :zap: Solar"
               - service: input_number.increment
                 data: {}
@@ -277,7 +281,7 @@ automation:
           message:
             It has been {{ states('input_number.consecutive_forecast_days_below_solar_generation')
             }} days with low solar generation.
-          title: Solar
+          title: ":sunny: :zap: Solar"
           people:
             - person.danny
     mode: single
@@ -300,6 +304,27 @@ automation:
           title: ":house_with_garden: :battery: House Battery"
           people:
             - person.danny
+    mode: single
+  - id: "1680444237958"
+    alias: "Energy: Power Cut Notification"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_load_consumption
+        to: "0"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message:
+            No electricty consumption detected for over a minute. Check for power
+            cut.
+          title: ":warning: :zap: :house_with_garden: House :warning:"
     mode: single
 
 script:
