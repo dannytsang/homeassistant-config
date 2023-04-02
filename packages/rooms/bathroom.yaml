@@ -797,6 +797,30 @@ automation:
         data:
           message_prefix: "Danny's :toothbrush: toothbrush stopped."
     mode: single
+  - id: "1680461746985"
+    alias: "Bathroom: High Humidity"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bathroom_motion_humidity
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        above: 59.9
+    condition:
+      - condition: state
+        entity_id: binary_sensor.bathroom_window
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%) and window is closed."
+          title: ":bathtub: Bathroom"
+          people:
+            - person.danny
+            - person.terina
+    mode: single
 
 scene:
   - id: "1610310643539"
