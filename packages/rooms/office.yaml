@@ -668,11 +668,7 @@ automation:
     trigger:
       - platform: sun
         event: sunset
-        offset: -01:00:00
-        id: summer
-      - platform: sun
-        event: sunset
-        id: winter
+        offset: 01:00:00
     condition:
       - condition: state
         entity_id: input_boolean.enable_office_blind_automations
@@ -694,49 +690,17 @@ automation:
                     ":warning: :window: Office window is still open so not closing
                     blinds. before closing blinds. :warning:"
                   title: ":office: Office"
-          - conditions:
-              - or:
-                  - condition: state
-                    entity_id: sensor.season
-                    state: spring
-                  - condition: state
-                    entity_id: sensor.season
-                    state: summer
-              - condition: trigger
-                id: summer
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: ":city_sunset: :leaves: :sun_with_face: :window: It's getting dark, closing office blinds."
-                      title: ":office: Office"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 0
-                    target:
-                      entity_id: cover.office_blinds
-          - conditions:
-              - or:
-                  - condition: state
-                    entity_id: sensor.season
-                    state: autumn
-                  - condition: state
-                    entity_id: sensor.season
-                    state: winter
-              - condition: trigger
-                id: winter
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: ":city_sunset: :fallen_leaf: :snowman: :window: It's getting dark, closing office blinds."
-                      title: ":office: Office"
-                  - service: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 0
-                    target:
-                      entity_id: cover.office_blinds
-        default: []
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
+                  title: ":office: Office"
+              - service: cover.set_cover_tilt_position
+                data:
+                  tilt_position: 0
+                target:
+                  entity_id: cover.office_blinds
     mode: single
   - id: "1622666920056"
     alias: "Office: Window Closed At Night"
