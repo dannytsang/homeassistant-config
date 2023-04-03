@@ -163,6 +163,28 @@ automation:
                   - condition: state
                     entity_id: input_boolean.enable_lounge_blind_automations
                     state: "on"
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: azimuth
+                    above: input_number.office_blinds_sun_azimuth_threshold
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: elevation
+                    above: input_number.office_blinds_sun_elevation_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Skipping closing blinds because sun is out of the way.
+
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} > {{ states('input_number.office_blinds_sun_azimuth_threshold') }}
+
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }} > {{ states('input_number.office_blinds_sun_elevation_threshold') }}
+                      title: ":couch_and_lamp: Lounge"
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_lounge_blind_automations
+                    state: "on"
                   - condition: state
                     entity_id: binary_sensor.lounge_windows
                     state: "off"
@@ -225,8 +247,9 @@ automation:
                     data:
                       message: >-
                         Skipping closing blinds because sun is out of the way.
-                        
+
                         Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+
                         Elevation: {{ state_attr('sun.sun', 'elevation') }}
                       title: ":office: Office"
                       people:
@@ -283,6 +306,25 @@ automation:
       - parallel:
           - alias: "Lounge blinds"
             choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: azimuth
+                    above: input_number.office_blinds_sun_azimuth_threshold
+                  - condition: numeric_state
+                    entity_id: sun.sun
+                    attribute: elevation
+                    above: input_number.office_blinds_sun_elevation_threshold
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Skipping closing blinds because sun is out of the way.
+
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} > {{ states('input_number.office_blinds_sun_azimuth_threshold') }}
+
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }} > {{ states('input_number.office_blinds_sun_elevation_threshold') }}
+                      title: ":couch_and_lamp: Lounge"
               - conditions:
                   - condition: state
                     entity_id: input_boolean.enable_lounge_blind_automations
@@ -349,6 +391,7 @@ automation:
                         Skipping closing blinds because sun is out of the way.
 
                         Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
+
                         Elevation: {{ state_attr('sun.sun', 'elevation') }}
                       title: ":office: Office"
                       people:
