@@ -616,6 +616,189 @@ automation:
             - cover.lounge_blinds_middle
             - cover.lounge_blinds_right
     mode: single
+  - id: "1678300398735"
+    alias: "Lounge: Bright Outside"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        above: input_number.blind_low_brightness_threshold
+        for: "00:01:00"
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+      - condition: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        below: input_number.blind_high_brightness_threshold
+      - condition: state
+        entity_id: input_boolean.enable_lounge_blind_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.lounge_windows
+        state: "off"
+      - or:
+          - not:
+              - condition: state
+                entity_id: cover.lounge_blinds_middle
+                attribute: current_tilt_position
+                state: "25"
+          - not:
+              - condition: state
+                entity_id: cover.lounge_blinds_right
+                attribute: current_tilt_position
+                state: "25"
+      - or:
+          - condition: state
+            entity_id: group.family_computer
+            state: "home"
+          - alias: Only account for laptop during weekdays
+            and:
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+              - condition: state
+                entity_id: group.terinas_work_computer
+                state: "home"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                Partially closing middle and right blinds.
+              title: ":couch_and_lamp: Lounge"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 25
+            target:
+              entity_id:
+                - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
+    mode: single
+  - id: "1678300398734"
+    alias: "Lounge: Really Bright Outside"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        above: input_number.blind_high_brightness_threshold
+        for: "00:01:00"
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+      - condition: state
+        entity_id: input_boolean.enable_lounge_blind_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.lounge_windows
+        state: "off"
+      - or:
+          - condition: numeric_state
+            entity_id: cover.lounge_blinds_middle
+            attribute: current_tilt_position
+            above: 0
+          - condition: numeric_state
+            entity_id: cover.lounge_blinds_right
+            attribute: current_tilt_position
+            above: 0
+      - or:
+          - condition: state
+            entity_id: group.family_computer
+            state: "home"
+          - alias: Only account for laptop during weekdays
+            and:
+              - condition: time
+                weekday:
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+                  - fri
+              - condition: state
+                entity_id: group.terinas_work_computer
+                state: "home"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                Closing blinds.
+              title: ":couch_and_lamp: Lounge"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 0
+            target:
+              entity_id:
+                - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
+    mode: single
+  - id: "1678637987423"
+    alias: "Lounge: Outside Went Darker"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: input_number.blind_low_brightness_threshold
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+      - condition: state
+        entity_id: input_boolean.enable_lounge_blind_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.lounge_windows
+        state: "off"
+      - or:
+          - condition: numeric_state
+            entity_id: cover.lounge_blinds_left
+            attribute: current_tilt_position
+            below: 50
+          - condition: numeric_state
+            entity_id: cover.lounge_blinds_right
+            attribute: current_tilt_position
+            below: 50
+          - condition: numeric_state
+            entity_id: cover.lounge_blinds_middle
+            attribute: current_tilt_position
+            below: 50
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                Opening Blinds
+              title: ":couch_and_lamp: Lounge"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 50
+            target:
+              entity_id:
+                - cover.lounge_blinds_left
+                - cover.lounge_blinds_middle
+                - cover.lounge_blinds_right
+    mode: single
   # Camera
   - id: "1630015457540"
     alias: "Lounge: Person Detected"
