@@ -738,6 +738,87 @@ automation:
             target:
               entity_id: cover.office_blinds
     mode: single
+  - id: "1680528200295"
+    alias: "Office: No Direct Sun Light In The Morning"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sun.sun
+        attribute: azimuth
+        below: input_number.office_blinds_morning_sun_azimuth_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        below: 50
+      - condition: time
+        after: "08:10:00"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Morning :sun: sun is out of the way. Opening :office: office blinds.
+
+                Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.lounge_blinds_morning_sun_azimuth_threshold')}}).
+
+                Elevation: {{ state_attr('sun.sun', 'elevation') }}.
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 50
+            target:
+              entity_id:
+                - cover.office_blinds
+    mode: single
+  - id: "1680528200297"
+    alias: "Office: No Direct Sun Light In The Afternoon"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sun.sun
+        attribute: azimuth
+        above: input_number.office_blinds_afternoon_sun_azimuth_threshold
+      - platform: numeric_state
+        entity_id: sun.sun
+        attribute: elevation
+        above: input_number.office_blinds_afternoon_sun_elevation_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: azimuth
+        above: input_number.office_blinds_afternoon_sun_azimuth_threshold
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: elevation
+        above: input_number.office_blinds_afternoon_sun_elevation_threshold
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        below: 50
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            Afternoon :sun: sun is out of the way. Opening :office: office blinds.
+
+            Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.office_blinds_afternoon_sun_azimuth_threshold')}}).
+
+            Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.office_blinds_afternoon_sun_elevation_threshold')}}).
+          title: ":office: Office"
+      - service: cover.set_cover_tilt_position
+        data:
+          tilt_position: 50
+        target:
+          entity_id:
+            - cover.office_blinds
+    mode: single
   # Lights
   - id: "1614555883547"
     alias: "Office: Toggle Key Light"
