@@ -166,7 +166,7 @@ automation:
                   - condition: numeric_state
                     entity_id: sun.sun
                     attribute: azimuth
-                    above: input_number.office_blinds_sun_azimuth_threshold
+                    above: input_number.office_blinds_afternoon_sun_azimuth_threshold
                   - condition: numeric_state
                     entity_id: sun.sun
                     attribute: elevation
@@ -175,11 +175,11 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        Skipping closing blinds because sun is out of the way.
+                        Skipping closing blinds because afternoon :sun: sun is out of the way.
 
-                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} > {{ states('input_number.office_blinds_sun_azimuth_threshold') }}
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.lounge_blinds_afternoon_sun_azimuth_threshold')}}).
 
-                        Elevation: {{ state_attr('sun.sun', 'elevation') }} > {{ states('input_number.office_blinds_sun_elevation_threshold') }}
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.lounge_blinds_sun_elevation_threshold')}}).
                       title: ":couch_and_lamp: Lounge"
               - conditions:
                   - condition: state
@@ -231,61 +231,6 @@ automation:
                             - cover.lounge_blinds_middle
                             - cover.lounge_blinds_right
             default: []
-          - alias: "Office blinds"
-            choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: sun.sun
-                    attribute: azimuth
-                    above: input_number.office_blinds_sun_azimuth_threshold
-                  - condition: numeric_state
-                    entity_id: sun.sun
-                    attribute: elevation
-                    above: input_number.office_blinds_sun_elevation_threshold
-                sequence:
-                  - service: script.send_direct_notification
-                    data:
-                      message: >-
-                        Skipping closing blinds because sun is out of the way.
-
-                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
-
-                        Elevation: {{ state_attr('sun.sun', 'elevation') }}
-                      title: ":office: Office"
-                      people:
-                        - person.danny
-              - conditions:
-                  - condition: state
-                    entity_id: input_boolean.enable_office_blind_automations
-                    state: "on"
-                  - condition: numeric_state
-                    entity_id: cover.office_blinds
-                    attribute: current_tilt_position
-                    above: 25
-                  - condition: state
-                    entity_id: binary_sensor.office_windows
-                    state: "off"
-                  - or:
-                      - condition: state
-                        entity_id: group.dannys_work_computer
-                        state: "home"
-                      - condition: state
-                        entity_id: group.jd_computer
-                        state: "home"
-                sequence:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                            Partially closing blinds.
-                          title: ":office: Office"
-                      - service: cover.set_cover_tilt_position
-                        data:
-                          tilt_position: 25
-                        target:
-                          entity_id: cover.office_blinds
-            default: []
     mode: single
   - id: "1678300398734"
     alias: "Front Garden: Really Bright Outside"
@@ -310,7 +255,7 @@ automation:
                   - condition: numeric_state
                     entity_id: sun.sun
                     attribute: azimuth
-                    above: input_number.office_blinds_sun_azimuth_threshold
+                    above: input_number.office_blinds_afternoon_sun_azimuth_threshold
                   - condition: numeric_state
                     entity_id: sun.sun
                     attribute: elevation
@@ -319,11 +264,11 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        Skipping closing blinds because sun is out of the way.
+                        Skipping closing blinds because afternoon :sun: sun is out of the way.
 
-                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} > {{ states('input_number.office_blinds_sun_azimuth_threshold') }}
+                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }} > {{ states('input_number.lounge_blinds_afternoon_sun_azimuth_threshold') }}
 
-                        Elevation: {{ state_attr('sun.sun', 'elevation') }} > {{ states('input_number.office_blinds_sun_elevation_threshold') }}
+                        Elevation: {{ state_attr('sun.sun', 'elevation') }} > {{ states('input_number.lounge_blinds_sun_elevation_threshold') }}
                       title: ":couch_and_lamp: Lounge"
               - conditions:
                   - condition: state
@@ -372,61 +317,6 @@ automation:
                           entity_id:
                             - cover.lounge_blinds_middle
                             - cover.lounge_blinds_right
-            default: []
-          - alias: "Office blinds"
-            choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: sun.sun
-                    attribute: azimuth
-                    above: input_number.office_blinds_sun_azimuth_threshold
-                  - condition: numeric_state
-                    entity_id: sun.sun
-                    attribute: elevation
-                    above: input_number.office_blinds_sun_elevation_threshold
-                sequence:
-                  - service: script.send_direct_notification
-                    data:
-                      message: >-
-                        Skipping closing blinds because sun is out of the way.
-
-                        Azimuth: {{ state_attr('sun.sun', 'azimuth') }}
-
-                        Elevation: {{ state_attr('sun.sun', 'elevation') }}
-                      title: ":office: Office"
-                      people:
-                        - person.danny
-              - conditions:
-                  - condition: state
-                    entity_id: input_boolean.enable_office_blind_automations
-                    state: "on"
-                  - condition: numeric_state
-                    entity_id: cover.office_blinds
-                    attribute: current_tilt_position
-                    above: 25
-                  - condition: state
-                    entity_id: binary_sensor.office_windows
-                    state: "off"
-                  - or:
-                      - condition: state
-                        entity_id: group.dannys_work_computer
-                        state: "home"
-                      - condition: state
-                        entity_id: group.jd_computer
-                        state: "home"
-                sequence:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                            Closing blinds.
-                          title: ":office: Office"
-                      - service: cover.set_cover_tilt_position
-                        data:
-                          tilt_position: 0
-                        target:
-                          entity_id: cover.office_blinds
             default: []
     mode: single
   - id: "1678637987423"
@@ -487,34 +377,6 @@ automation:
                             - cover.lounge_blinds_left
                             - cover.lounge_blinds_middle
                             - cover.lounge_blinds_right
-            default: []
-          - alias: "Office blinds"
-            choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: cover.office_blinds
-                    attribute: current_tilt_position
-                    below: 50
-                  - condition: state
-                    entity_id: input_boolean.enable_office_blind_automations
-                    state: "on"
-                  - condition: state
-                    entity_id: binary_sensor.office_windows
-                    state: "off"
-                sequence:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
-                            Opening Blinds
-                          title: ":office: Office"
-                      - service: cover.set_cover_tilt_position
-                        data:
-                          tilt_position: 50
-                        target:
-                          entity_id:
-                            - cover.office_blinds
             default: []
     mode: single
 

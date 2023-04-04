@@ -819,6 +819,161 @@ automation:
           entity_id:
             - cover.office_blinds
     mode: single
+  - id: "1678300398737"
+    alias: "Office: Bright Outside"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        above: input_number.blind_low_brightness_threshold
+        for: "00:01:00"
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:10:00"
+      - condition: sun
+        before: sunset
+      - condition: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        below: input_number.blind_high_brightness_threshold
+      # Between morning and afternoon non direct sun light positon
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: azimuth
+        above: input_number.office_blinds_morning_sun_azimuth_threshold
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: azimuth
+        below: input_number.office_blinds_afternoon_sun_azimuth_threshold
+      - condition: numeric_state
+        entity_id: sun.sun
+        attribute: elevation
+        below: input_number.office_blinds_sun_elevation_threshold
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        above: 25
+      - condition: state
+        entity_id: binary_sensor.office_windows
+        state: "off"
+      - or:
+          - condition: state
+            entity_id: group.dannys_work_computer
+            state: "home"
+          - condition: state
+            entity_id: group.jd_computer
+            state: "home"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) and computer is on.
+                Partially closing blinds.
+
+                Azimuth: {{ state_attr('sun.sun', 'azimuth') }}.
+
+                Elevation: {{ state_attr('sun.sun', 'elevation') }}.
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 25
+            target:
+              entity_id: cover.office_blinds
+    mode: single
+  - id: "1678300398736"
+    alias: "Office: Really Bright Outside"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        above: input_number.blind_high_brightness_threshold
+        for: "00:01:00"
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        above: 0
+      - condition: state
+        entity_id: binary_sensor.office_windows
+        state: "off"
+      - or:
+          - condition: state
+            entity_id: group.dannys_work_computer
+            state: "home"
+          - condition: state
+            entity_id: group.jd_computer
+            state: "home"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                Closing blinds.
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 0
+            target:
+              entity_id: cover.office_blinds
+    mode: single
+  - id: "1678637987424"
+    alias: "Office: Outside Went Darker"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: input_number.blind_low_brightness_threshold
+    condition:
+      - condition: sun
+        after: sunrise
+      - condition: time
+        after: "08:00:30"
+      - condition: sun
+        before: sunset
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        below: 50
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.office_windows
+        state: "off"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                Opening Blinds
+              title: ":office: Office"
+          - service: cover.set_cover_tilt_position
+            data:
+              tilt_position: 50
+            target:
+              entity_id:
+                - cover.office_blinds
+    mode: single
   # Lights
   - id: "1614555883547"
     alias: "Office: Toggle Key Light"
