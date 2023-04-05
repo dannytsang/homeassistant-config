@@ -662,8 +662,47 @@ automation:
                 target:
                   entity_id: cover.office_blinds
     mode: single
+  - id: "1622374233312"
+    alias: "Office: Close Office Blinds At Night 2"
+    description: ""
+    trigger:
+      - platform: sun
+        event: sunset
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        above: 25
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.office_windows
+                state: "on"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message:
+                    ":warning: :window: Office window is still open so not closing
+                    blinds. before closing blinds. :warning:"
+                  title: ":office: Office"
+        default:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
+                  title: ":office: Office"
+              - service: cover.set_cover_tilt_position
+                data:
+                  tilt_position: 25
+                target:
+                  entity_id: cover.office_blinds
+    mode: single
   - id: "1622374233310"
-    alias: "Office: Close Office Blinds At Night"
+    alias: "Office: Close Office Blinds At Night 2"
     description: ""
     trigger:
       - platform: sun
@@ -673,16 +712,16 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_blind_automations
         state: "on"
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        attribute: current_tilt_position
+        above: 0
     action:
       - choose:
           - conditions:
-              - or:
-                  - condition: state
-                    entity_id: binary_sensor.office_window_right
-                    state: "on"
-                  - condition: state
-                    entity_id: binary_sensor.office_window_left
-                    state: "on"
+              - condition: state
+                entity_id: binary_sensor.office_windows
+                state: "on"
             sequence:
               - service: script.send_to_home_log
                 data:
