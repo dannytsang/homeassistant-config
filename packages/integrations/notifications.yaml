@@ -343,57 +343,18 @@ script:
         example: "['person.danny'] or ['person.danny','person.terina']"
     variables:
       # Get people's preferred messaging platform
-      slack: "{% set platforms = namespace(slack=[]) %}
-        {% for p in people|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Slack'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Slack'|lower in states('input_text.terinas_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Slack'|lower in states('input_text.leos_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.slack }}"
-      discord: "{% set platforms = namespace(discord=[]) %}
-        {% for p in people|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Discord'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.discord = platforms.discord + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Discord'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
-              {% set platforms.discord = platforms.discord + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Discord'|lower in states('input_text.leos_direct_notification_preference')|lower %}
-              {% set platforms.discord = platforms.discord + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.discord }}"
-      telegram: "{% set platforms = namespace(telegram=[]) %}
-        {% for p in people|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Telegram'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Telegram'|lower in states('input_text.leos_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.telegram }}"
+      slack: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Slack') }}
+      discord: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Discord') }}
+      mobile: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - parallel:
           - if:
@@ -526,41 +487,12 @@ script:
         required: true
     variables:
       # Get people's preferred messaging platform
-      mobile: "{% set platforms = namespace(slack=[]) %}
-        {% set persons = states('input_text.direct_message_list') if people|default('', true)|length == 0  else people %}
-        {% for p in persons|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Slack'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Slack'|lower in states('input_text.terinas_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Slack'|lower in states('input_text.leos_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.slack }}"
-      telegram: "{% set platforms = namespace(telegram=[]) %}
-        {% for p in people|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Telegram'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Telegram'|lower in states('input_text.leos_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.telegram }}"
+      mobile: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
@@ -656,41 +588,12 @@ script:
         required: true
     variables:
       # Get people's preferred messaging platform
-      mobile: "{% set platforms = namespace(slack=[]) %}
-        {% set persons = states('input_text.direct_message_list') if people|default('', true)|length == 0  else people %}
-        {% for p in persons|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Slack'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Slack'|lower in states('input_text.terinas_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Slack'|lower in states('input_text.leos_direct_notification_preference') %}
-              {% set platforms.slack = platforms.slack + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.slack }}"
-      telegram: "{% set platforms = namespace(telegram=[]) %}
-        {% for p in people|default([]) %}
-          {% if p == 'person.danny' %}
-            {% if 'Telegram'|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.terina' %}
-            {% if 'Telegram'|lower in states('input_text.terinas_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% elif p == 'person.leo' %}
-            {% if 'Telegram'|lower in states('input_text.leos_direct_notification_preference')|lower %}
-              {% set platforms.telegram = platforms.telegram + [p] %}
-            {% endif %}
-          {% endif %}
-        {% endfor %}
-        {{ platforms.telegram }}"
+      mobile: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
