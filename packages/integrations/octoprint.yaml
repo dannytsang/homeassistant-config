@@ -288,10 +288,29 @@ script:
               - conditions:
                   - condition: state
                     entity_id: light.prusa
+                    state: "on"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.octoprint_current_state
+                        state: "Printing"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Printer is not printing. Turning light off."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_off
+              - conditions:
+                  - condition: state
+                    entity_id: light.prusa
                     state: "off"
                   - condition: numeric_state
                     entity_id: sensor.conservatory_motion_illuminance_lux
                     below: "100"
+                  - condition: state
+                    entity_id: sensor.octoprint_current_state
+                    state: "Printing"
                 sequence:
                   - service: script.send_to_home_log
                     data:
@@ -309,6 +328,9 @@ script:
                   - condition: numeric_state
                     entity_id: sensor.conservatory_motion_illuminance_lux
                     above: "100"
+                  - condition: state
+                    entity_id: sensor.octoprint_current_state
+                    state: "Printing"
                 sequence:
                   - service: script.send_to_home_log
                     data:
@@ -325,6 +347,9 @@ script:
                     state: "off"
                   - condition: trigger
                     id: sunset
+                  - condition: state
+                    entity_id: sensor.octoprint_current_state
+                    state: "Printing"
                 sequence:
                   - service: script.send_to_home_log
                     data:
