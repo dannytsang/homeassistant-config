@@ -757,7 +757,8 @@ script:
               data:
                 message: >-
                   {{ iif(people is not none,people|default('', true)~' ','') }}
-                  {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+                  {% from 'process_messages.jinja' import process_messages %}
+                  {{ process_messages(message, 'Slack') }}
                 target: "{{ target }}"
                 data:
                   blocks:
@@ -771,7 +772,8 @@ script:
                         type: mrkdwn
                         text: >-
                           {{ iif(people is not none,people|default('', true)~' ','') }}
-                          {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+                          {% from 'process_messages.jinja' import process_messages %}
+                          {{ process_messages(message, 'Slack') }}
         default:
           - service: notify.danny_tsang
             data:
@@ -786,7 +788,8 @@ script:
                     type: mrkdwn
                     text: >-
                       {{ iif(people is not none,people|default('', true)~' ','') }}
-                      {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+                      {% from 'process_messages.jinja' import process_messages %}
+                      {{ process_messages(message, 'Slack') }}
         continue_on_error: true
     mode: queued
     max: 10
@@ -823,7 +826,9 @@ script:
             sequence:
               - service: notify.danny_tsang
                 data:
-                  message: "{{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}"
+                  message: >-
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Slack') }}
                   title: "{{ title|default('', true) }}"
                   target: "{{ target }}"
                   data:
@@ -838,7 +843,8 @@ script:
                           type: mrkdwn
                           text: >-
                             {{ iif(people is not none,people|default('', true)~' ','') }}
-                            {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+                            {% from 'process_messages.jinja' import process_messages %}
+                            {{ process_messages(message, 'Slack') }}
                         accessory:
                           type: image
                           image_url: "{{ url }}"
@@ -849,7 +855,8 @@ script:
             data:
               message: >-
                 {{ iif(people is not none,people|default('', true)~' ','') }}
-                {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Slack') }}
               title: "{{ title|default('', true) }}"
               target: "{{ target }}"
               data:
@@ -857,7 +864,9 @@ script:
                   - type: section
                     text:
                       type: mrkdwn
-                      text: "{{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}"
+                      text: >-
+                        {% from 'process_messages.jinja' import process_messages %}
+                        {{ process_messages(message, 'Slack') }}
                     accessory:
                       type: image
                       image_url: "{{ url }}"
@@ -893,7 +902,8 @@ script:
         data:
           message: >-
             {{ iif(people is not none,people|default('', true)~' ','') }}
-            {{ message|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+            {% from 'process_messages.jinja' import process_messages %}
+            {{ process_messages(message, 'Slack') }}
           title: "{{ title|default('', true) }}"
           target: "{{ target }}"
           data:
@@ -999,7 +1009,8 @@ script:
 
 
                   {{ iif(people is not none,people|default('', true)~' ','') }}
-                  {{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}
+                  {% from 'process_messages.jinja' import process_messages %}
+                  {{ process_messages(message, 'Discord') }}
                 target: "{{ target }}"
               continue_on_error: true
         default:
@@ -1007,7 +1018,8 @@ script:
             data:
               message: >-
                 {{ iif(people is not none,people|default('', true)~' ','') }}
-                {{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Discord') }}
               target: "{{ target }}"
             continue_on_error: true
     mode: queued
@@ -1047,7 +1059,9 @@ script:
                   data:
                     embed:
                       title: "{{ title }}"
-                      description: "{{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}"
+                      description: >-
+                        {% from 'process_messages.jinja' import process_messages %}
+                        {{ process_messages(message, 'Discord') }}
                       image:
                         url: "{{ url }}"
         # No title set
@@ -1058,7 +1072,9 @@ script:
               target: "{{ target }}"
               data:
                 embed:
-                  description: "{{ message|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}"
+                  description: >-
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Discord') }}
                   image:
                     url: "{{ url }}"
         continue_on_error: true
@@ -1097,8 +1113,13 @@ script:
           sequence:
             - service: notify.home_assistant
               data:
-                message: "**{{ title|default('', true) }}**
-                \n{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+                message: >-
+                  **{{ title|default('', true) }}**
+
+
+                  {{ iif(people is not none,people|default('', true)~' ','') }}
+                  {% from 'process_messages.jinja' import process_messages %}
+                  {{ process_messages(message, 'Discord') }}
                 target: "{{ target }}"
                 data:
                   images:
@@ -1107,7 +1128,10 @@ script:
         default:
           - service: notify.home_assistant
             data:
-              message: "{{ iif(people is not none,people|default('', true)~' ','') }}{{ message }}"
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Discord') }}
               target: "{{ target }}"
               data:
                 images:
@@ -1115,6 +1139,8 @@ script:
             continue_on_error: true
     mode: queued
     max: 10
+
+  # HASS Agent
   post_to_hass_agent:
     alias: "Post To HASS Agent File Attachments"
     icon: mdi:message-image
