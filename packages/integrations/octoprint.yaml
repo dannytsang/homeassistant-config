@@ -116,12 +116,16 @@ automation:
         id: sunset
       - platform: sun
         event: sunrise
-    condition:
-      - condition: state
-        entity_id: light.prusa
-        state: "on"
+    condition: []
     action:
-      - service: script.3d_printer_check_light
+      - if:
+          - condition: state
+            entity_id: light.prusa
+            state: "on"
+        then:
+          - service: script.3d_printer_check_turn_off_light
+        else:
+          - service: script.3d_printer_check_turn_on_light
     mode: single
   - id: "1613321560216"
     alias: "3D Printer: Finished Printing"
@@ -160,7 +164,7 @@ automation:
         entity_id: input_boolean.enable_3d_printer_automations
         state: "on"
     action:
-      - service: script.3d_printer_check_light
+      - service: script.3d_printer_check_turn_off_light
         data: {}
     mode: single
 
@@ -265,46 +269,12 @@ script:
             - "person.terina"
     mode: single
     icon: mdi:printer-3d
-  3d_printer_check_light:
-    alias: 3D Printer Check Light
+  3d_printer_check_turn_on_light:
+    alias: 3D Printer Check To Turn On Light
     sequence:
       - parallel:
           - choose:
               - conditions:
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "on"
-                  - condition: state
-                    entity_id: sensor.octoprint_current_state
-                    state: "unavailable"
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Printer is offline. Turning light off."
-                      title: ":printer: :black_square_button: 3D printer"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_off
-              - conditions:
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "on"
-                  - not:
-                      - condition: state
-                        entity_id: sensor.octoprint_current_state
-                        state: "Printing"
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Printer is not printing. Turning light off."
-                      title: ":printer: :black_square_button: 3D printer"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_off
-              - conditions:
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "off"
                   - condition: numeric_state
                     entity_id: sensor.conservatory_motion_illuminance_lux
                     below: "100"
@@ -321,10 +291,29 @@ script:
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_on
+            default: []
+    mode: single
+    icon: mdi:printer-3d
+  3d_printer_check_turn_off_light:
+    alias: 3D Printer Check To Turn Off Light
+    description: Assume's the light is already on.
+    sequence:
+      - parallel:
+          - choose:
               - conditions:
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "on"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.octoprint_current_state
+                        state: "Printing"
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "Printer is not printing. Turning light off."
+                      title: ":printer: :black_square_button: 3D printer"
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.3d_printer_light_off
+              - conditions:
                   - condition: numeric_state
                     entity_id: sensor.conservatory_motion_illuminance_lux
                     above: "100"
@@ -334,32 +323,13 @@ script:
                 sequence:
                   - service: script.send_to_home_log
                     data:
-                      message:
-                        ":city_sunrise: It's getting bright and it's printing.
-                        Turning lights off."
+                      message: >-
+                        :city_sunset: :printer: It's getting bright and it's printing.
+                        Turning  light off.
                       title: ":printer: :black_square_button: 3D printer"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_off
-              - conditions:
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "off"
-                  - condition: trigger
-                    id: sunset
-                  - condition: state
-                    entity_id: sensor.octoprint_current_state
-                    state: "Printing"
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message:
-                        ":city_sunset: :printer: Sun is setting and it's printing.
-                        Turning :high_brightness: :bulb: lights on."
-                      title: ":printer: :black_square_button: 3D printer"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_on
             default: []
     mode: single
     icon: mdi:printer-3d
