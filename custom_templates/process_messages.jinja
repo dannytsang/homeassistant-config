@@ -1,22 +1,24 @@
 # Created by Danny Tsang <danny@tsang.uk>
 {% macro process_messages(msg, platform) %}
 
-{% if platform|lower == 'Slack'|lower%}
-    {{ msg|replace('person.danny', states('input_text.dannys_slack_id'))
-    |replace('Danny', states('input_text.dannys_slack_id'))
-    |replace('person.terina', states('input_text.terinas_slack_id'))
-    |replace('Terina', states('input_text.terinas_slack_id'))
-    |replace('person.leo', states('input_text.leos_slack_id'))
-    |replace('Leo', states('input_text.leos_slack_id'))
-    |replace('Home Assistant', states('input_text.home_assistant_bots_slack_id')) }}
+{% if platform|lower == 'Slack'|lower %}
+{{ msg|replace('person.danny', states('input_text.dannys_slack_id'))
+|replace('Danny', states('input_text.dannys_slack_id'))
+|replace('person.terina', states('input_text.terinas_slack_id'))
+|replace('Terina', states('input_text.terinas_slack_id'))
+|replace('person.leo', states('input_text.leos_slack_id'))
+|replace('Leo', states('input_text.leos_slack_id'))
+|replace('Home Assistant', states('input_text.home_assistant_bots_slack_id'))
+|trim }}
 {% elif platform|lower == 'Discord'|lower %}
-    {{ msg|replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
-    |replace('Danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
-    |replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
-    |replace('Terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
-    |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
-    |replace('Leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
-    |replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>') }}
+{{ msg|replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
+|replace('Danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
+|replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
+|replace('Terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
+|replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
+|replace('Leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
+|replace('Home Assistant', '<@'~states('input_text.home_assistants_discord_chat_id')~'>')
+|trim }}
 {% endif %}
 
 {% endmacro %}
