@@ -1,0 +1,41 @@
+# Created by Danny Tsang <danny@tsang.uk>
+#
+# Iterates through a list and returns a specified field's value. It's aimed specifically at solar generation forecast.
+# It expects the list to be ordered chronologically.
+# Paramaters:
+#   forecast_entity: entity ID which contains the forecast attributes.
+#   attribute_name: attribue which contains the list of forecasts.
+#   get_atttribute: The attribute which contains the value you want.
+#   generation_attribute_name: Attribute name that contains a numeric value of generation amount.
+#   min_generation: (Optional)First occurance where the generation attribute value is above specified amount. Defaults to above 0.
+# Example - data stored as an attribute:
+#   forecast:
+#     - period_start: '2023-04-12T05:00:00+01:00'
+#       pv_estimate: 0
+#     - period_start: '2023-04-12T06:00:00+01:00'
+#       pv_estimate: 0.02445
+#     - period_start: '2023-04-12T07:00:00+01:00'
+#       pv_estimate: 0.10585
+#
+#   Calling the below will return '2023-04-12T06:00:00+01:00':
+#     `get_first_solar_generation('sensor.my_entity', 'forecast', 'period_start', 'pv_estimate')`
+#   Calling the below will return 0.10585:
+#     `get_first_solar_generation('sensor.my_entity', 'forecast', 'pv_estimate', 'pv_estimate', 0.1)`
+{% macro get_first_solar_generation(forecast_entity, attribute_name, get_atttribute, generation_attribute_name, min_generation) %}
+{%- for period in state_attr(forecast_entity, attribute_name) -%}
+{%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
+{{ period.get(get_atttribute) }}
+{%- break -%}
+{%- endif -%}
+{%- endfor -%}
+{% endmacro %}
+
+# Does the same as above except the last value of generation in the day.
+{% macro get_last_solar_generation(forecast_entity, attribute_name, get_atttribute, generation_attribute_name, min_generation) %}
+{%- for period in state_attr(forecast_entity, attribute_name)|reverse -%}
+{%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
+{{ period.get(get_atttribute) }}
+{%- break -%}
+{%- endif -%}
+{%- endfor -%}
+{% endmacro %}

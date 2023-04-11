@@ -129,9 +129,15 @@ automation:
           - service: script.send_direct_notification
             data:
               message: >-
-                Generation forecast for tomorrow will be
-                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}.
-                The :Sun: sun will rise at {{ state_attr('sun.sun', 'next_rising') }}.
+                {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
+                Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
+                will be
+                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
+                and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'pv_estimate', 'pv_estimate')|round(2) }} kWh).
+                The first self sustaining generation will occur at
+                {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
 
 
                 Charge :battery: battery to
@@ -152,6 +158,11 @@ automation:
                 {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 18 %}
                 23%.
                 {% endif %}
+
+
+                The last generation of the day will be at
+                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'pv_estimate', 'pv_estimate')|round(2) }} kWh).
               title: ":sunny: :zap: Solar"
               people:
                 - person.danny
