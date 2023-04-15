@@ -35,6 +35,23 @@ automation:
               - service: script.set_central_heating_to_away_mode
                 data: {}
     mode: single
+  - id: "1666470473973"
+    alias: "HVAC: Heating Mode Changed To Automatic"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - climate.thermostat
+        to: auto
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Thermostat switched to auto mode (again).
+          title: ":hotsprings: :droplet: Boiler"
+          people:
+            - person.danny
+    mode: single
   # Radiators
   - id: "1678125037184"
     alias: "HVAC: House Target Temperature Changed"
@@ -329,6 +346,8 @@ script:
                     attribute: temperature
                     state: 7
         then:
+          - service: script.hvac_turn_off_heater_schedule
+            data: {}
           - parallel:
               - service: script.send_to_home_log
                 data:
@@ -360,11 +379,12 @@ script:
                 data:
                   message: "Setting heating to :house_with_garden: home mode."
                   title: ":hotsprings: :droplet: Boiler"
-              - service: climate.set_hvac_mode
-                data:
-                  hvac_mode: auto
-                target:
-                  entity_id: climate.thermostat
+              - sequence:
+                  - service: script.hvac_turn_on_heater_schedule
+                    data: {}
+                  - service: scheduler.run_action
+                    data:
+                      entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
     mode: single
   set_central_heating_to_off:
     alias: Set Central Heating Off
@@ -386,6 +406,46 @@ script:
                   hvac_mode: "off"
                 target:
                   entity_id: climate.thermostat
+    mode: single
+  hvac_turn_off_heater_schedule:
+    alias: "HVAC: Turn Off Heater Schedule"
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Turning off schedule.
+              title: ":hotsprings: :droplet: Boiler"
+          - service: switch.turn_off
+            data: {}
+            target:
+              entity_id:
+                - switch.schedule_heating_for_monday
+                - switch.schedule_heating_for_tuesday
+                - switch.schedule_heating_for_wednesday
+                - switch.schedule_heating_for_thursday
+                - switch.schedule_heating_for_friday
+                - switch.schedule_heating_for_saturday
+                - switch.schedule_heating_for_sunday
+    mode: single
+  hvac_turn_on_heater_schedule:
+    alias: "HVAC: Turn On Heater Schedule"
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Turning on schedule.
+              title: ":hotsprings: :droplet: Boiler"
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id:
+                - switch.schedule_heating_for_monday
+                - switch.schedule_heating_for_tuesday
+                - switch.schedule_heating_for_wednesday
+                - switch.schedule_heating_for_thursday
+                - switch.schedule_heating_for_friday
+                - switch.schedule_heating_for_saturday
+                - switch.schedule_heating_for_sunday
     mode: single
   set_how_water_to_home_mode:
     alias: Set Hot Water To Home
