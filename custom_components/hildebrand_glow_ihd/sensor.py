@@ -66,7 +66,7 @@ STATE_SENSORS = [
   {
     "name": "Smart Meter IHD HAN LQI",
     "device_class": None,
-    "unit_of_measurement": PERCENTAGE,
+    "unit_of_measurement": None,
     "state_class": SensorStateClass.MEASUREMENT,
     "entity_category": EntityCategory.DIAGNOSTIC,
     "icon": "mdi:wifi-strength-outline",
@@ -253,8 +253,8 @@ GAS_SENSORS = [
     "unit_of_measurement": "GBP",
     "state_class": SensorStateClass.TOTAL_INCREASING,
     "icon": "mdi:cash",
-    "func": lambda js : round(js['gasmeter']['energy']['import']['price']['standingcharge'] + \
-       (js['gasmeter']['energy']['import']['day'] * js['gasmeter']['energy']['import']['price']['unitrate']), 2),
+    "func": lambda js : round((js['gasmeter']['energy']['import']['price']['standingcharge'] or 0)+ \
+       ((js['gasmeter']['energy']['import']['day'] or 0) * (js['gasmeter']['energy']['import']['price']['unitrate'] or 0)), 2),
   }
 ]
 
