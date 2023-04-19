@@ -372,7 +372,7 @@ script:
           - not:
               - condition: state
                 entity_id: climate.thermostat
-                state: "auto"
+                state: "heat"
         then:
           - parallel:
               - service: script.send_to_home_log
@@ -382,9 +382,8 @@ script:
               - sequence:
                   - service: script.hvac_turn_on_heater_schedule
                     data: {}
-                  - service: scheduler.run_action
-                    data:
-                      entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
+                  - service: script.check_and_run_central_heating
+                    data: {}
     mode: single
   set_central_heating_to_off:
     alias: Set Central Heating Off
@@ -407,6 +406,13 @@ script:
                 target:
                   entity_id: climate.thermostat
     mode: single
+  check_and_run_central_heating:
+    alias: Check And Run Central Heating Schedule
+    icon: mdi:hvac
+    sequence:
+      - service: scheduler.run_action
+        data:
+          entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
   hvac_turn_off_heater_schedule:
     alias: "HVAC: Turn Off Heater Schedule"
     sequence:
