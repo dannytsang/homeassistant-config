@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
     SensorStateClass,
 )
 from homeassistant.helpers.entity import DeviceInfo, EntityCategory
-from .const import DOMAIN
+from .const import DOMAIN, CONF_TOPIC_PREFIX
 from homeassistant.const import (
     CONF_DEVICE_ID,
     ATTR_DEVICE_ID,
@@ -23,7 +23,6 @@ from homeassistant.const import (
     VOLUME_CUBIC_METERS,
     POWER_KILO_WATT,
     SIGNAL_STRENGTH_DECIBELS,
-    PERCENTAGE,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.entity import DeviceInfo
@@ -40,7 +39,7 @@ STATE_SENSORS = [
     "name": "Smart Meter IHD Software Version",
     "device_class": None,
     "unit_of_measurement": None,
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "entity_category": EntityCategory.DIAGNOSTIC,
     "icon": "mdi:information-outline",
     "func": lambda js: js["software"],
@@ -49,7 +48,7 @@ STATE_SENSORS = [
     "name": "Smart Meter IHD Hardware",
     "device_class": None,
     "unit_of_measurement": None,
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "entity_category": EntityCategory.DIAGNOSTIC,
     "icon": "mdi:information-outline",
     "func": lambda js: js["hardware"],
@@ -120,7 +119,7 @@ ELECTRICITY_SENSORS = [
     "name": "Smart Meter Electricity: Import Unit Rate",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP/kWh",
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : js['electricitymeter']['energy']['import']['price']['unitrate'],
     "ignore_zero_values": True,
@@ -129,7 +128,7 @@ ELECTRICITY_SENSORS = [
     "name": "Smart Meter Electricity: Import Standing Charge",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP",
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : js['electricitymeter']['energy']['import']['price']['standingcharge'],
     "ignore_zero_values": True,
@@ -146,7 +145,7 @@ ELECTRICITY_SENSORS = [
     "name": "Smart Meter Electricity: Cost (Today)",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP",
-    "state_class": SensorStateClass.TOTAL_INCREASING,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : round(js['electricitymeter']['energy']['import']['price']['standingcharge'] + \
        (js['electricitymeter']['energy']['import']['day'] * js['electricitymeter']['energy']['import']['price']['unitrate']), 2),
@@ -224,7 +223,7 @@ GAS_SENSORS = [
     "name": "Smart Meter Gas: Import Unit Rate",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP/kWh",
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : js['gasmeter']['energy']['import']['price']['unitrate'],
     "ignore_zero_values": True,
@@ -233,7 +232,7 @@ GAS_SENSORS = [
     "name": "Smart Meter Gas: Import Standing Charge",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP",
-    "state_class": SensorStateClass.MEASUREMENT,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : js['gasmeter']['energy']['import']['price']['standingcharge'],
     "ignore_zero_values": True,
@@ -251,7 +250,7 @@ GAS_SENSORS = [
     "name": "Smart Meter Gas: Cost (Today)",
     "device_class": SensorDeviceClass.MONETARY,
     "unit_of_measurement": "GBP",
-    "state_class": SensorStateClass.TOTAL_INCREASING,
+    "state_class": None,
     "icon": "mdi:cash",
     "func": lambda js : round((js['gasmeter']['energy']['import']['price']['standingcharge'] or 0)+ \
        ((js['gasmeter']['energy']['import']['day'] or 0) * (js['gasmeter']['energy']['import']['price']['unitrate'] or 0)), 2),
@@ -264,6 +263,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
 
     # the config is defaulted to + which happens to mean we will subscribe to all devices
     device_mac = hass.data[DOMAIN][config_entry.entry_id][CONF_DEVICE_ID]
+    topic_prefix = hass.data[DOMAIN][config_entry.entry_id][CONF_TOPIC_PREFIX] or "glow"
 
     deviceUpdateGroups = {}
 
@@ -280,7 +280,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
             for updateGroup in updateGroups:
                 updateGroup.process_update(message)
 
-    data_topic = "glow/#"
+    data_topic = f"{topic_prefix}/#"
 
     await mqtt.async_subscribe(
         hass, data_topic, mqtt_message_received, 1
@@ -339,9 +339,12 @@ class HildebrandGlowMqttSensor(SensorEntity):
         self._attr_name = name
         self._attr_unique_id = slugify(device_id + "_" + name)
         self._attr_icon = icon
-        self._attr_device_class = device_class
-        self._attr_native_unit_of_measurement = unit_of_measurement
-        self._attr_state_class = state_class
+        if (device_class):
+          self._attr_device_class = device_class
+        if (unit_of_measurement):
+          self._attr_native_unit_of_measurement = unit_of_measurement
+        if (state_class):
+          self._attr_state_class = state_class
         self._attr_entity_category = entity_category
         self._attr_should_poll = False
         
