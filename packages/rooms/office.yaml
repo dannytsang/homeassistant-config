@@ -29,13 +29,9 @@ automation:
       - choose:
           - conditions:
               - and:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_illuminance_lux
-                        below: input_number.office_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance_lux
-                        below: input_number.office_light_level_2_threshold
+                  - condition: numeric_state
+                    entity_id: sensor.office_motion_illuminance
+                    below: input_number.office_light_level_threshold
                   - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
@@ -54,20 +50,16 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        and it's dark ({{ states('sensor.office_motion_illuminance') }} &
                         {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
-                        {{ states('input_number.office_light_level_threshold') }}-
-                        {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
+                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
           - conditions:
               - and:
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_illuminance_lux
+                    entity_id: sensor.office_motion_illuminance
                     above: input_number.office_light_level_threshold
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance_lux
-                    above: input_number.office_light_level_2_threshold
                   - or:
                       - condition: numeric_state
                         entity_id: light.office_light_2
@@ -86,10 +78,9 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        and bright ({{ states('sensor.office_motion_illuminance') }} &
                         {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
-                        {{ states('input_number.office_light_level_threshold') }}-
-                        {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
+                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning office lights off.
                       title: ":office: Office"
         default: []
@@ -122,14 +113,9 @@ automation:
     action:
       - choose:
           - conditions:
-              - and:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_illuminance_lux
-                        below: input_number.office_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance_lux
-                        below: input_number.office_light_level_2_threshold
+              - condition: numeric_state
+                entity_id: sensor.office_motion_illuminance
+                below: input_number.office_light_level_threshold
             sequence:
               - parallel:
                   - service: scene.turn_on
@@ -139,10 +125,9 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_illuminance_lux') }} &
+                        and it's dark ({{ states('sensor.office_motion_illuminance') }} &
                         {{ states('sensor.office_motion_2_illuminance_lux', with_unit=True) }} <
-                        {{ states('input_number.office_light_level_threshold') }}-
-                        {{ states('input_number.office_light_level_2_threshold', with_unit=True) }}).
+                        {{ states('input_number.office_light_level_threshold') }}).
                         Turning :bulb: :high_brightness: lights on.
                       title: ":office: Office"
         default: []
