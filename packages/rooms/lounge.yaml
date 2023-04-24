@@ -5,18 +5,13 @@ automation:
     alias: "Lounge: Motion Detected And It's Dark"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
     trigger:
-      - entity_id: binary_sensor.lounge_area_motion
-        platform: state
-        to: "on"
-        from: "off"
       - platform: state
-        entity_id: binary_sensor.lounge_motion
-        to: "on"
-      - platform: state
-        entity_id: binary_sensor.lounge_motion_2_occupancy
-        to: "on"
-      - platform: state
-        entity_id: binary_sensor.lounge_motion_3_occupancy
+        entity_id:
+          - binary_sensor.lounge_area_motion
+          - binary_sensor.lounge_motion
+          - binary_sensor.lounge_motion_2_occupancy
+          - binary_sensor.lounge_motion_3_occupancy
+          - binary_sensor.lounge_motion_4_occupancy
         to: "on"
     condition:
       - and:
@@ -30,6 +25,9 @@ automation:
               - below: input_number.lounge_light_level_3_threshold
                 condition: numeric_state
                 entity_id: sensor.lounge_motion_3_illuminance_lux
+              - below: input_number.lounge_light_level_3_threshold
+                condition: numeric_state
+                entity_id: sensor.lounge_motoon_4_illuminance
           - or:
               - condition: numeric_state
                 entity_id: light.lounge_lamp_left
