@@ -409,10 +409,20 @@ script:
   check_and_run_central_heating:
     alias: Check And Run Central Heating Schedule
     icon: mdi:hvac
+    variables:
+      current_schedule: "{{ 'switch.schedule_heating_for_' ~ now().timestamp() | timestamp_custom('%A') | lower }}"
     sequence:
+      - if:
+          - condition: template
+            value_template: "{{ states(current_schedule) == 'off' }}"
+        then:
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: "{{ current_schedule }}"
       - service: scheduler.run_action
         data:
-          entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
+          entity_id: "{{ current_schedule }}"
   hvac_turn_off_heater_schedule:
     alias: "HVAC: Turn Off Heater Schedule"
     sequence:
