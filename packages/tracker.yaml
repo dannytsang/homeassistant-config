@@ -659,6 +659,84 @@ automation:
         data:
           message: ":house: :dancer: Left the house and no one is home."
           title: ":woman: Terina"
+  - id: "1681895229515"
+    alias: "Person: Terina Working From Home"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - person.terina
+        to: home
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: time
+        weekday:
+          - fri
+          - thu
+          - wed
+          - tue
+          - mon
+        after: 08:30:00
+      - condition: time
+        before: "14:30:00"
+        weekday:
+          - fri
+          - thu
+          - wed
+          - tue
+          - mon
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message:
+                Looks like Terina is working from home. Changing to Terina Working
+                from home schedule
+              people:
+                - person.danny
+          - service: switch.turn_off
+            data: {}
+            target:
+              entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: switch.schedule_terina_working_from_home
+    mode: single
+  - id: "1681895332881"
+    alias: "Person: Terina Working From Home And Left"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - person.terina
+        to: not_home
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: switch.schedule_terina_working_from_home
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: Turning off Terina working from home heating schedule
+              people:
+                - person.danny
+          - sequence:
+              - service: switch.turn_off
+                data: {}
+                target:
+                  entity_id: switch.schedule_terina_working_from_home
+              - service: script.check_and_run_central_heating
+                data: {}
+    mode: single
 
 group:
   adult_people:
