@@ -249,13 +249,18 @@ automation:
     action:
       - choose:
           - conditions:
-              - not:
-                  - condition: state
-                    entity_id: sensor.dannys_toothbrush_state
-                    state: "idle"
-                  - condition: state
-                    entity_id: sensor.dannys_toothbrush_state
-                    state: "unavailable"
+              - condition: state
+                entity_id: sensor.dannys_toothbrush_state
+                state: "running"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: "Danny's :toothbrush: toothbrush is on. Skipping dimming light."
+                  title: ":bathtub: Bathroom"
+          - conditions:
+              - condition: state
+                entity_id: sensor.dannys_toothbrush_state
+                state: "running"
             sequence:
               - service: script.send_to_home_log
                 data:
