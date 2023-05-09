@@ -7,7 +7,8 @@ import pytz
 from .const import (
         DOMAIN,
         SWITCH_PLATFORM,
-        SWITCH
+        SWITCH,
+        UNIQUE_ID
 )
 SCAN_INTERVAL = timedelta(seconds=5)
 _LOGGER = logging.getLogger(__name__)
@@ -41,6 +42,10 @@ class PresenceSimulationSwitch(SwitchEntity):
         # State will be initialized when restore_state() runs.
         self._next_events = []
         PresenceSimulationSwitch.instances += 1
+
+    @property
+    def unique_id(self):
+      return UNIQUE_ID
 
     def internal_turn_on(self, **kwargs):
         """Turn on the presence simulation flag. Does not launch the simulation, this is for the calls from the services, to avoid a loop"""
@@ -120,11 +125,7 @@ class PresenceSimulationSwitch(SwitchEntity):
 
     async def async_remove_event(self, entity_id):
         """Remove the next event of an entity"""
-        i=0
-        for e in self._next_events:
-            if e[1] == entity_id:
-                del self._next_events[i]
-            i += 1
+        self._next_events = [e for e in self._next_events if e[1] != entity_id]
 
     async def set_start_datetime(self, start_datetime):
         self.attr["simulation_start"] = start_datetime
