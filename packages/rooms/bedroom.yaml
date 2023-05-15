@@ -272,6 +272,83 @@ automation:
             default: []
     mode: queued
     max: 10
+  - id: "1615209552354"
+    alias: "Bedroom: Other Bedroom Door Closes Warning"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.leos_bedroom_door
+        from: "on"
+        to: "off"
+        id: leo
+      - platform: state
+        entity_id: binary_sensor.ashlees_bedroom_door
+        id: ashlee
+        from: "on"
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: light.bedroom_lamps
+        state: "on"
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Guest
+    action:
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_bed_sensor
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.bed_occupied
+                    state: "on"
+                  - condition: trigger
+                    id: leo
+                sequence:
+                  - service: script.other_bedroom_door_closes_warning
+                    data:
+                      bedroom: "leo"
+              - conditions:
+                  - condition: sun
+                    after: sunset
+                  - condition: trigger
+                    id: leo
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                        warning."
+                  - service: script.other_bedroom_door_closes_warning
+                    data:
+                      bedroom: "leo"
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_bed_sensor
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.bed_occupied
+                    state: "on"
+                  - condition: trigger
+                    id: ashlee
+                sequence:
+                  - service: script.other_bedroom_door_closes_warning
+                    data:
+                      bedroom: "ashlee"
+              - conditions:
+                  - condition: sun
+                    after: sunset
+                  - condition: trigger
+                    id: ashlee
+                sequence:
+                  - service: script.other_bedroom_door_closes_warning
+                    data:
+                      bedroom: "ashlee"
+            default: []
+    mode: queued
+    max: 10
   # Motion triggers
   - id: "1621713217274"
     alias: "Bedroom: Motion Detected"
@@ -1001,6 +1078,35 @@ script:
         target:
           entity_id: scene.bedroom_desk_lamps_on
     mode: single
+  bedroom_leos_door_closed_notification:
+    alias: Bedroom Leo's Door Opened Notification
+    sequence:
+      - repeat:
+          count: "2"
+          sequence:
+            - service: light.turn_on
+              data:
+                color_name: blue
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+            - service: light.turn_on
+              data:
+                color_name: green
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+            - service: light.turn_off
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bedroom_desk_lamps_on
+    mode: single
   bedroom_ashlees_door_opened_notification:
     alias: Bedroom Ashlee's Door Opened Notification
     sequence:
@@ -1010,6 +1116,35 @@ script:
             - service: light.turn_on
               data:
                 color_name: pink
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+            - service: light.turn_off
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+      - service: scene.turn_on
+        target:
+          entity_id: scene.bedroom_desk_lamps_on
+    mode: single
+  bedroom_ashlees_door_closed_notification:
+    alias: Bedroom Ashlee's Door Closed Notification
+    sequence:
+      - repeat:
+          count: "2"
+          sequence:
+            - service: light.turn_on
+              data:
+                color_name: pink
+              target:
+                entity_id:
+                  - light.bedroom_lamp_left
+                  - light.bedroom_lamp_right
+            - service: light.turn_on
+              data:
+                color_name: green
               target:
                 entity_id:
                   - light.bedroom_lamp_left
@@ -1065,6 +1200,49 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: ":tv: Bedroom Chromecast was on, pausing TV."
+    mode: single
+  other_bedroom_door_closes_warning:
+    alias: Other Bedroom Door Closes Warning
+    fields:
+      bedroom:
+        name: Bedroom
+        description: Which bedroom door was opened.
+        required: true
+    sequence:
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{bedroom == 'leo'}}"
+                sequence:
+                  - service: script.bedroom_leos_door_closed_notification
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":boy: :door: Leo's door opened and bedroom light is on. Sending
+                        warning."
+              - conditions:
+                  - condition: template
+                    value_template: "{{bedroom == 'ashlee'}}"
+                sequence:
+                  - service: script.bedroom_ashlees_door_closed_notification
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
+                        warning."
+            default: []
+          - if:
+              - condition: state
+                entity_id: media_player.bedroom_tv
+                state: paused
+            then:
+              - service: media_player.media_play_pause
+                target:
+                  entity_id: media_player.bedroom_tv
+              - service: script.send_to_home_log
+                data:
+                  message: ":tv: Bedroom Chromecast was on, playing TV."
     mode: single
   bedroom_close_blinds_by_weather:
     alias: Bedroom Close Blinds Based Weather
