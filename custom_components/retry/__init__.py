@@ -95,15 +95,21 @@ async def async_setup_entry(hass: HomeAssistant, _: ConfigEntry) -> bool:
         retries = 1
         delay = 1
         call = f"{domain}.{service}(data={service_data})"
-        LOGGER.debug("Calling: %s", call)
+        LOGGER.debug(
+            "Calling %s, entity_ids=%s, max_retries=%d, expected_state=%s",
+            call,
+            service_entities,
+            max_retries,
+            expected_state,
+        )
 
-        async def async_check_entities_availability() -> None:
-            """Verify that all entities are available."""
-            nonlocal expected_state
+        async def async_check_entities() -> None:
+            """Verify that all entities are available and in the expected state."""
             for entity_id in service_entities:
                 if (ent_obj := get_entity(entity_id)) is None or not ent_obj.available:
                     raise InvalidStateError(f"{entity_id} is not available")
                 if expected_state:
+                    await hass.async_block_till_done()
                     if (state := ent_obj.state) != expected_state:
                         raise InvalidStateError(
                             f'{entity_id} state is "{state}" but expecting "{expected_state}"'
@@ -112,12 +118,11 @@ async def async_setup_entry(hass: HomeAssistant, _: ConfigEntry) -> bool:
         @callback
         async def async_retry(*_) -> bool:
             """One service call attempt."""
-            nonlocal max_retries
             nonlocal retries
             nonlocal delay
             try:
                 if retries > 1:
-                    LOGGER.info("Calling: %s", call)
+                    LOGGER.info("Calling (%d/%d): %s", retries, max_retries, call)
                 if (
                     await hass.services.async_call(
                         domain, service, service_data.copy(), True, service_call.context
@@ -125,17 +130,18 @@ async def async_setup_entry(hass: HomeAssistant, _: ConfigEntry) -> bool:
                     is False
                 ):
                     raise HomeAssistantError("ServiceRegistry.async_call failed")
-                await async_check_entities_availability()
+                await async_check_entities()
                 if retries == 1:
                     LOGGER.debug("Succeeded: %s", call)
                 else:
-                    LOGGER.info("Succeeded: %s", call)
+                    LOGGER.info("Succeeded (%d/%d): %s", retries, max_retries, call)
                 return
             except Exception:  # pylint: disable=broad-except
                 LOGGER.warning(
-                    "%s attempt #%d failed",
+                    "%s attempt #%d (of %d) failed",
                     call,
                     retries,
+                    max_retries,
                     exc_info=True,
                 )
             if retries == max_retries:
