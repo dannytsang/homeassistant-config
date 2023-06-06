@@ -174,9 +174,10 @@ script:
         description: (optional)Title to the message posted.
     sequence:
       - if:
-          - condition: state
-            entity_id: input_boolean.enable_notifications
-            state: "on"
+          - not:
+              - condition: state
+                entity_id: input_select.home_log_level
+                state: "Off"
         then:
           - if:
             - condition: template
@@ -358,9 +359,10 @@ script:
     sequence:
       - parallel:
           - if:
-              - condition: state
-                entity_id: input_boolean.enable_notifications
-                state: "on"
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_log_level
+                    state: "Off"
             then:
               - parallel:
                   - service: script.post_to_slack_with_local_attachments
@@ -441,9 +443,10 @@ script:
         required: true
     sequence:
       - if:
-          - condition: state
-            entity_id: input_boolean.enable_notifications
-            state: "on"
+          - not:
+              - condition: state
+                entity_id: input_select.home_log_level
+                state: "Off"
         then:
           - parallel:
               - service: script.post_to_slack_with_url_attachment
