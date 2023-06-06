@@ -172,12 +172,19 @@ script:
         required: true
       title:
         description: (optional)Title to the message posted.
+      log_level:
+        description: Level of logging. If it matches or high level, then it will be sent.
+        example: >-
+          If logging is set to *Normal* and the current logging level is *Debug*, then
+          will be sent to the chosen home log platforms.
     sequence:
       - if:
           - not:
               - condition: state
                 entity_id: input_select.home_log_level
                 state: "Off"
+          - condition: template
+            value_template: "{{ log_level|default(none, true) is none or log_level == states('input_select.home_log_level') }}"
         then:
           - if:
             - condition: template
