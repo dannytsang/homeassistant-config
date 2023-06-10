@@ -33,6 +33,7 @@ automation:
                 ({{ states('input_number.conservatory_light_level_threshold', with_unit=True) }}).
                 Turning :bulb: :high_brightness: light on.
               title: "Conservatory"
+              log_level: "Normal"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_on_light
@@ -61,6 +62,7 @@ automation:
             data:
               message: ":no_pedestrians: No motion. :bulb: :low_brightness: Dimming lights."
               title: "Conservatory"
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_dim_light
@@ -88,6 +90,7 @@ automation:
             data:
               message: ":no_pedestrians: No motion. Turning lights off."
               title: "Conservatory"
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_off_light
@@ -117,8 +120,9 @@ automation:
           entity_id: camera.conservatory_person
       - service: script.send_home_log_with_local_attachments
         data_template:
-          title: Person detected in conservatory
           message: Frigate detected a person in the conservatory.
+          title: Person detected in conservatory
+          log_level: "Normal"
           filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
     mode: queued
     max: 10
@@ -137,6 +141,7 @@ automation:
             data:
               message: ":door: Door opened."
               title: "Conservatory"
+              log_level: "Debug"
           - service: script.send_to_home_log
             data:
               message: "Turning conservatory camera :camera_with_flash: on."
@@ -152,6 +157,7 @@ automation:
                 data:
                   message: "Turning off the heating."
                   title: "Conservatory"
+                  log_level: "Debug"
               - service: script.set_central_heating_to_off
                 data: {}
     mode: single
@@ -179,6 +185,7 @@ automation:
                 data:
                   message: "Turning heating on."
                   title: "Conservatory"
+                  log_level: "Debug"
               - service: script.set_central_heating_to_home_mode
                 data: {}
     mode: single
@@ -279,6 +286,7 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: "Overriding conditions. Turning conservatory :camera: camera detection off."
+                  log_level: "Debug"
               - service: switch.turn_off
                 target:
                   entity_id:
@@ -304,6 +312,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: "Turning conservatory :camera: camera detection off."
+              log_level: "Debug"
           - service: switch.turn_off
             target:
               entity_id:

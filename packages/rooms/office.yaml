@@ -48,6 +48,7 @@ automation:
                     {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                     Skipping turning light on.
                   title: ":office: Office"
+                  log_level: "Debug"
           - conditions:
               - and:
                   - condition: numeric_state
@@ -76,6 +77,7 @@ automation:
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
+                      log_level: "Debug"
           - conditions:
               - and:
                   - condition: numeric_state
@@ -104,6 +106,7 @@ automation:
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning office lights off.
                       title: ":office: Office"
+                      log_level: "Debug"
         default: []
     mode: queued
     max: 10
@@ -154,6 +157,7 @@ automation:
                     {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                     Skipping turning light on.
                   title: ":office: Office"
+                  log_level: "Debug"
         default:
           - parallel:
               - service: scene.turn_on
@@ -168,6 +172,7 @@ automation:
                     {{ states('input_number.office_light_level_threshold') }}).
                     Turning :bulb: :high_brightness: lights on.
                   title: ":office: Office"
+                  log_level: "Debug"
     mode: single
   - id: "1606170234725"
     alias: "Office: No Motion After 5 Minutes And Computer Off"
@@ -266,6 +271,7 @@ automation:
                 :no_pedestrians: :bulb: No motion detected in the office for 6 minutes
                 and :desktop_computer: is not connected. Turning office and desk lights off.
               title: ":office: Office"
+              log_level: "Debug"
             service: script.send_to_home_log
           - service: scene.turn_on
             target:
@@ -293,6 +299,7 @@ automation:
                 :no_pedestrians: No motion in the office for 10 minutes
                 and :desktop_computer: is connected. Turning lights off.
               title: ":office: Office"
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.office_main_light_off
@@ -336,6 +343,7 @@ automation:
                         ({{ states('sensor.office_area_mean_temperature') }}c) and someone is home.
                         Turning on fan."
                       title: ":office: Office"
+                      log_level: "Debug"
                   - service: switch.turn_on
                     target:
                       entity_id: switch.office_fan
@@ -351,6 +359,7 @@ automation:
                         :warning: :hotsprings: Office temperature is above 29c
                         ({{ states('sensor.office_area_mean_temperature') }}c).
                       title: ":office: Office"
+                      log_level: "Debug"
                   - service: script.send_actionable_notification_with_2_buttons
                     data:
                       message: Turn on office fan?
@@ -373,6 +382,7 @@ automation:
                         :warning: :hotsprings: Temperature is above 31c. Turning
                         fan on.
                       title: ":office: Office"
+                      log_level: "Debug"
                   - service: switch.turn_on
                     target:
                       entity_id: switch.office_fan
@@ -406,6 +416,7 @@ automation:
                   data:
                     message: Turned off office Fan after 1 hour.
                     title: ":office: Office"
+                    log_level: "Debug"
             - conditions:
                 - condition: trigger
                   id: 2h
@@ -414,6 +425,7 @@ automation:
                   data:
                     message: Turned off office Fan after 2 hours.
                     title: ":office: Office"
+                    log_level: "Debug"
           default: []
         - service: switch.turn_off
           target:
@@ -556,6 +568,7 @@ automation:
               message: >-
                 Computer turned off. Opening blinds.
               title: ":office: Office"
+              log_level: "Debug"
           - service: script.office_open_blinds
             data: {}
     mode: single
@@ -591,6 +604,7 @@ automation:
                     {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}).
                     Not opening blinds.
                   title: ":office: Office"
+                  log_level: "Debug"
           - alias: "Really bright and blinds are open already"
             conditions:
               - condition: numeric_state
@@ -615,6 +629,7 @@ automation:
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                         Closing blinds.
                       title: ":office: Office"
+                      log_level: "Debug"
                   - service: script.office_close_blinds
                     data: {}
           - alias: "Really bright and blinds are closed already"
@@ -636,6 +651,7 @@ automation:
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Keeping blinds closed.
                   title: ":office: Office"
+                  log_level: "Debug"
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.front_garden_motion_illuminance_lux
@@ -658,6 +674,7 @@ automation:
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                         It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) so partially opening office blinds.
                       title: ":office: Office"
+                      log_level: "Debug"
                   - service: cover.set_cover_tilt_position
                     data:
                       tilt_position: 25
@@ -671,6 +688,7 @@ automation:
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds.
                   title: ":office: Office"
+                  log_level: "Debug"
               - service: script.office_open_blinds
                 data: {}
     mode: single
@@ -701,12 +719,14 @@ automation:
                     ":warning: :window: Office window is still open so not closing
                     blinds. before closing blinds. :warning:"
                   title: ":office: Office"
+                  log_level: "Debug"
         default:
           - parallel:
               - service: script.send_to_home_log
                 data:
                   message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
                   title: ":office: Office"
+                  log_level: "Debug"
               - service: cover.set_cover_tilt_position
                 data:
                   tilt_position: 25
@@ -741,12 +761,14 @@ automation:
                     ":warning: :window: Office window is still open so not closing
                     blinds. before closing blinds. :warning:"
                   title: ":office: Office"
+                  log_level: "Debug"
         default:
           - parallel:
               - service: script.send_to_home_log
                 data:
                   message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
                   title: ":office: Office"
+                  log_level: "Debug"
               - service: script.office_close_blinds
                 data: {}
     mode: single
@@ -780,6 +802,7 @@ automation:
                 :window: :city_sunset: Office window closed and it's dark. Closing
                 blinds.
               title: ":office: Office"
+              log_level: "Debug"
           - service: script.office_close_blinds
             data: {}
     mode: single
@@ -815,6 +838,7 @@ automation:
 
                 Elevation: {{ state_attr('sun.sun', 'elevation') }}.
               title: ":office: Office"
+              log_level: "Debug"
           - service: script.office_open_blinds
             data: {}
     mode: single
@@ -859,6 +883,7 @@ automation:
 
             Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.office_blinds_afternoon_sun_elevation_threshold')}}).
           title: ":office: Office"
+          log_level: "Debug"
       - service: script.office_open_blinds
         data: {}
     mode: single
@@ -922,6 +947,7 @@ automation:
 
                 Elevation: {{ state_attr('sun.sun', 'elevation') }}.
               title: ":office: Office"
+              log_level: "Debug"
           - service: cover.set_cover_tilt_position
             data:
               tilt_position: 25
@@ -976,6 +1002,7 @@ automation:
                 It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
                 Closing blinds.
               title: ":office: Office"
+              log_level: "Debug"
           - service: script.office_close_blinds
             data: {}
     mode: single
@@ -1015,6 +1042,7 @@ automation:
                 It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
                 Opening Blinds
               title: ":office: Office"
+              log_level: "Debug"
           - service: script.office_open_blinds
             data: {}
     mode: single

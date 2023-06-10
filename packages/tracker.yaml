@@ -29,6 +29,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":house: :running: Someone arrived home."
+                      log_level: "Debug"
                   - service: script.set_alarm_to_disarmed_mode
                   - service: script.conservatory_turn_off_camera
                   - service: script.lounge_turn_off_camera
@@ -41,10 +42,12 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
+                      log_level: "Debug"
                   - service: script.set_alarm_to_disarmed_mode
                   - service: script.send_to_home_log
                     data:
                       message: "Turning on downstairs :camera_with_flash: cameras."
+                      log_level: "Debug"
                   - service: script.conservatory_turn_on_camera
                   - service: script.lounge_turn_on_camera
                   - service: script.front_garden_turn_on_camera
@@ -59,6 +62,7 @@ automation:
                     data:
                       message: Heating is off. Turning heating on.
                       title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Debug"
                   - service: script.set_central_heating_to_home_mode
             default: []
     mode: single
@@ -124,19 +128,22 @@ automation:
                     {{ states('trigger.entity_id', with_unit=True) }} from home and will
                     arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
                     }}.
+                  log_level: "Debug"
               - if:
                   - condition: state
                     entity_id: input_select.home_mode
                     state: Holiday
                 then:
-                  - service: script.send_to_home_log
-                    data:
-                      message: Changing to normal mode
-                  - service: input_select.select_option
-                    data:
-                      option: Normal
-                    target:
-                      entity_id: input_select.home_mode
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: Changing to normal mode
+                          log_level: "Debug"
+                      - service: input_select.select_option
+                        data:
+                          option: Normal
+                        target:
+                          entity_id: input_select.home_mode
         default: []
     mode: single
   - id: "1680450183660"
@@ -202,6 +209,7 @@ automation:
                 {{ states('trigger.entity_id', with_unit=True) }} from home and will
                 arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
                 }}.
+              log_level: "Normal"
               people:
                 - person.terina
       - if:
@@ -220,6 +228,7 @@ automation:
                 {{ states('trigger.entity_id', with_unit=True) }} from home and will
                 arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
                 }}.
+              log_level: "Normal"
               people:
                 - person.danny
     mode: single
@@ -259,6 +268,7 @@ automation:
                       - service: script.send_to_home_log
                         data:
                           message: ":warning: Guest mode is active and no one is home."
+                          log_level: "Normal"
                       - service: notify.mobile_app_danny_s_phone
                         data:
                           message: Guest mode is on. Do you want to turn on the alarm?
@@ -287,6 +297,7 @@ automation:
                             %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
                             }} {% endif %}{% endfor %}\n"
                           title: ":bell: Alarm"
+                          log_level: "Normal"
                 default:
                   - choose:
                       - conditions:
@@ -325,6 +336,7 @@ automation:
                                   - service: script.send_to_home_log
                                     data:
                                       message: Leaving devices on.
+                                      log_level: "Normal"
                               - conditions:
                                   - condition: template
                                     value_template:
@@ -430,6 +442,7 @@ automation:
                         %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
                         }} {% endif %}{% endfor %}"
                       title: ":warning: :bell: Alarm :warning:"
+                      log_level: "Normal"
             default: []
       - service: script.3d_printer_left_unattended
     mode: single
@@ -503,6 +516,7 @@ automation:
             data:
               message: Danny is arriving home. Turning alarm off.
               title: ":man: Danny"
+              log_level: "Normal"
           - service: script.set_alarm_to_disarmed_mode
     mode: single
   - id: "1581867286886"
@@ -541,6 +555,7 @@ automation:
                 :house: :running: Arrived home and it's dark.
                 Turning Lounge and kitchen ambient lights on.
               title: ":man: Danny"
+              log_level: "Normal"
     mode: single
   - id: "1582456019025"
     alias: "People: Danny Leaves Home"
@@ -566,6 +581,7 @@ automation:
             ":running: :house: Danny has left the house and no one is home. Turning
             off lights."
           title: ":man: Danny"
+          log_level: "Normal"
       - service: timer.cancel
         data: {}
         target:
@@ -599,6 +615,7 @@ automation:
             data:
               message: Terina is arriving home. Turning alarm off.
               title: ":woman: Terina"
+              log_level: "Normal"
           - service: script.set_alarm_to_disarmed_mode
     mode: single
   - id: "1582754128581"
@@ -637,6 +654,7 @@ automation:
                 :dancer: :house: :bulb: Arrived home and it's dark.
                 Turning Lounge and kitchen ambient lights on.
               title: ":woman: Terina"
+              log_level: "Normal"
   - id: "1582456025977"
     alias: "People: Terina Leaves Home"
     description: "Heading towards home and very close."
@@ -659,6 +677,7 @@ automation:
         data:
           message: ":house: :dancer: Left the house and no one is home."
           title: ":woman: Terina"
+          log_level: "Normal"
   - id: "1681895229515"
     alias: "Person: Terina Working From Home"
     description: ""
@@ -690,13 +709,12 @@ automation:
           - mon
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
               message:
                 Looks like Terina is working from home. Changing to Terina Working
                 from home schedule
-              people:
-                - person.danny
+              log_level: "Debug"
           - service: switch.turn_off
             data: {}
             target:
@@ -724,11 +742,10 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
               message: Turning off Terina working from home heating schedule
-              people:
-                - person.danny
+              log_level: "Debug"
           - sequence:
               - service: switch.turn_off
                 data: {}
@@ -897,6 +914,7 @@ script:
           message:
             ":running: :house: :dancer: Everyone has left the house. Running the
             following:"
+          log_level: "Debug"
         service: script.send_to_home_log
       - service: script.turn_everything_off
     mode: single
@@ -906,6 +924,7 @@ script:
       - service: script.send_to_home_log
         data:
           message: "Checking Terina's :briefcase: work :computer: laptop status."
+          log_level: "Debug"
       - if:
           - condition: state
             entity_id: group.terinas_work_computer
@@ -925,6 +944,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: Setting higher threshold for lounge lights 30 and 25 respectively.
+              log_level: "Debug"
           - service: input_number.set_value
             data:
               value: 30
@@ -944,6 +964,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: Setting lower threshold for lounge lights 81 and 65 respectively.
+              log_level: "Debug"
           - service: input_number.set_value
             data:
               value: 81

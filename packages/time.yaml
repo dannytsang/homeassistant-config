@@ -19,6 +19,7 @@ automation:
             {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
             %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
             }} {% endif %}{% endfor %}"
+          log_level: "Debug"
     mode: single
   - id: "1622933176882"
     alias: "Time: Alert Doors or Windows Still Open At Night"
@@ -60,6 +61,7 @@ automation:
             message:
               ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
               Deleting :camera: files"
+            log_level: "Debug"
         - service: delete.files_in_folder
           data:
             folder: /config/camera/
@@ -96,6 +98,7 @@ automation:
             service: input_boolean.turn_on
           - data:
               message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
+              log_level: "Debug"
             service: script.send_to_home_log
     mode: single
   - id: "1582406380123"
@@ -117,6 +120,7 @@ automation:
                 ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
                 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
                 light off."
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.turn_off_downstairs_lights
@@ -134,14 +138,17 @@ script:
           message:
             ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
             Running morning routine."
+          log_level: "Normal"
       - service: script.set_alarm_to_disarmed_mode
       - service: script.send_to_home_log
         data:
           message: ":no_bell: Turning alarm off."
+          log_level: "Normal"
       - service: switch.turn_off
         target:
           entity_id: switch.indoor_cameras
       - service: script.send_to_home_log
         data:
           message: ":clock9: :sunrise: Morning routine complete."
+          log_level: "Normal"
     mode: single

@@ -23,6 +23,7 @@ automation:
                         ({{ states('sensor.porch_motion_illuminance_lux') }} < 100).
                         Turning on :bulb: :high_brightness: light.
                       title: "Porch"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.porch_light_on
@@ -40,6 +41,7 @@ automation:
             from {{ states('counter.front_door_opened_closed') }} to {{ states('counter.front_door_opened_closed')
             | int + state_attr('counter.front_door_opened_closed', 'step') | int }}.
           title: "Porch"
+          log_level: "Debug"
       - service: counter.increment
         data: {}
         entity_id: counter.front_door_opened_closed
@@ -64,6 +66,7 @@ automation:
             Front door has been opened for more than 20 secs.
             Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
           title: "Porch"
+          log_level: "Debug"
       - service: counter.reset
         data: {}
         entity_id: counter.front_door_opened_closed
@@ -87,6 +90,7 @@ automation:
                 front :door: door is open and:people_holding_hands: someone is home.
                 Turning on notification :bulb: :high_brightness: light.
               title: "Porch"
+              log_level: "Debug"
           - service: script.front_door_open_notification
             data: {}
     mode: single
@@ -108,6 +112,7 @@ automation:
                 Front door closed for more than 20 secs.
                 Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
               title: "Porch"
+              log_level: "Debug"
           - service: counter.reset
             target:
               entity_id: counter.front_door_opened_closed
@@ -127,6 +132,7 @@ automation:
             data:
               message: "Front :door: door closed."
               title: "Porch"
+              log_level: "Debug"
           - service: script.front_door_closed_notification
             data: {}
           - service: script.send_to_computers
@@ -157,6 +163,7 @@ automation:
                 Front :door: door closed for 1 minute.
                 Turning off light.
               title: "Porch"
+              log_level: "Debug"
           - choose:
               - conditions:
                   - condition: state
@@ -167,6 +174,7 @@ automation:
                     data:
                       message: "Front door closed. Turning stairs light off as fall back."
                       title: "Porch"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id:
@@ -182,6 +190,7 @@ automation:
                     data:
                       message: "Front door closed. Turning office light off as fall back."
                       title: "Porch"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id:

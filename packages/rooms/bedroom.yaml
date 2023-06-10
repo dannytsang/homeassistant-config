@@ -33,6 +33,7 @@ automation:
                 :sleeping_accommodation: Someone is in bed, :window: window is closed and
                 it's getting late. Closing blinds.
               title: ":bed: bedroom"
+              log_level: "Debug"
             service: script.send_to_home_log
           - service: cover.close_cover
             target:
@@ -63,7 +64,8 @@ automation:
               message: >-
                 :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                 :sunrise: Bedroom blind is open and it's nearly sunrise. Closing blinds.
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
           - service: cover.close_cover
             target:
               entity_id: cover.bedroom_blinds
@@ -95,7 +97,8 @@ automation:
               message: >-
                 :window: Window closed and it's after :city_sunset: sunset.
                 Closing blinds.
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
           - service: cover.set_cover_position
             data:
               position: 50
@@ -136,7 +139,8 @@ automation:
                         :sleeping_accommodation: :window: Window shut, someone is
                         in bed ({{states('sensor.bed_sensor')}}) and it's after :city_sunset: sunset.
                         Closing blinds.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.bedroom_blinds
@@ -151,7 +155,8 @@ automation:
                         :sleeping_accommodation: :window: Bedroom window shut, someone is
                         in bed ({{states('sensor.bed_sensor')}}) and it's after :city_sunset: sunset.
                         Closing blinds.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.bedroom_blinds
@@ -189,7 +194,8 @@ automation:
               message: >-
                 No one is in :bed: bed ({{states('sensor.bed_sensor')}}).
                 Opening the blinds."
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
           - service: cover.open_cover
             target:
               entity_id: cover.bedroom_blinds
@@ -402,7 +408,8 @@ automation:
                       message: >-
                         :paw_prints: Motion detected and the blinds are down.
                         Dimming ambient :bulb: :low_brightness: lights.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.bedroom_dim_ambient_light
@@ -417,7 +424,8 @@ automation:
                       message: >-
                         :paw_prints: Motion detected at :city_sunrise: sunrise.
                         Turning ambient :bulb: :high_brightness: lights on.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.bedroom_turn_on_ambient_light
@@ -436,7 +444,8 @@ automation:
                       message: >-
                         :paw_prints: Motion detected after :city_sunset: sunset.
                         :bulb: :low_brightness: Dimming ambient lights.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.bedroom_dim_ambient_light
@@ -525,7 +534,8 @@ automation:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds because it's closed on a working weekday!"
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
           - conditions:
               # Non workday and no children
               - condition: state
@@ -547,7 +557,8 @@ automation:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds because it's closed and its 09:00 on a weekend!"
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
           - conditions:
               # Non workday and no children
               - condition: state
@@ -568,7 +579,8 @@ automation:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds because it's closed, there are no children and its 09:30 on a weekend!"
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
           - conditions:
               - condition: trigger
                 id: "093000"
@@ -581,7 +593,8 @@ automation:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds because it's closed and its 09:30!"
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
         default: []
     mode: single
   - id: "1621875567853"
@@ -605,7 +618,8 @@ automation:
               message: >-
                 :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                 It's after :city_sunset: sunset, closing bedroom's blinds.
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
           - choose:
               - conditions:
                   - condition: state
@@ -617,7 +631,8 @@ automation:
                       message: >-
                         :window: Window is still open. Waiting until
                         it's closed before closing blinds.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
             default:
               - service: cover.close_cover
                 target:
@@ -640,7 +655,8 @@ automation:
             service: switch.turn_off
           - data:
               message: Electric blanket has been on for 1 hour. Turning electric blanket off.
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
             service: script.send_to_home_log
   - id: "1624194131454"
     alias: "Bedroom: TV Turned On During Bright Day"
@@ -692,7 +708,8 @@ automation:
                       message: >-
                         :bed: Bedroom :tv: TV turned on and it's bright. Lowering bedroom
                         blinds.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
                   - service: cover.set_cover_position
                     target:
                       entity_id: cover.bedroom_blinds
@@ -747,13 +764,15 @@ automation:
                     else state_attr('weather.home_hourly', 'temperature')|float(0) }} }})
                     {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}.
                     Keeping blinds closed.
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
         default:
           - parallel:
               - service: script.send_to_home_log
                 data:
                   message: ":tv: TV turned off. Opening Blinds."
-                  title: ":bed: Bedroom"
+                  title: ":bed: bedroom"
+                  log_level: "Debug"
               - service: cover.open_cover
                 target:
                   entity_id: cover.bedroom_blinds
@@ -778,7 +797,8 @@ automation:
               message:
                 ":bed: :hotsprings: Heated blanket has been on for :hourglass: an hour.
                 Turning heated blanket off."
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
           - service: switch.turn_off
             target:
               entity_id: switch.bedroom_blanket
@@ -832,7 +852,8 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Power button pressed.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
           - conditions:
               - or:
                   - condition: template
@@ -850,7 +871,8 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Hue buttom on remote pressed.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
           - conditions:
               - or:
                   - condition: template
@@ -862,7 +884,8 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Bright buttom on remote pressed.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
           - conditions:
               - or:
                   - condition: template
@@ -874,14 +897,16 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Dim buttom on remote pressed.
-                      title: ":bed: Bedroom"
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
         default:
           - service: script.send_to_home_log
             data:
               message:
                 "Hue Remote\n id: {{trigger.event.data.id}}\n type: {{trigger.event.data.type}}\n\
                 \ unique ID: {{trigger.event.data.unique_id}}"
-              title: ":bed: Bedroom"
+              title: ":bed: bedroom"
+              log_level: "Debug"
     mode: queued
     max: 10
 
@@ -1295,14 +1320,16 @@ script:
                               message: >-
                                 It's going to be hot ({{ temperature }} {{ weather_condition }}) and
                                 the :window: window is open preventing the blinds from closing.
-                              title: ":bed: Bedroom"
+                              title: ":bed: bedroom"
+                              log_level: "Debug"
                     default:
                       - service: script.send_to_home_log
                         data:
                           message: >-
                             It's going to be hot ({{ temperature }} {{ weather_condition }}).
                             Closing blinds.
-                          title: ":bed: Bedroom"
+                          title: ":bed: bedroom"
+                          log_level: "Debug"
                       - service: cover.close_cover
                         target:
                           entity_id: cover.bedroom_blinds
