@@ -26,14 +26,13 @@ script:
         {% else %}
         Unknown device {{ entity_id }}
         {% endif%}
-      file_path: "{{ states('input_text.latest_hyperion_lounge_tv_file_path') if entity_id|default('', true) == 'media_player.lounge_tv' else states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
     sequence:
       - delay:
           seconds: 2
-      - service: script.send_home_log_with_local_attachments
+      - service: script.send_home_log
         data:
           message: "{{ device }} {{ display_state }}."
           title: "{{ title }}"
-          filePath: "{{ states('input_text.camera_external_folder_path') }}{{ file_path }}"
+          log_level: "Debug"
     mode: queued
     max: 10

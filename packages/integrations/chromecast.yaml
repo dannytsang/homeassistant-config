@@ -28,6 +28,7 @@ automation:
           data:
             message: Casting Home Assistant.
             title: ":mirror: Magic Mirror"
+            log_level: "Debug"
         - service: cast.show_lovelace_view
           data:
             entity_id: media_player.stairs_chromecast
@@ -116,13 +117,6 @@ automation:
                   {{ state_attr(trigger.entity_id, 'media_position') !=
                   none }}
             sequence:
-              - service: camera.snapshot
-                target:
-                  entity_id: camera.bedroom_tv
-                data:
-                  filename: "{{ states('input_text.camera_external_folder_path') }}{{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}"
-              - delay:
-                  seconds: 2
               - service: script.google_tv_playing_notification
                 data:
                   entity_id: "{{ trigger.entity_id }}"
@@ -145,22 +139,6 @@ script:
         {% else %}
         :warning: Unknown device {{ entity_id }}
         {% endif %}
-      camera: >-
-        {% if entity_id|default('', true) == 'media_player.lounge_tv' %}
-        camera.bedroom_tv
-        {% elif entity_id|default('', true) == 'media_player.bedroom_tv' %}
-        camera.lounge_tv
-        {% else %}
-        {{ none }}
-        {% endif %}
-      camera_path: >-
-        {% if entity_id|default('', true) == 'media_player.lounge_tv' %}
-        {{ states('input_text.latest_hyperion_bedroom_tv_file_path') }}
-        {% elif entity_id|default('', true) == 'media_player.bedroom_tv' %}
-        {{ states('input_text.latest_hyperion_lounge_tv_file_path') }}
-        {% else %}
-        {{ none }}
-        {% endif %}
     sequence:
       - choose:
           - conditions:
@@ -171,14 +149,7 @@ script:
                   camera !=
                   none}}
             sequence:
-              - service: camera.snapshot
-                target:
-                  entity_id: "{{ camera }}"
-                data:
-                  filename: "{{ states('input_text.camera_external_folder_path') }}{{ camera_path }}"
-              - delay:
-                  seconds: 2
-              - service: script.send_home_log_with_local_attachments
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     Google :tv: TV started playing
@@ -190,9 +161,10 @@ script:
                     / state_attr(entity_id, 'media_duration')|int) * 100)|round(2, 'common') }}%)
                     way through.
                   title: "{{ title }}"
-                  filePath: "{{ states('input_text.camera_external_folder_path') }}{{ camera_path }}"
+                  log_level: "Debug"
         default:
           - service: script.send_to_home_log
             data:
               message: "Google :tv: TV started playing {{ state_attr(entity_id, 'media_title') }} on {{ state_attr(entity_id, 'app_name') }}"
               title: "{{ title }}"
+              log_level: "Debug"
