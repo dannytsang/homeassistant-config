@@ -24,8 +24,12 @@ This is not an exhaustive list and it changes quite a lot. Too keep up to date, 
 *   [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
 *   [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
 *   [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
-*   [Samba Backup](https://github.com/thomasmauerer/hassio-addons/tree/master/samba-backup)
 *   [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
+
+Add-ons that I run outside of Home Assistant:
+*   [EMQX](https://github.com/hassio-addons/addon-emqx)
+*   [Grafana](https://github.com/hassio-addons/addon-grafana)
+*   [Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt)
 
 # Integrations 🖧
 More details [here](integrations.md).
