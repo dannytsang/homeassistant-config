@@ -27,12 +27,13 @@ I love Elgato products. They are generally well designed however you do pay a pr
 *   [Key Light](https://www.elgato.com/en/key-light)
 *   [Stream Deck](https://www.elgato.com/en/stream-deck)
 
+## Everything
+From Everything Smart Home, Lewis has created an ESP32 mmWave kit.
+*   [EP1 Kit](https://shop.everythingsmart.io/products/everything-presence-one-kit)
+
 ## Expressif
 Makes chips and used in popular commercial IOT applications like [Tuya](https://www.tuya.com/). I use Wemos variant of the older ESP8266 (see below) and the newer ESP32. To manage all of these, I use ESPHome.
 *   [ESP32 CP2102](https://www.espressif.com/en/products/socs/esp32)
-
-## Feasycom
-*   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
 
 ## Feasycom
 *   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
@@ -47,7 +48,6 @@ An in home display (IHD) that supports live smart meter reading to APIs and MQTT
 
 ## Google
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
-*   [Chromecast](https://store.google.com/gb/product/chromecast?hl=en-GB)
 *   [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 *   [Google TV](https://store.google.com/gb/product/chromecast_google_tv?hl=en-GB)
 
@@ -80,7 +80,6 @@ Love the Ikea blinds. They are easy to get hold of compared to other products an
 The light output is one of the best in terms of lumens. The colours are generally very good. The downside has been pairing them to the WiFi on Android has been hit and miss. Once connected, there has been no issues.
 *   [Candle White to Warm](https://uk.lifx.com/collections/lamps-and-pendants/products/candle-white-to-warm)
 *   [Color A19](https://www.lifx.com/products/lifx-color-a19)
-*   Color 1000
 *   [Mini White](https://eu.lifx.com/products/lifx-mini-white)
 
 ## Logitech
@@ -106,7 +105,7 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
 *   [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
 
 ## Raspberry Pi Foundation
-A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display (dashboard).
+A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display (dashboard) through to monitoring 3D prints using Octoprint.
 *   [Raspberry Pi 4 model B](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
 *   [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
@@ -119,11 +118,6 @@ Does not have all the support with [Home Assistant](https://home-assistant.io), 
 *   [Ring Alarm Motion Sensor 1st Gen](https://www.amazon.co.uk/gp/product/B07QQV5RCZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 *   [Ring Alarm Motion Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-motion-detector-2nd-generation/dp/B08J6C5JJN/ref=sr_1_1_sspa?crid=1CS8GPODHRQ0A&keywords=ring+alarm+motion&qid=1640881018&sprefix=ring+alarm+motion%2Caps%2C80&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExRE9SRE1PSEtHNk0mZW5jcnlwdGVkSWQ9QTA2OTcyMDVUSE9KMFJJSjI4R00mZW5jcnlwdGVkQWRJZD1BMDMzMTIwNzVIUFE2TFFYV1ZRRiZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=)
 *   [Stickup Cam Elite](https://en-uk.ring.com/products/stick-up-security-camera-elite)
-
-## Roku
-Relatively cheap and usable media streaming device (compared to a PlayStation). Has a wide variety of support for apps and more reliable than Chromecast devices.
-*   [NowTV Smart Stick](https://www.nowtv.com/ie/smart-tv-stick)
-*   [Streaming stick+](https://www.roku.com/en-gb/products/streaming-stick-plus)
 
 ## <a name="smartthings"></a>Samsung SmartThings
 Some real gems that Samsung has made like the multipurpose sensor where Philips doesn't have. Generally reliable and well packaged.
@@ -157,9 +151,10 @@ Very well priced IoT device manufacturer. I am using the temperature sensor for 
 
 ## Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
-*   [Unifi Dream Machine Pro](https://store.ui.com/collections/unifi-network-unifi-os-consoles/products/udm-pro)
-*   [Unifi Swtich 8](https://store.ui.com/collections/unifi-network-switching/products/unifi-switch-8)
-*   [Unifi Switch 24](https://store.ui.com/collections/unifi-network-switching/products/usw-24)
+*   [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
+*   Unifi Swtich 8
+*   [Unifi Swtich 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
+*   [Unifi Switch 24](https://uk.store.ui.com/uk/en/collections/unifi-switching-standard-ethernet)
 
 ## Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [ESPHome](https://esphome.io/) firmware.
