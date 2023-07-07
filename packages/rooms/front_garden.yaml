@@ -142,6 +142,61 @@ automation:
         default: []
     mode: queued
     max: 10
+  # Light
+  - id: "1660894232444"
+    alias: "Front Garden: Below Direct Sun Light"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.front_garden_motion_illuminance_lux
+        for:
+          hours: 0
+          minutes: 10
+          seconds: 0
+        below: input_number.close_blinds_brightness_threshold
+    condition:
+      - condition: state
+        entity_id: sensor.season
+        state: summer
+    action:
+      - service: script.send_to_home_log
+        data:
+          message:
+            Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold')
+            }} ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True)
+            }}). Opening office blinds/curtains.
+          title: Front Garden
+      - service: cover.set_cover_position
+        data:
+          position: 25
+        target:
+          entity_id: cover.office_blinds
+      - if:
+          - condition: numeric_state
+            entity_id: cover.bedroom_blinds
+            attribute: current_position
+            below: input_number.blind_closed_position_threshold
+          - condition: sun
+            before: sunset
+          - condition: state
+            entity_id: binary_sensor.bedroom_tv_powered_on
+            state: "off"
+        then:
+          - service: cover.open_cover
+            target:
+              entity_id: cover.bedroom_blinds
+      - if:
+          - condition: numeric_state
+            entity_id: cover.ashlees_bedroom_blinds_cover
+            attribute: current_position
+            below: input_number.blind_closed_position_threshold
+          - condition: time
+            before: input_datetime.childrens_bed_time
+        then:
+          - service: cover.open_cover
+            target:
+              entity_id: cover.ashlees_bedroom_blinds_cover
+    mode: single
 
 script:
   front_garden_motion_notification:
