@@ -1,0 +1,42 @@
+esphome:
+  name: water-softener
+  friendly_name: water-softener
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+sensor:
+  - platform: ultrasonic
+    trigger_pin: GPIO13
+    echo_pin: GPIO12
+    name: "Salt Level"
+
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret water_softener_api_encryption_key
+
+ota:
+  password: !secret water_softener_ota_password
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: !secret water_softener_webserver_username
+    password: !secret water_softener_webserver_password
+
+captive_portal:
+    
