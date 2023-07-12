@@ -297,7 +297,6 @@ automation:
                             %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
                             }} {% endif %}{% endfor %}\n"
                           title: ":bell: Alarm"
-                          log_level: "Normal"
                 default:
                   - choose:
                       - conditions:
@@ -348,6 +347,7 @@ automation:
                                       - service: script.send_to_home_log
                                         data:
                                           message: Skipping turning off devices.
+                                          log_level: "Normal"
                             default:
                               - service: script.everybody_leave_home
                     default:
@@ -471,6 +471,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: Everyone is far away from home.
+                      log_level: "Normal"
                   - if:
                       - condition: not
                         conditions:
@@ -483,6 +484,7 @@ automation:
                             data:
                               message: Changing to holiday mode.
                               title: Home Mode
+                              log_level: "Normal"
                           - service: input_select.select_option
                             data:
                               option: Holiday
@@ -910,12 +912,12 @@ script:
   everybody_leave_home:
     alias: Everybody Leave Home
     sequence:
-      - data:
+      - service: script.send_to_home_log
+        data:
           message:
             ":running: :house: :dancer: Everyone has left the house. Running the
             following:"
           log_level: "Debug"
-        service: script.send_to_home_log
       - service: script.turn_everything_off
     mode: single
   check_terinas_work_laptop_status:
