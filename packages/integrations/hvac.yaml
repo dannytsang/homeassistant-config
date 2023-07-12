@@ -139,13 +139,14 @@ automation:
                 data:
                   message: In Holiday mode. Skipping turning on hot water.
                   title: ":hotsprings: Central Heating"
+                  log_level: "Debug"
           - conditions:
               - condition: template
                 value_template: >
                   {{ (states('sensor.myenergi_eddi_energy_consumed_session_daily')|float(0)) >
                   (states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0)) }}
             sequence:
-              - service: script.send_direct_notification
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     Eddi has heated the hot water
@@ -156,9 +157,7 @@ automation:
 
                     Skipping scheduled turning on hot water.
                   title: ":hotsprings: Central Heating"
-                  people:
-                    - person.danny
-                    - person.terina
+                  log_level: "Normal"
         default:
           - service: script.send_to_home_log
             data:
