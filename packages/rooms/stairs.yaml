@@ -135,7 +135,8 @@ automation:
         attribute: brightness
         below: "5"
     action:
-      - data:
+      - service: script.send_to_home_log
+        data:
           message: >-
             :paw_prints: Motion on upstairs, before bed time, :bulb: light is on
             and it's dark
@@ -144,7 +145,6 @@ automation:
             Turning :bulb: :high_brightness: light on.
           title: "Porch"
           log_level: "Debug"
-        service: script.send_to_home_log
       - service: scene.turn_on
         target:
           entity_id:
@@ -652,10 +652,11 @@ automation:
         - service: switch.turn_on
           target:
             entity_id: switch.magic_mirror_plug
-        - data:
+        - service: script.send_to_home_log
+          data:
             message: "Turning on :mirror: Maggic Mirror."
             title: ":paw_prints: Motion on the :ladder: stairs/lounge"
-          service: script.send_to_home_log
+            log_level: "Debug"
     mode: queued
     max: 10
   - id: "1587595847618"
@@ -782,13 +783,13 @@ automation:
         - service: switch.turn_off
           target:
             entity_id: switch.magic_mirror_plug
-        - data:
+        - service: script.send_to_home_log
+          data:
             message: >-
               :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
               :no_pedestrians: Turning off :mirror: Maggic Mirror because no motion was detected.
             title: "Porch"
             log_level: "Debug"
-          service: script.send_to_home_log
     mode: single
   # Contact sensor
   - id: "1615849889104"
@@ -830,6 +831,7 @@ automation:
                     message: >-
                       :paw_prints: :door: :low_brightness: {{ trigger.to_state.name }} opened after bed time and
                       the stairs light are on. :bulb: :low_brightness: Dimming all lights.
+                    log_level: "Debug"
                 - service: scene.turn_on
                   target:
                     entity_id:
@@ -850,6 +852,7 @@ automation:
                     message: >-
                       :door: :high_brightness: {{ trigger.to_state.name }} opened after bed time and
                       the stairs light are on. :bulb: :low_brightness: Dimming all lights.
+                    log_level: "Debug"
                 - service: scene.turn_on
                   target:
                     entity_id:
@@ -901,6 +904,7 @@ automation:
                     message: >-
                       :door: :high_brightness: {{ trigger.to_state.name }} closed after bed time, :people_holding_hands:
                       children's :door: doors are closed and the light are on. Turn up :bulb: :high_brightness: all lights.
+                    log_level: "Debug"
                 - service: scene.turn_on
                   target:
                     entity_id:
@@ -924,6 +928,7 @@ automation:
                     message:
                       ":boy: Leo's :door: door closed after bed time and the
                       lights are on. Turn up :bulb: :high_brightness: all lights."
+                    log_level: "Debug"
                 - service: scene.turn_on
                   target:
                     entity_id:
@@ -947,6 +952,7 @@ automation:
                     message: >-
                       :girl: Ashlee's :door: door closed after bed time and the
                       stairs light are on. Turn up :bulb: :high_brightness: all lights.
+                    log_level: "Debug"
                 - service: scene.turn_on
                   target:
                     entity_id:
@@ -987,11 +993,11 @@ automation:
         - service: switch.turn_off
           target:
             entity_id: switch.magic_mirror_plug
-        - data:
+        - service: script.send_to_home_log
+          data:
             message: ":no_pedestrians: No motioned detected. Turning off :mirror: Magic Mirror based on time of the day."
             title: "Porch"
             log_level: "Debug"
-          service: script.send_to_home_log
     mode: single
   - id: "1630760046947"
     alias: "Stairs: Close Blinds At Night"
