@@ -18,9 +18,11 @@ automation:
             data:
               message: ":no_bell: disarmed."
               title: ":bell: Alarm"
+              log_level: "Normal"
           - service: script.send_to_home_log
             data:
               message: ":camera: Turning off indoor cameras."
+              log_level: "Debug"
           - service: script.conservatory_turn_off_camera
           - service: script.kitchen_turn_off_camera
           - service: script.lounge_turn_off_camera
@@ -215,6 +217,7 @@ automation:
             data:
               message: " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
               title: ":bell: Alarm"
+              log_level: "Normal"
           - service: script.conservatory_turn_on_camera
           - service: script.kitchen_turn_on_camera
           - service: script.lounge_turn_on_camera
@@ -292,6 +295,7 @@ automation:
         data:
           message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
           title: ":bell: Alarm"
+          log_level: "Normal"
       - service: hassio.addon_restart
         data:
           addon: fdb328a7_ring_mqtt
@@ -311,6 +315,8 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: Restarting Ring MQTT add-on failed.
+                  title: ":bell: Alarm"
+                  log_level: "Normal"
           - conditions:
               - condition: not
                 conditions:
@@ -321,6 +327,8 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: Ring MQTT restarted successfully.
+                  title: ":bell: Alarm"
+                  log_level: "Normal"
         default: []
     mode: single
   - id: "1589026420341"
@@ -379,6 +387,7 @@ script:
                 data:
                   message: "Turning :bell: alarm on in away mode."
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: alarm_control_panel.alarm_arm_away
                 data: {}
                 target:
@@ -400,6 +409,7 @@ script:
                 data:
                   message: "Turning :no_bell: alarm off."
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: alarm_control_panel.alarm_disarm
                 data: {}
                 target:
@@ -421,6 +431,7 @@ script:
                 data:
                   message: "Changing :bell: alarm to home mode(door sensors only)."
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: alarm_control_panel.alarm_arm_home
                 data: {}
                 target:
@@ -457,6 +468,7 @@ script:
                 data:
                   message: "{{ message }} Turning :bell: alarm on."
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: script.set_alarm_to_home_mode
           - alias: Danny not home and not long distance
             conditions:
@@ -482,6 +494,7 @@ script:
                     {{ message }} :running: :house_with_garden: Danny is not home.
                     :no_bell: Alarm not turned on and a check will be performed later.
                   title: ":bell: Alarm"
+                  log_level: "Normal"
           - alias: Danny not home and long distance away
             conditions:
               - not:
@@ -506,6 +519,7 @@ script:
                     ({{ states('proximity.danny_home')|float(0) }}).
                     Turning alarm on.
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: script.set_alarm_to_home_mode
           - alias: Terina not home and not long distance
             conditions:
@@ -531,6 +545,7 @@ script:
                     {{ message }} :house_with_garden: :woman_dancing: Terina is not
                     home. :no_bell: Alarm not turned on and a check will be performed later.
                   title: ":bell: Alarm"
+                  log_level: "Normal"
           - alias: Terina not home and long distance away
             conditions:
               - condition: state
@@ -553,6 +568,7 @@ script:
                     ({{ states('proximity.terina_home')|float(0) }}).
                     Turning alarm on.
                   title: ":bell: Alarm"
+                  log_level: "Normal"
               - service: script.set_alarm_to_home_mode
         default:
           - service: script.send_direct_notification

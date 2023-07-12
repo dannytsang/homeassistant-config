@@ -63,6 +63,7 @@ automation:
                 {{ state_attr('input_number.growatt_max_last_updated', 'unit_of_measurement') }}.
                 Reloading integration."
               title: ":sunny: :zap: :electric_plug: Solar"
+              log_level: "Normal"
           # https://community.home-assistant.io/t/can-i-write-an-automation-to-reload-restart-an-integration/301020/35?u=tuxinator94
           - service: homeassistant.reload_config_entry
             data: {}
@@ -116,6 +117,7 @@ automation:
                     {{ (states('input_number.consecutive_forecast_days_below_solar_generation')|int(0)) + 1 }}
                     {{ state_attr('input_number.consecutive_forecast_days_below_solar_generation', 'unit_of_measurement') }}.
                   title: ":sunny: :zap: Solar"
+                  log_level: "Normal"
               - service: input_number.increment
                 data: {}
                 target:
@@ -189,6 +191,7 @@ automation:
         data:
           message: Battery charged today
           title: ":sunny: :zap: Solar"
+          log_level: "Debug"
       - service: input_boolean.turn_on
         data: {}
         target:
@@ -202,6 +205,7 @@ automation:
             data:
               message: Resetting days not fully charged.
               title: ":sunny: :zap: Solar"
+              log_level: "Debug"
           - service: input_number.set_value
             data:
               value: 0
@@ -227,6 +231,7 @@ automation:
                     data:
                       message: Resetting battery charged today.
                       title: ":sunny: :zap: Solar"
+                      log_level: "Debug"
                   - service: input_boolean.turn_off
                     data: {}
                     target:
@@ -244,6 +249,7 @@ automation:
                     Adding a day to count
                     ({{ states('input_number.consecutive_days_battery_not_charged') }}).
                   title: ":sunny: :zap: Solar"
+                  log_level: "Debug"
               - service: input_number.increment
                 data: {}
                 target:
@@ -262,6 +268,7 @@ automation:
         data:
           message: Production above threshold. Resetting Forecast
           title: ":sunny: :zap: Solar"
+          log_level: "Debug"
     mode: single
   - id: "1664744505278"
     alias: "Energy: Consecutive Days Battery Not Charged"
@@ -389,6 +396,7 @@ script:
             data:
               message: "{{ message }}"
               title: ":sunny: :zap: :electric_plug: Solar"
+              log_level: "Normal"
     mode: single
     icon: mdi:solar-power
 mqtt:

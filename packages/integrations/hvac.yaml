@@ -164,6 +164,7 @@ automation:
             data:
               message: Turning on hot water from schedule.
               title: ":hotsprings: Central Heating"
+              log_level: "Normal"
           - service: script.set_how_water_to_on
             data: {}
     mode: single
@@ -198,11 +199,13 @@ automation:
                 data:
                   message: In Holiday mode. Skipping turning off hot water.
                   title: ":hotsprings: Central Heating"
+                  log_level: "Normal"
         default:
           - service: script.send_to_home_log
             data:
               message: Turning off hot water from schedule.
               title: ":hotsprings: Central Heating"
+              log_level: "Normal"
           - service: script.set_how_water_to_home_mode
             data: {}
     mode: single
@@ -229,6 +232,7 @@ automation:
             It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session_daily',
             with_unit=True) }} so far."
           title: myEnergi
+          log_level: "Normal"
     mode: queued
     max: 10
   - id: "1678796763426"
@@ -251,6 +255,7 @@ automation:
                 Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
                 ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
               title: myEnergi
+              log_level: "Normal"
           - service: select.select_option
             data:
               option: Stopped
@@ -280,6 +285,7 @@ automation:
                 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning :fuelpump:
                 Eddi back on.
               title: myEnergi
+              log_level: "Debug"
           - service: select.select_option
             data:
               option: Normal
@@ -312,6 +318,7 @@ automation:
 
             Turning off hot water.
           title: ":hotsprings: Central Heating"
+          log_level: "Normal"
       - service: script.set_how_water_to_home_mode
         data: {}
     mode: single
@@ -340,6 +347,7 @@ script:
                 data:
                   message: "Setting heating to :running: away mode."
                   title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
               - service: climate.set_temperature
                 target:
                   entity_id: climate.thermostat
@@ -366,6 +374,7 @@ script:
                 data:
                   message: "Setting heating to :house_with_garden: home mode."
                   title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
               - sequence:
                   - service: script.hvac_turn_on_heater_schedule
                     data: {}
@@ -387,6 +396,7 @@ script:
                 data:
                   message: "Setting heating to off."
                   title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
               - service: climate.set_hvac_mode
                 data:
                   hvac_mode: "off"
@@ -418,6 +428,7 @@ script:
             data:
               message: Turning off schedule.
               title: ":hotsprings: :droplet: Boiler"
+              log_level: "Normal"
           - service: switch.turn_off
             data: {}
             target:
@@ -438,6 +449,7 @@ script:
             data:
               message: Turning on schedule.
               title: ":hotsprings: :droplet: Boiler"
+              log_level: "Normal"
           - service: switch.turn_on
             data: {}
             target:
@@ -470,6 +482,7 @@ script:
                     data:
                       message: "Turning on the hot water."
                       title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Normal"
                   - service: water_heater.set_operation_mode
                     data:
                       operation_mode: "eco"
@@ -487,6 +500,7 @@ script:
                     data:
                       message: "Turning on the hot water."
                       title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Normal"
                   - service: water_heater.set_operation_mode
                     data:
                       operation_mode: "auto"
@@ -508,6 +522,7 @@ script:
                 data:
                   message: "Turning off the hot water."
                   title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
               - service: water_heater.set_operation_mode
                 data:
                   operation_mode: "off"
@@ -529,6 +544,7 @@ script:
                 data:
                   message: "Turning on the hot water."
                   title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
               - service: water_heater.set_operation_mode
                 data:
                   operation_mode: "on"
@@ -542,6 +558,7 @@ script:
         data:
           message: Setting TRVs to holiday mode.
           title: ":hotsprings: :droplet: Boiler"
+          log_level: "Debug"
       - service: climate.set_preset_mode
         data:
           preset_mode: holiday
@@ -558,6 +575,7 @@ script:
         data:
           message: Setting TRVs to normal mode.
           title: ":hotsprings: :droplet: Boiler"
+          log_level: "Normal"
       - service: climate.set_preset_mode
         data:
           preset_mode: manual
@@ -576,6 +594,7 @@ script:
               message: >-
                 Turning :fuelpump: Eddi back on.
               title: myEnergi
+              log_level: "Normal"
           - service: select.select_option
             data:
               option: Stopped
@@ -592,6 +611,7 @@ script:
               message: >-
                 Turning :fuelpump: Eddi back on.
               title: myEnergi
+              log_level: "Normal"
           - service: select.select_option
             data:
               option: Normal

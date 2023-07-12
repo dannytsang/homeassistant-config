@@ -22,6 +22,7 @@ automation:
             data:
               message: "Printer priming. Turning on extruder :dash: fan."
               title: ":printer: :black_square_button: 3D printer"
+              log_level: "Normal"
           - wait_for_trigger:
               - platform: numeric_state
                 entity_id: sensor.octoprint_estimated_finish_time
@@ -32,6 +33,7 @@ automation:
               message: "Printer started. Estimated time to completion:
                 {{ states('sensor.octoprint_estimated_finish_time') }}."
               title: ":printer: :black_square_button: 3D printer"
+              log_level: "Normal"
           - choose:
               - conditions:
                   - condition: sun
@@ -43,6 +45,7 @@ automation:
                         ":city_sunset: Printing started after sunset. Turning
                         Printer :high_brightness: :bulb: light on."
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Normal"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_on
@@ -56,6 +59,7 @@ automation:
                         ":city_sunset: Printing started before sunrise. Turning
                         Printer :high_brightness: :bulb: light on."
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Normal"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_on
@@ -72,6 +76,7 @@ automation:
                       message: ":sunny: Printing started during the day. Turning
                         Printer light off."
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Normal"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_off
@@ -82,6 +87,7 @@ automation:
                     ":sunrise: Printing started after sunrise. Not turning
                     on printer light."
                   title: ":printer: :black_square_button: 3D printer"
+                  log_level: "Normal"
               - service: scene.turn_on
                 target:
                   entity_id: scene.3d_printer_light_off
@@ -102,6 +108,7 @@ automation:
         data:
           message: "50% complete and due to finish at {{ states('sensor.octoprint_estimated_finish_time') }}."
           title: ":printer: :black_square_button: 3D printer"
+          log_level: "Normal"
     mode: single
   - id: "1623087278802"
     alias: "3D Printer: Check If Printing Light"
@@ -146,6 +153,7 @@ automation:
             :white_check_mark: Completed 3D printing which
             started {{states('sensor.octoprint_start_time')}}
           title: ":printer: :black_square_button: 3D printer"
+          log_level: "Normal"
     mode: single
   - id: "1656239435552"
     alias: "3D Printer: Light Turned on"
@@ -288,6 +296,7 @@ script:
                         ":city_sunset: :printer: It's getting dark and it's printing.
                         Turning :high_brightness: :bulb: lights on."
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_on
@@ -310,6 +319,7 @@ script:
                     data:
                       message: "Printer is not printing. Turning light off."
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_off
@@ -325,8 +335,9 @@ script:
                     data:
                       message: >-
                         :city_sunset: :printer: It's getting bright and it's printing.
-                        Turning  light off.
+                        Turning light off.
                       title: ":printer: :black_square_button: 3D printer"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.3d_printer_light_off
