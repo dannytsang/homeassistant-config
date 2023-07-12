@@ -101,6 +101,7 @@ automation:
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: Leo's
                         window is open. Skipping closing blinds. :warning:"
                       title: "Leo's :bed: bedroom"
+                      log_level: "Debug"
               - conditions:
                   - condition: state
                     entity_id: input_select.home_mode
@@ -115,6 +116,7 @@ automation:
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
                       title: "Leo's :bed: bedroom"
+                      log_level: "Debug"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_bedroom_blinds
@@ -130,6 +132,7 @@ automation:
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :window: Closing
                         Leo's blinds"
                       title: "Leo's :bed: bedroom"
+                      log_level: "Debug"
                   - service: cover.close_cover
                     target:
                       entity_id: cover.leos_bedroom_blinds
@@ -162,6 +165,7 @@ automation:
             data:
               message: ":city_sunset: :window: closing Leo's blinds."
               title: "Leo's :bed: bedroom"
+              log_level: "Debug"
     mode: single
   - id: "1617376413056"
     alias: "Leo's Room: Open Blinds In The Morning"
@@ -179,10 +183,11 @@ automation:
         state: "on"
     action:
       - parallel:
-          - data:
+          - service: script.send_to_home_log
+            data:
               message: ":sunrise: :window: Opening Leo's blinds"
               title: "Leo's :bed: bedroom"
-            service: script.send_to_home_log
+              log_level: "Debug"
           - service: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
@@ -219,6 +224,7 @@ automation:
             data:
               message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
               title: "Leo's :bed: bedroom"
+              log_level: "Debug"
           - service: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
@@ -257,6 +263,7 @@ automation:
                     ":window: :bed: Leo's window closed and someone is in bed. Closing
                     blinds."
                   title: "Leo's :bed: bedroom"
+                  log_level: "Debug"
               - service: cover.close_cover
                 target:
                   entity_id: cover.leos_bedroom_blinds
@@ -271,6 +278,7 @@ automation:
                     ":window: :bed: Leo's window closed and someone is in bed. Closing
                     blinds."
                   title: "Leo's :bed: bedroom"
+                  log_level: "Debug"
               - service: cover.close_cover
                 target:
                   entity_id: cover.leos_bedroom_blinds
@@ -300,6 +308,7 @@ automation:
                 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning off :musical_note:
                 music in Leo's Bedroom :radio: Echo."
               title: "Leo's :bed: bedroom"
+              log_level: "Debug"
           - service: media_player.media_pause
             data: {}
             target:
@@ -353,11 +362,13 @@ script:
                                 "It's going to be hot ({{ temperature }} {{ weather_condition }}) and
                                 the :window: window is open preventing the blinds from closing."
                               title: "Leo's :bed: Bedroom"
+                              log_level: "Debug"
                     default:
                       - service: script.send_to_home_log
                         data:
                           message: "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
                           title: "Leo's :bed: Bedroom"
+                          log_level: "Debug"
                       - service: cover.close_cover
                         target:
                           entity_id: cover.leos_bedroom_blinds

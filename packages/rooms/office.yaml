@@ -200,6 +200,7 @@ automation:
               message: >-
                 :no_pedestrians: No motion detected in the office after 5 minutes.
                 :bulb: :low_brightness:Dimming lights.
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.office_main_lights_dim
@@ -233,6 +234,7 @@ automation:
               message: >-
                 :no_pedestrians: No motion detected in the office after 9 minutes and
                 :desktop_computer: computer is on. :bulb: :low_brightness:Dimming lights.
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.office_main_lights_dim
@@ -266,13 +268,13 @@ automation:
         state: "on"
     action:
       - parallel:
-          - data:
+          - service: script.send_to_home_log
+            data:
               message: >-
                 :no_pedestrians: :bulb: No motion detected in the office for 6 minutes
                 and :desktop_computer: is not connected. Turning office and desk lights off.
               title: ":office: Office"
               log_level: "Debug"
-            service: script.send_to_home_log
           - service: scene.turn_on
             target:
               entity_id: scene.office_all_lights_off
@@ -447,6 +449,7 @@ automation:
             data:
               message: "Turned on."
               title: ":desktop_computer: Computer"
+              log_level: "Debug"
           - service: switch.turn_on
             target:
               entity_id: switch.goxlr
@@ -454,6 +457,7 @@ automation:
             data:
               message: ":level_slider: Turned on GoXLR."
               title: ":desktop_computer: Computer"
+              log_level: "Debug"
     mode: single
   - id: "1635673894105"
     alias: "Office: Computer Turned Off"
@@ -469,6 +473,7 @@ automation:
       - service: script.send_to_home_log
         data:
           message: ":desktop_computer: :tv: Computer turned off."
+          log_level: "Debug"
       - service: script.office_pc_turned_off_notification
         data: {}
     mode: single
@@ -498,12 +503,14 @@ automation:
                     data:
                       message: "Turned off for more than 10 minutes."
                       title: ":desktop_computer: Computer"
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.office_desk_lights_off
                   - service: script.send_to_home_log
                     data:
                       messsage: Turned off desk lights.
+                      log_level: "Debug"
                   - service: switch.turn_off
                     target:
                       entity_id: switch.goxlr
@@ -512,6 +519,7 @@ automation:
                       message: "Turned off for more than 10 minutes. Turned
                         off :level_slider: goXLR"
                       title: ":desktop_computer: Computer"
+                      log_level: "Debug"
                   - service: script.office_turn_off_backup_drive
           - conditions:
               - condition: trigger
@@ -521,12 +529,14 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":desktop_computer: :tv: Computer turned off for more than 10 minutes."
+                      log_level: "Debug"
                   - service: scene.turn_on
                     target:
                       entity_id: scene.office_desk_lights_off
                   - service: script.send_to_home_log
                     data:
                       messsage: Turned off desk lights.
+                      log_level: "Debug"
                   - service: switch.turn_off
                     target:
                       entity_id: switch.goxlr
@@ -535,6 +545,7 @@ automation:
                       message: "Turned off for more than 10 minutes. Turned
                         off :level_slider: goXLR"
                       title: ":desktop_computer: Computer"
+                      log_level: "Debug"
                   - service: script.office_turn_off_backup_drive
         default: []
     mode: single
@@ -1064,6 +1075,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: ":bulb: Toggle Key light"
+              log_level: "Debug"
           - service: light.toggle
             data: {}
             target:
@@ -1095,6 +1107,7 @@ automation:
                   - service: script.send_to_home_log
                     data:
                       message: ":stop_button: Turning off music."
+                      log_level: "Debug"
             default: []
     mode: single
   # Smoke alarm
@@ -1482,6 +1495,7 @@ script:
       - service: script.send_to_home_log
         data:
           message: ":floppy_disk: Turning off external HDD"
+          log_level: "Debug"
       - service: switch.turn_off
         target:
           entity_id: switch.external_hdd

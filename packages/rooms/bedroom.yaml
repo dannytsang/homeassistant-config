@@ -28,13 +28,13 @@ automation:
         state: "on"
     action:
       - parallel:
-          - data:
+          - service: script.send_to_home_log
+            data:
               message: >-
                 :sleeping_accommodation: Someone is in bed, :window: window is closed and
                 it's getting late. Closing blinds.
               title: ":bed: bedroom"
               log_level: "Debug"
-            service: script.send_to_home_log
           - service: cover.close_cover
             target:
               entity_id: cover.bedroom_blinds
@@ -255,6 +255,7 @@ automation:
                       message:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Debug"
                   - service: script.other_bedroom_door_opening_warning
                     data:
                       bedroom: "leo"
@@ -337,6 +338,7 @@ automation:
                       message:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Debug"
                   - service: script.other_bedroom_door_closes_warning
                     data:
                       bedroom: "leo"
@@ -479,6 +481,7 @@ automation:
                 :no_pedestrians: No motion detected For 1 minute.
                 Turning ambient lights off.
               title: " :bed: Bedroom"
+              log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.bedroom_turn_off_ambient_light
@@ -653,11 +656,11 @@ automation:
           - data: {}
             entity_id: switch.bedroom_blanket
             service: switch.turn_off
-          - data:
+          - service: script.send_to_home_log
+            data:
               message: Electric blanket has been on for 1 hour. Turning electric blanket off.
               title: ":bed: bedroom"
               log_level: "Debug"
-            service: script.send_to_home_log
   - id: "1624194131454"
     alias: "Bedroom: TV Turned On During Bright Day"
     description: ""
@@ -1213,6 +1216,7 @@ script:
                       message:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Normal"
               - conditions:
                   - condition: template
                     value_template: "{{bedroom == 'ashlee'}}"
@@ -1223,6 +1227,7 @@ script:
                       message:
                         ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Normal"
             default: []
           - if:
               - condition: state
@@ -1235,6 +1240,7 @@ script:
               - service: script.send_to_home_log
                 data:
                   message: ":tv: Bedroom Chromecast was on, pausing TV."
+                  log_level: "Debug"
     mode: single
   other_bedroom_door_closes_warning:
     alias: Other Bedroom Door Closes Warning
@@ -1256,6 +1262,7 @@ script:
                       message:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Normal"
               - conditions:
                   - condition: template
                     value_template: "{{bedroom == 'ashlee'}}"
@@ -1266,6 +1273,7 @@ script:
                       message:
                         ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
                         warning."
+                      log_level: "Normal"
             default: []
           - if:
               - condition: state
