@@ -114,3 +114,65 @@ automation:
           title: Telegram
           log_level: "Debug"
     mode: queued
+
+script:
+  post_telegram_direct_notification:
+    alias: "Send Telegram Direct Message"
+    icon: mdi:message-reply-text
+    description: >-
+      Post a direct text message to adults in the house. Please use
+      a send script to decouple from the messaging platform.
+    max: 10
+    mode: queued
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: Title of post
+      people:
+        description: Person to send the message to.
+          If not specified then it goes to everyone.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.danny' in people }}"
+            sequence:
+              - service: telegram_bot.send_message
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  target: "{{ states('input_text.dannys_telegram_chat_id') }}"
+                continue_on_error: true
+        default:
+          - service: telegram_bot.send_message
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default('', true) }}"
+              target: "{{ states('input_text.dannys_telegram_chat_id') }}"
+            continue_on_error: true
+  post_to_telegram_home_log_with_local_attachments:
+    alias: "Post To Telegram With Local Attachments"
+    icon: mdi:message-reply-text
+    description: "Post a message with a file attachment to the home_log channel.
+    Please use a send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - service: notify.danny_tsang
+        data:
+          message: "{{ message }}"
+          title: "{{ title|default('', true) }}"
+          file: "{{ filePath }}"
+        continue_on_error: true
+    mode: queued
+    max: 10

@@ -1,0 +1,167 @@
+# Created by Danny Tsang <danny@tsang.uk>
+script:
+  post_discord_notification:
+    alias: Post Discord Message
+    icon: mdi:message-reply
+    description: >-
+      Post a text message to Discord. Please use a send script to
+      decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      people:
+        description: (optional)Discord user ID to message.
+        example: "<@123456>"
+      target:
+        description: >-
+          List of Discord channel or user ID to post the message to.
+          If a user is set then they will not be tagged but notified of the post.
+        required: true
+        example: "['1234', '4567']"
+    sequence:
+      - choose:
+          # Check a title was set
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: notify.home_assistant
+                data:
+                  message: >-
+                    **{{ title|default('', true) }}**
+
+
+                    {{ iif(people is not none,people|default('', true)~' ','') }}
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Discord') }}
+                  target: "{{ target }}"
+                continue_on_error: true
+        default:
+          - service: notify.home_assistant
+            data:
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Discord') }}
+              target: "{{ target }}"
+            continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_discord_with_url_attachment:
+    alias: "Post To Discord a URL Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a URL attachment. Please use a
+      send script to decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      target:
+        description: >-
+          List of Discord channel or user ID to post the message to.
+          If a user is set then they will not be tagged but notified of the post.
+        required: true
+        example: "['1234', '4567']"
+      url:
+        description: Link to file.
+        example: "https://picsum.photos/200/300"
+    sequence:
+      # Check if a title has been set
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: notify.danny_tsang
+                data:
+                  message: ""
+                  target: "{{ target }}"
+                  data:
+                    embed:
+                      title: "{{ title }}"
+                      description: >-
+                        {% from 'process_messages.jinja' import process_messages %}
+                        {{ process_messages(message, 'Discord') }}
+                      image:
+                        url: "{{ url }}"
+        # No title set
+        default:
+          - service: notify.danny_tsang
+            data:
+              message: ""
+              target: "{{ target }}"
+              data:
+                embed:
+                  description: >-
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Discord') }}
+                  image:
+                    url: "{{ url }}"
+        continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_discord_with_local_attachments:
+    alias: "Post To Discord Home Log With File Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a file attachment to the home_log
+      channel. Please use a send script to decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      people:
+        description: (optional)Discord user ID to message.
+        example: "<@123456>"
+      target:
+        description: >-
+          List of Discord channel or user ID to post the message to.
+          If a user is set then they will not be tagged but notified of the post.
+        required: true
+        example: "['1234', '4567']"
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - choose:
+          # Check a title was set
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: notify.home_assistant
+                data:
+                  message: >-
+                    **{{ title|default('', true) }}**
+
+
+                    {{ iif(people is not none,people|default('', true)~' ','') }}
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Discord') }}
+                  target: "{{ target }}"
+                  data:
+                    images:
+                      - "{{ filePath }}"
+                continue_on_error: true
+        default:
+          - service: notify.home_assistant
+            data:
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Discord') }}
+              target: "{{ target }}"
+              data:
+                images:
+                  - "{{ filePath }}"
+            continue_on_error: true
+    mode: queued
+    max: 10

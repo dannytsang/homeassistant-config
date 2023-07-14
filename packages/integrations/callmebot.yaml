@@ -7,3 +7,35 @@ notify:
       source: Home_Assistant
       phone: !secret callmebot_dannys_whatsapp_phone_number
       apikey: !secret callmebot_dannys_whatsapp_api
+
+script:
+  post_whatsapp_direct_notification:
+    alias: Post WhatsApp Direct Message
+    icon: mdi:message-reply-text
+    description: >-
+      Post a direct text message to adults in the house. Please use
+      a send script to decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      people:
+        description: Person to send the message to. If not specified then it goes to everyone.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.danny' in people }}"
+            sequence:
+              - service: notify.danny_s_whatsapp
+                data:
+                  message: "{{ message }}"
+                continue_on_error: true
+        default:
+          - service: notify.danny_s_whatsapp
+            data:
+              message: "{{ message }}"
+            continue_on_error: true
+    max: 10
+    mode: queued
