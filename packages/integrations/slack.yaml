@@ -43,3 +43,189 @@ automation:
               title: "{{ trigger.data.text }}"
               target: "{{ trigger.data.channel_name }}"
     mode: queued
+
+script:
+  post_slack_notification:
+    alias: Post Slack Message
+    icon: mdi:message-reply
+    description: "Post a text message to Slack. Please use a send script to
+    decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      people:
+        description: (optional)Slack user ID to message.
+        example: "<@ABCDEFG>"
+      target:
+        description: Slack channel to post the message to without the hash symbol.
+        required: true
+        example: "general"
+    sequence:
+      - choose:
+        # Check a title was set
+        - conditions:
+            - condition: template
+              value_template: "{{ title is not none }}"
+          sequence:
+            - service: notify.danny_tsang
+              data:
+                message: >-
+                  {{ iif(people is not none,people|default('', true)~' ','') }}
+                  {% from 'process_messages.jinja' import process_messages %}
+                  {{ process_messages(message, 'Slack') }}
+                target: "{{ target }}"
+                data:
+                  blocks:
+                    - type: header
+                      text:
+                        type: "plain_text"
+                        text: "{{ title }}"
+                        emoji: true
+                    - type: section
+                      text:
+                        type: mrkdwn
+                        text: >-
+                          {{ iif(people is not none,people|default('', true)~' ','') }}
+                          {% from 'process_messages.jinja' import process_messages %}
+                          {{ process_messages(message, 'Slack') }}
+        default:
+          - service: notify.danny_tsang
+            data:
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {{ message }}
+              target: "{{ target }}"
+              data:
+                blocks:
+                - type: section
+                  text:
+                    type: mrkdwn
+                    text: >-
+                      {{ iif(people is not none,people|default('', true)~' ','') }}
+                      {% from 'process_messages.jinja' import process_messages %}
+                      {{ process_messages(message, 'Slack') }}
+        continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_slack_with_url_attachment:
+    alias: "Post To Slack Home Log With File Or URL Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a file or URL attachment to the home_log
+      channel. Only a file or URL can be set. Not both or neither. Please use a
+      send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      target:
+        description: Slack channel to post the message to without the hash symbol.
+        required: true
+        example: "general"
+      people:
+        description: (optional)Slack user ID to message.
+        example: "<@ABCDEFG>"
+      url:
+        description: Link to file.
+        example: "https://picsum.photos/200/300"
+    sequence:
+      # Check if a title has been set
+      - choose:
+          # Check at least filePath or url is set.
+          - conditions:
+              - condition: template
+                value_template: "{{ title is not none }}"
+            sequence:
+              - service: notify.danny_tsang
+                data:
+                  message: >-
+                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ process_messages(message, 'Slack') }}
+                  title: "{{ title|default('', true) }}"
+                  target: "{{ target }}"
+                  data:
+                    blocks:
+                      - type: header
+                        text:
+                          type: "plain_text"
+                          text: "{{ title }}"
+                          emoji: true
+                      - type: section
+                        text:
+                          type: mrkdwn
+                          text: >-
+                            {{ iif(people is not none,people|default('', true)~' ','') }}
+                            {% from 'process_messages.jinja' import process_messages %}
+                            {{ process_messages(message, 'Slack') }}
+                        accessory:
+                          type: image
+                          image_url: "{{ url }}"
+                          alt_text: "{{ title|default('Failed to load image', true) }}"
+        # No title set
+        default:
+          - service: notify.danny_tsang
+            data:
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {% from 'process_messages.jinja' import process_messages %}
+                {{ process_messages(message, 'Slack') }}
+              title: "{{ title|default('', true) }}"
+              target: "{{ target }}"
+              data:
+                blocks:
+                  - type: section
+                    text:
+                      type: mrkdwn
+                      text: >-
+                        {% from 'process_messages.jinja' import process_messages %}
+                        {{ process_messages(message, 'Slack') }}
+                    accessory:
+                      type: image
+                      image_url: "{{ url }}"
+                      alt_text: "{{ title|default('Failed to load image', true) }}"
+        continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_slack_with_local_attachments:
+    alias: "Post To Slack Home Log With File Or URL Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a file or URL attachment to the home_log
+      channel. Only a file or URL can be set. Not both or neither. Please use a
+      send script to decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      target:
+        description: Slack channel to post the message to without the hash symbol.
+        required: true
+        example: "general"
+      people:
+        description: (optional)Slack user ID to message.
+        example: "<@ABCDEFG>"
+      filePath:
+        description: File path to attach to post.
+        required: true
+    sequence:
+      - service: notify.danny_tsang
+        data:
+          message: >-
+            {{ iif(people is not none,people|default('', true)~' ','') }}
+            {% from 'process_messages.jinja' import process_messages %}
+            {{ process_messages(message, 'Slack') }}
+          title: "{{ title|default('', true) }}"
+          target: "{{ target }}"
+          data:
+            file:
+              path: "{{ filePath }}"
+        continue_on_error: true
+    mode: queued
+    max: 10
