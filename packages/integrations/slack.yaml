@@ -1,0 +1,45 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1689193654844"
+    alias: "Slack: Command Received"
+    description: "Slack bot command."
+    trigger:
+      - platform: webhook
+        allowed_methods:
+          - POST
+          - PUT
+        local_only: false
+        webhook_id: -aPu0u0W8nvlYImwa85lwDMoo
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: |-
+            user_id: {{ trigger.data.user_id }}
+            user_name: {{ trigger.data.user_name }}
+            channel_id: {{ trigger.data.channel_id }}
+            channel_name: {{ trigger.data.channel_name }}
+            command: {{ trigger.data.command }}
+            text: {{ trigger.data.text }}
+            response_url: {{ trigger.data.response_url }}
+          title: Slack
+          log_level: "Debug"
+      - service: conversation.process
+        data:
+          agent_id: homeassistant
+          text: "{{ trigger.data.text }}"
+        response_variable: assist
+      - if:
+          - condition: template
+            value_template: "{{ trigger.data.channel_name != 'privategroup' }}"
+        then:
+          - service: notify.danny_tsang
+            data:
+              message: "{{ trigger.data.user_name ~': '~ trigger.data.text }}"
+              target: "{{ trigger.data.channel_name }}"
+          - service: notify.danny_tsang
+            data:
+              message: "{{ assist.response.speech.plain.speech }}"
+              title: "{{ trigger.data.text }}"
+              target: "{{ trigger.data.channel_name }}"
+    mode: queued
