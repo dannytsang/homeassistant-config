@@ -1,0 +1,76 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://github.com/tolwi/hassio-ecoflow-cloud
+automation:
+  - id: "1689437015870"
+    alias: "EcoFlow: Solar Below House Consumption"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.growatt_input_watt
+        below: sensor.smart_meter_electricity_power
+        for:
+          hours: 0
+          minutes: 2
+          seconds: 0
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.electricity_current_rate
+        above: 0
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: Solar production dipped below household consumption. Setting backup to 10%.
+              title: Solar
+              people:
+                - person.danny
+          - service: retry.call
+            data:
+              individually: true
+              service: number.set_value
+              retries: 6
+              expected_state: "10"
+            target:
+              entity_id: number.ecoflow_kitchen_backup_reserve_level
+          #- service: number.set_value
+          #  data:
+          #    value: "10"
+          #  target:
+          #    entity_id: number.ecoflow_kitchen_backup_reserve_level
+    mode: single
+  - id: "1689626117476"
+    alias: "Ecoflow: Electricity Rates Costs Nothing"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: 0.01
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+    action:
+      - service: number.set_value
+        data:
+          value: "100"
+        target:
+          entity_id: number.ecoflow_kitchen_backup_reserve_level
+      - service: script.send_direct_notification
+        data:
+          message: >-
+            Electrictity rate is 0 or below ("{{ states('sensor.electricity_current_rate')}}").
+            Setting backup reserve to 100%.
+          title: EcoFlow
+          people:
+            - person.danny
+    mode: single
+
+template:
+  - sensor:
+      - name: "EcoFlow Kitchen Solar Excess"
+        unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
+        state: "{{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0))*1000 - states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}"
+        unit_of_measurement: w
