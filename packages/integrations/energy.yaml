@@ -348,6 +348,25 @@ automation:
           title: ":warning: :zap: :house_with_garden: House :warning:"
     mode: single
 
+conversation:
+  intents:
+    getSolarForecastToday:
+      - "what is the solar forecast today"
+    getSolarForecastTomorrow:
+      - "what is the solar forecast"
+
+intent_script:
+  getSolarForecastToday:
+    speech:
+      text: >-
+        Today's forecast is {{ states('sensor.total_solar_forecast_estimated_energy_production_today') }}
+        kilowatt hours.
+  getSolarForecastTomorrow:
+    speech:
+      text: >-
+        Tomorrow's forecast is {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}
+        kilowatt hours.
+
 script:
   energy_notify_excess_solar:
     alias: Energy Notify Excess Solar
@@ -399,6 +418,7 @@ script:
               log_level: "Normal"
     mode: single
     icon: mdi:solar-power
+
 mqtt:
   sensor:
     # Example from: https://github.com/johanmeijer/grott/blob/master/examples/Home%20Assistent/sensors_growatt_eng.yaml
