@@ -33,36 +33,46 @@ automation:
               title: Solar
               people:
                 - person.danny
-          - service: retry.call
-            data:
-              individually: true
-              service: number.set_value
-              retries: 6
-              expected_state: "10"
-            target:
-              entity_id: number.ecoflow_kitchen_backup_reserve_level
-          - delay:
-              hours: 0
-              minutes: 1
-              seconds: 0
-              milliseconds: 0
-          - if:
-              - condition: numeric_state
-                entity_id: number.ecoflow_kitchen_backup_reserve_level
-                above: 10
-            then:
-              - service: script.send_direct_notification
+          - sequence:
+              - service: input_number.set_value
                 data:
-                  message: Retry failed to set backup to 10%.
-                  title: Solar
-                  people:
-                    - person.danny
-          #- service: number.set_value
-          #  data:
-          #    value: "10"
-          #  target:
-          #    entity_id: number.ecoflow_kitchen_backup_reserve_level
-    mode: single
+                  value: 5
+                target:
+                  entity_id: input_number.target_ecoflow_kitchen_backup_reserve
+              - repeat:
+                  until:
+                    - condition: template
+                      value_template: >-
+                        {{ repeat.index > 3 }}
+                    - condition: template
+                      value_template: >-
+                        {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                        states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+                  sequence:
+                    - service: number.set_value
+                      data:
+                        value: >-
+                          {{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(5) }}
+                      target:
+                        entity_id: number.ecoflow_kitchen_backup_reserve_level
+                    - delay:
+                        hours: 0
+                        minutes: 1
+                        seconds: 0
+                        milliseconds: 0
+              - if:
+                  - condition: template
+                    value_template: >-
+                      {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                      states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+                then:
+                  - service: script.send_direct_notification
+                    data:
+                      message: Retry failed to set backup to 5%.
+                      title: Solar
+                      people:
+                        - person.danny
+    mode: restart
   - id: "1689626117476"
     alias: "Ecoflow: Electricity Rates Costs Nothing"
     description: ""
@@ -75,19 +85,54 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - service: number.set_value
-        data:
-          value: "100"
-        target:
-          entity_id: number.ecoflow_kitchen_backup_reserve_level
-      - service: script.send_direct_notification
-        data:
-          message: >-
-            Electrictity rate is 0 or below ("{{ states('sensor.electricity_current_rate')}}").
-            Setting backup reserve to 100%.
-          title: EcoFlow
-          people:
-            - person.danny
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                Electrictity rate is 0 or below ("{{ states('sensor.electricity_current_rate')}}").
+                Setting backup reserve to 100%.
+              title: EcoFlow
+              people:
+                - person.danny
+          - sequence:
+              - service: input_number.set_value
+                data:
+                  value: 100
+                target:
+                  entity_id: input_number.target_ecoflow_kitchen_backup_reserve
+              - repeat:
+                  until:
+                    - condition: template
+                      value_template: >-
+                        {{ repeat.index > 3 }}
+                    - condition: template
+                      value_template: >-
+                        {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                        states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+                  sequence:
+                    - service: number.set_value
+                      data:
+                        value: >-
+                          {{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(5) }}
+                      target:
+                        entity_id: number.ecoflow_kitchen_backup_reserve_level
+                    - delay:
+                        hours: 0
+                        minutes: 1
+                        seconds: 0
+                        milliseconds: 0
+              - if:
+                  - condition: template
+                    value_template: >-
+                      {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                      states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+                then:
+                  - service: script.send_direct_notification
+                    data:
+                      message: Retry failed to set backup to 100%.
+                      title: Solar
+                      people:
+                        - person.danny
     mode: single
 
 template:
