@@ -16,6 +16,12 @@ automation:
       - condition: numeric_state
         entity_id: sensor.electricity_current_rate
         above: 0
+      - condition: numeric_state
+        entity_id: number.ecoflow_kitchen_backup_reserve_level
+        above: 10
+      - condition: state
+        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+        state: "on"
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
@@ -35,6 +41,22 @@ automation:
               expected_state: "10"
             target:
               entity_id: number.ecoflow_kitchen_backup_reserve_level
+          - delay:
+              hours: 0
+              minutes: 1
+              seconds: 0
+              milliseconds: 0
+          - if:
+              - condition: numeric_state
+                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                above: 10
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: Retry failed to set backup to 10%.
+                  title: Solar
+                  people:
+                    - person.danny
           #- service: number.set_value
           #  data:
           #    value: "10"
@@ -69,8 +91,27 @@ automation:
     mode: single
 
 template:
-  - sensor:
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_input_watt
+          - sensor.growatt_load_consumption
+          - input_number.ecoflow_kitchen_charge_solar_threshold
+    sensor:
       - name: "EcoFlow Kitchen Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
-        state: "{{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0))*1000 - states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}"
+        state: >-
+          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
+          *1000 -states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}
+        unit_of_measurement: w
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.ecoflow_kitchen_total_in_power
+          - sensor.ecoflow_kitchen_total_out_power
+    sensor:
+      - name: "EcoFlow Kitchen Charging Rate"
+        unique_id: d809c2e4-e50b-499b-ac3a-796cef4806d8
+        state: >-
+          {{ states('sensor.ecoflow_kitchen_total_in_power')|float(0) - states('sensor.ecoflow_kitchen_total_out_power')|float(0) }}
         unit_of_measurement: w
