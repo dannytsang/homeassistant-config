@@ -28,6 +28,16 @@ automation:
           - service: script.lounge_turn_off_camera
           - service: script.upstairs_turn_off_camera
           - service: script.set_central_heating_to_home_mode
+          - alias: Turn on bedroom light which might be on from alarm not turning on overnight
+            service: light.turn_off
+            data: {}
+            target:
+              entity_id:
+                - light.under_bed_left
+                - light.under_bed_right
+                - light.bedroom_lamp_left
+                - light.bedroom_lamp_right
+                - light.bedroom_lamp_left
     mode: single
   - id: "1587680439012"
     alias: "Alarm: Arm Overnight Home Mode"
@@ -100,15 +110,32 @@ automation:
                 entity_id: binary_sensor.alarmed_doors_and_windows
                 state: "on"
             sequence:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Did not turned on because a door or window is open.
-                  title: ":warning: :bell: Alarm :warning:"
-                  people:
-                    - person.danny
-                    - person.terina
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        Did not turned on because the following:
+                        {% for opening in state_attr('binary_sensor.alarmed_doors_and_windows', 'entity_id') %}{% if states(opening) == 'on' %}
+                        {{ '* ' ~ state_attr(opening, 'friendly_name') ~ '\n' }}{% endif %}{% endfor %}
+                      title: ":warning: :bell: Alarm :warning:"
+                      people:
+                        - person.danny
+                        - person.terina
+                  - alias: Turn on bedroom light to warn not all doors/windows are closed.
+                    service: light.turn_on
+                    data:
+                      rgb_color:
+                        - 255
+                        - 162
+                        - 0
+                      brightness: 255
+                    target:
+                      entity_id:
+                        - light.under_bed_left
+                        - light.under_bed_right
+                        - light.bedroom_lamp_left
+                        - light.bedroom_lamp_right
           - conditions:
               - condition: state
                 entity_id: binary_sensor.alarmed_doors_and_windows
