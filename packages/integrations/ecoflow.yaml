@@ -76,6 +76,12 @@ script:
           value: "{{ reserve_amount|int(5) }}"
         target:
           entity_id: input_number.target_ecoflow_kitchen_backup_reserve
+      - service: script.ecoflow_update_backup_reserve
+        data: {}
+    mode: single
+  ecoflow_update_backup_reserve:
+    alias: Ecoflow Update Backup Reserve
+    sequence:
       - repeat:
           until:
             - condition: template
@@ -83,7 +89,7 @@ script:
                 {{ repeat.index > 6 }}
             - condition: template
               value_template: >-
-                {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) !=
                 states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
           sequence:
             - service: number.set_value
@@ -100,7 +106,7 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+              {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) !=
               states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
         then:
           - service: script.send_direct_notification
@@ -122,6 +128,12 @@ script:
           value: "{{ target_charge_rate|int(200) }}"
         target:
           entity_id: input_number.target_ecoflow_kitchen_charge_rate
+      - service: script.ecoflow_update_charge_rate
+        data: {}
+    mode: single
+  ecoflow_update_charge_rate:
+    alias: Ecoflow Update Charge Rate
+    sequence:
       - repeat:
           until:
             - condition: template
@@ -129,7 +141,7 @@ script:
                 {{ repeat.index > 6 }}
             - condition: template
               value_template: >-
-                {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) ==
+                {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) !=
                 states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
           sequence:
             - service: number.set_value
@@ -146,7 +158,7 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) ==
+              {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) !=
               states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
         then:
           - service: script.send_direct_notification
