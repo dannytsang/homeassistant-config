@@ -84,13 +84,14 @@ script:
     sequence:
       - repeat:
           until:
-            - condition: template
-              value_template: >-
-                {{ repeat.index > 6 }}
-            - condition: template
-              value_template: >-
-                {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) !=
-                states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+            - or:
+                - condition: template
+                  value_template: >-
+                    {{ repeat.index > 6 }}
+                - condition: template
+                  value_template: >-
+                    {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
+                    states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
           sequence:
             - service: number.set_value
               data:
@@ -136,13 +137,14 @@ script:
     sequence:
       - repeat:
           until:
-            - condition: template
-              value_template: >-
-                {{ repeat.index > 6 }}
-            - condition: template
-              value_template: >-
-                {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) !=
-                states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
+            - or:
+                - condition: template
+                  value_template: >-
+                    {{ repeat.index > 6 }}
+                - condition: template
+                  value_template: >-
+                    {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) ==
+                    states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
           sequence:
             - service: number.set_value
               data:
