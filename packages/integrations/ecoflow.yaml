@@ -158,7 +158,7 @@ script:
             - delay:
                 hours: 0
                 minutes: 0
-                seconds: 30
+                seconds: 35
                 milliseconds: 0
       - if:
           - condition: template
@@ -211,7 +211,7 @@ script:
             - delay:
                 hours: 0
                 minutes: 0
-                seconds: 30
+                seconds: 35
                 milliseconds: 0
       - if:
           - condition: template
@@ -231,16 +231,34 @@ template:
   - trigger:
       - platform: state
         entity_id:
+          - input_number.ecoflow_kitchen_charge_solar_threshold
+          - sensor.growatt_export_to_grid
           - sensor.growatt_input_watt
           - sensor.growatt_load_consumption
-          - input_number.ecoflow_kitchen_charge_solar_threshold
+          - sensor.ecoflow_kitchen_ac_in_power
     sensor:
       - name: "EcoFlow Kitchen Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
         state: >-
+          {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
+          {{ states('sensor.growatt_export_to_grid')|float(0)*1000 }}
+          {% elif states('sensor.kitchen_ecoflow_battery_level')|int(0) < 100 %}
           {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
-          *1000 -states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}
+          * 1000 - states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}
+          {% else %}
+          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
+          * 1000 - states('sensor.ecoflow_kitchen_ac_in_power')|int(0))|round(2) }}
+          {% endif %}
         unit_of_measurement: w
+        attributes:
+          calculation_method: >-
+            {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
+            grid export
+            {% elif states('sensor.kitchen_ecoflow_battery_level')|int(0) < 100 %}
+            charging
+            {% else %}
+            charged
+            {% endif %}
   - trigger:
       - platform: state
         entity_id:
