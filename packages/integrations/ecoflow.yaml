@@ -52,6 +52,9 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
+      - condition: numeric_state
+        entity_id: number.ecoflow_kitchen_backup_reserve_level
+        below: 100
     action:
       - parallel:
           - service: script.send_direct_notification
@@ -83,6 +86,9 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
+      - condition: numeric_state
+        entity_id: number.ecoflow_kitchen_backup_reserve_level
+        above: input_number.ecoflow_kitchen_low_battery_reserve
     action:
       - choose:
           - conditions:
@@ -96,13 +102,14 @@ automation:
                       message: >-
                         Electrictity rate has gove above 0 ({{ states('sensor.electricity_current_rate', with_unit=True) }})
                         and no excess electricity detected ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
-                        Setting backup reserve to 5%.
+                        Setting backup reserve to
+                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0), with_unit=True }}.
                       title: EcoFlow
                       people:
                         - person.danny
                   - service: script.ecoflow_set_backup_reserve
                     data:
-                      reserve_amount: 5
+                      reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}"
         default:
           - parallel:
               - service: script.send_direct_notification
