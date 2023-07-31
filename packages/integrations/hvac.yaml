@@ -619,6 +619,32 @@ script:
               entity_id: select.myenergi_eddi_operating_mode
     mode: single
     icon: mdi:gas-station
+  hvac_set_solar_diverter_to_boost_mode:
+    alias: HVAC Set Solar Diverter To boost Mode
+    fields:
+      minutes:
+        description: Number of minutes to boost by.
+        required: true
+        selector:
+          number:
+            min: 1
+            max: 240
+            unit_of_measurement: "min"
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning :fuelpump: Eddi to boost for
+                {{ minutes|float(0) }} mins.
+              title: myEnergi
+              log_level: "Normal"
+          - service: myenergi.myenergi_eddi_boost
+            data:
+              target: Heater 1
+              time: "{{ minutes|float(0) }}"
+    mode: single
+    icon: mdi:gas-station
 
 sensor:
   # historical stats
