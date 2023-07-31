@@ -210,6 +210,24 @@ script:
                     {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) ==
                     states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
           sequence:
+            - if:
+                - condition: template
+                  value_template: >-
+                    {{ repeat.index == 5 }}
+              then:
+                - service: homeassistant.reload_config_entry
+                  data: {}
+                  target:
+                    entity_id: sensor.kitchen_ecoflow_battery_level
+                - wait_for_trigger:
+                    - platform: template
+                      value_template: >-
+                        {{ states('sensor.kitchen_ecoflow_battery_level')|int(-1) >= 0 }}
+                  timeout:
+                    hours: 0
+                    minutes: 0
+                    seconds: 40
+                    milliseconds: 0
             - service: number.set_value
               data:
                 value: >-
