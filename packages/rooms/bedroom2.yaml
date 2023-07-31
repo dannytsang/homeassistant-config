@@ -2,7 +2,43 @@
 automation:
   # Blinds
   - id: "1627285063813"
-    alias: "Leo's Bedroom: Timed Open Blinds"
+    alias: "Leo's Bedroom: Timed Open Blinds Weekday"
+    description: ""
+    trigger:
+      - platform: time
+        at: 07:45:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_leos_blind_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: cover.leos_bedroom_blinds
+        attribute: current_position
+        below: input_number.blind_closed_position_threshold
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Guest
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: No Children
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Opening blinds.
+              title: ":bed: Leo's Bedroom"
+              log_level: "Debug"
+          - service: cover.open_cover
+            target:
+              entity_id: cover.leos_bedroom_blinds
+    mode: single
+  - id: "1627285063816"
+    alias: "Leo's Bedroom: Timed Open Blinds Weekend"
     description: ""
     trigger:
       - platform: time
@@ -17,15 +53,15 @@ automation:
         below: input_number.blind_closed_position_threshold
       - not:
           - condition: state
-            state: Guest
             entity_id: input_select.home_mode
+            state: Guest
       - not:
           - condition: state
-            state: No Children
             entity_id: input_select.home_mode
+            state: No Children
       - condition: state
-        state: "on"
         entity_id: binary_sensor.workday_sensor
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
