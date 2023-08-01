@@ -26,16 +26,35 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - parallel:
-          - service: script.send_direct_notification
-            data:
-              message: Solar production dipped below household consumption. Setting backup to 5%.
-              title: Solar
-              people:
-                - person.danny
-          - service: script.ecoflow_set_backup_reserve
-            data:
-              reserve_amount: 5
+      - if:
+          - condition: numeric_state
+            entity_id: number.ecoflow_kitchen_ac_charging_power
+            above: input_number.ecoflow_kitchen_charge_solar_threshold
+          - condition: template
+            value_template: >-
+              {{ states('sensor.ecoflow_kitchen_solar_excess')|float(-1) >= states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
+        then:
+          - parallel:
+              - service: script.send_direct_notification
+                data:
+                  message: Solar production dipped below household consumption. Setting backup to 5%.
+                  title: Solar
+                  people:
+                    - person.danny
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  reserve_amount: 200
+        else:
+          - parallel:
+              - service: script.send_direct_notification
+                data:
+                  message: Solar production dipped below household consumption. Setting backup to 5%.
+                  title: Solar
+                  people:
+                    - person.danny
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 5
     mode: restart
   # Unit rate related automations
   - id: "1689626117476"
@@ -213,7 +232,7 @@ script:
             - if:
                 - condition: template
                   value_template: >-
-                    {{ repeat.index == 5 }}
+                    {{ repeat.index % 2 == 0 }}
               then:
                 - service: homeassistant.reload_config_entry
                   data: {}
