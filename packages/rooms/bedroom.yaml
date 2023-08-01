@@ -486,6 +486,32 @@ automation:
             target:
               entity_id: scene.bedroom_turn_off_ambient_light
     mode: single
+  # Fan
+  - id: "1690844451011"
+    alias: "Bedroom: Turn Off Fan"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.bedroom_fan
+        to: "on"
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Bedroom light turned off. Turning stairs lights off.
+              title: ":bed: Bedroom"
+              log_level: "Debug"
+          - service: switch.turn_off
+            data: {}
+            target:
+              entity_id: switch.bedroom_fan
+    mode: single
   # Time
   - id: "1621875409014"
     alias: "Bedroom: Morning Timed Open Blinds"
