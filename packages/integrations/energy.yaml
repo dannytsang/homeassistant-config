@@ -350,12 +350,37 @@ automation:
 
 conversation:
   intents:
+    getBatteryLevel:
+      - "Battery level"
+      - "How much battery is left"
+      - "What is the battery level"
+      - "What is the charge level"
+    getBatteryRunTime:
+      - "How long will the battery last"
+      - "How long will the battery run for"
+      - "What is the battery run time"
+      - "When will the battery run out"
+    getBatterySummary:
+      - "Battery summary"
     getSolarForecastToday:
       - "what is the solar forecast today"
     getSolarForecastTomorrow:
       - "what is the solar forecast"
 
 intent_script:
+  getBatteryLevel:
+    speech:
+      text: >-
+        {{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}
+  getBatteryRunTime:
+    speech:
+      text: >-
+        {{ states('sensor.battery_charge_remaining_hours') }}
+  getBatterySummary:
+    speech:
+      text: >-
+        {{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}
+        and will run out in {{ states('sensor.battery_charge_remaining_hours') }}
   getSolarForecastToday:
     speech:
       text: >-
