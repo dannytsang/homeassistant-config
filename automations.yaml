@@ -47,9 +47,10 @@
       to: "on"
   condition: []
   action:
-    - data:
+    - service: script.send_to_home_log
+      data:
         message: ":warning: :droplet: Water detected in the conservatory :droplet: :warning:"
-      service: script.send_to_home_log
+        log_level: "Normal"
   mode: single
 - id: "1594148554582"
   alias: "Conservatory: Water Not Detected"
@@ -61,9 +62,10 @@
       to: "off"
   condition: []
   action:
-    - data:
-        message: Water no longer detected in the conservatory
-      service: script.send_to_home_log
+    - service: script.send_to_home_log
+      data:
+        message: Water no longer detected in the conservatory 
+        log_level: "Normal"
   mode: single
 - id: "1604998439600"
   alias: "House: Water detected"
@@ -77,6 +79,7 @@
     - service: script.send_to_home_log
       data:
         message: ":warning: :droplet: Potential leak detected :droplet: :warning:"
+        log_level: "Normal"
   mode: single
 - id: "1604998512525"
   alias: "House: Water Not Detected"
@@ -91,6 +94,7 @@
     - service: script.send_to_home_log
       data:
         message: Potential leak has stopped
+        log_level: "Normal"
   mode: single
 - id: "1613246359438"
   alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
@@ -130,6 +134,7 @@
     - service: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the office!"
+        log_level: "Normal"
   mode: single
 - id: "1613264961246"
   alias: "Kitchen: Alarm Armed Home Mode & Motion Detected"
@@ -149,6 +154,7 @@
     - service: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the kitchen!"
+        log_level: "Normal"
   mode: single
 - id: "1615313996827"
   alias: "Game: Counter Strike Bomb Planted"
@@ -194,6 +200,7 @@
                 message:
                   ":warning: :wondow: Leo's bedroom window is still open. Waiting
                   until it's closed before closing blinds. :warning:"
+                log_level: "Normal"
       default:
         - service: cover.close_cover
           target:
@@ -206,6 +213,7 @@
     - service: script.send_to_home_log
       data:
         message: ":white_check_mark: :window: Leo's window closed. Closing blinds."
+        log_level: "Normal"
     - service: cover.close_cover
       target:
         entity_id: cover.leos_bedroom_blinds
@@ -231,6 +239,7 @@
                 message:
                   ":warning: :alarm: Unable to arm office door because the door is
                   not closed. Disabling alarm."
+                log_level: "Normal"
             - service: input_boolean.turn_off
               target:
                 entity_id: input_boolean.alarm_office_door
@@ -238,6 +247,7 @@
         - service: script.send_to_home_log
           data:
             message: ":bell: :door: Office door armed."
+            log_level: "Normal"
   mode: single
 - id: "1622973478458"
   alias: "Office: Trigger Armed Door"
@@ -272,6 +282,7 @@
     - service: script.send_to_home_log
       data:
         message: ":repeat: Entering No Children mode."
+        log_level: "Normal"
   mode: single
 - id: "1634576629865"
   alias: "NFC Tag: Scanned Locked By User"
@@ -296,6 +307,7 @@
                   ":door: :label: Front door tag scanned by {{ states.person|selectattr('attributes.user_id',
                   '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
                   }}."
+                log_level: "Normal"
             - service: script.nfc_front_door
         - conditions:
             - condition: template
@@ -307,6 +319,7 @@
                   ":door: :label: Bedroom right tag scanned by {{ states.person|selectattr('attributes.user_id',
                   '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
                   }}."
+                log_level: "Normal"
             - service: script.nfc_bedroom_right
       default: []
   mode: single
@@ -337,6 +350,7 @@
             - service: script.send_to_home_log
               data:
                 message: ":test_tube: :door: Someone entering."
+                log_level: "Normal"
       default: []
   mode: single
 - id: "1647094935963"
@@ -352,6 +366,7 @@
     - service: script.send_to_home_log
       data:
         message: Exiting naught step mode.
+        log_level: "Normal"
     - service: input_boolean.turn_on
       data: {}
       target:
@@ -438,6 +453,7 @@
       data:
         message: Longitude updated.
         title: "Danny's :car: Car"
+        log_level: "Normal"
     - service: input_number.set_value
       data:
         value: "{{ trigger.from_state }}"
@@ -492,6 +508,7 @@
     - service: script.send_to_home_log
       data:
         message: Changing lights to pretend someone is at home.
+        log_level: "Normal"
     - service: script.downstairs_random_light
       data: {}
     - service: script.upstairs_random_lights
@@ -525,6 +542,7 @@
     - service: script.send_to_home_log
       data:
         message: Turning off all lights from faking someone at home.
+        log_level: "Normal"
     - service: script.turn_everything_off
       data: {}
   mode: single
@@ -572,6 +590,7 @@
       data:
         message: Checking if hot water needs to be turned off.
         title: ":sun_small_cloud: Weather"
+        log_level: "Normal"
     - service: script.set_how_water_to_away_mode
       data: {}
   mode: single
@@ -650,6 +669,7 @@
     - service: script.send_to_home_log
       data:
         message: Conservatory fell below 3c. Boosting central heating.
+        log_level: "Normal"
   mode: single
 - id: "1674916813112"
   alias: "Bedroom: Lamps Off And Stairs Light On"
