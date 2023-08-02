@@ -189,6 +189,42 @@ automation:
                 data:
                   target_charge_rate: 200
     mode: single
+  - id: "1691009694610"
+    alias: "EcoFlow: Electricity Rate Below Export Rate"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: sensor.electricity_export_current_rate
+      - platform: state
+        entity_id: sensor.electricity_current_rate
+        to: sensor.electricity_export_current_rate
+    condition:
+      - condition: state
+        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                Electricity unit rate is the same orbelow export rate
+                ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+              title: EcoFlow
+              people:
+                - person.danny
+          - sequence:
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 1200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
+    mode: single
 
 script:
   ecoflow_set_backup_reserve:
