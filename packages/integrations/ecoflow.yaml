@@ -13,9 +13,13 @@ automation:
           minutes: 10
           seconds: 0
     condition:
-      - condition: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: 0
+      - or:
+          - condition: numeric_state
+            entity_id: sensor.electricity_current_rate
+            above: 0
+          - condition: state
+            entity_id: sensor.electricity_current_rate
+            state: "unavailable"
       - condition: numeric_state
         entity_id: number.ecoflow_kitchen_backup_reserve_level
         above: 5
@@ -55,6 +59,43 @@ automation:
               - service: script.ecoflow_set_backup_reserve
                 data:
                   reserve_amount: 5
+    mode: restart
+  - id: "1689437015871"
+    alias: "EcoFlow: Solar Above House Consumption"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.ecoflow_kitchen_solar_excess
+        above: input_number.ecoflow_kitchen_charge_solar_threshold
+        for:
+          hours: 0
+          minutes: 10
+          seconds: 0
+    condition:
+      - condition: numeric_state
+        entity_id: number.ecoflow_kitchen_backup_reserve_level
+        below: 100
+      - condition: state
+        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: Solar production is above household consumption. Setting backup to 100%.
+              title: Solar
+              people:
+                - person.danny
+          - sequence:
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
     mode: restart
   # Unit rate related automations
   - id: "1689626117476"
@@ -280,29 +321,23 @@ template:
           - sensor.growatt_export_to_grid
           - sensor.growatt_input_watt
           - sensor.growatt_load_consumption
-          - sensor.ecoflow_kitchen_ac_in_power
     sensor:
       - name: "EcoFlow Kitchen Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
         state: >-
           {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
           {{ states('sensor.growatt_export_to_grid')|float(0)*1000 }}
-          {% elif states('sensor.kitchen_ecoflow_battery_level')|int(0) < 100 %}
-          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
-          * 1000 - states('input_number.ecoflow_kitchen_charge_solar_threshold')|int(0))|round(2) }}
           {% else %}
           {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
-          * 1000 - states('sensor.ecoflow_kitchen_ac_in_power')|int(0))|round(2) }}
+          * 1000)|round(2) }}
           {% endif %}
         unit_of_measurement: w
         attributes:
           calculation_method: >-
             {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
             grid export
-            {% elif states('sensor.kitchen_ecoflow_battery_level')|int(0) < 100 %}
-            charging
             {% else %}
-            charged
+            consumption
             {% endif %}
   - trigger:
       - platform: state
