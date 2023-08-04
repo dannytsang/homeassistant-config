@@ -47,7 +47,7 @@ automation:
                     - person.danny
               - service: script.ecoflow_set_charge_rate
                 data:
-                  reserve_amount: 200
+                  reserve_amount: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
         else:
           - parallel:
               - service: script.send_direct_notification
