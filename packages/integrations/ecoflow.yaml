@@ -91,14 +91,17 @@ automation:
               message: >-
                 Solar production is above household consumption. Setting backup to 100% with
                 charge rate
-                {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}w.
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
+                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}w.
               title: Solar
               people:
                 - person.danny
           - sequence:
               - service: script.ecoflow_set_charge_rate
                 data:
-                  target_charge_rate: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
+                  target_charge_rate: >-
+                    {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
+                    {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
               - service: script.ecoflow_set_backup_reserve
                 data:
                   reserve_amount: 100
@@ -190,13 +193,16 @@ automation:
                 Setting charging rate from
                 {{ states('number.ecoflow_kitchen_ac_charging_power') }}
                 to
-                {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}w.
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
+                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}w.
               title: EcoFlow
               people:
                 - person.danny
           - service: script.ecoflow_set_charge_rate
             data:
-              target_charge_rate: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
+              target_charge_rate: >-
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
+                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
     mode: single
   - id: "1691009694610"
     alias: "EcoFlow: Electricity Rate Below Export Rate"
