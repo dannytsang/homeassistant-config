@@ -465,6 +465,11 @@ mqtt:
       name: Growatt - Time
       icon: mdi:clock-digital
     - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['totworktime'] | int / 2 }}"
+      unique_id: growatt_working_time
+      unit_of_measurement: "s"
+      name: Growatt - Working Time
+    - state_topic: energy/growatt
       value_template: >
         {% if (value_json['values']['pvstatus'] | int == 0) %}
           Waiting
@@ -479,10 +484,54 @@ mqtt:
       name: Growatt - State
       icon: mdi:power-settings
     - state_topic: energy/growatt
-      value_template: "{{ value_json['values']['totworktime'] | int / 2 }}"
-      unique_id: growatt_working_time
-      unit_of_measurement: "s"
-      name: Growatt - Working Time
+      value_template: >
+        {% if (value_json['values']['uwsysworkmode'] | int == 0) %}
+          Waiting
+        {% elif (value_json['values']['uwsysworkmode'] | int == 1) %}
+          Self-test
+        {% elif (value_json['values']['uwsysworkmode'] | int == 3) %}
+          Fault
+        {% elif (value_json['values']['uwsysworkmode'] | int == 4) %}
+          Flash
+        {% elif (value_json['values']['uwsysworkmode'] | int == 5) %}
+          Normal
+        {% elif (value_json['values']['uwsysworkmode'] | int == 6) %}
+          Battery Online
+        {% elif (value_json['values']['uwsysworkmode'] | int == 7) %}
+          PV Offline
+        {% elif (value_json['values']['uwsysworkmode'] | int == 6) %}
+          Battery Offline
+        {% else %}
+          Unknown ({{ value_json['values']['uwsysworkmode'] }})
+        {% endif %}
+      unique_id: growatt_system_work_mode
+      name: Growatt - System Work Mode
+      icon: mdi:power-settings
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['systemfaultword0'] }}"
+      unique_id: growatt_system_fault_0
+      name: Growatt - System Fault 0
+      icon: mdi:flash-alert
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['systemfaultword1'] }}"
+      unique_id: growatt_system_fault_1
+      name: Growatt - System Fault 1
+      icon: mdi:flash-alert
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['systemfaultword2'] }}"
+      unique_id: growatt_system_fault_2
+      name: Growatt - System Fault 2
+      icon: mdi:flash-alert
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['systemfaultword3'] }}"
+      unique_id: growatt_system_fault_3
+      name: Growatt - System Fault 3
+      icon: mdi:flash-alert
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['systemfaultword4'] }}"
+      unique_id: growatt_system_fault_4
+      name: Growatt - System Fault 4
+      icon: mdi:flash-alert
 
     # Usage
     - state_topic: energy/growatt
@@ -660,7 +709,7 @@ mqtt:
       device_class: frequency
       unit_of_measurement: "Hz"
       name: Growatt - Grid Phase Frequency
-      icon: mdi:flash
+      icon: mdi:waveform
 
     # Temperatures
     - state_topic: energy/growatt
@@ -729,6 +778,13 @@ mqtt:
       device_class: voltage
       unit_of_measurement: "V"
       name: Growatt - Battery 1 Voltage
+    # Miscellaneous
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['values']['spbusvolt'] | float / 1000 }}"
+      unique_id: growatt_bus_voltage
+      device_class: voltage
+      unit_of_measurement: "V"
+      name: Growatt - Bus Voltage
 
 sensor:
   - platform: statistics
