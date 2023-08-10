@@ -38,7 +38,7 @@ automation:
             value_template: >-
               {{ states('sensor.ecoflow_kitchen_solar_excess')|float(-1) >= states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
         then:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
               message: >-
                 Solar production dipped below household consumption. Reducing charge rate from
@@ -46,8 +46,7 @@ automation:
                 to
                 {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}w.
               title: Solar
-              people:
-                - person.danny
+              log_level: "Debug"
           - service: script.ecoflow_set_charge_rate
             data:
               reserve_amount: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
