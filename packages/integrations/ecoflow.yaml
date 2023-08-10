@@ -86,25 +86,8 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_direct_notification
-            data:
-              message: >-
-                Solar production is above household consumption. Setting backup to 100% with
-                charge rate
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
-                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}w.
-              title: Solar
-              people:
-                - person.danny
-          - sequence:
-              - service: script.ecoflow_set_charge_rate
-                data:
-                  target_charge_rate: >-
-                    {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
-                    {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  reserve_amount: 100
+          - service: script.excess_solar_detected
+            data: {}
     mode: restart
   # Unit rate related automations
   - id: "1689626117476"
@@ -187,13 +170,13 @@ automation:
           - service: script.send_direct_notification
             data:
               message: >-
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
                 Electrictity rate has gove above 0
                 ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                 and excess electricity detected ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
                 Setting charging rate from
                 {{ states('number.ecoflow_kitchen_ac_charging_power') }}
                 to
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
                 {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}w.
               title: EcoFlow
               people:
@@ -201,8 +184,7 @@ automation:
           - service: script.ecoflow_set_charge_rate
             data:
               target_charge_rate: >-
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
-                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
     mode: single
   - id: "1691009694610"
     alias: "EcoFlow: Electricity Rate Below Export Rate"
@@ -366,6 +348,28 @@ script:
               people:
                 - person.danny
     mode: single
+  excess_solar_detected:
+    alias: Excess Solar Detected
+    sequence:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{
+                Solar production is above household consumption. Setting backup to 100% with
+                charge rate
+                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}w.
+              title: Solar
+              people:
+                - person.danny
+          - sequence:
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: >-
+                    {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200) }}
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
 
 template:
   - trigger:
