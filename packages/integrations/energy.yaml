@@ -135,6 +135,7 @@ automation:
             data:
               message: >-
                 {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
+                {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
                 Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
                 will be
                 {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
@@ -145,30 +146,13 @@ automation:
 
 
                 Charge :house_with_garden::battery: battery to
-                {% if states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) < 5 %}
-                90%.
-                {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 5
-                and states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) < 11.5 %}
-                75%.
-                {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 11.5
-                and states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) < 14 %}
-                70%.
-                {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 14
-                and states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) < 17 %}
-                60%.
-                {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 17
-                and states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) < 18 %}
-                60%.
-                {% elif states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) >= 18 %}
-                23%.
-                {% endif %}
+                {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}
 
 
                 The last self sustaining generation of the day will be at
                 {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
                 ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
-                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-                .
+                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
               title: ":sunny: :zap: Solar"
               people:
                 - person.danny
