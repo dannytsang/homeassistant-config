@@ -138,10 +138,10 @@ automation:
                 Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
                 will be
                 {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
-                and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+                and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
                 The first self sustaining generation will occur at
-                {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-                ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
+                {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
 
 
                 Charge :house_with_garden::battery: battery to
@@ -165,9 +165,9 @@ automation:
 
 
                 The last self sustaining generation of the day will be at
-                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-                ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
-                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'forecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+                ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
+                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
                 .
               title: ":sunny: :zap: Solar"
               people:
@@ -350,6 +350,18 @@ automation:
             cut.
           title: ":warning: :zap: :house_with_garden: House :warning:"
     mode: single
+  # Solcast
+  - id: "1691767286139"
+    alias: "Solcast: Update Forecast"
+    description: ""
+    trigger:
+      - platform: time
+        at: 08:00:00
+    condition: []
+    action:
+      - service: solcast_solar.update_forecasts
+        data: {}
+    mode: single
 
 conversation:
   intents:
@@ -386,13 +398,13 @@ intent_script:
   getSolarForecastToday:
     speech:
       text: >-
-        Today's forecast is {{ states('sensor.total_solar_forecast_estimated_energy_production_today') }}
-        kilowatt hours.
+        Today's forecast is
+        {{ states('sensor.total_solar_forecast_estimated_energy_production_today', with_unit=True) }}.
   getSolarForecastTomorrow:
     speech:
       text: >-
-        Tomorrow's forecast is {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow') }}
-        kilowatt hours.
+        Tomorrow's forecast is
+        {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}.
 
 mqtt:
   sensor:
