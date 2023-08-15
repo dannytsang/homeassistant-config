@@ -357,10 +357,12 @@ conversation:
       - "When will the battery run out"
     getBatterySummary:
       - "Battery summary"
+    getSolarForecastLeft:
+      - "[How much] solar [generation] is left [today]"
     getSolarForecastToday:
-      - "[what is the] solar forecast today"
+      - "[What is the] solar forecast today"
     getSolarForecastTomorrow:
-      - "[what is the] solar forecast"
+      - "[What is the] solar forecast"
 
 intent_script:
   getBatteryLevel:
@@ -376,6 +378,11 @@ intent_script:
       text: >-
         {{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}
         and will run out in {{ states('sensor.battery_charge_remaining_hours') }}
+  getSolarForecastLeft:
+    speech:
+      text: >-
+        {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) - states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) }}
+        {{ state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }} remaining.
   getSolarForecastToday:
     speech:
       text: >-
