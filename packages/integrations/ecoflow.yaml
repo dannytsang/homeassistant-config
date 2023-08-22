@@ -36,7 +36,8 @@ automation:
             above: input_number.ecoflow_kitchen_charge_solar_threshold
           - condition: template
             value_template: >-
-              {{ states('sensor.ecoflow_kitchen_solar_excess')|float(-1) >=
+              {{ (states('sensor.ecoflow_kitchen_solar_excess')|float(-1) +
+              states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
               states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
         then:
           - service: script.send_to_home_log
@@ -50,7 +51,10 @@ automation:
               log_level: "Debug"
           - service: script.ecoflow_set_charge_rate
             data:
-              reserve_amount: "{{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}"
+              reserve_amount: >-
+                {{ (((states('sensor.ecoflow_kitchen_solar_excess')|float(0) +
+                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
+                200)|int(0)) * 200 }}
         else:
           - parallel:
               - service: script.send_to_home_log
@@ -424,7 +428,10 @@ script:
                 {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
                 Solar production is above household consumption. Setting backup to 100% with
                 charge rate
-                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}w.
+                {{ calculate_ecoflow_delta2_charge_rate(
+                (states('sensor.ecoflow_kitchen_solar_excess')|float(0) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
+                200,
+                1200) }}w.
               title: EcoFlow
               people:
                 - person.danny
