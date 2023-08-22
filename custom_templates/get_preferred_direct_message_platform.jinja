@@ -1,22 +1,20 @@
 # Created by Danny Tsang <danny@tsang.uk>
-{% macro preferred_direct_message_platform(people, platform) %}
-
-{% set platforms = namespace(preferred=[]) %}
-{% for p in people|default([]) %}
-    {% if p == 'person.danny' %}
-    {% if platform|lower in states('input_text.dannys_direct_notification_preference')|lower %}
-        {% set platforms.preferred = platforms.preferred + [p] %}
-    {% endif %}
-    {% elif p == 'person.terina' %}
-    {% if platform|lower in states('input_text.terinas_direct_notification_preference') %}
-        {% set platforms.preferred = platforms.preferred + [p] %}
-    {% endif %}
-    {% elif p == 'person.leo' %}
-    {% if platform|lower in states('input_text.leos_direct_notification_preference') %}
-        {% set platforms.preferred = platforms.preferred + [p] %}
-    {% endif %}
-    {% endif %}
-{% endfor %}
+{%- macro preferred_direct_message_platform(people, platform) -%}
+{%- set platforms = namespace(preferred=[]) -%}
+{%- for p in people|default([]) -%}
+    {%- if p == 'person.danny' -%}
+    {%- if platform|lower in states('input_text.dannys_direct_notification_preference')|lower -%}
+        {%- set platforms.preferred = platforms.preferred + [p] -%}
+    {%- endif -%}
+    {%- elif p == 'person.terina' -%}
+    {%- if platform|lower in states('input_text.terinas_direct_notification_preference') -%}
+        {%- set platforms.preferred = platforms.preferred + [p] -%}
+    {%- endif -%}
+    {%- elif p == 'person.leo' -%}
+    {%- if platform|lower in states('input_text.leos_direct_notification_preference') -%}
+        {%- set platforms.preferred = platforms.preferred + [p] -%}
+    {%- endif -%}
+    {%- endif -%}
+{%- endfor -%}
 {{ platforms.preferred }}
-
-{% endmacro %}
+{%- endmacro -%}
