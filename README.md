@@ -19,20 +19,20 @@ More details [here](hardware.md).
 
 # Addons ➕
 This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.com).
-*   [ESPHome](https://esphome.io/)
-*   [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
-*   [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
-*   [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
-*   [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
-*   [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
+* [ESPHome](https://esphome.io/)
+* [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
+* [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
+* [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
+* [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
+* [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
 
 Add-ons that I run outside of Home Assistant:
-*   [EMQX](https://github.com/hassio-addons/addon-emqx)
-*   [Grafana](https://github.com/hassio-addons/addon-grafana)
-*   [Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt)
+* [EMQX](https://github.com/hassio-addons/addon-emqx)
+* [Grafana](https://github.com/hassio-addons/addon-grafana)
+* [Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt)
 
 # Integrations 🖧
-More details [here](integrations.md).
+More details [here](/packages/integrations/README.md).
 
 # GitHub 🐱🐙
 This repository contains the configuration files used. It will not contain everything e.g. password (A.K.A secrets.yaml) file as well as other configuration done in the User Interface (UI).
@@ -79,7 +79,9 @@ I use split configuration files to help manage and keep the `configuration.yaml`
 A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
 
 ## Tags / Releases 🏷️
-I will apply a tag before upgrading to a major/minor/monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed. The `main` branch will contain the latest changes so there is no *latest* tag.
+I will apply a tag around the time of upgrading to a monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed. The `main` branch will contain the latest changes so there is no *latest* tag.
+
+I encountered issues with branching using VSCode Server add-on in Home Assistant. I was always switching away from a branch so I generally stay away from using this method.
 
 # Miscellaneous 🦺
 N/A
