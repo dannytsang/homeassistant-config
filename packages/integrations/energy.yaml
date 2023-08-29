@@ -203,7 +203,7 @@ automation:
     description: ""
     trigger:
       - platform: time
-        at: 00:00:00
+        at: "00:00:00"
     condition: []
     action:
       - choose:
@@ -339,7 +339,7 @@ automation:
     description: ""
     trigger:
       - platform: time
-        at: 08:00:00
+        at: "08:00:00"
     condition: []
     action:
       - service: solcast_solar.update_forecasts
@@ -795,6 +795,16 @@ script:
               log_level: "Normal"
     mode: single
     icon: mdi:solar-power
+  remaining_solar_forecast_today:
+    variables:
+      remaining: >-
+        {
+          'value':{{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) - states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) }},
+          'unit_of_measurement': '{{ state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }}'
+        }
+    sequence:
+      - stop: End
+        response_variable: remaining
   update_solcast:
     alias: Update Solcast
     sequence:
