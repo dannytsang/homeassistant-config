@@ -24,7 +24,7 @@ automation:
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
-                state: Holiday
+                state: "Holiday"
             sequence:
               - service: script.send_direct_notification
                 data:
@@ -102,7 +102,7 @@ automation:
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
-                state: Holiday
+                state: "Holiday"
             sequence:
               - service: script.send_direct_notification
                 data:
@@ -134,7 +134,7 @@ automation:
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
-                state: Holiday
+                state: "Holiday"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -193,7 +193,7 @@ automation:
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
-                state: Holiday
+                state: "Holiday"
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -223,7 +223,10 @@ automation:
         conditions:
           - condition: state
             entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
-            state: unknown
+            state: "unknown"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
     action:
       - service: script.send_to_home_log
         data:
@@ -246,7 +249,10 @@ automation:
       - not:
           - condition: state
             entity_id: sensor.myenergi_eddi_status
-            state: Stopped
+            state: "Stopped"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
@@ -258,7 +264,7 @@ automation:
               log_level: "Normal"
           - service: select.select_option
             data:
-              option: Stopped
+              option: "Stopped"
             target:
               entity_id: select.myenergi_eddi_operating_mode
     mode: single
@@ -271,11 +277,14 @@ automation:
     condition:
       - condition: state
         entity_id: sensor.myenergi_eddi_status
-        state: Stopped
+        state: "Stopped"
       - not:
           - condition: state
             entity_id: input_select.home_mode
-            state: Holiday
+            state: "Holiday"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
