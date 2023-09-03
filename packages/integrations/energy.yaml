@@ -131,30 +131,8 @@ automation:
                   value: 0
                 target:
                   entity_id: input_number.consecutive_forecast_days_below_solar_generation
-          - service: script.send_direct_notification
-            data:
-              message: >-
-                {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
-                {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-                Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
-                will be
-                {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
-                and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
-                The first self sustaining generation will occur at
-                {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-                ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
-
-
-                Charge :house_with_garden::battery: battery to {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}%.
-
-
-                The last self sustaining generation of the day will be at
-                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-                ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
-                {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
-              title: ":sunny: :zap: Solar"
-              people:
-                - person.danny
+          - service: script.energy_notify_tomorrows_solar_forecast
+            data: {}
           - service: input_number.set_value
             data:
               value: "{{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) }}"
@@ -796,6 +774,46 @@ script:
               log_level: "Normal"
     mode: single
     icon: mdi:solar-power
+  energy_notify_tomorrows_solar_forecast:
+    alias: Energy Notify Tommorow's Solar Forecast
+    variables:
+      estimate_charge: >-
+        {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
+        {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}
+      estimate_charge_hours: >-
+        {{ (states('input_number.solar_battery_size')|float(0)
+        *(1-(states('input_number.growatt_battery_discharge_stop_soc')|float(0)/100)))
+        *(estimate_charge|float(0)/100)
+        / states('input_number.solar_battery_max_charge_rate')|float(0) }}
+    sequence:
+      - service: script.send_direct_notification
+        data:
+          message: >-
+            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
+            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
+            {%- from 'get_cheapest_electricity_rates.jinja' import get_cheapest_electricity_rates -%}
+            Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
+            will be
+            {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
+            and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+            The first self sustaining generation will occur at
+            {{ as_timestamp(get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_first_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
+
+            The last self sustaining generation of the day will be at
+            {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
+            {{ as_timestamp(get_last_solar_generation('sensor.solcast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+
+
+            Charge :house_with_garden::battery: battery to {{ estimate_charge }}%
+            ({{ estimate_charge_hours|round(2, 'ceil') }}kWh).
+
+
+            {{ estimate_charge_hours|round(0, 'ceil') }} charging slot is required.
+          title: ":sunny: :zap: Solar"
+          people:
+            - person.danny
   remaining_solar_forecast_today:
     variables:
       remaining: >-
