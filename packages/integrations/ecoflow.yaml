@@ -420,28 +420,43 @@ script:
     mode: single
   excess_solar_detected:
     alias: Excess Solar Detected
+    variables:
+      target_charge_rate: >-
+        {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+        {{ calculate_ecoflow_delta2_charge_rate(
+        (states('sensor.ecoflow_kitchen_solar_excess')|float(0) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
+        200,
+        1200)|int(0) }}
     sequence:
-      - parallel:
+      - choose:
+        - conditions:
+          - condition: template
+            value_template: >-
+              {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: >-
+                      Solar production is above household consumption. Setting backup to 100% with
+                      charge rate {{ target_charge_rate }}w.
+                    title: EcoFlow
+                    log_level: "Debug"
+                - sequence:
+                    - service: script.ecoflow_set_charge_rate
+                      data:
+                        target_charge_rate: "{{ target_charge_rate }}"
+                    - service: script.ecoflow_set_backup_reserve
+                      data:
+                        reserve_amount: 100
+        default:
           - service: script.send_to_home_log
             data:
               message: >-
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
-                Solar production is above household consumption. Setting backup to 100% with
-                charge rate
-                {{ calculate_ecoflow_delta2_charge_rate(
-                (states('sensor.ecoflow_kitchen_solar_excess')|float(0) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
-                200,
-                1200) }}w.
+                Charge rate ({{ target_charge_rate }}w) is already set correctly.
               title: EcoFlow
               log_level: "Debug"
-          - sequence:
-              - service: script.ecoflow_set_charge_rate
-                data:
-                  target_charge_rate: >-
-                    {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  reserve_amount: 100
+  mode: single
 
 template:
   - trigger:
