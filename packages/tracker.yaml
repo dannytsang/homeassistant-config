@@ -74,11 +74,9 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: proximity.danny_home
-        value_template: ""
         below: input_number.distance_close_to_home
       - platform: numeric_state
         entity_id: proximity.terina_home
-        value_template: ""
         below: input_number.distance_close_to_home
     condition: []
     action:
@@ -101,11 +99,11 @@ automation:
               - service: input_text.set_value
                 data:
                   value: >-
-                    {% if trigger.entity_id == 'proximity.danny_home' %}
+                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
                     person.danny
-                    {% elif trigger.entity_id == 'proximity.terina_home'%}
+                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
                     person.terina
-                    {% endif %}
+                    {%- endif -%}
                 target:
                   entity_id: input_text.origin_address
               - service: input_text.set_value
@@ -120,11 +118,11 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: >-
-                    {% if trigger.entity_id == 'proximity.danny_home' %}
+                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
                     {{ state_attr('person.danny', 'friendly_name') }}
-                    {% elif trigger.entity_id == 'proximity.terina_home'%}
+                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
                     {{ state_attr('person.terina', 'friendly_name') }}
-                    {% endif %} is
+                    {%- endif -%} is
                     {{ states('trigger.entity_id', with_unit=True) }} from home and will
                     arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
                     }}.
@@ -144,6 +142,24 @@ automation:
                           option: Normal
                         target:
                           entity_id: input_select.home_mode
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
+                    {{ state_attr('person.danny', 'friendly_name') }}
+                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
+                    {{ state_attr('person.terina', 'friendly_name') }}
+                    {%- endif -%} is
+                    {{ states('trigger.entity_id', with_unit=True) }} from home and will
+                    arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
+                    }}.
+                  people:
+                    - person.danny
         default: []
     mode: single
   - id: "1680450183660"
