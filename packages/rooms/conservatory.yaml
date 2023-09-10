@@ -103,13 +103,13 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.conservatory_person_motion
+        entity_id: binary_sensor.conersatory_camera_person_detected
         from: "off"
         to: "on"
     condition:
       - condition: state
-        entity_id: switch.conservatory_detect
-        state: "on"
+        entity_id: alarm_control_panel.house_alarm
+        state: "armed_away"
     action:
       - service: camera.snapshot
         data_template:
@@ -117,7 +117,7 @@ automation:
             "{{ states('input_text.latest_frigate_conservatory_person_file_path')
             }}"
         target:
-          entity_id: camera.conservatory_person
+          entity_id: camera.conersatory
       - service: script.send_home_log_with_local_attachments
         data_template:
           message: Frigate detected a person in the conservatory.
@@ -142,11 +142,6 @@ automation:
               message: ":door: Door opened."
               title: "Conservatory"
               log_level: "Debug"
-          - service: script.send_to_home_log
-            data:
-              message: "Turning conservatory camera :camera_with_flash: on."
-              log_level: "Debug"
-          - service: script.conservatory_turn_on_camera
           - if:
               - condition: not
                 conditions:
@@ -321,15 +316,5 @@ script:
               entity_id:
                 - switch.conservatory_detect
                 - switch.conservatory_snapshots
-    mode: single
-    icon: mdi:cctv
-  conservatory_turn_on_camera:
-    alias: Conservatory Turn On Camera
-    sequence:
-      - service: switch.turn_on
-        target:
-          entity_id:
-            - switch.conservatory_detect
-            - switch.conservatory_snapshots
     mode: single
     icon: mdi:cctv
