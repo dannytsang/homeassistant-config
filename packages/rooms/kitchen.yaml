@@ -881,6 +881,65 @@ automation:
             - person.danny
             - person.terina
     mode: single
+  - id: "1694521590170"
+    alias: "Kitchen: Oven Preheated"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.oven_channel_1_power
+        below: 100
+    condition:
+      - condition: state
+        entity_id: binary_sensor.oven_powered_on
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.oven_preheated
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_oven_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.kitchen_oven_preheated_notification
+            data:
+              message: Oven has preheated.
+              title: ":cook: Kitchen"
+          - service: input_boolean.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.oven_preheated
+    mode: single
+  - id: "1694521864037"
+    alias: "Kitchen: Reset Oven Preheated"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.oven_powered_on
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.oven_preheated
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_oven_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: Turning off oven preheat indicator.
+              title: ":cook: Kitchen"
+              log_level: Normal
+          - service: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id: input_boolean.oven_preheated
+    mode: single
 
 scene:
   - id: "kitchen_ambient_lights_dim"
@@ -1127,6 +1186,30 @@ scene:
         state: "on"
 
 script:
+  kitchen_oven_preheated_notification:
+    alias: Kitchen Oven Preheated Notification
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+    variables:
+      people_home: "{% set people = namespace(home=[]) %}
+        {% for p in state_attr('group.adult_people', 'entity_id')|default([]) %}
+        {% if states(p) == 'home' %}
+        {% set people.home = people.home + [p] %}
+        {% endif %}
+        {% endfor %}
+        {{ people.home }}"
+    sequence:
+      - service: script.send_direct_notification
+        data:
+          message: "{{ message }}"
+          title: "{{ title }}"
+          people: "{{ people_home }}"
+    mode: single
+    icon: mdi:toaster-oven
   kitchen_turn_off_camera:
     alias: Kitchen Turn Off Camera
     icon: mdi:cctv-off
