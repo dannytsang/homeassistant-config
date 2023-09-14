@@ -47,18 +47,11 @@ automation:
         not_from: unavailable
     condition: []
     action:
-      - service: camera.snapshot
-        data:
-          filename: "{{states('input_text.camera_external_folder_path')}}{{states('camera.t8_live_map')}}"
-        target:
-          entity_id: camera.t8_live_map
-      - delay:
-          seconds: 2
-      - service: script.send_home_log_with_local_attachments
+      - service: script.send_home_log_with_url
         data:
           message: Cleaning complete
           title: ":robot_face: :broom: Vacuum"
-          filePath: "{{states('input_text.camera_external_folder_path')}}{{states('camera.t8_live_map')}}"
+          url: "{{ states('input_text.external_url') }}{{ state_attr('image.t8_map','entity_picture') }}"
     mode: single
 
 rest_command:
