@@ -469,6 +469,11 @@ mqtt:
       unique_id: growatt_system_fault_4
       name: Growatt - System Fault 4
       icon: mdi:flash-alert
+    - state_topic: energy/growatt
+      value_template: "{{ value_json['buffered'] }}"
+      unique_id: growatt_buffered
+      name: Growatt - Buffered
+      icon: mdi:cached
 
     # Usage
     - state_topic: energy/growatt
@@ -777,13 +782,17 @@ script:
   energy_notify_tomorrows_solar_forecast:
     alias: Energy Notify Tommorow's Solar Forecast
     variables:
-      estimate_charge: >-
+      estimate_charge_percentage: >-
         {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
         {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}
+      estimate_charge_kw: >-
+        {{ (states('input_number.solar_battery_size')|float(0)
+        *(1-(states('input_number.growatt_battery_discharge_stop_soc')|float(0)/100)))
+        *(estimate_charge_percentage|float(0)/100) }}
       estimate_charge_hours: >-
         {{ (states('input_number.solar_battery_size')|float(0)
         *(1-(states('input_number.growatt_battery_discharge_stop_soc')|float(0)/100)))
-        *(estimate_charge|float(0)/100)
+        *(estimate_charge_percentage|float(0)/100)
         / states('input_number.solar_battery_max_charge_rate')|float(0) }}
     sequence:
       - service: script.send_direct_notification
@@ -806,12 +815,10 @@ script:
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
 
-
-            Charge :house_with_garden::battery: battery to {{ estimate_charge }}%
-            ({{ estimate_charge_hours|round(2, 'ceil') }}kWh).
-
-
-            {{ estimate_charge_hours|round(0, 'ceil') }} charging slot is required.
+            {% if estimate_charge_percentage != 23 %}
+            Charge :house_with_garden::battery: battery to {{ estimate_charge_percentage }}% to {{ estimate_charge_kw }}kWh.
+            Charge time required: {{ estimate_charge_hours|round(2, 'ceil') }}kWh. {{ estimate_charge_hours|round(0, 'ceil') }} charging slot(s) is required.
+            {%- endif -%}
           title: ":sunny: :zap: Solar"
           people:
             - person.danny
