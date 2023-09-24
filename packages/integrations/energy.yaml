@@ -814,8 +814,9 @@ script:
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+            {%- if estimate_charge_percentage != 23 -%}
 
-            {% if estimate_charge_percentage != 23 %}
+
             Charge :house_with_garden::battery: battery to {{ estimate_charge_percentage }}% to {{ estimate_charge_kw }}kWh.
             Charge time required: {{ estimate_charge_hours|round(2, 'ceil') }}kWh. {{ estimate_charge_hours|round(0, 'ceil') }} charging slot(s) is required.
             {%- endif -%}
