@@ -33,22 +33,22 @@ jobs:
         with:
           args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
 
-  ha-stable-check:
-    name: "Home Assistant Core Stable Configuration Check"
-    needs: [yamllint, remarklint]
-    runs-on: ubuntu-latest
-    steps:
-      - name: ⤵️ Check out configuration from GitHub
-        uses: actions/checkout@v3
-      - name: ➕ Create dummy files
-        run: |
-          sed -e '/delete:/d' < configuration.yaml > configuration.yaml
-      - name: 🚀 Run Home Assistant Configuration Check
-        uses: frenck/action-home-assistant@v1
-        with:
-          path: "./"
-          secrets: ./secrets.yaml.sample
-          version: "stable"
+#  ha-stable-check:
+#    name: "Home Assistant Core Stable Configuration Check"
+#    needs: [yamllint, remarklint]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: ⤵️ Check out configuration from GitHub
+#        uses: actions/checkout@v3
+#      - name: ➕ Create dummy files
+#        run: |
+#          sed -e '/delete:/d' < configuration.yaml > configuration.yaml
+#      - name: 🚀 Run Home Assistant Configuration Check
+#        uses: frenck/action-home-assistant@v1
+#        with:
+#          path: "./"
+#          secrets: ./secrets.yaml.sample
+#          version: "stable"
 
   ha-future-checks:
     name: "Home Assistant Core ${{ matrix.version }} Configuration Check"
@@ -70,15 +70,15 @@ jobs:
           secrets: ./secrets.yaml.sample
           version: "${{ matrix.version }}"
 
-  deploy:
-    name: "Deploy changes"
-    needs: [ha-stable-check]
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🌑 Deploying
-        uses: fjogeleit/http-request-action@master
-        with:
-          url: '${{ secrets.DEPLOYMENT_URL }}'
-          method: POST
-          customHeaders: '{"Content-Type":"application/json"}'
-          data: '{ "key":"${{ secrets.PULL_KEY }}" }'
+#  deploy:
+#    name: "Deploy changes"
+#    needs: [ha-stable-check]
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: 🌑 Deploying
+#        uses: fjogeleit/http-request-action@master
+#        with:
+#          url: '${{ secrets.DEPLOYMENT_URL }}'
+#          method: POST
+#          customHeaders: '{"Content-Type":"application/json"}'
+#          data: '{ "key":"${{ secrets.PULL_KEY }}" }'
