@@ -290,12 +290,13 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - choose:
-          - conditions:
+      - parallel:
+          - alias: Check if fridge freezer plug has been switched off
+            if:
               - condition: state
                 entity_id: switch.fridge_freezer
                 state: "off"
-            sequence:
+            then:
               - service: script.send_direct_notification
                 data:
                   message: >-
@@ -309,8 +310,7 @@ automation:
                   people:
                     - person.danny
                     - person.terina
-        default:
-          - parallel:
+            else:
               - service: script.send_direct_notification
                 data:
                   message: >-
@@ -320,13 +320,13 @@ automation:
                   title: EcoFlow
                   people:
                     - person.danny
-              - sequence:
-                  - service: script.ecoflow_set_charge_rate
-                    data:
-                      target_charge_rate: 1200
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: 100
+          - sequence:
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 1200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
     mode: single
   # Battery level
   - id: "1695566530591"
