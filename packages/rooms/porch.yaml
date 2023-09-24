@@ -28,12 +28,6 @@ automation:
                     target:
                       entity_id: scene.porch_light_on
             default: []
-          - service: script.send_to_computers
-            data:
-              message: Opened
-              title: "🚪🛎 Front Door"
-              filePath: /api/camera_proxy/camera.lounge
-              duration: 10
       - service: script.send_to_home_log
         data:
           message: >-
@@ -45,6 +39,15 @@ automation:
       - service: counter.increment
         data: {}
         entity_id: counter.front_door_opened_closed
+      - alias: Add delay otherwise the picture is too quick to capture someone walking through the door
+        delay:
+          seconds: 2
+      - service: script.send_to_computers
+        data:
+          message: Opened
+          title: "🚪🛎 Front Door"
+          filePath: /api/camera_proxy/camera.lounge
+          duration: 10
     mode: single
   - id: "1614033445487"
     alias: "Porch: Front Door Opened Once For More than 20 seconds"
