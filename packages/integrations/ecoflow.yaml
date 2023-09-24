@@ -215,6 +215,22 @@ automation:
       - choose:
           - conditions:
               - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: sensor.electricity_export_current_rate
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Electrictity rate has gove above 0 
+                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                    but below export 
+                    ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                    Keeping Ecoflow charged.
+                  title: EcoFlow
+                  people:
+                    - person.danny
+          - conditions:
+              - condition: numeric_state
                 entity_id: sensor.ecoflow_kitchen_solar_excess
                 below: input_number.ecoflow_kitchen_charge_solar_threshold
             sequence:
@@ -274,23 +290,64 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - parallel:
-          - service: script.send_direct_notification
-            data:
-              message: >-
-                Electricity unit rate is the same orbelow export rate
-                ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
-              title: EcoFlow
-              people:
-                - person.danny
-          - sequence:
-              - service: script.ecoflow_set_charge_rate
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: switch.fridge_freezer
+                state: "off"
+            sequence:
+              - service: script.send_direct_notification
                 data:
-                  target_charge_rate: 1200
-              - service: script.ecoflow_set_backup_reserve
+                  message: >-
+                    Fridge freezer plug has been switched off!
+
+
+                    Electricity unit rate is the same orbelow export rate
+                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                    states('sensor.electricity_export_current_rate') }}).
+                  title: EcoFlow
+                  people:
+                    - person.danny
+                    - person.terina
+        default:
+          - parallel:
+              - service: script.send_direct_notification
                 data:
-                  reserve_amount: 100
+                  message: >-
+                    Electricity unit rate is the same orbelow export rate
+                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                    states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+                  title: EcoFlow
+                  people:
+                    - person.danny
+              - sequence:
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      target_charge_rate: 1200
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: 100
+    mode: single
+  # Battery level
+  - id: "1695566530591"
+    alias: "EcoFlow: Battery Low And Plug Is Off"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.kitchen_ecoflow_battery_level
+        below: "6"
+    condition:
+      - condition: state
+        entity_id: switch.fridge_freezer
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Fridge Freezer switch is off.
+          title: EcoFlow
+          people:
+            - person.danny
+            - person.terina
     mode: single
 
 script:
@@ -429,26 +486,26 @@ script:
         1200)|int(0) }}
     sequence:
       - choose:
-        - conditions:
-          - condition: template
-            value_template: >-
-              {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
-          sequence:
-            - parallel:
-                - service: script.send_to_home_log
-                  data:
-                    message: >-
-                      Solar production is above household consumption. Setting backup to 100% with
-                      charge rate {{ target_charge_rate }}w.
-                    title: EcoFlow
-                    log_level: "Debug"
-                - sequence:
-                    - service: script.ecoflow_set_charge_rate
-                      data:
-                        target_charge_rate: "{{ target_charge_rate }}"
-                    - service: script.ecoflow_set_backup_reserve
-                      data:
-                        reserve_amount: 100
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Solar production is above household consumption. Setting backup to 100% with
+                        charge rate {{ target_charge_rate }}w.
+                      title: EcoFlow
+                      log_level: "Debug"
+                  - sequence:
+                      - service: script.ecoflow_set_charge_rate
+                        data:
+                          target_charge_rate: "{{ target_charge_rate }}"
+                      - service: script.ecoflow_set_backup_reserve
+                        data:
+                          reserve_amount: 100
         default:
           - service: script.send_to_home_log
             data:
