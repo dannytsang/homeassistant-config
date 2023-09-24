@@ -137,8 +137,10 @@ automation:
     trigger:
       - at: "07:30:00"
         platform: time
+        id: early
       - at: "08:00:00"
         platform: time
+        id: late
     condition:
       - condition: numeric_state
         entity_id: cover.ashlees_bedroom_blinds_cover
@@ -159,34 +161,40 @@ automation:
           - conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
-                state: "on"
+                state: "off"
+              - condition: trigger
+                id: late
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: School day. Opening Ashlee's blinds"
-                  title: "Ashlee's :bed: bedroom"
-                  log_level: "Debug"
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: School day. Opening Ashlee's blinds"
+                      title: "Ashlee's :bed: bedroom"
+                      log_level: "Debug"
 
-              - service: cover.open_cover
-                target:
-                  entity_id: cover.ashlees_bedroom_blinds_cover
+                  - service: cover.open_cover
+                    target:
+                      entity_id: cover.ashlees_bedroom_blinds_cover
           - conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "on"
+              - condition: trigger
+                id: early
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message:
-                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Non school day. Opening Ashlee's blinds"
-                  title: "Ashlee's :bed: bedroom"
-                  log_level: "Debug"
-              - service: cover.open_cover
-                target:
-                  entity_id: cover.ashlees_bedroom_blinds_cover
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message:
+                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Non school day. Opening Ashlee's blinds"
+                      title: "Ashlee's :bed: bedroom"
+                      log_level: "Debug"
+                  - service: cover.open_cover
+                    target:
+                      entity_id: cover.ashlees_bedroom_blinds_cover
         default: []
     mode: single
   - id: "1599994669458"
