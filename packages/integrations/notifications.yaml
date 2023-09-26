@@ -291,35 +291,12 @@ script:
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
-                - choose:
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.danny' }}"
-                      sequence:
-                        - service: notify.mobile_app_danny_s_phone
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                          continue_on_error: true
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.terina' }}"
-                      sequence:
-                        - service: notify.mobile_app_terina_s_phone
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                          continue_on_error: true
-                    - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.leo' }}"
-                      sequence:
-                        - service: notify.mobile_app_ipad_air_4th_generation
-                          data:
-                            message: "{{ message }}"
-                            title: "{{ title|default(none, true) }}"
-                          continue_on_error: true
-                  default: []
+                - service: script.post_home_assistant_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    people: "{{ repeat.item }}"
+                  continue_on_error: true
           - repeat:
               for_each: "{{ whatsapp|default([], true) }}"
               sequence:
