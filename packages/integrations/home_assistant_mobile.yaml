@@ -62,6 +62,11 @@ script:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                 continue_on_error: true
+              - service: notify.mobile_app_ipad_air_4th_generation
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                continue_on_error: true
     mode: queued
     max: 10
   post_to_home_assistant_with_url_attachment:
@@ -78,8 +83,9 @@ script:
       title:
         description: (optional)Title to the message posted.
       people:
-        description: (optional)Slack user ID to message.
-        example: "<@ABCDEFG>"
+        description: People to message.
+          If not specified then it goes to everyone.
+        example: "['person.danny'] or ['person.danny','person.terina']"
       url:
         description: Link to file.
         example: "https://picsum.photos/200/300"
@@ -128,6 +134,13 @@ script:
                     image: "{{ url }}"
                 continue_on_error: true
               - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
+              - service: notify.mobile_app_ipad_air_4th_generation
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
