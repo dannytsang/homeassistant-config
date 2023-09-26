@@ -31,18 +31,23 @@ script:
               - condition: template
                 value_template: "{{ 'person.terina' in people }}"
             sequence:
+              - service: notify.mobile_app_danny_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                continue_on_error: true
               - service: notify.mobile_app_terina_s_phone
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                 continue_on_error: true
         default:
-          - service: telegram_bot.send_message
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default('', true) }}"
-              target: "{{ states('input_text.dannys_telegram_chat_id') }}"
-            continue_on_error: true
+          - parallel:
+              - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                continue_on_error: true
     mode: queued
     max: 10
   post_to_home_assistant_with_url_attachment:
@@ -88,6 +93,21 @@ script:
                   data:
                     image: "{{ url }}"
                 continue_on_error: true
-        default: []
+        default:
+          - parallel:
+              - service: notify.mobile_app_danny_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
+              - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
     mode: queued
     max: 10
