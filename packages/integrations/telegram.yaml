@@ -33,6 +33,7 @@ automation:
               title: Telegram
               log_level: "Debug"
     mode: queued
+    max: 10
   - id: "1653739708850"
     alias: "Telegram: Message Received"
     description: ""
@@ -73,6 +74,7 @@ automation:
                 data:
                   message: "{{ assist.response.speech.plain.speech }}"
     mode: queued
+    max: 10
   - id: "1653739708851"
     alias: "Telegram: Callback Received"
     description: ""
@@ -103,6 +105,7 @@ automation:
           title: Telegram
           log_level: "Debug"
     mode: queued
+    max: 10
 
 script:
   post_telegram_direct_notification:
@@ -111,8 +114,6 @@ script:
     description: >-
       Post a direct text message to adults in the house. Please use
       a send script to decouple from the messaging platform.
-    max: 10
-    mode: queued
     fields:
       message:
         description: Message to post
@@ -142,6 +143,8 @@ script:
               title: "{{ title|default('', true) }}"
               target: "{{ states('input_text.dannys_telegram_chat_id') }}"
             continue_on_error: true
+    mode: queued
+    max: 10
   post_to_telegram_home_log_with_local_attachments:
     alias: "Post To Telegram With Local Attachments"
     icon: mdi:message-reply-text
