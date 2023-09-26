@@ -41,8 +41,22 @@ script:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                 continue_on_error: true
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.leo' in people }}"
+            sequence:
+              - service: notify.mobile_app_ipad_air_4th_generation
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default(none, true) }}"
+                continue_on_error: true
         default:
           - parallel:
+              - service: notify.mobile_app_danny_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                continue_on_error: true
               - service: notify.mobile_app_terina_s_phone
                 data:
                   message: "{{ message }}"
@@ -87,6 +101,17 @@ script:
                 value_template: "{{ 'person.terina' in people }}"
             sequence:
               - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.leo' in people }}"
+            sequence:
+              - service: notify.mobile_app_ipad_air_4th_generation
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
