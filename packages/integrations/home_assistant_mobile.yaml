@@ -1,0 +1,93 @@
+# Created by Danny Tsang <danny@tsang.uk>
+script:
+  post_home_assistant_direct_notification:
+    alias: "Send Home Assistant Direct Message"
+    icon: mdi:message-reply-text
+    description: >-
+      Post a direct text message to adults in the house. Please use
+      a send script to decouple from the messaging platform.
+    max: 10
+    mode: queued
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: Title of post
+      people:
+        description: Person to send the message to.
+          If not specified then it goes to everyone.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.danny' in people }}"
+            sequence:
+              - service: notify.mobile_app_danny_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                continue_on_error: true
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.terina' in people }}"
+            sequence:
+              - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                continue_on_error: true
+        default:
+          - service: telegram_bot.send_message
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default('', true) }}"
+              target: "{{ states('input_text.dannys_telegram_chat_id') }}"
+            continue_on_error: true
+  post_to_home_assistant_with_url_attachment:
+    alias: "Post To Home Assistant App With File Or URL Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a file or URL attachment to the home_log
+      channel. Only a file or URL can be set. Not both or neither. Please use a
+      send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+      title:
+        description: (optional)Title to the message posted.
+      people:
+        description: (optional)Slack user ID to message.
+        example: "<@ABCDEFG>"
+      url:
+        description: Link to file.
+        example: "https://picsum.photos/200/300"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.danny' in people }}"
+            sequence:
+              - service: notify.mobile_app_danny_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
+          - conditions:
+              - condition: template
+                value_template: "{{ 'person.terina' in people }}"
+            sequence:
+              - service: notify.mobile_app_terina_s_phone
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title|default('', true) }}"
+                  data:
+                    image: "{{ url }}"
+                continue_on_error: true
+        default: []
+    mode: queued
+    max: 10
