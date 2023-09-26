@@ -170,13 +170,24 @@ script:
       message:
         description: Message to post.
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       log_level:
         description: Level of logging. If it matches or high level, then it will be sent.
         example: >-
           If logging is set to *Normal* and the current logging level is *Debug*, then it
           will be sent to the chosen home log platforms.
+        default: "Debug"
+        selector:
+          select:
+            options:
+              - Normal
+              - Debug
     sequence:
       - if:
           - not:
@@ -216,13 +227,23 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: Title to post
+        selector:
+          text:
       people:
         description:
           (optional)People to message using people entity in a comma separated list.
           If no one is specified, it will go to everyone.
         example: "['person.danny'] or ['person.danny','person.terina']"
+        selector:
+          target:
+            entity:
+              domain:
+                - person
     variables:
       # Get people's preferred messaging platform
       slack: >-
@@ -315,17 +336,30 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       filePath:
         description: File path to attach to post.
         required: true
         example: "/config/www/myImage.jpg"
+        selector:
+          text:
+            type: "url"
       people:
         description:
           (optional)People to message using people entity in a comma separated list.
           If no one is specified, it will be posted to the home log.
         example: "['person.danny'] or ['person.danny','person.terina']"
+        selector:
+          target:
+            entity:
+              domain:
+                - person
     variables:
       # Get people's preferred messaging platform
       slack: >-
@@ -420,11 +454,19 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       url:
         description: (optional)Link to file.
         required: true
+        selector:
+          text:
+            type: "url"
     sequence:
       - if:
           - not:
@@ -454,24 +496,42 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       people:
         description: People to message.
         example: "['person.danny'] or ['person.danny','person.terina']"
         required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - person
       action1_title:
         description: First action text.
         required: true
+        selector:
+          text:
       action1_name:
         description: First vent name if action is selected.
         required: true
+        selector:
+          text:
       action2_title:
         description: Second action text.
         required: true
+        selector:
+          text:
       action2_name:
         description: Second event name if action is selected.
         required: true
+        selector:
+          text:
     variables:
       # Get people's preferred messaging platform
       mobile: >-
@@ -550,29 +610,51 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       people:
         description: People to message.
         example: "['person.danny'] or ['person.danny','person.terina']"
         required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - person
       action1_title:
         description: First action text.
+        selector:
+          text:
       action1_name:
         description: First vent name if action is selected.
         required: true
+        selector:
+          text:
       action2_title:
         description: Second action text.
         required: true
+        selector:
+          text:
       action2_name:
         description: Second event name if action is selected.
         required: true
+        selector:
+          text:
       action3_title:
         description: Third action text.
         required: true
+        selector:
+          text:
       action3_name:
         description: Third event name if action is selected.
         required: true
+        selector:
+          text:
     variables:
       # Get people's preferred messaging platform
       mobile: >-
@@ -670,14 +752,28 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       filePath:
         description: File path to attach to post.
+        selector:
+          text:
       duration:
         description: >
           How long to display the notification in seconds. It will default to 10 seconds if one has not been set.
         default: 10
+        selector:
+          number:
+            min: 1
+            max: 300
+            step: 1
+            unit_of_measurement: "sec"
+            mode: "box"
     sequence:
       - if:
           - condition: state
@@ -724,18 +820,37 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       filePath:
         description: File path to attach to post.
+        selector:
+          text:
       device:
         description: HASS Agent notify service.
         example: notify.sam
         required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - notify
       duration:
         description: >
           How long to display the notification in seconds. It will default to 10 seconds if one has not been set.
         default: 10
+        selector:
+          number:
+            min: 1
+            max: 300
+            step: 1
+            unit_of_measurement: "sec"
+            mode: "box"
     sequence:
         - choose:
         # Check a title was set

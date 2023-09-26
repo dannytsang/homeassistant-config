@@ -10,12 +10,33 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: Title of post
+        selector:
+          text:
       people:
         description: Person to send the message to.
           If not specified then it goes to everyone.
         example: "['person.danny'] or ['person.danny','person.terina']"
+        selector:
+          target:
+            entity:
+              domain:
+                - person
+      priority:
+        description: Determines the importance of the notification.
+          Higher the importance, the more likely it will alert the user even when in silent mode.
+        example: "high, medium, low"
+        default: "medium"
+        selector:
+          select:
+            options:
+              - high
+              - medium
+              - low
     sequence:
       - choose:
           - conditions:
@@ -80,15 +101,39 @@ script:
       message:
         description: Message to post
         required: true
+        selector:
+          text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
+        selector:
+          text:
       people:
         description: People to message.
           If not specified then it goes to everyone.
         example: "['person.danny'] or ['person.danny','person.terina']"
+        selector:
+          target:
+            entity:
+              domain:
+                - person
       url:
         description: Link to file.
         example: "https://picsum.photos/200/300"
+        selector:
+          text:
+            type: "url"
+      priority:
+        description: Determines the importance of the notification.
+          Higher the importance, the more likely it will alert the user even when in silent mode.
+        example: "high, medium, low"
+        default: "medium"
+        selector:
+          select:
+            options:
+              - high
+              - medium
+              - low
     sequence:
       - choose:
           - conditions:
@@ -101,6 +146,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
           - conditions:
               - condition: template
@@ -112,6 +158,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
           - conditions:
               - condition: template
@@ -123,6 +170,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
         default:
           - parallel:
@@ -132,6 +180,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
               - service: notify.mobile_app_terina_s_phone
                 data:
@@ -139,6 +188,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
               - service: notify.mobile_app_ipad_air_4th_generation
                 data:
@@ -146,6 +196,7 @@ script:
                   title: "{{ title|default('', true) }}"
                   data:
                     image: "{{ url }}"
+                    priority: "{{ title|default('medium', true) }}"
                 continue_on_error: true
     mode: queued
     max: 10
