@@ -49,28 +49,47 @@ script:
         name: Entity ID
         description: Calendar entity ID.
         required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - calendar
       name:
         name: Event name
         description: name of the event.
         required: true
+        selector:
+          text:
       event_type:
         name: Event type
         description: denote if the it's the start or end of a calendar event.
+        selector:
+          text:
       offset:
         name: Offset
         description: Time before or after the event type.
+        selector:
+          duration:
       all_day:
         name: All day
         description: if it's an all day event it will be set to true.
+        selector:
+          boolean:
       location:
         name: Location
         description: Location of the event.
+        selector:
+          text:
       start_time:
         name: Start time
         description: Date and time of the start of the event
+        selector:
+          datetime:
       end_time:
         name: End time
         description: Date and time of the end of the event
+        selector:
+          datetime:
     variables:
       duration: "{{ (as_timestamp(end_time)-as_timestamp(start_time))|int(0) }}"
       duration_formatted: >-
@@ -226,6 +245,8 @@ script:
       location:
         name: Location
         description: Location of the event.
+        selector:
+          text:
     sequence:
       - if:
           - condition: state
