@@ -1,24 +1,3 @@
-post_rich_notification:
-  alias: Post Rich Notification
-  sequence:
-    - service: notify.danny_tsang
-      data:
-        message: test
-        title: test title
-        target: "#home_log"
-        data:
-          attachments:
-            - color: "#36a64f"
-              pretext: Optional text that appears above the attachment block
-              title: Slack API Documentation
-              title_link: https://api.slack.com/
-              text: Optional text that appears within the attachment
-              fields:
-                - title: Priority
-                  value: High
-                  short: false
-  mode: single
-  icon: mdi:slack
 lounge_flash_lounge_lights_red:
   alias: "Lounge: Flash Lounge Lights Red"
   sequence:
@@ -138,33 +117,3 @@ car_set_next_update_location:
       default: []
   mode: single
   icon: mdi:car
-arrive_home_lounge_lights:
-  alias: Arrive Home Lounge Lights
-  sequence:
-    - repeat:
-        until:
-          - condition: state
-            entity_id: binary_sensor.front_door
-            state: "on"
-        sequence:
-          - service: scene.turn_on
-            data:
-              transition: 1
-            target:
-              entity_id: scene.lounge_pre_entry_lights_on
-          - delay:
-              hours: 0
-              minutes: 0
-              seconds: 1
-              milliseconds: 0
-          - service: scene.turn_on
-            data:
-              transition: 1
-            target:
-              entity_id: scene.lounge_lights_off
-    - service: scene.turn_on
-      data:
-        transition: 2
-      target:
-        entity_id: scene.lounge_lights
-  mode: single

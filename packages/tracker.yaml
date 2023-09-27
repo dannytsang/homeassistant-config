@@ -985,6 +985,36 @@ script:
           log_level: "Debug"
       - service: script.turn_everything_off
     mode: single
+  arrive_home_lounge_lights:
+    alias: Arrive Home Lounge Lights
+    sequence:
+      - repeat:
+          until:
+            - condition: state
+              entity_id: binary_sensor.front_door
+              state: "on"
+          sequence:
+            - service: scene.turn_on
+              data:
+                transition: 1
+              target:
+                entity_id: scene.porch_light_on
+            - delay:
+                hours: 0
+                minutes: 0
+                seconds: 1
+                milliseconds: 0
+            - service: scene.turn_on
+              data:
+                transition: 1
+              target:
+                entity_id: scene.porch_lights_off
+      - service: scene.turn_on
+        data:
+          transition: 2
+        target:
+          entity_id: scene.porch_light_on
+    mode: single
   check_terinas_work_laptop_status:
     alias: Check If Terina's Work Laptop Status
     sequence:
