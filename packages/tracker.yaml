@@ -1074,6 +1074,42 @@ script:
               entity_id: input_number.lounge_light_level_3_threshold
     mode: single
     icon: mdi:laptop
+  get_peope_by_status:
+    description: >-
+      Returns a list of people in a group with the chosen status.
+
+      Returns data in id:entity_id format. E.g. danny:person.danny
+    fields:
+      group_id:
+        description: group of people to check.
+        required: true
+        selector:
+          text:
+      status:
+        description: status to find.
+        example: home
+        required: true
+        selector:
+          text:
+    variables:
+      persons: >-
+        {%- set people = namespace(home=[]) -%}
+        {%- for p in state_attr(group_id, 'entity_id')|default([]) -%}
+          {%- if states(p) == status|default('') -%}
+            {%- set people.home = people.home + [p] -%}
+          {%- endif -%}
+        {%- endfor -%}
+        {
+          {%- for p in people.home -%}
+          "{{ state_attr(p, 'id') }}":"{{ p }}"
+          {% if not loop.last %},{% endif %}
+          {%- endfor -%}
+        }
+    sequence:
+      - stop: "Stop running the rest of the sequence"
+        response_variable: "persons"
+    mode: single
+    icon: mdi:account-multiple
 
 template:
   - sensor:
