@@ -123,6 +123,17 @@ script:
         selector:
           text:
             type: "url"
+      url_type:
+        description: The type of resource the URL referes to. Audio is only supported by iOS.
+        example: image
+        required: true
+        selector:
+          select:
+            options:
+              - audio
+              - image
+              - video
+              - web
       priority:
         description: Determines the importance of the notification.
           Higher the importance, the more likely it will alert the user even when in silent mode.
@@ -138,65 +149,228 @@ script:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ 'person.danny' in people }}"
+                value_template: "{{ url_type == 'audio' }}"
             sequence:
-              - service: notify.mobile_app_danny_s_phone
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.leo' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            audio: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                default:
+                  - parallel:
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            audio: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
           - conditions:
               - condition: template
-                value_template: "{{ 'person.terina' in people }}"
+                value_template: "{{ url_type == 'image' }}"
             sequence:
-              - service: notify.mobile_app_terina_s_phone
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.danny' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_danny_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.terina' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_terina_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.leo' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                default:
+                  - parallel:
+                      - service: notify.mobile_app_danny_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                      - service: notify.mobile_app_terina_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
           - conditions:
               - condition: template
-                value_template: "{{ 'person.leo' in people }}"
+                value_template: "{{ url_type == 'video' }}"
             sequence:
-              - service: notify.mobile_app_ipad_air_4th_generation
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.danny' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_danny_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.terina' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_terina_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ 'person.leo' in people }}"
+                    sequence:
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                default:
+                  - parallel:
+                      - service: notify.mobile_app_danny_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                      - service: notify.mobile_app_terina_s_phone
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
+                      - service: notify.mobile_app_ipad_air_4th_generation
+                        data:
+                          message: "{{ message }}"
+                          title: "{{ title|default('', true) }}"
+                          data:
+                            image: "{{ url }}"
+                            priority: "{{ priority|default('medium', true) }}"
+                        continue_on_error: true
         default:
-          - parallel:
-              - service: notify.mobile_app_danny_s_phone
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
-              - service: notify.mobile_app_terina_s_phone
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
-              - service: notify.mobile_app_ipad_air_4th_generation
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default('', true) }}"
-                  data:
-                    image: "{{ url }}"
-                    priority: "{{ title|default('medium', true) }}"
-                continue_on_error: true
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.danny' in people }}"
+                sequence:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        clickAction: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.terina' in people }}"
+                sequence:
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        clickAction: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.leo' in people }}"
+                sequence:
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        url: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+            default:
+              - parallel:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        clickAction: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        clickAction: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        url: "{{ url }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
     mode: queued
     max: 10
