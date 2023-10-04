@@ -376,3 +376,297 @@ script:
                     continue_on_error: true
     mode: queued
     max: 10
+  post_actionable_notification_to_home_assistant_with_2_buttons:
+    alias: Post Actionable Notification To Home Assistant With 2 Buttons
+    icon: mdi:message-draw
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+      people:
+        description: People to message.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+        required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - person
+      action1_title:
+        description: First action text.
+        selector:
+          text:
+      action1_name:
+        description: First vent name if action is selected.
+        required: true
+        selector:
+          text:
+      action2_title:
+        description: Second action text.
+        required: true
+        selector:
+          text:
+      action2_name:
+        description: Second event name if action is selected.
+        required: true
+        selector:
+          text:
+    sequence:
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_direct_notifications
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.danny' in people }}"
+                sequence:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.terina' in people }}"
+                sequence:
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.leo' in people }}"
+                sequence:
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+            default:
+              - parallel:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+    mode: single
+  post_actionable_notification_to_home_assistant_with_3_buttons:
+    alias: Post Actionable Notification To Home Assistant With 3 Buttons
+    icon: mdi:message-draw
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+      people:
+        description: People to message.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+        required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - person
+      action1_title:
+        description: First action text.
+        selector:
+          text:
+      action1_name:
+        description: First vent name if action is selected.
+        required: true
+        selector:
+          text:
+      action2_title:
+        description: Second action text.
+        required: true
+        selector:
+          text:
+      action2_name:
+        description: Second event name if action is selected.
+        required: true
+        selector:
+          text:
+      action3_title:
+        description: Third action text.
+        required: true
+        selector:
+          text:
+      action3_name:
+        description: Third event name if action is selected.
+        required: true
+        selector:
+          text:
+    sequence:
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_direct_notifications
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.danny' in people }}"
+                sequence:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.terina' in people }}"
+                sequence:
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+              - conditions:
+                  - condition: template
+                    value_template: "{{ 'person.leo' in people }}"
+                sequence:
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+            default:
+              - parallel:
+                  - service: notify.mobile_app_danny_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_terina_s_phone
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+                  - service: notify.mobile_app_ipad_air_4th_generation
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default('', true) }}"
+                      data:
+                        actions:
+                          - title: "{{ action1_title }}"
+                            action: "{{ action1_name }}"
+                          - title: "{{ action2_title }}"
+                            action: "{{ action2_name }}"
+                          - title: "{{ action3_title }}"
+                            action: "{{ action3_name }}"
+                        priority: "{{ priority|default('medium', true) }}"
+                    continue_on_error: true
+    mode: single
