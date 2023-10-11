@@ -731,3 +731,59 @@
         people:
           - person.danny
   mode: single
+- id: "1678271646646"
+  alias: "HVAC: Leo's Bedroom Radiator Below Target Temperature"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.leos_radiator_temperature
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+      below: sensor.office_radiator_minimum_target_temperature
+  condition:
+    - not:
+        - condition: state
+          entity_id: climate.thermostat
+          attribute: hvac_action
+          state: "heating"
+    - condition: state
+      entity_id: binary_sensor.leos_bedroom_window
+      state: "off"
+  action:
+    - service: script.send_direct_notification
+      data:
+        message: Radiator to call for heat.
+        title: ":office: Office"
+        people:
+          - person.danny
+  mode: single
+- id: "1678271646647"
+  alias: "HVAC: Bedroom Radiator Below Target Temperature"
+  description: ""
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.bedroom_radiator_temperature
+      for:
+        hours: 0
+        minutes: 1
+        seconds: 0
+      below: sensor.office_radiator_minimum_target_temperature
+  condition:
+    - not:
+        - condition: state
+          entity_id: climate.thermostat
+          attribute: hvac_action
+          state: "heating"
+    - condition: state
+      entity_id: binary_sensor.bedroom_window
+      state: "off"
+  action:
+    - service: script.send_direct_notification
+      data:
+        message: Radiator to call for heat.
+        title: ":office: Office"
+        people:
+          - person.danny
+  mode: single

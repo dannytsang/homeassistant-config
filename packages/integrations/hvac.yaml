@@ -775,6 +775,30 @@ template:
         device_class: "temperature"
         unit_of_measurement: "°C"
         state: "{{ state_attr('climate.thermostat', 'temperature') | float(0) }}"
+      - name: "Bedroom Radiator Temperature"
+        unique_id: 2c40b45d-9f2c-4ce1-9707-25dbf2c2f757
+        state: "{{ state_attr('climate.bedroom_radiator', 'current_temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Bedroom Radiator Target Temperature"
+        unique_id: afab67b2-1a06-400a-bbfa-61cbd2bb4b15
+        state: "{{ state_attr('climate.bedroom_radiator', 'temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Leo's Radiator Temperature"
+        unique_id: 59115996-9365-4350-ab2f-b800d4ac1a06
+        state: "{{ state_attr('climate.leos_bedroom_radiator', 'current_temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Leo's Radiator Target Temperature"
+        unique_id: c83578d4-90b0-4e7f-945c-691d0b453432
+        state: "{{ state_attr('climate.leos_bedroom_radiator', 'temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
       - name: "Lounge Radiator Temperature"
         unique_id: b13e42a5-3cd0-4d2a-8ab6-3c2669730c77
         state: "{{ state_attr('climate.lounge_radiator', 'current_temperature') }}"
@@ -798,6 +822,32 @@ template:
         state: "{{ state_attr('climate.office_radiator', 'temperature') }}"
         icon: mdi:thermometer
         device_class: "temperature"
+        unit_of_measurement: "°C"
+  - trigger:
+      - platform: state
+        entity_id:
+          - climate.bedroom_radiator
+        attribute: temperature
+      - platform: state
+        entity_id:
+          - input_number.bedroom_radiator_heating_threshold
+    sensor:
+      - name: "Bedroom Radiator Minimum Target Temperature"
+        unique_id: c9cf6c97-e67e-46bd-9fed-80b5eec71ed2
+        state: "{{ state_attr('climate.bedroom_radiator', 'temperature')|float(10) - states('input_number.bedroom_radiator_heating_threshold')|float(0) }}"
+        unit_of_measurement: "°C"
+  - trigger:
+      - platform: state
+        entity_id:
+          - climate.leos_bedroom_radiator
+        attribute: temperature
+      - platform: state
+        entity_id:
+          - input_number.leos_bedroom_radiator_heating_threshold
+    sensor:
+      - name: "Leo's Radiator Minimum Target Temperature"
+        unique_id: 355c5e71-d16c-4bdd-b89a-1298652a0bb5
+        state: "{{ state_attr('climate.leos_bedroom_radiator', 'temperature')|float(10) - states('input_number.leos_bedroom_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
       - platform: state
