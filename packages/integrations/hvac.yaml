@@ -79,6 +79,118 @@ automation:
             - climate.lounge_radiator
             - climate.office_radiator
     mode: single
+  - id: "1678271646647"
+    alias: "HVAC: Bedroom Radiator Below Target Temperature"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bedroom_radiator_temperature
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        below: sensor.bedroom_radiator_minimum_target_temperature
+    condition:
+      - not:
+          - condition: state
+            entity_id: climate.thermostat
+            attribute: hvac_action
+            state: "heating"
+      - condition: state
+        entity_id: binary_sensor.bedroom_window
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Radiator to call for heat.
+          title: ":bed: bedroom"
+          people:
+            - person.danny
+    mode: single
+  - id: "1678271646646"
+    alias: "HVAC: Leo's Bedroom Radiator Below Target Temperature"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.leos_radiator_temperature
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        below: sensor.leos_radiator_minimum_target_temperature
+    condition:
+      - not:
+          - condition: state
+            entity_id: climate.thermostat
+            attribute: hvac_action
+            state: "heating"
+      - condition: state
+        entity_id: binary_sensor.leos_bedroom_window
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Radiator to call for heat.
+          title: "Leo's :bed: bedroom"
+          people:
+            - person.danny
+    mode: single
+  - id: "1678271646644"
+    alias: "HVAC: Lounge Radiator Below Target Temperature"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.lounge_radiator_temperature
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        below: sensor.lounge_radiator_minimum_target_temperature
+    condition:
+      - not:
+          - condition: state
+            entity_id: climate.thermostat
+            attribute: hvac_action
+            state: "heating"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Radiator to call for heat.
+          title: ":couch_and_lamp: Lounge"
+          people:
+            - person.danny
+    mode: single
+  - id: "1678271646645"
+    alias: "HVAC: Office Radiator Below Target Temperature"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.office_radiator_temperature
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+        below: sensor.office_radiator_minimum_target_temperature
+    condition:
+      - not:
+          - condition: state
+            entity_id: climate.thermostat
+            attribute: hvac_action
+            state: "heating"
+      - condition: state
+        entity_id: binary_sensor.office_windows
+        state: "off"
+      - condition: state
+        entity_id: binary_sensor.conservatory_door
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: Radiator to call for heat.
+          title: ":office: Office"
+          people:
+            - person.danny
+    mode: single
   # Hot Water
   - id: "1666470473972"
     alias: "HVAC: Hot Water Mode Changed"
