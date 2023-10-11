@@ -616,33 +616,17 @@
   description: ""
   trigger:
     - platform: state
-      entity_id:
-        - update.home_assistant_core_update
+      entity_id: update.home_assistant_core_update
       from: "off"
       to: "on"
-  condition: []
+  condition:
+    - not:
+        - condition: state
+          entity_id: input_select.home_assistant_automatic_upgrade
+          state: "Disabled"
   action:
-    - choose:
-        - conditions:
-            - not:
-                - condition: state
-                  entity_id: input_select.home_assistant_automatic_upgrade
-                  state: "Disabled"
-          sequence:
-            - service: script.send_actionable_notification_with_2_buttons
-              data:
-                message:
-                  Update from {{ state_attr('update.home_assistant_core_update',
-                  'installed_version') }} to {{ state_attr('update.home_assistant_core_update',
-                  'latest_version') }}?
-                title: Home Assistant
-                people:
-                  - person.danny
-                action1_title: "Yes"
-                action1_name: update_home_assistant
-                action2_title: "No"
-                action2_name: ignore
-      default: []
+    - service: script.upgrade_home_assistant
+      data: {}
   mode: single
 - id: "1674478124534"
   alias: "Conservatory: Cold Temperature"
