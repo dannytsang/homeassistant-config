@@ -3,6 +3,7 @@
 script:
   alexa_announce:
     alias: Send Alexa announcement
+    description: Converts text to speech but with the announcement (bong) sound at the start.
     fields:
       message:
         description: Message to post.
@@ -41,3 +42,32 @@ script:
           data:
             method: "{{ method }}"
             type: announce
+  alexa_tts:
+    alias: Send Alexa TTS
+    description: Converts text to speech but without the announcement (bong) sound.
+    fields:
+      message:
+        description: Message to post.
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+      target:
+        name: Echo devices.
+        description: A list of echo devices. If none is provided, it will send to all devices.
+        selector:
+          target:
+            entity:
+              integration: alexa_media
+              domain: media_player
+    sequence:
+      - service: notify.alexa_media
+        data:
+          message: "{{ message }}"
+          target: "{{ target.entity_id|default('media_player.everywhere', true) }}"
+          data:
+            type: tts
