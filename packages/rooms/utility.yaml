@@ -4,49 +4,70 @@ automation:
     alias: "Utility: Freezer Door Open"
     description: ""
     trigger:
-      - entity_id: binary_sensor.utility_freezer_door
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
         from: "off"
-        platform: state
         to: "on"
     condition: []
     action:
       - service: script.send_to_home_log
         data:
-          message: ":door: :snowflake: Freezer door is open"
+          message: ":door: :snowflake: Freezer door is open."
+          title: ":fountain: Utility Room"
           log_level: "Debug"
     mode: single
   - id: "1595678900777"
     alias: "Utility: Freezer Door Closed"
     description: ""
     trigger:
-      - entity_id: binary_sensor.utility_freezer_door
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
         from: "on"
-        platform: state
         to: "off"
     condition: []
     action:
       - service: script.send_to_home_log
         data:
           message: ":door: :snowflake: Freezer door closed"
+          title: ":fountain: Utility Room"
           log_level: "Debug"
     mode: single
   - id: "1595679010792"
     alias: "Utility: Freezer Open For A Long Period Of Time"
     description: ""
     trigger:
-      - entity_id: binary_sensor.utility_freezer_door
-        for: 00:04:00
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
         from: "off"
-        platform: state
         to: "on"
+        for: 00:04:00
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
+        to: "on"
+        for: 00:30:00
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
+        to: "on"
+        for: 00:45:00
+      - platform: state
+        entity_id: binary_sensor.utility_freezer_door
+        to: "on"
+        for: 01:00:00
     condition: []
     action:
-      - service: script.send_direct_notification
-        data:
-          message:
-            ":warning: :door: :snowflake: Freezer door has been open for more than
-            4 minutes!"
-          title: "Utility Room"
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: >-
+                :warning: :door: :snowflake: Freezer door has been open for more than
+                {{ relative_time(states.binary_sensor.utility_freezer_door.last_changed) }}!
+              title: ":fountain: Utility Room"
+          - service: script.alexa_announce
+            data:
+              message: >-
+                :warning: :door: :snowflake: Freezer door has been open for more than
+                {{ relative_time(states.binary_sensor.utility_freezer_door.last_changed) }}!
+              title: ":fountain: Utility Room"
     mode: single
   - id: "1657801925106"
     alias: "Utility: Freezer Plug Turned Off"
@@ -66,12 +87,12 @@ automation:
           - service: script.send_to_home_log
             data:
               message: Freezer plug is turned off.
-              title: Utility Room
+              title: ":fountain: Utility Room"
               log_level: "Normal"
           - service: script.send_actionable_notification_with_2_buttons
             data:
               message: Freezer plug is turned off. Turn on?
-              title: Utility Room
+              title: ":fountain: Utility Room"
               log_level: "Normal"
               people:
                 - person.danny
@@ -92,8 +113,8 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          message: ":arrow_forward: Started."
-          title: ":shirt: :soap: Washing Machine"
+          message: ":shirt: :soap: Washing Machine :arrow_forward: Started."
+          title: "Utility Room"
           log_level: "Debug"
     mode: single
   - id: "1595679010795"
@@ -106,10 +127,11 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.washing_complete_notification
-        data:
-          message: ":checkered_flag: Finished."
-          title: ":shirt: :soap: Washing Machine"
+      - parallel:
+          - service: script.washing_complete_notification
+            data:
+              message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
+              title: "Utility Room"
     mode: single
 
 script:
@@ -142,11 +164,16 @@ script:
             before: "22:00:00"
             after: "09:00:00"
         then:
-          - service: script.send_direct_notification
-            data:
-              message: "{{ message }}"
-              title: "{{ title }}"
-              people: "{{ people_home }}"
+          - parallel:
+              - service: script.send_direct_notification
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+                  people: "{{ people_home }}"
+              - service: script.alexa_announce
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
         else:
           - service: script.send_to_home_log
             data:
