@@ -4,6 +4,7 @@ import operator
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.components.sensor import STATE_CLASS_MEASUREMENT
 from homeassistant.components.sensor import STATE_CLASS_TOTAL_INCREASING
+from homeassistant.const import DEVICE_CLASS_BATTERY
 from homeassistant.const import DEVICE_CLASS_ENERGY
 from homeassistant.const import DEVICE_CLASS_POWER
 from homeassistant.const import DEVICE_CLASS_TEMPERATURE
@@ -19,6 +20,7 @@ from pymyenergi import CT_BATTERY
 from pymyenergi import CT_LOAD
 from pymyenergi import EDDI
 from pymyenergi import HARVI
+from pymyenergi import LIBBI
 from pymyenergi import ZAPPI
 
 from .const import DOMAIN
@@ -29,6 +31,8 @@ ENTITY_CATEGORY_DIAGNOSTIC = EntityCategory.DIAGNOSTIC
 
 ICON_VOLT = "mdi:lightning-bolt"
 ICON_FREQ = "mdi:sine-wave"
+ICON_POWER = "mdi:flash"
+ICON_HOME_BATTERY = "mdi:home-battery"
 
 
 def create_meta(
@@ -311,14 +315,6 @@ async def async_setup_entry(hass, entry, async_add_devices):
                     coordinator,
                     device,
                     entry,
-                    create_meta("Status", "status", None, None, None, "mdi:ev-station"),
-                )
-            )
-            sensors.append(
-                MyenergiSensor(
-                    coordinator,
-                    device,
-                    entry,
                     create_energy_meta(
                         "Energy used today", "energy_total", ENTITY_CATEGORY_DIAGNOSTIC
                     ),
@@ -352,6 +348,14 @@ async def async_setup_entry(hass, entry, async_add_devices):
             )
         # Zappi only sensors
         if device.kind == ZAPPI:
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta("Status", "status", None, None, None, "mdi:ev-station"),
+                )
+            )
             sensors.append(
                 MyenergiSensor(
                     coordinator,
@@ -430,7 +434,30 @@ async def async_setup_entry(hass, entry, async_add_devices):
                     coordinator,
                     device,
                     entry,
+                    create_meta("Status", "status", None, None, None, "mdi:shower"),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
                     create_energy_meta("Energy consumed session", "consumed_session"),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Active Heater",
+                        "active_heater",
+                        None,
+                        None,
+                        None,
+                        "mdi:fraction-one-half",
+                    ),
                 )
             )
             if device.temp_1 != -1:
@@ -463,6 +490,177 @@ async def async_setup_entry(hass, entry, async_add_devices):
                         ),
                     )
                 )
+        elif device.kind == LIBBI:
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "SoC",
+                        "state_of_charge",
+                        DEVICE_CLASS_BATTERY,
+                        PERCENTAGE,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Voltage",
+                        "supply_voltage",
+                        DEVICE_CLASS_VOLTAGE,
+                        ELECTRIC_POTENTIAL_VOLT,
+                        ENTITY_CATEGORY_DIAGNOSTIC,
+                        ICON_VOLT,
+                        STATE_CLASS_MEASUREMENT,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Frequency",
+                        "supply_frequency",
+                        None,
+                        FREQUENCY_HERTZ,
+                        ENTITY_CATEGORY_DIAGNOSTIC,
+                        ICON_FREQ,
+                        STATE_CLASS_MEASUREMENT,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Inverter size",
+                        "inverter_size",
+                        None,
+                        ENERGY_KILO_WATT_HOUR,
+                        ENTITY_CATEGORY_DIAGNOSTIC,
+                        ICON_POWER,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Battery size",
+                        "battery_size",
+                        None,
+                        ENERGY_KILO_WATT_HOUR,
+                        ENTITY_CATEGORY_DIAGNOSTIC,
+                        ICON_POWER,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Status",
+                        "status",
+                        None,
+                        None,
+                        None,
+                        ICON_HOME_BATTERY,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Grid import today",
+                        "grid_import",
+                        DEVICE_CLASS_ENERGY,
+                        ENERGY_KILO_WATT_HOUR,
+                        None,
+                        None,
+                        STATE_CLASS_TOTAL_INCREASING,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Grid export today",
+                        "grid_export",
+                        DEVICE_CLASS_ENERGY,
+                        ENERGY_KILO_WATT_HOUR,
+                        None,
+                        None,
+                        STATE_CLASS_TOTAL_INCREASING,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Battery charge today",
+                        "battery_charge",
+                        DEVICE_CLASS_ENERGY,
+                        ENERGY_KILO_WATT_HOUR,
+                        None,
+                        None,
+                        STATE_CLASS_TOTAL_INCREASING,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Battery discharge today",
+                        "battery_discharge",
+                        DEVICE_CLASS_ENERGY,
+                        ENERGY_KILO_WATT_HOUR,
+                        None,
+                        None,
+                        STATE_CLASS_TOTAL_INCREASING,
+                    ),
+                )
+            )
+            sensors.append(
+                MyenergiSensor(
+                    coordinator,
+                    device,
+                    entry,
+                    create_meta(
+                        "Solar generation today",
+                        "generated",
+                        DEVICE_CLASS_ENERGY,
+                        ENERGY_KILO_WATT_HOUR,
+                        None,
+                        None,
+                        STATE_CLASS_TOTAL_INCREASING,
+                    ),
+                )
+            )
     async_add_devices(sensors)
 
 
@@ -475,7 +673,7 @@ class MyenergiHubSensor(MyenergiHub, SensorEntity):
     @property
     def unique_id(self):
         """Return a unique ID to use for this entity."""
-        return f"{self.config_entry.entry_id}-{self.coordinator.client.serial_number}-{self.meta['prop_name']}"
+        return f"{self.config_entry.entry_id}-hub-{self.coordinator.client.serial_number}-{self.meta['prop_name']}"
 
     @property
     def name(self):
