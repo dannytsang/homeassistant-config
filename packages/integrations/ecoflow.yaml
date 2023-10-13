@@ -179,14 +179,13 @@ automation:
         below: 100
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
               message: >-
                 Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                 Setting backup reserve to 100% and maximum charge rate (1200w).
               title: EcoFlow
-              people:
-                - person.danny
+              log_level: "Debug"
           - service: script.ecoflow_set_backup_reserve
             data:
               reserve_amount: 100
@@ -221,7 +220,7 @@ automation:
                 entity_id: sensor.electricity_current_rate
                 below: sensor.electricity_export_current_rate
             sequence:
-              - service: script.send_direct_notification
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     Electrictity rate has gove above 0
@@ -230,15 +229,14 @@ automation:
                     ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
                     Keeping Ecoflow charged.
                   title: EcoFlow
-                  people:
-                    - person.danny
+                  log_level: "Debug"
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.ecoflow_kitchen_solar_excess
                 below: input_number.ecoflow_kitchen_charge_solar_threshold
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - service: script.send_to_home_log
                     data:
                       message: >-
                         Electrictity rate has gove above 0
@@ -249,17 +247,16 @@ automation:
                         {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
                         {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
                       title: EcoFlow
-                      people:
-                        - person.danny
+                      log_level: "Debug"
                   - service: script.ecoflow_set_backup_reserve
                     data:
                       reserve_amount: >-
                         {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
         default:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
               message: >-
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}
+                {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
                 Electrictity rate has gove above 0
                 ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                 and excess electricity detected ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
@@ -268,8 +265,7 @@ automation:
                 to
                 {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}w.
               title: EcoFlow
-              people:
-                - person.danny
+              log_level: "Debug"
           - service: script.ecoflow_set_charge_rate
             data:
               target_charge_rate: >-
@@ -309,7 +305,7 @@ automation:
                     Fridge freezer plug has been switched off!
 
 
-                    Electricity unit rate is the same orbelow export rate
+                    Electricity unit rate is the same or below export rate
                     ({{ states('sensor.electricity_current_rate') ~'<=' ~
                     states('sensor.electricity_export_current_rate') }}).
                   title: EcoFlow
@@ -317,15 +313,14 @@ automation:
                     - person.danny
                     - person.terina
             else:
-              - service: script.send_direct_notification
+              - service: script.send_to_home_log
                 data:
                   message: >-
-                    Electricity unit rate is the same orbelow export rate
+                    Electricity unit rate is the same or below export rate
                     ({{ states('sensor.electricity_current_rate') ~'<=' ~
                     states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
                   title: EcoFlow
-                  people:
-                    - person.danny
+                  log_level: "Debug"
           - sequence:
               - service: script.ecoflow_set_charge_rate
                 data:
