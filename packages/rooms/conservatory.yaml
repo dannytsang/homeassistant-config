@@ -172,7 +172,6 @@ automation:
             data:
               message: ":door: Conservatory door closed."
               log_level: "Debug"
-          - service: script.conservatory_turn_off_camera
           - if:
               - condition: state
                 entity_id: climate.thermostat
@@ -262,59 +261,3 @@ scene:
         friendly_name: Conservatory
         supported_features: 63
         state: "off"
-
-script:
-  conservatory_turn_off_camera:
-    alias: Conservatory Turn Off Camera
-    fields:
-      override:
-        name: override
-        description: override any other factors that may prevent the camera from turning off.
-        required: false
-        default: false
-        selector:
-          boolean:
-    sequence:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ override|default(false, true) }}"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: "Overriding conditions. Turning conservatory :camera: camera detection off."
-                  log_level: "Debug"
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.conservatory_detect
-                    - switch.conservatory_snapshots
-          - conditions:
-              - or:
-                  - not:
-                      - condition: state
-                        entity_id: alarm_control_panel.house_alarm
-                        state: "disarmed"
-                  - condition: state
-                    entity_id: binary_sensor.conservatory_door
-                    state: "on"
-                  - condition: state
-                    entity_id: binary_sensor.shed_door
-                    state: "on"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: "Alarm is on or conservatory or shed door is open. Keeping conservatory :camera_with_flash: camera detection on."
-                  log_level: "Normal"
-        default:
-          - service: script.send_to_home_log
-            data:
-              message: "Turning conservatory :camera: camera detection off."
-              log_level: "Debug"
-          - service: switch.turn_off
-            target:
-              entity_id:
-                - switch.conservatory_detect
-                - switch.conservatory_snapshots
-    mode: single
-    icon: mdi:cctv
