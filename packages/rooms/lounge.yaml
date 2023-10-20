@@ -1328,14 +1328,25 @@ script:
 
 sensor:
   - platform: history_stats
-    name: TV Uptime Today
+    name: TV Running Time Today
+    unique_id: 0a578108-1abe-43f5-b30d-943f443abfe6
     entity_id: binary_sensor.tv_powered_on
     state: "on"
     type: time
     start: "{{ now().replace(hour=0, minute=0, second=0) }}"
     end: "{{ now() }}"
   - platform: history_stats
-    name: TV Uptime Yesterday
+    name: TV Running Time Last 24 Hours
+    unique_id: aeec7243-5706-473c-9fad-4487e8f205ed
+    entity_id: binary_sensor.tv_powered_on
+    state: "on"
+    type: time
+    end: "{{ now() }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: TV Running Time Yesterday
+    unique_id: 761c0d54-94c8-429a-82c2-dc062c08fe53
     entity_id: binary_sensor.tv_powered_on
     state: "on"
     type: time
@@ -1343,16 +1354,62 @@ sensor:
     duration:
       hours: 24
   - platform: history_stats
-    name: TV Uptime This Week
+    name: TV Running Time This Week
+    unique_id: d30f046c-db9a-45e0-be1b-d5cc8c026e7b
     entity_id: binary_sensor.tv_powered_on
     state: "on"
     type: time
     start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
     end: "{{ now() }}"
   - platform: history_stats
-    name: TV Uptime Last 30 Days
+    name: TV Running Time Last 30 Days
+    unique_id: 4adb2fdd-428f-4f59-b988-9d433225e25a
     entity_id: binary_sensor.tv_powered_on
     state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
+  # Family Computer
+  - platform: history_stats
+    name: Family PC Uptime Today
+    unique_id: c8fac332-1646-4702-abbf-19ca48ce6915
+    entity_id: device_tracker.doug
+    state: "home"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Family PC Uptime Last 24 Hours
+    unique_id: 873e746c-1759-43e0-8f81-8662c565b11c
+    entity_id: device_tracker.doug
+    state: "home"
+    type: time
+    end: "{{ now() }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: PC Uptime Yesterday
+    unique_id: bf056dbc-bd10-400e-ba56-e4742c009739
+    entity_id: device_tracker.doug
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Family PC Uptime This Week
+    unique_id: 2eab2e0b-1158-4751-ae7d-f44f2cd28976
+    entity_id: device_tracker.doug
+    state: "home"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Family PC Uptime Last 30 Days
+    unique_id: e609a34b-a50c-4d37-8e8f-03f94a6c474d
+    entity_id: device_tracker.doug
+    state: "home"
     type: time
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
