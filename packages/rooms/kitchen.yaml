@@ -1283,6 +1283,50 @@ script:
     icon: mdi:led-strip-variant
 
 sensor:
+  # Dishwasher
+  - platform: history_stats
+    name: Dishwasher Running Time Today
+    unique_id: dfc20507-2172-47ad-ad2d-f0805474abf0
+    entity_id: binary_sensor.dishwasher_powered_on
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Dishwasher Running Time Last 24 Hours
+    unique_id: c9e71749-f19f-40b0-b370-d088599b05d1
+    entity_id: binary_sensor.dishwasher_powered_on
+    state: "on"
+    type: time
+    end: "{{ now() }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Dishwasher Running Time Yesterday
+    unique_id: e4becc0b-a54f-4042-a51f-b2eb2bdf0dbe
+    entity_id: binary_sensor.dishwasher_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Dishwasher Running Time This Week
+    unique_id: 24efdcd1-35d0-4674-882c-2fbe30492317
+    entity_id: binary_sensor.dishwasher_powered_on
+    state: "on"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Dishwasher Running Time Last 30 Days
+    unique_id: 6b063270-43e4-4365-9fbf-ece59c682b55
+    entity_id: binary_sensor.dishwasher_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
   # Fridge
   - platform: history_stats
     name: Fridge Opened Today
@@ -1299,6 +1343,49 @@ sensor:
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       hours: 24
+  - platform: history_stats
+    name: Fridge Freezer Running Time Today
+    unique_id: b75ee65e-3f1f-47f7-a23a-e97a1f32b3c3
+    entity_id: binary_sensor.fridge_freezer_powered_on
+    state: "on"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Fridge Freezer Running Time Last 24 Hours
+    unique_id: 88f1c5f3-6523-4eb1-8f6a-dac85201f702
+    entity_id: binary_sensor.fridge_freezer_powered_on
+    state: "on"
+    type: time
+    end: "{{ now() }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Fridge Freezer Running Time Yesterday
+    unique_id: e7f7b331-7915-4c10-ba59-57181266b187
+    entity_id: binary_sensor.fridge_freezer_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Fridge Freezer Running Time This Week
+    unique_id: 0c2cef79-5b99-4151-90e9-bcbac230220a
+    entity_id: binary_sensor.fridge_freezer_powered_on
+    state: "on"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Fridge Freezer Running Time Last 30 Days
+    unique_id: b858a82c-4320-4518-8245-0ca3512c23a9
+    entity_id: binary_sensor.fridge_freezer_powered_on
+    state: "on"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
 
 template:
   - binary_sensor:
@@ -1312,6 +1399,17 @@ template:
         icon: "mdi:kettle{{ '' if states('sensor.dishwasher_power') | float(0) >= 10 else '-off' }}"
         device_class: running
         state: "{{ states('sensor.kettle_power') | float(0) >= 10 }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.ecoflow_kitchen_ac_out_power
+        not_to: "unavailable"
+    binary_sensor:
+      - name: Fridge Freezer Powered On
+        unique_id: eec7ea28-790f-4dcd-b756-2ab7fd70868f
+        icon: "mdi:fridge"
+        device_class: running
+        state: "{{ states('sensor.ecoflow_kitchen_ac_out_power') | float(0) >= 10 and states('sensor.ecoflow_kitchen_ac_out_power') | float(0) <= 100 }}"
   - trigger:
       - platform: state
         entity_id:
