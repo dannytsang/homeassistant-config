@@ -5,17 +5,48 @@ script:
     alias: Send Bedroom Clock Notification
     fields:
       message:
-        description: Message to post
+        description: Message to post.
         required: true
         selector:
           text:
             multiline: true
+      icon:
+        description: Icon number to display.
+        selector:
+          number:
+            min: 1
+            max: 100
+            mode: box
+      duration:
+        description: Time in seconds to display the notification.
+        default: 10
+        selector:
+          number:
+            min: 1
+            max: 120
+            unit_of_measurement: secs
+            mode: box
     sequence:
-      - service: mqtt.publish
-        data:
-          topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
-          payload_template: >-
-            "{
-              'text': '{{ message }}',
-              'duration': 5
-            }"
+      - if:
+          - condition: template
+            value_template: "{{ icon|default('', true)|length > 0 }}"
+        then:
+          - service: mqtt.publish
+            data:
+              topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
+              payload_template: >-
+                "{
+                  'text': '{{ message }}',
+                  'icon': '{{ icon }}'
+                  'duration': {{ duration|default(10, true) }}
+                }"
+        else:
+          - service: mqtt.publish
+            data:
+              topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
+              payload_template: >-
+                "{
+                  'text': '{{ message }}',
+                  'duration': {{ duration|default(10, true) }}
+                }"
+    mode: single
