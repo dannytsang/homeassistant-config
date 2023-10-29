@@ -284,10 +284,10 @@ automation:
         entity_id: sensor.electricity_current_rate
         above: -0.01
     condition:
-      - condition: numeric_state
-        entity_id: climate.conservatory_under_floor_heating
-        attribute: temperature
-        above: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
+      - condition: template
+        value_template: >-
+          {{ state_attr('climate.conservatory_under_floor_heating', 'temperature')|float > 
+          states('input_number.conservatory_default_under_floor_temperature')|float }}
       - alias: "Not in holiday mode"
         not:
           - condition: state
