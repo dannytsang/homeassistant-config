@@ -1,0 +1,21 @@
+# Created by Danny Tsang <danny@tsang.uk>
+
+script:
+  send_bedroom_clock_notification:
+    alias: Send Bedroom Clock Notification
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+    sequence:
+      - service: mqtt.publish
+        data:
+          topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
+          payload_template: >-
+            "{
+              'text': '{{ message }}',
+              'duration': 5
+            }"
