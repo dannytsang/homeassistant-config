@@ -206,6 +206,111 @@ automation:
             - person.danny
             - person.terina
     mode: single
+  # Unit rate related automations
+  - id: "1689626117479"
+    alias: "Conservatory: Electricity Rates Pays For Usage"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
+        state: "on"
+      - alias: "Not in holiday mode"
+        not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Holiday
+    action:
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.conservatory_area_mean_temperature
+                below: "25"
+              - condition: numeric_state
+                entity_id: climate.conservatory_under_floor_heating
+                attribute: temperature
+                below: "20"
+            sequence:
+              - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: >-
+                      Electrictity rate below 0 ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                      Setting under floor target temperature to 20°C (currently
+                      {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
+                    title: Conservatory
+                    log_level: "Normal"
+                - service: climate.set_temperature
+                  data:
+                    temperature: 20
+                    hvac_mode: heat
+                  target:
+                    entity_id: climate.conservatory_under_floor_heating
+          - alias: "Air temperature is hot but floor is cool"
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.conservatory_area_mean_temperature
+                above: "24"
+              - condition: numeric_state
+                entity_id: climate.conservatory_under_floor_heating
+                attribute: temperature
+                below: "20"
+            sequence:
+              - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: "Ambient air temperature is above 24°C ({{ states('sensor.conservatory_area_mean_temperature', with_unit=True) }})
+                    but floor is cool {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
+                    Skipping Underfloor heating."
+                    title: "Conservatory"
+                    people:
+                      - person.danny
+        default:
+          - service: script.send_direct_notification
+            data:
+              message: "Ambient air temperature is above 21°C. Skipping Underfloor heating."
+              title: "Conservatory"
+              people:
+                - person.danny
+    mode: single
+  - id: "1689626117480"
+    alias: "Conservatory: Electricity Rates Starts To Cost"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        above: -0.01
+    condition:
+      - condition: numeric_state
+        entity_id: climate.conservatory_under_floor_heating
+        attribute: temperature
+        above: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
+      - alias: "Not in holiday mode"
+        not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: Holiday
+      - condition: state
+        entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning off under floor heating by setting target temperature to {{ states('input_number.conservatory_default_under_floor_temperature', with_unit=True) }}.
+              title: Conservatory
+              log_level: "Debug"
+          - service: climate.set_temperature
+            data:
+              temperature: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
+              hvac_mode: heat
+            target:
+              entity_id: climate.conservatory_under_floor_heating
+    mode: single
 
 scene:
   - id: "1610234583738"
