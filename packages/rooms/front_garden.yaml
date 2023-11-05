@@ -76,11 +76,6 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.road_person_occupancy
-        from: "off"
-        to: "on"
-        id: road
-      - platform: state
         entity_id: binary_sensor.shared_driveway_person_occupancy
         id: shared_driveway
         from: "off"
@@ -109,8 +104,8 @@ automation:
             sequence:
               - service: script.send_home_log_with_local_attachments
                 data_template:
-                  message: Frigate detected a person in the front garden.
-                  title: Person detected in the front garden
+                  message: Frigate detected a person on the driveway.
+                  title: Front Garden
                   log_level: "Normal"
                   filePath:
                     "{{ states('input_text.latest_frigate_driveway_person_file_path')
@@ -123,18 +118,6 @@ automation:
                 data_template:
                   message: Frigate detected a person in the shared driveway.
                   title: Person detected in the shared driveway
-                  log_level: "Normal"
-                  filePath:
-                    "{{ states('input_text.latest_frigate_driveway_person_file_path')
-                    }}"
-          - conditions:
-              - condition: trigger
-                id: general
-            sequence:
-              - service: script.send_home_log_with_local_attachments
-                data_template:
-                  message: Frigate detected a person in the road.
-                  title: Person detected in the road
                   log_level: "Normal"
                   filePath:
                     "{{ states('input_text.latest_frigate_driveway_person_file_path')
