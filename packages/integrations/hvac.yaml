@@ -82,9 +82,9 @@ automation:
             - climate.leos_bedroom_radiator
             - climate.bedroom_radiator
     mode: single
-  - id: "1678271646647"
-    alias: "HVAC: Bedroom Radiator Below Target Temperature"
-    description: ""
+  - id: "1678271646645"
+    alias: "HVAC: Radiators Below Target Temperature"
+    description: "Monitor rooms below temperature with TRVs"
     trigger:
       - platform: numeric_state
         entity_id: sensor.bedroom_radiator_temperature
@@ -93,27 +93,6 @@ automation:
           minutes: 30
           seconds: 0
         below: sensor.bedroom_radiator_minimum_target_temperature
-    condition:
-      - not:
-          - condition: state
-            entity_id: climate.thermostat
-            attribute: hvac_action
-            state: "heating"
-      - condition: state
-        entity_id: binary_sensor.bedroom_window
-        state: "off"
-    action:
-      - service: script.send_direct_notification
-        data:
-          message: Radiator to call for heat.
-          title: ":bed: bedroom"
-          people:
-            - person.danny
-    mode: single
-  - id: "1678271646646"
-    alias: "HVAC: Leo's Bedroom Radiator Below Target Temperature"
-    description: ""
-    trigger:
       - platform: numeric_state
         entity_id: sensor.leos_radiator_temperature
         for:
@@ -121,27 +100,6 @@ automation:
           minutes: 30
           seconds: 0
         below: sensor.leos_radiator_minimum_target_temperature
-    condition:
-      - not:
-          - condition: state
-            entity_id: climate.thermostat
-            attribute: hvac_action
-            state: "heating"
-      - condition: state
-        entity_id: binary_sensor.leos_bedroom_window
-        state: "off"
-    action:
-      - service: script.send_direct_notification
-        data:
-          message: Radiator to call for heat.
-          title: "Leo's :bed: bedroom"
-          people:
-            - person.danny
-    mode: single
-  - id: "1678271646644"
-    alias: "HVAC: Lounge Radiator Below Target Temperature"
-    description: ""
-    trigger:
       - platform: numeric_state
         entity_id: sensor.lounge_radiator_temperature
         for:
@@ -149,24 +107,6 @@ automation:
           minutes: 30
           seconds: 0
         below: sensor.lounge_radiator_minimum_target_temperature
-    condition:
-      - not:
-          - condition: state
-            entity_id: climate.thermostat
-            attribute: hvac_action
-            state: "heating"
-    action:
-      - service: script.send_direct_notification
-        data:
-          message: Radiator to call for heat.
-          title: ":couch_and_lamp: Lounge"
-          people:
-            - person.danny
-    mode: single
-  - id: "1678271646645"
-    alias: "HVAC: Office Radiator Below Target Temperature"
-    description: ""
-    trigger:
       - platform: numeric_state
         entity_id: sensor.office_radiator_temperature
         for:
@@ -174,25 +114,48 @@ automation:
           minutes: 30
           seconds: 0
         below: sensor.office_radiator_minimum_target_temperature
+        id: office
     condition:
       - not:
           - condition: state
             entity_id: climate.thermostat
             attribute: hvac_action
             state: "heating"
-      - condition: state
-        entity_id: binary_sensor.office_windows
-        state: "off"
-      - condition: state
-        entity_id: binary_sensor.conservatory_door
-        state: "off"
     action:
-      - service: script.send_direct_notification
-        data:
-          message: Radiator to call for heat.
-          title: ":office: Office"
-          people:
-            - person.danny
+      - choose:
+        - conditions:
+            - condition: trigger
+              id:
+                - office
+            - condition: state
+              entity_id: binary_sensor.office_windows
+              state: "off"
+            - condition: state
+              entity_id: binary_sensor.conservatory_door
+              state: "off"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message: Radiator to call for heat.
+                title: ":office: Office"
+                people:
+                  - person.danny
+        default:
+          - service: script.send_direct_notification
+            data:
+              message: Radiator call for heat.
+              title: >-
+                {%- if trigger.entity_id == 'sensor.bedroom_radiator_temperature' -%}
+                :bed: bedroom
+                {%- elif trigger.entity_id == 'sensor.leos_radiator_temperature' -%}
+                Leo's :bed: bedroom
+                {%- elif trigger.entity_id == 'sensor.lounge_radiator_temperature' -%}
+                :couch_and_lamp: Lounge
+                {%- else -%}
+                Unknown location
+                {%- endif -%}
+              people:
+                - person.danny
     mode: single
   # Hot Water
   - id: "1666470473972"
