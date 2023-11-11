@@ -80,9 +80,13 @@ jobs:
         with:
           authkey: ${{ secrets.TAILSCALE_AUTHKEY }}
       - name: 🚚 Deploying
-        uses: fjogeleit/http-request-action@master
+        uses: Wandalen/wretry.action@master
         with:
-          url: '${{ secrets.DEPLOYMENT_URL }}'
-          method: POST
-          customHeaders: '{"Content-Type":"application/json"}'
-          data: '{ "key":"${{ secrets.PULL_KEY }}" }'
+          action: fjogeleit/http-request-action@master
+          with: |
+            url: '${{ secrets.DEPLOYMENT_URL }}'
+            method: POST
+            customHeaders: '{"Content-Type":"application/json"}'
+            data: '{ "key":"${{ secrets.PULL_KEY }}" }'
+          attempt_limit: 3
+          attempt_delay: 2000
