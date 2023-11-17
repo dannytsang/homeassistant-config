@@ -733,15 +733,18 @@ script:
             will be
             {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|default(none, true) is not none -%}
             The first self sustaining generation will occur at
             {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh).
+            
 
 
             The last self sustaining generation of the day will be at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.7)|round(2) }} kWh) finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
+            {%- endif -%}
             {%- if estimate_charge_percentage != 23 -%}
 
 
