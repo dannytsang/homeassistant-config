@@ -107,6 +107,168 @@ automation:
           addonEntityId: a0d7b954_ssh
           message: SSH has been on for more than an hour. Turning SSH off.
     mode: single
+  - id: "1700062541454"
+    alias: "Add-On: Update For File Editor"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.file_editor_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.file_editor_newest_version
+            state: sensor.file_editor_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                File Editor updated from {{ states('sensor.file_editor_version') }} to
+                {{ states('sensor.file_editor_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.file_editor_update
+    mode: single
+  - id: "1700062541455"
+    alias: "Add-On: Update For Terminal & Web"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.terminal_ssh_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.terminal_ssh_newest_version
+            state: sensor.terminal_ssh_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Terminal & SSH updated from {{ states('sensor.esphome_version') }} to
+                {{ states('sensor.esphome_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.terminal_ssh_update
+    mode: single
+  - id: "1700062541456"
+    alias: "Add-On: Update For ESPHome"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.esphome_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.esphome_newest_version
+            state: sensor.esphome_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                ESPHome updated from {{ states('sensor.esphome_version') }} to
+                {{ states('sensor.esphome_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.esphome_update
+    mode: single
+  - id: "1700062541457"
+    alias: "Add-On: Update For Zigbee2MQTT Proxy"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.zigbee2mqtt_proxy_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.zigbee2mqtt_proxy_newest_version
+            state: sensor.zigbee2mqtt_proxy_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Zigbee2MQTT Proxy updated from {{ states('sensor.zigbee2mqtt_proxy_version') }} to
+                {{ states('sensor.zigbee2mqtt_proxy_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.zigbee2mqtt_proxy_update
+    mode: single
+  - id: "1700062541458"
+    alias: "Add-On: Update For Log Viewer"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.log_viewer_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.log_viewer_newest_version
+            state: sensor.log_viewer_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Log Viewer updated from {{ states('sensor.log_viewer_version') }} to
+                {{ states('sensor.log_viewer_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.log_viewer_update
+    mode: single
+  - id: "1700062541459"
+    alias: "Add-On: Update For Log Viewer"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.visual_studio_code_newest_version
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.visual_studio_code_newest_version
+            state: sensor.visual_studio_code_version
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Log Viewer updated from {{ states('sensor.visual_studio_code_version') }} to
+                {{ states('sensor.visual_studio_code_newest_version')}}.
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Normal"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: update.studio_code_server_update
+    mode: single
 
 script:
   stop_add_on:
