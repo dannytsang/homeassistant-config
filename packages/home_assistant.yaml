@@ -51,9 +51,10 @@ script:
     sequence:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: input_select.home_assistant_automatic_upgrade
-                state: "Patch Versions"
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_assistant_automatic_upgrade
+                    state: "Disabled"
               - condition: template
                 value_template: "{{ major_verison_changed == false and minor_verison_changed == false and patch_verison_changed }}"
             sequence:
