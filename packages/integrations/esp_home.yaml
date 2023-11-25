@@ -1,0 +1,36 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/esphome/
+group:
+  esphome_device_updates:
+    name: ESPHome Device Updates
+    icon: mdi:update
+    entities:
+        - update.ashlees_bed_firmware
+        - update.bathroom_motion_firmware
+        - update.bed_firmware
+        - update.boiler_firmware
+        - update.kitchen_motion_firmware
+        - update.leos_bed_firmware
+        - update.lounge_motion_4_firmware
+        - update.office_motion_firmware
+        - update.water_softener_firmware
+
+script:
+  update_esp_home:
+    alias: Update ESPHome
+    fields:
+      entity_id:
+        description: Entity ID for the update entity of the ESPHome device.
+        required: true
+        selector:
+          text:
+    sequence:
+      - parallel:
+        - service: script.send_to_home_log
+          data:
+            message: "{{ state_attr(entity_id, 'friendly_name') }} updated."
+            title: "ESPHome"
+        - service: update.install
+          data: {}
+          target:
+            entity_id: "{{ entity_id }}"
