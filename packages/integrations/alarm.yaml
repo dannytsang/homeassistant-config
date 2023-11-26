@@ -49,9 +49,14 @@ automation:
       - platform: time
         at: "02:00:00"
     condition:
-      - condition: state
-        entity_id: alarm_control_panel.house_alarm
-        state: "disarmed"
+      - or:
+          - condition: state
+            entity_id: alarm_control_panel.house_alarm
+            state: "disarmed"
+          - not:
+              - condition: state
+                entity_id: lock.front_door
+                state: "locked"
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
@@ -74,9 +79,11 @@ automation:
                     - person.danny
                     - person.terina
         default:
-          - service: script.arm_alarm_overnight
-            data:
-              message: "It's late."
+          - parallel:
+              - service: script.arm_alarm_overnight
+                data:
+                  message: "It's late."
+              - service: script.lock_front_door
     mode: single
   - id: "1587680439015"
     alias: "Alarm: Arm Overnight Home Mode Final Check"
