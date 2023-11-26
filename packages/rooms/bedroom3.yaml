@@ -329,72 +329,90 @@ automation:
     mode: single
   # Hue Remote
   - id: "1656355431188"
-    alias: "Ashlee's Bedroom: Hue Remote Short Presses"
+    alias: "Ashlee's Bedroom: Hue Remote On Button"
     description: ""
     trigger:
-      - platform: event
-        event_type: smartthings.button
-        event_data:
-          device_id: 835950a2-9ac7-4690-9b60-09e46c0d828b
+      - platform: state
+        entity_id:
+          - sensor.ashlees_bedroom_remote_action
+        to: on_press
     condition: []
     action:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button1' }}"
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: "Power button pressed. :bulb: Toggling light."
-                  title: ":bed: Ashlee's Bedroom"
-                  log_level: "Debug"
-              - service: light.toggle
-                data: {}
-                target:
-                  entity_id: light.ashlees_main_light
-          - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button4' }}"
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp."
-                      title: ":bed: Ashlee's Bedroom"
-                      log_level: "Debug"
-                  - service: switch.toggle
-                    data: {}
-                    target:
-                      entity_id: switch.ashlees_lamp
-          - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button2' }}"
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Bright buttom on remote pressed. Opening :window: Ashlee's blinds."
-                      title: ":bed: Ashlee's Bedroom"
-                      log_level: "Debug"
-                  - service: cover.open_cover
-                    data: {}
-                    target:
-                      entity_id: cover.ashlees_bedroom_blinds_cover
-          - conditions:
-              - condition: template
-                value_template: "{{ trigger.event.data.component_id == 'button3' }}"
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Dim buttom on remote pressed. Closing :window: Ashlee's blinds."
-                      title: ":bed: Ashlee's Bedroom"
-                      log_level: "Debug"
-                  - service: cover.close_cover
-                    data: {}
-                    target:
-                      entity_id: cover.ashlees_bedroom_blinds_cover
-        default: []
+      - service: script.send_to_home_log
+        data:
+          message: "Power button pressed. :bulb: Toggling light."
+          title: ":bed: Ashlee's Bedroom"
+          log_level: "Debug"
+      - service: light.toggle
+        data: {}
+        target:
+          entity_id: light.ashlees_main_light
+    mode: queued
+    max: 10
+  - id: "1656355431189"
+    alias: "Ashlee's Bedroom: Hue Remote Up Button"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ashlees_bedroom_remote_action
+        to: up_press
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Bright buttom on remote pressed. Opening :window: Ashlee's blinds."
+              title: ":bed: Ashlee's Bedroom"
+              log_level: "Debug"
+          - service: cover.open_cover
+            data: {}
+            target:
+              entity_id: cover.ashlees_bedroom_blinds_cover
+    mode: queued
+    max: 10
+  - id: "1656355431190"
+    alias: "Ashlee's Bedroom: Hue Remote Down Button"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ashlees_bedroom_remote_action
+        to: down_press
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Dim buttom on remote pressed. Closing :window: Ashlee's blinds."
+              title: ":bed: Ashlee's Bedroom"
+              log_level: "Debug"
+          - service: cover.close_cover
+            data: {}
+            target:
+              entity_id: cover.ashlees_bedroom_blinds_cover
+    mode: queued
+    max: 10
+  - id: "1656355431191"
+    alias: "Ashlee's Bedroom: Hue Remote Off Button"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ashlees_bedroom_remote_action
+        to: off_press
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp."
+              title: ":bed: Ashlee's Bedroom"
+              log_level: "Debug"
+          - service: switch.toggle
+            data: {}
+            target:
+              entity_id: switch.ashlees_lamp
     mode: queued
     max: 10
 
