@@ -697,3 +697,55 @@
       target:
         entity_id: light.bedroom_main_light
   mode: single
+- id: "1701033189010"
+  alias: "Porch: Front Door Lock Status Change"
+  description: ""
+  trigger:
+    - platform: state
+      entity_id:
+        - lock.front_door
+  condition:
+    - condition: state
+      entity_id: binary_sensor.front_door
+      state: "off"
+  action:
+    - choose:
+        - conditions:
+            - or:
+                - condition: state
+                  entity_id: lock.front_door
+                  state: locking
+                - condition: state
+                  entity_id: lock.front_door
+                  state: unlocking
+          sequence:
+            - parallel:
+                - service: script.front_door_lock_status
+                  data: {}
+                - service: script.send_to_home_log
+                  data:
+                    message: Front door "{{ states('lock.front_door') }}".
+                    title: Porch
+                    log_level: Normal
+        - conditions:
+            - or:
+                - condition: state
+                  entity_id: lock.front_door
+                  state: locked
+                - condition: state
+                  entity_id: lock.front_door
+                  state: unlocked
+          sequence:
+            - service: script.send_to_home_log
+              data:
+                message: Front door "{{ states('lock.front_door') }}".
+                title: Porch
+                log_level: Normal
+            - service: script.turn_off
+              data: {}
+              target:
+                entity_id: script.front_door_lock_status
+            - service: scene.turn_on
+              target:
+                entity_id: scene.porch_light_off
+  mode: single

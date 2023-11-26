@@ -605,7 +605,7 @@ automation:
                 entity_id: light.lounge_lamps
                 state: "off"
             then:
-              - service: script.arrive_home_lounge_lights
+              - service: script.front_door_lock_status
                 data: {}
           - if:
               - condition: state
@@ -704,7 +704,7 @@ automation:
                 entity_id: light.lounge_lamps
                 state: "off"
             then:
-              - service: script.arrive_home_lounge_lights
+              - service: script.front_door_lock_status
                 data: {}
           - if:
               - condition: state
@@ -985,8 +985,8 @@ script:
           log_level: "Debug"
       - service: script.turn_everything_off
     mode: single
-  arrive_home_lounge_lights:
-    alias: Arrive Home Lounge Lights
+  front_door_lock_status:
+    alias: Front Door Lock Status
     sequence:
       - repeat:
           until:
@@ -994,11 +994,35 @@ script:
               entity_id: binary_sensor.front_door
               state: "on"
           sequence:
-            - service: scene.turn_on
-              data:
-                transition: 1
-              target:
-                entity_id: scene.porch_light_green
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: lock.front_door
+                      state: locked
+                  sequence:
+                    - service: scene.turn_on
+                      target:
+                        entity_id: scene.porch_light_green
+                - conditions:
+                    - condition: state
+                      entity_id: lock.front_door
+                      state: unlocked
+                  sequence:
+                    - service: scene.turn_on
+                      target:
+                        entity_id: scene.porch_red_light
+                - conditions:
+                    - or:
+                        - condition: state
+                          entity_id: lock.front_door
+                          state: unlocking
+                        - condition: state
+                          entity_id: lock.front_door
+                          state: locking
+                  sequence:
+                    - service: scene.turn_on
+                      target:
+                        entity_id: scene.porch_blue_light
             - delay:
                 hours: 0
                 minutes: 0
