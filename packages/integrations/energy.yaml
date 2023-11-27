@@ -812,31 +812,51 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - sensor.battery_charge_remaining
+          - input_number.growatt_battery_discharge_stop_soc
+          - sensor.growatt_battery_1_state_of_charge
+    sensor:
+      - name: "Usable Battery State of Charge"
+        unique_id: a681cc96-bfb5-407c-bc9d-d93f4a0f854f
+        state: "{{ ((states('sensor.growatt_battery_1_state_of_charge')|float(0)) - (states('input_number.growatt_battery_discharge_stop_soc')|float(0)))/100 }}"
+        attributes:
+          discharge_stop_soc: >-
+            {{ states('input_number.growatt_battery_discharge_stop_soc') }}
+          soc: >-
+            {{ states('sensor.growatt_battery_1_state_of_charge') }}
+        device_class: "battery"
+        unit_of_measurement: "%"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.solar_battery_size
           - sensor.growatt_load_consumption
+          - sensor.usable_battery_state_of_charge
     sensor:
       - name: "Battery Run Time"
         unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
-        state: "{{ now() + timedelta( seconds = (((states('sensor.battery_charge_remaining')|float(0)/100) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0)) }}"
+        # Formula:
+        # (Battery Size x useable charge remaining) / current usage = kWh remaining
+        state: "{{ now() + timedelta( seconds = (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0)) }}"
         icon: mdi:battery-clock-outline
         attributes:
           duration: >-
-            {% set ts = (((states('sensor.battery_charge_remaining')|float(0)/100) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0) %}
+            {% set ts = (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_load_consumption')|replace('0','1')|float(1))) * 60 * 60)|round(0) %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
   - trigger:
       - platform: state
         entity_id:
           - input_number.solar_battery_size
-          - sensor.battery_charge_remaining
-          - sensor.growatt_load_consumption
+          - sensor.growatt_battery_1_charge_rate
+          - sensor.growatt_battery_1_state_of_charge
     sensor:
       - name: "Time To Charge Battery"
         unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
-        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)/100))/(states('sensor.growatt_battery_1_charge_rate')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999) }}"
+        # 359999 seconds = 99:99:99 suration (H:M:S)
+        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_battery_1_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_1_charge_rate')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999) }}"
         icon: mdi:battery-clock
         attributes:
           duration: >-
-            {% set ts = (((((states('input_number.solar_battery_size')|float(0))-(states('sensor.battery_charge_remaining')|float(0)/100))/(states('sensor.growatt_battery_1_charge_rate')|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999 %}
+            {% set ts = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_battery_1_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_1_charge_rate')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999 %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
