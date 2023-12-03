@@ -1,19 +1,88 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/esphome/
+automation:
+  - id: "1700645933582"
+    alias: "ESPHome: Bed Update"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - group.esphome_device_updates
+        not_to: "off"
+    condition:
+      - condition: not
+        conditions:
+          - condition: template
+            value_template:
+              "{{ state_attr(trigger.entity_id, 'in_progress') == false
+              }}"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              log_level: Debug
+              message: Updating ESPHome after ESPHome update.
+              title: ESPHome
+          - service: homeassistant.update_entity
+            data: {}
+            target:
+              entity_id: group.esphome_device_updates
+    mode: single
+  - id: "1701191210535"
+    alias: "ESPHome: Update Firmware"
+    description: ""
+    trigger:
+      - platform: time_pattern
+        hours: "0"
+        minutes: "/15"
+      - platform: time_pattern
+        hours: "1"
+        minutes: "/15"
+      - platform: time_pattern
+        hours: "2"
+        minutes: "/15"
+      - platform: time_pattern
+        hours: "3"
+        minutes: "/15"
+      - platform: time_pattern
+        hours: "4"
+        minutes: "/15"
+      - platform: time_pattern
+        hours: "5"
+        minutes: "/15"
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: group.esphome_device_updates
+            state: "off"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              log_level: Debug
+              message: Updating ESPHome On Timer.
+              title: ESPHome
+          - service: homeassistant.update_entity
+            data: {}
+            target:
+              entity_id: group.esphome_device_updates
+    mode: single
+
 group:
   esphome_device_updates:
     name: ESPHome Device Updates
     icon: mdi:update
     entities:
-        - update.ashlees_bed_firmware
-        - update.bathroom_motion_firmware
-        - update.bed_firmware
-        - update.boiler_firmware
-        - update.kitchen_motion_firmware
-        - update.leos_bed_firmware
-        - update.lounge_motion_4_firmware
-        - update.office_motion_firmware
-        - update.water_softener_firmware
+      - update.ashlees_bed_firmware
+      - update.bathroom_motion_firmware
+      - update.bed_firmware
+      - update.boiler_firmware
+      - update.kitchen_motion_firmware
+      - update.leos_bed_firmware
+      - update.lounge_motion_4_firmware
+      - update.office_motion_firmware
+      - update.water_softener_firmware
 
 script:
   update_esp_home:
@@ -26,11 +95,11 @@ script:
           text:
     sequence:
       - parallel:
-        - service: script.send_to_home_log
-          data:
-            message: "{{ state_attr(entity_id, 'friendly_name') }} updated."
-            title: "ESPHome"
-        - service: update.install
-          data: {}
-          target:
-            entity_id: "{{ entity_id }}"
+          - service: script.send_to_home_log
+            data:
+              message: "{{ state_attr(entity_id, 'friendly_name') }} updated."
+              title: "ESPHome"
+          - service: update.install
+            data: {}
+            target:
+              entity_id: "{{ entity_id }}"
