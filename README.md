@@ -51,7 +51,7 @@ Visual Studio Code addon includes a Git client so all changes are managed throug
 ## Workflows 🖇️
 The advantage of using a source code management system like Git is the ability to use hooks to trigger actions (as well as other advantages).
 
-I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes. More details on this can be found [here](https://dannytsang.com/home-assistant-partial-continuous-integration-workflow/)
+I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes. More details on this can be found [here](https://dannytsang.com/home-assistant-continuous-integration-workflow-2023/)
 
 For this reason, the `custom_components` is stored in the repository to allow a successful build and configuration check.
 
