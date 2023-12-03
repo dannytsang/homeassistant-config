@@ -562,23 +562,6 @@
     - service: script.set_how_water_to_home_mode
       data: {}
   mode: single
-- id: "1664657264986"
-  alias: "Home Assistant: Update Available"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id: update.home_assistant_core_update
-      from: "off"
-      to: "on"
-  condition:
-    - not:
-        - condition: state
-          entity_id: input_select.home_assistant_automatic_upgrade
-          state: "Disabled"
-  action:
-    - service: script.upgrade_home_assistant
-      data: {}
-  mode: single
 - id: "1674478124534"
   alias: "Conservatory: Cold Temperature"
   description: ""
@@ -703,7 +686,7 @@
   trigger:
     - platform: state
       entity_id:
-        - lock.front_door
+        - lock.unified_front_door
   condition:
     - condition: state
       entity_id: binary_sensor.front_door
@@ -716,10 +699,10 @@
         - conditions:
             - or:
                 - condition: state
-                  entity_id: lock.front_door
+                  entity_id: lock.unified_front_door
                   state: locking
                 - condition: state
-                  entity_id: lock.front_door
+                  entity_id: lock.unified_front_door
                   state: unlocking
           sequence:
             - parallel:
@@ -727,21 +710,21 @@
                   data: {}
                 - service: script.send_to_home_log
                   data:
-                    message: Front door "{{ states('lock.front_door') }}".
+                    message: Front door "{{ states('lock.unified_front_door') }}".
                     title: Porch
                     log_level: Normal
         - conditions:
             - or:
                 - condition: state
-                  entity_id: lock.front_door
+                  entity_id: lock.unified_front_door
                   state: locked
                 - condition: state
-                  entity_id: lock.front_door
+                  entity_id: lock.unified_front_door
                   state: unlocked
           sequence:
             - service: script.send_to_home_log
               data:
-                message: Front door "{{ states('lock.front_door') }}".
+                message: Front door "{{ states('lock.unified_front_door') }}".
                 title: Porch
                 log_level: Normal
             - service: script.turn_off
