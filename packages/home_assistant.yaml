@@ -37,6 +37,23 @@ automation:
             data: {}
           - service: script.3d_printer_check_turn_off_light
     mode: single
+  - id: "1664657264986"
+    alias: "Home Assistant: Update Available"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: update.home_assistant_core_update
+        from: "off"
+        to: "on"
+    condition:
+      - not:
+          - condition: state
+            entity_id: input_select.home_assistant_automatic_upgrade
+            state: "Disabled"
+    action:
+      - service: script.upgrade_home_assistant
+        data: {}
+    mode: single
 
 script:
   upgrade_home_assistant:
@@ -103,6 +120,80 @@ script:
                   message:
                     Major update from {{ state_attr('update.home_assistant_core_update',
                     'installed_version') }} to {{ state_attr('update.home_assistant_core_update',
+                    'latest_version') }}?
+                  title: Home Assistant Supervisor
+                  people:
+                    - person.danny
+                  action1_title: "Yes"
+                  action1_name: update_home_assistant_supervisor
+                  action2_title: "No"
+                  action2_name: ignore
+        default: []
+    mode: single
+  upgrade_home_assistant_supervisor:
+    alias: Upgrade Home Assistant Supervisor
+    description: In HA, dictionaries are immutable e.g https://stackoverflow.com/questions/36886650/how-to-add-a-new-entry-into-a-dictionary-object-while-using-jinja2
+    variables:
+      installed_version: "{{state_attr('update.home_assistant_supervisor_update', 'installed_version').split('.') }}"
+      latest_version: "{{ state_attr('update.home_assistant_supervisor_update', 'latest_version').split('.') }}"
+      major_verison_changed: "{{ installed_version[0] != latest_version[0] }}"
+      minor_verison_changed: "{{ installed_version[1] != latest_version[1] }}"
+      patch_verison_changed: "{{ installed_version[2] != latest_version[2] }}"
+    sequence:
+      - choose:
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_assistant_automatic_upgrade
+                    state: "Disabled"
+              - condition: template
+                value_template: "{{ major_verison_changed == false and minor_verison_changed == false and patch_verison_changed }}"
+            sequence:
+              - service: script.send_actionable_notification_with_2_buttons
+                data:
+                  message:
+                    Patch update from {{ state_attr('update.home_assistant_supervisor_update',
+                    'installed_version') }} to {{ state_attr('update.home_assistant_supervisor_update',
+                    'latest_version') }}?
+                  title: Home Assistant
+                  people:
+                    - person.danny
+                  action1_title: "Yes"
+                  action1_name: update_home_assistant
+                  action2_title: "No"
+                  action2_name: ignore
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_assistant_automatic_upgrade
+                state: "Minor Versions"
+              - condition: template
+                value_template: "{{ major_verison_changed == false and minor_verison_changed }}"
+            sequence:
+              - service: script.send_actionable_notification_with_2_buttons
+                data:
+                  message:
+                    Minor update from {{ state_attr('update.home_assistant_supervisor_update',
+                    'installed_version') }} to {{ state_attr('update.home_assistant_supervisor_update',
+                    'latest_version') }}?
+                  title: Home Assistant
+                  people:
+                    - person.danny
+                  action1_title: "Yes"
+                  action1_name: update_home_assistant
+                  action2_title: "No"
+                  action2_name: ignore
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_assistant_automatic_upgrade
+                state: "Major Versions"
+              - condition: template
+                value_template: "{{ major_verison_changed }}"
+            sequence:
+              - service: script.send_actionable_notification_with_2_buttons
+                data:
+                  message:
+                    Major update from {{ state_attr('update.home_assistant_supervisor_update',
+                    'installed_version') }} to {{ state_attr('update.home_assistant_supervisor_update',
                     'latest_version') }}?
                   title: Home Assistant
                   people:
