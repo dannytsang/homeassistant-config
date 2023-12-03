@@ -54,9 +54,6 @@ automation:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: light.lounge_lamps
-                    state: "on"
-                  - condition: state
                     entity_id: light.lounge_ceiling
                     state: "on"
                 sequence:
@@ -65,27 +62,12 @@ automation:
                       entity_id: scene.lounge_lights
                     data:
                       transition: 2
-              - conditions:
-                  - condition: state
-                    entity_id: light.lounge_lamps
-                    state: "on"
-                sequence:
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.lounge_lamps_on
-                    data:
-                      transition: 2
-              - conditions:
-                  - condition: state
-                    entity_id: light.lounge_ceiling
-                    state: "on"
-                sequence:
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.lounge_ceiling_lights_on
-                    data:
-                      transition: 2
-            default: []
+            default:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.lounge_lamps_on
+                data:
+                  transition: 2
     mode: queued
     max: 10
   - id: "1606170045630"
