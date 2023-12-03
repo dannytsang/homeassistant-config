@@ -51,9 +51,41 @@ automation:
                 :bulb: :high_brightness: lights on.
               title: ":couch_and_lamp: Lounge"
               log_level: "Debug"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_lights
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lamps_on
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_ceiling_lights_on
+                    data:
+                      transition: 2
+            default: []
     mode: queued
     max: 10
   - id: "1606170045630"
@@ -77,11 +109,41 @@ automation:
                 :bulb: :low_brightness: Dimming lights
               title: ":couch_and_lamp: Lounge"
               log_level: "Debug"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_dim_lights
-            data:
-              transition: 2
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_dim_lights
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_dim_lamps
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_dim_ceiling_lights
+                    data:
+                      transition: 2
+            default: []
     mode: single
   - id: "1605567425876"
     alias: "Lounge: No Motion After 15 Minutes"
@@ -105,11 +167,41 @@ automation:
                 :tv: TV is turned off. Turning lounge lights off.
               title: ":couch_and_lamp: Lounge"
               log_level: "Debug"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_lights_off
-            data:
-              transition: 2
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lamps_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_ceiling_lights_off
+                    data:
+                      transition: 2
+            default: []
     mode: single
   - id: "1610409803685"
     alias: "Lounge: TV Turned Off Turn Off Lights"
@@ -143,11 +235,41 @@ automation:
               message: ":tv: TV turned off for 10 minutes. Turning lights off."
               title: ":couch_and_lamp: Lounge"
               log_level: "Debug"
-          - service: scene.turn_on
-            target:
-              entity_id: scene.lounge_lights_off
-            data:
-              transition: 2
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lights_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_lamps
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_lamps_off
+                    data:
+                      transition: 2
+              - conditions:
+                  - condition: state
+                    entity_id: light.lounge_ceiling
+                    state: "on"
+                sequence:
+                  - service: scene.turn_on
+                    target:
+                      entity_id: scene.lounge_ceiling_lights_off
+                    data:
+                      transition: 2
+            default: []
     mode: single
   # Alarm
   - id: "1588859622571"
@@ -1077,6 +1199,439 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.lounge_lamp_left:
+        entity_only: true
+      light.lounge_lamp_right:
+        entity_only: true
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
+  - id: "1582387315375"
+    name: Lounge Lamps On
+    entities:
+      light.lounge_lamp_left:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 240
+        color_temp: 310
+        friendly_name: Lounge Left Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "on"
+      light.lounge_lamp_right:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 240
+        color_temp: 310
+        friendly_name: Lounge Right Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "on"
+    metadata:
+      light.lounge_lamp_left:
+        entity_only: true
+      light.lounge_lamp_right:
+        entity_only: true
+  - id: "1582387315376"
+    name: Lounge Ceiling Lights On
+    entities:
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 241
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
   - id: "1606169827098"
     name: Lounge Dim Lights
     entities:
@@ -1106,6 +1661,437 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+    icon: mdi:ceiling-light-multiple
+    metadata:
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
+  - id: "1701618167193"
+    name: Lounge Dim Ceiling Lights
+    entities:
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "on"
+    icon: mdi:ceiling-light-multiple
+    metadata:
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
+  - id: "1606169827099"
+    name: Lounge Dim Lamps
+    entities:
+      light.lounge_lamp_left:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 76
+        color_temp: 285
+        friendly_name: Lounge Left Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "on"
+      light.lounge_lamp_right:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 76
+        color_temp: 285
+        friendly_name: Lounge Right Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "on"
+    metadata:
+      light.lounge_lamp_right:
+        entity_only: true
+      light.lounge_lamp_left:
+        entity_only: true
   - id: "1582455234238"
     name: Lounge Lights Off
     entities:
@@ -1131,6 +2117,436 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "off"
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+    metadata:
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
+  - id: "1582455234239"
+    name: Lounge Lamps Off
+    entities:
+      light.lounge_lamp_right:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Lounge Right Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "off"
+      light.lounge_lamp_left:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Lounge Left Lamp
+        icon: mdi:floor-lamp
+        supported_features: 55
+        state: "off"
+    metadata:
+      light.lounge_lamp_right:
+        entity_only: true
+      light.lounge_lamp_left:
+        entity_only: true
+  - id: "1701618167194"
+    name: Lounge Ceiling Lights Off
+    entities:
+      light.lounge_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_left_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_left_3:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+      light.lounge_right_2:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6666
+        min_mireds: 150
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: color_temp
+        brightness: 13
+        color_temp_kelvin: 2732
+        color_temp: 366
+        hs_color:
+          - 28.327
+          - 64.71
+        rgb_color:
+          - 255
+          - 167
+          - 89
+        xy_color:
+          - 0.524
+          - 0.387
+        effect:
+        friendly_name: Lounge Left
+        supported_features: 44
+        state: "off"
+    icon: mdi:ceiling-light-multiple
+    metadata:
+      light.lounge_lamp_right:
+        entity_only: true
+      light.lounge_lamp_left:
+        entity_only: true
+      light.lounge_left:
+        entity_only: true
+      light.lounge_left_2:
+        entity_only: true
+      light.lounge_left_3:
+        entity_only: true
+      light.lounge_right:
+        entity_only: true
+      light.lounge_right_2:
+        entity_only: true
   - id: "1634579522178"
     name: "Lounge: Lights Green"
     entities:
