@@ -809,6 +809,7 @@ sensor:
       days: 7
 
 template:
+  # Grott
   - trigger:
       - platform: state
         entity_id:
@@ -860,3 +861,48 @@ template:
             {% set ts = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_battery_1_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_1_charge_rate')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_1_charge_rate')|float(0)) != 0 else 359999 %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
+  # Solar Assistant
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_sph_battery_power
+    sensor:
+      - name: "Growatt Battery Charge Power"
+        unique_id: 251bd989-90a2-4e1b-81d0-b6d87f934eeb
+        state: "{{ iif(states('sensor.growatt_sph_battery_power')|float < 0, states('sensor.growatt_sph_battery_power')|int|abs, 0) }}"
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_sph_battery_power
+    sensor:
+      - name: "Growatt Battery Discharge Power"
+        unique_id: fe4f9f9c-4a61-4b27-9122-9c17ce5da164
+        state: "{{ iif(states('sensor.growatt_sph_battery_power')|float > 0, states('sensor.growatt_sph_battery_power')|int, 0) }}"
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_sph_grid_power
+    sensor:
+      - name: "Growatt Grid Import Power"
+        unique_id: 09f48f73-ea68-421f-868c-ffd20cd8eab8
+        state: "{{ iif(states('sensor.growatt_sph_grid_power')|float > 0, states('sensor.growatt_sph_grid_power')|int, 0) }}"
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.growatt_sph_grid_power
+    sensor:
+      - name: "Growatt Grid Export Power"
+        unique_id: ed52b9f5-fddd-4797-85a1-b4fb6df8cd0e
+        state: "{{ iif(states('sensor.growatt_sph_grid_power')|float < 0, states('sensor.growatt_sph_grid_power')|int|abs, 0) }}"
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
