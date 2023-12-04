@@ -132,19 +132,25 @@ script:
         required: true
     variables:
       title: >-
-        {% if entity_id|default('', true) == 'media_player.lounge_tv' %}
+        {%- if entity_id|default('', true) == 'media_player.lounge_tv' -%}
         :couch_and_lamp: Lounge
-        {% elif entity_id|default('', true) == 'media_player.bedroom_tv' %}
+        {%- elif entity_id|default('', true) == 'media_player.bedroom_tv' -%}
         :bed: Bedroom
-        {% else %}
+        {%- else -%}
         :warning: Unknown device {{ entity_id }}
-        {% endif %}
+        {%- endif -%}
     sequence:
       - choose:
           - conditions:
               - condition: template
                 value_template: >-
                   {{ state_attr(entity_id, 'media_position') !=
+                  none and
+                  camera !=
+                  none}}
+              - condition: template
+                value_template: >-
+                  {{ state_attr(entity_id, 'media_duration') !=
                   none and
                   camera !=
                   none}}
