@@ -667,65 +667,56 @@ automation:
         for: 00:01:00
         platform: state
         to: "off"
-        id: upstairs
       - platform: state
         entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:01:00
-        id: bottom_stairs
     condition:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
     action:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: trigger
-                  id: upstairs
-              sequence:
-                - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :no_pedestrians: No motion at the top of the stairs for 1 minute.
-                        Turning light off.
-                      title: "Porch"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.stairs_light_off
-                    data:
-                      transition: 1
-          default: []
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: light.stairs_2
-                  state: "on"
-              sequence:
-                - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :no_pedestrians: No motion at the bottom of the stairs for 1 minute.
-                        Turning ambient light off.
-                      title: "Porch"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.stairs_light_2_off
-                    data:
-                      transition: 2
-                  - delay:
-                      hours: 0
-                      minutes: 0
-                      seconds: 1
-                      milliseconds: 0
-                  - service: light.turn_off
-                    target:
-                      entity_id: light.stairs_2
-          default: []
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion at the top of the stairs for 1 minute.
+                Turning light off.
+              title: "Porch"
+              log_level: "Debug"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.stairs_light_off
+            data:
+              transition: 1
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.stairs_2
+                    state: "on"
+                sequence:
+                  - parallel:
+                    - service: script.send_to_home_log
+                      data:
+                        message: >-
+                          :no_pedestrians: No motion at the bottom of the stairs for 1 minute.
+                          Turning ambient light off.
+                        title: "Porch"
+                        log_level: "Debug"
+                    - service: scene.turn_on
+                      target:
+                        entity_id: scene.stairs_light_2_off
+                      data:
+                        transition: 2
+                    - delay:
+                        hours: 0
+                        minutes: 0
+                        seconds: 1
+                        milliseconds: 0
+                    - service: light.turn_off
+                      target:
+                        entity_id: light.stairs_2
+            default: []
     mode: queued
     max: 10
   - id: "1624918387840"
