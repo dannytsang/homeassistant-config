@@ -156,7 +156,8 @@ automation:
                     arrive in {{ states('sensor.google_travel_time_by_car', with_unit=True)
                     }}.
                   people:
-                    - person.danny
+                    entity_id:
+                      - person.danny
         default: []
     mode: single
   - id: "1680450183660"
@@ -442,7 +443,8 @@ automation:
 
                         End Time: {{ states('sensor.next_family_calendar_event_end_date') }}
                       people:
-                        - person.danny
+                        entity_id:
+                          - person.danny
             default: []
           - alias: Check if there's a children calendar event.
             choose:
@@ -467,7 +469,8 @@ automation:
 
                         End Time: {{ states('sensor.next_children_calendar_event_end_date') }}
                       people:
-                        - person.danny
+                        entity_id:
+                          - person.danny
             default: []
     mode: single
   - id: "1594554327310"
@@ -507,7 +510,10 @@ automation:
                         %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
                         }} {% endif %}{% endfor %}"
                       title: ":warning: :bell: Alarm :warning:"
-                      log_level: "Normal"
+                      people:
+                        entity_id:
+                          - person.danny
+                          - person.terina
             default: []
       - service: script.3d_printer_left_unattended
     mode: single
