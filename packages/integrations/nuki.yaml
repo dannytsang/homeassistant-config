@@ -8,9 +8,6 @@ script:
           - condition: state
             entity_id: input_boolean.enable_front_door_lock_automations
             state: "on"
-          - condition: state
-            entity_id: input_boolean.enable_front_door_lock_automations
-            state: "on"
         then:
           - choose:
               - conditions:
@@ -18,26 +15,65 @@ script:
                     entity_id: binary_sensor.front_door
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
+                  - service: script.send_direct_notification
                     data:
-                      message: ":warning: Open and cannot:lock: Lock. :warning:"
+                      message: ":warning: Open and cannot :lock: Lock. :warning:"
                       title: ":warning: :door: Front Door :warning:"
-                      log_level: "Normal"
+                      people:
+                        entity_id:
+                          - person.danny
+                          - person.terina
               - conditions:
                   - condition: state
                     entity_id: lock.unified_front_door
                     state: "unlocked"
                 sequence:
-                  - parallel:
-                      - service: script.send_to_home_log
+                  - choose:
+                      - alias: Local lock is available
+                        conditions:
+                          - condition: not
+                            conditions:
+                              - condition: state
+                                entity_id: lock.front_door
+                                state: unavailable
+                        sequence:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: ":lock: Locking."
+                                  title: ":door: Front Door"
+                                  log_level: "Normal"
+                              - service: lock.lock
+                                data: {}
+                                target:
+                                  entity_id: lock.front_door
+                      - alias: Web lock is available
+                        conditions:
+                          - condition: not
+                            conditions:
+                              - condition: state
+                                entity_id: lock.nuki_front_door_lock
+                                state: unavailable
+                        sequence:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: ":lock: Locking."
+                                  title: ":door: Front Door"
+                                  log_level: "Normal"
+                              - service: lock.lock
+                                data: {}
+                                target:
+                                  entity_id: lock.nuki_front_door_lock
+                    default:
+                      - service: script.send_direct_notification
                         data:
-                          message: ":lock: Locking."
+                          message: ":warning: Unable to lock the front door."
                           title: ":door: Front Door"
-                          log_level: "Normal"
-                      - service: lock.lock
-                        data: {}
-                        target:
-                          entity_id: lock.unified_front_door
+                          people:
+                            entity_id:
+                              - person.danny
+                              - person.terina
     mode: single
     icon: mdi:lock
   unlock_front_door:
@@ -54,16 +90,49 @@ script:
                     entity_id: lock.unified_front_door
                     state: "locked"
                 sequence:
-                  - parallel:
+                  - choose:
+                      - alias: Local lock is available
+                        conditions:
+                          - condition: not
+                            conditions:
+                              - condition: state
+                                entity_id: lock.front_door
+                                state: unavailable
+                        sequence:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: ":unlock: Unlocking."
+                                  title: ":door: Front Door"
+                                  log_level: "Normal"
+                              - service: lock.unlock
+                                data: {}
+                                target:
+                                  entity_id: lock.front_door
+                      - alias: Web lock is available
+                        conditions:
+                          - condition: not
+                            conditions:
+                              - condition: state
+                                entity_id: lock.nuki_front_door_lock
+                                state: unavailable
+                        sequence:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: ":unlock: Unlocking."
+                                  title: ":door: Front Door"
+                                  log_level: "Normal"
+                              - service: lock.unlock
+                                data: {}
+                                target:
+                                  entity_id: lock.nuki_front_door_lock
+                    default:
                       - service: script.send_to_home_log
                         data:
                           message: ":unlock: Unlocking."
                           title: ":door: Front Door"
                           log_level: "Normal"
-                      - service: lock.unlock
-                        data: {}
-                        target:
-                          entity_id: lock.unified_front_door
     mode: single
     icon: mdi:lock
 
@@ -72,20 +141,20 @@ lock:
     name: Unified Front Door Lock
     unique_id: ac45a3d0-cc1c-4b52-adb5-e6147572b210
     value_template: >-
-      {{ iif(not(is_state('lock.unified_front_door', 'unavailable')),
-      states('lock.unified_front_door'),
+      {{ iif(not(is_state('lock.front_door', 'unavailable')),
+      states('lock.front_door'),
       states('lock.nuki_front_door_lock')) }}
     lock:
-      service: lock.unlock
-      target:
-        entity_id: >-
-          {{ iif(not(is_state('lock.unified_front_door', 'unavailable')),
-          'lock.unified_front_door',
-          'lock.nuki_front_door_lock') }}
-    unlock:
       service: lock.lock
       target:
         entity_id: >-
-          {{ iif(not(is_state('lock.unified_front_door', 'unavailable')),
-          'lock.unified_front_door',
+          {{ iif(not(is_state('lock.front_door', 'unavailable')),
+          'lock.front_door',
+          'lock.nuki_front_door_lock') }}
+    unlock:
+      service: lock.unlock
+      target:
+        entity_id: >-
+          {{ iif(not(is_state('lock.front_door', 'unavailable')),
+          'lock.front_door',
           'lock.nuki_front_door_lock') }}
