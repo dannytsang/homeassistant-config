@@ -63,10 +63,6 @@ Probably the first smart house item we purchased in 2010. I have since upgraded 
 ## HP
 Rock solid printer however limited support in Home Assistant for mine. For example, it does not say how much toner is left.
 *   [HP M402DW](https://www.printerland.co.uk/product/hp-laserjet-pro-m402dw/138809)
-## Hyperion
-Software to replicate the Philips Hue HDMI sync in a DIY way. I have not managed to get the SK6812 LED strips to work yet but the HDMI capture has been used for notifications and a preview of what's being watched.
-*   [SK6812](https://www.aliexpress.com/item/32549394249.html?spm=a2g0s.9042311.0.0.584a4c4d07qBv6)
-*   [ZasLuke USB Capture Card](https://www.amazon.co.uk/gp/product/B08DJ4SXMX/ref=ppx_yo_dt_b_asin_title_o09_s00?ie=UTF8&psc=1)
 
 ## Ikea
 Love the Ikea blinds. They are easy to get hold of compared to other products and once you get over the pairing, they have worked flawlessly.
