@@ -950,21 +950,6 @@ automation:
                 sequence:
                   - service: script.lounge_select_game_input
             default: []
-          - if:
-              - condition: state
-                entity_id: light.lounge_tv
-                state: "off"
-            then:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: "Turning on :tv: TV backlight."
-                      title: ":couch_and_lamp: Lounge"
-                      log_level: "Debug"
-                  - service: light.turn_on
-                    data: {}
-                    target:
-                      entity_id: light.lounge_tv
     mode: single
   - id: "1610388192225"
     alias: "Lounge: TV Turned Off"
@@ -984,26 +969,6 @@ automation:
               title: ":couch_and_lamp: Lounge"
               log_level: "Debug"
           - sequence:
-              - if:
-                  - condition: state
-                    entity_id: light.lounge_tv
-                    state: "on"
-                then:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: "Turning off :tv: TV backlight."
-                          title: ":couch_and_lamp: Lounge"
-                          log_level: "Debug"
-                      - service: light.turn_off
-                        data: {}
-                        target:
-                          entity_id: light.lounge_tv
-              - delay:
-                  hours: 0
-                  minutes: 0
-                  seconds: 5
-                  milliseconds: 0
               - if:
                   - condition: state
                     entity_id: light.tv_backlight
