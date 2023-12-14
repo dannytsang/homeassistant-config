@@ -79,6 +79,7 @@ automation:
           temperature: "{{ states('sensor.thermostat_target_temperature')|float(22) }}"
         target:
           entity_id:
+            - climate.ashlees_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
             - climate.leos_bedroom_radiator
@@ -690,6 +691,7 @@ script:
           preset_mode: holiday
         target:
           entity_id:
+            - climate.ashlees_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
             - climate.leos_bedroom_radiator
@@ -709,6 +711,7 @@ script:
           preset_mode: manual
         target:
           entity_id:
+            - climate.ashlees_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
             - climate.leos_bedroom_radiator
@@ -937,6 +940,18 @@ template:
         icon: mdi:thermometer
         device_class: "temperature"
         unit_of_measurement: "°C"
+      - name: "Ashlee's Bedroom Radiator Temperature"
+        unique_id: 8a80cae1-99f3-4298-9428-23589a0b80f9
+        state: "{{ state_attr('climate.ashlees_bedroom_radiator', 'current_temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Ashlee's Bedroom Radiator Target Temperature"
+        unique_id: 730e948a-d66f-4dd6-a84f-6bbdd9715868
+        state: "{{ state_attr('climate.ashlees_bedroom_radiator', 'temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
       - name: "Leo's Radiator Temperature"
         unique_id: 59115996-9365-4350-ab2f-b800d4ac1a06
         state: "{{ state_attr('climate.leos_bedroom_radiator', 'current_temperature') }}"
@@ -972,6 +987,19 @@ template:
         state: "{{ state_attr('climate.office_radiator', 'temperature') }}"
         icon: mdi:thermometer
         device_class: "temperature"
+        unit_of_measurement: "°C"
+  - trigger:
+      - platform: state
+        entity_id:
+          - climate.ashlees_bedroom_radiator
+        attribute: temperature
+      - platform: state
+        entity_id:
+          - input_number.ashlees_bedroom_radiator_heating_threshold
+    sensor:
+      - name: "Ashlee's Bedroom Radiator Minimum Target Temperature"
+        unique_id: c9cf6c97-e67e-46bd-9fed-80b5eec71ed2
+        state: "{{ state_attr('climate.ashlees_bedroom_radiator', 'temperature')|float(10) - states('input_number.ashlees_bedroom_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
       - platform: state
