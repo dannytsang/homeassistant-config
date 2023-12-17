@@ -28,18 +28,12 @@ automation:
                 states('sensor.electricity_export_current_rate') }}). Charging house battery.
               title: Solar Assistant
               log_level: "Debug"
-          - service: select.select_option
-            target:
-              entity_id:
-                - select.growatt_sph_work_mode_priority
-            data:
-              option: Battery first
+          - service: script.battery_first_priority_mode
+            data: {}
     mode: single
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
-    description: >-
-      Disable battery first schedule which is automatically 
-      set when changing work mode to battery first.
+    description: ""
     trigger:
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
@@ -75,18 +69,171 @@ automation:
                   message: >-
                     {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
                     Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
                   title: Solar Assistant
                   log_level: "Debug"
-              - service: select.select_option
-                target:
-                  entity_id:
-                    - select.growatt_sph_work_mode_priority
-                data:
-                  option: Load first
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_battery_first_slot_1_enabled
+              - service: script.load_first_priority_mode
                 data: {}
     mode: single
+  - id: "1702820645690"
+    alias: "Solar Assistant: Check Agile Rates"
+    description: ""
+    trigger:
+      - platform: time_pattern
+        minutes: "5"
+      - platform: time_pattern
+        minutes: "35"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_solar_assistant_automations
+        state: "on"
+    action:
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: sensor.electricity_export_current_rate
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Load first
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        and Inverter has not switched to load first mode.
+                      title: Solar Assistant
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: script.load_first_priority_mode
+                    data: {}
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: sensor.electricity_export_current_rate
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Battery first
+              - condition: state
+                entity_id: input_boolean.solar_assistant_charge_below_export
+                state: "on"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+                        Electrictity rate
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                        below export date ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                        and inverter has not switched to battery first mode.
+                      title: Solar Assistant
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: script.battery_first_priority_mode
+                    data: {}
+    mode: single
+
+script:
+  battery_first_priority_mode:
+    alias: Solar Assistant Battery First Priority Mode
+    description: ""
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Battery first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to battery first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to battery first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Battery first
+  grid_first_priority_mode:
+    alias: Solar Assistant Gird First Priority Mode
+    description: ""
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Grid first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to grid first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to grid first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Gird first
+  load_first_priority_mode:
+    alias: Solar Assistant Load First Priority Mode
+    description: >-
+      Disable battery first schedule which is automatically 
+      set when changing work mode to battery first.
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Load first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to load first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to load first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Load first
+          - service: switch.turn_off
+            target:
+              entity_id:
+                - switch.growatt_sph_battery_first_slot_1_enabled
+            data: {}
+  
