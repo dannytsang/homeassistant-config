@@ -27,16 +27,16 @@ automation:
               log_level: "Normal"
     mode: single
   - id: "1674411819884"
-    alias: "Add-Ons: Terminal SSH Started"
+    alias: "Add-Ons: Advanced SSH & Web Terminal "
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - binary_sensor.terminal_ssh_running
+          - binary_sensor.advanced_ssh_web_terminal_running
         to: "on"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_stop_add_ons
+        entity_id: input_boolean.stop_add_on_web_terminal_ssh
         state: "on"
     action:
       - parallel:
@@ -70,24 +70,6 @@ automation:
           message:
             ":writing_hand: File editor has been on for more than an hour.
             Turning File editor off."
-    mode: single
-  - id: "1638101748989"
-    alias: "Add-ons: Automatically Disable Terminal SSH"
-    description: ""
-    trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.stop_add_on_terminal_ssh
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_stop_add_ons
-        state: "on"
-    action:
-      - service: script.stop_add_on
-        data:
-          addonEntityId: core_ssh
-          message: SSH has been on for more than an hour. Turning SSH off.
     mode: single
   - id: "1638101748990"
     alias: "Add-ons: Automatically Disable Web Terminal SSH"
@@ -140,26 +122,26 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - sensor.terminal_ssh_newest_version
+          - sensor.advanced_ssh_web_terminal_newest_version
     condition:
       - condition: not
         conditions:
           - condition: state
-            entity_id: sensor.terminal_ssh_newest_version
-            state: sensor.terminal_ssh_version
+            entity_id: sensor.advanced_ssh_web_terminal_newest_version
+            state: sensor.advanced_ssh_web_terminal_version
     action:
       - parallel:
           - service: script.send_to_home_log
             data:
               message: >-
-                Terminal & SSH updated from {{ states('sensor.esphome_version') }} to
-                {{ states('sensor.esphome_newest_version')}}.
+                Terminal & SSH updated from {{ states('sensor.advanced_ssh_web_terminal_version') }} to
+                {{ states('sensor.advanced_ssh_web_terminal_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
           - service: update.install
             data: {}
             target:
-              entity_id: update.terminal_ssh_update
+              entity_id: update.advanced_ssh_web_terminal_update
     mode: single
   - id: "1700062541456"
     alias: "Add-On: Update For ESPHome"
