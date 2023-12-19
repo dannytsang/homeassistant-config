@@ -165,6 +165,26 @@ script:
                 to battery first.
               title: Solar Assistant
               log_level: "Debug"
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_battery_first_slot_1_enabled
+                data: {}
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_grid_first_slot_1_enabled
+                data: {}
           - service: select.select_option
             target:
               entity_id:
@@ -194,6 +214,26 @@ script:
                 to grid first.
               title: Solar Assistant
               log_level: "Debug"
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_battery_first_slot_1_enabled
+                data: {}
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_grid_first_slot_1_enabled
+                data: {}
           - service: select.select_option
             target:
               entity_id:
@@ -218,24 +258,55 @@ script:
               title: Solar Assistant
               log_level: "Normal"
         else:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                to load first.
-              title: Solar Assistant
-              log_level: "Debug"
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: select.myenergi_eddi_operating_mode
+                    state: "Stopped"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first. FYI eddi is still on.
+                  title: Solar Assistant
+                  people:
+                    entity_id:
+                      - person.danny
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first.
+                  title: Solar Assistant
+                  log_level: "Debug"
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_battery_first_slot_1_enabled
+                data: {}
+          - if:
+              - condition: state
+                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                state: "on"
+            then:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_grid_first_slot_1_enabled
+                data: {}
           - service: select.select_option
             target:
               entity_id:
                 - select.growatt_sph_work_mode_priority
             data:
               option: Load first
-          - service: switch.turn_off
-            target:
-              entity_id:
-                - switch.growatt_sph_battery_first_slot_1_enabled
-            data: {}
 
 template:
   # Solar Assistant
