@@ -105,7 +105,8 @@ automation:
                         {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
                         Electrictity rate has gove above 0
                         ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                        and Inverter has not switched to load first mode.
+                        and inverter has not switched from
+                        {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
                       title: Solar Assistant
                       people:
                         entity_id:
@@ -207,13 +208,29 @@ script:
               title: Solar Assistant
               log_level: "Normal"
         else:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                to grid first.
-              title: Solar Assistant
-              log_level: "Debug"
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: select.myenergi_eddi_operating_mode
+                    state: "Stopped"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first. FYI eddi is still on.
+                  title: Solar Assistant
+                  people:
+                    entity_id:
+                      - person.danny
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first.
+                  title: Solar Assistant
+                  log_level: "Debug"
           - if:
               - condition: state
                 entity_id: switch.growatt_sph_battery_first_slot_1_enabled
@@ -258,29 +275,13 @@ script:
               title: Solar Assistant
               log_level: "Normal"
         else:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
-                    state: "Stopped"
-            then:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first. FYI eddi is still on.
-                  title: Solar Assistant
-                  people:
-                    entity_id:
-                      - person.danny
-            else:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first.
-                  title: Solar Assistant
-                  log_level: "Debug"
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to load first.
+              title: Solar Assistant
+              log_level: "Debug"
           - if:
               - condition: state
                 entity_id: switch.growatt_sph_battery_first_slot_1_enabled
