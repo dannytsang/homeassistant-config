@@ -166,26 +166,8 @@ script:
                 to battery first.
               title: Solar Assistant
               log_level: "Debug"
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_battery_first_slot_1_enabled
-                data: {}
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_grid_first_slot_1_enabled
-                data: {}
+          - service: script.turn_off_mode_schedules
+            data: {}
           - service: select.select_option
             target:
               entity_id:
@@ -231,26 +213,8 @@ script:
                     to grid first.
                   title: Solar Assistant
                   log_level: "Debug"
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_battery_first_slot_1_enabled
-                data: {}
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_grid_first_slot_1_enabled
-                data: {}
+          - service: script.turn_off_mode_schedules
+            data: {}
           - service: select.select_option
             target:
               entity_id:
@@ -282,32 +246,57 @@ script:
                 to load first.
               title: Solar Assistant
               log_level: "Debug"
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_battery_first_slot_1_enabled
-                data: {}
-          - if:
-              - condition: state
-                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                state: "on"
-            then:
-              - service: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.growatt_sph_grid_first_slot_1_enabled
-                data: {}
+          - service: script.turn_off_mode_schedules
+            data: {}
           - service: select.select_option
             target:
               entity_id:
                 - select.growatt_sph_work_mode_priority
             data:
               option: Load first
+  turn_off_mode_schedules:
+    alias: Solar Assistant Turn Off Mode Schedules
+    description: >-
+      Disable battery first schedule which is automatically 
+      set when changing work mode to battery first.
+    sequence:
+      - parallel:
+          - repeat:
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_battery_first_slot_1_enabled
+                data: {}
+              - alias: Delay before checking to see if the setting has taken hold
+                delay:
+                seconds: 5
+            until:
+              - condition: state
+                entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                state: "off"
+                for:
+                  hours: 0
+                  minutes: 0
+                  seconds: 30
+          - repeat:
+            sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.growatt_sph_grid_first_slot_1_enabled
+                data: {}
+              - alias: Delay before checking to see if the setting has taken hold
+                delay:
+                seconds: 5
+            until:
+              - condition: state
+                entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                state: "off"
+                for:
+                  hours: 0
+                  minutes: 0
+                  seconds: 30
 
 template:
   # Solar Assistant
