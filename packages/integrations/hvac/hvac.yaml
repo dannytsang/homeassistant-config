@@ -79,10 +79,11 @@ automation:
         target:
           entity_id:
             - climate.ashlees_bedroom_radiator
+            - climate.bedroom_radiator
+            - climate.kitchen_radiator
+            - climate.leos_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
-            - climate.leos_bedroom_radiator
-            - climate.bedroom_radiator
     mode: single
   - id: "1678271646645"
     alias: "HVAC: Radiators Below Target Temperature"
@@ -538,10 +539,11 @@ script:
         target:
           entity_id:
             - climate.ashlees_bedroom_radiator
+            - climate.bedroom_radiator
+            - climate.kitchen_radiator
+            - climate.leos_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
-            - climate.leos_bedroom_radiator
-            - climate.bedroom_radiator
     mode: single
     icon: mdi:radiator-off
   hvac_set_trv_to_normal_mode:
@@ -558,10 +560,11 @@ script:
         target:
           entity_id:
             - climate.ashlees_bedroom_radiator
+            - climate.bedroom_radiator
+            - climate.kitchen_radiator
+            - climate.leos_bedroom_radiator
             - climate.lounge_radiator
             - climate.office_radiator
-            - climate.leos_bedroom_radiator
-            - climate.bedroom_radiator
     mode: single
     icon: mdi:radiator
 
@@ -736,6 +739,18 @@ template:
         icon: mdi:thermometer
         device_class: "temperature"
         unit_of_measurement: "°C"
+      - name: "Kitchen Radiator Temperature"
+        unique_id: 98bd623b-771b-4c11-b43d-83f432308b97
+        state: "{{ state_attr('climate.kitchen_radiator', 'current_temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
+      - name: "Kitchen Radiator Target Temperature"
+        unique_id: 4a0fae76-8de5-4a8d-a6e0-30e0acb0301e
+        state: "{{ state_attr('climate.kitchen_radiator', 'temperature') }}"
+        icon: mdi:thermometer
+        device_class: "temperature"
+        unit_of_measurement: "°C"
       - name: "Leo's Radiator Temperature"
         unique_id: 59115996-9365-4350-ab2f-b800d4ac1a06
         state: "{{ state_attr('climate.leos_bedroom_radiator', 'current_temperature') }}"
@@ -797,6 +812,19 @@ template:
       - name: "Bedroom Radiator Minimum Target Temperature"
         unique_id: c9cf6c97-e67e-46bd-9fed-80b5eec71ed2
         state: "{{ state_attr('climate.bedroom_radiator', 'temperature')|float(10) - states('input_number.bedroom_radiator_heating_threshold')|float(0) }}"
+        unit_of_measurement: "°C"
+  - trigger:
+      - platform: state
+        entity_id:
+          - climate.kitchen_radiator
+        attribute: temperature
+      - platform: state
+        entity_id:
+          - input_number.kitchen_radiator_heating_threshold
+    sensor:
+      - name: "Kitchen Radiator Minimum Target Temperature"
+        unique_id: 4a0fae76-8de5-4a8d-a6e0-30e0acb0301e
+        state: "{{ state_attr('climate.kitchen_radiator', 'temperature')|float(10) - states('input_number.kitchen_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
       - platform: state
