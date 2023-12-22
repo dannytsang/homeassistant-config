@@ -1,0 +1,240 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://github.com/CJNE/ha-myenergi
+automation:
+  # myEnergi
+  - id: "1677762423485"
+    alias: "Energy: Eddi Diverting Energy"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_eddi_status
+        to: "Diverting"
+    condition:
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+            state: "unknown"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":fuelpump: Eddi diverting energy.
+
+            It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session_daily',
+            with_unit=True) }} so far."
+          title: myEnergi
+          log_level: "Normal"
+    mode: queued
+    max: 10
+  - id: "1678796763426"
+    alias: "HVAC: Eddi Exceed Cut Off Threshold"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        above: input_number.hot_water_solar_diverter_boiler_cut_off
+    condition:
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_status
+            state: "Stopped"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
+                ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+              title: myEnergi
+              log_level: "Normal"
+          - service: select.select_option
+            data:
+              option: "Stopped"
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+  - id: "1685005214749"
+    alias: "HVAC: Eddi Turn On"
+    description: ""
+    trigger:
+      - platform: time
+        at: "00:00:00"
+    condition:
+      - condition: state
+        entity_id: sensor.myenergi_eddi_status
+        state: "Stopped"
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: "Holiday"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :clock{{ now().strftime('%I') | int }}{% if now().minute | int >
+                25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning :fuelpump:
+                Eddi back on.
+              title: myEnergi
+              log_level: "Debug"
+          - service: select.select_option
+            data:
+              option: Normal
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+  - id: "1678578286486"
+    alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        above: input_number.hot_water_solar_diverter_boiler_cut_off
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+      - condition: state
+        entity_id: water_heater.hot_water
+        state: "on"
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: >-
+            Eddi has heated enough hot water
+            {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
+            (> {{ states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0) }})
+            {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}
+            and the hot waiter is on.
+
+            Turning off hot water.
+          title: ":hotsprings: Central Heating"
+          log_level: "Normal"
+      - service: script.set_how_water_to_home_mode
+        data: {}
+    mode: single
+  - id: "1703177464355"
+    alias: "HVAC: Eddi On"
+    description: ""
+    trigger:
+      - platform: time
+        at: "12:00:00"
+    condition: []
+    action:
+      - if:
+          - condition: state
+            entity_id: select.myenergi_eddi_operating_mode
+            state: "Stopped"
+        then:
+          - service: script.send_to_home_log
+            data:
+              log_level: Debug
+              title: "HVAC: Eddi Turning On"
+              message: Turning eddi on.
+    mode: single
+  # Unit rate related automations
+  - id: "1689626117478"
+    alias: "HVAC: Electricity Rates Cost Nothing"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: 0.01
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        below: input_number.hot_water_solar_diverter_boiler_cut_off
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_status
+            state: "Stopped"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                Boosting hot water with eddi.
+              title: HVAC
+              log_level: "Debug"
+          - service: script.hvac_set_solar_diverter_to_boost_mode
+            data:
+              minutes: 20
+    mode: single
+
+script:
+  hvac_set_solar_diverter_to_holiday_mode:
+    alias: HVAC Set Solar Diverter To Holiday Mode
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning :fuelpump: Eddi back on.
+              title: myEnergi
+              log_level: "Normal"
+          - service: select.select_option
+            data:
+              option: Stopped
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+    icon: mdi:gas-station
+  hvac_set_solar_diverter_to_normal_mode:
+    alias: HVAC Set Solar Diverter To normal Mode
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning :fuelpump: Eddi back on.
+              title: myEnergi
+              log_level: "Normal"
+          - service: select.select_option
+            data:
+              option: Normal
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+    icon: mdi:gas-station
+  hvac_set_solar_diverter_to_boost_mode:
+    alias: HVAC Set Solar Diverter To boost Mode
+    fields:
+      minutes:
+        description: Number of minutes to boost by.
+        required: true
+        selector:
+          number:
+            min: 1
+            max: 240
+            unit_of_measurement: "min"
+    sequence:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning :fuelpump: Eddi to boost for
+                {{ minutes|float(0) }} mins.
+              title: myEnergi
+              log_level: "Normal"
+          - service: myenergi.myenergi_eddi_boost
+            data:
+              target: Heater 1
+              time: "{{ minutes|float(0) }}"
+            target:
+              device_id: 69fa95cf807591fa318b0e7da75e2762
+    mode: single
+    icon: mdi:gas-station
