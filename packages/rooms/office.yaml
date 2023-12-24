@@ -169,7 +169,7 @@ automation:
                   title: ":office: Office"
                   log_level: "Debug"
     mode: single
-  - id: "1587044886896"
+  - id: "1606170234725"
     alias: "Office: No Motion Detected"
     description: ""
     trigger:
@@ -187,6 +187,33 @@ automation:
             data:
               message: >-
                 :no_pedestrians: No motion in the office for 1 minutes.
+                :bulb: :low_brightness:Dimming lights.
+              title: ":office: Office"
+              log_level: "Debug"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.office_main_lights_dim
+            data:
+              transition: 2
+    mode: single
+  - id: "1587044886896"
+    alias: "Office: No Motion Detected For Long Time"
+    description: ""
+    trigger:
+      - entity_id: binary_sensor.office_motion_2_presence
+        for: 00:02:00
+        platform: state
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_triggers
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion in the office for 2 minutes.
                 Turning lights off.
               title: ":office: Office"
               log_level: "Debug"
