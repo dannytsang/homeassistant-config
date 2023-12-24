@@ -309,6 +309,12 @@ script:
           - condition: state
             entity_id: select.growatt_sph_work_mode_priority
             state: Load first
+          - condition: state
+            entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+            state: "off"
+          - condition: state
+            entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+            state: "off"
         then:
           - service: script.send_to_home_log
             data:
@@ -392,8 +398,8 @@ template:
         state: >-
           {%- if states('sensor.growatt_sph_battery_power') == 'unknown' -%}
             {{ states('sensor.growatt_sph_battery_power') }}
-          {% elif states('sensor.growatt_sph_battery_power')|int(0) > 0 -%}
-            {{ states('sensor.growatt_sph_battery_power')|int(0) }}
+          {% elif states('sensor.growatt_sph_battery_power')|float(0) > 0 -%}
+            {{ states('sensor.growatt_sph_battery_power')|float(0) }}
           {%- else -%}
             0
           {%- endif -%}
@@ -411,8 +417,8 @@ template:
         state: >-
           {%- if states('sensor.growatt_sph_grid_power') == 'unknown' -%}
             {{ states('sensor.growatt_sph_grid_power') }}
-          {% elif states('sensor.growatt_sph_grid_power')|int(0) > 0 -%}
-            {{ states('sensor.growatt_sph_grid_power')|int(0) }}
+          {% elif states('sensor.growatt_sph_grid_power')|float(0) > 0 -%}
+            {{ states('sensor.growatt_sph_grid_power')|float(0) }}
           {%- else -%}
             0
           {%- endif -%}
@@ -430,8 +436,8 @@ template:
         state: >-
           {%- if states('sensor.growatt_sph_grid_power') == 'unknown' -%}
             {{ states('sensor.growatt_sph_grid_power') }}
-          {% elif states('sensor.growatt_sph_grid_power')|int(0) > 0 -%}
-            {{ states('sensor.growatt_sph_grid_power')|int(0) }}
+          {% elif states('sensor.growatt_sph_grid_power')|float(0) > 0 -%}
+            {{ states('sensor.growatt_sph_grid_power')|float(0) }}
           {%- else -%}
             0
           {%- endif -%}
