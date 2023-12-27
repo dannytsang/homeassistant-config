@@ -35,7 +35,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_6_hourly
         above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition:
       - not:
@@ -50,8 +50,10 @@ automation:
           - service: script.send_to_home_log
             data:
               message: >-
-                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
-                ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}) {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+                Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_session_6_hourly') }}
+                in the last 6 hours
+                ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }})
+                {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
               title: myEnergi
               log_level: "Normal"
           - service: select.select_option
@@ -100,7 +102,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_6_hourly
         above: input_number.hot_water_solar_diverter_boiler_cut_off
     condition:
       - condition: state
@@ -114,10 +116,11 @@ automation:
         data:
           message: >-
             Eddi has heated enough hot water
-            {{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }}
+            {{ states('sensor.myenergi_eddi_energy_consumed_session_6_hourly') }}
+            in the last 6 hours
             (> {{ states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0) }})
             {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}
-            and the hot waiter is on.
+            and the hot water is on.
 
             Turning off hot water.
           title: ":hotsprings: Central Heating"
@@ -135,7 +138,7 @@ automation:
         below: 0.01
     condition:
       - condition: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_session_daily
+        entity_id: sensor.myenergi_eddi_energy_consumed_session_6_hourly
         below: input_number.hot_water_solar_diverter_boiler_cut_off
       - not:
           - condition: state
@@ -221,3 +224,11 @@ script:
               device_id: 69fa95cf807591fa318b0e7da75e2762
     mode: single
     icon: mdi:gas-station
+
+utility_meter:
+  myenergi_eddi_energy_consumed_6_hours:
+    source: sensor.myenergi_eddi_energy_used_today
+    name: MyEnergi Eddi Energy Consumed Session 6 Hourly
+    unique_id: 2e83399e-89e8-4941-99ee-4c2741d23026
+    cron: "0 */6 * * *"
+    periodically_resetting: true
