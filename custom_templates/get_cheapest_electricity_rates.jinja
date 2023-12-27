@@ -1,20 +1,19 @@
 # Created by Danny Tsang <danny@tsang.uk
-{%- macro get_cheapest_electricity_rates(number_of_rates) -%}
-{%- set rates = namespace(cheapest=[]) -%}
-{%- for rate in state_attr('sensor.electricity_current_rate', 'all_rates') -%}
-  {% if rate.valid_to >= now() %}
-    {%- if rates.cheapest|length < number_of_rates -%}
-      {%- set rates.cheapest = rates.cheapest + [rate] -%}
-    {%- else -%}
-      {%- for cheapest_rates in rates.cheapest -%}
-        {% if cheapest_rates.value_inc_vat|float(0) > rate.value_inc_vat|float(0) %}
-          {%- set ignore = rates.cheapest.pop(loop.index0) -%}
-          {%- set rates.cheapest = rates.cheapest + [rate] -%}
-          {% break %}
-        {%- endif -%}      
-      {%- endfor -%}
-    {%- endif -%}
-  {%- endif -%}
-{%- endfor-%}
-{{ rates.cheapest }}
+{%- macro get_cheapest_electricity_rates(rates_entity, number_of_rates) -%}
+  {% set rates = state_attr(rates_entity, 'rates') %}
+  {%- set matches = namespace(cheapest=[]) -%}
+  {% for rate in rates %}
+    {% if matches.cheapest|length < number_of_rates %}
+      {%- set matches.cheapest = matches.cheapest + [rate] -%}
+    {% else %}
+      {% for rate in matches.cheapest %}
+        {% if rate.value_inc_vat < rate.value_inc_vat %}
+          {%- set ignore = matches.cheapest.pop(loop.index0) -%}
+          {%- set matches.cheapest = matches.cheapest + [rate] -%}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor%}
+
+  {{ matches.cheapest }}
 {%- endmacro -%}
