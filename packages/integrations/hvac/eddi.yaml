@@ -128,6 +128,40 @@ automation:
       - service: script.set_how_water_to_home_mode
         data: {}
     mode: single
+  - id: "1703760630207"
+    alias: "Eddi: Reset Mode"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.myenergi_eddi_energy_consumed_session_6_hourly
+        below: 0.5
+    condition:
+      - condition: state
+        entity_id: sensor.myenergi_eddi_status
+        state: "Stopped"
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: "Holiday"
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Hot water has passed 6 hours. Turning :fuelpump:
+                Eddi back on.
+              title: myEnergi
+              log_level: Debug
+          - service: select.select_option
+            data:
+              option: Normal
+            target:
+              entity_id: select.myenergi_eddi_operating_mode
+    mode: single
   # Unit rate related automations
   - id: "1689626117478"
     alias: "HVAC: Electricity Rates Cost Nothing"
