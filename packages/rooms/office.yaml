@@ -30,18 +30,18 @@ automation:
                     before: sunset
                     before_offset: "-01:00:00"
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     above: input_number.office_light_level_threshold
               - not:
                   - condition: state
-                    entity_id: sensor.office_motion_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     state: "unavailable"
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    but it's bright enough ({{ states('sensor.office_motion_illuminance') }} >
+                    but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
                     {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                     Skipping turning light on.
                   title: ":office: Office"
@@ -49,7 +49,7 @@ automation:
           - conditions:
               - and:
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     below: input_number.office_light_level_threshold
                   - or:
                       - condition: numeric_state
@@ -69,7 +69,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_illuminance') }} <
+                        and it's dark ({{ states('sensor.office_motion_2_illuminance_lux') }} <
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
@@ -78,10 +78,10 @@ automation:
               - and:
                   - or:
                       - condition: numeric_state
-                        entity_id: sensor.office_motion_illuminance
+                        entity_id: sensor.office_motion_2_illuminance_lux
                         above: input_number.office_light_level_threshold
                       - condition: state
-                        entity_id: sensor.office_motion_illuminance
+                        entity_id: sensor.office_motion_2_illuminance_lux
                         state: "unavailable"
                   - or:
                       - condition: numeric_state
@@ -101,7 +101,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_illuminance') }} <
+                        and bright ({{ states('sensor.office_motion_2_illuminance_lux') }} <
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning office lights off.
                       title: ":office: Office"
@@ -138,18 +138,18 @@ automation:
                     before: sunset
                     before_offset: "-01:00:00"
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     above: input_number.office_light_level_threshold
               - not:
                   - condition: state
-                    entity_id: sensor.office_motion_illuminance
+                    entity_id: sensor.office_motion_2_illuminance_lux
                     state: "unavailable"
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    but it's bright enough ({{ states('sensor.office_motion_illuminance') }} >
+                    but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
                     {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                     Skipping turning light on.
                   title: ":office: Office"
@@ -163,7 +163,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    and it's dark ({{ states('sensor.office_motion_illuminance') }} <
+                    and it's dark ({{ states('sensor.office_motion_2_illuminance_lux') }} <
                     {{ states('input_number.office_light_level_threshold') }}).
                     Turning :bulb: :high_brightness: lights on.
                   title: ":office: Office"
