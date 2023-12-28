@@ -27,60 +27,28 @@ automation:
     action:
       - choose:
           - conditions:
-              - or:
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0"
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: 0
-              - not:
-                  - condition: state
-                    entity_id: select.growatt_sph_work_mode_priority
-                    state: Battery first
               - condition: state
-                entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
+                entity_id: input_boolean.enable_home_battery_start_charge_time
                 state: "on"
+              - condition: time
+                before: input_datetime.home_battery_start_charge_time
             sequence:
-              - parallel:
-                  - service: script.send_direct_notification
-                    data:
-                      message: >-
-                        Electrictity rate
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                        below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                        Charging house battery.
-                      title: Solar Assistant
-                      people:
-                        entity_id:
-                          - person.danny
-                  - service: script.battery_first_priority_mode
-                    data: {}
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-              - not:
-                  - condition: state
-                    entity_id: select.growatt_sph_work_mode_priority
-                    state: Battery first
-              - condition: state
-                entity_id: input_boolean.solar_assistant_charge_below_export
-                state: "on"
-            sequence:
-              - parallel:
-                  - service: script.send_direct_notification
-                    data:
-                      message: >-
-                        Electricity unit rate is the same or below export rate
-                        ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                        states('sensor.electricity_export_current_rate') }}). Charging house battery.
-                      title: Solar Assistant
-                      people:
-                        entity_id:
-                          - person.danny
-                  - service: script.battery_first_priority_mode
-                    data: {}
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Electrictity rate
+                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                    but before schedule charge
+                    ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }}).
+                    Skipping.
+                  title: Solar Assistant
+                  people:
+                    entity_id:
+                      - person.danny
+        default:
+          - service: script.solar_assistant_check_charging_mode
+            data: {}
     mode: single
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
@@ -138,6 +106,299 @@ automation:
         entity_id: input_boolean.enable_solar_assistant_automations
         state: "on"
     action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_home_battery_start_charge_time
+                state: "on"
+              - condition: time
+                before: input_datetime.home_battery_start_charge_time
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Electrictity rate
+                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                    but before schedule charge
+                    ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }})
+                    in regular check. Skipping.
+                  title: Solar Assistant
+                  people:
+                    entity_id:
+                      - person.danny
+        default:
+          - service: script.solar_assistant_regular_check_charging_mode
+            data: {}
+    mode: single
+
+script:
+  battery_first_priority_mode:
+    alias: Solar Assistant Battery First Priority Mode
+    description: ""
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Battery first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to battery first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to battery first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - service: script.solar_assistant_turn_off_mode_schedules
+            data: {}
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Battery first
+    mode: single
+  grid_first_priority_mode:
+    alias: Solar Assistant Gird First Priority Mode
+    description: ""
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Grid first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to grid first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - if:
+              - not:
+                  - condition: state
+                    entity_id: select.myenergi_eddi_operating_mode
+                    state: "Stopped"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first. FYI eddi is still on.
+                  title: Solar Assistant
+                  people:
+                    entity_id:
+                      - person.danny
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    to grid first.
+                  title: Solar Assistant
+                  log_level: "Debug"
+          - service: script.solar_assistant_turn_off_mode_schedules
+            data: {}
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Gird first
+    mode: single
+  load_first_priority_mode:
+    alias: Solar Assistant Load First Priority Mode
+    description: >-
+      Disable battery first schedule which is automatically
+      set when changing work mode to battery first.
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Load first
+          - condition: state
+            entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+            state: "off"
+          - condition: state
+            entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+            state: "off"
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to load first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to load first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - service: script.solar_assistant_turn_off_mode_schedules
+            data: {}
+          - service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Load first
+    mode: single
+  solar_assistant_turn_off_mode_schedules:
+    alias: Solar Assistant Turn Off Mode Schedules
+    description: >-
+      Disable battery first schedule which is automatically
+      set when changing work mode to battery first.
+    sequence:
+      - parallel:
+          - repeat:
+              sequence:
+                - service: switch.turn_off
+                  target:
+                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                  data: {}
+                - delay:
+                    seconds: 5
+              until:
+                - condition: state
+                  entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                  state: "off"
+                  for:
+                    seconds: 30
+          - repeat:
+              sequence:
+                - service: switch.turn_off
+                  target:
+                    entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                  data: {}
+                - delay:
+                    seconds: 5
+              until:
+                - condition: state
+                  entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                  state: "off"
+                  for:
+                    seconds: 30
+    mode: single
+  solar_assistant_check_charging_mode:
+    alias: Solar Assistant Check Charging Mode
+    description: ""
+    fields:
+      event:
+        description: The trigger for running a electricity rate check.
+        example: time
+        required: true
+        selector:
+          select:
+            options:
+              - event
+              - time
+    sequence:
+      - choose:
+          - conditions:
+              - or:
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "0"
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: 0
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Battery first
+              - condition: state
+                entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
+                state: "on"
+            sequence:
+              - parallel:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ event == 'time'}}"
+                        sequence:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Electrictity rate has gove above 0
+                                ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                                and inverter has not switched from
+                                {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                              title: Solar Assistant
+                              people:
+                                entity_id:
+                                  - person.danny
+                    default:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Electrictity rate
+                            ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                            below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                            Charging house battery.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                  - service: script.battery_first_priority_mode
+                    data: {}
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: sensor.electricity_export_current_rate
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Battery first
+              - condition: state
+                entity_id: input_boolean.solar_assistant_charge_below_export
+                state: "on"
+            sequence:
+              - parallel:
+                  - choose:
+                      - conditions:
+                          - condition: template
+                            value_template: "{{ event == 'time'}}"
+                        sequence:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Electrictity rate
+                                ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                                below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                                and inverter has not switched to battery first mode.
+                              title: Solar Assistant
+                              people:
+                                entity_id:
+                                  - person.danny
+                    default:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Electricity unit rate is the same or below export rate
+                            ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                            states('sensor.electricity_export_current_rate') }}). Charging house battery.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                  - service: script.battery_first_priority_mode
+                    data: {}
+        default: []
+  mode: single
+  solar_assistant_regular_check_charging_mode:
+    alias: Solar Assistant Regular Check Charging Mode
+    description: ""
+    sequence:
       - choose:
           - conditions:
               - condition: numeric_state
@@ -219,160 +480,6 @@ automation:
                   - service: script.battery_first_priority_mode
                     data: {}
     mode: single
-
-script:
-  battery_first_priority_mode:
-    alias: Solar Assistant Battery First Priority Mode
-    description: ""
-    sequence:
-      - if:
-          - condition: state
-            entity_id: select.growatt_sph_work_mode_priority
-            state: Battery first
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Priority is already set to battery first. Skipping.
-              title: Solar Assistant
-              log_level: "Normal"
-        else:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                to battery first.
-              title: Solar Assistant
-              log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
-            data: {}
-          - service: select.select_option
-            target:
-              entity_id:
-                - select.growatt_sph_work_mode_priority
-            data:
-              option: Battery first
-  grid_first_priority_mode:
-    alias: Solar Assistant Gird First Priority Mode
-    description: ""
-    sequence:
-      - if:
-          - condition: state
-            entity_id: select.growatt_sph_work_mode_priority
-            state: Grid first
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Priority is already set to grid first. Skipping.
-              title: Solar Assistant
-              log_level: "Normal"
-        else:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
-                    state: "Stopped"
-            then:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first. FYI eddi is still on.
-                  title: Solar Assistant
-                  people:
-                    entity_id:
-                      - person.danny
-            else:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first.
-                  title: Solar Assistant
-                  log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
-            data: {}
-          - service: select.select_option
-            target:
-              entity_id:
-                - select.growatt_sph_work_mode_priority
-            data:
-              option: Gird first
-  load_first_priority_mode:
-    alias: Solar Assistant Load First Priority Mode
-    description: >-
-      Disable battery first schedule which is automatically
-      set when changing work mode to battery first.
-    sequence:
-      - if:
-          - condition: state
-            entity_id: select.growatt_sph_work_mode_priority
-            state: Load first
-          - condition: state
-            entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-            state: "off"
-          - condition: state
-            entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-            state: "off"
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Priority is already set to load first. Skipping.
-              title: Solar Assistant
-              log_level: "Normal"
-        else:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                to load first.
-              title: Solar Assistant
-              log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
-            data: {}
-          - service: select.select_option
-            target:
-              entity_id:
-                - select.growatt_sph_work_mode_priority
-            data:
-              option: Load first
-  solar_assistant_turn_off_mode_schedules:
-    alias: Solar Assistant Turn Off Mode Schedules
-    description: >-
-      Disable battery first schedule which is automatically
-      set when changing work mode to battery first.
-    sequence:
-      - parallel:
-          - repeat:
-              sequence:
-                - service: switch.turn_off
-                  target:
-                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                  data: {}
-                - delay:
-                    seconds: 5
-              until:
-                - condition: state
-                  entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                  state: "off"
-                  for:
-                    seconds: 30
-          - repeat:
-              sequence:
-                - service: switch.turn_off
-                  target:
-                    entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                  data: {}
-                - delay:
-                    seconds: 5
-              until:
-                - condition: state
-                  entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                  state: "off"
-                  for:
-                    seconds: 30
 
 template:
   # Solar Assistant
