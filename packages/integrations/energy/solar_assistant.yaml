@@ -178,9 +178,11 @@ script:
                 to battery first.
               title: Solar Assistant
               log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
+          - alias: Make sure inverter mode schedules are turned off
+            service: script.solar_assistant_turn_off_mode_schedules
             data: {}
-          - service: select.select_option
+          - alias: Set inverter mode to battery first
+            service: select.select_option
             target:
               entity_id:
                 - select.growatt_sph_work_mode_priority
@@ -226,9 +228,11 @@ script:
                     to grid first.
                   title: Solar Assistant
                   log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
+          - alias: Make sure inverter mode schedules are turned off
+            service: script.solar_assistant_turn_off_mode_schedules
             data: {}
-          - service: select.select_option
+          - alias: Set inverter mode to export first
+            service: select.select_option
             target:
               entity_id:
                 - select.growatt_sph_work_mode_priority
@@ -266,9 +270,11 @@ script:
                 to load first.
               title: Solar Assistant
               log_level: "Debug"
-          - service: script.solar_assistant_turn_off_mode_schedules
+          - alias: Make sure inverter mode schedules are turned off
+            service: script.solar_assistant_turn_off_mode_schedules
             data: {}
-          - service: select.select_option
+          - alias: Set inverter mode to load first
+            service: select.select_option
             target:
               entity_id:
                 - select.growatt_sph_work_mode_priority
@@ -310,6 +316,46 @@ script:
                   state: "off"
                   for:
                     seconds: 30
+    mode: single
+  maintain_battery_soc:
+    alias: Solar Assistant Maintain Battery SOC
+    description: ""
+    sequence:
+      - if:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: Battery first
+        then:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Priority is already set to battery first. Skipping.
+              title: Solar Assistant
+              log_level: "Normal"
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                to battery first.
+              title: Solar Assistant
+              log_level: "Debug"
+          - alias: Set battery stop charging %
+            service: number.set_value
+            target:
+              entity_id: number.growatt_sph_battery_first_stop_charge
+            data:
+              value: "{{ state('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
+          - alias: Make sure inverter mode schedules are turned off
+            service: script.solar_assistant_turn_off_mode_schedules
+            data: {}
+          - alias: Set inverter mode to battery first
+            service: select.select_option
+            target:
+              entity_id:
+                - select.growatt_sph_work_mode_priority
+            data:
+              option: Battery first
     mode: single
   solar_assistant_check_charging_mode:
     alias: Solar Assistant Check Charging Mode
