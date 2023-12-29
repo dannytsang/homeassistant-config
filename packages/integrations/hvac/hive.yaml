@@ -122,13 +122,13 @@ automation:
             conditions:
               - condition: template
                 value_template: >
-                  {{ (states('sensor.myenergi_eddi_energy_consumed_session_6_hourly')|float(0)) >
+                  {{ (states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle')|float(0)) >
                   (states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0)) }}
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
-                    Eddi has heated the hot water {{ states('sensor.myenergi_eddi_energy_consumed_session_6_hourly') }}
+                    Eddi has heated the hot water {{ states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle') }}
                     (> {{ states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0) }}).
                     {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}
                     was heated totday.
