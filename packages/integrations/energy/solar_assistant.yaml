@@ -2,7 +2,7 @@
 automation:
   # Unit rate related automations
   - id: "1691009694611"
-    alias: "Solar Assistant: Electricity Rate Below Export Rate"
+    alias: "Solar Assistant: Check Electricity Rates"
     description: ""
     trigger:
       - platform: numeric_state
@@ -17,12 +17,13 @@ automation:
       - platform: state
         entity_id: sensor.electricity_current_rate
         to: "0"
+      - platform: time_pattern
+        minutes: "5"
+      - platform: time_pattern
+        minutes: "35"
     condition:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.solar_assistant_charge_below_export
         state: "on"
     action:
       - choose:
@@ -52,6 +53,8 @@ automation:
                   - condition: state
                     entity_id: input_boolean.enable_home_battery_start_charge_time
                     state: "on"
+                  - condition: time
+                    after: input_datetime.home_battery_start_charge_time
                 then:
                   - service: input_boolean.turn_off
                     target:
@@ -103,55 +106,6 @@ automation:
                   log_level: "Debug"
               - service: script.load_first_priority_mode
                 data: {}
-    mode: single
-  - id: "1702820645690"
-    alias: "Solar Assistant: Check Agile Rates"
-    description: ""
-    trigger:
-      - platform: time_pattern
-        minutes: "5"
-      - platform: time_pattern
-        minutes: "35"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
-    action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_home_battery_start_charge_time
-                state: "on"
-              - condition: time
-                before: input_datetime.home_battery_start_charge_time
-            sequence:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Electrictity rate
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                    but before schedule charge
-                    ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }})
-                    in regular check. Skipping.
-                  title: Solar Assistant
-                  people:
-                    entity_id:
-                      - person.danny
-        default:
-          - parallel:
-              - if:
-                  - condition: state
-                    entity_id: input_boolean.enable_home_battery_start_charge_time
-                    state: "on"
-                then:
-                  - service: input_boolean.turn_off
-                    target:
-                      entity_id: input_boolean.enable_home_battery_start_charge_time
-                    data: {}
-              - service: script.solar_assistant_check_charging_mode
-                data:
-                  event: "time"
     mode: single
 
 script:
