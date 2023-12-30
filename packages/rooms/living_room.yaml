@@ -7,7 +7,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - binary_sensor.lounge_area_motion
+          - binary_sensor.living_room_area_motion
           - binary_sensor.lounge_motion
           - binary_sensor.lounge_motion_2_occupancy
           - binary_sensor.lounge_motion_4_occupancy
@@ -15,7 +15,7 @@ automation:
     condition:
       - and:
           - condition: state
-            entity_id: input_boolean.enable_lounge_motion_triggers
+            entity_id: input_boolean.enable_living_room_motion_triggers
             state: "on"
           - or:
               - condition: numeric_state
@@ -75,12 +75,12 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.lounge_area_motion
+        entity_id: binary_sensor.living_room_area_motion
         to: "off"
         for: 00:10:00
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_motion_triggers
+        entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
     action:
       - parallel:
@@ -132,13 +132,13 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.lounge_area_motion
+        entity_id: binary_sensor.living_room_area_motion
         from: "on"
         to: "off"
         for: 00:15:00
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_motion_triggers
+        entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
     action:
       - parallel:
@@ -198,10 +198,10 @@ automation:
         entity_id: light.lounge_lamps
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_area_motion
+        entity_id: binary_sensor.living_room_area_motion
         state: "off"
       - condition: state
-        entity_id: binary_sensor.lounge_area_motion
+        entity_id: binary_sensor.living_room_area_motion
         state: "off"
         for:
           hours: 0
@@ -369,10 +369,10 @@ automation:
         at: "07:30:00"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
     action:
       - parallel:
@@ -400,10 +400,10 @@ automation:
         at: "08:00:00"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
     action:
       - parallel:
@@ -431,10 +431,10 @@ automation:
         event: sunset
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       - or:
           - condition: numeric_state
@@ -478,10 +478,10 @@ automation:
         at: "21:00:00"
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
     action:
       - parallel:
@@ -508,17 +508,17 @@ automation:
       - platform: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        below: input_number.lounge_blinds_morning_sun_azimuth_threshold
+        below: input_number.living_room_blinds_morning_sun_azimuth_threshold
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: time
         after: "08:10:00"
       - condition: sun
         before: sunset
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       - or:
           - condition: numeric_state
@@ -540,7 +540,7 @@ automation:
               message: >-
                 Morning :sun: sun is out of the way. Opening :couch_and_lamp: lounge blinds.
 
-                Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.lounge_blinds_morning_sun_azimuth_threshold')}}).
+                Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.living_room_blinds_morning_sun_azimuth_threshold')}}).
 
                 Elevation: {{ state_attr('sun.sun', 'elevation') }}.
               title: ":couch_and_lamp: Lounge"
@@ -561,25 +561,25 @@ automation:
       - platform: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        above: input_number.lounge_blinds_afternoon_sun_azimuth_threshold
+        above: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
       - platform: numeric_state
         entity_id: sun.sun
         attribute: elevation
-        above: input_number.lounge_blinds_afternoon_sun_elevation_threshold
+        above: input_number.living_room_blinds_afternoon_sun_elevation_threshold
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        above: input_number.lounge_blinds_afternoon_sun_azimuth_threshold
+        above: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
       - condition: numeric_state
         entity_id: sun.sun
         attribute: elevation
-        above: input_number.lounge_blinds_afternoon_sun_elevation_threshold
+        above: input_number.living_room_blinds_afternoon_sun_elevation_threshold
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       - or:
           - condition: numeric_state
@@ -600,9 +600,9 @@ automation:
           message: >-
             Afternoon :sun: sun is out of the way. Opening :couch_and_lamp: lounge blinds.
 
-            Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.lounge_blinds_afternoon_sun_azimuth_threshold')}}).
+            Azimuth: {{ state_attr('sun.sun', 'azimuth') }} ({{ states('input_number.living_room_blinds_afternoon_sun_azimuth_threshold')}}).
 
-            Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.lounge_blinds_afternoon_sun_elevation_threshold')}}).
+            Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.living_room_blinds_afternoon_sun_elevation_threshold')}}).
           title: ":couch_and_lamp: Lounge"
           log_level: "Debug"
       - service: cover.set_cover_tilt_position
@@ -633,24 +633,24 @@ automation:
         entity_id: sensor.front_garden_motion_illuminance_lux
         below: input_number.blind_high_brightness_threshold
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       # Check sun's positon
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        above: input_number.lounge_blinds_morning_sun_azimuth_threshold
+        above: input_number.living_room_blinds_morning_sun_azimuth_threshold
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        below: input_number.lounge_blinds_afternoon_sun_azimuth_threshold
+        below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
       - condition: numeric_state
         entity_id: sun.sun
         attribute: elevation
-        below: input_number.lounge_blinds_afternoon_sun_elevation_threshold
+        below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
       - or:
           - not:
               - condition: state
@@ -711,24 +711,24 @@ automation:
       - condition: sun
         before: sunset
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       # Check sun's positon
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        above: input_number.lounge_blinds_morning_sun_azimuth_threshold
+        above: input_number.living_room_blinds_morning_sun_azimuth_threshold
       - condition: numeric_state
         entity_id: sun.sun
         attribute: azimuth
-        below: input_number.lounge_blinds_afternoon_sun_azimuth_threshold
+        below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
       - condition: numeric_state
         entity_id: sun.sun
         attribute: elevation
-        below: input_number.lounge_blinds_afternoon_sun_elevation_threshold
+        below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
       - or:
           - condition: numeric_state
             entity_id: cover.lounge_blinds_middle
@@ -790,10 +790,10 @@ automation:
       - condition: sun
         before: sunset
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: state
-        entity_id: binary_sensor.lounge_windows
+        entity_id: binary_sensor.living_room_windows
         state: "off"
       - or:
           - condition: numeric_state
@@ -862,7 +862,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.lounge_door_and_windows
+        entity_id: binary_sensor.living_room_door_and_windows
         from: "off"
         to: "on"
     condition: []
@@ -882,7 +882,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.lounge_door_and_windows
+        entity_id: binary_sensor.living_room_door_and_windows
         from: "on"
         to: "off"
     condition: []
@@ -1042,7 +1042,7 @@ automation:
           seconds: 0
     condition:
       - condition: state
-        entity_id: input_boolean.enable_lounge_blind_automations
+        entity_id: input_boolean.enable_living_room_blind_automations
         state: "on"
       - condition: sun
         after: sunrise

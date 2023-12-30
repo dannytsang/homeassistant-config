@@ -72,24 +72,24 @@ automation:
             state: "heating"
     action:
       - choose:
-        - conditions:
-            - condition: trigger
-              id:
-                - office
-            - condition: state
-              entity_id: binary_sensor.office_windows
-              state: "off"
-            - condition: state
-              entity_id: binary_sensor.conservatory_door
-              state: "off"
-          sequence:
-            - service: script.send_direct_notification
-              data:
-                message: Radiator to call for heat.
-                title: ":office: Office"
-                people:
-                  entity_id:
-                    - person.danny
+          - conditions:
+              - condition: trigger
+                id:
+                  - office
+              - condition: state
+                entity_id: binary_sensor.office_windows
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.conservatory_door
+                state: "off"
+            sequence:
+              - service: script.send_direct_notification
+                data:
+                  message: Radiator to call for heat.
+                  title: ":office: Office"
+                  people:
+                    entity_id:
+                      - person.danny
         default:
           - service: script.send_direct_notification
             data:
@@ -366,11 +366,11 @@ template:
         attribute: temperature
       - platform: state
         entity_id:
-          - input_number.lounge_radiator_heating_threshold
+          - input_number.living_room_radiator_heating_threshold
     sensor:
       - name: "Lounge Radiator Minimum Target Temperature"
         unique_id: 37c5a84f-6d5e-47c5-bfa0-df5a2cb4c2bc
-        state: "{{ state_attr('climate.lounge_radiator', 'temperature')|float(10) - states('input_number.lounge_radiator_heating_threshold')|float(0) }}"
+        state: "{{ state_attr('climate.lounge_radiator', 'temperature')|float(10) - states('input_number.living_room_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
       - platform: state
