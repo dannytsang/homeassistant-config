@@ -21,6 +21,8 @@ automation:
         minutes: "5"
       - platform: time_pattern
         minutes: "35"
+      - platform: homeassistant
+        event: start
     condition:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
@@ -431,7 +433,9 @@ script:
                       - service: script.send_direct_notification
                         data:
                           message: >-
-                            Electricity unit rate is the same or below export rate
+                            Electricity unit rate is the
+                            {{ iif(states('sensor.electricity_current_rate')|float(0) < states('sensor.electricity_export_current_rate')|float(0), 'below', 'same') }}
+                            export rate
                             ({{ states('sensor.electricity_current_rate') ~'<=' ~
                             states('sensor.electricity_export_current_rate') }}). Charging house battery.
                           title: Solar Assistant
@@ -452,7 +456,8 @@ template:
     sensor:
       - name: "Growatt Battery Discharge Power"
         unique_id: 251bd989-90a2-4e1b-81d0-b6d87f934eeb
-        state: "{{ iif(states('sensor.growatt_sph_battery_power')|float < 0, states('sensor.growatt_sph_battery_power')|int|abs, 0) }}"
+        state: >-
+          {{ iif(states('sensor.growatt_sph_battery_power')|float(0) < 0, states('sensor.growatt_sph_battery_power')|float(0)|abs, 0) }}
         availability: "{{ states('sensor.growatt_sph_battery_power')|is_number }}"
         device_class: "power"
         unit_of_measurement: "W"
