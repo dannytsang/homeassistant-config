@@ -23,10 +23,18 @@ automation:
         minutes: "35"
       - platform: homeassistant
         event: start
+      - platform: state
+        entity_id:
+          - binary_sensor.solar_assistant_charge_battery_override
+        to: "on"
     condition:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
         state: "on"
+      - not:
+          - condition: state
+            entity_id: select.growatt_sph_work_mode_priority
+            state: "unavailable"
     action:
       - choose:
           - conditions:
@@ -36,7 +44,7 @@ automation:
               - condition: time
                 before: input_datetime.home_battery_start_charge_time
             sequence:
-              - service: script.send_direct_notification
+              - service: script.send_to_home_log
                 data:
                   message: >-
                     Electrictity rate
@@ -46,9 +54,7 @@ automation:
                     ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }}).
                     Skipping.
                   title: Solar Assistant
-                  people:
-                    entity_id:
-                      - person.danny
+                  debug: "Debug"
         default:
           - parallel:
               - if:
@@ -108,6 +114,25 @@ automation:
                   log_level: "Debug"
               - service: script.load_first_priority_mode
                 data: {}
+    mode: single
+  - id: "1704030712372"
+    alias: "Solar Assistant: Turn Off Charge Battery Override Schedule"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.solar_assistant_charge_battery_override
+        to: "off"
+        from: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_solar_assistant_automations
+        state: "on"
+    action:
+      - service: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.enable_solar_assistant_charge_battery_override
+        data: {}
     mode: single
 
 script:
@@ -328,32 +353,75 @@ script:
               - time
     sequence:
       - choose:
-          - conditions:
+          - alias: Charge battery override Schedule On
+            conditions:
+              - condition: state
+                entity_id: binary_sensor.solar_assistant_charge_battery_override
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_solar_assistant_charge_battery_override
+                state: "on"
+            sequence:
+              - choose:
+                  - conditions:
+                      - not:
+                          - condition: state
+                            entity_id: select.growatt_sph_work_mode_priority
+                            state: Battery first
+                    sequence:
+                      - parallel:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Charge battery override schedule enabled.
+                                Changing {{ states('select.growatt_sph_work_mode_priority') }} to battery first mode.
+                              title: Solar Assistant
+                              people:
+                                entity_id:
+                                  - person.danny
+                          - service: script.battery_first_priority_mode
+                            data: {}
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ event == 'time'}}"
+                    sequence:
+                      - parallel:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Charge battery override schedule enabled but not in the right mode.
+                                Changing {{ states('select.growatt_sph_work_mode_priority') }} to battery first mode.
+                              title: Solar Assistant
+                              people:
+                                entity_id:
+                                  - person.danny
+                          - service: script.battery_first_priority_mode
+                            data: {}
+                default: []
+          - alias: "Start Charge Time enabled, before charge time and unit rate above 0p/kw"
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_home_battery_start_charge_time
+                state: "on"
+              - condition: time
+                before: input_datetime.home_battery_start_charge_time
               - condition: numeric_state
                 entity_id: sensor.electricity_current_rate
-                above: sensor.electricity_export_current_rate
-              - not:
-                  - condition: state
-                    entity_id: select.growatt_sph_work_mode_priority
-                    state: Load first
-              - condition: template
-                value_template: "{{ event == 'time'}}"
+                above: 0
             sequence:
-              - parallel:
-                  - service: script.send_direct_notification
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                        and inverter has not switched from
-                        {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
-                      title: Solar Assistant
-                      people:
-                        entity_id:
-                          - person.danny
-                  - service: script.load_first_priority_mode
-                    data: {}
-          - conditions:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Electrictity rate
+                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                    but before schedule charge
+                    ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }}).
+                    Skipping.
+                  title: Solar Assistant
+                  debug: "Debug"
+          - alias: "Unit rate is on or below 0p/kw"
+            conditions:
               - or:
                   - condition: state
                     entity_id: sensor.electricity_current_rate
@@ -400,7 +468,8 @@ script:
                               - person.danny
                   - service: script.battery_first_priority_mode
                     data: {}
-          - conditions:
+          - alias: Unit rate below export and charge below export enabled
+            conditions:
               - condition: numeric_state
                 entity_id: sensor.electricity_current_rate
                 below: sensor.electricity_export_current_rate
@@ -444,7 +513,49 @@ script:
                               - person.danny
                   - service: script.battery_first_priority_mode
                     data: {}
+          - alias: Rates go above export fail safe
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: sensor.electricity_export_current_rate
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Load first
+              - condition: template
+                value_template: "{{ event == 'time'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        Electrictity rate has gove above export
+                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                        {{ states('sensor.electricity_current_rate', with_unit=True) }}
+                        and inverter has not switched from
+                        {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+
+
+                        Switching.
+                      title: Solar Assistant
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: script.load_first_priority_mode
+                    data: {}
         default: []
+      - alias: Turn off start charge time if enabled
+        if:
+          - condition: state
+            entity_id: input_boolean.enable_home_battery_start_charge_time
+            state: "on"
+          - condition: time
+            after: input_datetime.home_battery_start_charge_time
+        then:
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.enable_home_battery_start_charge_time
+            data: {}
     mode: single
 
 template:
@@ -454,7 +565,7 @@ template:
         entity_id:
           - sensor.growatt_sph_battery_power
     sensor:
-      - name: "Growatt Battery Discharge Power"
+      - name: "Growatt SPH Battery Discharge Power"
         unique_id: 251bd989-90a2-4e1b-81d0-b6d87f934eeb
         state: >-
           {{ iif(states('sensor.growatt_sph_battery_power')|float(0) < 0, states('sensor.growatt_sph_battery_power')|float(0)|abs, 0) }}
@@ -467,7 +578,7 @@ template:
         entity_id:
           - sensor.growatt_sph_battery_power
     sensor:
-      - name: "Growatt Battery Charge Power"
+      - name: "Growatt SPH Battery Charge Power"
         unique_id: fe4f9f9c-4a61-4b27-9122-9c17ce5da164
         state: >-
           {% if states('sensor.growatt_sph_battery_power')|float(0) > 0 -%}
@@ -484,7 +595,7 @@ template:
         entity_id:
           - sensor.growatt_sph_grid_power
     sensor:
-      - name: "Growatt Grid Import Power"
+      - name: "Growatt SPH Grid Import Power"
         unique_id: 09f48f73-ea68-421f-868c-ffd20cd8eab8
         state: >-
           {%- if states('sensor.growatt_sph_grid_power')|float(0) > 0 -%}
@@ -494,14 +605,14 @@ template:
           {%- endif -%}
         availability: "{{ states('sensor.growatt_sph_grid_power')|is_number }}"
         device_class: "power"
-        unit_of_measurement: "W"
+        unit_of_measurement: "kW"
         state_class: "measurement"
   - trigger:
       - platform: state
         entity_id:
           - sensor.growatt_sph_grid_power
     sensor:
-      - name: "Growatt Grid Export Power"
+      - name: "Growatt SPH Grid Export Power"
         unique_id: ed52b9f5-fddd-4797-85a1-b4fb6df8cd0e
         state: >-
           {% if states('sensor.growatt_sph_grid_power')|float(0) < 0 -%}
@@ -511,5 +622,5 @@ template:
           {%- endif -%}
         availability: "{{ states('sensor.growatt_sph_grid_power')|is_number }}"
         device_class: "power"
-        unit_of_measurement: "W"
+        unit_of_measurement: "kW"
         state_class: "measurement"
