@@ -558,6 +558,26 @@ script:
             data: {}
     mode: single
 
+sensor:
+  - platform: statistics
+    name: "Home Electricity Power Daily Average Over An Hour"
+    entity_id: sensor.growatt_sph_load_power
+    state_characteristic: mean
+    max_age:
+      hours: 1
+  - platform: statistics
+    name: "Home Electricity Power Daily Average Over A Day"
+    entity_id: sensor.growatt_sph_load_power
+    state_characteristic: mean
+    max_age:
+      hours: 24
+  - platform: statistics
+    name: "Home Electricity Power Daily Average Over A Week"
+    entity_id: sensor.growatt_sph_load_power
+    state_characteristic: mean
+    max_age:
+      days: 7
+
 template:
   # Solar Assistant
   - trigger:
@@ -624,3 +644,54 @@ template:
         device_class: "power"
         unit_of_measurement: "kW"
         state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - number.growatt_sph_load_first_stop_discharge
+          - sensor.growatt_sph_battery_state_of_charge
+    sensor:
+      - name: "Usable Battery State of Charge"
+        unique_id: a681cc96-bfb5-407c-bc9d-d93f4a0f854f
+        state: "{{ ((states('sensor.growatt_sph_battery_state_of_charge')|float(0)) - (states('number.growatt_sph_load_first_stop_discharge')|float(0)))/100 }}"
+        attributes:
+          discharge_stop_soc: >-
+            {{ states('number.growatt_sph_load_first_stop_discharge') }}
+          soc: >-
+            {{ states('sensor.growatt_sph_battery_state_of_charge') }}
+        device_class: "battery"
+        unit_of_measurement: "%"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.solar_battery_size
+          - sensor.growatt_sph_load_power
+          - sensor.usable_battery_state_of_charge
+    sensor:
+      - name: "Battery Run Time"
+        unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
+        # Formula:
+        # (Battery Size x useable charge remaining) / current usage = kWh remaining
+        state: "{{ now() + timedelta( seconds = (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_sph_load_power')|replace('0','1')|float(1))) * 60 * 60)|round(0)) }}"
+        icon: mdi:battery-clock-outline
+        attributes:
+          duration: >-
+            {% set ts = (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_sph_load_power')|replace('0','1')|float(1))) * 60 * 60)|round(0) %}
+            {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
+        device_class: "timestamp"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.solar_battery_size
+          - sensor.growatt_battery_charge_power
+          - sensor.growatt_sph_battery_state_of_charge
+    sensor:
+      - name: "Time To Charge Battery"
+        unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
+        # 359999 seconds = 99:99:99 suration (H:M:S)
+        state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_sph_battery_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_charge_power')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_charge_power')|float(0)) != 0 else 359999) }}"
+        icon: mdi:battery-clock
+        attributes:
+          duration: >-
+            {% set ts = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_sph_battery_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_charge_power')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_charge_power')|float(0)) != 0 else 359999 %}
+            {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
+        device_class: "timestamp"

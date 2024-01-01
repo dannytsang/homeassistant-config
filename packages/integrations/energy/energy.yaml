@@ -6,7 +6,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.growatt_battery_1_state_of_charge
+        entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.battery_charged_notification
     condition:
       - condition: or
@@ -73,7 +73,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.growatt_battery_1_state_of_charge
+        entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.growatt_battery_charged_threshold
     condition:
       - condition: state
@@ -209,13 +209,13 @@ automation:
         at: "15:55:00"
     condition:
       - condition: template
-        value_template: "{{ (states('sensor.growatt_battery_1_state_of_charge')|int(0)) >
-        ((states('input_number.growatt_battery_discharge_stop_soc')|int(0)) + 1) }}"
+        value_template: "{{ (states('sensor.growatt_sph_battery_state_of_charge')|int(0)) >
+        ((states('number.growatt_sph_load_first_stop_discharge')|int(0)) + 1) }}"
     action:
       - service: script.send_direct_notification
         data:
           message: >-
-            {{ states('sensor.growatt_battery_1_state_of_charge') }}%
+            {{ states('sensor.growatt_sph_battery_state_of_charge') }}%
             (That is {{ state_attr('sensor.battery_charge_remaining_hours', 'duration') }}) remaining.
           title: ":house_with_garden: :battery: House Battery"
           people:
@@ -228,7 +228,7 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - sensor.growatt_load_consumption
+          - sensor.growatt_sph_load_power
         to: "0"
         for:
           hours: 0
@@ -282,7 +282,7 @@ intent_script:
   getBatteryLevel:
     speech:
       text: >-
-        {{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}
+        {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
   getBatteryRunTime:
     speech:
       text: >-
@@ -290,7 +290,7 @@ intent_script:
   getBatterySummary:
     speech:
       text: >-
-        {{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}
+        {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
         and will run out in {{ states('sensor.battery_charge_remaining_hours') }}
   getSolarForecastLeft:
     speech:
@@ -325,8 +325,8 @@ script:
         {{ people.home }}"
       message: >-
         :battery: Battery charged to
-        ({{ states('sensor.growatt_battery_1_state_of_charge', with_unit=True) }}).
-        {% if ((states('sensor.growatt_battery_1_charge_rate')|float(0)) > 0) and
+        ({{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}).
+        {% if ((states('sensor.growatt_battery_charge_power')|float(0)) > 0) and
         state_attr('sensor.time_to_charge_battery', 'time_remaining') is not none %}
         It will take around {{ state_attr('sensor.time_to_charge_battery', 'time_remaining') }}
         to charge the battery.
@@ -372,11 +372,11 @@ script:
         {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}
       estimate_charge_kw: >-
         {{ (states('input_number.solar_battery_size')|float(0)
-        *(1-(states('input_number.growatt_battery_discharge_stop_soc')|float(0)/100)))
+        *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
         *(estimate_charge_percentage|float(0)/100) }}
       estimate_charge_hours: >-
         {{ (states('input_number.solar_battery_size')|float(0)
-        *(1-(states('input_number.growatt_battery_discharge_stop_soc')|float(0)/100)))
+        *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
         *(estimate_charge_percentage|float(0)/100)
         / states('input_number.solar_battery_max_charge_rate')|float(0) }}
     sequence:

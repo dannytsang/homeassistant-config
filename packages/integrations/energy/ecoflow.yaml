@@ -541,7 +541,7 @@ template:
           - input_number.ecoflow_kitchen_charge_solar_threshold
           - sensor.growatt_export_to_grid
           - sensor.growatt_input_watt
-          - sensor.growatt_load_consumption
+          - sensor.growatt_sph_load_power
     sensor:
       - name: "EcoFlow Kitchen Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
@@ -549,7 +549,7 @@ template:
           {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
           {{ states('sensor.growatt_export_to_grid')|float(0)*1000 }}
           {% else %}
-          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_load_consumption')|float(0) - states('sensor.growatt_battery_1_charge_rate')|float(0))
+          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_sph_load_power')|float(0) - states('sensor.growatt_battery_charge_power')|float(0))
           * 1000)|round(2) }}
           {% endif %}
         unit_of_measurement: w
