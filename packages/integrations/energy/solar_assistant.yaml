@@ -8,19 +8,25 @@ automation:
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
         below: sensor.electricity_export_current_rate
+        id: event
       - platform: state
         entity_id: sensor.electricity_current_rate
         to: sensor.electricity_export_current_rate
+        id: event
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
+        id: event
       - platform: state
         entity_id: sensor.electricity_current_rate
         to: "0"
+        id: event
       - platform: time_pattern
         minutes: "5"
+        id: time
       - platform: time_pattern
         minutes: "35"
+        id: time
       - platform: homeassistant
         event: start
       - platform: state
@@ -68,9 +74,18 @@ automation:
                     target:
                       entity_id: input_boolean.enable_home_battery_start_charge_time
                     data: {}
-              - service: script.solar_assistant_check_charging_mode
-                data:
-                  event: "event"
+              - condition: trigger
+              - choose:
+                  - conditions:
+                      - id: "time"
+                sequence:
+                  - service: script.solar_assistant_check_charging_mode
+                    data:
+                      event: "time"
+                default:
+                  - service: script.solar_assistant_check_charging_mode
+                    data:
+                      event: "event"
     mode: single
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
