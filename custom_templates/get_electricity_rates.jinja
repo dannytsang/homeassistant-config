@@ -17,3 +17,22 @@
 
   {{ matches.cheapest }}
 {%- endmacro -%}
+
+{%- macro get_expensive_electricity_rates(rates_entity, number_of_rates) -%}
+  {% set rates = state_attr(rates_entity, 'rates') %}
+  {%- set matches = namespace(cheapest=[]) -%}
+  {% for rate in rates %}
+    {% if matches.cheapest|length > number_of_rates %}
+      {%- set matches.cheapest = matches.cheapest + [rate] -%}
+    {% else %}
+      {% for rate in matches.cheapest %}
+        {% if rate.value_inc_vat < rate.value_inc_vat %}
+          {%- set ignore = matches.cheapest.pop(loop.index0) -%}
+          {%- set matches.cheapest = matches.cheapest + [rate] -%}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor%}
+
+  {{ matches.cheapest }}
+{%- endmacro -%}
