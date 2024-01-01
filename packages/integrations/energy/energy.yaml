@@ -222,6 +222,31 @@ automation:
             entity_id:
               - person.danny
     mode: single
+  - id: "1704121569476"
+    alias: "Energy: Low Battery Before Peak Time"
+    description: "TODO: Make this dynmaic"
+    trigger:
+      - platform: time
+        at: "14:00:00"
+    condition:
+      - condition: template
+        value_template: >-
+          {{ today_at("19:00") < as_datetime(states('sensor.battery_charge_remaining_hours')) }}
+      - not:
+        - condition: state
+          entity_id: select.growatt_sph_work_mode_priority
+          state: Battery first
+    action:
+      - service: script.send_direct_notification
+        data:
+          message: >-
+            Battery will not last beyond 19:00 today
+            ({{ as_datetime(states('sensor.battery_charge_remaining_hours') }}).
+            Consider charging the battery.
+          title: Solar
+          people:
+            entity_id: person.danny
+    mode: single
   - id: "1680444237958"
     alias: "Energy: Power Cut Notification"
     description: ""
