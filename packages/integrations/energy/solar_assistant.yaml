@@ -44,7 +44,7 @@ automation:
                 entity_id: input_boolean.enable_solar_assistant_mode_schedule
                 state: "on"
               - condition: time
-                before: input_datetime.home_battery_start_charge_time
+                before: input_datetime.solar_assistant_mode_schedule_start_time
             sequence:
               - service: script.send_to_home_log
                 data:
@@ -53,7 +53,7 @@ automation:
                     ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
                     below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
                     but before schedule charge
-                    ({{ states('input_datetime.home_battery_start_charge_time', with_unit=True) }}).
+                    ({{ states('input_datetime.solar_assistant_mode_schedule_start_time', with_unit=True) }}).
                     Skipping.
                   title: Solar Assistant
                   debug: "Debug"
@@ -344,7 +344,7 @@ script:
                 entity_id: input_boolean.enable_solar_assistant_mode_schedule
                 state: "on"
               - condition: time
-                after: input_datetime.home_battery_start_charge_time
+                after: input_datetime.solar_assistant_mode_schedule_start_time
             sequence:
               - choose:
                   - alias: Charge battery
@@ -570,7 +570,7 @@ script:
             entity_id: input_boolean.enable_solar_assistant_mode_schedule
             state: "on"
           - condition: time
-            after: input_datetime.home_battery_start_charge_time
+            after: input_datetime.solar_assistant_mode_schedule_end_time
         then:
           - service: input_boolean.turn_off
             target:
