@@ -106,13 +106,21 @@ automation:
     alias: "Timed: Turn Off Downstairs Lights at 2am"
     description: "Fall back to turn off all lights should there be any connectivity issues etc."
     trigger:
-      - at: "02:00:00"
-        platform: time
-      - at: "03:00:00"
-        platform: time
-      - at: "04:00:00"
-        platform: time
-    condition: []
+      - platform: time
+        at: "02:00:00"
+        id: 2am
+      - platform: time
+        at: "03:00:00"
+      - platform: time
+        at: "04:00:00"
+    condition:
+      - not:
+          - condition: time
+            weekday:
+              - sun
+          - condition: trigger
+            id:
+              - 2am
     action:
       - parallel:
           - service: script.send_to_home_log
