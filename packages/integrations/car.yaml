@@ -14,6 +14,112 @@ proximity:
     tolerance: 100
     unit_of_measurement: mi
 
+rest:
+  - authentication: basic
+    scan_interval: 21605
+    resource: https://storelocator.asda.com/fuel_prices_data.json
+    sensor:
+      - name: !secret petrol_prices_asda_name
+        unique_id: "72268d4c-1937-4e22-ad35-3e2e83c633f1"
+        json_attributes_path: !secret petrol_prices_asda
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: ASDA Fuel Prices Last Updated
+        value_template: "{{strptime((value_json.last_updated), '%d/%m/%Y %H:%M:%S')}}"
+        unique_id: "c1b03ff9-5e3b-4734-822c-967dd6cd93b4"
+        icon: mdi:gas-station-outline
+  - authentication: basic
+    scan_interval: 21605
+    resource: https://api.sainsburys.co.uk/v1/exports/latest/fuel_prices_data.json
+    sensor:
+      - name: !secret petrol_prices_sainsburys_1_name
+        unique_id: "a21f0792-073e-43ba-95ad-8f32a5ae9516"
+        json_attributes_path: !secret petrol_prices_sainsburys_1
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: !secret petrol_prices_sainsburys_2_name
+        unique_id: "590363a3-a919-4273-a5e1-d5124e2dbcc0"
+        json_attributes_path: !secret petrol_prices_sainsburys_2
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: Sainsburys Fuel Prices Last Updated
+        value_template: "{{strptime((value_json.last_updated), '%d/%m/%Y %H:%M:%S')}}"
+        unique_id: "899c4f2f-2b3c-41d0-8273-967c9a6a007f"
+        icon: mdi:gas-station-outline
+  - authentication: basic
+    scan_interval: 21605
+    resource: https://www.shell.co.uk/fuel-prices-data.html
+    sensor:
+      - name: !secret petrol_prices_shell_name
+        unique_id: "7488163d-7487-407b-8ce8-1e285e0430e1"
+        json_attributes_path: !secret petrol_prices_shell
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: Shell Fuel Prices Last Updated
+        value_template: "{{strptime((value_json.last_updated), '%d/%m/%Y %H:%M:%S')}}"
+        unique_id: "76ba8cff-1cff-4900-a343-d7ac95d5fa49"
+        icon: mdi:gas-station-outline
+  - authentication: basic
+    scan_interval: 21605
+    resource: https://www.tesco.com/fuel_prices/fuel_prices_data.json
+    sensor:
+      - name: !secret petrol_prices_tesco_1_name
+        unique_id: "ea593392-3f44-40a5-838f-5c2010b1c2a6"
+        json_attributes_path: !secret petrol_prices_tesco_1
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: !secret petrol_prices_tesco_2_name
+        unique_id: "ac0528d8-8f22-4952-b7c4-876c9c62237c"
+        json_attributes_path: !secret petrol_prices_tesco_2
+        json_attributes:
+          - "brand"
+          - "address"
+          - "postcode"
+          - "location"
+          - "prices"
+        value_template: "OK"
+        force_update: true
+        icon: "mdi:gas-station"
+      - name: Tesco Fuel Prices Last Updated
+        value_template: "{{strptime((value_json.last_updated), '%d/%m/%Y %H:%M:%S')}}"
+        unique_id: "d6cf0cdc-4100-463e-b3da-b0d7f9978981"
+        icon: mdi:gas-station-outline
+
 sensor:
   - platform: feedparser
     name: Fuelly
@@ -34,3 +140,83 @@ template:
       - name: "Danny's Car Latitude"
         unique_id: 341c92c3-e9bf-40dc-ba4f-94e99ea2d037
         state: "{{ state_attr('device_tracker.dannys_car', 'latitude') }}"
+      - name: !secret petrol_prices_asda_diesel_name
+        unique_id: "e4f03eae-2224-4786-8ecb-61ce9b48ba77"
+        state: "{{(state_attr('sensor.asda_petrol_station', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_asda_e10_name
+        unique_id: "91f30bb0-d341-4538-8fdd-1f0fa456a60e"
+        state: "{{(state_attr('sensor.asda_petrol_station', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_1_diesel_name
+        unique_id: "c436a115-82f7-4dfe-a746-260d6dc5c2fd"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_1', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_1_e10_name
+        unique_id: "e4c26ca2-6a52-4f91-81a7-660d7c4ea5bb"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_1', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_1_e5_name
+        unique_id: "cfd60967-4ed1-447d-84b3-de4519febbe2"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_1', 'prices')['E5']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_2_diesel_name
+        unique_id: "60daf49e-921c-4617-bc48-53631a574d01"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_2', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_2_e10_name
+        unique_id: "d108a169-03cf-40e2-b5a8-6c4f6f8d00a1"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_2', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_sainsburys_2_e5_name
+        unique_id: "67a6319c-ab8f-4f3c-9112-1495ce4fb552"
+        state: "{{(state_attr('sensor.sainsburys_petrol_station_2', 'prices')['E5']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_shell_diesel_name
+        unique_id: "1501b508-2e27-4079-9a51-1fc1e06fce57"
+        state: "{{(state_attr('sensor.shell_petrol_station', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_shell_petrol_name
+        unique_id: "a2a671e9-b191-413c-bf1f-24635495e0df"
+        state: "{{(state_attr('sensor.shell_petrol_station', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_1_diesel_name
+        unique_id: "9ecd087c-bcfe-4f58-bbea-41719006a758"
+        state: "{{(state_attr('sensor.tesco_petrol_station_1', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_1_e10_name
+        unique_id: "b1e05a68-c4bc-48ad-8ef4-b6b1322879e7"
+        state: "{{(state_attr('sensor.tesco_petrol_station_1', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_1_e5_name
+        unique_id: "add18857-63b2-4991-a5a5-626af21c3a8e"
+        state: "{{(state_attr('sensor.tesco_petrol_station_1', 'prices')['E5']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_2_diesel_name
+        unique_id: "ef3a3134-852f-42ef-9c1a-1ff9ffe4c704"
+        state: "{{(state_attr('sensor.sensor.tesco_petrol_station_2', 'prices')['B7']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_2_e10_name
+        unique_id: "91640085-f9f3-4a49-82f4-cbf109d9bc86"
+        state: "{{(state_attr('sensor.sensor.tesco_petrol_station_2', 'prices')['E10']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
+      - name: !secret petrol_prices_tesco_2_e5_name
+        unique_id: "f6b9175d-de52-47b9-ba0f-1ee4909a15be"
+        state: "{{(state_attr('sensor.sensor.tesco_petrol_station_2', 'prices')['E5']) }}"
+        unit_of_measurement: "£/l"
+        state_class: measurement
