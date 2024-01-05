@@ -22,11 +22,14 @@ automation:
         to: "0"
         id: event
       - platform: time_pattern
-        minutes: "5"
+        minutes: "1"
         id: time
       - platform: time_pattern
+        minutes: "5"
+        id: time_backup
+      - platform: time_pattern
         minutes: "35"
-        id: time
+        id: time_backup
       - platform: homeassistant
         event: start
     condition:
@@ -57,11 +60,26 @@ automation:
                     Skipping.
                   title: Solar Assistant
                   debug: "Debug"
+          - alias: Rates remain above export
+            conditions:
+              - condition: trigger
+                id:
+                  - time
+              - condition: numeric_state
+                entity_id: sensor.electricity_previous_rate
+                above: sensor.electricity_export_current_rate
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: sensor.electricity_export_current_rate
+            sequence:
+              - service: script.solar_assistant_check_charging_mode
+                data:
+                  event: "event"
         default:
           - choose:
               - conditions:
                   - condition: trigger
-                    id: "time"
+                    id: "time_backup"
                 sequence:
                   - service: script.solar_assistant_check_charging_mode
                     data:
