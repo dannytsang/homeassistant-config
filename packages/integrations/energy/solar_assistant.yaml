@@ -426,10 +426,17 @@ script:
                   - condition: numeric_state
                     entity_id: sensor.electricity_current_rate
                     below: "0"
-              - not:
+              - or:
+                  - not:
+                      - condition: state
+                        entity_id: select.growatt_sph_work_mode_priority
+                        state: Battery first
                   - condition: state
-                    entity_id: select.growatt_sph_work_mode_priority
-                    state: Battery first
+                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                    state: "off"
+                  - condition: state
+                    entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                    state: "on"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
                 state: "on"
@@ -475,10 +482,14 @@ script:
               - condition: numeric_state
                 entity_id: sensor.electricity_current_rate
                 below: sensor.electricity_export_current_rate
-              - not:
+              - or:
+                  - not:
+                      - condition: state
+                        entity_id: select.growatt_sph_work_mode_priority
+                        state: Battery first
                   - condition: state
-                    entity_id: select.growatt_sph_work_mode_priority
-                    state: Battery first
+                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                    state: "off"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_below_export
                 state: "on"
@@ -517,6 +528,38 @@ script:
                     data:
                       value: "100"
                   - service: script.battery_first_priority_mode
+                    data: {}
+          - alias: Peak electricity period
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_peak_electricity_period_1
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.peak_electricity_period_1
+                state: "on"
+              - or:
+                  - not:
+                      - condition: state
+                        entity_id: select.growatt_sph_work_mode_priority
+                        state: Load first
+                  - condition: state
+                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
+                    state: "on"
+                  - condition: state
+                    entity_id: switch.growatt_sph_grid_first_slot_1_enabled
+                    state: "on"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        Peak period 1 is enabled and on. Switching from
+                        {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                      title: Solar Assistant
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: script.load_first_priority_mode
                     data: {}
           - alias: Rates go above export fail safe
             conditions:
