@@ -42,24 +42,6 @@ automation:
             state: "unavailable"
     action:
       - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_solar_assistant_mode_schedule
-                state: "on"
-              - condition: time
-                before: input_datetime.solar_assistant_mode_schedule_start_time
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                    but before schedule charge
-                    ({{ states('input_datetime.solar_assistant_mode_schedule_start_time', with_unit=True) }}).
-                    Skipping.
-                  title: Solar Assistant
-                  debug: "Debug"
           - alias: Rates remain above export
             conditions:
               - condition: trigger
@@ -88,7 +70,7 @@ automation:
               - service: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
-    mode: single
+    mode: restart
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
     description: ""
@@ -325,12 +307,8 @@ script:
                   title: Solar Assistant
                   log_level: "Debug"
               - alias: Set inverter mode to battery first
-                service: select.select_option
-                target:
-                  entity_id:
-                    - select.growatt_sph_work_mode_priority
-                data:
-                  option: Battery first
+                service: script.battery_first_priority_mode
+                data: {}
         else:
           - service: script.send_to_home_log
             data:
@@ -453,7 +431,7 @@ script:
                     state: "0"
                   - condition: numeric_state
                     entity_id: sensor.electricity_current_rate
-                    below: 0
+                    below: "0"
               - not:
                   - condition: state
                     entity_id: select.growatt_sph_work_mode_priority
@@ -589,7 +567,7 @@ script:
             target:
               entity_id: input_boolean.enable_solar_assistant_mode_schedule
             data: {}
-    mode: single
+    mode: restart
 
 sensor:
   - platform: statistics
