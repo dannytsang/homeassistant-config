@@ -15,7 +15,7 @@ automation:
           message: >-
             Home thermostat target temperature changed.
 
-            Updating TRV from {{ state_attr('climate.lounge_radiator', 'temperature')|float(22) }}
+            Updating TRV from {{ state_attr('climate.living_room_radiator', 'temperature')|float(22) }}
             to {{ state_attr('climate.thermostat', 'temperature')|float(22) }}c.
           title: ":hotsprings: :droplet: Boiler"
           log_level: "Debug"
@@ -28,7 +28,7 @@ automation:
             - climate.bedroom_radiator
             - climate.kitchen_radiator
             - climate.leos_bedroom_radiator
-            - climate.lounge_radiator
+            - climate.living_room_radiator
             - climate.office_radiator
     mode: single
   - id: "1678271646645"
@@ -50,12 +50,12 @@ automation:
           seconds: 0
         below: sensor.leos_radiator_minimum_target_temperature
       - platform: numeric_state
-        entity_id: sensor.lounge_radiator_temperature
+        entity_id: sensor.living_room_radiator_temperature
         for:
           hours: 0
           minutes: 30
           seconds: 0
-        below: sensor.lounge_radiator_minimum_target_temperature
+        below: sensor.living_room_radiator_minimum_target_temperature
       - platform: numeric_state
         entity_id: sensor.office_radiator_temperature
         for:
@@ -99,7 +99,7 @@ automation:
                 :bed: bedroom
                 {%- elif trigger.entity_id == 'sensor.leos_radiator_temperature' -%}
                 Leo's :bed: bedroom
-                {%- elif trigger.entity_id == 'sensor.lounge_radiator_temperature' -%}
+                {%- elif trigger.entity_id == 'sensor.living_room_radiator_temperature' -%}
                 :couch_and_lamp: Lounge
                 {%- elif trigger.entity_id == 'sensor.office_radiator_temperature' -%}
                 :office: Office
@@ -129,7 +129,7 @@ script:
             - climate.bedroom_radiator
             - climate.kitchen_radiator
             - climate.leos_bedroom_radiator
-            - climate.lounge_radiator
+            - climate.living_room_radiator
             - climate.office_radiator
     mode: single
     icon: mdi:radiator-off
@@ -150,7 +150,7 @@ script:
             - climate.bedroom_radiator
             - climate.kitchen_radiator
             - climate.leos_bedroom_radiator
-            - climate.lounge_radiator
+            - climate.living_room_radiator
             - climate.office_radiator
     mode: single
     icon: mdi:radiator
@@ -265,13 +265,13 @@ template:
         unit_of_measurement: "°C"
       - name: "Lounge Radiator Temperature"
         unique_id: b13e42a5-3cd0-4d2a-8ab6-3c2669730c77
-        state: "{{ state_attr('climate.lounge_radiator', 'current_temperature') }}"
+        state: "{{ state_attr('climate.living_room_radiator', 'current_temperature') }}"
         icon: mdi:thermometer
         device_class: "temperature"
         unit_of_measurement: "°C"
       - name: "Lounge Radiator Target Temperature"
         unique_id: 4c2f2439-f6bc-40e6-88c0-10eb2eae8f79
-        state: "{{ state_attr('climate.lounge_radiator', 'temperature') }}"
+        state: "{{ state_attr('climate.living_room_radiator', 'temperature') }}"
         icon: mdi:thermometer
         device_class: "temperature"
         unit_of_measurement: "°C"
@@ -362,7 +362,7 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - climate.lounge_radiator
+          - climate.living_room_radiator
         attribute: temperature
       - platform: state
         entity_id:
@@ -370,7 +370,7 @@ template:
     sensor:
       - name: "Lounge Radiator Minimum Target Temperature"
         unique_id: 37c5a84f-6d5e-47c5-bfa0-df5a2cb4c2bc
-        state: "{{ state_attr('climate.lounge_radiator', 'temperature')|float(10) - states('input_number.living_room_radiator_heating_threshold')|float(0) }}"
+        state: "{{ state_attr('climate.living_room_radiator', 'temperature')|float(10) - states('input_number.living_room_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
       - platform: state

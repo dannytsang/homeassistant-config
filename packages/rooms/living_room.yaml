@@ -9,7 +9,7 @@ automation:
         entity_id:
           - binary_sensor.living_room_area_motion
           - binary_sensor.lounge_motion
-          - binary_sensor.lounge_motion_2_occupancy
+          - binary_sensor.living_room_motion_2_occupancy
           - binary_sensor.lounge_motion_4_occupancy
         to: "on"
     condition:
@@ -19,31 +19,31 @@ automation:
             state: "on"
           - or:
               - condition: numeric_state
-                entity_id: sensor.lounge_motion_2_illuminance_lux
+                entity_id: sensor.living_room_motion_2_illuminance_lux
                 below: input_number.living_room_light_level_2_threshold
               - condition: numeric_state
                 entity_id: sensor.lounge_motion_4_illuminance
                 below: input_number.living_room_light_level_4_threshold
           - or:
               - condition: numeric_state
-                entity_id: light.lounge_lamp_left
+                entity_id: light.living_room_lamp_left
                 attribute: brightness
                 below: "190"
               - condition: numeric_state
-                entity_id: light.lounge_lamp_right
+                entity_id: light.living_room_lamp_right
                 attribute: brightness
                 below: "190"
               - condition: template
-                value_template: "{{ state_attr('light.lounge_lamp_left', 'brightness') == none }}"
+                value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
               - condition: template
-                value_template: "{{ state_attr('light.lounge_lamp_right', 'brightness') == none }}"
+                value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
     action:
       - parallel:
           - service: script.send_to_home_log
             data:
               message: >-
                 :paw_prints: Motion detected and it's dark
-                ({{ states('sensor.lounge_motion_2_illuminance_lux') }} &
+                ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
                 {{ states('sensor.lounge_motion_4_illuminance') }} <
                 {{ states('input_number.living_room_light_level_2_threshold') }} &
                 {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
@@ -1120,7 +1120,7 @@ scene:
   - id: "1582387315374"
     name: Lounge Lights On
     entities:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1133,7 +1133,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1146,7 +1146,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1183,7 +1183,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1220,7 +1220,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1257,7 +1257,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1294,7 +1294,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1332,24 +1332,24 @@ scene:
         supported_features: 44
         state: "on"
     metadata:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         entity_only: true
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         entity_only: true
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1582387315375"
     name: Lounge Lamps On
     entities:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1362,7 +1362,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1376,14 +1376,14 @@ scene:
         supported_features: 55
         state: "on"
     metadata:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         entity_only: true
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         entity_only: true
   - id: "1582387315376"
     name: Lounge Ceiling Lights On
     entities:
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1420,7 +1420,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1457,7 +1457,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1494,7 +1494,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1531,7 +1531,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1569,20 +1569,20 @@ scene:
         supported_features: 44
         state: "on"
     metadata:
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1606169827098"
     name: Lounge Dim Lights
     entities:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1595,7 +1595,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1608,7 +1608,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1645,7 +1645,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1682,7 +1682,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1719,7 +1719,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1756,7 +1756,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1795,20 +1795,20 @@ scene:
         state: "on"
     icon: mdi:ceiling-light-multiple
     metadata:
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1701618167193"
     name: Lounge Dim Ceiling Lights
     entities:
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1845,7 +1845,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1882,7 +1882,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1919,7 +1919,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1956,7 +1956,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "on"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -1995,20 +1995,20 @@ scene:
         state: "on"
     icon: mdi:ceiling-light-multiple
     metadata:
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1606169827099"
     name: Lounge Dim Lamps
     entities:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2021,7 +2021,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2035,14 +2035,14 @@ scene:
         supported_features: 55
         state: "on"
     metadata:
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         entity_only: true
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         entity_only: true
   - id: "1582455234238"
     name: Lounge Lights Off
     entities:
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2053,7 +2053,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "off"
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2064,7 +2064,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "off"
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2101,7 +2101,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2138,7 +2138,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2175,7 +2175,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2212,7 +2212,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2250,20 +2250,20 @@ scene:
         supported_features: 44
         state: "off"
     metadata:
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1582455234239"
     name: Lounge Lamps Off
     entities:
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2274,7 +2274,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "off"
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -2286,14 +2286,14 @@ scene:
         supported_features: 55
         state: "off"
     metadata:
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         entity_only: true
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         entity_only: true
   - id: "1701618167194"
     name: Lounge Ceiling Lights Off
     entities:
-      light.lounge_left:
+      light.living_room_left:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2330,7 +2330,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_left_2:
+      light.living_room_left_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2367,7 +2367,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_left_3:
+      light.living_room_left_3:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2404,7 +2404,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_right:
+      light.living_room_right:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2441,7 +2441,7 @@ scene:
         friendly_name: Lounge Left
         supported_features: 44
         state: "off"
-      light.lounge_right_2:
+      light.living_room_right_2:
         min_color_temp_kelvin: 2000
         max_color_temp_kelvin: 6666
         min_mireds: 150
@@ -2480,24 +2480,24 @@ scene:
         state: "off"
     icon: mdi:ceiling-light-multiple
     metadata:
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         entity_only: true
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         entity_only: true
-      light.lounge_left:
+      light.living_room_left:
         entity_only: true
-      light.lounge_left_2:
+      light.living_room_left_2:
         entity_only: true
-      light.lounge_left_3:
+      light.living_room_left_3:
         entity_only: true
-      light.lounge_right:
+      light.living_room_right:
         entity_only: true
-      light.lounge_right_2:
+      light.living_room_right_2:
         entity_only: true
   - id: "1634579522178"
     name: "Living Room: Lights Green"
     entities:
-      light.lounge_lamp_left:
+      light.living_room_lamp_left:
         min_mireds: 111
         max_mireds: 666
         effect_list:
@@ -2523,7 +2523,7 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
-      light.lounge_lamp_right:
+      light.living_room_lamp_right:
         min_mireds: 111
         max_mireds: 666
         effect_list:
@@ -2673,8 +2673,8 @@ script:
         data:
           scene_id: current_lounge_lights
           snapshot_entities:
-            - light.lounge_lamp_left
-            - light.lounge_lamp_right
+            - light.living_room_lamp_left
+            - light.living_room_lamp_right
       - service: scene.turn_on
         target:
           entity_id: scene.lounge_lights_green
