@@ -40,10 +40,19 @@ jobs:
     steps:
       - name: ⤵️ Check out configuration from GitHub
         uses: actions/checkout@v4
-      - name: ➕ Create dummy files
-        # Remove delete integration from configuration file.
+      # Integrations does not exist in custom components during checkout:
+      - name: ➕ Remove battery_notes integration
         run: |
-          sed -i -e '/delete\:/d' configuration.yaml
+          sed -i -e '/battery_notes\:/,+2d' configuration.yaml
+      - name: ➕ Remove delete integration
+        run: |
+          sed -i -e '/delete\:/,+2d' configuration.yaml
+      - name: ➕ Remove Powercalc integration
+        run: |
+          sed -i -e '/powercalc\:/,+2d' configuration.yaml
+      - name: ➕ Remove Sonoff integration
+        run: |
+          sed -i -e '/sonoff\:/,+3d' configuration.yaml
       - name: 🚀 Run Home Assistant Configuration Check
         uses: frenck/action-home-assistant@v1
         with:
