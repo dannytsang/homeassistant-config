@@ -119,7 +119,26 @@ script:
   battery_first_priority_mode:
     alias: Solar Assistant Battery First Priority Mode
     description: ""
+    fields:
+      max_charge:
+        name: Max Charge
+        description: >-
+          When battery reaches this charge state,
+          it will stop charging and keep it at this level (maintain mode).
+        default: 100
+        selector:
+          number:
+            min: 10
+            max: 100
+            unit_of_measurement: "%"
     sequence:
+      - alias: Set battery stop charging %
+        service: number.set_value
+        target:
+          entity_id: number.growatt_sph_battery_first_stop_charge
+        data:
+          value: >-
+            {{ max_charge|default(100, true)|float(100) }}
       - if:
           - condition: state
             entity_id: select.growatt_sph_work_mode_priority
@@ -153,6 +172,18 @@ script:
   grid_first_priority_mode:
     alias: Solar Assistant Gird First Priority Mode
     description: ""
+    fields:
+      max_discharge:
+        name: Max Discharge
+        description: >-
+          When battery reaches this charge state,
+          it will stop exporting and keep it at this level.
+        default: 50
+        selector:
+          number:
+            min: 10
+            max: 100
+            unit_of_measurement: "%"
     sequence:
       - if:
           - condition: state
@@ -189,6 +220,13 @@ script:
                     to grid first.
                   title: Solar Assistant
                   log_level: "Debug"
+          - alias: Set stop charge level
+            service: number.set_value
+            target:
+              entity_id: number.growatt_sph_battery_first_stop_charge
+            data:
+              value: >-
+                {{ states('number.growatt_sph_grid_first_stop_discharge')|default(50, true)|float(100) }}
           - alias: Make sure inverter mode schedules are turned off
             service: script.solar_assistant_turn_off_mode_schedules
             data: {}
@@ -332,6 +370,18 @@ script:
             options:
               - event
               - time
+    variables:
+      inverter_mode: >-
+        {%- if states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' and
+        states('number.growatt_sph_battery_first_stop_charge')|int(100) < 100 -%}
+        Maintain
+        {%- elif states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' -%}
+        Battery first
+        {%- elif states('switch.growatt_sph_grid_first_slot_1_enabled') == 'on' -%}
+        Grid first
+        {%- else -%}
+        {{ states('select.growatt_sph_work_mode_priority') }}
+        {%- endif -%}
     sequence:
       - choose:
           - alias: Scheduled mode is active
@@ -403,19 +453,18 @@ script:
                         state: "Maintain"
                     sequence:
                       - parallel:
-                          - service: script.send_direct_notification
+                          - service: script.send_to_home_log
                             data:
                               message: >-
-                                Scheduled grid first mode.
+                                Scheduled maintain battery mode.
                                 Changing {{ states('select.growatt_sph_work_mode_priority') }} to grid battery mode
                                 and maintain current battery charge at
                                 {{ states('select.growatt_sph_battery_state_of_charge', with_unit=True) }}
                               title: Solar Assistant
-                              people:
-                                entity_id:
-                                  - person.danny
-                          - service: script.maintain_battery_soc
-                            data: {}
+                              log_level: "Debug"
+                          - service: script.battery_first_priority_mode
+                            data:
+                              max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
                 default: []
           - alias: "Unit rate is on or below 0p/kw"
             conditions:
