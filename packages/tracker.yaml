@@ -994,56 +994,35 @@ script:
   front_door_lock_status:
     alias: Front Door Lock Status
     sequence:
-      - repeat:
-          until:
-            - condition: state
-              entity_id: binary_sensor.front_door
-              state: "on"
-          sequence:
-            - choose:
-                - conditions:
-                    - condition: state
-                      entity_id: lock.unified_front_door
-                      state: locked
-                  sequence:
-                    - service: scene.turn_on
-                      target:
-                        entity_id: scene.porch_red_light
-                - conditions:
-                    - condition: state
-                      entity_id: lock.unified_front_door
-                      state: unlocked
-                  sequence:
-                    - service: scene.turn_on
-                      target:
-                        entity_id: scene.porch_light_green
-                - conditions:
-                    - or:
-                        - condition: state
-                          entity_id: lock.unified_front_door
-                          state: unlocking
-                        - condition: state
-                          entity_id: lock.unified_front_door
-                          state: locking
-                  sequence:
-                    - service: scene.turn_on
-                      target:
-                        entity_id: scene.porch_blue_light
-            - delay:
-                hours: 0
-                minutes: 0
-                seconds: 1
-                milliseconds: 0
-            - service: scene.turn_on
-              data:
-                transition: 1
-              target:
-                entity_id: scene.porch_lights_off
-      - service: scene.turn_on
-        data:
-          transition: 2
-        target:
-          entity_id: scene.porch_light_on
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: lock.unified_front_door
+                state: locked
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.porch_red_light
+          - conditions:
+              - condition: state
+                entity_id: lock.unified_front_door
+                state: unlocked
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.porch_light_green
+          - conditions:
+              - or:
+                  - condition: state
+                    entity_id: lock.unified_front_door
+                    state: unlocking
+                  - condition: state
+                    entity_id: lock.unified_front_door
+                    state: locking
+            sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.porch_blue_light
     mode: single
   check_terinas_work_laptop_status:
     alias: Check If Terina's Work Laptop Status
