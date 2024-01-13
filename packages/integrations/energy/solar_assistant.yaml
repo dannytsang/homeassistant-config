@@ -475,109 +475,98 @@ script:
                   - condition: numeric_state
                     entity_id: sensor.electricity_current_rate
                     below: "0"
-              - or:
-                  - not:
-                      - condition: state
-                        entity_id: select.growatt_sph_work_mode_priority
-                        state: Battery first
-                  - condition: state
-                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                    state: "off"
-                  - condition: state
-                    entity_id: switch.growatt_sph_grid_first_slot_1_enabled
-                    state: "on"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
                 state: "on"
             sequence:
-              - parallel:
-                  - choose:
-                      - conditions:
-                          - condition: template
-                            value_template: "{{ event == 'time'}}"
-                        sequence:
-                          - service: script.send_direct_notification
-                            data:
-                              message: >-
-                                Electrictity rate has gove above 0
-                                ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                                and inverter has not switched from
-                                {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
-                              title: Solar Assistant
-                              people:
-                                entity_id:
-                                  - person.danny
-                    default:
-                      - service: script.send_direct_notification
-                        data:
-                          message: >-
-                            Electrictity rate
-                            ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                            below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                            Charging house battery.
-                          title: Solar Assistant
-                          people:
-                            entity_id:
-                              - person.danny
-                  - service: number.set_value
-                    target:
-                      entity_id: number.growatt_sph_battery_first_stop_charge
-                    data:
-                      value: "100"
-                  - service: script.battery_first_priority_mode
-                    data: {}
-          - alias: Unit rate below export and charge below export enabled
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-              - or:
-                  - not:
-                      - condition: state
-                        entity_id: select.growatt_sph_work_mode_priority
-                        state: Battery first
-                  - condition: state
-                    entity_id: switch.growatt_sph_battery_first_slot_1_enabled
-                    state: "off"
-              - condition: state
-                entity_id: input_boolean.solar_assistant_charge_below_export
-                state: "on"
-            sequence:
-              - parallel:
-                  - choose:
-                      - conditions:
-                          - condition: template
-                            value_template: "{{ event == 'time'}}"
-                        sequence:
+              - if:
+                  - condition: template
+                    value_template: "{{ inverter_mode != 'Battery first' }}"
+                then:
+                  - parallel:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ event == 'time'}}"
+                            sequence:
+                              - service: script.send_direct_notification
+                                data:
+                                  message: >-
+                                    Electrictity rate has gove above 0
+                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                                    and inverter has not switched from
+                                    {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                                  title: Solar Assistant
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                        default:
                           - service: script.send_direct_notification
                             data:
                               message: >-
                                 Electrictity rate
                                 ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                                below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
-                                and inverter has not switched to battery first mode.
+                                below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                                Charging house battery.
                               title: Solar Assistant
                               people:
                                 entity_id:
                                   - person.danny
-                    default:
-                      - service: script.send_to_home_log
+                      - service: number.set_value
+                        target:
+                          entity_id: number.growatt_sph_battery_first_stop_charge
                         data:
-                          message: >-
-                            Electricity unit rate is the
-                            {{ iif(states('sensor.electricity_current_rate')|float(0) < states('sensor.electricity_export_current_rate')|float(0), 'below', 'same') }}
-                            export rate
-                            ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                            states('sensor.electricity_export_current_rate') }}). Charging house battery.
-                          title: Solar Assistant
-                          debug: "Debug"
-                  - service: number.set_value
-                    target:
-                      entity_id: number.growatt_sph_battery_first_stop_charge
-                    data:
-                      value: "100"
-                  - service: script.battery_first_priority_mode
-                    data: {}
+                          value: "100"
+                      - service: script.battery_first_priority_mode
+                        data: {}
+          - alias: Unit rate below export and charge below export enabled
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: sensor.electricity_export_current_rate
+              - condition: state
+                entity_id: input_boolean.solar_assistant_charge_below_export
+                state: "on"
+            sequence:
+              - if:
+                  - condition: template
+                    value_template: "{{ inverter_mode != 'Battery first' }}"
+                then:
+                  - parallel:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ event == 'time'}}"
+                            sequence:
+                              - service: script.send_direct_notification
+                                data:
+                                  message: >-
+                                    Electrictity rate
+                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                                    below £0.00 ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                                    and inverter has not switched to battery first mode.
+                                  title: Solar Assistant
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                        default:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Electricity unit rate is the
+                                {{ iif(states('sensor.electricity_current_rate')|float(0) < states('sensor.electricity_export_current_rate')|float(0), 'below', 'same') }}
+                                export rate
+                                ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                                states('sensor.electricity_export_current_rate') }}). Charging house battery.
+                              title: Solar Assistant
+                              debug: "Debug"
+                      - service: number.set_value
+                        target:
+                          entity_id: number.growatt_sph_battery_first_stop_charge
+                        data:
+                          value: "100"
+                      - service: script.battery_first_priority_mode
+                        data: {}
           - alias: Battery First Schedule
             conditions:
               - or:
@@ -605,12 +594,12 @@ script:
                         data:
                           message: >-
                             Battery schedule is enabled and on. Switching from
-                            {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                            {{ states('select.growatt_sph_work_mode_priority') }} to battery first mode.
                           title: Solar Assistant
                           people:
                             entity_id:
                               - person.danny
-                      - service: script.load_first_priority_mode
+                      - service: script.battery_first_priority_mode
                         data: {}
           - alias: Grid First Schedule
             conditions:
