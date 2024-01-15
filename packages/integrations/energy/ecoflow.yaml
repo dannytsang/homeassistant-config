@@ -539,27 +539,27 @@ template:
       - platform: state
         entity_id:
           - input_number.ecoflow_kitchen_charge_solar_threshold
-          - sensor.growatt_export_to_grid
-          - sensor.growatt_input_watt
+          - sensor.growatt_grid_export_power
+          - sensor.growatt_sph_pv_power
           - sensor.growatt_sph_load_power
     sensor:
       - name: "EcoFlow Kitchen Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
         state: >-
-          {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
-          {{ states('sensor.growatt_export_to_grid')|float(0)*1000 }}
-          {% else %}
-          {{ ((states('sensor.growatt_input_watt')|float(0) - states('sensor.growatt_sph_load_power')|float(0) - states('sensor.growatt_battery_charge_power')|float(0))
+          {%- if states('sensor.growatt_grid_export_power')|float(0) > 200 -%}
+          {{ states('sensor.growatt_grid_export_power')|float(0)*1000 }}
+          {%- else -%}
+          {{ ((states('sensor.growatt_sph_pv_power')|float(0) - states('sensor.growatt_sph_load_power')|float(0) - states('sensor.growatt_battery_charge_power')|float(0))
           * 1000)|round(2) }}
-          {% endif %}
+          {%- endif -%}
         unit_of_measurement: w
         attributes:
           calculation_method: >-
-            {% if states('sensor.growatt_export_to_grid')|float(0) > 200 %}
+            {%- if states('sensor.growatt_grid_export_power')|float(0) > 200 -%}
             grid export
-            {% else %}
+            {%- else -%}
             consumption
-            {% endif %}
+            {%- endif -%}
   - trigger:
       - platform: state
         entity_id:
