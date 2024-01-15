@@ -27,7 +27,7 @@ automation:
               log_level: "Normal"
     mode: single
   - id: "1674411819884"
-    alias: "Add-Ons: Advanced SSH & Web Terminal "
+    alias: "Add-Ons: Advanced SSH & Web Terminal"
     description: ""
     trigger:
       - platform: state
@@ -36,7 +36,7 @@ automation:
         to: "on"
     condition:
       - condition: state
-        entity_id: input_boolean.stop_add_on_web_terminal_ssh
+        entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
       - parallel:
@@ -88,6 +88,48 @@ automation:
         data:
           addonEntityId: a0d7b954_ssh
           message: SSH has been on for more than an hour. Turning SSH off.
+    mode: single
+  - id: "1638101748992"
+    alias: "Add-ons: Zigbee 2 MQTT Proxy Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.zigbee2mqtt_proxy_running
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: "Zigbee 2 MQTT Proxy started."
+              title: ":heavy_plus_sign: Add-on"
+              log_level: "Debug"
+          - service: timer.start
+            metadata: {}
+            data:
+              duration: "00:30:00"
+            target:
+              entity_id: timer.stop_add_on_zigbee_2_mqtt_proxy
+  - id: "1638101748993"
+    alias: "Add-ons: Automatically Disable Zigbee 2 MQTT Proxy"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.stop_add_on_zigbee_2_mqtt_proxy
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - service: script.stop_add_on
+        data:
+          addonEntityId: 45df7312_zigbee2mqtt_proxy
+          message: Zigbee2MQTT Proxy has been on for more than an hour. Turning Zigbee2MQTT Proxy off.
     mode: single
   - id: "1700062541454"
     alias: "Add-On: Update For File Editor"

@@ -127,7 +127,7 @@ automation:
           - choose:
               - conditions:
                   - condition: state
-                    entity_id: binary_sensor.leos_bedroom_window
+                    entity_id: binary_sensor.leos_bedroom_window_contact
                     state: "on"
                 sequence:
                   - service: script.send_to_home_log
@@ -158,7 +158,7 @@ automation:
                       entity_id: cover.leos_bedroom_blinds
               - conditions:
                   - condition: state
-                    entity_id: binary_sensor.leos_bedroom_window
+                    entity_id: binary_sensor.leos_bedroom_window_contact
                     state: "off"
                 sequence:
                   - service: script.send_to_home_log
@@ -190,7 +190,7 @@ automation:
         attribute: current_position
         above: input_number.blind_open_position_threshold
       - condition: state
-        entity_id: binary_sensor.leos_bedroom_window
+        entity_id: binary_sensor.leos_bedroom_window_contact
         state: "off"
     action:
       - parallel:
@@ -270,7 +270,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.leos_bedroom_window
+        entity_id: binary_sensor.leos_bedroom_window_contact
         to: "off"
         from: "on"
     condition:
@@ -397,7 +397,7 @@ script:
                       # Check if window is open.
                       - conditions:
                           - condition: state
-                            entity_id: binary_sensor.bedroom_window
+                            entity_id: binary_sensor.leos_bedroom_window_contact
                             state: "on"
                         sequence:
                           # TODO: replace with actionable notification
@@ -449,7 +449,7 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - binary_sensor.leos_bedroom_window
+          - binary_sensor.leos_bedroom_window_contact
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.back_garden_motion_illuminance_lux
@@ -466,7 +466,7 @@ template:
         state: >-
           {{ not(states('sensor.back_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.leos_bedroom_window') == 'off')
+          and states('binary_sensor.leos_bedroom_window_contact') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) <= 23.5
           and (states('sensor.leos_bedroom_window_temperature')|float(0)) <= 24
@@ -477,5 +477,5 @@ template:
           temperature: "{{ (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.leos_bedroom_window') == 'off' }}"
+          window: "{{ states('binary_sensor.leos_bedroom_window_contact') == 'off' }}"
           window_temperature: "{{ (states('sensor.leos_bedroom_window_temperature')|float(0)) > 24 }}"

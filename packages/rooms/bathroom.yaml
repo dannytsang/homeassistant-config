@@ -277,7 +277,7 @@ automation:
                   log_level: "Debug"
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -290,7 +290,7 @@ automation:
                   message_prefix: ":no_pedestrians: No motion."
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -414,7 +414,7 @@ automation:
                   log_level: "Debug"
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -438,7 +438,7 @@ automation:
                   transition: 2
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -462,7 +462,7 @@ automation:
                   transition: 2
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "off"
               - condition: trigger
                 id: door_closed
@@ -485,7 +485,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.bathroom_door
+        entity_id: binary_sensor.bathroom_door_contact
         to: "on"
         from: "off"
     condition: []
@@ -508,7 +508,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.bathroom_door
+        entity_id: binary_sensor.bathroom_door_contact
         to: "off"
         from: "on"
     condition:
@@ -561,7 +561,7 @@ automation:
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.bathroom_door
+        entity_id: binary_sensor.bathroom_door_contact
         to: "on"
         from: "off"
         for: 00:00:20
@@ -767,7 +767,7 @@ automation:
         above: 59.9
     condition:
       - condition: state
-        entity_id: binary_sensor.bathroom_window
+        entity_id: binary_sensor.bathroom_window_contact
         state: "off"
     action:
       - service: script.send_direct_notification
@@ -882,7 +882,7 @@ script:
       - choose:
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -903,7 +903,7 @@ script:
                       entity_id: timer.bathroom_light_dim
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
               - condition: state
                 entity_id: input_boolean.bathroom_light_override
@@ -924,7 +924,7 @@ script:
                       entity_id: timer.bathroom_light_dim
           - conditions:
               - condition: state
-                entity_id: binary_sensor.bathroom_door
+                entity_id: binary_sensor.bathroom_door_contact
                 state: "off"
             sequence:
               - parallel:
@@ -944,7 +944,7 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - binary_sensor.bathroom_window
+          - binary_sensor.bathroom_window_contact
           - input_number.close_blinds_brightness_threshold
           - input_number.forecast_high_temperature
           - sensor.back_garden_motion_illuminance_lux
@@ -961,7 +961,7 @@ template:
         state: >-
           {{ not(states('sensor.back_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.bathroom_window') == 'off')
+          and states('binary_sensor.bathroom_window_contact') == 'off')
           and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and (states('sensor.bathroom_area_mean_temperature')|float(0)) <= 23.5
           and (states('sensor.bathroom_window_temperature')|float(0)) <= 24
@@ -972,5 +972,5 @@ template:
           temperature: "{{ (states('sensor.bathroom_area_mean_temperature')|float(0)) > 23.5 }}"
           temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.bathroom_window') == 'off' }}"
+          window: "{{ states('binary_sensor.bathroom_window_contact') == 'off' }}"
           window_temperature: "{{ (states('sensor.bathroom_window_temperature')|float(0)) > 24 }}"
