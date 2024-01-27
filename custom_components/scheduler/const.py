@@ -15,7 +15,7 @@ from homeassistant.const import (
     ATTR_NAME,
 )
 
-VERSION = "3.2.15"
+VERSION = "3.3.0"
 
 DOMAIN = "scheduler"
 
@@ -27,6 +27,7 @@ DAY_TYPE_WEEKEND = "weekend"
 
 WORKDAY_ENTITY = "binary_sensor.workday_sensor"
 
+ATTR_SKIP_CONDITIONS = "skip_conditions"
 ATTR_CONDITION_TYPE = "condition_type"
 CONDITION_TYPE_AND = "and"
 CONDITION_TYPE_OR = "or"
@@ -50,6 +51,8 @@ SERVICE_REMOVE = "remove"
 SERVICE_EDIT = "edit"
 SERVICE_ADD = "add"
 SERVICE_COPY = "copy"
+SERVICE_DISABLE_ALL = "disable_all"
+SERVICE_ENABLE_ALL = "enable_all"
 
 OffsetTimePattern = re.compile(r"^([a-z]+)([-|\+]{1})([0-9:]+)$")
 DatePattern = re.compile(r"^[0-9]+\-[0-9]+\-[0-9]+$")

@@ -19,6 +19,7 @@ from homeassistant.const import (
     CONF_SERVICE,
     ATTR_SERVICE_DATA,
     CONF_SERVICE_DATA,
+    CONF_CONDITIONS,
 )
 from homeassistant.core import callback
 from homeassistant.helpers.entity import ToggleEntity, EntityCategory
@@ -39,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SERVICE_RUN_ACTION = "run_action"
 RUN_ACTION_SCHEMA = vol.Schema(
-    {vol.Required(ATTR_ENTITY_ID): cv.entity_ids, vol.Optional(ATTR_TIME): cv.time}
+    {vol.Required(ATTR_ENTITY_ID): cv.entity_ids, vol.Optional(ATTR_TIME): cv.time, vol.Optional(const.ATTR_SKIP_CONDITIONS): cv.boolean}
 )
 
 
@@ -224,7 +225,7 @@ class ScheduleEntity(ToggleEntity):
         if self._init:
             # initial startpoint for timer calculated, fire actions if currently overlapping with timeslot
             if self._current_slot is not None and self._state != STATE_OFF:
-                trigger_actions = True
+                skip_initial_execution = False
                 if self.coordinator.state == const.STATE_INIT and self.coordinator.time_shutdown:
                     # if the date+time of prior shutdown is known, determine which timeslots are already triggered before
                     # calculate the next start of timeslot since the time of shutdown, execute only if this is in the past
@@ -233,22 +234,24 @@ class ScheduleEntity(ToggleEntity):
                     start_time = self.schedule[const.ATTR_TIMESLOTS][self._current_slot][const.ATTR_START]
                     start_of_timeslot = self._timer_handler.calculate_timestamp(start_time, ts_shutdown)
                     if start_of_timeslot > now:
-                        _LOGGER.debug(
-                            "Schedule {} was already executed before shutdown, initial timeslot is skipped.".format(
-                                self.schedule_id
-                            )
-                        )
-                        trigger_actions = False
+                        skip_initial_execution = True
 
-                if trigger_actions:
+                if skip_initial_execution:
+                    _LOGGER.debug(
+                        "Schedule {} was already executed before shutdown, initial timeslot is skipped.".format(
+                            self.schedule_id
+                        )
+                    )
+                else:
                     _LOGGER.debug(
                         "Schedule {} is starting in a timeslot, proceed with actions".format(
                             self.schedule_id
                         )
                     )
-                    await self._action_handler.async_queue_actions(
-                        self.schedule[const.ATTR_TIMESLOTS][self._current_slot]
-                    )
+                await self._action_handler.async_queue_actions(
+                    self.schedule[const.ATTR_TIMESLOTS][self._current_slot],
+                    skip_initial_execution
+                )
             self._init = False
 
         if self.hass is None:
@@ -499,7 +502,7 @@ class ScheduleEntity(ToggleEntity):
 
         self.async_write_ha_state()
 
-    async def async_service_run_action(self, time=None):
+    async def async_service_run_action(self, time=None, skip_conditions=False):
         """Manually trigger the execution of the actions of a timeslot"""
 
         now = dt_util.as_local(dt_util.utcnow())
@@ -523,9 +526,14 @@ class ScheduleEntity(ToggleEntity):
             )
             return
 
+        schedule = dict(self.schedule[const.ATTR_TIMESLOTS][slot])
+        if skip_conditions:
+            schedule[CONF_CONDITIONS] = []
+
         _LOGGER.debug(
-            "Executing actions for {}, timeslot {}".format(self.entity_id, slot)
+            "Executing actions for {}, timeslot {}, skip_conditions {}".format(self.entity_id, slot, skip_conditions)
         )
+
         await self._action_handler.async_queue_actions(
-            self.schedule[const.ATTR_TIMESLOTS][slot]
+            schedule
         )

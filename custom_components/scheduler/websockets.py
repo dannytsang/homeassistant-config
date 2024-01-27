@@ -13,6 +13,18 @@ from .store import ScheduleEntry
 
 _LOGGER = logging.getLogger(__name__)
 
+class SchedulesListView(HomeAssistantView):
+    """Login to Home Assistant cloud."""
+
+    url = "/api/{}/list".format(const.DOMAIN)
+    name = "api:{}:list".format(const.DOMAIN)
+
+    async def get(self, request):
+        hass = request.app["hass"]
+        coordinator = hass.data[const.DOMAIN]["coordinator"]
+        schedules = coordinator.async_get_schedules()
+        return self.json(schedules)
+
 
 class SchedulesAddView(HomeAssistantView):
     """Login to Home Assistant cloud."""
@@ -217,6 +229,7 @@ async def async_register_websockets(hass):
     hass.http.register_view(SchedulesAddView)
     hass.http.register_view(SchedulesEditView)
     hass.http.register_view(SchedulesRemoveView)
+    hass.http.register_view(SchedulesListView)
 
     # pass list of schedules to frontend
     hass.components.websocket_api.async_register_command(
