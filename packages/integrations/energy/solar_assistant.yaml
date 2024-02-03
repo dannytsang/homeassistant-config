@@ -404,8 +404,12 @@ script:
                 state: "on"
             sequence:
               - if:
-                  - condition: template
-                    value_template: "{{ inverter_mode != 'Battery first' }}"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                  # - condition: template
+                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - choose:
@@ -465,8 +469,12 @@ script:
                         state: "on"
             sequence:
               - if:
-                  - condition: template
-                    value_template: "{{ inverter_mode != 'Battery first' }}"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                  # - condition: template
+                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - choose:
@@ -522,8 +530,12 @@ script:
                         state: "on"
             sequence:
               - if:
-                  - condition: template
-                    value_template: "{{ inverter_mode != 'Battery first' }}"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                  # - condition: template
+                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -549,8 +561,12 @@ script:
                         state: "on"
             sequence:
               - if:
-                  - condition: template
-                    value_template: "{{ inverter_mode != 'Grid first' }}"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Grid first"
+                  # - condition: template
+                  #   value_template: "{{ inverter_mode != 'Grid first' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -583,8 +599,12 @@ script:
                         state: "on"
             sequence:
               - if:
-                  - condition: template
-                    value_template: "{{ inverter_mode != 'Maintain' }}"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Maintain"
+                  # - condition: template
+                  #   value_template: "{{ inverter_mode != 'Maintain' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -631,8 +651,12 @@ script:
                     data: {}
           - alias: Default mode
             conditions:
-              - condition: template
-                value_template: "{{ inverter_mode != 'Load first'}}"
+              - not:
+                  - condition: state
+                    entity_id: sensor.growatt_sph_inverter_mode
+                    state: "Load first"
+              # - condition: template
+              #   value_template: "{{ inverter_mode != 'Load first'}}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -732,6 +756,38 @@ template:
         device_class: "power"
         unit_of_measurement: "kW"
         state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - number.growatt_sph_battery_first_stop_charge
+          - switch.growatt_sph_battery_first_slot_1_enabled
+          - switch.growatt_sph_grid_first_slot_1_enabled
+          - select.growatt_sph_work_mode_priority
+    sensor:
+      - name: "Growatt SPH Inverter Mode"
+        unique_id: da2d35ac-8c82-4d85-8529-25f28d3e7712
+        state: >-
+          {%- if states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' and
+          states('number.growatt_sph_battery_first_stop_charge')|int(100) < 100 -%}
+          Maintain
+          {%- elif states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' -%}
+          Battery first
+          {%- elif states('switch.growatt_sph_grid_first_slot_1_enabled') == 'on' -%}
+          Grid first
+          {%- else -%}
+          {{ states('select.growatt_sph_work_mode_priority') }}
+          {%- endif -%}
+        icon: >-
+          {%- if states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' and
+          states('number.growatt_sph_battery_first_stop_charge')|int(100) < 100 -%}
+          mdi:power-plug-battery
+          {%- elif states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' -%}
+          mdi:battery-charging
+          {%- elif states('switch.growatt_sph_grid_first_slot_1_enabled') == 'on' -%}
+          mdi:battery-minus-variant
+          {%- else -%}
+          mdi:battery-off
+          {%- endif -%}
   - trigger:
       - platform: state
         entity_id:
