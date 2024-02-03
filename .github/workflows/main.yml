@@ -11,9 +11,10 @@ on:
 
 jobs:
   yamllint:
+    name: "🧹 YAML Lint"
     runs-on: ubuntu-latest
     steps:
-      - name: Getting your configuration from GitHub
+      - name: ⤵️ Getting your configuration from GitHub
         uses: actions/checkout@v4
       - name: Running YAMLlint
         uses: ibiqlik/action-yamllint@v3
@@ -23,9 +24,10 @@ jobs:
           # https://github.com/ibiqlik/action-yamllint/issues/14#issuecomment-796554388
           format: parsable
   remarklint:
+    name: "🧹 Remark Lint"
     runs-on: ubuntu-latest
     steps:
-      - name: Getting your configuration from GitHub
+      - name: ⤵️ Getting your configuration from GitHub
         uses: actions/checkout@v4
       - name: Running Remark lint
         uses: "docker://pipelinecomponents/remark-lint:latest"
@@ -34,7 +36,7 @@ jobs:
           args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
 
   ha-stable-check:
-    name: "🏡Home Assistant Core Stable Configuration Check"
+    name: "🏡 Home Assistant Core Stable Configuration Check"
     needs: [yamllint, remarklint]
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +67,7 @@ jobs:
           version: "stable"
 
   ha-future-checks:
-    name: "🏢Home Assistant Core ${{ matrix.version }} Configuration Check"
+    name: "🏢 Home Assistant Core ${{ matrix.version }} Configuration Check"
     needs: [yamllint, remarklint]
     runs-on: ubuntu-latest
     strategy:
@@ -100,7 +102,7 @@ jobs:
           version: "${{ matrix.version }}"
 
   deploy:
-    name: "Deploy changes"
+    name: "🚀 Deploy changes"
     needs: [ha-stable-check]
     runs-on: ubuntu-latest
     steps:
@@ -134,9 +136,9 @@ jobs:
           pip install esphome
           pip list
           esphome version
-      - name: Copy stub files into configuration folder
+      - name: ✍️ Copy stub files into configuration folder
         run: cp -R ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
-      - name: Run esphome on all files
+      - name: 🚀 Run esphome on all files
         continue-on-error: true
         run: |
           for file in $(find ./esphome -type f -name "*.yaml" -not -name "secrets.yaml"); do esphome "${file}" config; done
