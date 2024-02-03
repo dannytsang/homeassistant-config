@@ -203,15 +203,21 @@ script:
                     entity_id: select.myenergi_eddi_operating_mode
                     state: "Stopped"
             then:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first. FYI eddi is still on.
-                  title: Solar Assistant
-                  people:
-                    entity_id:
-                      - person.danny
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                        to grid first and stopping Eddi.
+                      title: Solar Assistant
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: select.select_option
+                    data:
+                      option: Stopped
+                    target:
+                      entity_id: select.myenergi_eddi_operating_mode
             else:
               - service: script.send_to_home_log
                 data:
