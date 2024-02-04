@@ -137,14 +137,14 @@ automation:
     action:
       - choose:
           - conditions:
-              - and:
-                  - condition: sun
-                    before: sunset
-                    before_offset: "-01:00:00"
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance_lux
-                    above: input_number.office_light_level_threshold
-              - not:
+              - or:
+                  - and:
+                      - condition: sun
+                        before: sunset
+                        before_offset: "-01:00:00"
+                      - condition: numeric_state
+                        entity_id: sensor.office_motion_2_illuminance_lux
+                        above: input_number.office_light_level_threshold
                   - condition: state
                     entity_id: sensor.office_motion_2_illuminance_lux
                     state: "unavailable"
