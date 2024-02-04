@@ -336,10 +336,14 @@ script:
         service: script.solar_assistant_turn_off_mode_schedules
         data: {}
       - if:
-          - not:
-              - condition: state
-                entity_id: select.growatt_sph_work_mode_priority
-                state: Battery first
+          - or:
+              - not:
+                  - condition: state
+                    entity_id: select.growatt_sph_work_mode_priority
+                    state: Battery first
+              - condition: numeric_state
+                entity_id: number.growatt_sph_battery_first_stop_charge
+                above: sensor.growatt_sph_battery_state_of_charge
         then:
           - parallel:
               - service: script.send_to_home_log
