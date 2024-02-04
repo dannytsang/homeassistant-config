@@ -112,7 +112,7 @@ automation:
                 id:
                   - period_of_time
             then:
-              - service: script.excess_solar_detected
+              - service: script.ecoflow_check_charging_mode
                 data: {}
           - if:
               - not:
@@ -169,29 +169,11 @@ automation:
         below: 0.01
     condition:
       - condition: state
-        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
-        state: "on"
-      - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-      - condition: numeric_state
-        entity_id: number.ecoflow_kitchen_backup_reserve_level
-        below: 100
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
-                Setting backup reserve to 100% and maximum charge rate (1200w).
-              title: EcoFlow
-              log_level: "Debug"
-          - service: script.ecoflow_set_backup_reserve
-            data:
-              reserve_amount: 100
-          - service: script.ecoflow_set_charge_rate
-            data:
-              target_charge_rate: 1200
+      - service: script.ecoflow_check_charging_mode
+        data: {}
     mode: single
   - id: "1689626117477"
     alias: "Ecoflow: Electricity Rates Starts To Cost"
@@ -543,6 +525,50 @@ script:
                 Charge rate ({{ target_charge_rate }}w) is already set correctly.
               title: EcoFlow
               log_level: "Debug"
+    mode: single
+  ecoflow_check_charging_mode:
+    alias: EcoFlow Check Charging Mode
+    description: ""
+    sequence:
+      - choose:
+          - alias: Electricity rate 0p/kw or below
+            conditions:
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                state: "on"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Setting backup reserve to 100% and maximum charge rate (1200w).
+                      title: EcoFlow
+                      log_level: "Debug"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: 100
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      target_charge_rate: 1200
+          - alias: Excess solar detected
+            conditions:
+              - condition: numeric_state
+                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                below: 100
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.ecoflow_kitchen_solar_excess
+                above: input_number.ecoflow_kitchen_charge_solar_threshold
+            sequence:
+              - service: script.excess_solar_detected
+                data: {}
+        default: []
     mode: single
 
 template:
