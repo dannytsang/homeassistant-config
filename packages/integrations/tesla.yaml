@@ -604,15 +604,16 @@ template:
         entity_id:
           - sensor.tesla_charger_power
           - switch.charger
-    sensor:
+    binary_sensor:
       - name: "Tesla Charging"
         unique_id: 38c00574-6feb-4712-8089-24f84291ad69
         state: >-
           {{ states('sensor.tesla_charger_power')|float(0) > 0 or states('switch.charger') == 'off' }}
         availability: >-
           {{ states('sensor.tesla_charger_power')|is_number and states('switch.charger') != 'unavailable' }}
-  # Teslamate
+  
   - binary_sensor:
+      # Teslamate
       - name: Parking Brake
         state: >-
           {% if is_state('sensor.tesla_shift_state', 'P') %}
@@ -623,6 +624,7 @@ template:
         unique_id: tesla_park_brake
         icon: mdi:car-brake-parking
   - sensor:
+      # Teslamate
       - name: Estimated Range (mi)
         unique_id: tesla_est_battery_range_mi
         state: >
