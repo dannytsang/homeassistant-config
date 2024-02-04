@@ -95,6 +95,11 @@ automation:
           minutes: 10
           seconds: 0
         id: "period_of_time"
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.check_solar_excess
+        id: "timer_finished"
     condition:
       - condition: numeric_state
         entity_id: number.ecoflow_kitchen_backup_reserve_level
@@ -114,51 +119,26 @@ automation:
             then:
               - service: script.ecoflow_check_charging_mode
                 data: {}
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: timer.check_solar_excess
-                    state: "active"
-            then:
-              - service: timer.start
-                data:
-                  duration: "00:10:00"
-                target:
-                  entity_id: timer.check_solar_excess
-    mode: restart
-  # Excess solar timer
-  - id: "1691703778835"
-    alias: "EcoFlow: Check Excess Solar Timer Finishes"
-    description: ""
-    trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.check_solar_excess
-    condition:
-      - condition: state
-        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_ecoflow_automations
-        state: "on"
-    action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_solar_excess
-                above: input_number.ecoflow_kitchen_charge_solar_threshold
-            sequence:
-              - parallel:
-                  - service: script.excess_solar_detected
-                    data: {}
-                  - service: timer.start
-                    data:
-                      duration: "00:10:00"
-                    target:
-                      entity_id: timer.check_solar_excess
-        default: []
-    mode: single
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.ecoflow_kitchen_solar_excess
+                    above: input_number.ecoflow_kitchen_charge_solar_threshold
+                  - not:
+                      - condition: state
+                        entity_id: timer.check_solar_excess
+                        state: "active"
+                sequence:
+                  - parallel:
+                      - service: script.ecoflow_check_charging_mode
+                        data: {}
+                      - service: timer.start
+                        data:
+                          duration: "00:10:00"
+                        target:
+                          entity_id: timer.check_solar_excess
+    mode: queued
+    max: 10
   # Unit rate related automations
   - id: "1689626117476"
     alias: "Ecoflow: Electricity Rates Cost Nothing"
