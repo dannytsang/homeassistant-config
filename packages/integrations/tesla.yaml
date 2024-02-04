@@ -65,19 +65,6 @@ automation:
               max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|int(100) }}"
     mode: single
 
-binary_sensor:
-  - platform: template
-    sensors:
-      tesla_park_brake:
-        friendly_name: Parking Brake
-        icon_template: mdi:car-brake-parking
-        value_template: >-
-          {% if is_state('sensor.tesla_shift_state', 'P') %}
-            ON
-          {% else %}
-            OFF
-          {% endif %}
-
 mqtt:
   - sensor:
       name: Display Name
@@ -611,75 +598,127 @@ mqtt:
       payload_off: "false"
       icon: mdi:ev-plug-tesla
 
-sensor:
-  - platform: template
-    sensors:
-      tesla_est_battery_range_mi:
-        friendly_name: Estimated Range (mi)
-        unit_of_measurement: mi
-        icon_template: mdi:gauge
-        value_template: >
+template:
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.tesla_charger_power
+          - switch.charger
+    sensor:
+      - name: "Tesla Charging"
+        unique_id: 38c00574-6feb-4712-8089-24f84291ad69
+        state: >-
+          {{ states('sensor.tesla_charger_power')|float(0) > 0 or states('switch.charger') == 'off' }}
+        availability: >-
+          {{ states('sensor.tesla_charger_power')|is_number and states('switch.charger') != 'unavailable' }}
+  # Teslamate
+  - binary_sensor:
+      - name: Parking Brake
+        state: >-
+          {% if is_state('sensor.tesla_shift_state', 'P') %}
+            ON
+          {% else %}
+            OFF
+          {% endif %}
+        unique_id: tesla_park_brake
+        icon: mdi:car-brake-parking
+  - sensor:
+      - name: Estimated Range (mi)
+        unique_id: tesla_est_battery_range_mi
+        state: >
           {{ (states('sensor.tesla_est_battery_range_km') | float / 1.609344) | round(2) }}
-
-      tesla_rated_battery_range_mi:
-        friendly_name: Rated Range (mi)
         unit_of_measurement: mi
-        icon_template: mdi:gauge
-        value_template: >
+        icon: mdi:gauge
+
+      - name: Rated Range (mi)
+        unique_id: tesla_rated_battery_range_mi
+        state: >
           {{ (states('sensor.tesla_rated_battery_range_km') | float / 1.609344) | round(2) }}
-
-      tesla_ideal_battery_range_mi:
-        friendly_name: Ideal Range (mi)
         unit_of_measurement: mi
-        icon_template: mdi:gauge
-        value_template: >
+        icon: mdi:gauge
+
+      - name: Ideal Range (mi)
+        unique_id: tesla_ideal_battery_range_mi
+        state: >
           {{ (states('sensor.tesla_ideal_battery_range_km') | float / 1.609344) | round(2) }}
-
-      tesla_odometer_mi:
-        friendly_name: Odometer (mi)
         unit_of_measurement: mi
-        icon_template: mdi:counter
-        value_template: >
+        icon: mdi:gauge
+
+      - name: Odometer (mi)
+        unique_id: tesla_odometer_mi
+        state: >
           {{ (states('sensor.tesla_odometer') | float / 1.609344) | round(2) }}
+        unit_of_measurement: mi
+        icon: mdi:counter
 
-      tesla_speed_mph:
-        friendly_name: Speed (MPH)
-        unit_of_measurement: mph
-        icon_template: mdi:speedometer
-        value_template: >
+      - name: Speed (MPH)
+        unique_id: tesla_speed_mph
+        state: >
           {{ (states('sensor.tesla_speed') | float / 1.609344) | round(2) }}
+        unit_of_measurement: mph
+        icon: mdi:speedometer
 
-      tesla_elevation_ft:
-        friendly_name: Elevation (ft)
-        unit_of_measurement: ft
-        icon_template: mdi:image-filter-hdr
-        value_template: >
+      - name: Elevation (ft)
+        icon: mdi:image-filter-hdr
+        state: >
           {{ (states('sensor.tesla_elevation') | float * 3.2808 ) | round(2) }}
+        unique_id: tesla_elevation_ft
+        unit_of_measurement: ft
 
-      tesla_tpms_pressure_fl_psi:
-        friendly_name: Front Left Tire Pressure (psi)
-        unit_of_measurement: psi
-        icon_template: mdi:car-tire-alert
-        value_template: >
-          {{ (states('sensor.tesla_tpms_fl') | float * 14.50377) | round(2) }}
+      # Tyres (Bar)
+      - name: Front Left Tyre Pressure (bar)
+        unique_id: tesla_tpms_pressure_fl_bar
+        state: >
+          {{ (states('sensor.tesla_tpms_fl') | float(0)) | round(2) }}
+        unit_of_measurement: bar
+        icon: mdi:car-tire-alert
 
-      tesla_tpms_pressure_fr_psi:
-        friendly_name: Front Right Tire Pressure (psi)
-        unit_of_measurement: psi
-        icon_template: mdi:car-tire-alert
-        value_template: >
-          {{ (states('sensor.tesla_tpms_fr') | float * 14.50377) | round(2) }}
+      - name: Front Right Tyre Pressure (bar)
+        unique_id: tesla_tpms_pressure_fr_bar
+        state: >
+          {{ (states('sensor.tesla_tpms_fr') | float(0)) | round(2) }}
+        unit_of_measurement: bar
+        icon: mdi:car-tire-alert
 
-      tesla_tpms_pressure_rl_psi:
-        friendly_name: Rear Left Tire Pressure (psi)
-        unit_of_measurement: psi
-        icon_template: mdi:car-tire-alert
-        value_template: >
-          {{ (states('sensor.tesla_tpms_rl') | float * 14.50377) | round(2) }}
+      - name: Rear Left Tyre Pressure (bar)
+        unique_id: tesla_tpms_pressure_rl_bar
+        state: >
+          {{ (states('sensor.tesla_tpms_rl') | float(0)) | round(2) }}
+        unit_of_measurement: bar
+        icon: mdi:car-tire-alert
 
-      tesla_tpms_pressure_rr_psi:
-        friendly_name: Rear Right Tire Pressure (psi)
+      - name: Rear Right Tyre Pressure (bar)
+        unique_id: tesla_tpms_pressure_rr_bar
+        state: >
+          {{ (states('sensor.tesla_tpms_rr') | float(0)) | round(2) }}
+        unit_of_measurement: bar
+        icon: mdi:car-tire-alert
+
+      # Tyres (PSI)
+      - name: Front Left Tyre Pressure (psi)
+        unique_id: tesla_tpms_pressure_fl_psi
+        state: >
+          {{ (states('sensor.tesla_tpms_fl') | float(0) * 14.50377) | round(2) }}
         unit_of_measurement: psi
-        icon_template: mdi:car-tire-alert
-        value_template: >
-          {{ (states('sensor.tesla_tpms_rr') | float * 14.50377) | round(2) }}
+        icon: mdi:car-tire-alert
+
+      - name: Front Right Tyre Pressure (psi)
+        unique_id: tesla_tpms_pressure_fr_psi
+        state: >
+          {{ (states('sensor.tesla_tpms_fr') | float(0) * 14.50377) | round(2) }}
+        unit_of_measurement: psi
+        icon: mdi:car-tire-alert
+      
+      - name: Rear Left Tyre Pressure (psi)
+        unique_id: tesla_tpms_pressure_rl_psi
+        state: >
+          {{ (states('sensor.tesla_tpms_rl') | float(0) * 14.50377) | round(2) }}
+        unit_of_measurement: psi
+        icon: mdi:car-tire-alert
+
+      - name: Rear Right Tyre Pressure (psi)
+        unique_id: tesla_tpms_pressure_rr_psi
+        state: >
+          {{ (states('sensor.tesla_tpms_rr') | float(0) * 14.50377) | round(2) }}
+        unit_of_measurement: psi
+        icon: mdi:car-tire-alert
