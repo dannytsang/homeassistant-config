@@ -30,41 +30,8 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - if:
-          - condition: numeric_state
-            entity_id: number.ecoflow_kitchen_ac_charging_power
-            above: input_number.ecoflow_kitchen_charge_solar_threshold
-          - condition: template
-            value_template: >-
-              {{ (states('sensor.ecoflow_kitchen_solar_excess')|float(-1) +
-              states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
-              states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
-        then:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Solar production dipped below household consumption. Reducing charge rate from
-                {{ states('number.ecoflow_kitchen_ac_charging_power') }}
-                to
-                {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}w.
-              title: Solar
-              log_level: "Debug"
-          - service: script.ecoflow_set_charge_rate
-            data:
-              reserve_amount: >-
-                {{ (((states('sensor.ecoflow_kitchen_solar_excess')|float(0) +
-                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
-                200)|int(0)) * 200 }}
-        else:
-          - parallel:
-              - service: script.send_to_home_log
-                data:
-                  message: Solar production dipped below household consumption. Setting backup to 5%.
-                  title: Solar
-                  log_level: "Debug"
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  reserve_amount: 5
+      - service: script.ecoflow_check_charging_mode
+        data: {}
       - if:
           - condition: state
             entity_id: timer.check_solar_excess
@@ -86,20 +53,10 @@ automation:
           hours: 0
           minutes: 10
           seconds: 0
-        id: "instant"
-      - platform: numeric_state
-        entity_id: sensor.ecoflow_kitchen_solar_excess
-        above: input_number.ecoflow_kitchen_charge_solar_threshold
-        for:
-          hours: 0
-          minutes: 10
-          seconds: 0
-        id: "period_of_time"
       - platform: event
         event_type: timer.finished
         event_data:
           entity_id: timer.check_solar_excess
-        id: "timer_finished"
     condition:
       - condition: numeric_state
         entity_id: number.ecoflow_kitchen_backup_reserve_level
@@ -141,23 +98,53 @@ automation:
     max: 10
   # Unit rate related automations
   - id: "1689626117476"
-    alias: "Ecoflow: Electricity Rates Cost Nothing"
+    alias: "Ecoflow: Electricity Rates Low To Cost Nothing"
     description: ""
     trigger:
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
-        below: 0.01
+        below: sensor.electricity_export_current_rate
+      - platform: state
+        entity_id: sensor.electricity_current_rate
+        to: sensor.electricity_export_current_rate
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: 0
+      - platform: state
+        entity_id: sensor.electricity_current_rate
+        to: "0"
+      - platform: time_pattern
+        minutes: "1"
     condition:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
     action:
-      - service: script.ecoflow_check_charging_mode
-        data: {}
+      - parallel:
+          - alias: Check if fridge freezer plug has been switched off
+            if:
+              - condition: state
+                entity_id: switch.fridge_freezer
+                state: "off"
+            then:
+              - service: script.send_direct_notification
+                data:
+                  message: >-
+                    Fridge freezer plug has been switched off!
+
+
+                    Electricity unit rate is the same or below export rate
+                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                    states('sensor.electricity_export_current_rate') }}).
+                  title: EcoFlow
+                  people:
+                    entity_id:
+                      - person.danny
+                      - person.terina
     mode: single
   - id: "1689626117477"
     alias: "Ecoflow: Electricity Rates Starts To Cost"
-    description: ""
+    description: "Disabled"
     trigger:
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
@@ -232,65 +219,6 @@ automation:
             data:
               target_charge_rate: >-
                 {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}
-    mode: single
-  - id: "1691009694610"
-    alias: "EcoFlow: Electricity Rate Below Export Rate"
-    description: ""
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-      - platform: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-    condition:
-      - condition: state
-        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_ecoflow_automations
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.ecoflow_kitchen_charge_below_export
-        state: "on"
-    action:
-      - parallel:
-          - alias: Check if fridge freezer plug has been switched off
-            if:
-              - condition: state
-                entity_id: switch.fridge_freezer
-                state: "off"
-            then:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Fridge freezer plug has been switched off!
-
-
-                    Electricity unit rate is the same or below export rate
-                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                    states('sensor.electricity_export_current_rate') }}).
-                  title: EcoFlow
-                  people:
-                    entity_id:
-                      - person.danny
-                      - person.terina
-            else:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Electricity unit rate is the same or below export rate
-                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                    states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
-                  title: EcoFlow
-                  log_level: "Debug"
-          - sequence:
-              - service: script.ecoflow_set_charge_rate
-                data:
-                  target_charge_rate: 1200
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  reserve_amount: 100
     mode: single
   # Battery level
   - id: "1695566530591"
@@ -519,6 +447,13 @@ script:
               - condition: state
                 entity_id: input_boolean.ecoflow_kitchen_charge_below_export
                 state: "on"
+              - or:
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "0"
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: "0"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -534,6 +469,57 @@ script:
                   - service: script.ecoflow_set_charge_rate
                     data:
                       target_charge_rate: 1200
+          - alias: No Excess Solar
+            conditions:
+              - or:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    above: sensor.electricity_export_current_rate
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "unavailable"
+              - condition: numeric_state
+                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                above: 5
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+            sequence:
+              - if:
+                  - condition: numeric_state
+                    entity_id: number.ecoflow_kitchen_ac_charging_power
+                    above: input_number.ecoflow_kitchen_charge_solar_threshold
+                  - condition: template
+                    value_template: >-
+                      {{ (states('sensor.ecoflow_kitchen_solar_excess')|float(-1) +
+                      states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
+                      states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
+                then:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Solar production dipped below household consumption. Reducing charge rate from
+                        {{ states('number.ecoflow_kitchen_ac_charging_power') }}
+                        to
+                        {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) / 200)|int(0)) * 200 }}w.
+                      title: Solar
+                      log_level: "Debug"
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      reserve_amount: >-
+                        {{ (((states('sensor.ecoflow_kitchen_solar_excess')|float(0) +
+                        states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
+                        200)|int(0)) * 200 }}
+                else:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: Solar production dipped below household consumption. Setting backup to 5%.
+                          title: Solar
+                          log_level: "Debug"
+                      - service: script.ecoflow_set_backup_reserve
+                        data:
+                          reserve_amount: 5
           - alias: Excess solar detected
             conditions:
               - condition: numeric_state
@@ -548,6 +534,62 @@ script:
             sequence:
               - service: script.excess_solar_detected
                 data: {}
+          - alias: Electricity rates below export
+            conditions:
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                state: "on"
+              - or:
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: sensor.electricity_export_current_rate
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: sensor.electricity_export_current_rate
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Electricity unit rate is the same or below export rate
+                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                    states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+                  title: EcoFlow
+                  log_level: "Debug"
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 1200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
+          - alias: Electricity start to cost
+            conditions:
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: sensor.electricity_export_current_rate
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        and no excess electricity detected
+                        ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
+                        Setting backup reserve to
+                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
+                        {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
+                      title: EcoFlow
+                      log_level: "Debug"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: >-
+                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
         default: []
     mode: single
 
