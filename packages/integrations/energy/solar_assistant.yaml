@@ -377,18 +377,6 @@ script:
             options:
               - event
               - time
-    variables:
-      inverter_mode: >-
-        {%- if states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' and
-        states('number.growatt_sph_battery_first_stop_charge')|int(100) < 100 -%}
-        Maintain
-        {%- elif states('switch.growatt_sph_battery_first_slot_1_enabled') == 'on' -%}
-        Battery first
-        {%- elif states('switch.growatt_sph_grid_first_slot_1_enabled') == 'on' -%}
-        Grid first
-        {%- else -%}
-        {{ states('select.growatt_sph_work_mode_priority') }}
-        {%- endif -%}
     sequence:
       - choose:
           - alias: "Unit rate is on or below 0p/kw"
@@ -409,8 +397,6 @@ script:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Battery first"
-                  # - condition: template
-                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - choose:
@@ -474,8 +460,6 @@ script:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Battery first"
-                  # - condition: template
-                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - choose:
@@ -535,8 +519,6 @@ script:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Battery first"
-                  # - condition: template
-                  #   value_template: "{{ inverter_mode != 'Battery first' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -566,8 +548,6 @@ script:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Grid first"
-                  # - condition: template
-                  #   value_template: "{{ inverter_mode != 'Grid first' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -604,8 +584,6 @@ script:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Maintain"
-                  # - condition: template
-                  #   value_template: "{{ inverter_mode != 'Maintain' }}"
                 then:
                   - parallel:
                       - service: script.send_direct_notification
@@ -656,8 +634,6 @@ script:
                   - condition: state
                     entity_id: sensor.growatt_sph_inverter_mode
                     state: "Load first"
-              # - condition: template
-              #   value_template: "{{ inverter_mode != 'Load first'}}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
