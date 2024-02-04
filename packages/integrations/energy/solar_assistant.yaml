@@ -352,7 +352,8 @@ script:
                   log_level: "Debug"
               - alias: Set inverter mode to battery first
                 service: script.battery_first_priority_mode
-                data: {}
+                data:
+                  max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|int(100) }}"
         else:
           - service: script.send_to_home_log
             data:
