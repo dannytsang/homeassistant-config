@@ -12,7 +12,7 @@ automation:
         to: "SCHEDULE"
       - platform: state
         entity_id:
-          - water_heater.hot_water
+          - water_heater.thermostat
         to: "eco"
     condition: []
     action:
@@ -61,17 +61,17 @@ automation:
     trigger:
       - platform: state
         entity_id:
-          - water_heater.hot_water
+          - water_heater.thermostat
         to: "eco"
       - platform: state
         entity_id:
-          - water_heater.hot_water
+          - water_heater.thermostat
         to: "on"
     condition: []
     action:
       - service: script.send_to_home_log
         data:
-          message: Hot water mode changed to {{ states('water_heater.hot_water') }}
+          message: Hot water mode changed to {{ states('water_heater.thermostat') }}
           title: ":hotsprings: :droplet: Boiler"
       - choose:
           - conditions:
@@ -103,7 +103,7 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: water_heater.hot_water
+            entity_id: water_heater.thermostat
             state: "on"
     action:
       - choose:
@@ -164,7 +164,7 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: water_heater.hot_water
+            entity_id: water_heater.thermostat
             state: "off"
     action:
       - choose:
@@ -339,7 +339,7 @@ script:
           - if:
               - not:
                   - condition: state
-                    entity_id: water_heater.hot_water
+                    entity_id: water_heater.thermostat
                     state: "eco"
             then:
               - parallel:
@@ -352,12 +352,12 @@ script:
                     data:
                       operation_mode: "eco"
                     target:
-                      entity_id: water_heater.hot_water
+                      entity_id: water_heater.thermostat
         else:
           - if:
               - not:
                   - condition: state
-                    entity_id: water_heater.hot_water
+                    entity_id: water_heater.thermostat
                     state: "auto"
             then:
               - parallel:
@@ -370,7 +370,7 @@ script:
                     data:
                       operation_mode: "auto"
                     target:
-                      entity_id: water_heater.hot_water
+                      entity_id: water_heater.thermostat
     mode: single
   set_how_water_to_away_mode:
     alias: Set Hot Water To Off
@@ -379,7 +379,7 @@ script:
       - if:
           - not:
               - condition: state
-                entity_id: water_heater.hot_water
+                entity_id: water_heater.thermostat
                 state: "off"
         then:
           - parallel:
@@ -392,7 +392,7 @@ script:
                 data:
                   operation_mode: "off"
                 target:
-                  entity_id: water_heater.hot_water
+                  entity_id: water_heater.thermostat
     mode: single
   set_how_water_to_on:
     alias: Set Hot Water To On
@@ -401,7 +401,7 @@ script:
       - if:
           - not:
               - condition: state
-                entity_id: water_heater.hot_water
+                entity_id: water_heater.thermostat
                 state: "on"
         then:
           - parallel:
@@ -414,7 +414,7 @@ script:
                 data:
                   operation_mode: "on"
                 target:
-                  entity_id: water_heater.hot_water
+                  entity_id: water_heater.thermostat
     mode: single
 
 sensor:
