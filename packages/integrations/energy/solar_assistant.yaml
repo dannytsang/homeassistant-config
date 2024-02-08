@@ -196,6 +196,10 @@ script:
               title: Solar Assistant
               log_level: "Normal"
         else:
+          # Do this first so it does not overlap with setting work mode which automatically enable grid schedule 1.
+          - alias: Make sure inverter mode schedules are turned off
+            service: script.solar_assistant_turn_off_mode_schedules
+            data: {}
           - if:
               - not:
                   - condition: state
@@ -232,9 +236,6 @@ script:
             data:
               value: >-
                 {{ states('number.growatt_sph_grid_first_stop_discharge')|default(50, true)|float(100) }}
-          - alias: Make sure inverter mode schedules are turned off
-            service: script.solar_assistant_turn_off_mode_schedules
-            data: {}
           - alias: Set inverter mode to export first
             service: select.select_option
             target:
