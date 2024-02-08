@@ -70,10 +70,10 @@ automation:
       home.
     trigger:
       - platform: numeric_state
-        entity_id: proximity.danny_home
+        entity_id: sensor.danny_home_nearest_distance
         below: input_number.distance_close_to_home
       - platform: numeric_state
-        entity_id: proximity.terina_home
+        entity_id: sensor.terina_home_nearest_distance
         below: input_number.distance_close_to_home
     condition: []
     action:
@@ -85,20 +85,18 @@ automation:
               - condition: or
                 conditions:
                   - condition: state
-                    entity_id: proximity.danny_home
-                    attribute: dir_of_travel
+                    entity_id: sensor.danny_home_nearest_direction_of_travel
                     state: "towards"
                   - condition: state
-                    entity_id: proximity.terina_home
-                    attribute: dir_of_travel
+                    entity_id: sensor.terina_home_nearest_direction_of_travel
                     state: "towards"
             sequence:
               - service: input_text.set_value
                 data:
                   value: >-
-                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
+                    {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
                     person.danny
-                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
+                    {%- elif trigger.entity_id == 'sensor.terina_home_nearest_distance' -%}
                     person.terina
                     {%- endif -%}
                 target:
@@ -115,9 +113,9 @@ automation:
               - service: script.send_to_home_log
                 data:
                   message: >-
-                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
+                    {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
                     {{ state_attr('person.danny', 'friendly_name') }}
-                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
+                    {%- elif trigger.entity_id == 'sensor.terina_home_nearest_distance' -%}
                     {{ state_attr('person.terina', 'friendly_name') }}
                     {%- endif -%} is
                     {{ states('trigger.entity_id', with_unit=True) }} from home and will
@@ -147,9 +145,9 @@ automation:
               - service: script.send_direct_notification
                 data:
                   message: >-
-                    {%- if trigger.entity_id == 'proximity.danny_home' -%}
+                    {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
                     {{ state_attr('person.danny', 'friendly_name') }}
-                    {%- elif trigger.entity_id == 'proximity.terina_home' -%}
+                    {%- elif trigger.entity_id == 'sensor.terina_home_nearest_distance' -%}
                     {{ state_attr('person.terina', 'friendly_name') }}
                     {%- endif -%} is
                     {{ states('trigger.entity_id', with_unit=True) }} from home and will
@@ -165,20 +163,18 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: proximity.danny_home
+        entity_id: sensor.danny_home_nearest_distance
         below: input_number.distance_almost_to_home
       - platform: numeric_state
-        entity_id: proximity.terina_home
+        entity_id: sensor.terina_home_nearest_distance
         below: input_number.distance_almost_to_home
     condition:
       - or:
           - condition: state
-            entity_id: proximity.danny_home
-            attribute: dir_of_travel
+            entity_id: sensor.danny_home_nearest_direction_of_travel
             state: "towards"
           - condition: state
-            entity_id: proximity.terina_home
-            attribute: dir_of_travel
+            entity_id: sensor.terina_home_nearest_direction_of_travel
             state: "towards"
       - or:
           - condition: state
@@ -191,9 +187,9 @@ automation:
       - service: input_text.set_value
         data:
           value: >-
-            {% if trigger.entity_id == 'proximity.danny_home' %}
+            {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
             person.danny
-            {% elif trigger.entity_id == 'proximity.terina_home'%}
+            {% elif trigger.entity_id == 'sensor.terina_home_nearest_distance'%}
             person.terina
             {% endif %}
         target:
@@ -215,9 +211,9 @@ automation:
           - service: script.send_to_home_log
             data:
               message: >-
-                {% if trigger.entity_id == 'proximity.danny_home' %}
+                {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
                 {{ state_attr('person.danny', 'friendly_name') }}
-                {% elif trigger.entity_id == 'proximity.terina_home'%}
+                {% elif trigger.entity_id == 'sensor.terina_home_nearest_distance'%}
                 {{ state_attr('person.terina', 'friendly_name') }}
                 {% endif %} is
                 {{ states('trigger.entity_id', with_unit=True) }} from home and will
@@ -234,9 +230,9 @@ automation:
           - service: script.send_to_home_log
             data:
               message: >-
-                {% if trigger.entity_id == 'proximity.danny_home' %}
+                {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
                 {{ state_attr('person.danny', 'friendly_name') }}
-                {% elif trigger.entity_id == 'proximity.terina_home'%}
+                {% elif trigger.entity_id == 'sensor.terina_home_nearest_distance'%}
                 {{ state_attr('person.terina', 'friendly_name') }}
                 {% endif %} is
                 {{ states('trigger.entity_id', with_unit=True) }} from home and will
@@ -522,20 +518,20 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: proximity.danny_home
+        entity_id: sensor.danny_home_nearest_distance
         above: input_number.long_distance_away_from_home
       - platform: numeric_state
-        entity_id: proximity.terina_home
+        entity_id: sensor.terina_home_nearest_distance
         above: input_number.long_distance_away_from_home
     condition: []
     action:
       - choose:
           - conditions:
               - condition: numeric_state
-                entity_id: proximity.terina_home
+                entity_id: sensor.terina_home_nearest_distance
                 above: input_number.long_distance_away_from_home
               - condition: numeric_state
-                entity_id: proximity.danny_home
+                entity_id: sensor.danny_home_nearest_distance
                 above: input_number.long_distance_away_from_home
             sequence:
               - parallel:
@@ -570,7 +566,7 @@ automation:
     description: "Heading towards home and very close."
     trigger:
       - platform: numeric_state
-        entity_id: proximity.danny_home
+        entity_id: sensor.danny_home_nearest_distance
         below: input_number.arriving_home_threshold
     condition:
       - condition: state
@@ -580,8 +576,7 @@ automation:
         entity_id: alarm_control_panel.house_alarm
         state: "armed_home"
       - condition: state
-        entity_id: proximity.danny_home
-        attribute: dir_of_travel
+        entity_id: sensor.danny_home_nearest_direction_of_travel
         state: "towards"
     action:
       - parallel:
@@ -669,7 +664,7 @@ automation:
     description: "Heading towards home and very close."
     trigger:
       - platform: numeric_state
-        entity_id: proximity.terina_home
+        entity_id: sensor.terina_home_nearest_distance
         below: input_number.arriving_home_threshold
     condition:
       - condition: state
@@ -679,8 +674,7 @@ automation:
         entity_id: alarm_control_panel.house_alarm
         state: "armed_home"
       - condition: state
-        entity_id: proximity.danny_home
-        attribute: dir_of_travel
+        entity_id: sensor.danny_home_nearest_direction_of_travel
         state: "towards"
     action:
       - parallel:
@@ -880,104 +874,6 @@ group:
     icon: mdi:server
     entities:
       - device_tracker.turk
-
-proximity:
-  danny_dannys_parents:
-    zone: dannys_parents
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_home:
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_primary_school:
-    zone: primary_school
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_terinas_parents:
-    zone: terinas_parents
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_terinas_parents_2:
-    zone: terinas_parents_2
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_tommys_home:
-    zone: tommys_home
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  danny_work:
-    zone: dannys_work
-    devices:
-      - device_tracker.dannys_phone
-      - device_tracker.dannys_phone
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_dannys_parents:
-    zone: dannys_parents
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_home:
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_primary_school:
-    zone: primary_school
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_terinas_parents:
-    zone: terinas_parents
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_terinas_parents_2:
-    zone: terinas_parents_2
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_tommys_home:
-    zone: tommys_home
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
-  terina_work:
-    zone: terinas_work
-    devices:
-      - device_tracker.terinas_phone
-      - device_tracker.terinas_mobile_2
-    tolerance: 200
-    unit_of_measurement: mi
 
 script:
   everybody_leave_home:
