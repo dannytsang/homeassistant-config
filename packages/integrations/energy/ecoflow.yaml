@@ -589,7 +589,29 @@ script:
                 entity_id: sensor.electricity_current_rate
                 above: sensor.electricity_export_current_rate
             sequence:
-              - parallel:
+              - if:
+                  - condition: numeric_state
+                    entity_id: script.ecoflow_set_backup_reserve
+                    above: input_number.ecoflow_kitchen_low_battery_reserve
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Electrictity rate has gove above 0
+                            ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                            and no excess electricity detected
+                            ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
+                            Setting backup reserve to
+                            {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
+                            {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - service: script.ecoflow_set_backup_reserve
+                        data:
+                          reserve_amount: >-
+                            {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
+                else:
                   - service: script.send_to_home_log
                     data:
                       message: >-
@@ -597,15 +619,12 @@ script:
                         ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                         and no excess electricity detected
                         ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
-                        Setting backup reserve to
+                        Reserve already set
                         {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
-                        {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
+                        {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}
+                        skipping.
                       title: EcoFlow
                       log_level: "Debug"
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: >-
-                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
         default: []
     mode: single
 
