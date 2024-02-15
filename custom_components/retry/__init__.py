@@ -163,9 +163,15 @@ class RetryParams:
             for key, value in data.items()
             if key not in CALL_SERVICE_SCHEMA.schema
         }
-        if schema := hass.services.async_services()[self.retry_data[ATTR_DOMAIN]][
-            self.retry_data[ATTR_SERVICE]
-        ].schema:
+        if hasattr(hass.services, "async_services_for_domain"):
+            domain_services = hass.services.async_services_for_domain(
+                self.retry_data[ATTR_DOMAIN]
+            )
+        else:
+            domain_services = hass.services.async_services()[
+                self.retry_data[ATTR_DOMAIN]
+            ]
+        if schema := domain_services[self.retry_data[ATTR_SERVICE]].schema:
             schema(inner_data)
         return inner_data
 
@@ -262,7 +268,15 @@ class RetryCall:
         """Check if the entity's state is expected."""
         if not entity or ATTR_EXPECTED_STATE not in self._params.retry_data:
             return True
-        return entity.state in self._params.retry_data[ATTR_EXPECTED_STATE]
+        for expected in self._params.retry_data[ATTR_EXPECTED_STATE]:
+            if entity.state == expected:
+                return True
+            try:
+                if float(entity.state) == float(expected):
+                    return True
+            except ValueError:
+                pass
+        return False
 
     def _check_validation(self) -> bool:
         """Check if the validation statement is true."""
