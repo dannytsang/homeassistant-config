@@ -41,15 +41,20 @@ automation:
                     entity_id: sensor.office_motion_2_illuminance_lux
                     state: "unavailable"
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
-                    {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
-                    Skipping turning light on.
-                  title: ":office: Office"
-                  log_level: "Debug"
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
+                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        Skipping turning light on.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.office_lights_off
           - conditions:
               - and:
                   - condition: numeric_state
@@ -78,6 +83,10 @@ automation:
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
                       log_level: "Debug"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.office_lights_off
           - conditions:
               - and:
                   - or:
@@ -110,6 +119,10 @@ automation:
                         Turning office lights off.
                       title: ":office: Office"
                       log_level: "Debug"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.office_lights_off
         default: []
     mode: queued
     max: 10
@@ -153,15 +166,20 @@ automation:
                     entity_id: sensor.office_motion_2_illuminance_lux
                     state: "unavailable"
             sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
-                    {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
-                    Skipping turning light on.
-                  title: ":office: Office"
-                  log_level: "Debug"
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: :bulb: :high_brightness: Motion detected in the office
+                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
+                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        Skipping turning light on.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - service: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.office_lights_off
         default:
           - parallel:
               - service: scene.turn_on
@@ -176,6 +194,10 @@ automation:
                     Turning :bulb: :high_brightness: lights on.
                   title: ":office: Office"
                   log_level: "Debug"
+              - service: timer.cancel
+                data: {}
+                target:
+                  entity_id: timer.office_lights_off
     mode: single
   - id: "1587044886896"
     alias: "Office: No Motion Detected"
@@ -198,6 +220,34 @@ automation:
       - condition: numeric_state
         entity_id: sensor.office_motion_2_target_distance
         below: 0.01
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :no_pedestrians: No motion in the office. Starting timer for 2 minutes
+                before turning lights off.
+              title: ":office: Office"
+              log_level: "Debug"
+          - service: timer.start
+            data:
+              duration: "00:02:00"
+            target:
+              entity_id: timer.office_lights_off
+    mode: single
+  - id: "1587044886897"
+    alias: "Office: Office Light Off Timer Finished"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.office_lights_off
+
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_motion_triggers
+        state: "on"
     action:
       - parallel:
           - service: script.send_to_home_log
