@@ -23,11 +23,11 @@ automation:
         id: event
       - platform: time_pattern
         minutes: "0"
-        seconds: "30"
+        seconds: "10"
         id: time
       - platform: time_pattern
         minutes: "30"
-        seconds: "30"
+        seconds: "10"
         id: time
       - platform: homeassistant
         event: start
@@ -112,6 +112,33 @@ automation:
                   log_level: "Debug"
               - service: script.load_first_priority_mode
                 data: {}
+    mode: single
+  # Octopus
+  - id: "1708679917302"
+    alias: Solar Assistant Target Octopus Rate Turned On
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.octopus_energy_target_overnight_home_battery_charge_100
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.charge_below_export_octopus_schedule
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_solar_assistant_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Target battery charge turned on.
+              title: Solar Assistant
+          - service: script.solar_assistant_check_charging_mode
+            data: {}
     mode: single
 
 script:
