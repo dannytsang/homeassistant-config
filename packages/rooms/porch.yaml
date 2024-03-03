@@ -200,6 +200,37 @@ automation:
                         - scene.office_turn_off_light_notification
             default: []
     mode: single
+  - id: "1708895092115"
+    alias: "Porch: Light On And Door Is Shut"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - light.porch
+        to: "on"
+        for:
+          minutes: 5
+    condition:
+      - condition: state
+        entity_id: binary_sensor.front_door
+        state: "off"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              title: Porch
+              message:
+                "Light has been on for 5 minutes and :door: is closed. Turning light
+                off."
+          - service: light.turn_off
+            metadata: {}
+            data:
+              transition: 2
+            target:
+              entity_id: light.porch
+    mode: single
   - id: "1700940016581"
     alias: "Porch: Light Switch"
     description: ""
