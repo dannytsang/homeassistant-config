@@ -11,8 +11,7 @@ automation:
         attribute: temperature
         above: input_number.forecast_high_temperature
       - platform: numeric_state
-        entity_id: weather.home_hourly
-        attribute: temperature
+        entity_id: sensor.temperature_forecast_next_hour
         above: input_number.forecast_high_temperature
       - platform: numeric_state
         entity_id:
@@ -26,8 +25,7 @@ automation:
             attribute: temperature
             above: input_number.forecast_high_temperature
           - condition: numeric_state
-            entity_id: weather.home_hourly
-            attribute: temperature
+            entity_id: sensor.temperature_forecast_next_hour
             above: input_number.forecast_high_temperature
       - condition: state
         entity_id: sensor.season
@@ -86,3 +84,16 @@ sensor:
     name: Met Office RSS Weather Warnings
     feed_url: !secret weather_warning_rss
     date_format: "%a, %b %d %I:%M %p"
+
+template:
+  - trigger:
+      - platform: state
+        entity_id: weather.openweathermap
+        attribute: "forecast"
+    sensor:
+      - name: "Temperature Forecast Next Hour"
+        unique_id: "df450ecd-2ff6-4649-8393-944608b7601f"
+        state: "{{ state_attr('weather.openweathermap', 'forecast')[1].temperature|float(0)}}"
+        unit_of_measurement: "°C"
+        attributes:
+          datetime: "{{ state_attr('weather.openweathermap', 'forecast')[1].datetime}}"

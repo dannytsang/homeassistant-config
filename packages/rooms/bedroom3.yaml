@@ -524,7 +524,8 @@ template:
           - sensor.ashlees_bedroom_window_temperature
           - sensor.front_garden_motion_illuminance_lux
           - sun.sun
-          - weather.home_hourly
+          - sensor.temperature_forecast_next_hour
+          - weather.home
       - platform: time_pattern
         minutes: "/15"
     binary_sensor:
@@ -535,15 +536,15 @@ template:
           {{ not(states('sensor.front_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
           and not(states('sun.sun') == 'above_horizon')
           and states('binary_sensor.ashlees_bedroom_window_contact') == 'off')
-          and state_attr('weather.home_hourly', 'temperature')|float(0) < states('input_number.forecast_high_temperature')|float(24)
+          and states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24)
           and (states('sensor.ashlees_bedroom_area_mean_temperature')|float(0)) <= 23.5
           and (states('sensor.ashlees_bedroom_window_temperature')|float(0)) <= 24
-          and not(states('weather.home_hourly') in ['sunny','partlycloudy']) }}
+          and not(states('weather.home') in ['sunny','partlycloudy']) }}
         attributes:
           brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
           sun: "{{ states('sun.sun') == 'above_horizon' }}"
           temperature: "{{ (states('sensor.ashlees_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
-          temperature_hour_forecast: "{{ states('weather.home_hourly')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
+          temperature_hour_forecast: "{{ states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
           weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
           window: "{{ states('binary_sensor.ashlees_bedroom_window_contact') == 'off' }}"
           window_temperature: "{{ (states('sensor.ashlees_bedroom_window_temperature')|float(0)) > 24 }}"
