@@ -279,7 +279,7 @@ automation:
         at: "08:00:00"
     condition: []
     action:
-      - service: solcast_solar.update_forecasts
+      - service: script.update_solcast
         data: {}
     mode: single
 
@@ -406,6 +406,28 @@ script:
         *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
         *(estimate_charge_percentage|float(0)/100)
         / states('input_number.solar_battery_max_charge_rate')|float(0) }}
+      weather_emoji: >-
+        {%- if state_attr('weather.home', 'forecast')[1].condition == "rainy" or state_attr('weather.home', 'forecast')[1].condition == "pouring" -%}
+        :rain_cloud:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "cloudy" -%}
+        :cloud:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "partlycloudy" -%}
+        :partly_sunny:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "sunny" -%}
+        :sunny:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "lightning-rainy" -%}
+        :thunder_cloud_and_rain:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "lightning" or state_attr('weather.home', 'forecast')[1].condition == "lightning-rainy" -%}
+        :lightning_cloud:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "windy" or state_attr('weather.home', 'forecast')[1].condition == "windy-variant" -%}
+        :wind_blowing_face:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "snowy" -%}
+        :snow_cloud:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "fog" -%}
+        :fog:
+        {%- elif state_attr('weather.home', 'forecast')[1].condition == "exceptional" -%}
+        :warning:
+        {%- endif -%}
     sequence:
       - service: script.send_direct_notification
         data:
@@ -413,9 +435,11 @@ script:
             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
             {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
             {%- from 'get_electricity_rates.jinja' import get_cheapest_electricity_rates -%}
-            Generation forecast for tomorrow ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
-            will be
-            {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow', with_unit=True) }}
+            Tommow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
+            weather will be {{ state_attr('weather.home', 'forecast')[1].condition }}
+            {{ weather_emoji }} with a generation forecast of
+            {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
+            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
             {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.7)|default(none, true) is not none -%}
             The first self sustaining generation will occur at
@@ -434,7 +458,7 @@ script:
             Charge :house_with_garden::battery: battery to {{ estimate_charge_percentage }}% to {{ estimate_charge_kw }}kWh.
 
 
-            Charge time required: {{ estimate_charge_hours|round(2, 'ceil') }}kWh. {{ (estimate_charge_hours * 2)|round(0)/2 }} hours ({{ (((estimate_charge_hours * 2)|round(0)/2)*2)|round(0) }} slots).
+            Charge time required: {{ estimate_charge_hours|round(2, 'ceil') }}kWh. {{ (estimate_charge_hours)|round(0, 'ceil') }} hours ({{ ((estimate_charge_hours|round(0, 'ceil'))*2)|round(0) }} slots).
             {%- endif -%}
           title: ":sunny: :zap: Solar"
           people:
