@@ -786,14 +786,14 @@ automation:
             default: []
     mode: single
   # Remotes
-  - id: "1699308571381"
-    alias: "Bedroom: Remote Turn On"
+  - id: "1699308571385"
+    alias: "Bedroom: Remote Button 1"
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - sensor.bedroom_remote_action
-        to: on_press_release
+          - sensor.bedroom_dial_remote_action
+        to: button_1_press_release
     condition: []
     action:
       - service: light.toggle
@@ -801,14 +801,14 @@ automation:
           entity_id: light.bedroom_lamps
         data: {}
     mode: single
-  - id: "1699308571382"
-    alias: "Bedroom: Remote Turn Off"
+  - id: "1699308571386"
+    alias: "Bedroom: Remote Button 2"
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - sensor.bedroom_remote_action
-        to: off_press_release
+          - sensor.bedroom_dial_remote_action
+        to: button_2_press_release
     condition: []
     action:
       - service: light.toggle
@@ -816,14 +816,14 @@ automation:
         target:
           entity_id: light.bedroom_main_light
     mode: single
-  - id: "1699308571383"
-    alias: "Bedroom: Remote Up"
+  - id: "1699308571387"
+    alias: "Bedroom: Remote Button 3"
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - sensor.bedroom_remote_action
-        to: up_press_release
+          - sensor.bedroom_dial_remote_action
+        to: button_3_press_release
     condition: []
     action:
       - service: cover.open_cover
@@ -831,20 +831,70 @@ automation:
           entity_id: cover.bedroom_blinds
         data: {}
     mode: single
-  - id: "1699308571384"
-    alias: "Bedroom: Remote Down"
+  - id: "1699308571388"
+    alias: "Bedroom: Remote Button 4"
     description: ""
     trigger:
       - platform: state
         entity_id:
-          - sensor.bedroom_remote_action
-        to: down_press_release
+          - sensor.bedroom_dial_remote_action
+        to: button_4_press_release
     condition: []
     action:
       - service: cover.close_cover
         target:
           entity_id: cover.bedroom_blinds
         data: {}
+    mode: single
+  - id: "1710079376648"
+    alias: "Dial: Rotory Action"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.bedroom_dial_remote_action
+        to:
+          - dial_rotate_right_step
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
+    action:
+      - service: light.turn_on
+        metadata: {}
+        data:
+          brightness: >-
+            {{ state_attr('light.bedroom_lamps', 'brightness')|int(0) +
+            states('sensor.bedroom_dial_remote_action_time')|float(15) }}
+        target:
+          entity_id:
+            - light.bedroom_lamps
+    mode: single
+  - id: "1710079376649"
+    alias: "Dial: Action"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.bedroom_dial_remote_action
+        to:
+          - dial_rotate_left_step
+    condition:
+      - condition: template
+        value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
+    action:
+      - service: light.turn_on
+        metadata: {}
+        data:
+          brightness: >-
+            {%- if states('sensor.bedroom_dial_remote_action_time')|float(15) > state_attr('light.bedroom_lamps', 'brightness')|int(0) -%}
+            0
+            {%- else -%}
+            {{ state_attr('light.bedroom_lamps', 'brightness')|int(0) -
+            states('sensor.bedroom_dial_remote_action_time')|float(15) }}
+            {%-endif-%}
+        target:
+          entity_id:
+            - light.bedroom_lamps
     mode: single
   # Other
   - id: "1624194439043"
