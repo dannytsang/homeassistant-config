@@ -398,6 +398,8 @@ script:
   solar_assistant_check_charging_mode:
     alias: Solar Assistant Check Charging Mode
     description: ""
+    trace:
+      stored_traces: 20
     fields:
       event:
         description: The trigger for running an electricity rate check.
@@ -649,7 +651,8 @@ script:
                                   message: >-
                                     Scheduled to charge
                                     {{ solar_forecast_data.charge_hours }}({{ solar_forecast_data.charge_hours|round(0, 'ceil') }})
-                                    hour(s) and inverter has not switched to battery first mode.
+                                    hour{{ iif(solar_forecast_data.charge_hours > 1,'s','') }}
+                                    and inverter has not switched to battery first mode.
                                   title: Solar Assistant
                                   people:
                                     entity_id:
@@ -660,7 +663,8 @@ script:
                                   message: >-
                                     Scheduled to charge
                                     {{ solar_forecast_data.charge_hours }}({{ solar_forecast_data.charge_hours|round(0, 'ceil') }})
-                                    hour(s). Charging house battery.
+                                    hour{{ iif(solar_forecast_data.charge_hours > 1,'s','') }}.
+                                    Charging house battery.
                                   title: Solar Assistant
                                   debug: "Debug"
                           - service: number.set_value
