@@ -847,7 +847,7 @@ automation:
         data: {}
     mode: single
   - id: "1710079376648"
-    alias: "Dial: Rotory Action"
+    alias: "Bedroom: Remote Dial Action Right"
     description: ""
     trigger:
       - platform: state
@@ -855,6 +855,7 @@ automation:
           - sensor.bedroom_dial_remote_action
         to:
           - dial_rotate_right_step
+          - dial_rotate_right_fast
     condition:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
@@ -863,14 +864,17 @@ automation:
         metadata: {}
         data:
           brightness: >-
-            {{ state_attr('light.bedroom_lamps', 'brightness')|int(0) +
-            states('sensor.bedroom_dial_remote_action_time')|float(15) }}
+            {{ iif((state_attr('light.bedroom_lamps', 'brightness')|int(0) +
+            (states('sensor.bedroom_dial_remote_action_time')|float(15)*2)) > 255, 255, state_attr('light.bedroom_lamps', 'brightness')|int(0) +
+            states('sensor.bedroom_dial_remote_action_time')|float(15)*2) }}
+          transition: 1
         target:
           entity_id:
             - light.bedroom_lamps
-    mode: single
+    mode: queued
+    max: 10
   - id: "1710079376649"
-    alias: "Dial: Action"
+    alias: "Bedroom: Remote Dial Action Left"
     description: ""
     trigger:
       - platform: state
@@ -878,6 +882,7 @@ automation:
           - sensor.bedroom_dial_remote_action
         to:
           - dial_rotate_left_step
+          - dial_rotate_left_fast
     condition:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
@@ -886,16 +891,18 @@ automation:
         metadata: {}
         data:
           brightness: >-
-            {%- if states('sensor.bedroom_dial_remote_action_time')|float(15) > state_attr('light.bedroom_lamps', 'brightness')|int(0) -%}
+            {%- if states('sensor.bedroom_dial_remote_action_time')|float(15)*2 > state_attr('light.bedroom_lamps', 'brightness')|int(0) -%}
             0
             {%- else -%}
             {{ state_attr('light.bedroom_lamps', 'brightness')|int(0) -
-            states('sensor.bedroom_dial_remote_action_time')|float(15) }}
+            (states('sensor.bedroom_dial_remote_action_time')|float(15)*2) }}
             {%-endif-%}
+          transition: 1
         target:
           entity_id:
             - light.bedroom_lamps
-    mode: single
+    mode: queued
+    max: 10
   # Other
   - id: "1624194439043"
     alias: "Bedroom: TV Turned Off"
