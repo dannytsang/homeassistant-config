@@ -444,6 +444,31 @@ script:
     description: ""
     sequence:
       - choose:
+          - alias: Inverter in export mode
+            conditions:
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: state
+                entity_id: select.growatt_sph_work_mode_priority
+                state: Grid first
+              - condition: numeric_state
+                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                above: input_number.ecoflow_kitchen_low_battery_reserve
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Inverter in export mode. Disable charging.
+                      title: EcoFlow
+                      log_level: "Debug"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      target_charge_rate: 200
           - alias: Electricity rate 0p/kw or below
             conditions:
               - condition: state
