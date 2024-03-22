@@ -168,62 +168,8 @@ automation:
         entity_id: number.ecoflow_kitchen_backup_reserve_level
         above: input_number.ecoflow_kitchen_low_battery_reserve
     action:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                    but below export
-                    ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                    Keeping Ecoflow charged.
-                  title: EcoFlow
-                  log_level: "Debug"
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_solar_excess
-                below: input_number.ecoflow_kitchen_charge_solar_threshold
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                        and no excess electricity detected
-                        ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
-                        Setting backup reserve to
-                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
-                        {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
-                      title: EcoFlow
-                      log_level: "Debug"
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: >-
-                        {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
-        default:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
-                Electrictity rate has gove above 0
-                ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                and excess electricity detected ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
-                Setting charging rate from
-                {{ states('number.ecoflow_kitchen_ac_charging_power') }}
-                to
-                {{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}w.
-              title: EcoFlow
-              log_level: "Debug"
-          - service: script.ecoflow_set_charge_rate
-            data:
-              target_charge_rate: >-
-                {% from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate %}{{ calculate_ecoflow_delta2_charge_rate(states('sensor.ecoflow_kitchen_solar_excess')|float(0), 200, 1200) }}
+      - service: script.ecoflow_check_charging_mode
+        data: {}
     mode: single
   # Battery level
   - id: "1695566530591"
