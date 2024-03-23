@@ -26,8 +26,14 @@ automation:
         seconds: "10"
         id: time
       - platform: time_pattern
+        minutes: "5"
+        id: time
+      - platform: time_pattern
         minutes: "30"
         seconds: "10"
+        id: time
+      - platform: time_pattern
+        minutes: "35"
         id: time
       - platform: homeassistant
         event: start
@@ -422,17 +428,63 @@ script:
           - service: script.tomorrows_solar_forcast_data
             response_variable: solar_forecast_data
       - choose:
-          - alias: "Unit rate is on or below 0p/kw"
+          - alias: "Unit rate is 0p/kw"
             conditions:
-              - or:
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0"
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: "0"
+              - condition: state
+                entity_id: sensor.electricity_current_rate
+                state: "0"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
+                state: "on"
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                then:
+                  - parallel:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ event == 'time'}}"
+                            sequence:
+                              - service: script.send_direct_notification
+                                data:
+                                  message: >-
+                                    Electrictity rate is
+                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                                    and inverter has not switched from
+                                    {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                                  title: Solar Assistant
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                        default:
+                          - service: script.send_direct_notification
+                            data:
+                              message: >-
+                                Electrictity rate costs nothing
+                                ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                                Charging house battery.
+                              title: Solar Assistant
+                              people:
+                                entity_id:
+                                  - person.danny
+                      - service: number.set_value
+                        target:
+                          entity_id: number.growatt_sph_battery_first_stop_charge
+                        data:
+                          value: "100"
+                      - service: script.battery_first_priority_mode
+                        data: {}
+          - alias: "Unit rate is below 0p/kw"
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: "0"
+              - condition: state
+                entity_id: input_boolean.solar_assistant_charge_electricity_cost_below_nothing
                 state: "on"
             sequence:
               - if:
