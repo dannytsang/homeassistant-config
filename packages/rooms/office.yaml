@@ -408,41 +408,6 @@ automation:
               title: ":desktop_computer: Computer"
               log_level: "Debug"
     mode: single
-  - id: "1635673894105"
-    alias: "Office: Computer Turned Off"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: group.jd_computer
-        to: "not_home"
-        from: "home"
-        id: router
-    condition: []
-    action:
-      - parallel:
-          - service: script.office_pc_turned_off_notification
-            data: {}
-          - if:
-              - condition: state
-                entity_id: light.office_desk_back_lights
-                state: "on"
-            then:
-              - service: light.turn_off
-                data: {}
-                target:
-                  entity_id: light.office_desk_back_lights
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :desktop_computer: :tv: Computer turned off. Turning
-                    desk lights off as well.
-                  log_level: "Debug"
-            else:
-              - service: script.send_to_home_log
-                data:
-                  message: ":desktop_computer: :tv: Computer turned off."
-                  log_level: "Debug"
-    mode: single
   - id: "1606256309890"
     alias: "Office: Computer Turned Off For A Period Of Time"
     description: ""
