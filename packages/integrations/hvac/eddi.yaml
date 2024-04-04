@@ -22,10 +22,11 @@ automation:
     action:
       - service: script.send_to_home_log
         data:
-          message: ":fuelpump: Eddi diverting energy.
+          message: >-
+            :fuelpump: Eddi diverting energy.
 
             It has diverted {{ states('sensor.myenergi_eddi_energy_consumed_session_daily',
-            with_unit=True) }} so far."
+            with_unit=True) }} so far.
           title: myEnergi
           log_level: "Normal"
     mode: queued
@@ -161,6 +162,32 @@ automation:
               option: Normal
             target:
               entity_id: select.myenergi_eddi_operating_mode
+    mode: single
+  - id: "1712238362391"
+    alias: "Eddi: Max Temperature Reached"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_eddi_status
+        to: Max temp reached
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_hot_water_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            metadata: {}
+            data:
+              message: Hot water tank reached max temperature.
+              title: Eddi
+              log_level: Debug
+          - service: timer.start
+            target:
+              entity_id: timer.eddi_max_temperature_reached
+            data:
+              duration: "06:00:00"
     mode: single
   # Unit rate related automations
   - id: "1689626117478"
