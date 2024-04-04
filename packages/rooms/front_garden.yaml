@@ -36,8 +36,9 @@ automation:
       - service: downloader.download_file
         data:
           url: "{{ state_attr('camera.front_door', 'video_url') }}"
-          subdir: "front_door"
-          filename: "{{state_attr('camera.front_door', 'friendly_name')}}.mp4"
+          subdir: "{{ states('input_text.camera_internal_folder_path') }}front_door"
+          filename: "{{ state_attr('camera.front_door', 'friendly_name') }}.mp4"
+          overwrite: true
     mode: queued
     max: 10
   - id: "1584089698583"
