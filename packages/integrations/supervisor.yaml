@@ -26,6 +26,26 @@ automation:
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
     mode: single
+  - id: "1638101465298"
+    alias: "Add-ons: Automatically Disable File Editor"
+    description: ""
+    trigger:
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.stop_add_on_file_editor
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_stop_add_ons
+        state: "on"
+    action:
+      - service: script.stop_add_on
+        data:
+          addonEntityId: core_configurator
+          message:
+            ":writing_hand: File editor has been on for more than an hour.
+            Turning File editor off."
+    mode: single
   - id: "1674411819884"
     alias: "Add-Ons: Advanced SSH & Web Terminal"
     description: ""
@@ -51,34 +71,14 @@ automation:
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
     mode: single
-  - id: "1638101465298"
-    alias: "Add-ons: Automatically Disable File Editor"
-    description: ""
-    trigger:
-      - platform: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.stop_add_on_file_editor
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_stop_add_ons
-        state: "on"
-    action:
-      - service: script.stop_add_on
-        data:
-          addonEntityId: core_configurator
-          message:
-            ":writing_hand: File editor has been on for more than an hour.
-            Turning File editor off."
-    mode: single
   - id: "1638101748990"
-    alias: "Add-ons: Automatically Disable Web Terminal SSH"
+    alias: "Add-ons: Automatically Disable Advanced SSH & Web Terminal"
     description: ""
     trigger:
       - platform: event
         event_type: timer.finished
         event_data:
-          entity_id: timer.stop_add_on_web_terminal_ssh
+          entity_id: timer.stop_add_on_terminal_ssh
     condition:
       - condition: state
         entity_id: input_boolean.enable_stop_add_ons
@@ -131,6 +131,7 @@ automation:
           addonEntityId: 45df7312_zigbee2mqtt_proxy
           message: Zigbee2MQTT Proxy has been on for more than an hour. Turning Zigbee2MQTT Proxy off.
     mode: single
+  # Update add-ons. Why is this needed when there's an auto update setting??
   - id: "1700062541454"
     alias: "Add-On: Update For File Editor"
     description: ""
