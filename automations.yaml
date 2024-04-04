@@ -8,7 +8,7 @@
   condition:
     - condition: state
       entity_id: sensor.lounge_ups_status_data
-      state: "OB DISCHRG"
+      state: OB DISCHRG
   action:
     - service: script.send_direct_notification
       data:
@@ -29,7 +29,7 @@
   condition:
     - condition: state
       entity_id: sensor.server_ups_status_data
-      state: "OB DISCHRG"
+      state: OB DISCHRG
   action:
     - service: script.send_direct_notification
       data:
@@ -79,7 +79,7 @@
   condition:
     - condition: state
       entity_id: sensor.computer_ups_status_data
-      state: "OB DISCHRG"
+      state: OB DISCHRG
   action:
     - service: script.send_direct_notification
       data:
@@ -100,7 +100,7 @@
   condition:
     - condition: state
       entity_id: alarm_control_panel.house_alarm
-      state: "armed_home"
+      state: armed_home
     - condition: state
       entity_id: group.jd_computer
       state: "off"
@@ -120,7 +120,7 @@
   condition:
     - condition: state
       entity_id: alarm_control_panel.house_alarm
-      state: "armed_home"
+      state: armed_home
     - condition: state
       entity_id: group.jd_computer
       state: "off"
@@ -140,7 +140,7 @@
   condition:
     - condition: state
       entity_id: cover.leos_bedroom_blinds
-      state: "open"
+      state: open
     - condition: time
       after: "18:30:00"
     - condition: state
@@ -240,7 +240,7 @@
   trigger:
     - platform: state
       entity_id: input_select.home_mode
-      to: "No Children"
+      to: No Children
   condition: []
   action:
     - service: script.send_to_home_log
@@ -364,12 +364,12 @@
       entity_id:
         - climate.thermostat
       attribute: hvac_action
-      to: "heating"
-      from: "idle"
+      to: heating
+      from: idle
   condition:
     - condition: state
       entity_id: climate.thermostat
-      state: "auto"
+      state: auto
   action:
     - choose:
         - conditions:
@@ -452,22 +452,22 @@
   condition:
     - condition: state
       entity_id: alarm_control_panel.house_alarm
-      state: "armed_away"
+      state: armed_away
     - condition: state
       entity_id: group.adult_people
-      state: "not_home"
+      state: not_home
     - condition: sun
       after: sunset
       after_offset: -02:00:00
     - or:
         - condition: template
           value_template:
-            "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-            - 1 }}"
+            "{{ states('sensor.terina_home_nearest_distance')|float(0)
+            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
         - condition: template
           value_template:
-            "{{ states('sensor.danny_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-            - 1 }}"
+            "{{ states('sensor.danny_home_nearest_distance')|float(0)
+            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
   action:
     - service: script.send_to_home_log
       data:
@@ -487,21 +487,21 @@
   condition:
     - condition: state
       entity_id: alarm_control_panel.house_alarm
-      state: "armed_away"
+      state: armed_away
     - condition: state
       entity_id: group.adult_people
-      state: "not_home"
+      state: not_home
     - condition: sun
       after: sunset
     - or:
         - condition: template
           value_template:
-            "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-            - 1 }}"
+            "{{ states('sensor.terina_home_nearest_distance')|float(0)
+            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
         - condition: template
           value_template:
-            "{{ states('sensor.danny_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-            - 1 }}"
+            "{{ states('sensor.danny_home_nearest_distance')|float(0)
+            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
   action:
     - service: script.send_to_home_log
       data:
@@ -515,13 +515,13 @@
   description: ""
   trigger:
     - platform: time
-      at: "09:00:00"
+      at: 09:00:00
   condition:
     - condition: not
       conditions:
         - condition: state
           entity_id: input_select.home_mode
-          state: "Holiday"
+          state: Holiday
     - condition: time
       weekday:
         - fri
@@ -549,7 +549,7 @@
       conditions:
         - condition: state
           entity_id: input_select.home_mode
-          state: "Holiday"
+          state: Holiday
     - condition: time
       weekday:
         - fri
@@ -611,24 +611,6 @@
             transition: 2
           target:
             entity_id: scene.stairs_light_off
-  mode: single
-- id: "1698342705772"
-  alias: "Lounge: mmWave Turned On Whilst In Holiday Mode"
-  description: ""
-  trigger:
-    - platform: state
-      entity_id:
-        - switch.lounge_motion_mmwave_sensor
-      to: "on"
-  condition:
-    - condition: state
-      entity_id: input_select.home_mode
-      state: Holiday
-  action:
-    - service: switch.turn_off
-      data: {}
-      target:
-        entity_id: switch.lounge_motion_mmwave_sensor
   mode: single
 - id: "1698342875093"
   alias: "Kitchen: mmWave Turned On Whilst In Holiday Mode"
