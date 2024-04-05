@@ -391,7 +391,33 @@ script:
                   - service: script.ecoflow_set_charge_rate
                     data:
                       target_charge_rate: 200
-          - alias: Electricity rate 0p/kw or below
+          - alias: Electricity rate below 0p/kw
+            conditions:
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.ecoflow_kitchen_charge_electricity_below_nothing
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: "0"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate is below 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Setting backup reserve to 100% and maximum charge rate (1200w).
+                      title: EcoFlow
+                      log_level: "Debug"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: 100
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      target_charge_rate: 1200
+          - alias: Electricity rate 0p/kw
             conditions:
               - condition: state
                 entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
@@ -399,19 +425,15 @@ script:
               - condition: state
                 entity_id: input_boolean.ecoflow_kitchen_charge_below_export
                 state: "on"
-              - or:
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0.0"
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: "0.0"
+              - condition: state
+                entity_id: sensor.electricity_current_rate
+                state: "0.0"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Setting backup reserve to 100% and maximum charge rate (1200w).
                       title: EcoFlow
                       log_level: "Debug"
