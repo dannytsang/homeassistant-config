@@ -34,17 +34,20 @@ automation:
                 state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - service: script.send_direct_notification
             metadata: {}
             data:
-              log_level: Normal
-              message: Charging schedule started.
+              message: >-
+                Charging started from {{ state_attr(trigger.entity_id, 'friendly_name') }}.
               title: "Zappi: Charging Schedule Start"
+              people:
+                entity_id:
+                  - person.terina
           - service: myenergi.myenergi_boost
             target:
               entity_id: select.myenergi_zappi_charge_mode
             data:
-              amount: 60
+              amount: 70
     mode: single
   - id: "1712086876965"
     alias: "Zappi: Charging Schedule Stopped"
@@ -69,22 +72,24 @@ automation:
                     entity_id: input_boolean.enable_ev_charger_schedule_1
                     state: "off"
                   - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_1
+                    entity_id: binary_sensor.ev_charger_schedule_1
                     state: "off"
               - or:
                   - condition: state
                     entity_id: input_boolean.enable_ev_charger_schedule_2
                     state: "off"
                   - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_2
+                    entity_id: binary_sensor.ev_charger_schedule_2
                     state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - service: script.send_direct_notification
                 metadata: {}
                 data:
                   message: Charging schedule stopped from {{ state_attr(trigger.entity_id, 'friendly_name') }}
                   title: "Zappi: Charging Scheduled Stop"
-                  log_level: Normal
+                  people:
+                    entity_id:
+                      - person.terina
               - service: myenergi.myenergi_stop_boost
                 target:
                   entity_id:
