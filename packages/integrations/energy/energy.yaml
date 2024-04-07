@@ -270,6 +270,29 @@ automation:
             cut.
           title: ":warning: :zap: :house_with_garden: House :warning:"
     mode: single
+  - id: "1712404842177"
+    alias: "Energy: High Grid Power Draw"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.house_current
+        above: sensor.grid_max_import_power_warning
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          message: >-
+            Current draw is close to cut out fuse
+            ({{ (states('sensor.grid_max_import_power_warning')|float(0))|round(2) }}/{{ states('input_number.cut_out_fuse_size') }}).
+            Consider turning devices off.
+          title: "Energy: House"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+    mode: single
   # Solcast
   - id: "1691767286139"
     alias: "Solcast: Update Forecast"
@@ -577,3 +600,15 @@ template:
         device_class: "power"
         unit_of_measurement: "W"
         state_class: "measurement"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.cut_out_fuse_size
+    sensor:
+      - name: "Grid Amp Import Warning"
+        unique_id: 02d4ee4e-967f-4b1a-80c1-a2b9dca61d01
+        state: >-
+          {{ states('input_number.cut_out_fuse_size')|float(100) * 0.9 }}
+        availability: "{{ states('input_number.cut_out_fuse_size')|is_number }}"
+        icon: mdi:fuse-alert
+        unit_of_measurement: "A"
