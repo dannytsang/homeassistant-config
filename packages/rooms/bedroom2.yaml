@@ -515,37 +515,3 @@ template:
           top_right: "{{ states('sensor.leos_bed_top_right') }}"
           bottom_left: "{{ states('sensor.leos_bed_bottom_left') }}"
           bottom_right: "{{ states('sensor.leos_bed_bottom_right') }}"
-  - trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.leos_bedroom_window_contact
-          - input_number.close_blinds_brightness_threshold
-          - input_number.forecast_high_temperature
-          - sensor.back_garden_motion_illuminance_lux
-          - sensor.leos_bedroom_area_mean_temperature
-          - sensor.leos_bedroom_window_temperature
-          - sun.sun
-          - sensor.temperature_forecast_next_hour
-          - weather.home
-      - platform: time_pattern
-        minutes: "/15"
-    binary_sensor:
-      - name: Leo's Bedroom Blind Anticipated State
-        unique_id: a80c96a7-50bb-4d5b-a950-352763d3d6fd
-        device_class: opening
-        state: >-
-          {{ not(states('sensor.back_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-          and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.leos_bedroom_window_contact') == 'off')
-          and states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24)
-          and (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) <= 23.5
-          and (states('sensor.leos_bedroom_window_temperature')|float(0)) <= 24
-          and not(states('weather.home') in ['sunny','partlycloudy']) }}
-        attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
-          sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature: "{{ (states('sensor.leos_bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
-          temperature_hour_forecast: "{{ states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
-          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.leos_bedroom_window_contact') == 'off' }}"
-          window_temperature: "{{ (states('sensor.leos_bedroom_window_temperature')|float(0)) > 24 }}"

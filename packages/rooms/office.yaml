@@ -523,6 +523,12 @@ automation:
         at: "08:00:00"
     condition: []
     action:
+      - service: weather.get_forecast
+        target:
+          entity_id: weather.home
+        data:
+          type: hourly
+        response_variable: weather
       - choose:
           - conditions:
               - or:
@@ -530,20 +536,21 @@ automation:
                     entity_id: weather.home
                     attribute: temperature
                     above: input_number.forecast_high_temperature
-                  - condition: numeric_state
-                    entity_id: sensor.temperature_forecast_next_hour
-                    above: input_number.forecast_high_temperature
+                  - condition: template
+                    value_template: "{{ weather.forecast[1].temperature > states('input_number.forecast_high_temperature')|float(20) }}"
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Temperature forecast to be over {{ states('input_number.forecast_high_temperature') }}c
-                    ({{ state_attr('weather.home', 'temperature')|float(0)
-                    if state_attr('weather.home', 'temperature')|float(0) > states('sensor.temperature_forecast_next_hour')|float(0)
-                    else states('sensor.temperature_forecast_next_hour')|float(0) }}
-                    {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}).
-                    Not opening blinds.
+                    Temperature forecast to be over {{ states('input_number.forecast_high_temperature') }}c (
+                    {%- if state_attr('weather.home', 'temperature')|float(0) > weather.forecast[1].temperature|float(0) -%}
+                    {{ state_attr('weather.home', 'temperature')|float(0) }}
+                    {%- else states('sensor.temperature_forecast_next_hour')|float(0) }} -%}
+                    {{ weather.forecast[1].temperature }}
+                    {%-endif-%}
+                    {{ state_attr('weather.home', 'temperature_unit') }}
+                    ). Not opening blinds.
                   title: ":office: Office"
                   log_level: "Debug"
           - alias: "Really bright and blinds are open already"
@@ -1454,39 +1461,3 @@ sensor:
     end: "{{ now().replace(hour=0, minute=0, second=0) }}"
     duration:
       days: 30
-
-template:
-  - trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.office_window_left
-          - binary_sensor.office_window_right
-          - input_number.close_blinds_brightness_threshold
-          - input_number.forecast_high_temperature
-          - sensor.front_garden_motion_illuminance_lux
-          - sensor.office_area_mean_temperature
-          - sun.sun
-          - sensor.temperature_forecast_next_hour
-          - weather.home
-      - platform: time_pattern
-        minutes: "/15"
-    binary_sensor:
-      - name: Office Blind Anticipated State
-        unique_id: 20930498-7de2-4151-ae84-9c5566dcafe9
-        device_class: opening
-        state: >-
-          {{ not(states('sensor.front_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-          and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.office_window_left') == 'off'
-          and states('binary_sensor.office_window_right') == 'off')
-          and (states('sensor.temperature_forecast_next_hour')|float(0)) > (states('input_number.forecast_high_temperature')|float(24))
-          and (states('sensor.office_area_mean_temperature')|float(0)) <= 23.5
-          and not(states('weather.home') in ['sunny','partlycloudy']) }}
-        attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
-          sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature: "{{ (states('sensor.office_area_mean_temperature')|float(0)) > 23.5 }}"
-          temperature_hour_forecast: "{{ states('sensor.temperature_forecast_next_hour')|float(0) > states('input_number.forecast_high_temperature')|float(24) }}"
-          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window_left: "{{ states('binary_sensor.office_window_left') == 'off' }}"
-          window_right: "{{ states('binary_sensor.office_window_right') == 'off' }}"

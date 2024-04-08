@@ -947,39 +947,3 @@ sensor:
     indoor_humidity_sensor: sensor.bathroom_motion_humidity
     outdoor_temp_sensor: sensor.gw2000a_outdoor_temperature
     calibration_factor: 1.32
-
-template:
-  - trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.bathroom_window_contact
-          - input_number.close_blinds_brightness_threshold
-          - input_number.forecast_high_temperature
-          - sensor.back_garden_motion_illuminance_lux
-          - sensor.bathroom_area_mean_temperature
-          - sensor.bathroom_window_temperature
-          - sun.sun
-          - sensor.temperature_forecast_next_hour
-          - weather.home
-      - platform: time_pattern
-        minutes: "/15"
-    binary_sensor:
-      - name: Bathroom Blind Anticipated State
-        unique_id: f299bb0f-c8aa-48b6-b2d7-8c6db84b6074
-        device_class: opening
-        state: >-
-          {{ not(states('sensor.back_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-          and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.bathroom_window_contact') == 'off')
-          and states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24)
-          and (states('sensor.bathroom_area_mean_temperature')|float(0)) <= 23.5
-          and (states('sensor.bathroom_window_temperature')|float(0)) <= 24
-          and not(states('weather.home') in ['sunny','partlycloudy']) }}
-        attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
-          sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature: "{{ (states('sensor.bathroom_area_mean_temperature')|float(0)) > 23.5 }}"
-          temperature_hour_forecast: "{{ states('sensor.temperature_forecast_next_hour')|float(0) < states('input_number.forecast_high_temperature')|float(24) }}"
-          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.bathroom_window_contact') == 'off' }}"
-          window_temperature: "{{ (states('sensor.bathroom_window_temperature')|float(0)) > 24 }}"

@@ -928,6 +928,12 @@ automation:
       - condition: time
         after: "08:30"
     action:
+      - service: weather.get_forecast
+        target:
+          entity_id: weather.home
+        data:
+          type: hourly
+        response_variable: weather
       - choose:
           - conditions:
               - or:
@@ -935,20 +941,21 @@ automation:
                     entity_id: weather.home
                     attribute: temperature
                     above: input_number.forecast_high_temperature
-                  - condition: numeric_state
-                    entity_id: sensor.temperature_forecast_next_hour
-                    above: input_number.forecast_high_temperature
+                  - condition: template
+                    value_template: "{{ weather.forecast[1].temperature > states('input_number.forecast_high_temperature')|float(20) }}"
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
                     :tv: TV turned off but above weather is above
-                    {{ states('input_number.forecast_high_temperature') }}
-                    ({{ state_attr('weather.home', 'temperature')|float(0)
-                    if state_attr('weather.home', 'temperature')|float(0) > states('sensor.temperature_forecast_next_hour')|float(0)
-                    else states('sensor.temperature_forecast_next_hour')|float(0) }} }})
-                    {{ state_attr('input_number.forecast_high_temperature', 'unit_of_measurement') }}.
-                    Keeping blinds closed.
+                    {{ states('input_number.forecast_high_temperature') }} (
+                    {%- if state_attr('weather.home', 'temperature')|float(0) > weather.forecast[1].temperature|float(0) -%}
+                    {{ state_attr('weather.home', 'temperature')|float(0) }}
+                    {%- else states('sensor.temperature_forecast_next_hour')|float(0) }} -%}
+                    {{ weather.forecast[1].temperature }}
+                    {%-endif-%}
+                    {{ state_attr('weather.home', 'temperature_unit') }}
+                    ). Keeping blinds closed.
                   title: ":bed: bedroom"
                   log_level: "Debug"
         default:
@@ -1559,41 +1566,3 @@ template:
           top_right: "{{ states('sensor.bed_top_right') }}"
           bottom_left: "{{ states('sensor.bed_bottom_left') }}"
           bottom_right: "{{ states('sensor.bed_bottom_right') }}"
-  - trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.bedroom_tv_powered_on
-          - binary_sensor.leos_bedroom_window_contact
-          - input_number.close_blinds_brightness_threshold
-          - input_number.forecast_high_temperature
-          - sensor.bedroom_area_mean_temperature
-          - sensor.bedroom_tv_plug_power
-          - sensor.bedroom_window_temperature
-          - sensor.front_garden_motion_illuminance_lux
-          - sun.sun
-          - sensor.temperature_forecast_next_hour
-          - weather.home
-      - platform: time_pattern
-        minutes: "/15"
-    binary_sensor:
-      - name: Bedroom Blind Anticipated State
-        unique_id: 978fb6f0-42db-4c71-ab13-9037e82da73a
-        device_class: opening
-        state: >-
-          {{ not(states('sensor.front_garden_motion_illuminance_lux')|float(0) < states('input_number.close_blinds_brightness_threshold')|float(10000)
-          and not(states('sun.sun') == 'above_horizon')
-          and states('binary_sensor.leos_bedroom_window_contact') == 'off')
-          and states('sensor.temperature_forecast_next_hour')|float(0) > states('input_number.forecast_high_temperature')|float(24)
-          and (states('sensor.bedroom_area_mean_temperature')|float(0)) <= 23.5
-          and (states('sensor.bedroom_window_temperature')|float(0)) <= 24
-          and states('binary_sensor.bedroom_tv_powered_on') == 'on'
-          and not(states('weather.home') in ['sunny','partlycloudy']) }}
-        attributes:
-          brightness: "{{ (states('sensor.front_garden_motion_illuminance_lux')|float(0)) < (states('input_number.close_blinds_brightness_threshold')|float(10000)) }}"
-          sun: "{{ states('sun.sun') == 'above_horizon' }}"
-          temperature: "{{ (states('sensor.bedroom_area_mean_temperature')|float(0)) > 23.5 }}"
-          temperature_hour_forecast: "{{ states('sensor.temperature_forecast_next_hour')|float(0) > states('input_number.forecast_high_temperature')|float(24) }}"
-          tv_running: "{{ states('binary_sensor.bedroom_tv_powered_on')|default('off') == 'on' }}"
-          weather: "{{ states('home_hourly')|default('') in ['sunny','partlycloudy'] }}"
-          window: "{{ states('binary_sensor.leos_bedroom_window_contact') == 'off' }}"
-          window_temperature: "{{ (states('sensor.bedroom_window_temperature')|float(0)) > 24 }}"
