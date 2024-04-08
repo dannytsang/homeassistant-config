@@ -821,6 +821,40 @@ automation:
               - service: script.check_and_run_central_heating
                 data: {}
     mode: single
+  # Children
+  - id: "1712574983598"
+    alias: "People: Children Home And In No Children Mode"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - device_tracker.leos_nintendo_switch
+        to: home
+        from: not_home
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: No Children
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    metadata: {}
+                    data:
+                      log_level: Debug
+                      message:
+                        Leo's Nintendo Switch came home and in No Children mode. Switching
+                        to Normal.
+                      title: People
+                  - service: input_select.select_option
+                    metadata: {}
+                    data:
+                      option: Normal
+                    target:
+                      entity_id: input_select.home_mode
+    mode: single
 
 group:
   adult_people:
