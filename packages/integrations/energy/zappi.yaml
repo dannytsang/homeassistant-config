@@ -64,6 +64,7 @@ automation:
         entity_id:
           - binary_sensor.ev_charger_schedule_1
           - binary_sensor.ev_charger_schedule_2
+        from: "on"
         to: "off"
     condition:
       - condition: state
@@ -73,23 +74,30 @@ automation:
           - condition: state
             entity_id: sensor.myenergi_zappi_plug_status
             state: "EV Disconnected"
+      - or:
+        - condition: state
+          entity_id:
+            - input_boolean.enable_ev_charger_schedule_1
+            - input_boolean.enable_ev_charger_schedule_2
+          state: "on"
     action:
       - choose:
           - conditions:
               - or:
-                  - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_1
-                    state: "off"
-                  - condition: state
-                    entity_id: binary_sensor.ev_charger_schedule_1
-                    state: "off"
-              - or:
-                  - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_2
-                    state: "off"
-                  - condition: state
-                    entity_id: binary_sensor.ev_charger_schedule_2
-                    state: "off"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_ev_charger_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.ev_charger_schedule_1
+                        state: "off"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_ev_charger_schedule_2
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.ev_charger_schedule_2
+                        state: "off"
             sequence:
               - service: script.send_direct_notification
                 metadata: {}
@@ -164,8 +172,8 @@ script:
             sequence:
               - parallel:
                   - if:
-                    - condition: template
-                      value_template: "{{ entity_id is none }}"
+                      - condition: template
+                        value_template: "{{ entity_id is none }}"
                     then:
                       - service: script.send_direct_notification
                         metadata: {}
@@ -212,8 +220,8 @@ script:
                     state: "off"
             sequence:
               - if:
-                    - condition: template
-                      value_template: "{{ title is none }}"
+                  - condition: template
+                    value_template: "{{ title is none }}"
                 then:
                   - service: script.send_direct_notification
                     metadata: {}
