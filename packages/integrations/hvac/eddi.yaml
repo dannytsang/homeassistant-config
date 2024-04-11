@@ -189,25 +189,50 @@ automation:
     mode: single
   # Unit rate related automations
   - id: "1689626117478"
-    alias: "HVAC: Electricity Rates Cost Nothing"
+    alias: "HVAC: Check Eddi"
     description: ""
     trigger:
       - platform: numeric_state
         entity_id: sensor.electricity_current_rate
-        below: 0
+        below: sensor.electricity_export_current_rate
+        id: event
       - platform: state
         entity_id: sensor.electricity_current_rate
-        to: "0.0"
+        to: sensor.electricity_export_current_rate
+        id: event
+      - platform: numeric_state
+        entity_id: sensor.electricity_current_rate
+        below: 0
+        id: event
+      - platform: state
+        entity_id: sensor.electricity_current_rate
+        to: "0"
+        id: event
+      - platform: time_pattern
+        minutes: "0"
+        seconds: "10"
+        id: time
+      - platform: time_pattern
+        minutes: "5"
+        id: time
+      - platform: time_pattern
+        minutes: "30"
+        seconds: "10"
+        id: time
+      - platform: time_pattern
+        minutes: "35"
+        id: time
+      - platform: homeassistant
+        event: start
     condition:
-      - or:
-          - not:
-              - condition: state
-                entity_id: sensor.myenergi_eddi_status
-                state: "Stopped"
-          - not:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "Holiday"
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_eddi_status
+            state: "Stopped"
+      - not:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: "Holiday"
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
@@ -281,8 +306,39 @@ script:
     icon: mdi:gas-station
   hvac_check_eddi_boost_hot_water:
     alias: HVAC Check Eddi Boost Hot Water
+    trace:
+      stored_traces: 40
+    fields:
+      event:
+        description: The trigger for running an electricity rate check.
+        example: time
+        required: true
+        selector:
+          select:
+            options:
+              - event
+              - time
     sequence:
       - choose:
+          - alias: "Unit rate is on or below 0p/kw"
+            conditions:
+              - or:
+                  - condition: state
+                    entity_id: sensor.myenergi_eddi_status
+                    state: "Stopped"
+                  - condition: state
+                    entity_id: sensor.myenergi_eddi_status
+                    state: "Boosting"
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "Holiday"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Incorrect state to start charging {{ states('sensor.myenergi_eddi_status') }}. Skipping.
+                  title: Eddi
+                  log_level: "Debug"
           - alias: "Unit rate is on or below 0p/kw"
             conditions:
               - or:
@@ -302,12 +358,12 @@ script:
                       message: >-
                         Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
-                      title: HVAC
+                      title: Eddi
                       log_level: "Debug"
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
-          - alias: "Chargin schedule is enabled"
+          - alias: "Charging schedule is enabled"
             conditions:
               - or:
                   - condition: state
@@ -326,7 +382,7 @@ script:
                     data:
                       message: >-
                         Scheduled boosting of hot water by electrictity. Boosting hot water with eddi.
-                      title: HVAC
+                      title: Eddi
                       log_level: "Debug"
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
