@@ -287,6 +287,30 @@ script:
             conditions:
               - or:
                   - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "0.0"
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: "0"
+              - condition: state
+                entity_id: input_boolean.eddi_heat_water_cost_nothing
+                state: "on"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Boosting hot water with eddi.
+                      title: HVAC
+                      log_level: "Debug"
+                  - service: script.hvac_set_solar_diverter_to_boost_mode
+                    data:
+                      minutes: 20
+          - alias: "Chargin schedule is enabled"
+            conditions:
+              - or:
+                  - condition: state
                     entity_id: input_boolean.enable_permanent_charge_below_export
                     state: "on"
                   - and:
@@ -302,30 +326,6 @@ script:
                     data:
                       message: >-
                         Scheduled boosting of hot water by electrictity. Boosting hot water with eddi.
-                      title: HVAC
-                      log_level: "Debug"
-                  - service: script.hvac_set_solar_diverter_to_boost_mode
-                    data:
-                      minutes: 20
-          - alias: "Unit rate is on or below 0p/kw"
-            conditions:
-              - or:
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0"
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: "0"
-              - condition: state
-                entity_id: input_boolean.eddi_heat_water_cost_nothing
-                state: "on"
-            sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate is 0 or below ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
-                        Boosting hot water with eddi.
                       title: HVAC
                       log_level: "Debug"
                   - service: script.hvac_set_solar_diverter_to_boost_mode
