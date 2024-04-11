@@ -69,8 +69,6 @@ automation:
     trigger:
       - platform: time
         at: "00:00:00"
-      - platform: time
-        at: "12:00:00"
     condition:
       - condition: state
         entity_id: sensor.myenergi_eddi_status
@@ -199,12 +197,17 @@ automation:
         below: 0
       - platform: state
         entity_id: sensor.electricity_current_rate
-        to: "0"
+        to: "0.0"
     condition:
-      - not:
-          - condition: state
-            entity_id: sensor.myenergi_eddi_status
-            state: "Stopped"
+      - or:
+          - not:
+              - condition: state
+                entity_id: sensor.myenergi_eddi_status
+                state: "Stopped"
+          - not:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
