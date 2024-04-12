@@ -782,13 +782,9 @@ script:
                                     Charging house battery.
                                   title: Solar Assistant
                                   debug: "Debug"
-                          - service: number.set_value
-                            target:
-                              entity_id: number.growatt_sph_battery_first_stop_charge
-                            data:
-                              value: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
                           - service: script.battery_first_priority_mode
-                            data: {}
+                            data:
+                              max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
           - alias: Battery First Schedule
             conditions:
               - or:
