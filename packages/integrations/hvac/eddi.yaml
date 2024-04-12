@@ -326,27 +326,29 @@ script:
                     Incorrect state to start charging {{ states('sensor.myenergi_eddi_status') }}. Skipping.
                   title: Eddi
                   log_level: "Debug"
-          - alias: "Unit rate is on or below 0p/kw"
+          - alias: "Unit rate is below 0p/kw"
             conditions:
               - condition: numeric_state
                 entity_id: sensor.electricity_current_rate
                 below: "0"
               - condition: state
-                entity_id: input_boolean.eddi_heat_water_cost_nothing
+                entity_id: input_boolean.eddi_heat_water_cost_below_nothing
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - service: script.send_direct_notification
                     data:
                       message: >-
                         Electrictity rate is below 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                      log_level: "Debug"
+                      people:
+                        entity_id:
+                          - person.danny
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
-          - alias: "Unit rate is on or below 0p/kw"
+          - alias: "Unit rate is on 0p/kw"
             conditions:
               - condition: state
                 entity_id: sensor.electricity_current_rate
@@ -356,13 +358,15 @@ script:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - service: script.send_direct_notification
                     data:
                       message: >-
                         Electrictity rate is 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                      log_level: "Debug"
+                      people:
+                        entity_id:
+                          - person.danny
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
@@ -381,12 +385,14 @@ script:
                         state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - service: script.send_direct_notification
                     data:
                       message: >-
                         Scheduled boosting of hot water by electrictity. Boosting hot water with eddi.
                       title: Eddi
-                      log_level: "Debug"
+                      people:
+                        entity_id:
+                          - person.danny
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
