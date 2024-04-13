@@ -75,11 +75,11 @@ automation:
             entity_id: sensor.myenergi_zappi_plug_status
             state: "EV Disconnected"
       - or:
-        - condition: state
-          entity_id:
-            - input_boolean.enable_ev_charger_schedule_1
-            - input_boolean.enable_ev_charger_schedule_2
-          state: "on"
+          - condition: state
+            entity_id:
+              - input_boolean.enable_ev_charger_schedule_1
+              - input_boolean.enable_ev_charger_schedule_2
+            state: "on"
     action:
       - choose:
           - conditions:
@@ -149,37 +149,86 @@ script:
               domain:
                 - binary_sensor
     sequence:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: sensor.myenergi_zappi_plug_status
-                state: EV Connected
-              - or:
-                  - and:
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.myenergi_zappi_plug_status
+                    state: EV Connected
+                  - or:
+                      - and:
+                          - condition: state
+                            entity_id: input_boolean.enable_ev_charger_schedule_1
+                            state: "on"
+                          - condition: state
+                            entity_id: input_boolean.enable_ev_charger_schedule_1
+                            state: "on"
+                      - and:
+                          - condition: state
+                            entity_id: input_boolean.enable_ev_charger_schedule_2
+                            state: "on"
+                          - condition: state
+                            entity_id: input_boolean.enable_ev_charger_schedule_2
+                            state: "on"
+                sequence:
+                  - parallel:
+                      - if:
+                          - condition: template
+                            value_template: "{{ entity_id is none }}"
+                        then:
+                          - service: script.send_direct_notification
+                            metadata: {}
+                            data:
+                              message: Charging started.
+                              title: "Zappi: Charging Schedule Start"
+                              people:
+                                entity_id:
+                                  - person.terina
+                        else:
+                          - service: script.send_direct_notification
+                            metadata: {}
+                            data:
+                              message: >-
+                                Charging started from {{ state_attr(entity_id, 'friendly_name') }}.
+
+                                Charging schedule is:
+                                {{ as_timestamp(state_attr(entity_id, 'after')) | timestamp_custom('%H:%M') }}
+                                to
+                                {{ as_timestamp(state_attr(entity_id, 'before')) | timestamp_custom('%H:%M') }}
+                              title: "Zappi: Charging Schedule Start"
+                              people:
+                                entity_id:
+                                  - person.terina
+                      - service: myenergi.myenergi_boost
+                        target:
+                          entity_id: select.myenergi_zappi_charge_mode
+                        data:
+                          amount: 70
+              - conditions:
+                  - or:
                       - condition: state
                         entity_id: input_boolean.enable_ev_charger_schedule_1
-                        state: "on"
+                        state: "off"
                       - condition: state
-                        entity_id: input_boolean.enable_ev_charger_schedule_1
-                        state: "on"
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_ev_charger_schedule_2
-                        state: "on"
+                        entity_id: binary_sensor.ev_charger_schedule_1
+                        state: "off"
+                  - or:
                       - condition: state
                         entity_id: input_boolean.enable_ev_charger_schedule_2
-                        state: "on"
-            sequence:
-              - parallel:
+                        state: "off"
+                      - condition: state
+                        entity_id: binary_sensor.ev_charger_schedule_2
+                        state: "off"
+                sequence:
                   - if:
                       - condition: template
-                        value_template: "{{ entity_id is none }}"
+                        value_template: "{{ title is none }}"
                     then:
                       - service: script.send_direct_notification
                         metadata: {}
                         data:
-                          message: Charging started.
-                          title: "Zappi: Charging Schedule Start"
+                          message: Charging schedule stopped.
+                          title: "Zappi: Charging Scheduled Stop"
                           people:
                             entity_id:
                               - person.terina
@@ -188,70 +237,41 @@ script:
                         metadata: {}
                         data:
                           message: >-
-                            Charging started from {{ state_attr(entity_id, 'friendly_name') }}.
-
-                            Charging schedule is:
-                            {{ as_timestamp(state_attr(entity_id, 'after')) | timestamp_custom('%H:%M') }}
-                            to
-                            {{ as_timestamp(state_attr(entity_id, 'before')) | timestamp_custom('%H:%M') }}
-                          title: "Zappi: Charging Schedule Start"
+                            Charging schedule stopped from
+                            {{ state_attr(entity_id, 'friendly_name') }}.
+                          title: "Zappi: Charging Scheduled Stop"
                           people:
                             entity_id:
                               - person.terina
                   - service: myenergi.myenergi_boost
                     target:
-                      entity_id: select.myenergi_zappi_charge_mode
+                      entity_id:
+                        - select.myenergi_zappi_charge_mode
                     data:
-                      amount: 70
-          - conditions:
-              - or:
-                  - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_1
-                    state: "off"
-                  - condition: state
-                    entity_id: binary_sensor.ev_charger_schedule_1
-                    state: "off"
-              - or:
-                  - condition: state
-                    entity_id: input_boolean.enable_ev_charger_schedule_2
-                    state: "off"
-                  - condition: state
-                    entity_id: binary_sensor.ev_charger_schedule_2
-                    state: "off"
-            sequence:
-              - if:
-                  - condition: template
-                    value_template: "{{ title is none }}"
-                then:
-                  - service: script.send_direct_notification
-                    metadata: {}
+                      amount: 1
+                  - service: select.select_option
+                    target:
+                      entity_id:
+                        - select.myenergi_zappi_charge_mode
                     data:
-                      message: Charging schedule stopped.
-                      title: "Zappi: Charging Scheduled Stop"
-                      people:
-                        entity_id:
-                          - person.terina
-                else:
-                  - service: script.send_direct_notification
-                    metadata: {}
-                    data:
-                      message: >-
-                        Charging schedule stopped from
-                        {{ state_attr(entity_id, 'friendly_name') }}.
-                      title: "Zappi: Charging Scheduled Stop"
-                      people:
-                        entity_id:
-                          - person.terina
-              - service: myenergi.myenergi_boost
-                target:
-                  entity_id:
-                    - select.myenergi_zappi_charge_mode
+                      option: Eco+
+            default: []
+          - if:
+              - condition: state
+                entity_id: sensor.growatt_sph_inverter_mode
+                state: Grid first
+            then:
+              - service: script.send_actionable_notification_with_2_buttons
                 data:
-                  amount: 1
-              - service: select.select_option
-                target:
-                  entity_id:
-                    - select.myenergi_zappi_charge_mode
-                data:
-                  option: Eco+
-        default: []
+                  message:
+                    Solar is in {{ states('sensor.growatt_sph_inverter_mode') }}.
+                    This may start charging the car rather than exporting back to the grid.
+                    Turn off EV charging?
+                  title: Zappi
+                  people:
+                    - person.danny
+                    - person.terina
+                  action1_title: "Yes"
+                  action1_name: zappi_stop
+                  action2_title: "No"
+                  action2_name: ignore

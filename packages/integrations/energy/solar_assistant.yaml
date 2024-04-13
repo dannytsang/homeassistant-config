@@ -186,7 +186,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
                 to battery first.
               title: Solar Assistant
               log_level: "Debug"
@@ -233,35 +233,94 @@ script:
           - alias: Make sure inverter mode schedules are turned off
             service: script.solar_assistant_turn_off_mode_schedules
             data: {}
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
-                    state: "Stopped"
-            then:
-              - parallel:
-                  - service: script.send_direct_notification
+          - choose:
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: select.myenergi_eddi_operating_mode
+                        state: "Stopped"
+                      - condition: state
+                        entity_id: select.myenergi_zappi_charge_mode
+                        state: "Stopped"
+                      - condition: state
+                        entity_id: sensor.myenergi_zappi_plug_status
+                        state: EV Disconnected
+                sequence:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
+                            to export(grid) first. Stopping Zappi and Eddi.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                              - person.terina
+                      - service: select.select_option
+                        data:
+                          option: Stopped
+                        target:
+                          entity_id: select.myenergi_eddi_operating_mode
+                      - service: select.select_option
+                        data:
+                          option: Stopped
+                        target:
+                          entity_id: select.myenergi_zappi_charge_mode
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: select.myenergi_eddi_operating_mode
+                        state: "Stopped"
+                sequence:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
+                            to export(grid) first and stopping Eddi.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                      - service: select.select_option
+                        data:
+                          option: Stopped
+                        target:
+                          entity_id: select.myenergi_eddi_operating_mode
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: select.myenergi_zappi_charge_mode
+                        state: "Stopped"
+                      - condition: state
+                        entity_id: sensor.myenergi_zappi_plug_status
+                        state: EV Disconnected
+                sequence:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
+                            to export(grid) first and stopping Zappi.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                              - person.terina
+                      - service: select.select_option
+                        data:
+                          option: Stopped
+                        target:
+                          entity_id: select.myenergi_zappi_charge_mode
+                default:
+                  - service: script.send_to_home_log
                     data:
                       message: >-
-                        Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                        to grid first and stopping Eddi.
+                        Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
+                        to grid first.
                       title: Solar Assistant
-                      people:
-                        entity_id:
-                          - person.danny
-                  - service: select.select_option
-                    data:
-                      option: Stopped
-                    target:
-                      entity_id: select.myenergi_eddi_operating_mode
-            else:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
-                    to grid first.
-                  title: Solar Assistant
-                  log_level: "Debug"
+                      log_level: "Debug"
           - alias: Set stop charge level
             service: number.set_value
             target:
@@ -304,7 +363,7 @@ script:
           - service: script.send_to_home_log
             data:
               message: >-
-                Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
                 to load first.
               title: Solar Assistant
               log_level: "Debug"
@@ -383,7 +442,7 @@ script:
                 data:
                   message: >-
                     Set battery first stop charging to {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}.
-                    Setting priority from {{ states('select.growatt_sph_work_mode_priority') }}
+                    Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
                     to battery first.
                   title: Solar Assistant
                   log_level: "Debug"
@@ -455,7 +514,7 @@ script:
                                     Electrictity rate is
                                     ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                                     and inverter has not switched from
-                                    {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                                    {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
                                   title: Solar Assistant
                                   people:
                                     entity_id:
@@ -505,7 +564,7 @@ script:
                                     Electrictity rate has gove below 0
                                     ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                                     and inverter has not switched from
-                                    {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                                    {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
                                   title: Solar Assistant
                                   people:
                                     entity_id:
@@ -814,7 +873,7 @@ script:
                         data:
                           message: >-
                             Battery schedule is enabled and on. Switching from
-                            {{ states('select.growatt_sph_work_mode_priority') }} to battery first mode.
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to battery first mode.
                           title: Solar Assistant
                           people:
                             entity_id:
@@ -843,7 +902,7 @@ script:
                         data:
                           message: >-
                             Grid schedule is enabled and on. Switching from
-                            {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
                           title: Solar Assistant
                           people:
                             entity_id:
@@ -879,7 +938,7 @@ script:
                         data:
                           message: >-
                             Maintenancce schedule is enabled and on. Switching from
-                            {{ states('select.growatt_sph_work_mode_priority') }} to maintenance first mode.
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to maintenance first mode.
                           title: Solar Assistant
                           people:
                             entity_id:
@@ -907,7 +966,7 @@ script:
                         ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
                         {{ states('sensor.electricity_current_rate', with_unit=True) }}
                         and inverter has not switched from
-                        {{ states('select.growatt_sph_work_mode_priority') }} to load first mode.
+                        {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
 
 
                         Switching.

@@ -144,6 +144,18 @@ automation:
                   backup: true
                 target:
                   entity_id: update.home_assistant_core_update
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.action == 'zappi_stop' }}"
+            sequence:
+              - service: script.send_to_home_log
+                data:
+                  message: Stop Zappi event.
+              - service: select.select_option
+                data:
+                  option: Stopped
+                target:
+                  entity_id: select.myenergi_zappi_charge_mode
         default: []
     mode: queued
     max: 10
