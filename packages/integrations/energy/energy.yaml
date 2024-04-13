@@ -476,7 +476,7 @@ script:
     sequence:
       - service: script.tomorrows_solar_forcast_data
         response_variable: solar_forecast_data
-      - service: weather.get_forecast
+      - service: weather.get_forecasts
         target:
           entity_id: weather.home
         data:
@@ -488,7 +488,7 @@ script:
             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
             {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
             Tommow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
-            weather is {{ weather.forecast[1].condition }} with a generation of
+            weather is {{ weather['weather.home'].forecast[1].condition }} with a generation of
             {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.

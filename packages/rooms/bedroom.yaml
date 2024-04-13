@@ -928,7 +928,7 @@ automation:
       - condition: time
         after: "08:30"
     action:
-      - service: weather.get_forecast
+      - service: weather.get_forecasts
         target:
           entity_id: weather.home
         data:
@@ -942,17 +942,17 @@ automation:
                     attribute: temperature
                     above: input_number.forecast_high_temperature
                   - condition: template
-                    value_template: "{{ weather.forecast[1].temperature > states('input_number.forecast_high_temperature')|float(25) }}"
+                    value_template: "{{ weather['weather.home'].forecast[1].temperature > states('input_number.forecast_high_temperature')|float(25) }}"
             sequence:
               - service: script.send_to_home_log
                 data:
                   message: >-
                     :tv: TV turned off but above weather is above
                     {{ states('input_number.forecast_high_temperature') }} (
-                    {%- if state_attr('weather.home', 'temperature')|float(0) > weather.forecast[1].temperature|float(25) -%}
+                    {%- if state_attr('weather.home', 'temperature')|float(0) > weather['weather.home'].forecast[1].temperature|float(25) -%}
                     {{ state_attr('weather.home', 'temperature')|float(0) }}
                     {%- else -%}
-                    {{ weather.forecast[1].temperature }}
+                    {{ weather['weather.home'].forecast[1].temperature }}
                     {%-endif-%}
                     {{ state_attr('weather.home', 'temperature_unit') }}
                     ). Keeping blinds closed.
