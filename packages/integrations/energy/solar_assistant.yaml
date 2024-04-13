@@ -487,6 +487,108 @@ script:
           - service: script.tomorrows_solar_forcast_data
             response_variable: solar_forecast_data
       - choose:
+          - alias: Battery First Schedule
+            conditions:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_battery_first_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.battery_first_schedule_1
+                        state: "on"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_battery_first_schedule_2
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.battery_first_schedule_2
+                        state: "on"
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                then:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Battery schedule is enabled and on. Switching from
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to battery first mode.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                      - service: script.battery_first_priority_mode
+                        data: {}
+          - alias: Grid First Schedule
+            conditions:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_grid_first_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.grid_first_schedule_1
+                        state: "on"
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Grid first"
+                then:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Grid schedule is enabled and on. Switching from
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                      - service: script.grid_first_priority_mode
+                        data: {}
+          - alias: Maintenance First Schedule
+            conditions:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_maintain_charge_first_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.maintain_charge_first_schedule_1
+                        state: "on"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_maintain_charge_first_schedule_2
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.maintain_charge_first_schedule_2
+                        state: "on"
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Maintain"
+                then:
+                  - parallel:
+                      - service: script.send_direct_notification
+                        data:
+                          message: >-
+                            Maintenancce schedule is enabled and on. Switching from
+                            {{ states('sensor.growatt_sph_inverter_mode') }} to maintenance first mode.
+                          title: Solar Assistant
+                          people:
+                            entity_id:
+                              - person.danny
+                      - service: script.battery_first_priority_mode
+                        data:
+                          max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
           - alias: "Unit rate is 0p/kw"
             conditions:
               - condition: state
@@ -844,108 +946,6 @@ script:
                           - service: script.battery_first_priority_mode
                             data:
                               max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
-          - alias: Battery First Schedule
-            conditions:
-              - or:
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_battery_first_schedule_1
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.battery_first_schedule_1
-                        state: "on"
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_battery_first_schedule_2
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.battery_first_schedule_2
-                        state: "on"
-            sequence:
-              - if:
-                  - not:
-                      - condition: state
-                        entity_id: sensor.growatt_sph_inverter_mode
-                        state: "Battery first"
-                then:
-                  - parallel:
-                      - service: script.send_direct_notification
-                        data:
-                          message: >-
-                            Battery schedule is enabled and on. Switching from
-                            {{ states('sensor.growatt_sph_inverter_mode') }} to battery first mode.
-                          title: Solar Assistant
-                          people:
-                            entity_id:
-                              - person.danny
-                      - service: script.battery_first_priority_mode
-                        data: {}
-          - alias: Grid First Schedule
-            conditions:
-              - or:
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_grid_first_schedule_1
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.grid_first_schedule_1
-                        state: "on"
-            sequence:
-              - if:
-                  - not:
-                      - condition: state
-                        entity_id: sensor.growatt_sph_inverter_mode
-                        state: "Grid first"
-                then:
-                  - parallel:
-                      - service: script.send_direct_notification
-                        data:
-                          message: >-
-                            Grid schedule is enabled and on. Switching from
-                            {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
-                          title: Solar Assistant
-                          people:
-                            entity_id:
-                              - person.danny
-                      - service: script.grid_first_priority_mode
-                        data: {}
-          - alias: Maintenance First Schedule
-            conditions:
-              - or:
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_maintain_charge_first_schedule_1
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.maintain_charge_first_schedule_1
-                        state: "on"
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_maintain_charge_first_schedule_2
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.maintain_charge_first_schedule_2
-                        state: "on"
-            sequence:
-              - if:
-                  - not:
-                      - condition: state
-                        entity_id: sensor.growatt_sph_inverter_mode
-                        state: "Maintain"
-                then:
-                  - parallel:
-                      - service: script.send_direct_notification
-                        data:
-                          message: >-
-                            Maintenancce schedule is enabled and on. Switching from
-                            {{ states('sensor.growatt_sph_inverter_mode') }} to maintenance first mode.
-                          title: Solar Assistant
-                          people:
-                            entity_id:
-                              - person.danny
-                      - service: script.battery_first_priority_mode
-                        data:
-                          max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
           - alias: Rates go above export fail safe
             conditions:
               - condition: numeric_state
