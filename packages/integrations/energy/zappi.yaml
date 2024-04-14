@@ -33,26 +33,8 @@ automation:
                 entity_id: input_boolean.enable_ev_charger_schedule_2
                 state: "on"
     action:
-      - parallel:
-          - service: script.send_direct_notification
-            metadata: {}
-            data:
-              message: >-
-                Charging started from {{ state_attr(trigger.entity_id, 'friendly_name') }}.
-
-                Charging schedule is:
-                {{ as_timestamp(state_attr('trigger.entity_id', 'after')) | timestamp_custom('%H:%M') }}
-                to
-                {{ as_timestamp(state_attr('trigger.entity_id', 'before')) | timestamp_custom('%H:%M') }}
-              title: "Zappi: Charging Schedule Start"
-              people:
-                entity_id:
-                  - person.terina
-          - service: myenergi.myenergi_boost
-            target:
-              entity_id: select.myenergi_zappi_charge_mode
-            data:
-              amount: 70
+      - service: script.zappi_check_ev_charge
+        data: {}
     mode: single
   - id: "1712086876965"
     alias: "Zappi: Charging Schedule Stopped"
