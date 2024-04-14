@@ -1,0 +1,30 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/ecowitt/
+
+automation:
+  - id: "1713094180264"
+    alias: "Ecowitt: Offline"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.gw2000a_dewpoint
+        for:
+          hours: 2
+          minutes: 0
+          seconds: 0
+      - platform: state
+        entity_id:
+          - sensor.gw2000a_solar_lux
+        to: unavailable
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          message: EcoWitt GW2000A has frozen or unavailable.
+          title: Ecowitt
+          people:
+            entity_id:
+              - person.danny
+    mode: single
