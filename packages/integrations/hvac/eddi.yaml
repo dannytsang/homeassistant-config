@@ -31,25 +31,6 @@ automation:
           log_level: "Normal"
     mode: queued
     max: 10
-  - id: "1678796763426"
-    alias: "HVAC: Eddi Exceed Cut Off Threshold"
-    description: "Disabled and allow eddi to manage temperature"
-    trigger:
-      - platform: numeric_state
-        entity_id: sensor.myenergi_eddi_energy_consumed_per_heating_cycle
-        above: input_number.hot_water_solar_diverter_boiler_cut_off
-    condition:
-      - not:
-          - condition: state
-            entity_id: sensor.myenergi_eddi_status
-            state: "Stopped"
-      - condition: state
-        entity_id: input_boolean.enable_hot_water_automations
-        state: "on"
-    action:
-      - service: script.hvac_check_eddi_boost_hot_water
-        data: {}
-    mode: single
   - id: "1685005214749"
     alias: "HVAC: Eddi Turn On"
     description: ""
@@ -77,6 +58,10 @@ automation:
                 Eddi back on.
               title: myEnergi
               log_level: "Debug"
+          - service: timer.cancel
+            target:
+              entity_id: timer.eddi_max_temperature_reached
+            data: {}
           - service: select.select_option
             data:
               option: Normal
@@ -111,17 +96,17 @@ automation:
             Turning off hot water.
           title: ":hotsprings: Central Heating"
           log_level: "Normal"
-      - service: script.set_how_water_to_home_mode
+      - service: script.set_hot_water_to_home_mode
         data: {}
     mode: single
   - id: "1703760630207"
     alias: "Eddi: Reset Mode"
     description: ""
     trigger:
-      - platform: numeric_state
-        entity_id:
-          - sensor.myenergi_eddi_energy_consumed_per_heating_cycle
-        below: 0.5
+      - platform: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.eddi_max_temperature_reached
     condition:
       - condition: state
         entity_id: sensor.myenergi_eddi_status
@@ -138,7 +123,7 @@ automation:
           - service: script.send_to_home_log
             data:
               message: >-
-                Hot water has passed 6 hours. Turning :fuelpump:
+                Hot water timer has finished. Turning :fuelpump:
                 Eddi back on.
               title: myEnergi
               log_level: Debug
@@ -173,6 +158,8 @@ automation:
               entity_id: timer.eddi_max_temperature_reached
             data:
               duration: "04:00:00"
+          - service: script.hvac_check_eddi_boost_hot_water
+            data: {}
     mode: single
   # Unit rate related automations
   - id: "1689626117478"
@@ -398,32 +385,34 @@ script:
                       minutes: 20
           - alias: "Exceed Cut Off Threshold"
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.myenergi_eddi_energy_consumed_per_heating_cycle
-                above: input_number.hot_water_solar_diverter_boiler_cut_off
-              - not:
-                  - condition: state
-                    entity_id: sensor.myenergi_eddi_status
-                    state: "Stopped"
+              - condition: state
+                entity_id: timer.eddi_max_temperature_reached
+                state: "active"
               - condition: state
                 entity_id: input_boolean.enable_hot_water_automations
                 state: "on"
             sequence:
-              - parallel:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle') }}
-                        in the last 6 hours
-                        ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }})
-                        {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
-                      title: myEnergi
-                      log_level: "Normal"
-                  - service: select.select_option
-                    data:
-                      option: "Stopped"
-                    target:
-                      entity_id: select.myenergi_eddi_operating_mode
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.myenergi_eddi_status
+                        state: "Stopped"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle') }}
+                            in the last 6 hours
+                            ({{ states('sensor.myenergi_eddi_energy_consumed_session_daily') }})
+                            {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
+                          title: myEnergi
+                          log_level: "Normal"
+                      - service: select.select_option
+                        data:
+                          option: "Stopped"
+                        target:
+                          entity_id: select.myenergi_eddi_operating_mode
           - alias: "Default mode"
             conditions:
               - not:
