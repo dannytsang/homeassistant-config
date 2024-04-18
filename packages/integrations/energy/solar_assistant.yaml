@@ -23,7 +23,7 @@ automation:
         id: event
       - platform: time_pattern
         minutes: "0"
-        seconds: "10"
+        seconds: "55"
         id: time
       - platform: time_pattern
         minutes: "5"
@@ -313,14 +313,14 @@ script:
                           option: Stopped
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
-                default:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
-                        to grid first.
-                      title: Solar Assistant
-                      log_level: "Debug"
+            default:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
+                    to grid first.
+                  title: Solar Assistant
+                  log_level: "Debug"
           - alias: Set stop charge level
             service: number.set_value
             target:
@@ -464,7 +464,7 @@ script:
     alias: Solar Assistant Check Charging Mode
     description: ""
     trace:
-      stored_traces: 40
+      stored_traces: 80
     fields:
       event:
         description: The trigger for running an electricity rate check.
