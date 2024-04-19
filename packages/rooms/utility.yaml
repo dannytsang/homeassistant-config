@@ -175,11 +175,17 @@ script:
                   message: "{{ message|replace(':shirt:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
                   title: "{{ title }}"
         else:
-          - service: script.send_to_home_log
-            data:
-              message: "{{ message }}"
-              title: "{{ title }}"
-              log_level: "Debug"
+          - parallel:
+              - service: todo.add_item
+                data:
+                  item: "{{ message }}"
+                target:
+                  entity_id: todo.dannys_notifications
+              - service: script.send_to_home_log
+                data:
+                  message: "{{ message }}"
+                  title: "{{ title }}"
+                  log_level: "Debug"
     mode: single
     icon: mdi:washing-machine
 

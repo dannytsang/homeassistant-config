@@ -1053,3 +1053,26 @@ script:
                 message: "{{ message }}"
                 data:
                   duration: "{{ duration|default(10, true) }}"
+  announce_delayed_notifications:
+    alias: "Announce Delayed Notifications"
+    sequence:
+      - service: todo.get_items
+        target:
+          entity_id:
+            - todo.dannys_notifications
+        data:
+          status: needs_action
+        response_variable: todo_list
+      - service: script.send_direct_notification
+        data:
+          message: >-
+            Please be aware of:
+            {%- for item in todo_list['todo.dannys_notifications']['items'] %}
+              * {{ item.summary }}
+
+              
+            {%- endfor %}
+          title: "Delayed Annoucements"
+          people:
+            entity_id:
+              - person.danny
