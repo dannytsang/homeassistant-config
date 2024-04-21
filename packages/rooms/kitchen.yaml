@@ -29,10 +29,10 @@ automation:
     description: ""
     trigger:
       - platform: state
+        entity_id: binary_sensor.kitchen_area_motion
         from: "on"
         to: "off"
         for: 00:05:00
-        entity_id: binary_sensor.kitchen_area_motion
     condition:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
@@ -94,6 +94,13 @@ automation:
                       entity_id: scene.kitchen_ambient_lights_off
                     data:
                       transition: 2
+                  #- service: light.turn_off
+                  #  target:
+                  #    entity_id:
+                  #      - light.kitchen_left_2
+                  #      - light.kitchen_middle_2
+                  #      - light.kitchen_right_2
+                  #  data: {}
             default: []
           - choose:
               - conditions:
@@ -351,41 +358,20 @@ automation:
             state: "off"
     action:
       - parallel:
-          - choose:
-              - conditions:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_3_illuminance
-                        below: input_number.kitchen_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_2_illuminance_lux
-                        below: input_number.kitchen_light_level_2_threshold
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.kitchen_motion_3_illuminance') }}
-                        & {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                        < {{ states('input_number.kitchen_light_level_threshold') }} &
-                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                        Turning table :bulb: :high_brightness: lights on.
-                      title: ":cook: Kitchen"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_table_lights_on
-            default:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: Motion detected and it's not dark
-                    ({{ states('sensor.kitchen_motion_3_illuminance') }}
-                    & {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                    < {{ states('input_number.kitchen_light_level_threshold') }} &
-                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                  title: ":cook: Kitchen"
-                  log_level: "Debug"
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :paw_prints: Motion detected and it's dark
+                ({{ states('sensor.kitchen_motion_3_illuminance') }}
+                & {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
+                < {{ states('input_number.kitchen_light_level_threshold') }} &
+                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                Turning table :bulb: :high_brightness: lights on.
+              title: ":cook: Kitchen"
+              log_level: "Debug"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_table_lights_on
     mode: queued
     max: 10
   - id: "1606158191307"
@@ -493,41 +479,20 @@ automation:
             state: "off"
     action:
       - parallel:
-          - choose:
-              - conditions:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_3_illuminance
-                        below: input_number.kitchen_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_2_illuminance_lux
-                        below: input_number.kitchen_light_level_2_threshold
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.kitchen_motion_3_illuminance') }} &
-                        {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                        < {{ states('input_number.kitchen_light_level_threshold') }} &
-                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                        Turning kitchen cooker :bulb: :high_brightness: lights on.
-                      title: ":cook: Kitchen"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_cooker_lights_on
-            default:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: Motion detected and it's not dark
-                    ({{ states('sensor.kitchen_motion_3_illuminance') }} &
-                    {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                    < {{ states('input_number.kitchen_light_level_threshold') }} &
-                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                  title: ":cook: Kitchen"
-                  log_level: "Debug"
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :paw_prints: Motion detected and it's dark
+                ({{ states('sensor.kitchen_motion_3_illuminance') }} &
+                {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
+                < {{ states('input_number.kitchen_light_level_threshold') }} &
+                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                Turning kitchen cooker :bulb: :high_brightness: lights on.
+              title: ":cook: Kitchen"
+              log_level: "Debug"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_cooker_lights_on
     mode: queued
     max: 10
   - id: "1606158191309"
@@ -571,42 +536,20 @@ automation:
                 below: 100
     action:
       - parallel:
-          - choose:
-              - conditions:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_3_illuminance
-                        below: input_number.kitchen_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_2_illuminance_lux
-                        below: input_number.kitchen_light_level_2_threshold
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.kitchen_motion_3_illuminance') }} &
-                        {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                        < {{ states('input_number.kitchen_light_level_threshold') }} &
-                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                        Turning up cooker :bulb: :high_brightness: lights.
-                      title: ":cook: Kitchen"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_cooker_lights_on
-            default:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: Motion detected and not it's dark
-                    ({{ states('sensor.kitchen_motion_3_illuminance') }} &
-                    {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                    < {{ states('input_number.kitchen_light_level_threshold') }} &
-                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                    Leaving cooker :bulb: :low_brightness: lights on dim.
-                  title: ":cook: Kitchen"
-                  log_level: "Debug"
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                :paw_prints: Motion detected and it's dark
+                ({{ states('sensor.kitchen_motion_3_illuminance') }} &
+                {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
+                < {{ states('input_number.kitchen_light_level_threshold') }} &
+                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                Turning up cooker :bulb: :high_brightness: lights.
+              title: ":cook: Kitchen"
+              log_level: "Debug"
+          - service: scene.turn_on
+            target:
+              entity_id: scene.kitchen_cooker_lights_on
     mode: queued
     max: 10
   - id: "1606158191304"
@@ -983,28 +926,393 @@ scene:
     name: Kitchen Ambient Lights Dim
     icon: "mdi:lightbulb-spot"
     entities:
-      light.kitchen_ambient_lights:
-        min_mireds: 111
-        max_mireds: 500
+      light.kitchen_left:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
         supported_color_modes:
           - color_temp
+        effect:
         color_mode: color_temp
-        brightness: 13
+        brightness: 26
+        color_temp_kelvin: 2710
         color_temp: 369
-        friendly_name: Kitchen Left
-        supported_features: 35
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "on"
+      light.kitchen_middle:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 26
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "on"
+      light.kitchen_right:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 26
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "on"
+      light.kitchen_left_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 26
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "on"
+      light.kitchen_middle_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 26
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "on"
+      light.kitchen_right_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 26
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
         state: "on"
   - id: "kitchen_ambient_lights_off"
     name: Kitchen Ambient Lights Off
     icon: "mdi:lightbulb-spot-off"
     entities:
-      light.kitchen_ambient_lights:
-        min_mireds: 111
-        max_mireds: 500
+      light.kitchen_left:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
         supported_color_modes:
           - color_temp
-        friendly_name: Kitchen Left
-        supported_features: 35
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "off"
+      light.kitchen_middle:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "off"
+      light.kitchen_right:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "off"
+      light.kitchen_left_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "off"
+      light.kitchen_middle_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
+        state: "off"
+      light.kitchen_right_2:
+        min_color_temp_kelvin: 2202
+        max_color_temp_kelvin: 4000
+        min_mireds: 250
+        max_mireds: 454
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - finish_effect
+          - stop_effect
+        supported_color_modes:
+          - color_temp
+        effect:
+        color_mode: color_temp
+        brightness: 255
+        color_temp_kelvin: 2710
+        color_temp: 369
+        hs_color:
+          - 28.373
+          - 65.405
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Kitchen Middle
+        supported_features: 44
         state: "off"
   - id: "scene.kitchen_all_lights_off"
     name: Kitchen All Lights Off
@@ -1090,21 +1398,6 @@ scene:
         friendly_name: Kitchen Draws
         supported_features: 40
         icon: mdi:led-strip-variant
-        state: "on"
-  - id: "kitchen_main_lights_on"
-    name: Kitchen Main Lights On
-    icon: "mdi:lightbulb-spot"
-    entities:
-      light.kitchen_ambient_lights:
-        min_mireds: 111
-        max_mireds: 500
-        supported_color_modes:
-          - color_temp
-        color_mode: color_temp
-        brightness: 245
-        color_temp: 369
-        friendly_name: Kitchen Left
-        supported_features: 35
         state: "on"
   - id: "kitchen_accent_lights_off"
     name: Kitchen Accent Lights Off
