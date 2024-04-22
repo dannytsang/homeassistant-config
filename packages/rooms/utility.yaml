@@ -126,16 +126,16 @@ automation:
         to: "off"
     condition: []
     action:
-      - parallel:
-          - service: script.washing_complete_notification
-            data:
-              message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
-              title: "Utility Room"
+      - service: script.washing_complete_notification
+        data:
+          message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
+          title: "Utility Room"
     mode: single
 
 script:
   washing_complete_notification:
     alias: Washing Complete Notification
+    description: "TODO: refactor this with dishwashing complete notification."
     fields:
       message:
         description: Message to post
@@ -156,36 +156,38 @@ script:
         {% endfor %}
         {{ people.home }}"
     sequence:
-      - if:
-          - condition: template
-            value_template: "{{ (people_home|default([]))|length > 0 }}"
-          - condition: time
-            before: "22:00:00"
-            after: "09:00:00"
-        then:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: group.adult_people
+                state: "home"
+              - condition: time
+                before: "22:00:00"
+                after: "09:00:00"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      people:
+                        entity_id: "{{ people_home }}"
+                  - service: script.alexa_announce
+                    data:
+                      message: "{{ message|replace(':shirt:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
+                      title: "{{ title }}"
+        default:
           - parallel:
-              - service: script.send_direct_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title }}"
-                  people:
-                    entity_id: "{{ people_home }}"
-              - service: script.alexa_announce
-                data:
-                  message: "{{ message|replace(':shirt:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
-                  title: "{{ title }}"
-        else:
-          - parallel:
-              - service: todo.add_item
-                data:
-                  item: "{{ message }}"
-                target:
-                  entity_id: todo.dannys_notifications
               - service: script.send_to_home_log
                 data:
                   message: "{{ message }}"
                   title: "{{ title }}"
                   log_level: "Debug"
+              - service: todo.add_item
+                data:
+                  item: "{{ message }}"
+                target:
+                  entity_id: todo.dannys_notifications
     mode: single
     icon: mdi:washing-machine
 

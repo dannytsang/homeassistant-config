@@ -920,6 +920,37 @@ automation:
             target:
               entity_id: input_boolean.oven_preheated
     mode: single
+  # Dishwashing Machine
+  - id: "1595679010797"
+    alias: "Kitchen: Dishwasher Started"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.dishwasher_powered_on
+        to: "on"
+    condition: []
+    action:
+      - service: script.send_to_home_log
+        data:
+          message: ":knife_fork_plate: :soap: Washing Machine :arrow_forward: Started."
+          title: ":cook: Kitchen"
+          log_level: "Debug"
+    mode: single
+  - id: "1595679010798"
+    alias: "Kitchen: Dishwasher Finished"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.dishwasher_powered_on
+        from: "on"
+        to: "off"
+    condition: []
+    action:
+      - service: script.dishwashing_complete_notification
+        data:
+          message: ":knife_fork_plate: :soap: Washing Machine :checkered_flag: Finished."
+          title: ":cook: Kitchen"
+    mode: single
 
 scene:
   - id: "kitchen_ambient_lights_dim"
@@ -1588,6 +1619,63 @@ script:
           entity_id: light.kitchen_accent_lights
     mode: single
     icon: mdi:led-strip-variant
+  dishwashing_complete_notification:
+    alias: Dishwashing Complete Notification
+    description: "TODO: refactor this with washing machine complete notification."
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+    variables:
+      people_home: "{% set people = namespace(home=[]) %}
+        {% for p in state_attr('group.adult_people', 'entity_id')|default([]) %}
+        {% if states(p) == 'home' %}
+        {% set people.home = people.home + [p] %}
+        {% endif %}
+        {% endfor %}
+        {{ people.home }}"
+    sequence:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: group.adult_people
+                state: "home"
+              - condition: time
+                before: "22:00:00"
+                after: "09:00:00"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      people:
+                        entity_id: "{{ people_home }}"
+                  - service: script.alexa_announce
+                    data:
+                      message: "{{ message|replace(':knife_fork_plate:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
+                      title: "{{ title }}"
+          - default:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title }}"
+                      log_level: "Debug"
+                  - service: todo.add_item
+                    data:
+                      item: "{{ message }}"
+                    target:
+                      entity_id: todo.dannys_notifications
+    mode: single
+    icon: mdi:washing-machine
 
 sensor:
   # Dishwasher
