@@ -415,28 +415,39 @@ automation:
                     default:
                       - service: script.everybody_leave_home
           - service: script.3d_printer_left_unattended
+          - service: calendar.get_events
+            target:
+              entity_id:
+                - calendar.tsang_children
+                - calendar.family
+            data:
+              start_date_time: "{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d %H:%M:%S') }}"
+              duration:
+                hours: 1
+                minutes: 0
+                seconds: 0
+            response_variable: calendar
+
           - alias: Check if there's a family calendar event.
             choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ now() > strptime(states('sensor.next_family_calendar_event_start_date'), '%Y-%m-%dT%H:%M:%S%z', now()) }}"
+                    value_template: "{{ calendar['calendar.family'].events | count > 0 }}"
                   - condition: template
-                    value_template: "{{ now() < strptime(states('sensor.next_family_calendar_event_end_date'), '%Y-%m-%dT%H:%M:%S%z', now()) }}"
+                    value_template: "{{ calendar['calendar.family'].events[0].location is not defined }}"
                 sequence:
                   - service: script.send_direct_notification
                     data:
                       message: >-
                         No one home and there's a family event on:
 
-                        Name: {{ states('sensor.next_family_calendar_event_name') }}
+                        Name: {{ calendar['calendar.family'].events[0].summary }}
 
-                        All Day: {{ states('sensor.next_family_calendar_event_all_day') }}
+                        Location: {{ calendar['calendar.family'].events[0].location | default('', true) }}
 
-                        Location: {{ states('sensor.next_family_calendar_event_location') }}
+                        Start Time: {{ calendar['calendar.family'].events[0].start }}
 
-                        Start Time: {{ states('sensor.next_family_calendar_event_start_date') }}
-
-                        End Time: {{ states('sensor.next_family_calendar_event_end_date') }}
+                        End Time: {{ calendar['calendar.family'].events[0].end }}
                       people:
                         entity_id:
                           - person.danny
@@ -445,24 +456,20 @@ automation:
             choose:
               - conditions:
                   - condition: template
-                    value_template: "{{ now()|as_timestamp > strptime(states('sensor.next_children_calendar_event_start_date'), '%Y-%m-%dT%H:%M:%S%z', now()) }}"
-                  - condition: template
-                    value_template: "{{ now()|as_timestamp < strptime(states('sensor.next_children_calendar_event_end_date'), '%Y-%m-%dT%H:%M:%S%z', now()) }}"
+                    value_template: "{{ calendar['calendar.family'].events | count > 0 }}"
                 sequence:
                   - service: script.send_direct_notification
                     data:
                       message: >-
                         No one home and there's a childrens' event on:
 
-                        Name: {{ states('sensor.next_children_calendar_event_name') }}
+                        Name: {{ calendar['calendar.tsang_children'].events[0].summary }}
 
-                        All Day: {{ states('sensor.next_children_calendar_event_all_day') }}
+                        Location: {{ calendar['calendar.tsang_children'].events[0].location | default('', true) }}
 
-                        Location: {{ states('sensor.next_children_calendar_event_location') }}
+                        Start Time: {{ calendar['calendar.tsang_children'].events[0].start }}
 
-                        Start Time: {{ states('sensor.next_children_calendar_event_start_date') }}
-
-                        End Time: {{ states('sensor.next_children_calendar_event_end_date') }}
+                        End Time: {{ calendar['calendar.tsang_children'].events[0].end }}
                       people:
                         entity_id:
                           - person.danny
