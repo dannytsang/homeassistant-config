@@ -1063,7 +1063,8 @@ script:
         data:
           status: needs_action
         response_variable: todo_list
-      - service: script.send_direct_notification
+      - alias: Deliver announcement
+        service: script.send_direct_notification
         data:
           message: >-
             Please be aware of:
@@ -1076,3 +1077,14 @@ script:
           people:
             entity_id:
               - person.danny
+      - alias: Mark stored announcements as complete
+        repeat:
+          for_each: "{{ todo_list['todo.dannys_notifications']['items'] }}"
+          sequence:
+            - service: todo.update_item
+              target:
+                entity_id:
+                  - todo.dannys_notifications
+              data:
+                item: "{{ repeat.item.summary }}"
+                status: completed
