@@ -304,8 +304,8 @@ automation:
 conversation:
   intents:
     getBatteryLevel:
-      - "How much battery is left"
-      - "[What is the] (battery|charge) level"
+      - "[How much] battery is left"
+      - "[What is the] (battery|charge) (level|remaining)"
     getBatteryRunTime:
       - "How long will the battery last [for]"
       - "How long will the battery run [for]"
@@ -409,7 +409,7 @@ script:
               log_level: "Normal"
     mode: single
     icon: mdi:solar-power
-  todays_solar_forcast_data:
+  todays_solar_forecast_data:
     alias: Today's Solar Forecast Data
     variables:
       estimate_charge_percentage: >-
@@ -437,7 +437,7 @@ script:
     sequence:
       - stop: "Stop running the rest of the sequence"
         response_variable: "solar_forecast_data"
-  tomorrows_solar_forcast_data:
+  tomorrows_solar_forecast_data:
     alias: Tomorrow's Solar Forecast Data
     variables:
       estimate_charge_percentage: >-
@@ -469,7 +469,7 @@ script:
     alias: Energy Notify Tomorrow's Solar Forecast
         
     sequence:
-      - service: script.tomorrows_solar_forcast_data
+      - service: script.tomorrows_solar_forecast_data
         response_variable: solar_forecast_data
       - service: weather.get_forecasts
         target:
@@ -498,7 +498,7 @@ script:
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|round(2) }} kWh)
             finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
-            {%- endif -%}
+            {%- endif %}
 
 
             Charge :house_with_garden::battery: battery to
