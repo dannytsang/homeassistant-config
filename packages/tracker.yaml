@@ -415,7 +415,6 @@ automation:
                     default:
                       - service: script.everybody_leave_home
           - service: script.3d_printer_left_unattended
-
           - alias: Check if there's a family calendar event.
             choose:
               - conditions:
@@ -608,15 +607,6 @@ automation:
             then:
               - service: script.front_door_lock_status
                 data: {}
-          - if:
-              - condition: state
-                entity_id: light.kitchen_side_lights
-                state: "off"
-            then:
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.kitchen_accent_lights_on
           - service: script.send_to_home_log
             data:
               message: >-
@@ -624,6 +614,8 @@ automation:
                 Turning Lounge and kitchen ambient lights on.
               title: ":man: Danny"
               log_level: "Normal"
+          - service: script.announce_delayed_notifications
+            data: {}
     mode: single
   - id: "1582456019025"
     alias: "People: Danny Leaves Home"
@@ -706,15 +698,6 @@ automation:
             then:
               - service: script.front_door_lock_status
                 data: {}
-          - if:
-              - condition: state
-                entity_id: light.kitchen_side_lights
-                state: "off"
-            then:
-              - service: scene.turn_on
-                target:
-                  entity_id:
-                    - scene.kitchen_accent_lights_on
           - service: script.send_to_home_log
             data:
               message: >-
