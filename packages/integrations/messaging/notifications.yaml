@@ -1055,36 +1055,96 @@ script:
                   duration: "{{ duration|default(10, true) }}"
   announce_delayed_notifications:
     alias: "Announce Delayed Notifications"
+    fields:
+      test:
+        default: false
+      people:
+        description:
+          (optional)People to message using people entity in a comma separated list.
+          If no one is specified, it will go to everyone.
+        example: "['person.danny'] or ['person.danny','person.terina']"
+        selector:
+          target:
+            entity:
+              domain:
+                - person
     sequence:
       - service: todo.get_items
         target:
           entity_id:
+            - todo.shared_notifications
             - todo.dannys_notifications
         data:
           status: needs_action
         response_variable: todo_list
-      - alias: Deliver announcement
-        service: script.send_direct_notification
-        data:
-          message: >-
-            Please be aware of:
-            {%- for item in todo_list['todo.dannys_notifications']['items'] %}
+      - variables:
+          shared: >-
+            {%- for item in todo_list['todo.shared_notifications']['items'] %}
               * {{ item.summary }}
 
-              
+        
             {%- endfor %}
-          title: "Delayed Annoucements"
-          people:
-            entity_id:
-              - person.danny
-      - alias: Mark stored announcements as complete
-        repeat:
-          for_each: "{{ todo_list['todo.dannys_notifications']['items'] }}"
-          sequence:
-            - service: todo.update_item
-              target:
+      - if:
+        - condition: template
+          value_template: "{{ people.entity_id in 'person.danny' }}"
+        then:
+          - alias: Deliver announcement
+            service: script.send_direct_notification
+            data:
+              message: >-
+                Please be aware of the follow:
+                {%- for item in todo_list['todo.dannys_notifications']['items'] %}
+                  * {{ item.summary }}
+
+                  
+                {% endfor %}
+
+                Shared:
+
+                {{ shared }}
+              title: "Delayed Annoucements"
+              people:
                 entity_id:
-                  - todo.dannys_notifications
-              data:
-                item: "{{ repeat.item.summary }}"
-                status: completed
+                  - person.danny
+          - if:
+              - condition: template
+                value_template: "{{ test == false }}"
+            then:
+              - alias: Mark stored announcements as complete
+                repeat:
+                  for_each: "{{ todo_list['todo.dannys_notifications']['items'] }}"
+                  sequence:
+                    - service: todo.update_item
+                      target:
+                        entity_id:
+                          - todo.dannys_notifications
+                      data:
+                        item: "{{ repeat.item.summary }}"
+                        status: completed
+        else:
+          - alias: Deliver announcement
+            service: script.send_direct_notification
+            data:
+              message: >-
+                Please be aware of the follow:
+
+                {{ shared }}
+              title: "Delayed Annoucements"
+              people:
+                entity_id:
+                  - person.terina
+      - if:
+          - condition: template
+            value_template: "{{ test == false }}"
+        then:
+          - alias: Mark stored announcements as complete
+            repeat:
+              for_each: "{{ todo_list['todo.shared_notifications']['items'] }}"
+              sequence:
+                - service: todo.update_item
+                  target:
+                    entity_id:
+                      - todo.dannys_notifications
+                  data:
+                    item: "{{ repeat.item.summary }}"
+                    status: completed
