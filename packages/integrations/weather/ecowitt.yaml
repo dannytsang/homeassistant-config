@@ -19,12 +19,24 @@ automation:
         to: unavailable
     condition: []
     action:
-      - service: script.send_direct_notification
-        metadata: {}
-        data:
-          message: EcoWitt GW2000A has frozen or unavailable.
-          title: Ecowitt
-          people:
-            entity_id:
-              - person.danny
+      - parallel:
+          - service: script.send_direct_notification
+            metadata: {}
+            data:
+              message: "Ecowitt GW2000A({{ trigger.entity_id }}) has frozen or is unavailable. Rebooting."
+              title: Ecowitt
+              people:
+                entity_id:
+                  - person.danny
+          - sequence:
+              - service: switch.turn_off
+                target:
+                  entity_id: switch.gw2000a_plug
+                data: {}
+              - delay:
+                  seconds: 2
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.gw2000a_plug
+                data: {}
     mode: single
