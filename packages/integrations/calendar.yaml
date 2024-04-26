@@ -272,9 +272,15 @@ script:
               entity_id: sensor.google_travel_time_by_car
           - service: script.send_direct_notification
             data:
-              message: |-
+              message: >-
+                {%- if 'zone.' states('sensor.origin_address')|default('', true)  %}
+                Origin: {{ state_attr(states('sensor.origin_address'), 'friendly_name') }}
+                {%- else %}
                 Origin: {{ states('sensor.origin_address') }}
+                {%- endif %}
                 Destination: {{ states('sensor.destination_address') }}
+
+
                 Journey Time: {{ state_attr('sensor.google_travel_time_by_car', 'duration') }} ({{ state_attr('sensor.google_travel_time_by_car', 'distance') }})
               title: ":date: Calendar"
               people:
