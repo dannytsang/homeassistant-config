@@ -488,23 +488,28 @@ script:
           message: >-
             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
             {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-            Tommow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
-            weather is {{ weather['weather.home'].forecast[1].condition }} with a generation of
+            {%- from 'emoji.jinja' import get_weather -%}
+            Tommorow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
+            weather is {{ get_weather(weather['weather.home'].forecast[1].condition, 'Slack') }} with a generation of
             {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
-            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|default(none, true) is not none %}
-            The first self sustaining generation ({{ states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7) }} kWh) will occur at
-            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|round(2) }} kWh).
+            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7))|default(none, true) is not none %}
+            The first self sustaining generation ({{ states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7) }} kWh) will occur at
+            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7))|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7))|round(2) }} kWh).
 
 
             The last self sustaining generation of the day will be at
-            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_month')|float(0.7))|round(2) }} kWh)
+            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7))|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(0.7))|round(2) }} kWh)
             finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate')|replace(' ', 'T'))|timestamp_custom('%H:%M:%S') }}.
             {%- endif %}
+
+
+            The battery is {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}. The estimated run time is
+            {{ states('sensor.battery_charge_remaining_hours') }} ({{ state_attr('sensor.battery_charge_remaining_hours', 'duration') }}).
 
 
             Charge :house_with_garden::battery: battery to
