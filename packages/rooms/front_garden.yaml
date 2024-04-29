@@ -1,21 +1,24 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  - id: "1613924044189"
-    alias: "Front Garden: Doorbell Pressed"
+  # Doorbell
+  - id: "1694521590171"
+    alias: "Porch: Doorbell Pressed"
     description: ""
     trigger:
       - platform: state
-        entity_id: binary_sensor.front_door_ding
-        from: "off"
+        entity_id:
+          - binary_sensor.front_door_ding_2
         to: "on"
     condition: []
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - service: script.send_to_home_log
             data:
-              message: ":door: :bell: Someone rung the door bell."
-              title: Ding Dong
-              log_level: "Normal"
+              message: "Some pressed the door bell."
+              title: "Porch"
+          - service: script.alexa_announce
+            data:
+              message: "Ding dong."
           - service: input_boolean.turn_on
             target:
               entity_id: input_boolean.wait_for_doorbell_camera_update
@@ -47,40 +50,12 @@ automation:
         data:
           url: "{{ state_attr('camera.front_door', 'video_url') }}"
           subdir: "front_door"
-          filename: "{{ state_attr('camera.front_door', 'friendly_name') }}.mp4"
+          filename: "latest.mp4"
           overwrite: true
+      - service: shell_command.copy_doorbell_footage
+        data: {}
     mode: queued
     max: 10
-  - id: "1584089698583"
-    alias: "Front Garden: Doorbell Battery Low"
-    description: ""
-    trigger:
-      - entity_id: sensor.front_doorbell_battery
-        platform: state
-        to: "10"
-    condition: []
-    action:
-      - service: script.send_to_home_log
-        data:
-          message: ":warning: :battery: Conservatory motion sensor is low on battery"
-          log_level: "Normal"
-    mode: single
-  - id: "1584089831265"
-    alias: "Front Garden: Doorbell Battery Critically Low"
-    description: ""
-    trigger:
-      - entity_id: sensor.front_doorbell_battery
-        platform: state
-        to: "5"
-    condition: []
-    action:
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":warning: :battery: Conservatory motion sensor is critically low on
-            battery"
-          log_level: "Normal"
-    mode: single
   # Light
   - id: "1660894232444"
     alias: "Front Garden: Below Direct Sun Light"
@@ -177,3 +152,8 @@ script:
             - switch.driveway_snapshots
     mode: single
     icon: mdi:cctv
+
+shell_command:
+  copy_doorbell_footage: >-
+    cp {{ states('input_text.camera_internal_folder_path') ~ '/front_door/latest.mp4'}}
+    {{ states('input_text.camera_internal_folder_path') ~ '/front_door/' ~ state_attr('camera.front_door', 'friendly_name') ~ '_' ~ as_timestamp(now())|timestamp_custom('%Y-%m-%d_%H%M%S') ~ '.mp4'}}
