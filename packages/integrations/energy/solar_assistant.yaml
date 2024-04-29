@@ -1166,7 +1166,7 @@ template:
           - sensor.growatt_sph_load_power
           - sensor.usable_battery_state_of_charge
     sensor:
-      - name: "Battery Run Time"
+      - name: "Battery Runtime"
         unique_id: c5955655-eb91-4bd7-9f8f-afc4e4f0c58c
         # Formula:
         # (Battery Size x useable charge remaining) / current usage = kWh remaining
@@ -1177,6 +1177,22 @@ template:
             {% set ts = (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_sph_load_power')|replace('0','1')|float(1))) * 60 * 60)|round(0) %}
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.solar_battery_size
+          - sensor.growatt_sph_load_power
+          - sensor.usable_battery_state_of_charge
+    sensor:
+      - name: "Battery Runtime Duration"
+        unique_id: b3055c12-734f-4091-8d1b-c995d25f815e
+        # Formula:
+        # (Battery Size x useable charge remaining) / current usage = kWh remaining
+        state: >-
+          {{ (((states('input_number.solar_battery_size')|float(0) * states('sensor.usable_battery_state_of_charge')|float(0)) / (states('sensor.growatt_sph_load_power')|replace('0','1')|float(1))) * 60 * 60)|round(0) }}
+        icon: mdi:battery-clock-outline
+        unit_of_measurement: "s"
+        device_class: "duration"
   - trigger:
       - platform: state
         entity_id:
