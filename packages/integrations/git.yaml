@@ -17,7 +17,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.json.key|string == states('input_text.github_pull_key') }}"
+                value_template: "{{ trigger.json.key_token|string == states('input_text.github_pull_key') }}"
             sequence:
               - parallel:
                   - service: script.send_to_home_log
@@ -29,9 +29,11 @@ automation:
                     data:
                       addon: core_git_pull
         default:
-          - service: script.send_to_home_log
+          - service: script.send_direct_notification
             data:
               message: "Build :white_check_mark: passed but incorrect :key: key was sent."
               title: ":warning: :construction_worker: :hammer_and_wrench: GitHub :warning:"
-              log_level: "Normal"
+              people:
+                entity_id:
+                  - person.danny
     mode: single
