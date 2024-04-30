@@ -62,13 +62,13 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_lights
+                      entity_id: scene.living_room_lights
                     data:
                       transition: 1
             default:
               - service: scene.turn_on
                 target:
-                  entity_id: scene.lounge_lamps_on
+                  entity_id: scene.living_room_lamps_on
                 data:
                   transition: 1
     mode: queued
@@ -105,7 +105,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_dim_lights
+                      entity_id: scene.living_room_dim_lights
                     data:
                       transition: 1
               - conditions:
@@ -115,7 +115,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_dim_lamps
+                      entity_id: scene.living_room_dim_lamps
                     data:
                       transition: 1
               - conditions:
@@ -125,7 +125,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_dim_ceiling_lights
+                      entity_id: scene.living_room_dim_ceiling_lights
                     data:
                       transition: 1
             default: []
@@ -163,7 +163,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_lights_off
+                      entity_id: scene.living_room_lights_off
                     data:
                       transition: 1
               - conditions:
@@ -173,7 +173,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_lamps_off
+                      entity_id: scene.living_room_lamps_off
                     data:
                       transition: 1
               - conditions:
@@ -183,7 +183,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_ceiling_lights_off
+                      entity_id: scene.lving_room_ceiling_lights_off
                     data:
                       transition: 1
             default: []
@@ -231,7 +231,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_lights_off
+                      entity_id: scene.living_room_lights_off
                     data:
                       transition: 1
               - conditions:
@@ -241,7 +241,7 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_lamps_off
+                      entity_id: scene.living_room_lamps_off
                     data:
                       transition: 1
               - conditions:
@@ -251,10 +251,36 @@ automation:
                 sequence:
                   - service: scene.turn_on
                     target:
-                      entity_id: scene.lounge_ceiling_lights_off
+                      entity_id: scene.lving_room_ceiling_lights_off
                     data:
                       transition: 1
             default: []
+    mode: single
+  - id: "1714512650107"
+    alias: "Living Room: Lamps On And No Motion"
+    description: "Caters for when lights are on and Home Assistant was restarted"
+    trigger:
+      - platform: state
+        entity_id:
+          - light.living_room_lamps
+        for:
+          minutes: 10
+    condition:
+      - condition: template
+        value_template:
+          "{{ as_timestamp(now()) - as_timestamp(states.living_room_lamps.last_changed)
+          >= 360 }}"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":Lights on for 10 minutes with no motion. Turning lights off."
+              title: ":couch_and_lamp: Lounge"
+              log_level: "Debug"
+          - service: scene.turn_on
+            metadata: {}
+            target:
+              entity_id: scene.living_room_lamps_off
     mode: single
   # Alarm
   - id: "1588859622571"
@@ -1123,7 +1149,7 @@ automation:
 
 scene:
   - id: "1582387315374"
-    name: Lounge Lights On
+    name: Living Room Lights On
     entities:
       light.living_room_lamp_left:
         min_mireds: 111
@@ -1391,7 +1417,7 @@ scene:
       light.living_room_right_3:
         entity_only: true
   - id: "1582387315375"
-    name: Lounge Lamps On
+    name: Living Room Lamps On
     entities:
       light.living_room_lamp_left:
         min_mireds: 111
@@ -1425,7 +1451,7 @@ scene:
       light.living_room_lamp_right:
         entity_only: true
   - id: "1582387315376"
-    name: Lounge Ceiling Lights On
+    name: Living Room Ceiling Lights On
     entities:
       light.living_room_left:
         min_color_temp_kelvin: 2000
@@ -1663,7 +1689,7 @@ scene:
       light.living_room_right_3:
         entity_only: true
   - id: "1606169827098"
-    name: Lounge Dim Lights
+    name: Living Room Dim Lights
     entities:
       light.living_room_lamp_left:
         min_mireds: 111
@@ -1928,7 +1954,7 @@ scene:
       light.living_room_right_3:
         entity_only: true
   - id: "1701618167193"
-    name: Lounge Dim Ceiling Lights
+    name: Living Room Dim Ceiling Lights
     entities:
       light.living_room_left:
         min_color_temp_kelvin: 2000
@@ -2167,7 +2193,7 @@ scene:
       light.living_room_right_3:
         entity_only: true
   - id: "1606169827099"
-    name: Lounge Dim Lamps
+    name: Living Room Dim Lamps
     entities:
       light.living_room_lamp_left:
         min_mireds: 111
@@ -2201,7 +2227,7 @@ scene:
       light.living_room_lamp_left:
         entity_only: true
   - id: "1582455234238"
-    name: Lounge Lights Off
+    name: Living Room Lights Off
     entities:
       light.living_room_lamp_right:
         min_mireds: 111
@@ -2461,7 +2487,7 @@ scene:
       light.living_room_right_3:
         entity_only: true
   - id: "1582455234239"
-    name: Lounge Lamps Off
+    name: Living Room Lamps Off
     entities:
       light.living_room_lamp_right:
         min_mireds: 111
@@ -2491,7 +2517,7 @@ scene:
       light.living_room_lamp_left:
         entity_only: true
   - id: "1701618167194"
-    name: Lounge Ceiling Lights Off
+    name: Living Room Ceiling Lights Off
     entities:
       light.living_room_left:
         min_color_temp_kelvin: 2000
@@ -2916,7 +2942,7 @@ script:
             - light.living_room_lamp_right
       - service: scene.turn_on
         target:
-          entity_id: scene.lounge_lights_green
+          entity_id: scene.living_room_lights_green
         data:
           transition: 0
       - delay:
