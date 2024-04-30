@@ -811,10 +811,21 @@ automation:
         to: button_2_press_release
     condition: []
     action:
-      - service: light.toggle
-        target:
-          entity_id: light.bedroom_lamps
-        data: {}
+      - if:
+          - condition: state
+            entity_id: light.bedroom_lamps
+            state: "off"
+        then:
+          - service: scene.turn_on
+            target:
+              entity_id: scene.bedroom_desk_lamps_on
+            data:
+              transition: 1
+        else:
+          - service: light.turn_off
+            target:
+              entity_id: light.bedroom_lamps
+            data: {}
     mode: single
   - id: "1699308571387"
     alias: "Bedroom: Remote Button 3"
