@@ -1,0 +1,68 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/sensor.rest/
+# References:
+#  - https://jamiej.co.uk/blog/adding-national-grids-dfs-dates-to-home-assistant/
+#  - https://www.nationalgrideso.com/data-portal/demand-flexibility-service/dfs_industry_notification
+#  - https://www.nationalgrideso.com/data-portal/demand-flexibility-service/dfs_service_requirements
+sensor:
+  - platform: rest
+    name: ESO DFS Notification
+    unique_id: d8f0d828-1ff2-4bc5-962d-fa836cab258b
+    icon: mdi:bell
+    resource: https://api.nationalgrideso.com/api/3/action/datastore_search_sql
+    headers:
+      User-Agent: Home Assistant REST sensor
+    json_attributes:
+      #- Notification Issued Date
+      #- Status
+      #- Requirement For
+      #- Notification Type
+      - records
+    json_attributes_path: $.result
+    method: GET
+    params:
+      # sql: >-
+      #   {{ "SELECT * FROM '94b4d470-a54e-41d7-ae6e-be158db9b9d4' WHERE 'Notification Issued Date' >= '"~now().strftime('%Y-%m-%d')~"T00:00:00.000Z"~"' ORDER BY '_id' ASC LIMIT 100"|urlencode }}
+      sql: >-
+        SELECT * FROM "94b4d470-a54e-41d7-ae6e-be158db9b9d4" WHERE "Notification Issued Date" >= "2024-02-05T00:00:00.000Z" ORDER BY "_id" ASC LIMIT 10
+    value_template: "{{ value_json.success}}"
+  - platform: rest
+    name: ESO DFS Notification Test
+    unique_id: 631ea272-2089-4cca-be89-38bc167b0b9e
+    icon: mdi:bell
+    resource: >-
+      https://api.nationalgrideso.com/api/3/action/datastore_search_sql?sql=SELECT%20COUNT(*)%20OVER%20()%20AS%20_count,%20*%20FROM%20%2294b4d470-a54e-41d7-ae6e-be158db9b9d4%22%20WHERE%20%22Notification%20Issued%20Date%22%20%3E=%20
+      '2024-03-14T00:00:00.000Z'
+      %20AND%20%22Notification%20Issued%20Date%22%20%3C=%20
+      '2024-04-15T23:59:59.999Z'
+      %20ORDER%20BY%20%22_id%22%20ASC%20LIMIT%20100
+    headers:
+      User-Agent: Home Assistant REST sensor
+    json_attributes:
+      #- Notification Issued Date
+      #- Status
+      #- Requirement For
+      #- Notification Type
+      - records
+    json_attributes_path: $.result
+    method: GET
+    value_template: "{{ value_json.success}}"
+  - platform: rest
+    name: ESO DFS Requirements
+    unique_id: 53fd3cdd-80e0-485f-b8b4-cf93dd1035e1
+    icon: mdi:bell
+    resource: >-
+      https://api.nationalgrideso.com/api/3/action/datastore_search_sql?sql=SELECT%20COUNT(*)%20OVER%20()%20AS%20_count,%20*%20FROM%20%22663f3f82-fec8-4c9a-a837-df5db8690a6f%22%20WHERE%20%22Delivery%20Date%22%20%3E=%20
+      '2023-11-01T00:00:00.000Z'%20AND%20%22Delivery%20Date%22%20%3C=%20
+      '2023-12-30T23:59:59.999Z'%20ORDER%20BY%20%22_id%22%20ASC%20LIMIT%20100
+    headers:
+      User-Agent: Home Assistant REST sensor
+    json_attributes:
+      #- Notification Issued Date
+      #- Status
+      #- Requirement For
+      #- Notification Type
+      - records
+    json_attributes_path: $.result
+    method: GET
+    value_template: "{{ value_json.success}}"
