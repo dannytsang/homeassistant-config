@@ -126,26 +126,6 @@ automation:
       - parallel:
           - service: script.ecoflow_check_charging_mode
             data: {}
-          - alias: Check if fridge freezer plug has been switched off
-            if:
-              - condition: state
-                entity_id: switch.fridge_freezer
-                state: "off"
-            then:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    Fridge freezer plug has been switched off!
-
-
-                    Electricity unit rate is the same or below export rate
-                    ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                    states('sensor.electricity_export_current_rate') }}).
-                  title: EcoFlow
-                  people:
-                    entity_id:
-                      - person.danny
-                      - person.terina
     mode: single
   # Battery level
   - id: "1695566530591"
@@ -154,20 +134,50 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.kitchen_ecoflow_battery_level
-        below: "6"
+        below: "11"
     condition:
       - condition: state
-        entity_id: switch.fridge_freezer
+        entity_id: switch.ecoflow_kitchen_plug
         state: "off"
     action:
-      - service: script.send_direct_notification
-        data:
-          message: Fridge Freezer switch is off.
-          title: EcoFlow
-          people:
-            entity_id:
-              - person.danny
-              - person.terina
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: Fridge Freezer switch is off.
+              title: EcoFlow
+              people:
+                entity_id:
+                  - person.danny
+          - service: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.ecoflow_kitchen_plug
+    mode: single
+  # Ecoflow
+  - id: "1714563193661"
+    alias: "EcoFlow: Battery Ultra Low And Plug Is Off"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.kitchen_ecoflow_battery_level
+        below: 6
+    condition:
+      - condition: state
+        entity_id: switch.ecoflow_kitchen_plug
+        state: "off"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            metadata: {}
+            data:
+              message: Ecoflow battery is ultra low and unable to turn the plug on.
+              title: ":cook: Kitchen"
+              people:
+                entity_id:
+                  - person.danny
+                  - person.terina
     mode: single
 
 script:
@@ -338,7 +348,25 @@ script:
                 value_template: >-
                   {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
             sequence:
-              - parallel:
+              - if:
+                  - condition: state
+                    entity_id: switch.ecoflow_kitchen_plug
+                    state: "off"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Solar production is above household consumption. Turning plug on and setting backup to 100% with
+                            charge rate {{ target_charge_rate }}w.
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - service: switch.turn_on
+                        metadata: {}
+                        data: {}
+                        target:
+                          entity_id: switch.ecoflow_kitchen_plug
+                else:
                   - service: script.send_to_home_log
                     data:
                       message: >-
@@ -346,13 +374,12 @@ script:
                         charge rate {{ target_charge_rate }}w.
                       title: EcoFlow
                       log_level: "Debug"
-                  - sequence:
-                      - service: script.ecoflow_set_charge_rate
-                        data:
-                          target_charge_rate: "{{ target_charge_rate }}"
-                      - service: script.ecoflow_set_backup_reserve
-                        data:
-                          reserve_amount: 100
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: "{{ target_charge_rate }}"
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
         default:
           - service: script.send_to_home_log
             data:
@@ -375,19 +402,40 @@ script:
                 entity_id: sensor.growatt_sph_inverter_mode
                 state: Grid first
             sequence:
-              - parallel:
+              - alias: Check if fridge freezer plug has been switched off
+                if:
+                  - condition: state
+                    entity_id: switch.ecoflow_kitchen_plug
+                    state: "on"
+                  - condition: numeric_state
+                    entity_id: sensor.kitchen_ecoflow_battery_level
+                    above: "5"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Inverter in export mode. Disable charging.
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - service: switch.turn_off
+                        metadata: {}
+                        data: {}
+                        target:
+                          entity_id: switch.ecoflow_kitchen_plug
+                else:
                   - service: script.send_to_home_log
                     data:
                       message: >-
                         Inverter in export mode. Disable charging.
                       title: EcoFlow
                       log_level: "Debug"
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
-                  - service: script.ecoflow_set_charge_rate
-                    data:
-                      target_charge_rate: 200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 200
           - alias: Electricity rate below 0p/kw
             conditions:
               - condition: state
@@ -400,7 +448,28 @@ script:
                 entity_id: sensor.electricity_current_rate
                 below: "0"
             sequence:
-              - parallel:
+              - alias: Check if fridge freezer plug has been switched off
+                if:
+                  - condition: state
+                    entity_id: switch.ecoflow_kitchen_plug
+                    state: "off"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Electrictity rate is below 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                            Setting backup reserve to 100% and maximum charge rate (1200w).
+
+                            Turning Fridge Freezer plug.
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - service: switch.turn_on
+                        metadata: {}
+                        data: {}
+                        target:
+                          entity_id: switch.ecoflow_kitchen_plug
+                else:
                   - service: script.send_to_home_log
                     data:
                       message: >-
@@ -408,12 +477,12 @@ script:
                         Setting backup reserve to 100% and maximum charge rate (1200w).
                       title: EcoFlow
                       log_level: "Debug"
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: 100
-                  - service: script.ecoflow_set_charge_rate
-                    data:
-                      target_charge_rate: 1200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 1200
           - alias: Electricity rate 0p/kw
             conditions:
               - condition: state
@@ -426,7 +495,28 @@ script:
                 entity_id: sensor.electricity_current_rate
                 state: "0.0"
             sequence:
-              - parallel:
+              - alias: Check if fridge freezer plug has been switched off
+                if:
+                  - condition: state
+                    entity_id: switch.ecoflow_kitchen_plug
+                    state: "off"
+                then:
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                            Setting backup reserve to 100% and maximum charge rate (1200w).
+
+                            Turning Fridge Freezer plug.
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - service: switch.turn_on
+                        metadata: {}
+                        data: {}
+                        target:
+                          entity_id: switch.ecoflow_kitchen_plug
+                else:
                   - service: script.send_to_home_log
                     data:
                       message: >-
@@ -434,12 +524,12 @@ script:
                         Setting backup reserve to 100% and maximum charge rate (1200w).
                       title: EcoFlow
                       log_level: "Debug"
-                  - service: script.ecoflow_set_backup_reserve
-                    data:
-                      reserve_amount: 100
-                  - service: script.ecoflow_set_charge_rate
-                    data:
-                      target_charge_rate: 1200
+              - service: script.ecoflow_set_backup_reserve
+                data:
+                  reserve_amount: 100
+              - service: script.ecoflow_set_charge_rate
+                data:
+                  target_charge_rate: 1200
           - alias: No Excess Solar
             conditions:
               - or:
@@ -522,14 +612,37 @@ script:
                     entity_id: number.ecoflow_kitchen_backup_reserve_level
                     below: 100
                 then:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electricity unit rate is the same or below export rate
-                        ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                        states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
-                      title: EcoFlow
-                      log_level: "Debug"
+                  - alias: Check if fridge freezer plug has been switched off
+                    if:
+                      - condition: state
+                        entity_id: switch.ecoflow_kitchen_plug
+                        state: "off"
+                    then:
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Electricity unit rate is the same or below export rate
+                                ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                                states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+
+                                Turning Fridge Freezer plug on.
+                              title: EcoFlow
+                              log_level: "Debug"
+                          - service: switch.turn_on
+                            metadata: {}
+                            data: {}
+                            target:
+                              entity_id: switch.ecoflow_kitchen_plug
+                    else:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Electricity unit rate is the same or below export rate
+                            ({{ states('sensor.electricity_current_rate') ~'<=' ~
+                            states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+                          title: EcoFlow
+                          log_level: "Debug"
                   - service: script.ecoflow_set_charge_rate
                     data:
                       target_charge_rate: 1200
