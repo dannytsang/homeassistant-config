@@ -932,15 +932,32 @@ script:
                                     entity_id:
                                       - person.danny
                             else:
-                              - service: script.send_to_home_log
+                              - service: script.send_direct_notification
                                 data:
                                   message: >-
+                                    {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
+                                    {#- Battery runtime is constantly being recalculated from the trigger sensor updates. To ensure calculations are consistent, store the battery runtime in a variable. -#}
+                                    {%- set runtime = now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) -%}
+                                    {%- set ts = (as_timestamp(runtime) -
+                                    as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) -%}
                                     Scheduled to charge
                                     {{ solar_forecast_data.charge_hours }}({{ solar_forecast_data.charge_hours_rounded }})
                                     hour{{ iif(solar_forecast_data.charge_hours > 1,'s','') }}.
                                     Charging house battery.
+
+
+                                    Estimate battery runtime: {{ as_timestamp(runtime)|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+
+                                    First Generation at: {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+
+                                    Runtime > Generation: {{ as_timestamp(runtime) > as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')) }}
+
+                                    Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
                                   title: Solar Assistant
-                                  debug: "Debug"
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                                  continue_on_error: true
                           - service: script.battery_first_priority_mode
                             data:
                               max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
