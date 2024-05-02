@@ -179,6 +179,46 @@ automation:
                   - person.danny
                   - person.terina
     mode: single
+  - id: "1714641195916"
+    alias: "Ecoflow: Goes Offline"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.ecoflow_kitchen_main_battery_level
+        to: unknown
+        for:
+          minutes: 30
+      - platform: state
+        entity_id:
+          - sensor.ecoflow_kitchen_main_battery_level
+        to: unavailable
+        for:
+          minutes: 30
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+    action:
+      - if:
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_plug
+            state: "off"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Kitchen has been offline for more than 30 minutes and the plug is switched off.
+                    Turning Fridge Freeze plug on.
+                  title: EcoFlow
+                  log_level: "Debug"
+              - service: switch.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: switch.ecoflow_kitchen_plug
+    mode: single
 
 script:
   ecoflow_set_backup_reserve:
