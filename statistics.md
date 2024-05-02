@@ -1,48 +1,48 @@
 [<- Back](README.md)
 # Statistics 📊
-I have 5,444 states (📈191) in Home Assistant.
+I have 5,596 states (📈152) in Home Assistant.
 By domain these are:
 -   1 alarm_control_panel
--   366 automation
--   684 binary_sensor 📉18
--   145 button 📈16
--   24 calendar 📈1
+-   381 automation 📈15
+-   693 binary_sensor 📈9
+-   161 button 📈16
+-   27 calendar 📈3
 -   17 camera
 -   13 climate
+-   2 conversation
 -   5 counter
 -   13 cover
--   312 device_tracker 📈18
--   16 event 📈2
+-   320 device_tracker 📈8
+-   16 event
 -   1 fan
 -   10 group
 -   51 image
--   78 input_boolean 📈7
+-   85 input_boolean 📈7
 -   1 input_datetime
--   65 input_number
+-   63 input_number 📉2
 -   5 input_select
--   55 input_text
--   63 light 📉3
+-   56 input_text 📈1
+-   62 light 📈1
 -   17 lock
-
--   24 media_player 📉1
--   159 number 📈4
--   4 person 📉1
+-   24 media_player
+-   159 number
+-   4 person
 -   15 proximity
 -   4 remote
--   67 scene 📈3
+-   66 scene 📉1
 -   2 schedule
--   136 script 📈7
--   137 select 📉1
--   2509 sensor 📈104
+-   145 script 📈9
+-   138 select 📈1
+-   2585 sensor 📈76
 -   2 siren
 -   1 stt
 -   1 sun
--   278 switch 📈2
+-   282 switch 📈4
 -   14 text
--   11 timer
--   16 todo 📈1
+-   12 timer 📈1
+-   19 todo 📈3
 -   1 tts
--   106 update 📈2
+-   107 update 📈1
 -   1 vacuum
 -   1 wake_word
 -   1 water_heater
