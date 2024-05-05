@@ -415,6 +415,58 @@ scene:
     metadata:
       light.porch:
         entity_only: true
+  - id: "1611931150080"
+    name: Front Door Open Notification
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        hs_color:
+          - 254.997
+          - 100
+        rgb_color:
+          - 63
+          - 0
+          - 255
+        xy_color:
+          - 0.157
+          - 0.05
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+      light.stairs_ambient:
+        min_color_temp_kelvin: 2702
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 370
+        supported_color_modes:
+          - color_temp
+          - xy
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        color_temp:
+        hs_color:
+          - 237.073
+          - 96.471
+        rgb_color:
+          - 9
+          - 21
+          - 255
+        xy_color:
+          - 0.136
+          - 0.042
+        friendly_name: Stairs Ambient
+        supported_features: 40
+        state: "on"
+    metadata:
+      light.stairs_ambient:
+        entity_only: true
 
 script:
   front_door_closed_notification:
@@ -424,8 +476,10 @@ script:
         target:
           entity_id:
             - scene.current_office_light_1
-            - scene.current_stairs_light
-            - scene.current_stairs_light2
+      - service: light.turn_off
+        data: {}
+        target:
+          entity_id: light.stairs_ambient
     mode: single
     icon: mdi:door
   nfc_front_door:
@@ -457,16 +511,6 @@ script:
   front_door_open_notification:
     alias: Front Door Open Notification
     sequence:
-      - service: scene.create
-        data:
-          scene_id: current_stairs_light
-          snapshot_entities:
-            - light.stairs
-      - service: scene.create
-        data:
-          scene_id: current_stairs_light2
-          snapshot_entities:
-            - light.stairs_2
       - service: scene.create
         data:
           scene_id: current_office_light_1

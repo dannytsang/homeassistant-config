@@ -52,8 +52,8 @@ automation:
           subdir: "front_door"
           filename: "latest.mp4"
           overwrite: true
-      - service: shell_command.copy_doorbell_footage
-        data: {}
+      # - service: shell_command.copy_doorbell_footage
+      #   data: {}
     mode: queued
     max: 10
   # Light
@@ -112,6 +112,24 @@ automation:
             target:
               entity_id: cover.ashlees_bedroom_blinds
     mode: single
+  - id: "1714914120928"
+    alias: "Front Garden: Lock Box State Changed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.outdoor_lock_box_contact
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          title: Lock Box
+          message: Was {{ states('binary_sensor.outdoor_lock_box_contact') }}
+          people:
+            - person.danny
+            - person.terina
+    mode: single
 
 script:
   front_garden_motion_notification:
@@ -155,5 +173,5 @@ script:
 
 shell_command:
   copy_doorbell_footage: >-
-    cp {{ states('input_text.camera_internal_folder_path') ~ '/front_door/latest.mp4'}}
-    {{ states('input_text.camera_internal_folder_path') ~ '/front_door/' ~ state_attr('camera.front_door', 'friendly_name') ~ '_' ~ as_timestamp(now())|timestamp_custom('%Y-%m-%d_%H%M%S') ~ '.mp4'}}
+    cp {{ states('input_text.camera_internal_folder_path') }}'/front_door/latest.mp4'
+    {{ states('input_text.camera_internal_folder_path') }}'/front_door/'{{ state_attr('camera.front_door', 'friendly_name') }}_{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d_%H%M%S') }}'.mp4'
