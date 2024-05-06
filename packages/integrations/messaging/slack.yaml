@@ -13,34 +13,7 @@ automation:
         webhook_id: -aPu0u0W8nvlYImwa85lwDMoo
     condition: []
     action:
-      - service: script.send_to_home_log
-        data:
-          message: |-
-            user_id: {{ trigger.data.user_id }}
-            user_name: {{ trigger.data.user_name }}
-            channel_id: {{ trigger.data.channel_id }}
-            channel_name: {{ trigger.data.channel_name }}
-            command: {{ trigger.data.command }}
-            text: {{ trigger.data.text }}
-            response_url: {{ trigger.data.response_url }}
-          title: Slack
-          log_level: "Debug"
-      - service: conversation.process
-        data:
-          agent_id: homeassistant
-          text: "{{ trigger.data.text }}"
-        response_variable: assist
-      - if:
-          - condition: template
-            value_template: "{{ trigger.data.channel_name != 'privategroup' }}"
-        then:
-          - service: script.post_slack_notification
-            data:
-              message: "{{ assist.response.speech.plain.speech }}"
-              title: "{{ '<@'~trigger.data.user_name~'> '~trigger.data.text }}"
-              people: "{{ states('input_text.home_assistant_bots_slack_id') }}"
-              target: "{{ trigger.data.channel_name }}"
-        else:
+      - parallel:
           - service: script.send_to_home_log
             data:
               message: |-
@@ -52,7 +25,73 @@ automation:
                 text: {{ trigger.data.text }}
                 response_url: {{ trigger.data.response_url }}
               title: Slack
-              log_level: "Normal"
+              log_level: "Debug"
+          - if:
+              - condition: template
+                value_template: "{{ trigger.data.channel_name != 'privategroup' }}"
+            then:
+              - choose:
+                  - alias: "Message from Danny"
+                    conditions:
+                      - condition: template
+                        value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.dannys_slack_id') }}"
+                    sequence:
+                      - service: conversation.process
+                        data:
+                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
+                          text: "{{ trigger.data.text }}"
+                        response_variable: assist
+                      - service: script.post_slack_notification
+                        data:
+                          message: "{{ assist.response.speech.plain.speech }}"
+                          title: "{{ trigger.data.text }}"
+                          people: "{{ '<@'~trigger.data.user_name~'>' }}"
+                          target: "{{ trigger.data.channel_name }}"
+                  - alias: "Message from Terina"
+                    conditions:
+                      - condition: template
+                        value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.terinas_slack_id') }}"
+                    sequence:
+                      - service: conversation.process
+                        data:
+                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
+                          text: "{{ trigger.data.text }}"
+                        response_variable: assist
+                      - service: script.post_slack_notification
+                        data:
+                          message: "{{ assist.response.speech.plain.speech }}"
+                          title: "{{ '<@'~trigger.data.user_name~'> '~trigger.data.text }}"
+                          people: "{{ states('input_text.home_assistant_bots_slack_id') }}"
+                          target: "{{ trigger.data.channel_name }}"
+                  - alias: "Message from Leo"
+                    conditions:
+                      - condition: template
+                        value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.leos_slack_id') }}"
+                    sequence:
+                      - service: conversation.process
+                        data:
+                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
+                          text: "{{ trigger.data.text }}"
+                        response_variable: assist
+                      - service: script.post_slack_notification
+                        data:
+                          message: "{{ assist.response.speech.plain.speech }}"
+                          title: "{{ '<@'~trigger.data.user_name~'> '~trigger.data.text }}"
+                          people: "{{ states('input_text.home_assistant_bots_slack_id') }}"
+                          target: "{{ trigger.data.channel_name }}"
+            else:
+              - service: script.send_to_home_log
+                data:
+                  message: |-
+                    user_id: {{ trigger.data.user_id }}
+                    user_name: {{ trigger.data.user_name }}
+                    channel_id: {{ trigger.data.channel_id }}
+                    channel_name: {{ trigger.data.channel_name }}
+                    command: {{ trigger.data.command }}
+                    text: {{ trigger.data.text }}
+                    response_url: {{ trigger.data.response_url }}
+                  title: Slack
+                  log_level: "Normal"
     mode: queued
     max: 10
 
