@@ -46,13 +46,6 @@ automation:
           - condition: template
             value_template: "{{ trigger.event.data.text|default(none, true)  != none }}"
         then:
-          - service: conversation.process
-            data:
-              agent_id: homeassistant
-              # agent_id: 3dcc88c94848e500f1182e5d7a895a39
-              # agent_id: 8aabad58bc0ffdf5b2ed8352cdf89101
-              text: "{{ trigger.event.data.text }}"
-            response_variable: assist
           - parallel:
               - if:
                   - condition: template
@@ -72,9 +65,21 @@ automation:
                         text: {{ trigger.event.data.text }}
                       title: Telegram
                       log_level: "Debug"
-              - service: notify.telegram
-                data:
-                  message: "{{ assist.response.speech.plain.speech }}"
+              - choose:
+                  - alias: "Message from Danny"
+                    conditions:
+                      - condition: template
+                        value_template: "{{ trigger.event.data.user_id|string|default('', true)  == states('input_text.dannys_telegram_chat_id') }}"
+                    sequence:
+                      - service: conversation.process
+                        data:
+                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
+                          text: "{{ trigger.event.data.text }}"
+                        response_variable: assist
+                      - service: notify.telegram
+                        data:
+                          message: "{{ assist.response.speech.plain.speech }}"
+                default: []
     mode: queued
     max: 10
   - id: "1653739708851"
