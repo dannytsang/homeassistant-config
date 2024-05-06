@@ -25,6 +25,7 @@ automation:
                       title: ":bearded_person: Stash"
                       log_level: "Debug"
                   - service: rest_command.update_stash
+                  - service: rest_command.update_stash2
         default:
           - parallel:
               - service: script.send_to_home_log
@@ -33,6 +34,7 @@ automation:
                   title: ":bearded_person: Stash"
                   log_level: "Debug"
               - service: rest_command.update_stash
+              - service: rest_command.update_stash2
     mode: single
 
 rest_command:
@@ -41,6 +43,14 @@ rest_command:
     method: POST
     headers:
       ApiKey: !secret stash_key
+    payload: "{'query': 'mutation { metadataScan ( input: { useFileMetadata: true } ) metadataGenerate ( input : { sprites: true previews: true imagePreviews: true markers: true transcodes: false } ) } ''}"
+    content_type: "application/json"
+    verify_ssl: true
+  update_stash2:
+    url: !secret stash_url2
+    method: POST
+    headers:
+      ApiKey: !secret stash_key2
     payload: "{'query': 'mutation { metadataScan ( input: { useFileMetadata: true } ) metadataGenerate ( input : { sprites: true previews: true imagePreviews: true markers: true transcodes: false } ) } ''}"
     content_type: "application/json"
     verify_ssl: true
