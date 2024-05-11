@@ -143,6 +143,62 @@ automation:
       - service: script.zappi_check_ev_charge
         data: {}
     mode: single
+  - id: "1715345710884"
+    alias: "Zappi: Unidentified Vehicle Connected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_zappi_plug_status
+        from: EV Disconnected
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_zappi_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.model_y_charger
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.guest_ev
+        state: "off"
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          message: Vehicle connected and it's not Terina's car.
+          title: Zappi
+          people:
+            entity_id:
+              - person.danny
+    mode: single
+  - id: "1715345710885"
+    alias: "Zappi: Vehicle Disconnected"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.myenergi_zappi_plug_status
+        to: EV Disconnected
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_zappi_automations
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.guest_ev
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            metadata: {}
+            data:
+              message: Vehicle disconnected.
+              title: Zappi
+              debug: "Debug"
+          - service: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.guest_ev
+            data: {}
+    mode: single
 
 script:
   zappi_check_ev_charge:
