@@ -76,6 +76,21 @@ automation:
                           agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
                           text: "{{ trigger.event.data.text }}"
                         response_variable: assist
+                      - if:
+                          - condition: template
+                            value_template: >-
+                              {{ assist.response.response_type|default(none, true)  != none and
+                              assist.response.response_type == 'error'}}
+                        then:
+                          - parallel:
+                            - service: notify.telegram
+                              data:
+                                message: "hmm..."
+                            - service: conversation.process
+                              data:
+                                agent_id: "{{ states('input_text.dannys_secondary_selected_conversation_agent') }}"
+                                text: "{{ trigger.event.data.text }}"
+                              response_variable: assist
                       - service: notify.telegram
                         data:
                           message: "{{ assist.response.speech.plain.speech }}"
