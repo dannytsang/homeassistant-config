@@ -24,8 +24,9 @@ automation:
                       message: "Updating."
                       title: ":bearded_person: Stash"
                       log_level: "Debug"
-                  - service: rest_command.update_stash
-                  - service: rest_command.update_stash2
+                  - service: rest_command.update_stash_library
+                  - service: rest_command.update_stash_metadata
+                  - service: rest_command.update_stash2_library
         default:
           - parallel:
               - service: script.send_to_home_log
@@ -33,12 +34,13 @@ automation:
                   message: "Updating."
                   title: ":bearded_person: Stash"
                   log_level: "Debug"
-              - service: rest_command.update_stash
-              - service: rest_command.update_stash2
+              - service: rest_command.update_stash_library
+              - service: rest_command.update_stash_metadata
+              - service: rest_command.update_stash2_library
     mode: single
 
 rest_command:
-  update_stash:
+  update_stash_library:
     url: !secret stash_url
     method: POST
     headers:
@@ -46,7 +48,15 @@ rest_command:
     payload: "{'query': 'mutation { metadataScan ( input: { useFileMetadata: true } ) metadataGenerate ( input : { sprites: true previews: true imagePreviews: true markers: true transcodes: false } ) } ''}"
     content_type: "application/json"
     verify_ssl: true
-  update_stash2:
+  update_stash_metadata:
+    url: !secret stash_url
+    method: POST
+    headers:
+      ApiKey: !secret stash_key
+    payload: "'query': 'mutation { metadataGenerate ( input : { sprites: true previews: true imagePreviews: true markers: true transcodes: false } ) }'"
+    content_type: "application/json"
+    verify_ssl: true
+  update_stash2_library:
     url: !secret stash_url2
     method: POST
     headers:
