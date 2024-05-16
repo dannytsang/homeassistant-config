@@ -915,6 +915,10 @@ script:
                                 entity_id: binary_sensor.octopus_energy_target_overnight_home_battery_charge_6_hours
                                 state: "on"
                     then:
+                      - variables:
+                          runtime: >-
+                            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
+                            {{now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) }}
                       - parallel:
                           - if:
                               - condition: template
@@ -936,8 +940,6 @@ script:
                                 data:
                                   message: >-
                                     {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
-                                    {#- Battery runtime is constantly being recalculated from the trigger sensor updates. To ensure calculations are consistent, store the battery runtime in a variable. -#}
-                                    {%- set runtime = now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) -%}
                                     {%- set ts = (as_timestamp(runtime) -
                                     as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) -%}
                                     Scheduled to charge
@@ -955,13 +957,12 @@ script:
                                     Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
 
 
-                                    {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                                     {%- if now().hour > 7 -%}
                                     {%- set firstSustainedHour =  as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) -%}
                                     {%- else -%}
                                     {%- set firstSustainedHour =  as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) -%}
                                     {%- endif -%}
-                                    {%- set ts2 = (as_timestamp(runtime) - firstSustainedHour)|round(0) -%}
+                                    {%- set ts2 = (as_timestamp(runtime) - firstSustainedHour)|round(0) %}
                                     First Self Sustainable Generation: {{ firstSustainedHour|timestamp_custom('%H:%M:%S') }}
 
                                     Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > firstSustainedHour }}
