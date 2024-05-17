@@ -919,6 +919,19 @@ script:
                           runtime: >-
                             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                             {{now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) }}
+                          firstSustainedHour: >-
+                            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
+                            {%- if now().hour > 7 -%}
+                            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) }}
+                            {%- else -%}
+                            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) }}
+                            {%- endif -%}
+                          formatted_runtime: >-
+                            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
+                            {{ (as_timestamp(runtime) -
+                            as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) }}
+                          formatted_sustained_runtime: >-
+                            {{ (as_timestamp(runtime) - firstSustainedHour)|round(0) }}
                       - parallel:
                           - if:
                               - condition: template
@@ -940,8 +953,6 @@ script:
                                 data:
                                   message: >-
                                     {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
-                                    {%- set ts = (as_timestamp(runtime) -
-                                    as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) -%}
                                     Scheduled to charge
                                     {{ solar_forecast_data.charge_hours }}({{ solar_forecast_data.charge_hours_rounded }})
                                     hour{{ iif(solar_forecast_data.charge_hours > 1,'s','') }}.
@@ -954,20 +965,14 @@ script:
 
                                     Runtime > Generation: {{ as_timestamp(runtime) > as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')) }}
 
-                                    Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
+                                    Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_runtime // 3600, (formatted_runtime % 3600) // 60, (formatted_runtime % 3600) % 60) }}
 
 
-                                    {%- if now().hour > 7 -%}
-                                    {%- set firstSustainedHour =  as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) -%}
-                                    {%- else -%}
-                                    {%- set firstSustainedHour =  as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) -%}
-                                    {%- endif -%}
-                                    {%- set ts2 = (as_timestamp(runtime) - firstSustainedHour)|round(0) %}
                                     First Self Sustainable Generation: {{ firstSustainedHour|timestamp_custom('%H:%M:%S') }}
 
                                     Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > firstSustainedHour }}
 
-                                    Time Over Sustainable Generation: {{ '{:02d}:{:02d}:{:02d}'.format(ts2 // 3600, (ts2 % 3600) // 60, (ts2 % 3600) % 60) }}
+                                    Time Over Sustainable Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_sustained_runtime // 3600, (formatted_sustained_runtime % 3600) // 60, (formatted_sustained_runtime % 3600) % 60) }}
                                   title: Solar Assistant
                                   people:
                                     entity_id:
