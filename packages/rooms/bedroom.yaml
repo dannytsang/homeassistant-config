@@ -201,6 +201,70 @@ automation:
               entity_id: cover.bedroom_blinds
     mode: single
   # Door
+  - id: "1715955339483"
+    alias: "Bedroom: Door Closed"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.bedroom_door_contact
+        to: "off"
+        for:
+          seconds: 10
+    condition: []
+    action:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.leos_bedroom_door_contact
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.ashlees_bedroom_door_contact
+                state: "off"
+              - condition: state
+                entity_id: binary_sensor.upstairs_area_motion
+                state: "off"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: ":door: door closed."
+                      title: ":bed: bedroom"
+                      log_level: "Debug"
+                  - if:
+                      - condition: state
+                        entity_id: light.stairs
+                        state: "on"
+                    then:
+                      - service: light.turn_off
+                        metadata: {}
+                        data:
+                          transition: 1
+                        target:
+                          entity_id: light.stairs
+                  - if:
+                      - condition: state
+                        entity_id: light.stairs_ambient
+                        state: "on"
+                    then:
+                      - service: light.turn_off
+                        metadata: {}
+                        data:
+                          transition: 1
+                        target:
+                          entity_id: light.stairs_ambient
+                  - if:
+                      - condition: state
+                        entity_id: light.stairs_2
+                        state: "on"
+                    then:
+                      - service: light.turn_off
+                        metadata: {}
+                        data:
+                          transition: 1
+                        target:
+                          entity_id: light.stairs_2
+    mode: single
   - id: "1615209552353"
     alias: "Bedroom: Other Bedroom Door Opens Warning"
     description: ""
