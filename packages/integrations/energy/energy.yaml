@@ -500,7 +500,8 @@ script:
             weather is {{ get_weather(weather['weather.home'].forecast[1].condition, 'Slack') }} with a generation of
             {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
-            and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}.
+            and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate')|float(0)|round(2) }} kWh).
             {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) is not none %}
             The first self sustaining generation ({{ states('sensor.home_electricity_power_daily_average_over_a_week')|float(1) }} kWh) will occur at
             {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|timestamp_custom('%H:%M:%S') }}
