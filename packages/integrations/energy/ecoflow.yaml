@@ -69,13 +69,8 @@ automation:
         state: "on"
     action:
       - parallel:
-          - if:
-              - condition: trigger
-                id:
-                  - period_of_time
-            then:
-              - service: script.ecoflow_check_charging_mode
-                data: {}
+          - service: script.ecoflow_check_charging_mode
+            data: {}
           - choose:
               - conditions:
                   - condition: numeric_state
@@ -433,6 +428,44 @@ script:
     description: ""
     sequence:
       - choose:
+          - alias: Holiday Mode
+            conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - if:
+                  - condition: numeric_state
+                    entity_id: sensor.kitchen_ecoflow_battery_level
+                    below: "99"
+                then:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        In Holiday mode. Charging.
+                      title: EcoFlow
+                      log_level: "Normal"
+                  - if:
+                      - condition: state
+                        entity_id: switch.ecoflow_kitchen_plug
+                        state: "off"
+                    then:
+                      - service: switch.turn_on
+                        target:
+                          entity_id: switch.ecoflow_kitchen_plug
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      reserve_amount: 100
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      target_charge_rate: 1200
+                else:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        In Holiday mode. Skipping.
+                      title: EcoFlow
+                      log_level: "Debug"
           - alias: Inverter in export mode
             conditions:
               - condition: state
@@ -459,8 +492,6 @@ script:
                           title: EcoFlow
                           log_level: "Debug"
                       - service: switch.turn_off
-                        metadata: {}
-                        data: {}
                         target:
                           entity_id: switch.ecoflow_kitchen_plug
                 else:
@@ -505,8 +536,6 @@ script:
                           title: EcoFlow
                           log_level: "Debug"
                       - service: switch.turn_on
-                        metadata: {}
-                        data: {}
                         target:
                           entity_id: switch.ecoflow_kitchen_plug
                 else:
@@ -552,8 +581,6 @@ script:
                           title: EcoFlow
                           log_level: "Debug"
                       - service: switch.turn_on
-                        metadata: {}
-                        data: {}
                         target:
                           entity_id: switch.ecoflow_kitchen_plug
                 else:
