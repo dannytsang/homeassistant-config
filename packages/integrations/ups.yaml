@@ -269,6 +269,17 @@ template:
           {%- else -%}
             0
           {%- endif %}
+      - name: Kitchen UPS Power
+        unique_id: aad5419d-c50d-41db-a170-0f1419a4842c
+        device_class: "power"
+        unit_of_measurement: "W"
+        state_class: "measurement"
+        state: >
+          {% if states('sensor.kitchen_ups_status_data') in ['OL', 'OL CHRG'] -%}
+            {{ (states('sensor.kitchen_ups_load') | float(0) / 100) * states('sensor.kitchen_ups_nominal_real_power') | float(0) }}
+          {%- else -%}
+            0
+          {%- endif %}
       - name: Living Room UPS Power
         unique_id: b34e6d2e-8a46-489a-afcb-551a0e4b9f0a
         device_class: "power"
