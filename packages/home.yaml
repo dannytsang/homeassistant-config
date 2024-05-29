@@ -528,6 +528,21 @@ script:
                   command: power
                 target:
                   entity_id: remote.bedroom_remote
+      - alias: Check if lounge TV Remote is on
+        if:
+          - condition: state
+            entity_id: switch.harmony_hub_plug
+            state: "on"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Turning :couch_and_lamp: Lounge :tv: TV remote off."
+                  log_level: "Debug"
+              - service: switch.turn_off
+                data: {}
+                target:
+                  entity_id: switch.harmony_hub_plug
       - service: script.send_to_home_log
         data:
           message: "Turning conservatory under floor heating."
