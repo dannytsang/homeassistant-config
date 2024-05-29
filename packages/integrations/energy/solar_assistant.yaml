@@ -915,6 +915,12 @@ script:
                                 entity_id: binary_sensor.octopus_energy_target_overnight_home_battery_charge_6_hours
                                 state: "on"
                     then:
+                      - service: weather.get_forecasts
+                        target:
+                          entity_id: weather.home
+                        data:
+                          type: daily
+                        response_variable: weather
                       - variables:
                           runtime: >-
                             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
@@ -932,6 +938,12 @@ script:
                             as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) }}
                           formatted_sustained_runtime: >-
                             {{ (as_timestamp(runtime) - firstSustainedHour)|round(0) }}
+                          weather_forecast_condition: >-
+                            {%- if now() > today_at("22:00") and now() <= today_at("23:59")  -%}
+                            {{ weather['weather.home'].forecast[1].condition }}
+                            {%- else -%}
+                            {{ weather['weather.home'].forecast[0].condition }}
+                            {%- endif -%}
                       - parallel:
                           - if:
                               - condition: template
@@ -957,6 +969,9 @@ script:
                                     {{ solar_forecast_data.charge_hours }}({{ solar_forecast_data.charge_hours_rounded }})
                                     hour{{ iif(solar_forecast_data.charge_hours > 1,'s','') }}.
                                     Charging house battery ({{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}).
+
+
+                                    Weather condition: {{ weather_forecast_condition }}
 
 
                                     Estimate battery runtime: {{ as_timestamp(runtime)|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
