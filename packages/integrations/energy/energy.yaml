@@ -480,7 +480,13 @@ script:
         response_variable: "solar_forecast_data"
   energy_notify_tomorrows_solar_forecast:
     alias: Energy Notify Tomorrow's Solar Forecast
-        
+    variables:
+      avg_hourly_energy_usage: >-
+        {%- if states('input_select.home_mode')|lower == 'holiday' -%}
+        {{ states('sensor.home_electricity_power_daily_average_over_a_day')|float(1) }}
+        {%- else -%}
+        {{ states('sensor.home_electricity_power_daily_average_over_a_week')|float(1) }}
+        {%- endif -%}
     sequence:
       - service: script.tomorrows_solar_forecast_data
         response_variable: solar_forecast_data
@@ -502,15 +508,15 @@ script:
             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate')|float(0)|round(2) }} kWh).
-            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) is not none %}
-            The first self sustaining generation ({{ states('sensor.home_electricity_power_daily_average_over_a_week')|float(1) }} kWh) will occur at
-            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|round(2) }} kWh).
+            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(none, true) is not none %}
+            The first self sustaining generation ({{ avg_hourly_energy_usage }} kWh) will occur at
+            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh).
 
 
             The last self sustaining generation of the day will be at
-            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|round(2) }} kWh)
+            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh)
             finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate')|round(2) }} kWh).
@@ -526,6 +532,11 @@ script:
             ({{ solar_forecast_data.estimate_charge_kwh }} kWh).
             Charge time is {{ solar_forecast_data.charge_hours }} ({{ solar_forecast_data.charge_hours_rounded }}) hours
             ({{ (solar_forecast_data.charge_hours_rounded*2) }} slots).
+
+
+            {%- if states('input_select.home_mode')|lower == 'holiday' %}
+            Using daily average: {{ states('sensor.home_electricity_power_daily_average_over_a_day')|float(1) }}
+            {%- endif %}
           title: ":sunny: :zap: Solar"
           people:
             entity_id:
