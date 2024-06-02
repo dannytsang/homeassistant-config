@@ -379,9 +379,13 @@ script:
                   title: EcoFlow
                   log_level: "Debug"
           - conditions:
-              - condition: template
-                value_template: >-
-                  {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+              - or:
+                  - condition: template
+                    value_template: >-
+                      {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+                  - condition: numeric_state
+                    entity_id: number.ecoflow_kitchen_backup_reserve_level
+                    below: 100
             sequence:
               - if:
                   - condition: state
