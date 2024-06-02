@@ -56,52 +56,31 @@ automation:
           - condition: state
             entity_id: sensor.myenergi_zappi_plug_status
             state: "EV Disconnected"
-      - or:
+      - not:
           - condition: state
-            entity_id:
-              - input_boolean.enable_ev_charger_schedule_1
-              - input_boolean.enable_ev_charger_schedule_2
-            state: "on"
+            entity_id: sensor.myenergi_zappi_status
+            state: "Paused"
     action:
-      - choose:
-          - conditions:
-              - or:
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_ev_charger_schedule_1
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.ev_charger_schedule_1
-                        state: "off"
-                  - and:
-                      - condition: state
-                        entity_id: input_boolean.enable_ev_charger_schedule_2
-                        state: "on"
-                      - condition: state
-                        entity_id: binary_sensor.ev_charger_schedule_2
-                        state: "off"
-            sequence:
-              - service: script.send_direct_notification
-                metadata: {}
-                data:
-                  message: Charging schedule stopped from {{ state_attr(trigger.entity_id, 'friendly_name') }}
-                  title: "Zappi: Charging Scheduled Stop"
-                  people:
-                    entity_id:
-                      - person.terina
-              - service: myenergi.myenergi_boost
-                target:
-                  entity_id:
-                    - select.myenergi_zappi_charge_mode
-                data:
-                  amount: 1
-              - service: select.select_option
-                target:
-                  entity_id:
-                    - select.myenergi_zappi_charge_mode
-                data:
-                  option: Eco+
-        default: []
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          message: Charging schedule stopped from {{ state_attr(trigger.entity_id, 'friendly_name') }}
+          title: "Zappi: Charging Scheduled Stop"
+          people:
+            entity_id:
+              - person.terina
+      - service: myenergi.myenergi_boost
+        target:
+          entity_id:
+            - select.myenergi_zappi_charge_mode
+        data:
+          amount: 1
+      - service: select.select_option
+        target:
+          entity_id:
+            - select.myenergi_zappi_charge_mode
+        data:
+          option: Eco+
     mode: single
   - id: "1712435997060"
     alias: "Zappi: Connected"
@@ -217,14 +196,14 @@ script:
                             entity_id: input_boolean.enable_ev_charger_schedule_1
                             state: "on"
                           - condition: state
-                            entity_id: input_boolean.enable_ev_charger_schedule_1
+                            entity_id: binary_sensor.ev_charger_schedule_1
                             state: "on"
                       - and:
                           - condition: state
                             entity_id: input_boolean.enable_ev_charger_schedule_2
                             state: "on"
                           - condition: state
-                            entity_id: input_boolean.enable_ev_charger_schedule_2
+                            entity_id: binary_sensor.ev_charger_schedule_2
                             state: "on"
                 sequence:
                   - if:
