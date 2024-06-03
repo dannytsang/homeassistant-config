@@ -320,6 +320,9 @@ conversation:
       - "When will the battery run out"
     getBatterySummary:
       - "Battery summary"
+    getChargingScheduleSummary:
+      - "[What] [is the] charging schedule [summary]"
+      - "[How] [is the] charging schedule [set]"
     getCurrentElectricityRates:
       - "[What is the current] [electricity] [unit] (rate|rates)"
     getInverterMode:
@@ -352,6 +355,34 @@ intent_script:
       text: >-
         {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
         and will run out in {{ states('sensor.battery_charge_remaining_hours') }}
+  getChargingScheduleSummary:
+    speech:
+      text: >-
+        Charging schedule summary:
+
+
+        Cost nothing: {{ states('input_boolean.solar_assistant_charge_electricity_cost_nothing') }}
+
+        Cost below nothing: {{ states('input_boolean.solar_assistant_charge_electricity_cost_below_nothing') }}
+
+
+        Octopus rate: {{ states('input_boolean.charge_octopus_schedule') }}
+
+        Forecast Based: {{ states('input_boolean.enable_forecast_based_charging') }}
+
+
+        Below export: {{ states('input_boolean.enable_permanent_charge_below_export') }}
+
+        Below export schedule: {{ states('group.below_export_charging_schedules') }}
+
+
+        Battery first schedule: {{ states('group.battery_first_charging_schedules') }}
+
+
+        Grid first schedule: {{ states('group.grid_first_charging_schedules') }}
+
+
+        Maintain charge schedule: {{ states('group.maintain_battery_first_charging_schedules') }}
   getCurrentElectricityRates:
     speech:
       text: >-
