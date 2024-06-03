@@ -321,13 +321,13 @@ conversation:
     getBatterySummary:
       - "Battery summary"
     getCurrentElectricityRates:
-      - "[What is the current] [electricity] [unit] rates"
+      - "[What is the current] [electricity] [unit] (rate|rates)"
     getInverterMode:
       - "[What is the] inverter mode"
     getNextElectricityRates:
-      - "[What is the] next [electricity] [unit] rates"
+      - "[What is the] next [electricity] [unit] (rate|rates)"
     getPreviousElectricityRates:
-      - "[What was the] (old|previous|last) [electricity] [unit] rates"
+      - "[What was the] (old|previous|last) [electricity] [unit] (rate|rates)"
     getSolarForecastLeft:
       - "[How much] solar [generation is] (left|remaining) [today]"
       - "Remaining solar [generation] [forecast] [today]"
@@ -390,6 +390,28 @@ intent_script:
     speech:
       text: >-
         {{ states('sensor.growatt_solar_generated_energy_today', with_unit=True) }}
+
+group:
+  battery_first_charging_schedules:
+    name: "Battery First Charging Schedules"
+    entities:
+      - input_boolean.enable_battery_first_schedule_1
+      - input_boolean.enable_battery_first_schedule_2
+  below_export_charging_schedules:
+    name: "Battery First Charging Schedules"
+    entities:
+      - input_boolean.enable_charge_below_export_schedule_1
+      - input_boolean.enable_charge_below_export_schedule_2
+      - input_boolean.enable_charge_below_export_schedule_3
+  grid_first_charging_schedules:
+    name: "Grid First Charging Schedules"
+    entities:
+      - input_boolean.enable_grid_first_schedule_1
+  maintain_battery_first_charging_schedules:
+    name: "Maintain Battery First Charging Schedules"
+    entities:
+      - binary_sensor.maintain_charge_first_schedule_1
+      - binary_sensor.maintain_charge_first_schedule_2
 
 script:
   energy_notify_excess_solar:
