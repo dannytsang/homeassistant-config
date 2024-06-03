@@ -325,6 +325,8 @@ conversation:
       - "[How] [is the] charging schedule [set]"
     getCurrentElectricityRates:
       - "[What is the current] [electricity] [unit] (rate|rates)"
+    getExportSchedule:
+      - "[What] [is the] export schedule"
     getInverterMode:
       - "[What is the] inverter mode"
     getNextElectricityRates:
@@ -374,20 +376,73 @@ intent_script:
         Below export: {{ states('input_boolean.enable_permanent_charge_below_export') }}
 
         Below export schedule: {{ states('group.below_export_charging_schedules') }}
-
+        {% if states('group.below_export_charging_schedules') == 'on' %}
+        {% for s in state_attr('group.below_export_charging_schedules', 'entity_id') -%}
+        {% if states(s) == 'on' %}
+        # {{ state_attr(s, 'friendly_name') }}
+        from: {{ as_timestamp(state_attr('binary_sensor.charge_below_export_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'after'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        to: {{ as_timestamp(state_attr('binary_sensor.charge_below_export_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'before'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        next start: {{ as_timestamp(state_attr('binary_sensor.charge_below_export_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'next_update'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+        {%- endfor -%}
+        {%- endif -%}
 
         Battery first schedule: {{ states('group.battery_first_charging_schedules') }}
+        {% if states('group.battery_first_charging_schedules') == 'on' %}
+        {% for s in state_attr('group.battery_first_charging_schedules', 'entity_id') -%}
+        {% if states(s) == 'on' %}
+        # {{ state_attr(s, 'friendly_name') }}
+        from: {{ as_timestamp(state_attr('binary_sensor.battery_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'after'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        to: {{ as_timestamp(state_attr('binary_sensor.battery_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'before'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        next start: {{ as_timestamp(state_attr('binary_sensor.battery_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'next_update'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+        {%- endfor -%}
+        {%- endif -%}
 
 
         Grid first schedule: {{ states('group.grid_first_charging_schedules') }}
+        {% if states('group.grid_first_charging_schedules') == 'on' %}
+        {% for s in state_attr('group.grid_first_charging_schedules', 'entity_id') -%}
+        {% if states(s) == 'on' %}
+        # {{ state_attr(s, 'friendly_name') }}
+        from: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'after'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        to: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'before'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        next start: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'next_update'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+        {%- endfor -%}
+        {%- endif -%}
 
 
         Maintain charge schedule: {{ states('group.maintain_battery_first_charging_schedules') }}
+        {% if states('group.maintain_battery_first_charging_schedules') == 'on' %}
+        {% for s in state_attr('group.maintain_battery_first_charging_schedules', 'entity_id') -%}
+        {% if states(s) == 'on' %}
+        # {{ state_attr(s, 'friendly_name') }}
+        from: {{ as_timestamp(state_attr('binary_sensor.maintain_charge_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'after'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        to: {{ as_timestamp(state_attr('binary_sensor.maintain_charge_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'before'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        next start: {{ as_timestamp(state_attr('binary_sensor.maintain_charge_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'next_update'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+        {%- endfor -%}
+        {%- endif -%}
   getCurrentElectricityRates:
     speech:
       text: >-
         {{ states('sensor.electricity_current_rate')|float(0)|round(2) }}
         {{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}.
+  getExportSchedule:
+    speech:
+      text: >-
+        Grid first schedule: {{ states('group.grid_first_charging_schedules') }}
+        {% if states('group.grid_first_charging_schedules') == 'on' %}
+        {% for s in state_attr('group.grid_first_charging_schedules', 'entity_id') -%}
+        {% if states(s) == 'on' %}
+        # {{ state_attr(s, 'friendly_name') }}
+        from: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'after'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        to: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'before'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        next start: {{ as_timestamp(state_attr('binary_sensor.grid_first_schedule_' ~ s.split('_')[s.split('_')|length - 1], 'next_update'))|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
+        {% endif %}
+        {%- endfor -%}
+        {%- endif -%}
   getInverterMode:
     speech:
       text: >-
