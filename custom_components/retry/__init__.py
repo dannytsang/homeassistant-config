@@ -47,6 +47,7 @@ import homeassistant.util.dt as dt_util
 from .const import (
     ACTIONS_SERVICE,
     ATTR_EXPECTED_STATE,
+    ATTR_ON_ERROR,
     ATTR_RETRY_ID,
     ATTR_RETRIES,
     ATTR_STATE_GRACE,
@@ -63,7 +64,7 @@ EXPONENTIAL_BACKOFF_BASE = 2
 DEFAULT_RETRIES = 7
 DEFAULT_STATE_GRACE = 0.2
 
-_running_retries: dict[str, int] = {}
+_running_retries: dict[str, (str, int)] = {}
 _running_retries_write_lock = threading.Lock()
 
 
@@ -100,6 +101,7 @@ SERVICE_SCHEMA_BASE_FIELDS = {
     vol.Optional(ATTR_VALIDATION): _validation_parameter,
     vol.Required(ATTR_STATE_GRACE, default=DEFAULT_STATE_GRACE): cv.positive_float,
     vol.Optional(ATTR_RETRY_ID): vol.Any(cv.string, None),
+    vol.Optional(ATTR_ON_ERROR): cv.SCRIPT_SCHEMA,
 }
 CALL_SERVICE_SCHEMA = vol.Schema(
     {
@@ -426,6 +428,15 @@ class RetryCall:
             if not self._params.config_entry.options.get(CONF_DISABLE_REPAIR):
                 self._repair()
             self._end_id()
+            if (on_error := self._params.retry_data.get(ATTR_ON_ERROR)) is not None:
+                await script.Script(
+                    self._hass, on_error, CALL_SERVICE, DOMAIN
+                ).async_run(
+                    run_variables={ATTR_ENTITY_ID: self._entity_id}
+                    if self._entity_id
+                    else None,
+                    context=Context(self._context.user_id, self._context.id),
+                )
             return
         next_retry = dt_util.now() + datetime.timedelta(seconds=self._delay)
         self._delay *= EXPONENTIAL_BACKOFF_BASE
@@ -472,6 +483,8 @@ def _wrap_service_calls(
             case cv.SCRIPT_ACTION_PARALLEL:
                 for parallel in action[CONF_PARALLEL]:
                     _wrap_service_calls(hass, parallel[CONF_SEQUENCE], retry_params)
+            case cv.SCRIPT_ACTION_SEQUENCE:
+                _wrap_service_calls(hass, action[CONF_SEQUENCE], retry_params)
 
 
 async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
