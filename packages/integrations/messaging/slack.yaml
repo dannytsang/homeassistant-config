@@ -41,43 +41,31 @@ automation:
                           agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
                           text: "{{ trigger.data.text }}"
                         response_variable: assist
+                      - if:
+                          - condition: template
+                            value_template: >-
+                              {{ assist.response.response_type|default(none, true)  != none and
+                              assist.response.response_type == 'error'}}
+                        then:
+                          - parallel:
+                            - service: script.post_slack_notification
+                              data:
+                                message: >-
+                                  {%- set wait_response = ['hmm...', 'thinking...', '...', 'er...', 'um...', 'well'] -%}
+                                  {{ wait_response[range(0, wait_response|length)|random] }} 
+                                title: "{{ trigger.data.text }}"
+                                people: "{{ '<@'~trigger.data.user_name~'>' }}"
+                                target: "{{ trigger.data.channel_name }}"
+                            - service: conversation.process
+                              data:
+                                agent_id: "{{ states('input_text.dannys_secondary_selected_conversation_agent') }}"
+                                text: "{{ trigger.data.text }}"
+                              response_variable: assist
                       - service: script.post_slack_notification
                         data:
                           message: "{{ assist.response.speech.plain.speech }}"
                           title: "{{ trigger.data.text }}"
                           people: "{{ '<@'~trigger.data.user_name~'>' }}"
-                          target: "{{ trigger.data.channel_name }}"
-                  - alias: "Message from Terina"
-                    conditions:
-                      - condition: template
-                        value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.terinas_slack_id') }}"
-                    sequence:
-                      - service: conversation.process
-                        data:
-                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
-                          text: "{{ trigger.data.text }}"
-                        response_variable: assist
-                      - service: script.post_slack_notification
-                        data:
-                          message: "{{ assist.response.speech.plain.speech }}"
-                          title: "{{ '<@'~trigger.data.user_name~'> '~trigger.data.text }}"
-                          people: "{{ states('input_text.home_assistant_bots_slack_id') }}"
-                          target: "{{ trigger.data.channel_name }}"
-                  - alias: "Message from Leo"
-                    conditions:
-                      - condition: template
-                        value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.leos_slack_id') }}"
-                    sequence:
-                      - service: conversation.process
-                        data:
-                          agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
-                          text: "{{ trigger.data.text }}"
-                        response_variable: assist
-                      - service: script.post_slack_notification
-                        data:
-                          message: "{{ assist.response.speech.plain.speech }}"
-                          title: "{{ '<@'~trigger.data.user_name~'> '~trigger.data.text }}"
-                          people: "{{ states('input_text.home_assistant_bots_slack_id') }}"
                           target: "{{ trigger.data.channel_name }}"
             else:
               - service: script.send_to_home_log
