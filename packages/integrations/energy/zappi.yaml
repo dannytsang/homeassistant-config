@@ -251,7 +251,9 @@ script:
                             metadata: {}
                             data:
                               message: >-
-                                Electricity rate is below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                                Electricity rate is below 0p/kWh (
+                                {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                                ).
 
                                 Charging started.
                               title: "Zappi"
@@ -317,9 +319,11 @@ script:
                         metadata: {}
                         data:
                           message: >-
-                            Electricity rate is above 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                            Electricity rate is above 0p/kWh (
+                            {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                            ).
 
-                            Charging started.
+                            Stopping charge.
                           title: "Zappi"
                           people:
                             entity_id:
