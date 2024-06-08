@@ -60,6 +60,13 @@ automation:
           - condition: state
             entity_id: sensor.myenergi_zappi_status
             state: "Paused"
+      - or:
+          - condition: state
+            entity_id: input_boolean.enable_ev_charger_schedule_1
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.enable_ev_charger_schedule_2
+            state: "on"
     action:
       - service: script.send_direct_notification
         metadata: {}
@@ -132,7 +139,7 @@ automation:
         from: EV Disconnected
         not_to: "unavailable"
         for:
-          minutes: 5
+          minutes: 15
     condition:
       - condition: state
         entity_id: input_boolean.enable_zappi_automations
