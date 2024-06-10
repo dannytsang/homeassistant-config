@@ -128,7 +128,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.kitchen_ecoflow_battery_level
+        entity_id: sensor.ecoflow_kitchen_battery_level
         below: "11"
       - platform: numeric_state
         entity_id: sensor.ecoflow_office_battery_level
@@ -148,7 +148,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.entity_id == 'sensor.kitchen_ecoflow_battery_level'}}"
+                value_template: "{{ trigger.entity_id == 'sensor.ecoflow_kitchen_battery_level'}}"
             sequence:
               - parallel:
                   - service: script.send_direct_notification
@@ -189,7 +189,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id:
-          - sensor.kitchen_ecoflow_battery_level
+          - sensor.ecoflow_kitchen_battery_level
         below: 6
     condition:
       - condition: state
@@ -354,11 +354,11 @@ script:
                 - service: homeassistant.reload_config_entry
                   data: {}
                   target:
-                    entity_id: sensor.kitchen_ecoflow_battery_level
+                    entity_id: sensor.ecoflow_kitchen_battery_level
                 - wait_for_trigger:
                     - platform: template
                       value_template: >-
-                        {{ states('sensor.kitchen_ecoflow_battery_level')|int(-1) >= 0 }}
+                        {{ states('sensor.ecoflow_kitchen_battery_level')|int(-1) >= 0 }}
                   timeout:
                     hours: 0
                     minutes: 0
@@ -402,7 +402,7 @@ script:
       - choose:
           - conditions:
               - condition: numeric_state
-                entity_id: sensor.kitchen_ecoflow_battery_level
+                entity_id: sensor.ecoflow_kitchen_battery_level
                 above: 99
             sequence:
               - service: script.send_to_home_log
@@ -473,7 +473,7 @@ script:
             sequence:
               - if:
                   - condition: numeric_state
-                    entity_id: sensor.kitchen_ecoflow_battery_level
+                    entity_id: sensor.ecoflow_kitchen_battery_level
                     below: "99"
                 then:
                   - service: script.send_to_home_log
@@ -518,7 +518,7 @@ script:
                     entity_id: switch.ecoflow_kitchen_plug
                     state: "on"
                   - condition: numeric_state
-                    entity_id: sensor.kitchen_ecoflow_battery_level
+                    entity_id: sensor.ecoflow_kitchen_battery_level
                     above: "5"
                 then:
                   - parallel:
