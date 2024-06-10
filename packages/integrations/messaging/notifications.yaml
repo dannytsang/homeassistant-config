@@ -1086,7 +1086,12 @@ script:
             {%- endfor %}
       - if:
         - condition: template
-          value_template: "{{ people.entity_id in 'person.danny' }}"
+          value_template: "{{ people.entity_id|default('', true) in 'person.danny' }}"
+        - or:
+            - condition: template
+              value_template: "{{ todo_list['todo.dannys_notifications']['items']|default([], true)|count > 0 }}"
+            - condition: template
+              value_template: "{{ todo_list['todo.shared_notifications']['items']|default([], true)|count > 0 }}"
         then:
           - alias: Deliver announcement
             service: script.send_direct_notification
