@@ -130,24 +130,57 @@ automation:
       - platform: numeric_state
         entity_id: sensor.kitchen_ecoflow_battery_level
         below: "11"
+      - platform: numeric_state
+        entity_id: sensor.ecoflow_office_battery_level
+        below: "11"
     condition:
+      - or:
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_plug
+            state: "off"
+          - condition: state
+            entity_id: switch.ecoflow_office_plug
+            state: "off"
       - condition: state
-        entity_id: switch.ecoflow_kitchen_plug
-        state: "off"
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
     action:
-      - parallel:
-          - service: script.send_direct_notification
-            data:
-              message: Fridge Freezer switch is off.
-              title: EcoFlow
-              people:
-                entity_id:
-                  - person.danny
-          - service: switch.turn_on
-            metadata: {}
-            data: {}
-            target:
-              entity_id: switch.ecoflow_kitchen_plug
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'sensor.kitchen_ecoflow_battery_level'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: Fridge Freezer switch is off.
+                      title: EcoFlow
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: switch.turn_on
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: switch.ecoflow_kitchen_plug
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.entity_id == 'sensor.ecoflow_office_battery_level'}}"
+            sequence:
+              - parallel:
+                  - service: script.send_direct_notification
+                    data:
+                      message: Office switch is off.
+                      title: EcoFlow
+                      people:
+                        entity_id:
+                          - person.danny
+                  - service: switch.turn_on
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: switch.ecoflow_office_plug
+            default: []
     mode: single
   # Ecoflow
   - id: "1714563193661"
