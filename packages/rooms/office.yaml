@@ -448,6 +448,14 @@ automation:
               message: ":level_slider: Turned on GoXLR."
               title: ":desktop_computer: Computer"
               log_level: "Debug"
+          - service: switch.turn_on
+            target:
+              entity_id: switch.office_monitor_bar
+          - service: script.send_to_home_log
+            data:
+              message: "Turned on monitor light."
+              title: ":desktop_computer: Computer"
+              log_level: "Debug"
     mode: single
   - id: "1606256309890"
     alias: "Office: Computer Turned Off For A Period Of Time"
@@ -511,7 +519,8 @@ automation:
                       log_level: "Debug"
                   - service: switch.turn_off
                     target:
-                      entity_id: switch.goxlr
+                      entity_id:
+                        - switch.goxlr
                   - service: script.send_to_home_log
                     data:
                       message: "Turned off for more than 10 minutes. Turned
@@ -521,8 +530,35 @@ automation:
                   - service: script.office_turn_off_backup_drive
         default: []
     mode: single
-  - id: "1678741966794"
+  - id: "1678741966795"
     alias: "Office: Computer Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - group.jd_computer
+        from: "home"
+        to: "not_home"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Computer turned off. Turning monitor light off.
+              title: ":office: Office"
+              log_level: "Debug"
+          - service: switch.turn_off
+            target:
+              entity_id:
+                - switch.office_monitor_bar
+    mode: single
+  - id: "1678741966794"
+    alias: "Office: Computer Turned Off After Sunrise"
     description: ""
     trigger:
       - platform: state
