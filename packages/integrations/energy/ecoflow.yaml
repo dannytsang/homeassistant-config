@@ -6,7 +6,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.ecoflow_kitchen_solar_excess
+        entity_id: sensor.ecoflow_solar_excess
         below: 0
         for:
           hours: 0
@@ -47,7 +47,7 @@ automation:
     description: ""
     trigger:
       - platform: numeric_state
-        entity_id: sensor.ecoflow_kitchen_solar_excess
+        entity_id: sensor.ecoflow_solar_excess
         above: input_number.ecoflow_kitchen_charge_solar_threshold
         for:
           hours: 0
@@ -74,7 +74,7 @@ automation:
           - choose:
               - conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_kitchen_solar_excess
+                    entity_id: sensor.ecoflow_solar_excess
                     above: input_number.ecoflow_kitchen_charge_solar_threshold
                   - not:
                       - condition: state
@@ -149,6 +149,9 @@ automation:
           - conditions:
               - condition: template
                 value_template: "{{ trigger.entity_id == 'sensor.ecoflow_kitchen_battery_level'}}"
+              - condition: state
+                entity_id: switch.ecoflow_kitchen_plug
+                state: "off"
             sequence:
               - parallel:
                   - service: script.send_direct_notification
@@ -166,6 +169,9 @@ automation:
           - conditions:
               - condition: template
                 value_template: "{{ trigger.entity_id == 'sensor.ecoflow_office_battery_level'}}"
+              - condition: state
+                entity_id: switch.ecoflow_office_plug
+                state: "off"
             sequence:
               - parallel:
                   - service: script.send_direct_notification
@@ -180,7 +186,7 @@ automation:
                     data: {}
                     target:
                       entity_id: switch.ecoflow_office_plug
-            default: []
+        default: []
     mode: single
   # Ecoflow
   - id: "1714563193661"
@@ -395,7 +401,7 @@ script:
       target_charge_rate: >-
         {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
         {{ calculate_ecoflow_delta2_charge_rate(
-        ((states('sensor.ecoflow_kitchen_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
+        ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
         200,
         1200)|int(0) }}
     sequence:
@@ -656,7 +662,7 @@ script:
                     above: input_number.ecoflow_kitchen_charge_solar_threshold
                   - condition: template
                     value_template: >-
-                      {{ ((states('sensor.ecoflow_kitchen_solar_excess')|float(-1) * 1000) +
+                      {{ ((states('sensor.ecoflow_solar_excess')|float(-1) * 1000) +
                       states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
                       states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
                 then:
@@ -666,13 +672,13 @@ script:
                         Solar production dipped below household consumption. Reducing charge rate from
                         {{ states('number.ecoflow_kitchen_ac_charging_power') }}
                         to
-                        {{ (((states('sensor.ecoflow_kitchen_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
+                        {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
                       title: Solar
                       log_level: "Debug"
                   - service: script.ecoflow_set_charge_rate
                     data:
                       reserve_amount: >-
-                        {{ ((((states('sensor.ecoflow_kitchen_solar_excess')|float(0) * 1000) +
+                        {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
                         states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
                         200)|int(0)) * 200 }}
                 else:
@@ -694,7 +700,7 @@ script:
                 entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
                 state: "on"
               - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_solar_excess
+                entity_id: sensor.ecoflow_solar_excess
                 above: input_number.ecoflow_kitchen_charge_solar_threshold
             sequence:
               - service: script.excess_solar_detected
@@ -784,7 +790,7 @@ script:
                             Electrictity rate has gove above 0
                             ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                             and no excess electricity detected
-                            ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
+                            ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                             Setting backup reserve to
                             {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
                             {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}.
@@ -801,7 +807,7 @@ script:
                         Electrictity rate has gove above 0
                         ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
                         and no excess electricity detected
-                        ({{ states('sensor.ecoflow_kitchen_solar_excess', with_unit=True) }}).
+                        ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                         Reserve already set
                         {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
                         {{ state_attr('input_number.ecoflow_kitchen_low_battery_reserve', 'unit_of_measurement')}}
