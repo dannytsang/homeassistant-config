@@ -24,3 +24,27 @@ and forecast_kwh|float(0) < 18 -%}
 23
 {%- endif -%}
 {%- endmacro -%}
+
+{%- macro weather_compensation_ratio(weather_condition) -%}
+{%- if weather_condition == "rainy" or weather_condition == "pouring" -%}
+2
+{%- elif weather_condition == "cloudy" -%}
+2
+{%- elif weather_condition == "partlycloudy" -%}
+1.5
+{%- elif weather_condition == "sunny" -%}
+1
+{%- elif weather_condition == "lightning-rainy" -%}
+1.5
+{%- elif weather_condition == "lightning" or weather_condition == "lightning-rainy" -%}
+:lightning_cloud:
+{%- elif weather_condition == "windy" or weather_condition == "windy-variant" -%}
+1
+{%- elif weather_condition == "snowy" -%}
+1.5
+{%- elif weather_condition == "fog" -%}
+2
+{%- elif weather_condition == "exceptional" -%}
+1
+{%- endif -%}
+{%- endmacro -%}
