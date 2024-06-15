@@ -554,9 +554,23 @@ script:
   todays_solar_forecast_data:
     alias: Today's Solar Forecast Data
     variables:
+      forecast: >-
+        {#- If Solcast is unavailable, fallback to Forecast.io -#}
+        {%- if states('sensor.solcast_pv_forecast_forecast_today') not in ('unavailable', 'unknown') -%}
+        {{ states('sensor.solcast_pv_forecast_forecast_today')|float(0) }}
+        {%- else -%}
+        {{ states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) }}
+        {%- endif -%}
+      last_changed: >-
+        {#- If Solcast is unavailable, fallback to Forecast.io -#}
+        {%- if states('sensor.solcast_pv_forecast_forecast_today') not in ('unavailable', 'unknown') -%}
+        {{ states.sensor.solcast_pv_forecast_forecast_today.last_changed }}
+        {%- else -%}
+        {{ states.sensor.total_solar_forecast_estimated_energy_production_today.last_changed }}
+        {%- endif -%}
       estimate_charge_percentage: >-
         {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-        {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) }}
+        {{ calculate_charge_battery_amount(forecast) }}
       estimate_charge_kwh: >-
         {{ (states('input_number.solar_battery_size')|float(0)
         *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
@@ -573,7 +587,7 @@ script:
           'estimate_charge_kwh': estimate_charge_kwh|round(2),
           'charge_hours': estimate_charge_hours|round(2),
           'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
-          'last_changed': ''~states.sensor.total_solar_forecast_estimated_energy_production_today.last_changed~''
+          'last_changed': ''~last_changed~''
           }
         }}
     sequence:
@@ -582,9 +596,23 @@ script:
   tomorrows_solar_forecast_data:
     alias: Tomorrow's Solar Forecast Data
     variables:
+      forecast: >-
+        {#- If Solcast is unavailable, fallback to Forecast.io -#}
+        {%- if states('sensor.solcast_pv_forecast_forecast_tomorrow') not in ('unavailable', 'unknown') -%}
+        {{ states('sensor.solcast_pv_forecast_forecast_tomorrow')|float(0) }}
+        {%- else -%}
+        {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0) }}
+        {%- endif -%}
+      last_changed: >-
+        {#- If Solcast is unavailable, fallback to Forecast.io -#}
+        {%- if states('sensor.solcast_pv_forecast_forecast_tomorrow') not in ('unavailable', 'unknown') -%}
+        {{ states.sensor.solcast_pv_forecast_forecast_tomorrow.last_changed }}
+        {%- else -%}
+        {{ states.sensor.total_solar_forecast_estimated_energy_production_tomorrow.last_changed }}
+        {%- endif -%}
       estimate_charge_percentage: >-
         {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-        {{ calculate_charge_battery_amount(states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)) }}
+        {{ calculate_charge_battery_amount(forecast) }}
       estimate_charge_kwh: >-
         {{ (states('input_number.solar_battery_size')|float(0)
         *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
@@ -601,7 +629,7 @@ script:
           'estimate_charge_kwh': estimate_charge_kwh|round(2),
           'charge_hours': estimate_charge_hours|round(2),
           'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
-          'last_changed': ''~states.sensor.total_solar_forecast_estimated_energy_production_tomorrow.last_changed~''
+          'last_changed': ''~last_changed~''
           }
         }}
     sequence:
@@ -628,13 +656,15 @@ script:
       - service: script.send_direct_notification
         data:
           message: >-
-            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation -%}
-            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
             {%- from 'emoji.jinja' import get_weather -%}
             Tommorow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
             weather is {{ get_weather(weather['weather.home'].forecast[1].condition, 'Slack') }} with a generation of
-            {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
-            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}
+            {#- If Solcast is unavailable, fallback to Forecast.io -#}
+            {% if states('sensor.solcast_pv_forecast_forecast_tomorrow') not in ('unavailable', 'unknown') %}
+            {% from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation %}
+            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount %}
+            {{ states('sensor.solcast_pv_forecast_forecast_tomorrow')|float(0)|round(2) }}
+            {{ state_attr('sensor.solcast_pv_forecast_forecast_tomorrow','unit_of_measurement') }}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate')|float(0)|round(2) }} kWh).
             {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(none, true) is not none %}
@@ -649,6 +679,10 @@ script:
             finishing at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate'))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate')|round(2) }} kWh).
+            {%- endif %}
+            {%- else -%}
+            {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
+            {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}.
             {%- endif %}
 
 
