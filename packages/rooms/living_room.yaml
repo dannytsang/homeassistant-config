@@ -2,7 +2,7 @@
 automation:
   # Lights related automation.
   - id: "1583956425622"
-    alias: "Living Room: Motion Detected And It's Dark"
+    alias: "Living Room: Motion Detected"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
     trigger:
       - platform: state
@@ -13,64 +13,114 @@ automation:
           - binary_sensor.lounge_motion_4_occupancy
         to: "on"
     condition:
-      - and:
-          - condition: state
-            entity_id: input_boolean.enable_living_room_motion_triggers
-            state: "on"
-          - or:
-              - condition: numeric_state
-                entity_id: sensor.living_room_motion_2_illuminance_lux
-                below: input_number.living_room_light_level_2_threshold
-              - condition: numeric_state
-                entity_id: sensor.lounge_motion_4_illuminance
-                below: input_number.living_room_light_level_4_threshold
-              - condition: state
-                entity_id: sensor.lounge_motion_4_illuminance
-                state: "unavailable"
-          - or:
-              - condition: numeric_state
-                entity_id: light.living_room_lamp_left
-                attribute: brightness
-                below: "190"
-              - condition: numeric_state
-                entity_id: light.living_room_lamp_right
-                attribute: brightness
-                below: "190"
-              - condition: template
-                value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
-              - condition: template
-                value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
+      - condition: state
+        entity_id: input_boolean.enable_living_room_motion_triggers
+        state: "on"
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                :paw_prints: Motion detected and it's dark
-                ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
-                {{ states('sensor.lounge_motion_4_illuminance') }} <
-                {{ states('input_number.living_room_light_level_2_threshold') }} &
-                {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
-                and Terina's work :computer: computer is on. Turning
-                :bulb: :high_brightness: lights on.
-              title: ":couch_and_lamp: Lounge"
-              log_level: "Debug"
-          - choose:
-              - conditions:
+      - choose:
+          - conditions:
+              - or:
+                  - condition: numeric_state
+                    entity_id: sensor.living_room_motion_2_illuminance_lux
+                    below: input_number.living_room_light_level_2_threshold
+                  - condition: numeric_state
+                    entity_id: sensor.lounge_motion_4_illuminance
+                    below: input_number.living_room_light_level_4_threshold
                   - condition: state
-                    entity_id: light.lounge_ceiling
-                    state: "on"
-                sequence:
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.living_room_lights
+                    entity_id: sensor.lounge_motion_4_illuminance
+                    state: "unavailable"
+              - or:
+                  - condition: numeric_state
+                    entity_id: light.living_room_lamp_left
+                    attribute: brightness
+                    below: "190"
+                  - condition: numeric_state
+                    entity_id: light.living_room_lamp_right
+                    attribute: brightness
+                    below: "190"
+                  - condition: template
+                    value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
                     data:
-                      transition: 1
-            default:
-              - service: scene.turn_on
-                target:
-                  entity_id: scene.living_room_lamps_on
-                data:
-                  transition: 1
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
+                        {{ states('sensor.lounge_motion_4_illuminance') }} <
+                        {{ states('input_number.living_room_light_level_2_threshold') }} &
+                        {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
+                        and Terina's work :computer: computer is on. Turning
+                        :bulb: :high_brightness: lights on.
+                      title: ":couch_and_lamp: Lounge"
+                      log_level: "Debug"
+                  - choose:
+                      - conditions:
+                          - condition: state
+                            entity_id: light.lounge_ceiling
+                            state: "on"
+                        sequence:
+                          - service: scene.turn_on
+                            target:
+                              entity_id: scene.living_room_lights
+                            data:
+                              transition: 1
+                    default:
+                      - service: scene.turn_on
+                        target:
+                          entity_id: scene.living_room_lamps_on
+                        data:
+                          transition: 1
+          - alias: Room too bright
+            conditions:
+              - or:
+                  - condition: numeric_state
+                    entity_id: sensor.living_room_motion_2_illuminance_lux
+                    below: input_number.living_room_light_level_2_threshold
+                  - condition: numeric_state
+                    entity_id: sensor.lounge_motion_4_illuminance
+                    below: input_number.living_room_light_level_4_threshold
+              - or:
+                  - condition: state
+                    entity_id: light.living_room_lamp_left
+                    state: "off"
+                  - condition: state
+                    entity_id: light.living_room_lamp_right
+                    state: "off"
+                  - condition: template
+                    value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
+                  - condition: template
+                    value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
+            sequence:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        :paw_prints: Motion detected and it's dark
+                        ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
+                        {{ states('sensor.lounge_motion_4_illuminance') }} <
+                        {{ states('input_number.living_room_light_level_2_threshold') }} &
+                        {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
+                        and Terina's work :computer: computer is on. Turning
+                        :bulb: :high_brightness: lights on.
+                      title: ":couch_and_lamp: Lounge"
+                      log_level: "Debug"
+                  - sequence:
+                      - service: scene.turn_on
+                        target:
+                          entity_id: scene.living_room_lamps_yellow
+                        data:
+                          transition: 0
+                      - delay:
+                          seconds: 1
+                      - service: scene.turn_on
+                        target:
+                          entity_id: scene.living_room_lamps_off
+                        data:
+                          transition: 0
+        default: []
     mode: queued
     max: 10
   - id: "1606170045630"
@@ -1445,6 +1495,89 @@ scene:
         icon: mdi:floor-lamp
         supported_features: 55
         state: "on"
+    metadata:
+      light.living_room_lamp_left:
+        entity_only: true
+      light.living_room_lamp_right:
+        entity_only: true
+  - id: "1718481446172"
+    name: Living Room Lamps Yellow
+    entities:
+      light.living_room_lamp_left:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        color_temp:
+        hs_color:
+          - 57.628
+          - 99.216
+        rgb_color:
+          - 255
+          - 245
+          - 2
+        xy_color:
+          - 0.455
+          - 0.507
+        friendly_name: Living Room Lamp Left
+        supported_features: 44
+        state: "on"
+      light.living_room_lamp_right:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        color_temp:
+        hs_color:
+          - 57.628
+          - 99.216
+        rgb_color:
+          - 255
+          - 245
+          - 2
+        xy_color:
+          - 0.455
+          - 0.507
+        friendly_name: Living Room Lamp Right
+        supported_features: 44
+        state: "on"
+    icon: mdi:lamps
     metadata:
       light.living_room_lamp_left:
         entity_only: true
