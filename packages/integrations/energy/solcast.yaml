@@ -1,0 +1,38 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://github.com/BJReplay/ha-solcast-solar
+automation:
+  - id: "1691767286139"
+    alias: "Solcast: Update Forecast"
+    description: ""
+    trigger:
+      - platform: time
+        at: "08:00:00"
+    condition: []
+    action:
+      - service: script.update_solcast
+        data: {}
+    mode: single
+
+script:
+  update_solcast:
+    alias: Update Solcast
+    sequence:
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.solcast_pv_forecast_api_used
+            below: sensor.solcast_pv_forecast_api_limit
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: "Updating Solcast forecast."
+                  title: ":sunny: :zap: :electric_plug: Solcast"
+                  log_level: "Debug"
+              - service: solcast_solar.update_forecasts
+                data: {}
+        else:
+          - service: script.send_to_home_log
+            data:
+              message: "Reached API limit."
+              title: ":warning: :sunny: :zap: :electric_plug: Solcast :warning:"
+              log_level: "Normal"
