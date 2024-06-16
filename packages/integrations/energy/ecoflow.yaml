@@ -51,7 +51,7 @@ automation:
         above: input_number.ecoflow_kitchen_charge_solar_threshold
         for:
           hours: 0
-          minutes: 10
+          minutes: 5
           seconds: 0
       - platform: event
         event_type: timer.finished
@@ -86,7 +86,7 @@ automation:
                         data: {}
                       - service: timer.start
                         data:
-                          duration: "00:10:00"
+                          duration: "00:05:00"
                         target:
                           entity_id: timer.check_solar_excess
     mode: queued
@@ -166,6 +166,8 @@ automation:
                     data: {}
                     target:
                       entity_id: switch.ecoflow_kitchen_plug
+                  - service: script.ecoflow_check_charging_mode
+                    data: {}
           - conditions:
               - condition: template
                 value_template: "{{ trigger.entity_id == 'sensor.ecoflow_office_battery_level'}}"
@@ -427,6 +429,8 @@ script:
     mode: single
   excess_solar_detected:
     alias: Excess Solar Detected
+    trace:
+      stored_traces: 30
     variables:
       target_charge_rate: >-
         {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
@@ -505,6 +509,8 @@ script:
   ecoflow_check_charging_mode:
     alias: EcoFlow Check Charging Mode
     description: ""
+    trace:
+      stored_traces: 80
     sequence:
       - choose:
           - alias: Holiday Mode
