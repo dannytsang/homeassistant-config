@@ -716,22 +716,23 @@ script:
                       states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
                       states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
                 then:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Solar production dipped below household consumption. Reducing charge rate from
-                        {{ states('number.ecoflow_kitchen_ac_charging_power') }}
-                        to
-                        {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
-                      title: Solar
-                      log_level: "Debug"
-                  - service: script.ecoflow_set_charge_rate
-                    data:
-                      entity_id: number.ecoflow_kitchen_ac_charging_power
-                      reserve_amount: >-
-                        {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                        states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
-                        200)|int(0)) * 200 }}
+                  - parallel:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Solar production dipped below household consumption. Reducing charge rate from
+                            {{ states('number.ecoflow_kitchen_ac_charging_power') }}
+                            to
+                            {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
+                          title: Solar
+                          log_level: "Debug"
+                      - service: script.ecoflow_set_charge_rate
+                        data:
+                          entity_id: number.ecoflow_kitchen_ac_charging_power
+                          target_charge_rate: >-
+                            {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
+                            200)|int(0)) * 200 }}
                 else:
                   - parallel:
                       - service: script.send_to_home_log
@@ -742,7 +743,7 @@ script:
                       - service: script.ecoflow_set_backup_reserve
                         data:
                           entity_id: number.ecoflow_kitchen_backup_reserve_level
-                          reserve_amount: 5
+                          reserve_amount: 10
           - alias: Excess solar detected
             conditions:
               - condition: numeric_state
