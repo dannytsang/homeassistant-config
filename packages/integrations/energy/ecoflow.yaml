@@ -22,7 +22,7 @@ automation:
             state: "unavailable"
       - condition: numeric_state
         entity_id: number.ecoflow_kitchen_backup_reserve_level
-        above: 5
+        above: input_number.ecoflow_kitchen_minimum_backup_reserve
       - condition: state
         entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
         state: "on"
@@ -129,10 +129,10 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.ecoflow_kitchen_battery_level
-        below: "11"
+        below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
       - platform: numeric_state
         entity_id: sensor.ecoflow_office_battery_level
-        below: "11"
+        below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
     condition:
       - or:
           - condition: state
@@ -701,7 +701,7 @@ script:
                     state: "unavailable"
               - condition: numeric_state
                 entity_id: number.ecoflow_kitchen_backup_reserve_level
-                above: 5
+                above: input_number.ecoflow_kitchen_minimum_backup_reserve
               - condition: state
                 entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
                 state: "on"
@@ -730,9 +730,10 @@ script:
                         data:
                           entity_id: number.ecoflow_kitchen_ac_charging_power
                           target_charge_rate: >-
-                            {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) /
-                            200)|int(0)) * 200 }}
+                            {{ iif(((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 1200, 1200, ((((3 * 1000) +
+                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200)
+                            }}
                 else:
                   - parallel:
                       - service: script.send_to_home_log
@@ -743,7 +744,7 @@ script:
                       - service: script.ecoflow_set_backup_reserve
                         data:
                           entity_id: number.ecoflow_kitchen_backup_reserve_level
-                          reserve_amount: 10
+                          reserve_amount: input_number.ecoflow_kitchen_minimum_backup_reserve
           - alias: Excess solar detected
             conditions:
               - condition: numeric_state
@@ -897,3 +898,21 @@ template:
         state: >-
           {{ states('sensor.ecoflow_kitchen_total_in_power')|float(0) - states('sensor.ecoflow_kitchen_total_out_power')|float(0) }}
         unit_of_measurement: w
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.ecoflow_kitchen_minimum_backup_reserve
+    sensor:
+      - name: "EcoFlow Kitchen Minimum Backup Reserve Low Threshold"
+        unique_id: 04b0a9f8-f381-4c92-a41d-7433f1d63c8c
+        state: "{{ states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10) + 1 }}"
+        unit_of_measurement: "%"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.ecoflow_office_minimum_backup_reserve
+    sensor:
+      - name: "EcoFlow Office Minimum Backup Reserve Low Threshold"
+        unique_id: e8a432e2-7e54-46f9-ba4c-eba216555b83
+        state: "{{ states('input_number.ecoflow_office_minimum_backup_reserve')|int(10) + 1 }}"
+        unit_of_measurement: "%"
