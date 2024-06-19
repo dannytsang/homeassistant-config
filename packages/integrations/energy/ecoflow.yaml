@@ -295,7 +295,7 @@ script:
             sequence:
               - service: input_number.set_value
                 data:
-                  value: "{{ reserve_amount|int(5) }}"
+                  value: "{{ target_reserve_amount|int(5) }}"
                 target:
                   entity_id: input_number.target_ecoflow_kitchen_backup_reserve
               - service: script.ecoflow_set_backup_reserve
@@ -309,7 +309,7 @@ script:
             sequence:
               - service: input_number.set_value
                 data:
-                  value: "{{ reserve_amount|int(5) }}"
+                  value: "{{ target_reserve_amount|int(5) }}"
                 target:
                   entity_id: input_number.target_ecoflow_office_backup_reserve
               - service: script.ecoflow_set_backup_reserve
@@ -512,80 +512,156 @@ script:
     trace:
       stored_traces: 30
     variables:
-      target_charge_rate: >-
+      kitchen_target_charge_rate: >-
         {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
         {{ calculate_ecoflow_delta2_charge_rate(
-        ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_kitchen_ac_in_power')|float(0)),
+        ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_ac_in_power')|float(0)),
+        200,
+        1200)|int(0) }}
+      office_target_charge_rate: >-
+        {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+        {{ calculate_ecoflow_delta2_charge_rate(
+        ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) - kitchen_target_charge_rate|float(0)),
         200,
         1200)|int(0) }}
     sequence:
-      - choose:
-          - alias: Battery fully charged
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_battery_level
-                above: 99
-            sequence:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    Battery fully charged. No changes to charging rate required.
-                  title: EcoFlow
-                  log_level: "Debug"
-          - alias: Kitchen not fully charged
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_battery_level
-                below: 100
-              - or:
-                  - condition: template
-                    value_template: >-
-                      {{ target_charge_rate|int(0) > 0 and target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+      - parallel:
+          - alias: Ecoflow Kitchen
+            choose:
+              - alias: Battery fully charged
+                conditions:
                   - condition: numeric_state
-                    entity_id: number.ecoflow_kitchen_backup_reserve_level
-                    below: 100
-            sequence:
-              - if:
-                  - condition: state
-                    entity_id: switch.ecoflow_kitchen_plug
-                    state: "off"
-                then:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Solar production is above household consumption. Turning plug on and setting backup to 100% with
-                            charge rate {{ target_charge_rate }}w.
-                          title: EcoFlow
-                          log_level: "Debug"
-                      - service: switch.turn_on
-                        metadata: {}
-                        data: {}
-                        target:
-                          entity_id: switch.ecoflow_kitchen_plug
-                else:
+                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    above: 99
+                sequence:
                   - service: script.send_to_home_log
                     data:
                       message: >-
-                        Solar production is above household consumption. Setting backup to 100% with
-                        charge rate {{ target_charge_rate }}w.
+                        Battery fully charged. No changes to charging rate required.
                       title: EcoFlow
                       log_level: "Debug"
-              - service: script.ecoflow_set_charge_rate
+              - alias: Kitchen not fully charged
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    below: 100
+                  - or:
+                      - condition: template
+                        value_template: >-
+                          {{ kitchen_target_charge_rate|int(0) > 0 and kitchen_target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+                      - condition: numeric_state
+                        entity_id: number.ecoflow_kitchen_backup_reserve_level
+                        below: 100
+                sequence:
+                  - if:
+                      - condition: state
+                        entity_id: switch.ecoflow_kitchen_plug
+                        state: "off"
+                    then:
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Solar production is above household consumption. Turning plug on and setting backup to 100% with
+                                charge rate {{ kitchen_target_charge_rate }}w.
+                              title: EcoFlow
+                              log_level: "Debug"
+                          - service: switch.turn_on
+                            metadata: {}
+                            data: {}
+                            target:
+                              entity_id: switch.ecoflow_kitchen_plug
+                    else:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Solar production is above household consumption. Setting backup to 100% with
+                            charge rate {{ kitchen_target_charge_rate }}w.
+                          title: EcoFlow
+                          log_level: "Debug"
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      entity_id: number.ecoflow_kitchen_ac_charging_power
+                      target_charge_rate: "{{ kitchen_target_charge_rate }}"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      entity_id: number.ecoflow_kitchen_backup_reserve_level
+                      target_reserve_amount: 100
+            default:
+              - service: script.send_to_home_log
                 data:
-                  entity_id: number.ecoflow_kitchen_ac_charging_power
-                  target_charge_rate: "{{ target_charge_rate }}"
-              - service: script.ecoflow_set_backup_reserve
+                  message: >-
+                    Charge rate ({{ kitchen_target_charge_rate }}w) is already set correctly.
+                  title: EcoFlow
+                  log_level: "Debug"
+          - alias: Ecoflow Office
+            choose:
+              - alias: Battery fully charged
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.ecoflow_office_battery_level
+                    above: 99
+                sequence:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Battery fully charged. No changes to charging rate required.
+                      title: EcoFlow
+                      log_level: "Debug"
+              - alias: Battery not fully charged
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.ecoflow_office_battery_level
+                    below: 100
+                  - or:
+                      - condition: template
+                        value_template: >-
+                          {{ office_target_charge_rate|int(0) > 0 and office_target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+                      - condition: numeric_state
+                        entity_id: number.ecoflow_office_backup_reserve_level
+                        below: 100
+                sequence:
+                  - if:
+                      - condition: state
+                        entity_id: switch.ecoflow_office_plug
+                        state: "off"
+                    then:
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Solar production is above household consumption. Turning plug on and setting backup to 100% with
+                                charge rate {{ office_target_charge_rate }}w.
+                              title: EcoFlow
+                              log_level: "Debug"
+                          - service: switch.turn_on
+                            metadata: {}
+                            data: {}
+                            target:
+                              entity_id: switch.ecoflow_kitchen_plug
+                    else:
+                      - service: script.send_to_home_log
+                        data:
+                          message: >-
+                            Solar production is above household consumption. Setting backup to 100% with
+                            charge rate {{ office_target_charge_rate }}w.
+                          title: EcoFlow
+                          log_level: "Debug"
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      entity_id: number.ecoflow_office_ac_charging_power
+                      target_charge_rate: "{{ office_target_charge_rate }}"
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      entity_id: number.ecoflow_office_backup_reserve_level
+                      target_reserve_amount: 100
+            default:
+              - service: script.send_to_home_log
                 data:
-                  entity_id: number.ecoflow_kitchen_backup_reserve_level
-                  target_reserve_amount: 100
-        default:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Charge rate ({{ target_charge_rate }}w) is already set correctly.
-              title: EcoFlow
-              log_level: "Debug"
+                  message: >-
+                    Charge rate ({{ office_target_charge_rate }}w) is already set correctly.
+                  title: EcoFlow
+                  log_level: "Debug"
     mode: single
   ecoflow_check_charging_mode:
     alias: EcoFlow Check Charging Mode
