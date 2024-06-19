@@ -1,4 +1,67 @@
 # Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1714779045289"
+    alias: "Bin: Taken Out"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.bin_estimated_distance
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+        above: 7
+    condition: []
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          message: Taken out.
+          title: Bin
+          people:
+            entity_id: person.danny
+    mode: single
+
+sensor:
+  - platform: statistics
+    name: "Bin Distance Change Sample"
+    entity_id: sensor.bin_estimated_distance
+    state_characteristic: change_sample
+    sampling_size: 100
+    precision: 2
+
+  - platform: statistics
+    name: "Bin Distance 95 Percent"
+    entity_id: sensor.bin_estimated_distance
+    state_characteristic: distance_95_percent_of_values
+    sampling_size: 100
+    precision: 2
+  - platform: statistics
+    name: "Bin Distance 95 Percent Over 5 Minutes"
+    entity_id: sensor.bin_estimated_distance
+    state_characteristic: distance_95_percent_of_values
+    max_age:
+      minutes: 5
+    sampling_size: 50
+    precision: 2
+  - platform: statistics
+    name: "Bin Distance Change Over 5 minutes"
+    entity_id: sensor.bin_estimated_distance
+    state_characteristic: change
+    max_age:
+      minutes: 5
+    sampling_size: 50
+    precision: 2
+  - platform: statistics
+    name: "Bin Distance Change Over 1 minutes"
+    entity_id: sensor.bin_estimated_distance
+    state_characteristic: change
+    max_age:
+      minutes: 1
+    sampling_size: 25
+    precision: 2
+
 template:
   - binary_sensor:
       - name: Bin Collection Due
