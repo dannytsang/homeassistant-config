@@ -57,7 +57,7 @@ automation:
     trigger:
       - platform: numeric_state
         entity_id: sensor.ecoflow_solar_excess
-        above: input_number.ecoflow_kitchen_charge_solar_threshold
+        above: input_number.ecoflow_charge_solar_threshold
         for:
           hours: 0
           minutes: 5
@@ -84,7 +84,7 @@ automation:
               - conditions:
                   - condition: numeric_state
                     entity_id: sensor.ecoflow_solar_excess
-                    above: input_number.ecoflow_kitchen_charge_solar_threshold
+                    above: input_number.ecoflow_charge_solar_threshold
                   - not:
                       - condition: state
                         entity_id: timer.check_solar_excess
@@ -875,12 +875,12 @@ script:
               - if:
                   - condition: numeric_state
                     entity_id: number.ecoflow_kitchen_ac_charging_power
-                    above: input_number.ecoflow_kitchen_charge_solar_threshold
+                    above: input_number.ecoflow_charge_solar_threshold
                   - condition: template
                     value_template: >-
                       {{ ((states('sensor.ecoflow_solar_excess')|float(-1) * 1000) +
                       states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
-                      states('input_number.ecoflow_kitchen_charge_solar_threshold')|float(0) }}
+                      states('input_number.ecoflow_charge_solar_threshold')|float(0) }}
                 then:
                   - parallel:
                       - service: script.send_to_home_log
@@ -914,15 +914,12 @@ script:
                           target_reserve_amount: "{{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(100) }}"
           - alias: Excess solar detected
             conditions:
-              - condition: numeric_state
-                entity_id: number.ecoflow_kitchen_backup_reserve_level
-                below: 100
               - condition: state
                 entity_id: switch.ecoflow_backup_reserve_enabled
                 state: "on"
               - condition: numeric_state
                 entity_id: sensor.ecoflow_solar_excess
-                above: input_number.ecoflow_kitchen_charge_solar_threshold
+                above: input_number.ecoflow_charge_solar_threshold
             sequence:
               - service: script.excess_solar_detected
                 data: {}
@@ -1090,7 +1087,7 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - input_number.ecoflow_kitchen_charge_solar_threshold
+          - input_number.ecoflow_charge_solar_threshold
           - sensor.house_grid_export_power
           - sensor.growatt_sph_pv_power
           - sensor.growatt_sph_load_power
