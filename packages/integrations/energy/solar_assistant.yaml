@@ -761,14 +761,56 @@ script:
                           value: "100"
                       - service: script.battery_first_priority_mode
                         data: {}
+          - alias: Unit rate below target rate and charge below export enabled
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_target_electricity_unit_rate
+                state: "on"
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                below: input_number.target_electricity_unit_rate
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Battery first"
+                then:
+                  - parallel:
+                      - choose:
+                          - conditions:
+                              - condition: template
+                                value_template: "{{ event == 'time'}}"
+                            sequence:
+                              - service: script.send_direct_notification
+                                data:
+                                  message: >-
+                                    Electrictity rate
+                                    ({{ states('sensor.electricity_current_rate')|round(0) }}) has fallen
+                                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                                    and inverter has not switched to battery first mode.
+                                  title: Solar Assistant
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                        default:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Electricity unit rate is below target rate
+                                ({{ states('sensor.electricity_current_rate')|round(0) ~'<=' ~
+                                states('input_number.target_electricity_unit_rate') }}). Charging house battery.
+                              title: Solar Assistant
+                              debug: "Debug"
+                      - service: number.set_value
+                        target:
+                          entity_id: number.growatt_sph_battery_first_stop_charge
+                        data:
+                          value: "100"
+                      - service: script.battery_first_priority_mode
+                        data: {}
           - alias: Octopus scheduled charge enabled
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: 0
               - condition: state
                 entity_id: input_boolean.charge_octopus_schedule
                 state: "on"
@@ -995,54 +1037,6 @@ script:
                           - service: script.battery_first_priority_mode
                             data:
                               max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
-          - alias: Unit rate below target rate and charge below export enabled
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_target_electricity_unit_rate
-                state: "on"
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: input_number.target_electricity_unit_rate
-            sequence:
-              - if:
-                  - not:
-                      - condition: state
-                        entity_id: sensor.growatt_sph_inverter_mode
-                        state: "Battery first"
-                then:
-                  - parallel:
-                      - choose:
-                          - conditions:
-                              - condition: template
-                                value_template: "{{ event == 'time'}}"
-                            sequence:
-                              - service: script.send_direct_notification
-                                data:
-                                  message: >-
-                                    Electrictity rate
-                                    ({{ states('sensor.electricity_current_rate')|round(0) }}) has fallen
-                                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
-                                    and inverter has not switched to battery first mode.
-                                  title: Solar Assistant
-                                  people:
-                                    entity_id:
-                                      - person.danny
-                        default:
-                          - service: script.send_to_home_log
-                            data:
-                              message: >-
-                                Electricity unit rate is below target rate
-                                ({{ states('sensor.electricity_current_rate')|round(0) ~'<=' ~
-                                states('input_number.target_electricity_unit_rate') }}). Charging house battery.
-                              title: Solar Assistant
-                              debug: "Debug"
-                      - service: number.set_value
-                        target:
-                          entity_id: number.growatt_sph_battery_first_stop_charge
-                        data:
-                          value: "100"
-                      - service: script.battery_first_priority_mode
-                        data: {}
           - alias: Rates go above export fail safe
             conditions:
               - condition: numeric_state
