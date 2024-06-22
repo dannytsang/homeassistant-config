@@ -199,6 +199,131 @@ automation:
                       entity_id: switch.ecoflow_office_plug
         default: []
     mode: single
+  - id: "1719062430507"
+    alias: "EcoFlow: Kitchen Plug Offline"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.ecoflow_kitchen_battery_level
+        below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_plug
+            state: unavailable
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_plug
+            state: unknown
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          people:
+            entity_id: person.danny
+          title: EcoFlow
+          message: Kitchen plug is offline!
+    mode: single
+  - id: "1719062430508"
+    alias: "EcoFlow: Office Plug Offline"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - sensor.ecoflow_office_battery_level
+        below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: switch.ecoflow_office_plug
+            state: unavailable
+          - condition: state
+            entity_id: switch.ecoflow_office_plug
+            state: unknown
+    action:
+      - service: script.send_direct_notification
+        metadata: {}
+        data:
+          people:
+            entity_id:
+              - person.danny
+          title: EcoFlow
+          message: Office plug is offline!
+    mode: single
+  - id: "1719061926981"
+    alias: "Ecoflow: Kitchen Battery Low And Switch Comes Online"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.ecoflow_kitchen_plug
+        from: unavailable
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: sensor.ecoflow_kitchen_battery_level
+        below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            metadata: {}
+            data:
+              title: EcoFlow
+              message: >-
+                Kitchen Battery Below minimum threshold
+                {{ states('sensor.ecoflow_kitchen_battery_level') }}({{ states('sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold') }})
+                and switch has become available. Turning switch on.
+              people:
+                - person.danny
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: switch.ecoflow_kitchen_plug
+    mode: single
+  - id: "1719061926982"
+    alias: "Ecoflow: Office Battery Low And Switch Comes Online"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - switch.ecoflow_office_plug
+        from: unavailable
+        to: "off"
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_ecoflow_automations
+        state: "on"
+      - condition: numeric_state
+        entity_id: sensor.ecoflow_office_battery_level
+        below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            metadata: {}
+            data:
+              title: EcoFlow
+              message: >-
+                Office Battery Below minimum threshold
+                {{ states('sensor.ecoflow_office_battery_level') }}({{ states('sensor.ecoflow_office_minimum_backup_reserve_low_threshold') }})
+                and switch has become available. Turning switch on.
+              people:
+                - person.danny
+          - service: switch.turn_on
+            data: {}
+            target:
+              entity_id: switch.ecoflow_office_plug
+    mode: single
   # Ecoflow
   - id: "1714563193661"
     alias: "EcoFlow: Battery Ultra Low And Plug Is Off"
