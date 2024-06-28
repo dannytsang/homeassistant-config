@@ -175,8 +175,14 @@ automation:
                     data: {}
                     target:
                       entity_id: switch.ecoflow_kitchen_plug
-                  - service: script.ecoflow_check_charging_mode
-                    data: {}
+                  - service: script.ecoflow_set_charge_rate
+                    data:
+                      entity_id: number.ecoflow_kitchen_ac_charging_power
+                      target_charge_rate: 200
+                  - service: script.ecoflow_set_backup_reserve
+                    data:
+                      entity_id: number.ecoflow_kitchen_backup_reserve_level
+                      target_reserve_amount: input_number.ecoflow_kitchen_minimum_backup_reserve
           - conditions:
               - condition: template
                 value_template: "{{ trigger.entity_id == 'sensor.ecoflow_office_battery_level'}}"
