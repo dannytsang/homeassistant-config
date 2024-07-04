@@ -201,15 +201,10 @@ automation:
                     target:
                       entity_id: timer.office_lights_off
                   - sequence:
-                      - service: light.turn_on
+                      - service: scene.turn_on
                         target:
-                          entity_id: light.office_4
-                        data:
-                          rgb_color:
-                            - 255
-                            - 247
-                            - 0
-                          brightness_step: 255
+                          entity_id: scene.office_room_brightness_above_threshold
+                        data: {}
                       - delay:
                           seconds: 1
                       - service: light.turn_off
@@ -217,7 +212,6 @@ automation:
                           entity_id:
                             - light.office_4
                         data: {}
-
         default:
           - parallel:
               - service: scene.turn_on
@@ -1076,6 +1070,48 @@ automation:
                       log_level: "Debug"
             default: []
     mode: single
+  - id: "1719349686247"
+    alias: "Office: Light On And Bright Room"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - light.office_area_lights
+        to: "on"
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+    condition:
+      - condition: sun
+        before: sunset
+        after: sunrise
+      - condition: numeric_state
+        entity_id: sensor.office_area_mean_light_level
+        above: input_number.office_light_level_threshold
+    action:
+      - parallel:
+          - service: light.turn_off
+            metadata: {}
+            data:
+              transition: 1
+            target:
+              entity_id:
+                - light.office_3
+                - light.office_2
+          - sequence:
+              - service: scene.turn_on
+                target:
+                  entity_id: scene.office_room_brightness_above_threshold
+                data: {}
+              - delay:
+                  seconds: 1
+              - service: light.turn_off
+                target:
+                  entity_id:
+                    - light.office_4
+                data: {}
+    mode: single
 
 scene:
   - id: "1600795089307"
@@ -1350,6 +1386,49 @@ scene:
         friendly_name: Office Light
         supported_features: 55
         state: "on"
+  - id: "1720024018791"
+    name: "Office: Room Brightness Above Threshold"
+    entities:
+      light.office_4:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        color_temp:
+        hs_color:
+          - 57.874
+          - 99.608
+        rgb_color:
+          - 255
+          - 246
+          - 1
+        xy_color:
+          - 0.454
+          - 0.508
+        friendly_name: Office 4
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.office_4:
+        entity_only: true
 script:
   # PC
   office_turn_off_backup_drive:
