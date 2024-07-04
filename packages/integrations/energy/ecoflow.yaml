@@ -408,11 +408,11 @@ script:
               integration: "ecoflow_cloud"
               domain: number
       target_reserve_amount:
-        description: Reserve amount to be set from 5-100%.
+        description: Reserve amount to be set from 10-100%.
         required: true
         selector:
           number:
-            min: 5
+            min: 10
             max: 100
             step: 1
             unit_of_measurement: "%"
@@ -426,7 +426,7 @@ script:
             sequence:
               - service: input_number.set_value
                 data:
-                  value: "{{ target_reserve_amount|int(5) }}"
+                  value: "{{ target_reserve_amount|int(10) }}"
                 target:
                   entity_id: input_number.target_ecoflow_kitchen_backup_reserve
               - service: script.ecoflow_set_backup_reserve
@@ -440,7 +440,7 @@ script:
             sequence:
               - service: input_number.set_value
                 data:
-                  value: "{{ target_reserve_amount|int(5) }}"
+                  value: "{{ target_reserve_amount|int(10) }}"
                 target:
                   entity_id: input_number.target_ecoflow_office_backup_reserve
               - service: script.ecoflow_set_backup_reserve
@@ -462,11 +462,11 @@ script:
               integration: "ecoflow_cloud"
               domain: number
       reserve_amount:
-        description: Reserve amount to be set from 5-100%.
+        description: Reserve amount to be set from 10-100%.
         required: true
         selector:
           number:
-            min: 5
+            min: 10
             max: 100
             step: 1
             unit_of_measurement: "%"
@@ -486,7 +486,7 @@ script:
             - service: number.set_value
               data:
                 value: >-
-                  {{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(5) }}
+                  {{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(10) }}
               target:
                 entity_id: number.ecoflow_kitchen_backup_reserve_level
             - delay:
@@ -616,7 +616,7 @@ script:
             - service: number.set_value
               data:
                 value: >-
-                  {{ states('input_number.target_ecoflow_kitchen_charge_rate')|int(5) }}
+                  {{ states('input_number.target_ecoflow_kitchen_charge_rate')|int(10) }}
               target:
                 entity_id: number.ecoflow_kitchen_ac_charging_power
             - delay:
@@ -907,40 +907,101 @@ script:
                 entity_id: sensor.growatt_sph_inverter_mode
                 state: Grid first
             sequence:
-              - alias: Check if fridge freezer plug has been switched off
-                if:
-                  - condition: state
-                    entity_id: switch.ecoflow_kitchen_plug
-                    state: "on"
-                  - condition: numeric_state
-                    entity_id: sensor.ecoflow_kitchen_battery_level
-                    above: "5"
-                then:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Inverter in export mode. Disable charging.
-                          title: EcoFlow
-                          log_level: "Debug"
-                      - service: switch.turn_off
-                        target:
-                          entity_id: switch.ecoflow_kitchen_plug
-                else:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        Inverter in export mode. Disable charging.
-                      title: EcoFlow
-                      log_level: "Debug"
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  entity_id: number.ecoflow_kitchen_backup_reserve_level
-                  target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
-              - service: script.ecoflow_set_charge_rate
-                data:
-                  entity_id: number.ecoflow_kitchen_ac_charging_power
-                  target_charge_rate: 200
+              - parallel:
+                  - sequence:
+                      - alias: Check if fridge freezer plug has been switched off
+                        if:
+                          - condition: state
+                            entity_id: switch.ecoflow_kitchen_plug
+                            state: "on"
+                          - condition: numeric_state
+                            entity_id: sensor.ecoflow_kitchen_battery_level
+                            above: input_number.ecoflow_kitchen_low_battery_reserve
+                        then:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: >-
+                                    Inverter in export mode. Disable charging for fridge freezer battery.
+                                  title: EcoFlow
+                                  log_level: "Debug"
+                              - service: switch.turn_off
+                                target:
+                                  entity_id: switch.ecoflow_kitchen_plug
+                        else:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Inverter in export mode. Disable charging for fridge freezer battery.
+                              title: EcoFlow
+                              log_level: "Debug"
+                      - if:
+                          - not:
+                              - condition: state
+                                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                                state: input_number.ecoflow_kitchen_low_battery_reserve
+                        then:
+                          - service: script.ecoflow_set_backup_reserve
+                            data:
+                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
+                      - if:
+                          - not:
+                              - condition: state
+                                entity_id: number.ecoflow_kitchen_ac_charging_power
+                                state: "200"
+                        then:
+                          - service: script.ecoflow_set_charge_rate
+                            data:
+                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              target_charge_rate: 200
+                  - sequence:
+                      - alias: Check if office plug has been switched off
+                        if:
+                          - condition: state
+                            entity_id: switch.ecoflow_office_plug
+                            state: "on"
+                          - condition: numeric_state
+                            entity_id: sensor.ecoflow_office_battery_level
+                            above: input_number.ecoflow_office_low_battery_reserve
+                        then:
+                          - parallel:
+                              - service: script.send_to_home_log
+                                data:
+                                  message: >-
+                                    Inverter in export mode. Disable charging for office battery.
+                                  title: EcoFlow
+                                  log_level: "Debug"
+                              - service: switch.turn_off
+                                target:
+                                  entity_id: switch.ecoflow_office_plug
+                        else:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Inverter in export mode. Disable charging for office battery.
+                              title: EcoFlow
+                              log_level: "Debug"
+                      - if:
+                          - not:
+                              - condition: state
+                                entity_id: number.ecoflow_office_backup_reserve_level
+                                state: input_number.ecoflow_office_low_battery_reserve
+                        then:
+                          - service: script.ecoflow_set_backup_reserve
+                            data:
+                              entity_id: number.ecoflow_office_backup_reserve_level
+                              target_reserve_amount: "{{ states('input_number.ecoflow_office_low_battery_reserve') }}"
+                      - if:
+                          - not:
+                              - condition: state
+                                entity_id: number.ecoflow_office_ac_charging_power
+                                state: "200"
+                        then:
+                          - service: script.ecoflow_set_charge_rate
+                            data:
+                              entity_id: number.ecoflow_office_ac_charging_power
+                              target_charge_rate: 200
           - alias: Electricity rate below 0p/kw
             conditions:
               - condition: state
@@ -1093,7 +1154,9 @@ script:
                   - parallel:
                       - service: script.send_to_home_log
                         data:
-                          message: Solar production dipped below household consumption. Setting backup to 5%.
+                          message: >-
+                            Solar production dipped below household consumption. Setting backup to
+                            {{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}%.
                           title: Solar
                           log_level: "Debug"
                       - service: script.ecoflow_set_backup_reserve
