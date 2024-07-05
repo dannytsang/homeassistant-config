@@ -60,31 +60,32 @@ automation:
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
     action:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: binary_sensor.alarmed_doors_and_windows
-                state: "on"
-            sequence:
-              - service: script.send_direct_notification
-                data:
-                  message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Did not turned on because a door or window is still open.
+      - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: binary_sensor.alarmed_doors_and_windows
+                    state: "on"
+                sequence:
+                  - service: script.send_direct_notification
+                    data:
+                      message: >-
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        Did not turned on because a door or window is still open.
 
-                    Trying again later.
-                  title: ":warning: :bell: Alarm"
-                  people:
-                    entity_id:
-                      - person.danny
-                      - person.terina
-        default:
-          - parallel:
-              - service: script.arm_alarm_overnight
-                data:
-                  message: "It's late."
-              - service: script.lock_front_door
-                data: {}
+                        Trying again later.
+                      title: ":warning: :bell: Alarm"
+                      people:
+                        entity_id:
+                          - person.danny
+                          - person.terina
+            default:
+              - parallel:
+                  - service: script.arm_alarm_overnight
+                    data:
+                      message: "It's late."
+      - service: script.lock_front_door
+        data: {}
     mode: single
   - id: "1587680439015"
     alias: "Alarm: Arm Overnight Home Mode Final Check"
