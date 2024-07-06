@@ -12,10 +12,13 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - service: script.send_direct_notification
             data:
               message: "Some pressed the door bell."
               title: "Porch"
+              people:
+                - person.danny
+                - person.terina
           - service: script.alexa_announce
             data:
               message: "Ding dong."
@@ -56,6 +59,43 @@ automation:
       #   data: {}
     mode: queued
     max: 10
+  - id: "1720276673719"
+    alias: "Front Garden: Vehicle Detected On Driveway"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.driveway_vehicle_detected
+        from: "off"
+        to: "on"
+    condition: []
+    action:
+      - service: camera.snapshot
+        metadata: {}
+        data:
+          filename: "{{ states('input_text.driveway_vehicle_latest_image_path') }}/vehicle_latest.jpg"
+        target:
+          entity_id: camera.driveway_high_resolution_channel
+      - service: gpt4vision.image_analyzer
+        data:
+          provider: Ollama
+          max_tokens: 100
+          target_width: 3840
+          model: llava
+          detail: high
+          temperature: 0.1
+          include_filename: false
+          message: Is there a Tesco van Ignoring all other vehicles found.
+          image_file: "{{ states('input_text.driveway_vehicle_latest_image_path') }}/vehicle_latest.jpg"
+        response_variable: ai
+      - service: script.send_home_log_with_local_attachments
+        data:
+          message: "{{ ai.response_text }}"
+          title: Vehicle Detected
+          filePath: "{{ states('input_text.driveway_vehicle_latest_image_path') }}/vehicle_latest.jpg"
+          people:
+            - person.danny
+    mode: single
   # Light
   - id: "1660894232444"
     alias: "Front Garden: Below Direct Sun Light"
