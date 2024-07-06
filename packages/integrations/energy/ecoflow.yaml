@@ -230,7 +230,8 @@ automation:
         metadata: {}
         data:
           people:
-            entity_id: person.danny
+            entity_id:
+              - person.danny
           title: EcoFlow
           message: Kitchen plug is offline!
     mode: single
@@ -430,10 +431,10 @@ script:
           value: "{{ target_reserve_amount|int(10) }}"
         target:
           entity_id: "{{ input_number_entity_id }}"
-      - service: script.ecoflow_set_backup_reserve
+      - service: script.ecoflow_update_backup_reserve
         data:
           entity_id: "{{ entity_id }}"
-          target_reserve_amount: "{{ states(input_number_entity_id)|int(100) }}"
+          reserve_amount: "{{ states(input_number_entity_id)|int(100) }}"
     mode: queued
     max: 10
   ecoflow_update_backup_reserve:
@@ -466,15 +467,14 @@ script:
                     {{ repeat.index > 6 }}
                 - condition: template
                   value_template: >-
-                    {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) ==
-                    states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+                    {{ states(entity_id)|int(0) == reserve_amount|int(0) }}
           sequence:
             - service: number.set_value
               data:
                 value: >-
-                  {{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(10) }}
+                  {{ reserve_amount|int(10) }}
               target:
-                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                entity_id: "{{ entity_id }}"
             - delay:
                 hours: 0
                 minutes: 0
@@ -483,12 +483,12 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(0) !=
-              states('input_number.target_ecoflow_kitchen_backup_reserve')|int(0) }}
+              {{ states(entity_id)|int(0) !=
+              reserve_amount|int(0) }}
         then:
           - service: script.send_direct_notification
             data:
-              message: Retry failed to set backup to {{ states('input_number.target_ecoflow_kitchen_backup_reserve', with_unit=True) }}.
+              message: Retry failed to set backup to {{ states(reserve_amount) }}%.
               title: Solar
               people:
                 entity_id:
@@ -570,6 +570,13 @@ script:
             unit_of_measurement: "w"
             mode: "box"
     sequence:
+      - variables:
+          battery_level: >-
+            {%- if entity_id == 'number.ecoflow_kitchen_ac_charging_power' -%}
+            sensor.ecoflow_kitchen_battery_level
+            {%- elif entity_id == 'number.ecoflow_office_ac_charging_power' -%}
+            sensor.ecoflow_office_battery_level
+            {%- endif -%}
       - repeat:
           until:
             - or:
@@ -578,8 +585,7 @@ script:
                     {{ repeat.index > 6 }}
                 - condition: template
                   value_template: >-
-                    {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) ==
-                    states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
+                    {{ states(entity_id)|int(0) == charge_rate|int(0) }}
           sequence:
             - if:
                 - condition: template
@@ -589,22 +595,17 @@ script:
                 - service: homeassistant.reload_config_entry
                   data: {}
                   target:
-                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    entity_id: "{{ battery_level }}"
                 - wait_for_trigger:
                     - platform: template
                       value_template: >-
-                        {{ states('sensor.ecoflow_kitchen_battery_level')|int(-1) >= 0 }}
+                        {{ states(battery_level)|int(-1) >= 0 }}
                   timeout:
                     hours: 0
                     minutes: 0
                     seconds: 40
                     milliseconds: 0
-            - service: number.set_value
-              data:
-                value: >-
-                  {{ states('input_number.target_ecoflow_kitchen_charge_rate')|int(10) }}
-              target:
-                entity_id: number.ecoflow_kitchen_ac_charging_power
+
             - delay:
                 hours: 0
                 minutes: 0
@@ -613,12 +614,11 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_kitchen_ac_charging_power')|int(0) !=
-              states('input_number.target_ecoflow_kitchen_charge_rate')|int(0) }}
+              {{ states(entity_id)|int(0) != charge_rate|int(0) }}
         then:
           - service: script.send_direct_notification
             data:
-              message: Retry failed to set charge rate to {{ states('input_number.target_ecoflow_kitchen_charge_rate', with_unit=True) }}
+              message: Retry failed to set charge rate to {{ states(charge_rate) }} kWh.
               title: Solar
               people:
                 entity_id:
