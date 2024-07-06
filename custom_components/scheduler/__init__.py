@@ -23,7 +23,7 @@ from homeassistant.helpers.dispatcher import (
 )
 from homeassistant.helpers.event import (
     async_call_later,
-    async_track_state_change,
+    async_track_state_change_event,
     async_track_point_in_time,
 )
 
@@ -61,12 +61,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     if entry.unique_id is None:
         hass.config_entries.async_update_entry(entry, unique_id=coordinator.id)
 
-    hass.async_create_task(
-        hass.config_entries.async_forward_entry_setup(entry, PLATFORM)
-    )
+    await hass.config_entries.async_forward_entry_setups(entry, [PLATFORM])
 
     await async_register_websockets(hass)
 
+    @callback
     def service_create_schedule(service):
         coordinator.async_create_schedule(dict(service.data))
 
@@ -77,7 +76,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         schema=const.ADD_SCHEDULE_SCHEMA,
     )
 
-    async def async_service_edit_schedule(service):
+    @callback
+    def async_service_edit_schedule(service):
         match = None
         for (schedule_id, entity) in hass.data[const.DOMAIN]["schedules"].items():
             if entity.entity_id == service.data[const.ATTR_ENTITY_ID]:
@@ -90,7 +90,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         else:
             data = dict(service.data)
             del data[const.ATTR_ENTITY_ID]
-            await coordinator.async_edit_schedule(match, data)
+            coordinator.async_edit_schedule(match, data)
 
     hass.services.async_register(
         const.DOMAIN,
@@ -101,7 +101,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         ),
     )
 
-    async def async_service_remove_schedule(service):
+    @callback
+    def async_service_remove_schedule(service):
         match = None
         for (schedule_id, entity) in hass.data[const.DOMAIN]["schedules"].items():
             if entity.entity_id == service.data["entity_id"]:
@@ -110,7 +111,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         if not match:
             raise vol.Invalid("Entity not found: {}".format(service.data["entity_id"]))
         else:
-            await coordinator.async_delete_schedule(match)
+            coordinator.async_delete_schedule(match)
 
     hass.services.async_register(
         const.DOMAIN,
@@ -119,6 +120,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         schema=vol.Schema({vol.Required(ATTR_ENTITY_ID): cv.string}),
     )
 
+    @callback
     def service_copy_schedule(service):
         match = None
         for (schedule_id, entity) in hass.data[const.DOMAIN]["schedules"].items():
@@ -268,6 +270,7 @@ class SchedulerCoordinator(DataUpdateCoordinator):
             data.append(config)
         return data
 
+    @callback
     def async_create_schedule(self, data):
         """add a new schedule"""
         tags = None
@@ -279,7 +282,8 @@ class SchedulerCoordinator(DataUpdateCoordinator):
             self.async_assign_tags_to_schedule(res.schedule_id, tags)
             async_dispatcher_send(self.hass, const.EVENT_ITEM_CREATED, res)
 
-    async def async_edit_schedule(self, schedule_id: str, data: dict):
+    @callback
+    def async_edit_schedule(self, schedule_id: str, data: dict):
         """edit an existing schedule"""
         if schedule_id not in self.hass.data[const.DOMAIN]["schedules"]:
             return
@@ -309,7 +313,8 @@ class SchedulerCoordinator(DataUpdateCoordinator):
         else:
             async_dispatcher_send(self.hass, const.EVENT_ITEM_UPDATED, schedule_id)
 
-    async def async_delete_schedule(self, schedule_id: str):
+    @callback
+    def async_delete_schedule(self, schedule_id: str):
         """delete an existing schedule"""
         if schedule_id not in self.hass.data[const.DOMAIN]["schedules"]:
             return
@@ -419,13 +424,13 @@ class SchedulerCoordinator(DataUpdateCoordinator):
             return None
 
         @callback
-        async def async_workday_state_updated(entity, old_state, new_state):
+        async def async_workday_state_updated(_event):
             """the workday sensor has been updated"""
             _LOGGER.debug("Workday sensor has updated")
             await self.async_reset_workday_timer()
             async_dispatcher_send(self.hass, const.EVENT_WORKDAY_SENSOR_UPDATED)
 
-        self._workday_tracker = async_track_state_change(
+        self._workday_tracker = async_track_state_change_event(
             self.hass, const.WORKDAY_ENTITY, async_workday_state_updated
         )
         await self.async_reset_workday_timer()

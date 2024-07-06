@@ -14,7 +14,7 @@ from homeassistant.core import (
 )
 from homeassistant.helpers.event import (
     async_track_point_in_time,
-    async_track_state_change,
+    async_track_state_change_event,
 )
 from homeassistant.helpers.dispatcher import (
     async_dispatcher_connect,
@@ -184,7 +184,7 @@ class TimerHandler:
                 return
 
             @callback
-            async def async_sun_updated(entity, old_state, new_state):
+            async def async_sun_updated(_event):
                 """the sun entity was updated"""
                 # sun entity changed
                 if self._next_trigger is None:
@@ -206,7 +206,7 @@ class TimerHandler:
                     # only reschedule if this doesnt cause the timer to shift to another hour (due to DST change)
                     await self.async_start_timer()
 
-            self._sun_tracker = async_track_state_change(
+            self._sun_tracker = async_track_state_change_event(
                 self.hass, const.SUN_ENTITY, async_sun_updated
             )
         else:
