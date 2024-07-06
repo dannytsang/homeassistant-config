@@ -418,36 +418,22 @@ script:
             unit_of_measurement: "%"
             mode: "box"
     sequence:
-      - choose:
-          - conditions:
-              - condition: template
-                value_template: >-
-                  {{ entity_id == 'number.ecoflow_kitchen_backup_reserve_level' }}
-            sequence:
-              - service: input_number.set_value
-                data:
-                  value: "{{ target_reserve_amount|int(10) }}"
-                target:
-                  entity_id: input_number.target_ecoflow_kitchen_backup_reserve
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  entity_id: "{{ entity_id }}"
-                  target_reserve_amount: "{{ states('input_number.target_ecoflow_kitchen_backup_reserve')|int(100) }}"
-          - conditions:
-              - condition: template
-                value_template: >-
-                  {{ entity_id == 'number.ecoflow_office_backup_reserve_level' }}
-            sequence:
-              - service: input_number.set_value
-                data:
-                  value: "{{ target_reserve_amount|int(10) }}"
-                target:
-                  entity_id: input_number.target_ecoflow_office_backup_reserve
-              - service: script.ecoflow_set_backup_reserve
-                data:
-                  entity_id: "{{ entity_id }}"
-                  target_reserve_amount: "{{ states('input_number.target_ecoflow_office_backup_reserve')|int(100) }}"
-        default: []
+      - variables:
+          input_number_entity_id: >-
+            {%- if entity_id == 'number.ecoflow_kitchen_backup_reserve_level' -%}
+            input_number.target_ecoflow_kitchen_backup_reserve
+            {%- elif entity_id == 'number.target_ecoflow_kitchen_backup_reserve' -%}
+            input_number.target_ecoflow_office_backup_reserve
+            {%- endif -%}
+      - service: input_number.set_value
+        data:
+          value: "{{ target_reserve_amount|int(10) }}"
+        target:
+          entity_id: "{{ input_number_entity_id }}"
+      - service: script.ecoflow_set_backup_reserve
+        data:
+          entity_id: "{{ entity_id }}"
+          target_reserve_amount: "{{ states(input_number_entity_id)|int(100) }}"
     mode: queued
     max: 10
   ecoflow_update_backup_reserve:
