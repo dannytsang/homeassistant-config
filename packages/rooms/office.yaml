@@ -442,14 +442,19 @@ automation:
               message: ":level_slider: Turned on GoXLR."
               title: ":desktop_computer: Computer"
               log_level: "Debug"
-          - service: switch.turn_on
-            target:
-              entity_id: switch.office_monitor_bar
-          - service: script.send_to_home_log
-            data:
-              message: "Turned on monitor light."
-              title: ":desktop_computer: Computer"
-              log_level: "Debug"
+          - if:
+              - condition: state
+                entity_id: switch.office_monitor_bar
+                state: "off"
+            then:
+              - service: switch.turn_on
+                target:
+                  entity_id: switch.office_monitor_bar
+              - service: script.send_to_home_log
+                data:
+                  message: "Turned on monitor light."
+                  title: ":desktop_computer: Computer"
+                  log_level: "Debug"
     mode: single
   - id: "1606256309890"
     alias: "Office: Computer Turned Off For A Period Of Time"
@@ -524,7 +529,7 @@ automation:
                   - service: script.office_turn_off_backup_drive
         default: []
     mode: single
-  - id: "1678741966795"
+  - id: "1678741966796"
     alias: "Office: Computer Turned Off"
     description: ""
     trigger:
@@ -539,17 +544,23 @@ automation:
           seconds: 0
     condition: []
     action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: >-
-                Computer turned off. Turning monitor light off.
-              title: ":office: Office"
-              log_level: "Debug"
-          - service: switch.turn_off
-            target:
-              entity_id:
-                - switch.office_monitor_bar
+      - if:
+          - alias: Is work computer on?
+            condition: state
+            entity_id: group.dannys_work_computer
+            state: "not_home"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Computer turned off. Turning monitor light off.
+                  title: ":office: Office"
+                  log_level: "Debug"
+              - service: switch.turn_off
+                target:
+                  entity_id:
+                    - switch.office_monitor_bar
     mode: single
   - id: "1678741966794"
     alias: "Office: Computer Turned Off After Sunrise"
@@ -584,6 +595,63 @@ automation:
               log_level: "Debug"
           - service: script.office_open_blinds
             data: {}
+    mode: single
+  - id: "1619865008649"
+    alias: "Office: Work Computer Turned On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id: group.dannys_work_computer
+        from: "not_home"
+        to: "home"
+    condition:
+      - condition: state
+        entity_id: switch.office_monitor_bar
+        state: "off"
+    action:
+      - parallel:
+          - service: switch.turn_on
+            target:
+              entity_id: switch.office_monitor_bar
+          - service: script.send_to_home_log
+            data:
+              message: "Turned on monitor light."
+              title: ":desktop_computer: Computer"
+              log_level: "Debug"
+    mode: single
+  - id: "1678741966795"
+    alias: "Office: Work Computer Turned Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - group.dannys_work_computer
+        from: "home"
+        to: "not_home"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    condition: []
+    action:
+      - parallel:
+          - if:
+              - alias: Is personal computer on?
+                condition: state
+                entity_id: group.jd_computer
+                state: "not_home"
+            then:
+              - parallel:
+                  - service: script.send_to_home_log
+                    data:
+                      message: >-
+                        Danny's work computer turned off. Turning monitor light off.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - service: switch.turn_off
+                    target:
+                      entity_id:
+                        - switch.office_monitor_bar
     mode: single
   # Blinds
   - id: "1622374444832"
