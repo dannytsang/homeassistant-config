@@ -22,20 +22,26 @@
 #   Calling the below will return 0.10585:
 #     `get_first_solar_generation('sensor.my_entity', 'forecast', 'pv_estimate', 'pv_estimate', 0.1)`
 {% macro get_first_solar_generation(forecast_entity, attribute_name, get_atttribute, generation_attribute_name, min_generation) %}
+{%- set forecast = namespace(value=[]) -%}
 {%- for period in state_attr(forecast_entity, attribute_name) -%}
 {%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
-{{ period.get(get_atttribute) }}
+{%- set forecast.value = period.get(get_atttribute) -%}
 {%- break -%}
 {%- endif -%}
 {%- endfor -%}
+{#- If no results were found, return None -#}
+{{ forecast.value|default(None, true) }}
 {% endmacro %}
 
 # Does the same as above except the last value of generation in the day.
 {% macro get_last_solar_generation(forecast_entity, attribute_name, get_atttribute, generation_attribute_name, min_generation) %}
+{%- set forecast = namespace(value=[]) -%}
 {%- for period in state_attr(forecast_entity, attribute_name)|reverse -%}
 {%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
-{{ period.get(get_atttribute) }}
+{%- set forecast.value = period.get(get_atttribute) -%}
 {%- break -%}
 {%- endif -%}
 {%- endfor -%}
+{#- If no results were found, return None -#}
+{{ forecast.value|default(None, true) }}
 {% endmacro %}

@@ -967,19 +967,29 @@ script:
                           runtime: >-
                             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                             {{now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) }}
-                          firstSustainedHour: >-
+                          firstSustainedHourCalculation: >-
                             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                             {%- if now().hour > 7 -%}
-                            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) }}
+                            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) }}
                             {%- else -%}
-                            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1)))|int(0) }}
+                            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) }}
+                            {%- endif -%}
+                          firstSustainedHour: >-
+                            {%- if sustainedHour|default(None, true) is not None -%}
+                            {{ as_timestamp(firstSustainedHourCalculation)|int(0) }}
+                            {%- else -%}
+                            {{ None }}
                             {%- endif -%}
                           formatted_runtime: >-
                             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                             {{ (as_timestamp(runtime) -
                             as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate')))|round(0) }}
                           formatted_sustained_runtime: >-
+                            {%- if sustainedHour|default(None, true) is not None -%}
                             {{ (as_timestamp(runtime) - firstSustainedHour)|round(0) }}
+                            {%- else -%}
+                            {{ None }}
+                            {%- endif -%}
                         continue_on_error: true
                       - parallel:
                           - if:
@@ -1023,12 +1033,21 @@ script:
 
                                     Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_runtime // 3600, (formatted_runtime % 3600) // 60, (formatted_runtime % 3600) % 60) }}
 
-
+                                    {%- if firstSustainedHour|default(None, true) is not None -%}
                                     First Self Sustainable Generation: {{ firstSustainedHour|timestamp_custom('%H:%M:%S') }}
 
                                     Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > firstSustainedHour }}
+                                    {% else -%}
+                                    First Self Sustainable Generation: N/A
 
+                                    Runtime > Self Sustainable Generation: N/A
+                                    {% endif -%}
+
+                                    {%- if formatted_sustained_runtime|default(None, true) is not None -%}
                                     Time Over Sustainable Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_sustained_runtime // 3600, (formatted_sustained_runtime % 3600) // 60, (formatted_sustained_runtime % 3600) % 60) }}
+                                    {% else -%}
+                                    Time Over Sustainable Generation: N/A
+                                    {% endif -%}
                                   title: Solar Assistant
                                   people:
                                     entity_id:
