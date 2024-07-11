@@ -705,6 +705,22 @@ script:
     sequence:
       - service: script.tomorrows_solar_forecast_data
         response_variable: solar_forecast_data
+      - service: script.get_first_solar_generation
+        data:
+          forecast_entity: sensor.solcast_pv_forecast_forecast_tomorrow
+          attribute_name: detailedForecast
+          get_atttribute: period_start
+          generation_attribute_name: pv_estimate
+          min_generation: 0.01
+        response_variable: first_generation
+      - service: script.get_first_solar_generation
+        data:
+          forecast_entity: sensor.solcast_pv_forecast_forecast_tomorrow
+          attribute_name: detailedForecast
+          get_atttribute: period_start
+          generation_attribute_name: pv_estimate
+          min_generation: "{{ avg_hourly_energy_usage }}"
+        response_variable: first_self_sustaining_generation
       - service: script.send_direct_notification
         data:
           message: >-
