@@ -769,6 +769,120 @@ script:
     sequence:
       - stop: End
         response_variable: remaining
+  get_first_solar_generation:
+    alias: Get First Solar Generation
+    fields:
+      forecast_entity:
+        description: The entity ID that has the forecast as an attribute.
+        example: sensor.solcast_pv_forecast_forecast_tomorrow
+        default: sensor.solcast_pv_forecast_forecast_tomorrow
+        required: true
+        selector:
+          text:
+      attribute_name:
+        description: Attribute name containing the list of forecast information.
+        example: detailedForecast
+        default: detailedForecast
+        required: true
+        selector:
+          text:
+      get_atttribute:
+        description: Attribute name of the value to return.
+        example: period_start
+        required: true
+        selector:
+          text:
+      generation_attribute_name:
+        description: Name of attribute containing the kWh generation.
+        example: pv_estimate
+        selector:
+          text:
+      min_generation:
+        description: >-
+          (Optional) first occurance above specified kWh.
+          If not set then the first hour with any generation will be returned.
+        selector:
+          number:
+            min: 0
+            max: 50
+            step: 0.01
+            unit_of_measurement: kWh
+    variables:
+      solar: >-
+        {%- set forecast = namespace(value=[]) -%}
+        {%- for period in state_attr(forecast_entity, attribute_name) -%}
+        {%- if period.get(generation_attribute_name|default('pv_estimate', true)) > min_generation|default(0, true) -%}
+        {%- set forecast.value = period.get(get_atttribute) -%}
+        {%- break -%}
+        {%- endif -%}
+        {%- endfor -%}
+        {#- If no results were found, return None -#}
+        {%- if get_atttribute == 'pv_estimate' -%}
+        {{ 
+        {
+        'forecast': forecast.value|default(None, true)
+        }
+        }}
+        {%- else -%}
+        {{ 
+        {
+        'forecast': ""~forecast.value|default(None, true)~""
+        }
+        }}
+        {%- endif -%}
+    sequence:
+      - stop: End
+        response_variable: solar
+  get_last_solar_generation:
+    alias: Get Last Solar Generation
+    fields:
+      forecast_entity:
+        description: The entity ID that has the forecast as an attribute.
+        example: sensor.solcast_pv_forecast_forecast_tomorrow
+        default: sensor.solcast_pv_forecast_forecast_tomorrow
+        required: true
+      attribute_name:
+        description: Attribute name containing the list of forecast information.
+        example: detailedForecast
+        default: detailedForecast
+        required: true
+      get_atttribute:
+        description: Attribute name of the value to return.
+        example: period_start
+        required: true
+      generation_attribute_name:
+        description: Name of attribute containing the kWh generation.
+        example: pv_estimate
+      min_generation:
+        description: >-
+          (Optional) first occurance above specified kWh.
+          If not set then the first hour with any generation will be returned.
+    variables:
+      solar: >-
+        {%- set forecast = namespace(value=[]) -%}
+        {%- for period in state_attr(forecast_entity, attribute_name)|reverse -%}
+        {%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
+        {%- set forecast.value = period.get(get_atttribute) -%}
+        {%- break -%}
+        {%- endif -%}
+        {%- endfor -%}
+        {#- If no results were found, return None -#}
+        {%- if get_atttribute == 'pv_estimate' -%}
+        {{ 
+        {
+        'forecast': forecast.value|default(None, true)
+        }
+        }}
+        {%- else -%}
+        {{ 
+        {
+        'forecast': ""~forecast.value|default(None, true)~""
+        }
+        }}
+        {%- endif -%}
+    sequence:
+      - stop: End
+        response_variable: solar
 
 template:
   - trigger:
