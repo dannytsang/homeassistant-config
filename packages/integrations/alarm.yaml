@@ -71,7 +71,10 @@ automation:
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                        Did not turned on because a door or window is still open.
+                        The following entrances are still open:
+                        {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
+                        %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                        }} {% endif %}{% endfor %}"
 
                         Trying again later.
                       title: ":warning: :bell: Alarm"
