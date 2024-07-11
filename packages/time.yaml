@@ -21,33 +21,6 @@ automation:
             }} {% endif %}{% endfor %}"
           log_level: "Debug"
     mode: single
-  - id: "1622933176882"
-    alias: "Time: Alert Doors or Windows Still Open At Night"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id: schedule.alarm_scheduled_home_mode
-        to: "on"
-      - platform: time
-        at: "23:00:00"
-    condition:
-      - condition: state
-        entity_id: binary_sensor.alarmed_doors_and_windows
-        state: "on"
-    action:
-      - service: script.send_direct_notification
-        data:
-          message:
-            ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window: The following entrances are still open:
-            {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
-            %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-            }} {% endif %}{% endfor %}"
-          title: ":bell: Alarm"
-          people:
-            entity_id:
-              - person.danny
-              - person.terina
-    mode: single
   - id: "1619466600288"
     alias: "Time: Delete Old Camera Files"
     description: ""
