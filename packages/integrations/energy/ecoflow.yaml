@@ -459,41 +459,50 @@ script:
             unit_of_measurement: "%"
             mode: "box"
     sequence:
-      - repeat:
-          until:
-            - or:
-                - condition: template
-                  value_template: >-
-                    {{ repeat.index > 6 }}
-                - condition: template
-                  value_template: >-
-                    {{ states(entity_id)|int(0) == reserve_amount|int(0) }}
-          sequence:
-            - service: number.set_value
+      - service: retry.call
+        target:
+          entity_id: "{{ entity_id }}"
+        data:
+          service: number.set_value
+          value: >-
+            {{ reserve_amount|int(10) }}
+          expected_state: "{{ reserve_amount|int(10) }}"
+          retries: 3
+          state_grace: 60
+          on_error:
+            - service: script.send_direct_notification
               data:
-                value: >-
-                  {{ reserve_amount|int(10) }}
-              target:
-                entity_id: "{{ entity_id }}"
-            - delay:
-                hours: 0
-                minutes: 0
-                seconds: 40
-                milliseconds: 0
-      - if:
-          - condition: template
-            value_template: >-
-              {{ states(entity_id)|int(0) !=
-              reserve_amount|int(0) }}
-        then:
-          - service: script.send_direct_notification
-            data:
-              message: Retry failed to set backup to {{ states(reserve_amount) }}%.
-              title: Solar
-              people:
-                entity_id:
-                  - person.danny
-    mode: single
+                message: Retry failed to set backup for {{ state_attr(entity_id, 'friendly_name') }} to {{ reserve_amount }}%.
+                title: Ecoflow
+                people:
+                  entity_id:
+                    - person.danny
+    mode: queued
+    max: 10
+  ecoflow_set_backup_reserve_to_target:
+    alias: Ecoflow Set Backup Reserve To Target
+    fields:
+      entity_id:
+        description: Back up reserve entity to apply to.
+        selector:
+          entity:
+            filter:
+              integration: "ecoflow_cloud"
+              domain: number
+    sequence:
+      - variables:
+          input_number_entity_id: >-
+            {%- if entity_id == 'number.ecoflow_kitchen_backup_reserve_level' -%}
+            input_number.target_ecoflow_kitchen_backup_reserve
+            {%- elif entity_id == 'number.target_ecoflow_kitchen_backup_reserve' -%}
+            input_number.target_ecoflow_office_backup_reserve
+            {%- endif -%}
+      - service: script.ecoflow_update_backup_reserve
+        data:
+          entity_id: "{{ entity_id }}"
+          reserve_amount: "{{ states(input_number_entity_id)|int(100) }}"
+    mode: queued
+    max: 10
   ecoflow_set_charge_rate:
     alias: Ecoflow Set Charge Rate
     fields:
