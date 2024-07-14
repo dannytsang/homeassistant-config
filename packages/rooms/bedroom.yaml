@@ -281,12 +281,12 @@ automation:
         to: "on"
     condition:
       - or:
-        - condition: state
-          entity_id: light.bedroom_lamps
-          state: "on"
-        - condition: state
-          entity_id: light.bedroom_main_light
-          state: "on"
+          - condition: state
+            entity_id: light.bedroom_lamps
+            state: "on"
+          - condition: state
+            entity_id: light.bedroom_main_light
+            state: "on"
       - condition: time
         after: input_datetime.childrens_bed_time
       - not:
@@ -1402,11 +1402,13 @@ script:
         selector:
           text:
     sequence:
+      - variables:
+          lamp_state: "{{ states('light.bedroom_lamps') }}"
       - parallel:
           - choose:
               - conditions:
                   - condition: template
-                    value_template: "{{bedroom == 'leo'}}"
+                    value_template: "{{ bedroom == 'leo' }}"
                 sequence:
                   - service: script.bedroom_leos_door_opened_notification
                   - service: script.send_to_home_log
@@ -1415,9 +1417,17 @@ script:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
                       log_level: "Normal"
+                  - if:
+                    - condition: template
+                      value_template: "{{ states('light.bedroom_lamps') == 'off'}}"
+                    then:
+                      - service: light.turn_off
+                        target:
+                          entity_id: light.bedroom_lamps
+                        data: {}
               - conditions:
                   - condition: template
-                    value_template: "{{bedroom == 'ashlee'}}"
+                    value_template: "{{ bedroom == 'ashlee' }}"
                 sequence:
                   - service: script.bedroom_ashlees_door_opened_notification
                   - service: script.send_to_home_log
@@ -1426,6 +1436,14 @@ script:
                         ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
                         warning."
                       log_level: "Normal"
+                  - if:
+                    - condition: template
+                      value_template: "{{ states('light.bedroom_lamps') == 'off'}}"
+                    then:
+                      - service: light.turn_off
+                        target:
+                          entity_id: light.bedroom_lamps
+                        data: {}
             default: []
           - if:
               - condition: state
