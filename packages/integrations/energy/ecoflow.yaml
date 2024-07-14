@@ -627,42 +627,19 @@ script:
     trace:
       stored_traces: 30
     sequence:
-      - alias: Check kitchen battery
-        choose:
-          - alias: Battery fully charged
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_kitchen_battery_level
-                above: 99
-            sequence:
-              - variables:
-                  kitchen_target_charge_rate: 0
-        default:
-          - variables:
-              kitchen_target_charge_rate: >-
-                {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
-                {{ calculate_ecoflow_delta2_charge_rate(
-                ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_ac_in_power')|float(0)),
-                200,
-                1200)|int(0) }}
-      - alias: Check office battery
-        choose:
-          - alias: Battery fully charged
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.ecoflow_office_battery_level
-                above: 99
-            sequence:
-              - variables:
-                  office_target_charge_rate: 0
-        default:
-          - variables:
-              office_target_charge_rate: >-
-                {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
-                {{ calculate_ecoflow_delta2_charge_rate(
-                ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) - kitchen_target_charge_rate|float(0)),
-                200,
-                1200)|int(0) }}
+      - variables:
+          kitchen_target_charge_rate: >-
+            {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+            {{ calculate_ecoflow_delta2_charge_rate(
+            ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) + states('sensor.ecoflow_ac_in_power')|float(0)),
+            200,
+            1200)|int(0) }}
+          office_target_charge_rate: >-
+            {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+            {{ calculate_ecoflow_delta2_charge_rate(
+            ((states('sensor.ecoflow_solar_excess')|float(0) * 1000) - kitchen_target_charge_rate|float(0)),
+            200,
+            1200)|int(0) }}
       - parallel:
           - alias: Ecoflow Kitchen
             choose:
@@ -681,7 +658,7 @@ script:
               - alias: No excess for Kitchen
                 conditions:
                   - condition: template
-                    value_template: "{{ office_target_charge_rate <= 0 }}"
+                    value_template: "{{ kitchen_target_charge_rate <= 0 }}"
                 sequence:
                   - service: script.send_to_home_log
                     data:
