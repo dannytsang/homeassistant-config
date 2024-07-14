@@ -464,8 +464,7 @@ script:
           entity_id: "{{ entity_id }}"
         data:
           service: number.set_value
-          value: >-
-            {{ reserve_amount|int(10) }}
+          value: "{{ reserve_amount|int(10) }}"
           expected_state: "{{ reserve_amount|int(10) }}"
           retries: 3
           state_grace: 60
@@ -561,7 +560,7 @@ script:
     alias: Ecoflow Update Charge Rate
     fields:
       entity_id:
-        description: Back up reserve entity to apply to.
+        description: Charge rate entity to apply to.
         required: true
         selector:
           entity:
@@ -579,60 +578,50 @@ script:
             unit_of_measurement: "w"
             mode: "box"
     sequence:
+      - service: retry.call
+        target:
+          entity_id: "{{ entity_id }}"
+        data:
+          service: number.set_value
+          value: "{{ charge_rate|int(200) }}"
+          expected_state: "{{ charge_rate|int(200) }}"
+          retries: 3
+          state_grace: 60
+          on_error:
+            - service: script.send_direct_notification
+              data:
+                message: Retry failed to set {{ state_attr(entity_id, 'friendly_name') }} charge rate to {{ charge_rate }} kWh.
+                title: Ecoflow
+                people:
+                  entity_id:
+                    - person.danny
+    mode: queued
+    max: 10
+  ecoflow_set_charge_rate_to_target:
+    alias: Ecoflow Set Charge Rate To Target
+    fields:
+      entity_id:
+        description: Charge rate entity to apply to.
+        example: number.ecoflow_kitchen_ac_charging_power
+        selector:
+          entity:
+            filter:
+              integration: "ecoflow_cloud"
+              domain: number
+    sequence:
       - variables:
-          battery_level: >-
+          input_number_entity_id: >-
             {%- if entity_id == 'number.ecoflow_kitchen_ac_charging_power' -%}
-            sensor.ecoflow_kitchen_battery_level
+            input_number.target_ecoflow_kitchen_charge_rate
             {%- elif entity_id == 'number.ecoflow_office_ac_charging_power' -%}
-            sensor.ecoflow_office_battery_level
+            input_number.target_ecoflow_office_charge_rate
             {%- endif -%}
-      - repeat:
-          until:
-            - or:
-                - condition: template
-                  value_template: >-
-                    {{ repeat.index > 6 }}
-                - condition: template
-                  value_template: >-
-                    {{ states(entity_id)|int(0) == charge_rate|int(0) }}
-          sequence:
-            - if:
-                - condition: template
-                  value_template: >-
-                    {{ repeat.index % 2 == 0 }}
-              then:
-                - service: homeassistant.reload_config_entry
-                  data: {}
-                  target:
-                    entity_id: "{{ battery_level }}"
-                - wait_for_trigger:
-                    - platform: template
-                      value_template: >-
-                        {{ states(battery_level)|int(-1) >= 0 }}
-                  timeout:
-                    hours: 0
-                    minutes: 0
-                    seconds: 40
-                    milliseconds: 0
-
-            - delay:
-                hours: 0
-                minutes: 0
-                seconds: 40
-                milliseconds: 0
-      - if:
-          - condition: template
-            value_template: >-
-              {{ states(entity_id)|int(0) != charge_rate|int(0) }}
-        then:
-          - service: script.send_direct_notification
-            data:
-              message: Retry failed to set charge rate to {{ states(charge_rate) }} kWh.
-              title: Solar
-              people:
-                entity_id:
-                  - person.danny
-    mode: single
+      - service: script.ecoflow_update_charge_rate
+        data:
+          entity_id: "{{ entity_id }}"
+          charge_rate: "{{ states(input_number_entity_id)|int(200) }}"
+    mode: queued
+    max: 10
   ecoflow_excess_solar_detected:
     alias: Ecoflow Excess Solar Detected
     trace:
