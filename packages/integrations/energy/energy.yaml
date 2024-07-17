@@ -719,16 +719,24 @@ script:
             {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount %}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|float(0)|round(2) }} kWh).
-            {%- if not get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(None, true) %}
+            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(none, true) is not none %}
             The first self sustaining generation ({{ avg_hourly_energy_usage }} kWh) will occur at
             {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh).
+            {%- endif %}
+            {%- if get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage) is not none %}
 
 
             The last self sustaining generation of the day will be at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh)
             finishing at
+            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
+            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|round(2) }} kWh).
+            {%- elif get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01) is not none %}
+
+
+            The last generation of the day will be at
             {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
             ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|round(2) }} kWh).
             {%- endif %}
@@ -816,17 +824,17 @@ script:
         {%- break -%}
         {%- endif -%}
         {%- endfor -%}
-        {#- If no results were found, return None -#}
+        {#- If no results were found, return none -#}
         {%- if get_atttribute == 'pv_estimate' -%}
         {{ 
         {
-        'forecast': forecast.value|default(None, true)
+        'forecast': forecast.value|default(none, true)
         }
         }}
         {%- else -%}
         {{ 
         {
-        'forecast': ""~forecast.value|default(None, true)~""
+        'forecast': ""~forecast.value|default(none, true)~""
         }
         }}
         {%- endif -%}
@@ -866,17 +874,17 @@ script:
         {%- break -%}
         {%- endif -%}
         {%- endfor -%}
-        {#- If no results were found, return None -#}
+        {#- If no results were found, return none -#}
         {%- if get_atttribute == 'pv_estimate' -%}
         {{ 
         {
-        'forecast': forecast.value|default(None, true)
+        'forecast': forecast.value|default(none, true)
         }
         }}
         {%- else -%}
         {{ 
         {
-        'forecast': ""~forecast.value|default(None, true)~""
+        'forecast': ""~forecast.value|default(none, true)~""
         }
         }}
         {%- endif -%}
