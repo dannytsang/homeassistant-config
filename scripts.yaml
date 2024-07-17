@@ -77,43 +77,4 @@ update_travel_time_by_car:
             title: ":world_map: Travel Time By Car"
   mode: single
   icon: mdi:car
-car_set_next_update_location:
-  alias: Car Set Next Update Location
-  sequence:
-    - choose:
-        - conditions:
-            - condition: state
-              entity_id: device_tracker.dannys_car
-              state: "unavailable"
-          sequence:
-            - service: timer.start
-              data:
-                duration:
-                  "{% set new_ts = (states('input_number.default_update_car_location')|int(0)
-                  * 60) %} {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts %
-                  3600) // 60, (new_ts % 3600) % 60) }}"
-              target:
-                entity_id: timer.update_dannys_car
-        - conditions:
-            - or:
-                - condition: numeric_state
-                  entity_id: sensor.danny_home_nearest_distance
-                  below: "10"
-                - condition: state
-                  entity_id: person.danny
-                  state: "home"
-            - condition: numeric_state
-              entity_id: sensor.dannys_car_home_distance
-              below: "10"
-          sequence:
-            - service: timer.start
-              data:
-                duration:
-                  "{% set new_ts = ((states('input_number.default_update_car_location')|int(0)
-                  * 60) * 6) %} {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts
-                  % 3600) // 60, (new_ts % 3600) % 60) }}"
-              target:
-                entity_id: timer.update_dannys_car
-      default: []
-  mode: single
-  icon: mdi:car
+

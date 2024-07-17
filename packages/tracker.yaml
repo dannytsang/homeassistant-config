@@ -633,26 +633,19 @@ automation:
         entity_id: person.terina
         state: "not_home"
     action:
-      - service: scene.turn_on
-        target:
-          entity_id:
-            - scene.turn_off_downstairs_lights
-            - scene.office_all_lights_off
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":running: :house: Danny has left the house and no one is home. Turning
-            off lights."
-          title: ":man: Danny"
-          log_level: "Normal"
-      - service: timer.cancel
-        data: {}
-        target:
-          entity_id: timer.update_dannys_car
-      - service: timer.start
-        data: {}
-        target:
-          entity_id: timer.update_dannys_car
+      - parallel:
+          - service: scene.turn_on
+            target:
+              entity_id:
+                - scene.turn_off_downstairs_lights
+                - scene.office_all_lights_off
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":running: :house: Danny has left the house and no one is home. Turning
+                off lights."
+              title: ":man: Danny"
+              log_level: "Normal"
   # Terina
   - id: "1674735382446"
     alias: "People: Terina Arriving Home"
