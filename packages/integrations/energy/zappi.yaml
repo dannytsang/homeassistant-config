@@ -14,23 +14,24 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
-      - condition: state
-        entity_id: sensor.myenergi_zappi_plug_status
-        state: "EV Connected"
+      - not:
+        - condition: state
+          entity_id: sensor.myenergi_zappi_plug_status
+          state: "EV Disconnected"
       - or:
           - and:
               - condition: state
                 entity_id: input_boolean.enable_ev_charger_schedule_1
                 state: "on"
               - condition: state
-                entity_id: input_boolean.enable_ev_charger_schedule_1
+                entity_id: binary_sensor.ev_charger_schedule_1
                 state: "on"
           - and:
               - condition: state
                 entity_id: input_boolean.enable_ev_charger_schedule_2
                 state: "on"
               - condition: state
-                entity_id: input_boolean.enable_ev_charger_schedule_2
+                entity_id: binary_sensor.ev_charger_schedule_2
                 state: "on"
     action:
       - service: script.zappi_check_ev_charge
