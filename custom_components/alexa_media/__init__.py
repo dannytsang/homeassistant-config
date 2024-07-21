@@ -6,6 +6,7 @@ SPDX-License-Identifier: Apache-2.0
 For more details about this platform, please refer to the documentation at
 https://community.home-assistant.io/t/echo-devices-alexa-as-media-player-testers-needed/58639
 """
+
 import asyncio
 from datetime import datetime, timedelta
 from json import JSONDecodeError, loads
@@ -89,7 +90,6 @@ ACCOUNT_CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_EMAIL): cv.string,
         vol.Required(CONF_PASSWORD): cv.string,
         vol.Required(CONF_URL): cv.string,
-        vol.Optional(CONF_DEBUG, default=False): cv.boolean,
         vol.Optional(CONF_INCLUDE_DEVICES, default=[]): vol.All(
             cv.ensure_list, [cv.string]
         ),
@@ -97,6 +97,9 @@ ACCOUNT_CONFIG_SCHEMA = vol.Schema(
             cv.ensure_list, [cv.string]
         ),
         vol.Optional(CONF_SCAN_INTERVAL, default=SCAN_INTERVAL): cv.time_period,
+        vol.Optional(CONF_QUEUE_DELAY, default=DEFAULT_QUEUE_DELAY): cv.positive_float,
+        vol.Optional(CONF_EXTENDED_ENTITY_DISCOVERY, default=False): cv.boolean,
+        vol.Optional(CONF_DEBUG, default=False): cv.boolean,
     }
 )
 
@@ -145,18 +148,22 @@ async def async_setup(hass, config, discovery_info=None):
                             CONF_EMAIL: account[CONF_EMAIL],
                             CONF_PASSWORD: account[CONF_PASSWORD],
                             CONF_URL: account[CONF_URL],
-                            CONF_DEBUG: account[CONF_DEBUG],
                             CONF_INCLUDE_DEVICES: account[CONF_INCLUDE_DEVICES],
                             CONF_EXCLUDE_DEVICES: account[CONF_EXCLUDE_DEVICES],
                             CONF_SCAN_INTERVAL: account[
                                 CONF_SCAN_INTERVAL
                             ].total_seconds(),
+                            CONF_QUEUE_DELAY: account[CONF_QUEUE_DELAY],
                             CONF_OAUTH: account.get(
                                 CONF_OAUTH, entry.data.get(CONF_OAUTH, {})
                             ),
                             CONF_OTPSECRET: account.get(
                                 CONF_OTPSECRET, entry.data.get(CONF_OTPSECRET, "")
                             ),
+                            CONF_EXTENDED_ENTITY_DISCOVERY: account[
+                                CONF_EXTENDED_ENTITY_DISCOVERY
+                            ],
+                            CONF_DEBUG: account[CONF_DEBUG],
                         },
                     )
                     entry_found = True
@@ -171,12 +178,16 @@ async def async_setup(hass, config, discovery_info=None):
                         CONF_EMAIL: account[CONF_EMAIL],
                         CONF_PASSWORD: account[CONF_PASSWORD],
                         CONF_URL: account[CONF_URL],
-                        CONF_DEBUG: account[CONF_DEBUG],
                         CONF_INCLUDE_DEVICES: account[CONF_INCLUDE_DEVICES],
                         CONF_EXCLUDE_DEVICES: account[CONF_EXCLUDE_DEVICES],
                         CONF_SCAN_INTERVAL: account[CONF_SCAN_INTERVAL].total_seconds(),
+                        CONF_QUEUE_DELAY: account[CONF_QUEUE_DELAY],
                         CONF_OAUTH: account.get(CONF_OAUTH, {}),
                         CONF_OTPSECRET: account.get(CONF_OTPSECRET, ""),
+                        CONF_EXTENDED_ENTITY_DISCOVERY: account[
+                            CONF_EXTENDED_ENTITY_DISCOVERY
+                        ],
+                        CONF_DEBUG: account[CONF_DEBUG],
                     },
                 )
             )
@@ -301,6 +312,7 @@ async def async_setup_entry(hass, config_entry):
                 CONF_EXTENDED_ENTITY_DISCOVERY: config_entry.options.get(
                     CONF_EXTENDED_ENTITY_DISCOVERY, DEFAULT_EXTENDED_ENTITY_DISCOVERY
                 ),
+                CONF_DEBUG: config_entry.options.get(CONF_DEBUG, False),
             },
             DATA_LISTENER: [config_entry.add_update_listener(update_listener)],
         },
@@ -480,9 +492,11 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                         "%s: Found %s devices, %s bluetooth",
                         hide_email(email),
                         len(devices) if devices is not None else "",
-                        len(bluetooth.get("bluetoothStates", []))
-                        if bluetooth is not None
-                        else "",
+                        (
+                            len(bluetooth.get("bluetoothStates", []))
+                            if bluetooth is not None
+                            else ""
+                        ),
                     )
 
             await process_notifications(login_obj, raw_notifications)
@@ -622,12 +636,14 @@ async def setup_alexa(hass, config_entry, login_obj: AlexaLogin):
                 )
                 if not entry_setup:
                     _LOGGER.debug("Loading config entry for %s", component)
-                    config_entry.async_create_task(
-                        hass,
-                        hass.config_entries.async_forward_entry_setups(
+                    try:
+                        await hass.config_entries.async_forward_entry_setups(
                             config_entry, [component]
                         )
-                    )
+                    except (asyncio.TimeoutError, TimeoutException) as ex:
+                        raise ConfigEntryNotReady(
+                            f"Timeout while loading config entry for {component}"
+                        ) from ex
                 else:
                     _LOGGER.debug("Loading %s", component)
                     hass.async_create_task(
@@ -1391,9 +1407,11 @@ async def test_login_status(hass, config_entry, login) -> bool:
             CONF_DEBUG: account[CONF_DEBUG],
             CONF_INCLUDE_DEVICES: account[CONF_INCLUDE_DEVICES],
             CONF_EXCLUDE_DEVICES: account[CONF_EXCLUDE_DEVICES],
-            CONF_SCAN_INTERVAL: account[CONF_SCAN_INTERVAL].total_seconds()
-            if isinstance(account[CONF_SCAN_INTERVAL], timedelta)
-            else account[CONF_SCAN_INTERVAL],
+            CONF_SCAN_INTERVAL: (
+                account[CONF_SCAN_INTERVAL].total_seconds()
+                if isinstance(account[CONF_SCAN_INTERVAL], timedelta)
+                else account[CONF_SCAN_INTERVAL]
+            ),
             CONF_OTPSECRET: account.get(CONF_OTPSECRET, ""),
         },
     )
