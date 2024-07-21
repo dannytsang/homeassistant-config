@@ -993,20 +993,22 @@ script:
                                     {%- else -%}
                                     {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) }}
                                     {%- endif -%}
-                                  firstSustainedHour: >-
-                                    {%- if firstSustainedHourCalculation|default(none, true) is number -%}
-                                    {{ as_timestamp(firstSustainedHourCalculation)|int(0) }}
-                                    {%- else -%}
-                                    {{ none }}
-                                    {%- endif -%}
                                   formatted_runtime: >-
                                     {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                                     {%- if first_generation_datetime is not none -%}
                                     {{ (as_timestamp(runtime) -
                                     as_timestamp(first_generation_datetime))|round(0) }}
                                     {%- endif -%}
+                                continue_on_error: true
+                              - variables:
+                                  firstSustainedHour: >-
+                                    {%- if firstSustainedHourCalculation|default(none, true) -%}
+                                    {{ as_timestamp(firstSustainedHourCalculation)|int(0) }}
+                                    {%- else -%}
+                                    {{ none }}
+                                    {%- endif -%}
                                   formatted_sustained_runtime: >-
-                                    {%- if firstSustainedHourCalculation|default(none, true) is number -%}
+                                    {%- if firstSustainedHourCalculation|default(none, true) -%}
                                     {{ (as_timestamp(runtime) - firstSustainedHourCalculation)|round(0) }}
                                     {%- else -%}
                                     {{ none }}
@@ -1029,23 +1031,23 @@ script:
                                     Weather condition: {{ solar_forecast_data.weather_compensation_ratio }}
 
 
-                                    {%- if runtime|default(none, true) is not none %}
+                                    {% if runtime|default(none, true) is not none %}
                                     Estimate battery runtime: {{ as_timestamp(runtime)|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
                                     {%- endif %}
 
-                                    {%- if first_generation_datetime|default(none, true) is not none %}
+                                    {% if first_generation_datetime|default(none, true) is not none %}
                                     First Generation at: {{ as_timestamp(first_generation_datetime)|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
                                     {%- endif %}
 
-                                    {%- if runtime|default(none, true) is not none and first_generation_datetime is not none %}
+                                    {% if runtime|default(none, true) is not none and first_generation_datetime is not none %}
                                     Runtime > Generation: {{ as_timestamp(runtime) > as_timestamp(first_generation_datetime) }}
                                     {%- endif %}
 
-                                    {%- if formatted_runtime|default(none, true) is not none %}
+                                    {% if formatted_runtime|default(none, true) is not none %}
                                     Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_runtime // 3600, (formatted_runtime % 3600) // 60, (formatted_runtime % 3600) % 60) }}
                                     {%- endif %}
 
-                                    {%- if firstSustainedHour|default(none, true) is number -%}
+                                    {% if firstSustainedHour|default(none, true) is number -%}
                                     First Self Sustainable Generation: {{ firstSustainedHour|timestamp_custom('%H:%M:%S') }}
 
                                     Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > firstSustainedHour }}
