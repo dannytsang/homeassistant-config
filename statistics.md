@@ -52,3 +52,14 @@ By domain these are:
 
 ## How To ✋
 To get the above numbers, use the template from [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
+```
+{% set ns = namespace(domains=[]) %}
+{%- for s in states -%}
+{%- set ns.domains = (ns.domains + [s.domain])|unique|list -%}
+{%- endfor %}
+I have {{ states|length  }} states in Home Assistant.
+By domain these are;
+{%- for domain in ns.domains %}
+- {{ states[domain]|length }} {{ domain }}
+{%- endfor %}
+```
