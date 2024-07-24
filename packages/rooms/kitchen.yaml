@@ -339,86 +339,30 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
-      - condition: state
-        entity_id: light.kitchen_table_white
-        state: "off"
+      - or:
+          - condition: state
+            entity_id: light.kitchen_table_white
+            state: "off"
+          - and:
+              - condition: state
+                entity_id: light.kitchen_table_white
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_table_white
+                attribute: brightness
+                below: 100
     action:
       - parallel:
           - service: script.send_to_home_log
             data:
               message: >-
-                :paw_prints: Motion detected and it's dark
-                ({{ states('sensor.kitchen_motion_3_illuminance') }}
-                & {{ states('sensor.kitchen_motion_2_illuminance_lux') }}
-                < {{ states('input_number.kitchen_light_level_threshold') }} &
-                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                :paw_prints: Motion detected.
                 Turning table :bulb: :high_brightness: lights on.
               title: ":cook: Kitchen"
               log_level: "Debug"
           - service: scene.turn_on
             target:
               entity_id: scene.kitchen_table_lights_on
-    mode: queued
-    max: 10
-  - id: "1606158191307"
-    alias: "Kitchen: Motion Detected Table Lights On"
-    description: ""
-    trigger:
-      - platform: state
-        entity_id:
-          - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_2_occupancy
-          - binary_sensor.kitchen_motion_3_occupancy
-        to: "on"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - condition: state
-        entity_id: light.kitchen_table_white
-        state: "on"
-      - condition: numeric_state
-        entity_id: light.kitchen_table_white
-        attribute: brightness
-        below: 100
-    action:
-      - parallel:
-          - choose:
-              - conditions:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_3_illuminance
-                        below: input_number.kitchen_light_level_threshold
-                      - condition: numeric_state
-                        entity_id: sensor.kitchen_motion_2_illuminance_lux
-                        below: input_number.kitchen_light_level_2_threshold
-                sequence:
-                  - service: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected and it's dark
-                        ({{ states('sensor.kitchen_motion_3_illuminance') }}
-                        & {{ states('sensor.kitchen_motion_2_illuminance_lux', with_unit=True) }}
-                        < {{ states('input_number.kitchen_light_level_threshold') }} &
-                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                        Turning up table :bulb: :high_brightness: lights.
-                      title: ":cook: Kitchen"
-                      log_level: "Debug"
-                  - service: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_table_lights_on
-            default:
-              - service: script.send_to_home_log
-                data:
-                  message: >-
-                    :paw_prints: Motion detected and it's not dark
-                    ({{ states('sensor.kitchen_motion_3_illuminance') }}
-                    & {{ states('sensor.kitchen_motion_2_illuminance_lux', with_unit=True) }}
-                    < {{ states('input_number.kitchen_light_level_threshold') }} &
-                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                    Leaving table :bulb: :low_brightness: lights on dim.
-                  title: ":cook: Kitchen"
-                  log_level: "Debug"
     mode: queued
     max: 10
   - id: "1606158191306"
