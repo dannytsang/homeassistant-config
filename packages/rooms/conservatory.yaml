@@ -8,12 +8,12 @@ automation:
       - platform: state
         entity_id:
           - binary_sensor.conservatory_area_motion
-          - binary_sensor.conservatory_motion_3_occupancy
+          - binary_sensor.conservatory_motion_occupancy
         from: "off"
         to: "on"
     condition:
       - condition: numeric_state
-        entity_id: sensor.conservatory_motion_3_illuminance
+        entity_id: sensor.conservatory_motion_illuminance
         below: input_number.conservatory_light_level_threshold
       - condition: state
         entity_id: input_boolean.enable_conservatory_motion_trigger
@@ -31,7 +31,7 @@ automation:
             data:
               message: >-
                 :paw_prints: Motion detected and
-                it's dark ({{ states('sensor.conservatory_motion_3_illuminance', with_unit=True) }} <
+                it's dark ({{ states('sensor.conservatory_motion_illuminance', with_unit=True) }} <
                 ({{ states('input_number.conservatory_light_level_threshold', with_unit=True) }}).
                 Turning :bulb: :high_brightness: light on.
               title: "Conservatory"
@@ -377,7 +377,7 @@ scene:
 sensor:
   - platform: mold_indicator
     name: Conservatory Mould Indicator
-    indoor_temp_sensor: sensor.conservatory_motion_3_temperature
-    indoor_humidity_sensor: sensor.conservatory_motion_3_humidity
+    indoor_temp_sensor: sensor.conservatory_motion_temperature
+    indoor_humidity_sensor: sensor.conservatory_motion_humidity
     outdoor_temp_sensor: sensor.gw2000a_outdoor_temperature
     calibration_factor: 1.97

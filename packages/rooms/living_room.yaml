@@ -10,7 +10,7 @@ automation:
           - binary_sensor.living_room_area_motion
           - binary_sensor.lounge_motion
           - binary_sensor.living_room_motion_2_occupancy
-          - binary_sensor.lounge_motion_4_occupancy
+          - binary_sensor.living_room_motion_occupancy
         to: "on"
     condition:
       - condition: state
@@ -24,10 +24,10 @@ automation:
                     entity_id: sensor.living_room_motion_2_illuminance_lux
                     below: input_number.living_room_light_level_2_threshold
                   - condition: numeric_state
-                    entity_id: sensor.lounge_motion_4_illuminance
+                    entity_id: sensor.living_room_motion_illuminance
                     below: input_number.living_room_light_level_4_threshold
                   - condition: state
-                    entity_id: sensor.lounge_motion_4_illuminance
+                    entity_id: sensor.living_room_motion_illuminance
                     state: "unavailable"
               - or:
                   - condition: numeric_state
@@ -49,7 +49,7 @@ automation:
                       message: >-
                         :paw_prints: Motion detected and it's dark
                         ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
-                        {{ states('sensor.lounge_motion_4_illuminance') }} <
+                        {{ states('sensor.living_room_motion_illuminance') }} <
                         {{ states('input_number.living_room_light_level_2_threshold') }} &
                         {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
                         and Terina's work :computer: computer is on. Turning
@@ -80,7 +80,7 @@ automation:
                     entity_id: sensor.living_room_motion_2_illuminance_lux
                     below: input_number.living_room_light_level_2_threshold
                   - condition: numeric_state
-                    entity_id: sensor.lounge_motion_4_illuminance
+                    entity_id: sensor.living_room_motion_illuminance
                     below: input_number.living_room_light_level_4_threshold
               - or:
                   - condition: state
@@ -100,7 +100,7 @@ automation:
                       message: >-
                         :paw_prints: Motion detected and it's dark
                         ({{ states('sensor.living_room_motion_2_illuminance_lux') }} &
-                        {{ states('sensor.lounge_motion_4_illuminance') }} <
+                        {{ states('sensor.living_room_motion_illuminance') }} <
                         {{ states('input_number.living_room_light_level_2_threshold') }} &
                         {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
                         and Terina's work :computer: computer is on. Turning
@@ -3331,8 +3331,8 @@ sensor:
   # Mould indicator
   - platform: mold_indicator
     name: Living Room Mould Indicator
-    indoor_temp_sensor: sensor.lounge_motion_4_temperature
-    indoor_humidity_sensor: sensor.lounge_motion_4_humidity
+    indoor_temp_sensor: sensor.living_room_motion_temperature
+    indoor_humidity_sensor: sensor.living_room_motion_humidity
     outdoor_temp_sensor: sensor.gw2000a_outdoor_temperature
     calibration_factor: 1.5  # Estimate
 
