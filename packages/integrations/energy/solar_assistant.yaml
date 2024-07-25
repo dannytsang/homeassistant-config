@@ -986,7 +986,7 @@ script:
                                     {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_today', 'detailedForecast', 'period_start', 'pv_estimate') }}
                                   runtime: >-
                                     {{now() + timedelta( seconds = states('sensor.battery_runtime_duration')|int(0)) }}
-                                  firstSustainedHourCalculation: >-
+                                  first_sustained_hour_calculation: >-
                                     {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
                                     {%- if now().hour > 7 -%}
                                     {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', states('sensor.home_electricity_power_daily_average_over_a_week')|float(1))|default(none, true) }}
@@ -1001,17 +1001,27 @@ script:
                                     {%- endif -%}
                                 continue_on_error: true
                               - variables:
-                                  firstSustainedHour: >-
-                                    {%- if firstSustainedHourCalculation|default(none, true) -%}
-                                    {{ as_timestamp(firstSustainedHourCalculation)|int(0) }}
+                                  first_sustained_hour: >-
+                                    {%- if first_sustained_hour_calculation|default(none, true) -%}
+                                    {{ as_timestamp(first_sustained_hour_calculation)|int(0) }}
                                     {%- else -%}
                                     {{ none }}
                                     {%- endif -%}
+                                continue_on_error: true
+                              - variables:
                                   formatted_sustained_runtime: >-
-                                    {%- if firstSustainedHourCalculation|default(none, true) -%}
-                                    {{ (as_timestamp(runtime) - firstSustainedHourCalculation)|round(0) }}
+                                    {%- if first_sustained_hour_calculation|default(none, true) -%}
+                                    {{ (as_timestamp(runtime) - first_sustained_hour_calculation)|round(0) }}
                                     {%- else -%}
                                     {{ none }}
+                                    {%- endif -%}
+                                continue_on_error: true
+                              - variables:
+                                  runtime_greater_than_first_generation: >-
+                                    {%- if runtime|default(none, true) is not none and first_generation_datetime is not none -%}
+                                    {{ as_timestamp(runtime) > as_timestamp(first_generation_datetime) }}
+                                    {%- else -%}
+                                    {{ false }}
                                     {%- endif -%}
                                 continue_on_error: true
                               - service: script.send_direct_notification
@@ -1039,18 +1049,16 @@ script:
                                     First Generation at: {{ as_timestamp(first_generation_datetime)|timestamp_custom('%Y-%m-%d %H:%M:%S') }}
                                     {%- endif %}
 
-                                    {% if runtime|default(none, true) is not none and first_generation_datetime is not none %}
-                                    Runtime > Generation: {{ as_timestamp(runtime) > as_timestamp(first_generation_datetime) }}
-                                    {%- endif %}
+                                    Runtime > first Generation: {{ runtime_greater_than_first_generation }}
 
                                     {% if formatted_runtime|default(none, true) is not none %}
                                     Time Over First Generation: {{ '{:02d}:{:02d}:{:02d}'.format(formatted_runtime // 3600, (formatted_runtime % 3600) // 60, (formatted_runtime % 3600) % 60) }}
                                     {%- endif %}
 
-                                    {% if firstSustainedHour|default(none, true) is number -%}
-                                    First Self Sustainable Generation: {{ firstSustainedHour|timestamp_custom('%H:%M:%S') }}
+                                    {% if first_sustained_hour|default(none, true) is number -%}
+                                    First Self Sustainable Generation: {{ first_sustained_hour|timestamp_custom('%H:%M:%S') }}
 
-                                    Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > firstSustainedHour }}
+                                    Runtime > Self Sustainable Generation: {{ as_timestamp(runtime) > first_sustained_hour }}
                                     {% else -%}
                                     First Self Sustainable Generation: N/A
 
@@ -1066,7 +1074,44 @@ script:
                                   people:
                                     entity_id:
                                       - person.danny
-                                  continue_on_error: true
+                                continue_on_error: true
+                              - choose:
+                                  - conditions:
+                                      - condition: template
+                                        value_template: "{{ solar_forecast_data.estimate_charge_percentage|int(100) > states('sensor.growatt_sph_battery_state_of_charge')|int(0) }}"
+                                    sequence:
+                                      - service: script.send_direct_notification
+                                        data:
+                                          message: >-
+                                            Battery SOC > Target charge ({{ solar_forecast_data.estimate_charge_percentage|int(100) }}).
+                                            Skipping charge.
+                                          title: Solar Assistant
+                                          people:
+                                            entity_id:
+                                              - person.danny
+                                  - alias: Battery runtime > first generation
+                                    conditions:
+                                      - condition: template
+                                        value_template: "{{ runtime_greater_than_first_generation }}"
+                                    sequence:
+                                      - service: script.send_direct_notification
+                                        data:
+                                          message: >-
+                                            Runtime > first Generation. Skipping charge.
+                                          title: Solar Assistant
+                                          people:
+                                            entity_id:
+                                              - person.danny
+                                default:
+                                  - service: script.send_direct_notification
+                                    data:
+                                      message: >-
+                                        Default charge logic
+                                      title: Solar Assistant
+                                      people:
+                                        entity_id:
+                                          - person.danny
+                                continue_on_error: true
                           - service: script.battery_first_priority_mode
                             data:
                               max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
