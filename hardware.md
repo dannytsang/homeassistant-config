@@ -5,7 +5,6 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
 
 ## <a name="controllers"></a>Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
-*   [Sonoff ZigBee 3.0 Plus P](https://sonoff.tech/product/gateway-and-sensors/sonoff-zigbee-3-0-usb-dongle-plus-p/)
 *   [SMLIGHT SLZB-06](https://smlight.tech/product/slzb-06/)
 
 ## Amazon
@@ -16,18 +15,28 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 *   [Echo show 10 2nd Gen](https://www.amazon.co.uk/All-New-Echo-Show-2nd-Gen/dp/B0793G9T6T?th=1)
 *   [Echo show 5 1st Gen](https://www.amazon.co.uk/amazon-echo-show-5-compact-smart-display-with-alexa/dp/B07KD7TJD6?th=1)
 
+## Aqara
+Great value devices.
+*   [MCCGQ11LM 153](https://www.aqara.com/eu/product/door-and-window-sensor/)
+*   [T1M](https://www.aqara.com/eu/product/ceiling-light-t1m/)
+
 ## Aruba
 Replaced Unifi with Aruba for their PPSK, controllerless setup. Basic support in Home Assistant.
-*   [Aruba 515](https://www.arubanetworks.com/en-gb/products/wireless/access-points/indoor-access-points/500-series/)
+*   [Aruba 505](https://www.arubanetworks.com/en-gb/products/wireless/access-points/indoor-access-points/500-series/)
+
 ## Broadlink
 An alternative to the now end of life Harmony Hub from Logitech. I have the [RM4 Pro](https://www.ibroadlink.com/products/ir+rf).
+
+## Ecowitt
+Weather station for more local and accurate weather data. Unfortunately, it does not provide forecast data.
+*   [Wittboy](https://shop.ecowitt.com/en-gb/products/wittboy?variant=41794776006818) The rain sensor fails to accurately read rain.
 
 ## Elgato
 I love Elgato products. They are generally well designed however you do pay a price.
 *   [Key Light](https://www.elgato.com/en/key-light)
 *   [Stream Deck](https://www.elgato.com/en/stream-deck)
 
-## Everything
+## Everything Smart Home
 From Everything Smart Home, Lewis has created an ESP32 mmWave kit.
 *   [EP1 Kit](https://shop.everythingsmart.io/products/everything-presence-one-kit)
 
@@ -69,7 +78,6 @@ Love the Ikea blinds. They are easy to get hold of compared to other products an
 *   [FYRTUR](https://www.ikea.com/gb/en/p/fyrtur-block-out-roller-blind-wireless-battery-operated-grey-60408181/)
 *   [KADRILJ](https://www.ikea.com/gb/en/p/kadrilj-roller-blind-wireless-battery-operated-grey-30408154/)
 *   [TRÅDFRI Signal Repeater](https://www.ikea.com/gb/en/p/tradfri-signal-repeater-80424255/)
-*   [TRÅDFRI GU10](https://www.ikea.com/gb/en/p/tradfri-led-bulb-gu10-400-lumen-wireless-dimmable-white-spectrum-90408603/)
 *   [TRÅDFRI Remote control](https://www.ikea.com/gb/en/p/tradfri-remote-control-30443124/)
 
 ## Lifx
@@ -85,7 +93,7 @@ Until Broadlink came along, Logitech was the only player in town to integrate re
 ## myEnergi
 UK based solar designer/manufacturer.
 *   [Eddi](https://www.myenergi.com/eddi-power-diverter/) Solar diverter or a fancy relay to turn on electrical devices on or off when there is excess solar.
-*   [Harvi](https://www.myenergi.com/harvi-energy-harvesting-sensor/) Wireless energy monitoring to allow devices like the Eddi to turn on and off when there's excess solar.
+*   [Zappi](https://www.myenergi.com/zappi-ev-charger/) EV charger
 
 ## OralB
 A toothbrush manufacturer that now supports bluetooth enabled electric toothbrushes.
@@ -96,7 +104,6 @@ Well engineered and personally, asthetically pleasing compared to some of it's c
 *   Dimmer switch
 *   [Motion sensor](https://www.philips-hue.com/en-gb/p/hue-motion-sensor/8718696743171)
 *   [Outdoor (motion) sensor](https://www.philips-hue.com/en-gb/p/hue-outdoor-sensor/8718699625474)
-*   [Play light bar](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-play-light-bar-double-pack/7820230P7)
 *   [White and colour ambiance (E14)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-single-bulb-e14/8718696695166)
 *   [White and colour ambiance (E27)](https://www.philips-hue.com/en-gb/p/hue-white-and-colour-ambiance-1-pack-e27/8718699673109#overview)
 
@@ -146,11 +153,20 @@ Very well priced IoT device manufacturer. I am using the temperature sensor for 
 *   [TRV TV02](https://www.aliexpress.com/item/1005003119636318.html)
 
 ## Ubiquiti
-Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io).
+Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io). I have also gone towards their cameras and protect system.
+*   [G4 Instant](https://techspecs.ui.com/unifi/cameras-nvrs/camera-g4-instant)
+*   [G5 Flex](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-flex)
+*   [G5 Turret Ultra](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-turret-ultra?s=uk)
 *   [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
 *   Unifi Swtich 8
+*   [Unifi Switch Lite 8 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-8-poe)
+*   [Unifi Switch Lite 16 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-16-poe)
 *   [Unifi Swtich 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
 *   [Unifi Switch 24](https://uk.store.ui.com/uk/en/collections/unifi-switching-standard-ethernet)
+
+## UseeLink
+A no name zigbee brand.
+*   [SM-0306E-2W](https://www.amazon.co.uk/dp/B09JWP6TJG?psc=1&ref=ppx_yo2ov_dt_b_product_details) Sockets are individually controllable. USBs are all controlled together as a group. I wish it had power monitoring as well.
 
 ## Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [ESPHome](https://esphome.io/) firmware.

@@ -9,7 +9,7 @@ I have always been interested in technology starting from the x10 days. At the t
 
 This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾)
 
-More details to follow. Visit my 📜[blog](https://dannytsang.com).
+More details on my 📜[website](https://dannytsang.com).
 
 ## Statistics 📊
 I have 5,953 states (📈210) in Home Assistant. More details [here](statistics.md).
