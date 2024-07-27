@@ -1341,14 +1341,21 @@ template:
   - trigger:
       - platform: state
         entity_id:
-          - input_number.ecoflow_charge_solar_threshold
+          - sensor.eddi_power
           - sensor.house_grid_export_power
-          - sensor.growatt_sph_pv_power
-          - sensor.growatt_sph_load_power
+          - sensor.zappi_power
     sensor:
-      - name: "EcoFlow Kitchen Solar Excess"
+      - name: "EcoFlow Solar Excess"
         unique_id: 947e22f4-5213-4440-8da2-6c3a089f3743
-        state: "{{ states('sensor.house_grid_export_power')|float(0) - 0.2 }}"
+        state: >-
+          {#- Make sure ecess is only calculated when there is sun. -#}
+          {%- if states('sensor.growatt_sph_pv_power') | float(0) > (states('sensor.home_electricity_power_daily_average_over_a_day') | float(1))/2 -%}
+          {#- Add exceptions such as EV -#}
+          {{ states('sensor.house_grid_export_power')|float(0) - 0.2 + (states('sensor.zappi_power')|float(0))/1000
+          + (states('sensor.eddi_power')|float(0))/1000 }}
+          {%- else -%}
+          0
+          {%- endif -%}
         unit_of_measurement: kW
   - trigger:
       - platform: state
