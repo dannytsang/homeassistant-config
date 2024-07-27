@@ -1531,3 +1531,23 @@ template:
         icon: "mdi:toaster-oven"
         device_class: running
         state: "{{ states('sensor.oven_channel_1_power') | float(0) >= 10 }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.low_water_softener_salt_level
+          - sensor.water_softener_salt_level
+    binary_sensor:
+      - name: Low Water Softener Salt
+        unique_id: f074e7cf-d53c-419b-8677-833f615f4483
+        icon: "mdi:water-alert"
+        state: "{{ states('sensor.water_softener_salt_level') | float(100) >= states('input_number.low_water_softener_salt_level') | float(0) }}"
+  - trigger:
+      - platform: state
+        entity_id:
+          - input_number.no_water_softener_salt_level
+          - sensor.water_softener_salt_level
+    binary_sensor:
+      - name: No Water Softener Salt
+        unique_id: c02df70f-1b4c-4cef-8032-35a235eb4479
+        icon: "mdi:water-alert-outline"
+        state: "{{ states('sensor.water_softener_salt_level') | float(100) >= states('input_number.no_water_softener_salt_level') | float(0) }}"
