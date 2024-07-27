@@ -1194,11 +1194,63 @@ automation:
     condition: []
     action:
       - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Turning off fly zapper after 2 hours.
+              title: ":office: Office"
+              log_level: "Debug"
           - service: switch.turn_off
             metadata: {}
             data: {}
             target:
               entity_id: switch.fly_zapper
+    mode: single
+  - id: "1722108194998"
+    alias: "Office: Remote Keylight"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.office_remote_action
+        to: open
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Remote command received: toggle key lights.
+              title: ":office: Office"
+              log_level: "Debug"
+          - service: light.toggle
+            metadata: {}
+            data: {}
+            target:
+              entity_id: light.office_key_lights
+    mode: single
+  - id: "1722108194998"
+    alias: "Office: Remote Fan"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.office_remote_action
+        to: close
+    condition: []
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Remote command received: toggle fan.
+              title: ":office: Office"
+              log_level: "Debug"
+          - service: switch.toggle
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.office_fan
     mode: single
 
 scene:
