@@ -1,14 +1,11 @@
-substitutions:
-  name: "kitchen-motion"
-packages:
-  Everything_Smart_Technology.Everything_Presence_One: github://everythingsmarthome/presence-one/everything-presence-one.yaml@main
 esphome:
-  name: ${name}
-  name_add_mac_suffix: false
+  name: office
+  friendly_name: office
+
 esp32:
   board: esp32dev
   framework:
-    type: esp-idf
+    type: arduino
 
 esp32_ble_tracker:
   scan_parameters:
@@ -19,10 +16,19 @@ esp32_ble_tracker:
 bluetooth_proxy:
   active: true
 
-switch:
-  - platform: restart
-    name: "Kitchen Motion Restart"
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret office_api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret office_ota_password
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
+    
