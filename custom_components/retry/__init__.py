@@ -52,6 +52,7 @@ from .const import (
     ATTR_ON_ERROR,
     ATTR_RETRY_ID,
     ATTR_RETRIES,
+    ATTR_STATE_DELAY,
     ATTR_STATE_GRACE,
     ATTR_VALIDATION,
     CALL_SERVICE,
@@ -110,6 +111,7 @@ SERVICE_SCHEMA_BASE_FIELDS = {
     vol.Required(ATTR_BACKOFF, default=DEFAULT_BACKOFF): _backoff_parameter,
     vol.Optional(ATTR_EXPECTED_STATE): vol.All(cv.ensure_list, [_template_parameter]),
     vol.Optional(ATTR_VALIDATION): _validation_parameter,
+    vol.Required(ATTR_STATE_DELAY, default=0): cv.positive_float,
     vol.Required(ATTR_STATE_GRACE, default=DEFAULT_STATE_GRACE): cv.positive_float,
     vol.Optional(ATTR_RETRY_ID): vol.Any(cv.string, None),
     vol.Optional(ATTR_ON_ERROR): cv.SCRIPT_SCHEMA,
@@ -277,6 +279,8 @@ class RetryCall:
                 raise InvalidStateError(f"{self._entity_id} is not available")
         else:
             ent_obj = None
+        if (state_delay := self._params.retry_data[ATTR_STATE_DELAY]) > 0:
+            await asyncio.sleep(state_delay)
         if not self._check_state(ent_obj) or not self._check_validation():
             await asyncio.sleep(self._params.retry_data[ATTR_STATE_GRACE])
             if not self._check_state(ent_obj):
@@ -323,10 +327,6 @@ class RetryCall:
         )
         retry_params = []
         if (
-            backoff := self._params.retry_data[ATTR_BACKOFF].template
-        ) != DEFAULT_BACKOFF_FIXED:
-            retry_params.append(f'{ATTR_BACKOFF}="{backoff}"')
-        if (
             expected_state := self._params.retry_data.get(ATTR_EXPECTED_STATE)
         ) is not None:
             if len(expected_state) == 1:
@@ -335,16 +335,35 @@ class RetryCall:
                 retry_params.append(
                     f"expected_state in ({', '.join(state for state in expected_state)})"
                 )
-        if (validation := self._params.retry_data.get(ATTR_VALIDATION)) is not None:
-            retry_params.append(f'{ATTR_VALIDATION}="{validation.template}"')
-        if self._params.retry_data[ATTR_STATE_GRACE] != DEFAULT_STATE_GRACE:
-            retry_params.append(
-                f"{ATTR_STATE_GRACE}={self._params.retry_data[ATTR_STATE_GRACE]}"
-            )
-        if ATTR_RETRY_ID in self._params.retry_data:
-            retry_params.append(
-                f"{ATTR_RETRY_ID}={self._params.retry_data.get(ATTR_RETRY_ID)}"
-            )
+        for name, value, default in (
+            (
+                ATTR_BACKOFF,
+                self._params.retry_data[ATTR_BACKOFF].template,
+                DEFAULT_BACKOFF_FIXED,
+            ),
+            (
+                ATTR_VALIDATION,
+                self._params.retry_data[ATTR_VALIDATION].template
+                if ATTR_VALIDATION in self._params.retry_data
+                else None,
+                None,
+            ),
+            (ATTR_STATE_DELAY, self._params.retry_data[ATTR_STATE_DELAY], 0),
+            (
+                ATTR_STATE_GRACE,
+                self._params.retry_data[ATTR_STATE_GRACE],
+                DEFAULT_STATE_GRACE,
+            ),
+            (
+                ATTR_RETRY_ID,
+                self._params.retry_data.get(ATTR_RETRY_ID),
+                None if ATTR_RETRY_ID not in self._params.retry_data else "add",
+            ),
+        ):
+            if value != default:
+                if isinstance(value, str):
+                    value = f'"{value}"'
+                retry_params.append(f"{name}={value}")
         if len(retry_params) > 0:
             service_call += f"[{', '.join(retry_params)}]"
         return service_call
