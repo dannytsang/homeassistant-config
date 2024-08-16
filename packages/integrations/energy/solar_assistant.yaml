@@ -1078,12 +1078,12 @@ script:
                               - choose:
                                   - conditions:
                                       - condition: template
-                                        value_template: "{{ solar_forecast_data.estimate_charge_percentage|int(100) > states('sensor.growatt_sph_battery_state_of_charge')|int(0) }}"
+                                        value_template: "{{ solar_forecast_data.estimate_charge_percentage|int(100) < states('sensor.growatt_sph_battery_state_of_charge')|int(0) }}"
                                     sequence:
                                       - service: script.send_direct_notification
                                         data:
                                           message: >-
-                                            Battery SOC > Target charge ({{ solar_forecast_data.estimate_charge_percentage|int(100) }}).
+                                            Battery SOC ({{ states('sensor.growatt_sph_battery_state_of_charge') }}%) > Target charge ({{ solar_forecast_data.estimate_charge_percentage|int(100) }}%).
                                             Skipping charge.
                                           title: Solar Assistant
                                           people:
@@ -1103,18 +1103,10 @@ script:
                                             entity_id:
                                               - person.danny
                                 default:
-                                  - service: script.send_direct_notification
+                                  - service: script.battery_first_priority_mode
                                     data:
-                                      message: >-
-                                        Default charge logic
-                                      title: Solar Assistant
-                                      people:
-                                        entity_id:
-                                          - person.danny
+                                      max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
                                 continue_on_error: true
-                          - service: script.battery_first_priority_mode
-                            data:
-                              max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
           - alias: Rates go above export fail safe
             conditions:
               - condition: numeric_state
@@ -1162,7 +1154,7 @@ script:
                   - service: script.load_first_priority_mode
                     data: {}
         default: []
-    mode: restart
+    mode: single
 
 sensor:
   - platform: statistics
