@@ -1086,58 +1086,6 @@ automation:
             data: {}
     mode: single
   # Lights
-  - id: "1614555883547"
-    alias: "Office: Toggle Key Light"
-    description: ""
-    trigger:
-      - platform: webhook
-        webhook_id: keylight_toggle
-        allowed_methods:
-          - GET
-        local_only: false
-    condition:
-      - condition: template
-        value_template: "{{ trigger.json.key|string == states('input_text.office_key_light_key') }}"
-    action:
-      - parallel:
-          - service: script.send_to_home_log
-            data:
-              message: ":bulb: Toggle Key light"
-              log_level: "Debug"
-          - service: light.toggle
-            data: {}
-            target:
-              entity_id:
-                - light.elgato_key_light_left
-                - light.elgato_key_light_right
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.workday_sensor
-                    state: "on"
-                  - condition: time
-                    after: "09:00:00"
-                    before: "17:30:00"
-                    weekday:
-                      - mon
-                      - tue
-                      - wed
-                      - thu
-                      - fri
-                  - condition: state
-                    entity_id: media_player.spotify_danny
-                    state: "playing"
-                sequence:
-                  - service: media_player.media_stop
-                    data: {}
-                    target:
-                      entity_id: media_player.spotify_danny
-                  - service: script.send_to_home_log
-                    data:
-                      message: ":stop_button: Turning off music."
-                      log_level: "Debug"
-            default: []
-    mode: single
   - id: "1719349686247"
     alias: "Office: Light On And Bright Room"
     description: ""
