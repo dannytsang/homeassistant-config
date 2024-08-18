@@ -435,6 +435,37 @@ automation:
             default: []
     mode: queued
     max: 10
+  - id: "1724001157269"
+    alias: "Bedroom: Pause TV When Door Opens At Night"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.bedroom_door_contact
+        from: "off"
+        to: "on"
+    condition:
+      - or:
+          - condition: time
+            after: "22:00:00"
+          - condition: time
+            before: 02:00:00
+      - condition: state
+        entity_id: media_player.bedroom_tv
+        state: playing
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Door opened and :tv: TV was playing. Pausing TV.
+              title: ":bed: bedroom"
+              log_level: "Debug"
+          - service: media_player.media_play_pause
+            target:
+              entity_id: media_player.bedroom_tv
+            data: {}
+    mode: single
   # Motion triggers
   - id: "1621713217274"
     alias: "Bedroom: Motion Detected"
@@ -1418,8 +1449,8 @@ script:
                         warning."
                       log_level: "Normal"
                   - if:
-                    - condition: template
-                      value_template: "{{ states('light.bedroom_lamps') == 'off'}}"
+                      - condition: template
+                        value_template: "{{ states('light.bedroom_lamps') == 'off' }}"
                     then:
                       - service: light.turn_off
                         target:
@@ -1437,8 +1468,8 @@ script:
                         warning."
                       log_level: "Normal"
                   - if:
-                    - condition: template
-                      value_template: "{{ states('light.bedroom_lamps') == 'off'}}"
+                      - condition: template
+                        value_template: "{{ states('light.bedroom_lamps') == 'off' }}"
                     then:
                       - service: light.turn_off
                         target:
