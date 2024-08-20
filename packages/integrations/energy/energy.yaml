@@ -953,6 +953,25 @@ template:
           - sensor.house_power
           - sensor.smart_meter_electricity_power
     sensor:
+      - name: "Grid Power"
+        unique_id: e697ba51-edd8-40cd-b797-ee79786c0415
+        state: >-
+          {%- if states('sensor.house_power')|is_number -%}
+            {{ states('sensor.house_power')|float(0) }}
+          {%- elif states('sensor.smart_meter_electricity_power')|is_number -%}
+            {{ states('sensor.smart_meter_electricity_power')|float(0) }}
+          {%- else -%}
+            0
+          {%- endif -%}
+        availability: "{{ states('sensor.house_power')|is_number or states('sensor.smart_meter_electricity_power')|is_number }}"
+        device_class: "power"
+        unit_of_measurement: "kW"
+  - trigger:
+      - platform: state
+        entity_id:
+          - sensor.house_power
+          - sensor.smart_meter_electricity_power
+    sensor:
       - name: "Grid Import Power"
         unique_id: 09f48f73-ea68-421f-868c-ffd20cd8eab8
         state: >-
