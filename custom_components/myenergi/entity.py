@@ -1,4 +1,5 @@
 """MyenergiEntity class"""
+
 import logging
 
 from homeassistant.helpers.entity import EntityCategory
@@ -22,6 +23,21 @@ class MyenergiEntity(CoordinatorEntity):
             if self.meta.get("category", None) is not None:
                 self.meta["category"] = EntityCategory(self.meta["category"])
 
+    #    async def async_added_to_hass(self):
+    #        """Run when about to be added to hass."""
+    #        async_dispatcher_connect(
+    #            # The Hass Object
+    #            self.hass,
+    #            # The Signal to listen for.
+    #            # Try to make it unique per entity instance
+    #            # so include something like entity_id
+    #            # or other unique data from the service call
+    #            self.entity_id,
+    #            # Function handle to call when signal is received
+    #            self.libbi_set_charge_target
+    #        )
+    #        _LOGGER.debug("registered signal with HA")
+    #
     @property
     def device_info(self):
         return {
@@ -74,6 +90,11 @@ class MyenergiEntity(CoordinatorEntity):
         _LOGGER.debug("unlock called")
         """Unlock"""
         await self.device.unlock()
+
+    async def libbi_set_charge_target(self, chargetarget: float) -> None:
+        _LOGGER.debug("Setting libbi charge target to %s Wh", chargetarget)
+        """Set libbi charge target"""
+        await self.device.set_charge_target(chargetarget)
         self.schedule_update_ha_state()
 
 

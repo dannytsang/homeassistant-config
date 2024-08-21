@@ -1,60 +1,36 @@
-"""Sensor platform for myenergi."""
+"""Switch platform for myenergi."""
 
+import logging
 import operator
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
-from pymyenergi import EDDI
-from pymyenergi import ZAPPI
+from homeassistant.components.switch import SwitchEntity
+from pymyenergi import LIBBI
 
 from .const import DOMAIN
 from .entity import MyenergiEntity
 
+_LOGGER: logging.Logger = logging.getLogger(__package__)
+
 
 async def async_setup_entry(hass, entry, async_add_devices):
-    """Setup binary sensor platform."""
+    """Setup switch platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     sensors = []
+
     # Don't cause a refresh when fetching sensors
     all_devices = await coordinator.client.get_devices("all", False)
     for device in all_devices:
-        # Sensors available in all devices
-        if device.kind in [ZAPPI]:
+        if device.kind == LIBBI:
             sensors.append(
-                MyenergiBinarySensor(
+                MyenergiSwitch(
                     coordinator,
                     device,
                     entry,
                     {
-                        "name": "Update available",
-                        "prop_name": "update_available",
-                        "icon": None,
-                        "attrs": {},
-                    },
-                )
-            )
-        if device.kind == EDDI:
-            sensors.append(
-                MyenergiBinarySensor(
-                    coordinator,
-                    device,
-                    entry,
-                    {
-                        "name": "Relay 1",
-                        "prop_name": "r1a",
-                        "icon": None,
-                        "attrs": {},
-                    },
-                )
-            )
-            sensors.append(
-                MyenergiBinarySensor(
-                    coordinator,
-                    device,
-                    entry,
-                    {
-                        "name": "Relay 2",
-                        "prop_name": "r2a",
-                        "icon": None,
+                        "name": "Charge from grid",
+                        "prop_name": "charge_from_grid",
+                        "icon": "mdi:transmission-tower-import",
+                        "update_func": "set_charge_from_grid",
                         "attrs": {},
                     },
                 )
@@ -62,8 +38,8 @@ async def async_setup_entry(hass, entry, async_add_devices):
     async_add_devices(sensors)
 
 
-class MyenergiBinarySensor(MyenergiEntity, BinarySensorEntity):
-    """myenergi Binary Sensor class."""
+class MyenergiSwitch(MyenergiEntity, SwitchEntity):
+    """myenergi Switch class."""
 
     def __init__(self, coordinator, device, config_entry, meta):
         super().__init__(coordinator, device, config_entry, meta)
@@ -88,3 +64,15 @@ class MyenergiBinarySensor(MyenergiEntity, BinarySensorEntity):
     def icon(self):
         """Return the icon of the sensor."""
         return self.meta["icon"]
+
+    async def async_turn_on(self, **kwargs):
+        """Turn the entity on."""
+        _LOGGER.debug("libbi charging from grid is now ON")
+        await operator.methodcaller(self.meta["update_func"], True)(self.device)
+        self.async_schedule_update_ha_state()
+
+    async def async_turn_off(self, **kwargs):
+        """Turn the entity off."""
+        _LOGGER.debug("libbi charging from grid is now OFF")
+        await operator.methodcaller(self.meta["update_func"], False)(self.device)
+        self.async_schedule_update_ha_state()
