@@ -1200,6 +1200,71 @@ automation:
             target:
               entity_id: switch.office_fan
     mode: single
+  - id: "1724096560132"
+    alias: "Office: Pre-cool"
+    description: ""
+    trigger:
+      - platform: time
+        at: 07:00:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: pre cooling
+              title: office
+              people:
+                entity_id: person.danny
+          - sequence:
+              - service: climate.set_hvac_mode
+                metadata: {}
+                data:
+                  hvac_mode: cool
+                target:
+                  entity_id: climate.office_air_conditioner
+              - delay:
+                  seconds: 2
+              - service: climate.set_temperature
+                metadata: {}
+                data:
+                  temperature: 18
+                target:
+                  entity_id: climate.office_air_conditioner
+    mode: single
+  - id: "1724096560133"
+    alias: "Office: Turn Off Pre-cool"
+    description: ""
+    trigger:
+      - platform: time
+        at: 08:58:00
+    condition:
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.workday_sensor
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_direct_notification
+            data:
+              message: pre cooling
+              title: office
+              people:
+                entity_id: person.danny
+          - service: climate.set_hvac_mode
+            metadata: {}
+            data:
+              hvac_mode: off
+            target:
+              entity_id: climate.office_air_conditioner
+    mode: single
 
 scene:
   - id: "1600795089307"
