@@ -91,6 +91,31 @@ automation:
                     title: ":zzz: Sleep as :robot_face: Android"
                     log_level: "Normal"
         default: []
+      - alias: Turn on bedroom fan
+        if:
+          - condition: numeric_state
+            entity_id: sensor.bedroom_area_mean_temperature
+            above: 21
+          - condition: state
+            entity_id: person.danny
+            state: home
+          - condition: state
+            entity_id: switch.bedroom_fan
+            state: "off"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Bedroom is warm ({{ states('sensor.bedroom_area_mean_temperature') }} > 21).
+                    Turning on bedroom fan.
+                  title: ":zzz: Sleep as :robot_face: Android"
+                  log_level: "Debug"
+              - service: switch.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: switch.bedroom_fan
     mode: single
   - id: "1658843567854"
     alias: "Sleep As Android: Awake"
@@ -230,6 +255,25 @@ automation:
           log_level: "Normal"
       - service: script.bedroom_sleep
         data: {}
+      - alias: Turn off bedroom fan
+        if:
+          - condition: state
+            entity_id: switch.bedroom_fan
+            state: "on"
+        then:
+          - parallel:
+              - service: script.send_to_home_log
+                data:
+                  message: >-
+                    Bedroom is warm ({{ states('sensor.bedroom_area_mean_temperature') }} > 21c).
+                    Turning on bedroom fan.
+                  title: ":zzz: Sleep as :robot_face: Android"
+                  log_level: "Debug"
+              - service: switch.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: switch.bedroom_fan
     mode: single
   - id: "1644769166837"
     alias: "Bedroom: Danny's Alarm"
