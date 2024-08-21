@@ -959,13 +959,13 @@ template:
           {%- if states('sensor.house_power')|is_number -%}
             {{ states('sensor.house_power')|float(0) }}
           {%- elif states('sensor.smart_meter_electricity_power')|is_number -%}
-            {{ states('sensor.smart_meter_electricity_power')|float(0) }}
+            {{ states('sensor.smart_meter_electricity_power')|float(0)*1000 }}
           {%- else -%}
             0
           {%- endif -%}
         availability: "{{ states('sensor.house_power')|is_number or states('sensor.smart_meter_electricity_power')|is_number }}"
         device_class: "power"
-        unit_of_measurement: "kW"
+        unit_of_measurement: "W"
   - trigger:
       - platform: state
         entity_id:
