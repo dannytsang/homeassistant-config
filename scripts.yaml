@@ -77,4 +77,32 @@ update_travel_time_by_car:
             title: ":world_map: Travel Time By Car"
   mode: single
   icon: mdi:car
+test:
+  alias: Test Calendar
+  sequence:
+    - action: calendar.get_events
+      target:
+        entity_id:
+          - calendar.tsang_children
+          - calendar.family
+      data:
+        start_date_time: "2024-06-08 11:25:00"
+        duration:
+          hours: 1
+          minutes: 0
+          seconds: 0
+      response_variable: calendars
+    - action: script.send_to_home_log
+      data:
+        message: >-
+          {%- for event in calendars['calendar.tsang_children'].events -%}
+          Name: {{ calendars['calendar.tsang_children'].events[0].summary }}
 
+          Location: {{ calendars['calendar.tsang_children'].events[0].location|default('N/A',true) }}
+
+          Start Time: {{ calendars['calendar.tsang_children'].events[0].start }}
+
+          End Time: {{ calendars['calendar.tsang_children'].events[0].end }}
+          {%- endfor -%}
+        log_level: "Normal"
+  mode: single
