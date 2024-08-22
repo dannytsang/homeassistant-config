@@ -371,13 +371,24 @@ script:
         parallel:
           - service: script.send_to_home_log
             data:
-              message: ":bulb: Turning off office, bedroom fans."
+              message: ":bulb: Turning off bedroom fan."
               log_level: "Debug"
           - service: switch.turn_off
             target:
               entity_id:
-                - switch.office_fan
                 - switch.bedroom_fan
+      - alias: Turn off air conditioners
+        parallel:
+          - service: script.send_to_home_log
+            data:
+              message: ":bulb: Turning off office air conditioner."
+              log_level: "Debug"
+          - service: climate.set_hvac_mode
+            metadata: {}
+            data:
+              hvac_mode: off
+            target:
+              entity_id: climate.office_air_conditioner
       - alias: Turn off kitchen lights
         parallel:
           - service: script.send_to_home_log
