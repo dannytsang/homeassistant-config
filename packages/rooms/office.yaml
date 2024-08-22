@@ -1265,6 +1265,107 @@ automation:
             target:
               entity_id: climate.office_air_conditioner
     mode: single
+  - id: "1724261391488"
+    alias: "Office: Scheduled Air Conditioning On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.enable_office_air_conditioner_schedule_1
+          - input_boolean.enable_office_air_conditioner_schedule_2
+          - binary_sensor.office_air_conditioner_schedule_1
+          - binary_sensor.office_air_conditioner_schedule_2
+        from: "off"
+        to: "on"
+    condition:
+      - or:
+          - and:
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.office_air_conditioner_schedule_1
+                state: "on"
+          - and:
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.office_air_conditioner_schedule_2
+                state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Schedule to turn on air conditioner.
+              title: ":office: Office"
+              log_level: "Debug"
+          - sequence:
+              - service: climate.set_hvac_mode
+                metadata: {}
+                data:
+                  hvac_mode: cool
+                target:
+                  entity_id: climate.office_air_conditioner
+              - delay:
+                  seconds: 2
+              - service: climate.set_temperature
+                metadata: {}
+                data:
+                  temperature: 18
+                target:
+                  entity_id: climate.office_air_conditioner
+    mode: single
+  - id: "1724261391489"
+    alias: "Office: Scheduled Air Conditioning Off"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - input_boolean.enable_office_air_conditioner_schedule_1
+          - input_boolean.enable_office_air_conditioner_schedule_2
+          - binary_sensor.office_air_conditioner_schedule_1
+          - binary_sensor.office_air_conditioner_schedule_2
+        to: "off"
+    condition:
+      - or:
+          - and:
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.office_air_conditioner_schedule_1
+                state: "off"
+          - and:
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                state: "on"
+              - condition: state
+                entity_id: binary_sensor.office_air_conditioner_schedule_2
+                state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+    action:
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message: >-
+                Schedule to turn off air conditioner.
+              title: ":office: Office"
+              log_level: "Debug"
+          - sequence:
+              - service: climate.set_hvac_mode
+                metadata: {}
+                data:
+                  hvac_mode: off
+                target:
+                  entity_id: climate.office_air_conditioner
+    mode: single
 
 scene:
   - id: "1600795089307"
