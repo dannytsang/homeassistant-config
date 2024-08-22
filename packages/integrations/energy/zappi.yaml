@@ -15,9 +15,9 @@ automation:
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
       - not:
-        - condition: state
-          entity_id: sensor.myenergi_zappi_plug_status
-          state: "EV Disconnected"
+          - condition: state
+            entity_id: sensor.myenergi_zappi_plug_status
+            state: "EV Disconnected"
       - or:
           - and:
               - condition: state
@@ -223,19 +223,33 @@ script:
                         state: EV Connected
                     then:
                       - parallel:
-                          - service: script.send_direct_notification
-                            metadata: {}
+                          - if:
+                              - condition: state
+                                entity_id: binary_sensor.model_y_charger
+                                state: "on"
+                            then:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.terina
+                            else:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                          - service: select.select_option
                             data:
-                              message: Charging started.
-                              title: "Zappi"
-                              people:
-                                entity_id:
-                                  - person.terina
-                          - service: myenergi.myenergi_boost
+                              option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-                            data:
-                              amount: 70
               - alias: "Electricity Rates Below 0p/kWh"
                 conditions:
                   - condition: numeric_state
@@ -251,24 +265,43 @@ script:
                         state: EV Connected
                     then:
                       - parallel:
-                          - service: script.send_direct_notification
-                            metadata: {}
-                            data:
-                              message: >-
-                                Electricity rate is below 0p/kWh (
-                                {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
-                                ).
+                          - if:
+                              - condition: state
+                                entity_id: binary_sensor.model_y_charger
+                                state: "on"
+                            then:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is below 0p/kWh (
+                                    {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                                    ).
 
-                                Charging started.
-                              title: "Zappi"
-                              people:
-                                entity_id:
-                                  - person.terina
-                          - service: myenergi.myenergi_boost
+                                    Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.terina
+                            else:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is below 0p/kWh (
+                                    {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                                    ).
+
+                                    Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                          - service: select.select_option
+                            data:
+                              option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-                            data:
-                              amount: 70
               - alias: "Electricity Rates is 0p/kWh"
                 conditions:
                   - condition: state
@@ -284,20 +317,35 @@ script:
                         state: EV Connected
                     then:
                       - parallel:
-                          - service: script.send_direct_notification
-                            metadata: {}
+                          - if:
+                              - condition: state
+                                entity_id: binary_sensor.model_y_charger
+                                state: "on"
+                            then:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is 0p/kWh. Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.terina
+                            else:
+                              - service: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is 0p/kWh. Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                          - service: select.select_option
                             data:
-                              message: >-
-                                Electricity rate is 0p/kWh. Charging started.
-                              title: "Zappi"
-                              people:
-                                entity_id:
-                                  - person.terina
-                          - service: myenergi.myenergi_boost
+                              option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-                            data:
-                              amount: 70
               - alias: "Electricity Rates Starts To Cost"
                 conditions:
                   - not:
@@ -319,24 +367,43 @@ script:
                         state: "on"
                 sequence:
                   - parallel:
-                      - service: script.send_direct_notification
-                        metadata: {}
-                        data:
-                          message: >-
-                            Electricity rate is above 0p/kWh (
-                            {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
-                            ).
+                      - if:
+                          - condition: state
+                            entity_id: binary_sensor.model_y_charger
+                            state: "on"
+                        then:
+                          - service: script.send_direct_notification
+                            metadata: {}
+                            data:
+                              message: >-
+                                Electricity rate is above 0p/kWh (
+                                {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                                ).
 
-                            Stopping charge.
-                          title: "Zappi"
-                          people:
-                            entity_id:
-                              - person.terina
-                      - service: myenergi.myenergi_boost
+                                Stopping charge.
+                              title: "Zappi"
+                              people:
+                                entity_id:
+                                  - person.terina
+                        else:
+                          - service: script.send_direct_notification
+                            metadata: {}
+                            data:
+                              message: >-
+                                Electricity rate is above 0p/kWh (
+                                {{ states('sensor.electricity_current_rate')|round(2) ~ ' ' ~ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}
+                                ).
+
+                                Stopping charge.
+                              title: "Zappi"
+                              people:
+                                entity_id:
+                                  - person.danny
+                      - service: select.select_option
+                        data:
+                          option: Eco+
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
-                        data:
-                          amount: 1
               - alias: "Default"
                 conditions:
                   - not:
