@@ -325,15 +325,12 @@ script:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - service: script.send_to_home_log
                     data:
                       message: >-
                         Electrictity rate is below 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                      people:
-                        entity_id:
-                          - person.danny
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
@@ -347,15 +344,12 @@ script:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - service: script.send_to_home_log
                     data:
                       message: >-
                         Electrictity rate is 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                      people:
-                        entity_id:
-                          - person.danny
                   - service: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
