@@ -61,7 +61,7 @@ Really like the casting feature to share content however found it was relatiely 
 *   [Google TV](https://store.google.com/gb/product/chromecast_google_tv?hl=en-GB)
 
 ## Growatt
-Solar manufacturer.
+Solar manufacturer. I use Solar Assistant to get local and faster updates.
 *   SPH3000 Inverter
 *   [GBLI 6532 Battery](https://www.ginverter.com/products/gbli-6532-battery) 
 
@@ -135,6 +135,7 @@ I like their hardware relays and fits into 35mm back boxes and allows switches t
 ## Sonoff
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 *   [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
+*   [USB Smart Adaptor Zigbee](https://sonoff.tech/product/diy-smart-switches/zbmicro/)
 
 ## SwitchBot
 The first curtain rod devices. It uses bluetooth which isn't great for range so I pair it with the hub mini
@@ -150,7 +151,9 @@ Bought one of these as a potential replacement to the Belkin Wemos which had the
 ## TuYa
 Very well priced IoT device manufacturer. I am using the temperature sensor for inside the fridge and freezers. The radiator values are closes to the Tado TRVs. It's not as well built but the idea is you don't need to touch it.
 *   [ZigBee Temperature And Humidity Sensor](https://www.aliexpress.com/item/1005003718187629.html) 
+*   [TH02Z](https://www.aliexpress.com/item/1005006485984753.html?spm=a2g0o.order_list.order_list_main.10.4ebe1802YLANmt)
 *   [TRV TV02](https://www.aliexpress.com/item/1005003119636318.html)
+*   [ZY-M100-L](https://www.aliexpress.com/item/1005006618917798.html?spm=a2g0o.order_list.order_list_main.5.4ebe1802YLANmt)
 
 ## Ubiquiti
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io). I have also gone towards their cameras and protect system.
@@ -171,3 +174,6 @@ A no name zigbee brand.
 ## Wemos
 Small WiFi development board with an ESP8266 chip. I'm using [ESPHome](https://esphome.io/) firmware.
 *   [D1 mini pro](https://www.wemos.cc/en/latest/d1/d1_mini_pro.html)
+
+## Zemismart
+*   [ZM16-TYZB](https://www.zemismart.com/products/zm16-tyzb-eu)
