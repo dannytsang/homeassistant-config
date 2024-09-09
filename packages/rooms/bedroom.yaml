@@ -623,6 +623,30 @@ automation:
             target:
               entity_id: light.bedroom_clock_matrix
     mode: single
+  - id: "1725207477313"
+    alias: "Bedroom: No Motion And Fan Is On"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.bedroom_motion_3_presence
+        to: "off"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    condition:
+      - condition: state
+        entity_id: switch.bedroom_fan
+        state: "on"
+    action:
+      - parallel:
+          - service: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.bedroom_fan
+    mode: single
   # Fan
   - id: "1690844451011"
     alias: "Bedroom: Turn Off Fan"
@@ -1499,6 +1523,8 @@ script:
         selector:
           text:
     sequence:
+      - variables:
+          lamp_state: "{{ states('light.bedroom_lamps') }}"
       - parallel:
           - choose:
               - conditions:
@@ -1512,6 +1538,14 @@ script:
                         ":boy: :door: Leo's door opened and bedroom light is on. Sending
                         warning."
                       log_level: "Normal"
+                  - if:
+                      - condition: template
+                        value_template: "{{ lamp_state == 'off' }}"
+                    then:
+                      - service: light.turn_off
+                        target:
+                          entity_id: light.bedroom_lamps
+                        data: {}
               - conditions:
                   - condition: template
                     value_template: "{{bedroom == 'ashlee'}}"
@@ -1523,6 +1557,14 @@ script:
                         ":girl: :door: Ashlee's door opened and bedroom light is on. Sending
                         warning."
                       log_level: "Normal"
+                  - if:
+                      - condition: template
+                        value_template: "{{ lamp_state == 'off' }}"
+                    then:
+                      - service: light.turn_off
+                        target:
+                          entity_id: light.bedroom_lamps
+                        data: {}
             default: []
           - if:
               - condition: state
