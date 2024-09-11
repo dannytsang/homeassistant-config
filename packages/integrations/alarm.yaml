@@ -607,3 +607,179 @@ script:
                   - person.terina
     mode: single
     icon: mdi:alarm-light
+  set_home_to_away_mode:
+    alias: Set Home To Away Mode
+    sequence:
+      choose:
+        - conditions:
+            - condition: state
+              entity_id: input_select.home_mode
+              state: "Guest"
+            - condition: state
+              entity_id: input_boolean.enable_direct_notifications
+              state: "on"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: ":warning: Guest mode is active and no one is home."
+                    log_level: "Normal"
+                - service: notify.mobile_app_danny_s_phone
+                  data:
+                    message: Guest mode is on. Do you want to turn on the alarm?
+                    title: No One Home In Guest Mode
+                    data:
+                      actions:
+                        - title: Alarm On & Turn Off Devices
+                          action: guest_mode_arm_alarm_and_turn_off_devices
+                        - title: Alarm On Only
+                          action: guest_mode_arm_alarm_away
+                        - title: Turn Off Devices Only
+                          action: guest_mode_turn_off_devices
+                - service: notify.mobile_app_terina_s_phone
+                  data:
+                    message: Guest mode is on. Do you want to turn on the alarm?
+                    title: No One Home In Guest Mode
+                    data:
+                      actions:
+                        - title: Alarm On & Turn Off Devices
+                          action: guest_mode_arm_alarm_and_turn_off_devices
+                        - title: Alarm On Only
+                          action: guest_mode_arm_alarm_away
+                        - title: Turn Off Devices Only
+                          action: guest_mode_turn_off_devices
+        - conditions:
+            - condition: state
+              entity_id: group.family_computer
+              state: "home"
+            - condition: state
+              entity_id: input_boolean.enable_direct_notifications
+              state: "on"
+          sequence:
+            - parallel:
+                - service: script.send_to_home_log
+                  data:
+                    message: ":warning: Family :computer: computer is on."
+                    log_level: "Normal"
+                - service: notify.mobile_app_danny_s_phone
+                  data:
+                    message: Family computer is on. Do you want to turn on the alarm?
+                    title: No One Home Family Computer On
+                    data:
+                      actions:
+                        - title: Alarm On & Turn Off Devices
+                          action: guest_mode_arm_alarm_and_turn_off_devices
+                        - title: Alarm On Only
+                          action: guest_mode_arm_alarm_away
+                        - title: Turn Off Devices Only
+                          action: guest_mode_turn_off_devices
+                - service: notify.mobile_app_terina_s_phone
+                  data:
+                    message: Family computer is on. Do you want to turn on the alarm?
+                    title: No One Home Family Computer On
+                    data:
+                      actions:
+                        - title: Alarm On & Turn Off Devices
+                          action: guest_mode_arm_alarm_and_turn_off_devices
+                        - title: Alarm On Only
+                          action: guest_mode_arm_alarm_away
+                        - title: Turn Off Devices Only
+                          action: guest_mode_turn_off_devices
+      default:
+        - service: script.set_alarm_to_away_mode
+        - service: script.lock_front_door
+        - choose:
+            - conditions:
+                - condition: state
+                  entity_id: binary_sensor.external_doors_and_windows
+                  state: "on"
+              sequence:
+                - service: script.send_direct_notification
+                  data:
+                    message:
+                      ":information_source: :door: :window: :bell: Alarm was turned on.
+                      The following entrances are still open:\n {% for entity in state_attr('binary_sensor.external_doors_and_windows','entity_id')
+                      %}{% if states(entity) == 'on' %}{{ '* ' ~ state_attr(entity, 'friendly_name')
+                      }} {% endif %}{% endfor %}\n"
+                    title: ":bell: Alarm"
+          default:
+            - choose:
+                - conditions:
+                    - condition: state
+                      entity_id: input_boolean.enable_direct_notifications
+                      state: "on"
+                  sequence:
+                    - service: script.send_actionable_notification_with_3_buttons
+                      data:
+                        message: Alarm armed and turning off devices.
+                        title: No One Home
+                        people:
+                          - person.danny
+                          - person.terina
+                        action1_title: "Disarm"
+                        action1_name: disarm
+                        action2_title: "Devices On"
+                        action2_name: leave_on
+                        action3_title: "Disarm & Leave On"
+                        action3_name: disarm_leave_on
+                    - wait_for_trigger:
+                        - platform: event
+                          event_type: mobile_app_notification_action
+                      timeout: "300"
+                      continue_on_timeout: true
+                    - choose:
+                        - conditions:
+                            - condition: template
+                              value_template: "{{ wait is defined and wait.trigger.event.data.action == 'disarm' }}"
+                          sequence:
+                            - service: script.set_alarm_to_disarmed_mode
+                        - conditions:
+                            - condition: template
+                              value_template:
+                                "{{ wait is defined and wait.trigger.event.data.action == 'leave_on'
+                                }}"
+                          sequence:
+                            - service: script.send_to_home_log
+                              data:
+                                message: Leaving devices on.
+                                log_level: "Normal"
+                        - conditions:
+                            - condition: template
+                              value_template:
+                                "{{ wait is defined and wait.trigger.event.data.action == 'disarm_leave_on'
+                                }}"
+                          sequence:
+                            - parallel:
+                                - service: script.set_alarm_to_disarmed_mode
+                                - service: script.send_to_home_log
+                                  data:
+                                    message: Skipping turning off devices.
+                                    log_level: "Normal"
+                      default:
+                        - service: script.everybody_leave_home
+              default:
+                - service: script.everybody_leave_home
+  set_home_to_away_mode_error:
+    alias: Set Home To Away Mode Error
+    sequence:
+      - choose:
+        - conditions:
+            - not:
+                - condition: state
+                  entity_id: input_select.home_mode
+                  state: "Guest"
+          sequence:
+            - service: script.send_direct_notification
+              data:
+                message:
+                  "No one is home and couldn't turn on the alarm because
+                  the following entrances are still open:
+                  {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
+                  %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
+                  }} {% endif %}{% endfor %}"
+                title: ":warning: :bell: Alarm :warning:"
+                people:
+                  entity_id:
+                    - person.danny
+                    - person.terina
+        default: []
