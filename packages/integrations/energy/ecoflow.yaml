@@ -1221,11 +1221,17 @@ script:
                         data:
                           entity_id: number.ecoflow_kitchen_ac_charging_power
                           target_charge_rate: >-
-                            {{ iif(((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                            {%-if ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
                             states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200
-                            > 1200, 1200, ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200)
-                            }}
+                            > 1200 -%}
+                            1200
+                            {%- elif ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 200 -%}
+                            {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 }}
+                            {%- else -%}
+                            200
+                            {%- endif -%}
                 else:
                   - parallel:
                       - service: script.send_to_home_log
