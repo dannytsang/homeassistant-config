@@ -241,7 +241,7 @@ automation:
     description: ""
     trigger:
       - entity_id: group.adult_people
-        for: 00:02:00
+        for: 00:01:00
         platform: state
         to: "not_home"
     condition:
@@ -254,6 +254,22 @@ automation:
             state: "unavailable"
     action:
       - parallel:
+          - choose:
+              - alias: Locked
+                conditions:
+                  - condition: state
+                    entity_id: binary_sensor.alarmed_doors_and_windows
+                    state: "off"
+                sequence:
+                  - service: script.set_home_to_away_mode
+              - alias: Not locked
+                conditions:
+                  - condition: state
+                    entity_id: binary_sensor.alarmed_doors_and_windows
+                    state: "on"
+                sequence:
+                  - service: script.set_home_to_away_mode_error
+            default: []
           - service: script.3d_printer_left_unattended
           - service: calendar.get_events
             target:
@@ -314,51 +330,6 @@ automation:
                         entity_id:
                           - person.danny
             default: []
-  - id: "1595524992208"
-    alias: "People: No One Home And Locked"
-    description: ""
-    trigger:
-      - entity_id: group.adult_people
-        for: 00:02:00
-        platform: state
-        to: "not_home"
-    condition:
-      - condition: state
-        entity_id: input_boolean.enable_home_presence_detection
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.alarmed_doors_and_windows
-        state: "off"
-      - not:
-          - condition: state
-            entity_id: device_tracker.udm_pro
-            state: "unavailable"
-    action:
-      - parallel:
-          - service: script.set_home_to_away_mode
-    mode: single
-  - id: "1594554327310"
-    alias: "People: No One Home And House Is Not Locked"
-    description: ""
-    trigger:
-      - entity_id: group.adult_people
-        for: 00:02:00
-        platform: state
-        to: "not_home"
-    condition:
-      - not:
-          - condition: state
-            entity_id: device_tracker.udm_pro
-            state: "unavailable"
-      - condition: state
-        entity_id: binary_sensor.alarmed_doors_and_windows
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_home_presence_detection
-        state: "on"
-    action:
-      - service: script.set_home_to_away_mode_error
-    mode: single
   - id: "1655063863296"
     alias: "People: Long Distance Away From Home"
     description: ""
@@ -685,6 +656,44 @@ automation:
                       option: Normal
                     target:
                       entity_id: input_select.home_mode
+    mode: single
+  - id: "1722162099476"
+    alias: "People: Music Follow Danny"
+    description: ""
+    trigger:
+      - platform: state
+        entity_id:
+          - sensor.dannys_phone_ble_area
+        not_to: unknown
+    condition:
+      - condition: state
+        entity_id: media_player.spotify_danny
+        state: playing
+    action:
+      - variables:
+          target_source: "{{ states('sensor.dannys_phone_ble_area') }}"
+          adjusted_source: >-
+            {%- if target_source|lower == 'office' and states('group.jd_computer') == 'home' -%}
+            JD
+            {%- elif target_source|lower == 'office' -%}
+            Office Echo Show
+            {%- elif target_source|lower == 'living room' -%}
+            DO NOT CAST
+            {%- else -%}
+            {{ target_source }}
+            {%- endif -%}
+        continue_on_error: true
+      - if:
+          - condition: template
+            value_template: "{{ adjusted_source|lower != state_attr('media_player.spotify_danny', 'source')|lower }}"
+          - condition: template
+            value_template: "{{ adjusted_source|lower in state_attr('media_player.spotify_danny', 'source_list')|lower }}"
+        then:
+          - service: media_player.select_source
+            data:
+              source: "{{ adjusted_source }}"
+            target:
+              entity_id: media_player.spotify_danny
     mode: single
 
 group:
