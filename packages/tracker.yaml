@@ -254,22 +254,7 @@ automation:
             state: "unavailable"
     action:
       - parallel:
-          - choose:
-              - alias: Locked
-                conditions:
-                  - condition: state
-                    entity_id: binary_sensor.alarmed_doors_and_windows
-                    state: "off"
-                sequence:
-                  - service: script.set_home_to_away_mode
-              - alias: Not locked
-                conditions:
-                  - condition: state
-                    entity_id: binary_sensor.alarmed_doors_and_windows
-                    state: "on"
-                sequence:
-                  - service: script.set_home_to_away_mode_error
-            default: []
+          - service: script.lock_house
           - service: script.3d_printer_left_unattended
           - service: calendar.get_events
             target:
