@@ -115,18 +115,20 @@ script:
       - data: {}
         entity_id: input_boolean.enable_morning_routine
         service: input_boolean.turn_off
-      - service: script.send_to_home_log
-        data:
-          message:
-            ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
-            Running morning routine."
-          log_level: "Normal"
-      - service: script.set_alarm_to_disarmed_mode
-      - service: switch.turn_off
-        target:
-          entity_id: switch.indoor_cameras
-      - service: script.send_to_home_log
-        data:
-          message: ":clock9: :sunrise: Morning routine complete."
-          log_level: "Normal"
+      - parallel:
+          - service: script.send_to_home_log
+            data:
+              message:
+                ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
+                Running morning routine."
+              log_level: "Normal"
+          - service: script.set_alarm_to_disarmed_mode
+          - service: switch.turn_off
+            target:
+              entity_id: switch.indoor_cameras
+          - service: script.send_to_home_log
+            data:
+              message: ":clock9: :sunrise: Morning routine complete."
+              log_level: "Normal"
+          - service: script.announce_delayed_notifications
     mode: single
