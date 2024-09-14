@@ -430,7 +430,7 @@ script:
         data:
           value: "{{ target_reserve_amount|int(10) }}"
         target:
-          entity_id: "{{ entity_id }}"
+          entity_id: "{{ input_number_entity_id }}"
       - service: script.ecoflow_update_backup_reserve
         data:
           entity_id: "{{ entity_id }}"
@@ -1197,58 +1197,72 @@ script:
                         entity_id: switch.ecoflow_office_backup_reserve_enabled
                         state: "on"
             sequence:
-              - if:
-                  - condition: numeric_state
-                    entity_id: number.ecoflow_kitchen_ac_charging_power
-                    above: input_number.ecoflow_charge_solar_threshold
-                  - condition: template
-                    value_template: >-
-                      {{ ((states('sensor.ecoflow_solar_excess')|float(-1) * 1000) +
-                      states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
-                      states('input_number.ecoflow_charge_solar_threshold')|float(0) }}
-                then:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Solar production dipped below household consumption. Reducing charge rate from
-                            {{ states('number.ecoflow_kitchen_ac_charging_power') }}
-                            to
-                            {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
-                          title: Solar
-                          log_level: "Debug"
-                      - service: script.ecoflow_set_charge_rate
-                        data:
-                          entity_id: number.ecoflow_kitchen_ac_charging_power
-                          target_charge_rate: >-
-                            {%-if ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200
-                            > 1200 -%}
-                            1200
-                            {%- elif ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 200 -%}
-                            {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                            states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 }}
-                            {%- else -%}
-                            200
-                            {%- endif -%}
-                else:
-                  - parallel:
-                      - service: script.send_to_home_log
-                        data:
-                          message: >-
-                            Solar production dipped below household consumption. Setting backup to
-                            {{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}%.
-                          title: Solar
-                          log_level: "Debug"
-                      - service: script.ecoflow_set_backup_reserve
-                        data:
-                          entity_id: number.ecoflow_kitchen_backup_reserve_level
-                          target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(10) }}"
-                      - service: script.ecoflow_set_backup_reserve
-                        data:
-                          entity_id: number.ecoflow_office_backup_reserve_level
-                          target_reserve_amount: "{{ states('input_number.ecoflow_office_low_battery_reserve')|int(10) }}"
+              - choose:
+                  - alias: Reduce charge rate
+                    conditions:
+                      - condition: numeric_state
+                        entity_id: number.ecoflow_kitchen_ac_charging_power
+                        above: input_number.ecoflow_charge_solar_threshold
+                      - condition: template
+                        value_template: >-
+                          {{ ((states('sensor.ecoflow_solar_excess')|float(-1) * 1000) +
+                          states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
+                          states('input_number.ecoflow_charge_solar_threshold')|float(0) }}
+                    sequence:
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Solar production dipped below household consumption. Reducing charge rate from
+                                {{ states('number.ecoflow_kitchen_ac_charging_power') }}
+                                to
+                                {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
+                              title: Solar
+                              log_level: "Debug"
+                          - service: script.ecoflow_set_charge_rate
+                            data:
+                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              target_charge_rate: >-
+                                {%-if ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200
+                                > 1200 -%}
+                                1200
+                                {%- elif ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 200 -%}
+                                {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
+                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 }}
+                                {%- else -%}
+                                200
+                                {%- endif -%}
+                  - alias: Set to lowest backup reserve
+                    conditions:
+                      - or:
+                          - not:
+                            - condition: state
+                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              state: input_number.ecoflow_kitchen_low_battery_reserve
+                          - not:
+                            - condition: state
+                              entity_id: number.ecoflow_office_backup_reserve_level
+                              state: input_number.ecoflow_office_low_battery_reserve
+                    sequence:
+                      - parallel:
+                          - service: script.send_to_home_log
+                            data:
+                              message: >-
+                                Solar production dipped below household consumption. Setting backup to
+                                {{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}%.
+                              title: Solar
+                              log_level: "Debug"
+                          - service: script.ecoflow_set_backup_reserve
+                            data:
+                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(10) }}"
+                          - service: script.ecoflow_set_backup_reserve
+                            data:
+                              entity_id: number.ecoflow_office_backup_reserve_level
+                              target_reserve_amount: "{{ states('input_number.ecoflow_office_low_battery_reserve')|int(10) }}"
+                default: []
           - alias: Electricity start to cost
             conditions:
               - condition: state
