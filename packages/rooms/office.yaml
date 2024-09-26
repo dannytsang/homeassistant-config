@@ -912,6 +912,9 @@ automation:
       - condition: state
         entity_id: binary_sensor.office_windows
         state: "off"
+      - condition: state
+        entity_id: light.office_key_lights
+        state: "off"
     action:
       - service: script.send_to_home_log
         data:
@@ -1316,6 +1319,29 @@ automation:
                   hvac_mode: "off"
                 target:
                   entity_id: climate.office_air_conditioner
+    mode: single
+  - id: "1725986264578"
+    alias: "Office: Negative Rates Turn On Air Conditioner"
+    description: ""
+    trigger:
+      - platform: numeric_state
+        entity_id:
+          - event.octopus_energy_electricity_19l3860833_1012829255330_current_day_rates
+        below: 0
+    condition:
+      - condition: state
+        entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+    action:
+      - service: climate.set_hvac_mode
+        metadata: {}
+        data:
+          hvac_mode: cool
+        target:
+          entity_id: climate.office_air_conditioner
     mode: single
 
 scene:
