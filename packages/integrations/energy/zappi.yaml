@@ -34,7 +34,7 @@ automation:
                 entity_id: binary_sensor.ev_charger_schedule_2
                 state: "on"
     action:
-      - service: script.zappi_check_ev_charge
+      - action: script.zappi_check_ev_charge
         data: {}
     mode: single
   - id: "1712086876965"
@@ -69,7 +69,7 @@ automation:
             entity_id: input_boolean.enable_ev_charger_schedule_2
             state: "on"
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: Charging schedule stopped from {{ state_attr(trigger.entity_id, 'friendly_name') }}
@@ -77,13 +77,13 @@ automation:
           people:
             entity_id:
               - person.terina
-      - service: myenergi.myenergi_boost
+      - action: myenergi.myenergi_boost
         target:
           entity_id:
             - select.myenergi_zappi_charge_mode
         data:
           amount: 1
-      - service: select.select_option
+      - action: select.select_option
         target:
           entity_id:
             - select.myenergi_zappi_charge_mode
@@ -104,7 +104,7 @@ automation:
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
     action:
-      - service: script.zappi_check_ev_charge
+      - action: script.zappi_check_ev_charge
         data: {}
     mode: single
   - id: "1712435997062"
@@ -127,7 +127,7 @@ automation:
         entity_id: sensor.myenergi_zappi_plug_status
         state: "EV Connected"
     action:
-      - service: script.zappi_check_ev_charge
+      - action: script.zappi_check_ev_charge
         data: {}
     mode: single
   - id: "1715345710884"
@@ -155,7 +155,7 @@ automation:
         entity_id: input_boolean.guest_ev
         state: "off"
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: Vehicle connected and it's not a recognised car.
@@ -181,13 +181,13 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             metadata: {}
             data:
               message: Vehicle disconnected.
               title: Zappi
               debug: "Debug"
-          - service: input_boolean.turn_off
+          - action: input_boolean.turn_off
             target:
               entity_id: input_boolean.guest_ev
             data: {}
@@ -228,7 +228,7 @@ script:
                                 entity_id: binary_sensor.model_y_charger
                                 state: "on"
                             then:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: Charging started.
@@ -237,7 +237,7 @@ script:
                                     entity_id:
                                       - person.terina
                             else:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: Charging started.
@@ -245,7 +245,7 @@ script:
                                   people:
                                     entity_id:
                                       - person.danny
-                          - service: select.select_option
+                          - action: select.select_option
                             data:
                               option: Fast
                             target:
@@ -270,7 +270,7 @@ script:
                                 entity_id: binary_sensor.model_y_charger
                                 state: "on"
                             then:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: >-
@@ -284,7 +284,7 @@ script:
                                     entity_id:
                                       - person.terina
                             else:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: >-
@@ -297,7 +297,7 @@ script:
                                   people:
                                     entity_id:
                                       - person.danny
-                          - service: select.select_option
+                          - action: select.select_option
                             data:
                               option: Fast
                             target:
@@ -322,7 +322,7 @@ script:
                                 entity_id: binary_sensor.model_y_charger
                                 state: "on"
                             then:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: >-
@@ -332,7 +332,7 @@ script:
                                     entity_id:
                                       - person.terina
                             else:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 metadata: {}
                                 data:
                                   message: >-
@@ -341,7 +341,7 @@ script:
                                   people:
                                     entity_id:
                                       - person.danny
-                          - service: select.select_option
+                          - action: select.select_option
                             data:
                               option: Fast
                             target:
@@ -372,7 +372,7 @@ script:
                             entity_id: binary_sensor.model_y_charger
                             state: "on"
                         then:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             metadata: {}
                             data:
                               message: >-
@@ -386,7 +386,7 @@ script:
                                 entity_id:
                                   - person.terina
                         else:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             metadata: {}
                             data:
                               message: >-
@@ -399,7 +399,7 @@ script:
                               people:
                                 entity_id:
                                   - person.danny
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Eco+
                         target:
@@ -414,7 +414,7 @@ script:
                         entity_id: select.myenergi_zappi_charge_mode
                         state: Stopped
                 sequence:
-                  - service: select.select_option
+                  - action: select.select_option
                     target:
                       entity_id:
                         - select.myenergi_zappi_charge_mode
@@ -426,7 +426,7 @@ script:
                 entity_id: sensor.growatt_sph_inverter_mode
                 state: Grid first
             then:
-              - service: script.send_actionable_notification_with_2_buttons
+              - action: script.send_actionable_notification_with_2_buttons
                 data:
                   message:
                     Solar is in {{ states('sensor.growatt_sph_inverter_mode') }}.

@@ -23,10 +23,10 @@ automation:
                 attribute: current_position
                 above: "30"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":window: Closing bedroom blinds event received."
-              - service: cover.set_cover_position
+              - action: cover.set_cover_position
                 target:
                   entity_id: cover.bedroom_blinds
                 data:
@@ -35,10 +35,10 @@ automation:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'server_fan_off' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Turning off server fan event received.
-              - service: switch.turn_off
+              - action: switch.turn_off
                 target:
                   entity_id: switch.server_fan
           - conditions:
@@ -47,10 +47,10 @@ automation:
                   "{{ trigger.event.data.action == 'switch_on_office_fan'
                   }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Turning on office fan event received.
-              - service: switch.turn_on
+              - action: switch.turn_on
                 target:
                   entity_id: switch.office_fan
           - conditions:
@@ -59,20 +59,20 @@ automation:
                   "{{ trigger.event.data.action == 'switch_on_fridge_freezer'
                   }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Turning on fridge freezer event received.
-              - service: switch.turn_on
+              - action: switch.turn_on
                 target:
                   entity_id: switch.ecoflow_kitchen_plug
           - conditions:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'switch_on_freezer' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Turning on freezer event received.
-              - service: switch.turn_on
+              - action: switch.turn_on
                 target:
                   entity_id: switch.freezer
           - conditions:
@@ -81,12 +81,12 @@ automation:
                   "{{ trigger.event.data.action == 'guest_mode_arm_alarm_and_turn_off_devices'
                   }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":bell: Guest mode override. Turning alarm on and devices off."
-              - service: script.set_alarm_to_away_mode
-              - service: script.lock_front_door
-              - service: script.everybody_leave_home
+              - action: script.set_alarm_to_away_mode
+              - action: script.lock_front_door
+              - action: script.everybody_leave_home
           - conditions:
               - condition: template
                 value_template:
@@ -96,39 +96,39 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Guest"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":bell: Guest mode override. Turning alarm in away mode (motion
                     and sensors) on only."
-              - service: script.set_alarm_to_away_mode
-              - service: script.lock_front_door
+              - action: script.set_alarm_to_away_mode
+              - action: script.lock_front_door
           - conditions:
               - condition: template
                 value_template:
                   "{{ trigger.event.data.action == 'guest_mode_turn_off_devices'
                   }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Guest mode override. Turning devices off only.
-              - service: script.everybody_leave_home
+              - action: script.everybody_leave_home
           - conditions:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'switch_off_alarm' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Alarm override. Turning Alarm off.
-              - service: script.set_alarm_to_disarmed_mode
+              - action: script.set_alarm_to_disarmed_mode
           - conditions:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'switch_off_attic_lights' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Turning attic lights off event.
-              - service: light.turn_off
+              - action: light.turn_off
                 data: {}
                 target:
                   entity_id: light.attic
@@ -136,10 +136,10 @@ automation:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'update_home_assistant' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Upgrade Home Assistant event.
-              - service: update.install
+              - action: update.install
                 data:
                   backup: true
                 target:
@@ -148,10 +148,10 @@ automation:
               - condition: template
                 value_template: "{{ trigger.event.data.action == 'zappi_stop' }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Stop Zappi event.
-              - service: select.select_option
+              - action: select.select_option
                 data:
                   option: Stopped
                 target:
@@ -215,7 +215,7 @@ script:
             - condition: template
               value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
             then:
-              - service: script.post_slack_notification
+              - action: script.post_slack_notification
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -225,7 +225,7 @@ script:
             - condition: template
               value_template: "{{ 'Discord' in states('input_text.home_log_platforms') }}"
             then:
-              - service: script.post_discord_notification
+              - action: script.post_discord_notification
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -276,7 +276,7 @@ script:
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'WhatsApp') }}
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "{{ message }}"
           title: "{{ title|default(none, true) }}"
@@ -291,7 +291,7 @@ script:
               - condition: template
                 value_template: "{{ slack|default('', true)|length > 0 }}"
             then:
-              - service: script.post_slack_notification
+              - action: script.post_slack_notification
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -304,7 +304,7 @@ script:
               - condition: template
                 value_template: "{{ discord|default('', true)|length > 0 }}"
             then:
-              - service: script.post_discord_notification
+              - action: script.post_discord_notification
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -318,7 +318,7 @@ script:
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
-                - service: script.post_telegram_direct_notification
+                - action: script.post_telegram_direct_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -328,7 +328,7 @@ script:
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
-                - service: script.post_home_assistant_direct_notification
+                - action: script.post_home_assistant_direct_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -337,7 +337,7 @@ script:
           - repeat:
               for_each: "{{ whatsapp|default([], true) }}"
               sequence:
-                - service: script.post_whatsapp_direct_notification
+                - action: script.post_whatsapp_direct_notification
                   data:
                     message: "{{ message }}"
                     people: "{{ repeat.item }}"
@@ -404,7 +404,7 @@ script:
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'WhatsApp') }}
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "{{ message }}"
           title: "{{ title|default(none, true) }}"
@@ -419,7 +419,7 @@ script:
               - condition: template
                 value_template: "{{ slack|default('', true)|length > 0 }}"
             then:
-              - service: script.post_to_slack_with_url_attachment
+              - action: script.post_to_slack_with_url_attachment
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -432,7 +432,7 @@ script:
               - condition: template
                 value_template: "{{ discord|default('', true)|length > 0 }}"
             then:
-              - service: script.post_discord_notification
+              - action: script.post_discord_notification
                 data:
                   message: >-
                     {{ message }}
@@ -448,7 +448,7 @@ script:
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
-                - service: script.post_telegram_direct_notification
+                - action: script.post_telegram_direct_notification
                   data:
                     message: >-
                       {{ message }}
@@ -462,7 +462,7 @@ script:
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
-                - service: script.post_home_assistant_direct_notification
+                - action: script.post_home_assistant_direct_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -473,7 +473,7 @@ script:
           - repeat:
               for_each: "{{ whatsapp|default([], true) }}"
               sequence:
-                - service: script.post_whatsapp_direct_notification
+                - action: script.post_whatsapp_direct_notification
                   data:
                     message: >-
                       {{ message }}
@@ -540,14 +540,14 @@ script:
                     state: "Off"
             then:
               - parallel:
-                  - service: script.post_to_slack_with_local_attachments
+                  - action: script.post_to_slack_with_local_attachments
                     data:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
                       target: "{{ states('input_text.slack_home_log_channel_id') }}"
                       filePath: "{{ filePath }}"
                     continue_on_error: true
-                  - service: script.post_to_discord_with_local_attachments
+                  - action: script.post_to_discord_with_local_attachments
                     data:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
@@ -566,7 +566,7 @@ script:
                   - condition: template
                     value_template: "{{ slack|default('', true)|length > 0 }}"
                 then:
-                  - service: script.post_to_slack_with_local_attachments
+                  - action: script.post_to_slack_with_local_attachments
                     data:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
@@ -580,7 +580,7 @@ script:
                   - condition: template
                     value_template: "{{ discord|default('', true)|length > 0 }}"
                 then:
-                  - service: script.post_to_discord_with_local_attachments
+                  - action: script.post_to_discord_with_local_attachments
                     data:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
@@ -593,7 +593,7 @@ script:
               - repeat:
                   for_each: "{{ telegram|default([], true) }}"
                   sequence:
-                    - service: script.post_to_discord_with_local_attachments
+                    - action: script.post_to_discord_with_local_attachments
                       data:
                         message: "{{ message }}"
                         title: "{{ title|default(none, true) }}"
@@ -632,13 +632,13 @@ script:
                 state: "Off"
         then:
           - parallel:
-              - service: script.post_to_slack_with_url_attachment
+              - action: script.post_to_slack_with_url_attachment
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
                   target: "{{ states('input_text.slack_home_log_channel_id') }}"
                   url: "{{ url }}"
-              - service: script.post_to_discord_with_url_attachment
+              - action: script.post_to_discord_with_url_attachment
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default(none, true) }}"
@@ -706,7 +706,7 @@ script:
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
-                - service: script.post_telegram_direct_notification
+                - action: script.post_telegram_direct_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -721,7 +721,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.danny' }}"
                       sequence:
-                        - service: notify.mobile_app_top_dog
+                        - action: notify.mobile_app_top_dog
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -735,7 +735,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.terina' }}"
                       sequence:
-                        - service: notify.mobile_app_terina_s_phone
+                        - action: notify.mobile_app_terina_s_phone
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -749,7 +749,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.leo' }}"
                       sequence:
-                        - service: notify.mobile_app_ipad_air_4th_generation_6730
+                        - action: notify.mobile_app_ipad_air_4th_generation_6730
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -830,7 +830,7 @@ script:
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
-                - service: script.post_telegram_direct_notification
+                - action: script.post_telegram_direct_notification
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -844,7 +844,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.danny' }}"
                       sequence:
-                        - service: notify.mobile_app_top_dog
+                        - action: notify.mobile_app_top_dog
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -860,7 +860,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.terina' }}"
                       sequence:
-                        - service: notify.mobile_app_terina_s_phone
+                        - action: notify.mobile_app_terina_s_phone
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -876,7 +876,7 @@ script:
                       - condition: template
                         value_template: "{{ repeat.item == 'person.leo' }}"
                       sequence:
-                        - service: notify.mobile_app_ipad_air_4th_generation_6730
+                        - action: notify.mobile_app_ipad_air_4th_generation_6730
                           data:
                             message: "{{ message }}"
                             title: "{{ title|default('', true) }}"
@@ -888,7 +888,7 @@ script:
                                   action: "{{ action2_name }}"
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
-          - service: script.send_actionable_notification_with_3_buttons
+          - action: script.send_actionable_notification_with_3_buttons
             data:
               message: "{{ message }}"
               title: "{{ title|default(none, true) }}"
@@ -945,7 +945,7 @@ script:
                       entity_id: media_player.jd
                       state: "unavailable"
                 then:
-                  - service: script.post_to_hass_agent
+                  - action: script.post_to_hass_agent
                     data:
                       message: "{{ message }}"
                       title: "{{ title }}"
@@ -958,7 +958,7 @@ script:
                       entity_id: media_player.sam
                       state: "unavailable"
                 then:
-                  - service: script.post_to_hass_agent
+                  - action: script.post_to_hass_agent
                     data:
                       message: "{{ message }}"
                       title: "{{ title }}"
@@ -1018,7 +1018,7 @@ script:
               - condition: template
                 value_template: "{{ title is not none }}"
             sequence:
-              - service: "{{ device }}"
+              - action: "{{ device }}"
                 data:
                   message: "{{ message }}"
                   title: "{{ title }}"
@@ -1031,7 +1031,7 @@ script:
               - condition: template
                 value_template: "{{ title is none }}"
             sequence:
-              - service: "{{ device }}"
+              - action: "{{ device }}"
                 data:
                   message: "{{ message }}"
                   data:
@@ -1041,14 +1041,14 @@ script:
               - condition: template
                 value_template: "{{ title is not none }}"
             sequence:
-              - service: "{{ device }}"
+              - action: "{{ device }}"
                 data:
                   message: "{{ message }}"
                   data:
                     image: "{{ filePath }}"
                     duration: "{{ duration|default(10, true) }}"
           default:
-            - service: "{{ device }}"
+            - action: "{{ device }}"
               data:
                 message: "{{ message }}"
                 data:
@@ -1069,7 +1069,7 @@ script:
               domain:
                 - person
     sequence:
-      - service: todo.get_items
+      - action: todo.get_items
         target:
           entity_id:
             - todo.shared_notifications
@@ -1121,7 +1121,7 @@ script:
                   repeat:
                     for_each: "{{ todo_list['todo.dannys_notifications']['items'] }}"
                     sequence:
-                      - service: todo.update_item
+                      - action: todo.update_item
                         target:
                           entity_id:
                             - todo.dannys_notifications

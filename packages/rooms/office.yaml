@@ -42,7 +42,7 @@ automation:
                     state: "unavailable"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -51,7 +51,7 @@ automation:
                         Skipping turning light on.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: timer.cancel
+                  - action: timer.cancel
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
@@ -71,10 +71,10 @@ automation:
                         below: "200"
             sequence:
               - parallel:
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.office_main_light_on
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -83,7 +83,7 @@ automation:
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: timer.cancel
+                  - action: timer.cancel
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
@@ -107,10 +107,10 @@ automation:
                         below: "200"
             sequence:
               - parallel:
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.office_main_light_off
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -119,7 +119,7 @@ automation:
                         Turning office lights off.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: timer.cancel
+                  - action: timer.cancel
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
@@ -129,17 +129,17 @@ automation:
                 state: "active"
             sequence:
               - parallel:
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.office_main_light_off
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
                         Cancelling Timer.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: timer.cancel
+                  - action: timer.cancel
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
@@ -187,7 +187,7 @@ automation:
                     state: "unavailable"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -196,28 +196,28 @@ automation:
                         Skipping turning light on.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: timer.cancel
+                  - action: timer.cancel
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
                   - sequence:
-                      - service: scene.turn_on
+                      - action: scene.turn_on
                         target:
                           entity_id: scene.office_room_brightness_above_threshold
                         data: {}
                       - delay:
                           seconds: 1
-                      - service: light.turn_off
+                      - action: light.turn_off
                         target:
                           entity_id:
                             - light.office_4
                         data: {}
         default:
           - parallel:
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.office_main_light_on
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
@@ -226,7 +226,7 @@ automation:
                     Turning :bulb: :high_brightness: lights on.
                   title: ":office: Office"
                   log_level: "Debug"
-              - service: timer.cancel
+              - action: timer.cancel
                 data: {}
                 target:
                   entity_id: timer.office_lights_off
@@ -251,14 +251,14 @@ automation:
         state: "off"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :no_pedestrians: No motion in the office. Starting timer for 2 minutes
                 before turning lights off.
               title: ":office: Office"
               log_level: "Debug"
-          - service: timer.start
+          - action: timer.start
             data:
               duration: "00:02:00"
             target:
@@ -279,14 +279,14 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :no_pedestrians: No motion in the office for 2 minutes.
                 Turning lights off.
               title: ":office: Office"
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.office_main_light_off
     mode: single
@@ -322,7 +322,7 @@ automation:
                 after: "08:30:00"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":hotsprings: :people_holding_hands: Office temperature is high
@@ -330,7 +330,7 @@ automation:
                         Turning on fan."
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: switch.turn_on
+                  - action: switch.turn_on
                     target:
                       entity_id: switch.office_fan
           - conditions:
@@ -339,14 +339,14 @@ automation:
                 above: "29"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :warning: :hotsprings: Office temperature is above 29c
                         ({{ states('sensor.office_area_mean_temperature') }}c).
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: script.send_actionable_notification_with_2_buttons
+                  - action: script.send_actionable_notification_with_2_buttons
                     data:
                       message: Turn on office fan?
                       title: ♨️🏢Office temperature is 29c+
@@ -362,14 +362,14 @@ automation:
                 above: "31"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :warning: :hotsprings: Temperature is above 31c. Turning
                         fan on.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: switch.turn_on
+                  - action: switch.turn_on
                     target:
                       entity_id: switch.office_fan
         default: []
@@ -398,7 +398,7 @@ automation:
                 - condition: trigger
                   id: 1h
               sequence:
-                - service: script.send_to_home_log
+                - action: script.send_to_home_log
                   data:
                     message: Turned off office Fan after 1 hour.
                     title: ":office: Office"
@@ -407,13 +407,13 @@ automation:
                 - condition: trigger
                   id: 2h
               sequence:
-                - service: script.send_to_home_log
+                - action: script.send_to_home_log
                   data:
                     message: Turned off office Fan after 2 hours.
                     title: ":office: Office"
                     log_level: "Debug"
           default: []
-        - service: switch.turn_off
+        - action: switch.turn_off
           target:
             entity_id: switch.office_fan
     mode: single
@@ -429,15 +429,15 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Turned on."
               title: ":desktop_computer: Computer"
               log_level: "Debug"
-          - service: switch.turn_on
+          - action: switch.turn_on
             target:
               entity_id: switch.goxlr
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":level_slider: Turned on GoXLR."
               title: ":desktop_computer: Computer"
@@ -447,10 +447,10 @@ automation:
                 entity_id: switch.office_monitor_bar
                 state: "off"
             then:
-              - service: switch.turn_on
+              - action: switch.turn_on
                 target:
                   entity_id: switch.office_monitor_bar
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turned on monitor light."
                   title: ":desktop_computer: Computer"
@@ -478,55 +478,55 @@ automation:
                 id: router
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turned off for more than 10 minutes."
                       title: ":desktop_computer: Computer"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.office_desk_lights_off
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       messsage: Turned off desk lights.
                       log_level: "Debug"
-                  - service: switch.turn_off
+                  - action: switch.turn_off
                     target:
                       entity_id: switch.goxlr
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turned off for more than 10 minutes. Turned
                         off :level_slider: goXLR"
                       title: ":desktop_computer: Computer"
                       log_level: "Debug"
-                  - service: script.office_turn_off_backup_drive
+                  - action: script.office_turn_off_backup_drive
           - conditions:
               - condition: trigger
                 id: pc
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: ":desktop_computer: :tv: Computer turned off for more than 10 minutes."
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.office_desk_lights_off
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       messsage: Turned off desk lights.
                       log_level: "Debug"
-                  - service: switch.turn_off
+                  - action: switch.turn_off
                     target:
                       entity_id:
                         - switch.goxlr
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turned off for more than 10 minutes. Turned
                         off :level_slider: goXLR"
                       title: ":desktop_computer: Computer"
                       log_level: "Debug"
-                  - service: script.office_turn_off_backup_drive
+                  - action: script.office_turn_off_backup_drive
         default: []
     mode: single
   - id: "1678741966796"
@@ -551,13 +551,13 @@ automation:
             state: "not_home"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Computer turned off. Turning monitor light off.
                   title: ":office: Office"
                   log_level: "Debug"
-              - service: switch.turn_off
+              - action: switch.turn_off
                 target:
                   entity_id:
                     - switch.office_monitor_bar
@@ -587,13 +587,13 @@ automation:
         before: sunset
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Computer turned off. Opening blinds.
               title: ":office: Office"
               log_level: "Debug"
-          - service: script.office_open_blinds
+          - action: script.office_open_blinds
             data: {}
     mode: single
   - id: "1619865008649"
@@ -610,10 +610,10 @@ automation:
         state: "off"
     action:
       - parallel:
-          - service: switch.turn_on
+          - action: switch.turn_on
             target:
               entity_id: switch.office_monitor_bar
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Turned on monitor light."
               title: ":desktop_computer: Computer"
@@ -642,13 +642,13 @@ automation:
                 state: "not_home"
             then:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Danny's work computer turned off. Turning monitor light off.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: switch.turn_off
+                  - action: switch.turn_off
                     target:
                       entity_id:
                         - switch.office_monitor_bar
@@ -662,7 +662,7 @@ automation:
         at: "08:00:00"
     condition: []
     action:
-      - service: weather.get_forecasts
+      - action: weather.get_forecasts
         target:
           entity_id: weather.home
         data:
@@ -682,7 +682,7 @@ automation:
                     entity_id: group.jd_computer
                     state: "home"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
@@ -705,28 +705,28 @@ automation:
                     state: "home"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                         It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) so partially opening office blinds.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - service: cover.set_cover_tilt_position
+                  - action: cover.set_cover_tilt_position
                     data:
                       tilt_position: 25
                     target:
                       entity_id: cover.office_blinds
         default:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
                     Opening blinds.
                   title: ":office: Office"
                   log_level: "Debug"
-              - service: script.office_open_blinds
+              - action: script.office_open_blinds
                 data: {}
     mode: single
   - id: "1622374233312"
@@ -750,7 +750,7 @@ automation:
                 entity_id: binary_sensor.office_windows
                 state: "on"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":warning: :window: Office window is still open so not closing
@@ -759,12 +759,12 @@ automation:
                   log_level: "Debug"
         default:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
                   title: ":office: Office"
                   log_level: "Debug"
-              - service: cover.set_cover_tilt_position
+              - action: cover.set_cover_tilt_position
                 data:
                   tilt_position: 25
                 target:
@@ -792,7 +792,7 @@ automation:
                 entity_id: binary_sensor.office_windows
                 state: "on"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":warning: :window: Office window is still open so not closing
@@ -801,12 +801,12 @@ automation:
                   log_level: "Debug"
         default:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":city_sunset: :sun_with_face: :window: It's getting dark, closing office blinds."
                   title: ":office: Office"
                   log_level: "Debug"
-              - service: script.office_close_blinds
+              - action: script.office_close_blinds
                 data: {}
     mode: single
   - id: "1622666920056"
@@ -833,14 +833,14 @@ automation:
             before: sunrise
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :window: :city_sunset: Office window closed and it's dark. Closing
                 blinds.
               title: ":office: Office"
               log_level: "Debug"
-          - service: script.office_close_blinds
+          - action: script.office_close_blinds
             data: {}
     mode: single
   - id: "1680528200295"
@@ -868,7 +868,7 @@ automation:
         state: "off"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Morning :sun: sun is out of the way. Opening :office: office blinds.
@@ -878,7 +878,7 @@ automation:
                 Elevation: {{ state_attr('sun.sun', 'elevation') }}.
               title: ":office: Office"
               log_level: "Debug"
-          - service: script.office_open_blinds
+          - action: script.office_open_blinds
             data: {}
     mode: single
   - id: "1680528200297"
@@ -916,7 +916,7 @@ automation:
         entity_id: light.office_key_lights
         state: "off"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             Afternoon :sun: sun is out of the way. Opening :office: office blinds.
@@ -926,7 +926,7 @@ automation:
             Elevation: {{ state_attr('sun.sun', 'elevation') }} ({{ states('input_number.office_blinds_afternoon_sun_elevation_threshold')}}).
           title: ":office: Office"
           log_level: "Debug"
-      - service: script.office_open_blinds
+      - action: script.office_open_blinds
         data: {}
     mode: single
   - id: "1678300398737"
@@ -979,7 +979,7 @@ automation:
             state: "home"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) and computer is on.
@@ -990,7 +990,7 @@ automation:
                 Elevation: {{ state_attr('sun.sun', 'elevation') }}.
               title: ":office: Office"
               log_level: "Debug"
-          - service: cover.set_cover_tilt_position
+          - action: cover.set_cover_tilt_position
             data:
               tilt_position: 25
             target:
@@ -1038,14 +1038,14 @@ automation:
             state: "home"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
                 Closing blinds.
               title: ":office: Office"
               log_level: "Debug"
-          - service: script.office_close_blinds
+          - action: script.office_close_blinds
             data: {}
     mode: single
   - id: "1678637987424"
@@ -1076,16 +1076,19 @@ automation:
       - condition: state
         entity_id: binary_sensor.office_windows
         state: "off"
+      - condition: state
+        entity_id: light.office_key_lights
+        state: "off"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
                 Opening Blinds
               title: ":office: Office"
               log_level: "Debug"
-          - service: script.office_open_blinds
+          - action: script.office_open_blinds
             data: {}
     mode: single
   # Lights
@@ -1110,7 +1113,7 @@ automation:
         above: input_number.office_light_level_threshold
     action:
       - parallel:
-          - service: light.turn_off
+          - action: light.turn_off
             metadata: {}
             data:
               transition: 1
@@ -1119,13 +1122,13 @@ automation:
                 - light.office_3
                 - light.office_2
           - sequence:
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.office_room_brightness_above_threshold
                 data: {}
               - delay:
                   seconds: 1
-              - service: light.turn_off
+              - action: light.turn_off
                 target:
                   entity_id:
                     - light.office_4
@@ -1145,13 +1148,13 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Turning off fly zapper after 2 hours.
               title: ":office: Office"
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             metadata: {}
             data: {}
             target:
@@ -1168,13 +1171,13 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Remote command received: toggle key lights.
               title: ":office: Office"
               log_level: "Debug"
-          - service: light.toggle
+          - action: light.toggle
             metadata: {}
             data: {}
             target:
@@ -1191,13 +1194,13 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Remote command received: toggle fan.
               title: ":office: Office"
               log_level: "Debug"
-          - service: switch.toggle
+          - action: switch.toggle
             metadata: {}
             data: {}
             target:
@@ -1243,14 +1246,14 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Schedule to turn on air conditioner.
               title: ":office: Office"
               log_level: "Debug"
           - sequence:
-              - service: climate.set_hvac_mode
+              - action: climate.set_hvac_mode
                 metadata: {}
                 data:
                   hvac_mode: cool
@@ -1258,7 +1261,7 @@ automation:
                   entity_id: climate.office_air_conditioner
               - delay:
                   seconds: 2
-              - service: climate.set_temperature
+              - action: climate.set_temperature
                 metadata: {}
                 data:
                   temperature: 21
@@ -1306,14 +1309,14 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Schedule to turn off air conditioner.
               title: ":office: Office"
               log_level: "Debug"
           - sequence:
-              - service: climate.set_hvac_mode
+              - action: climate.set_hvac_mode
                 metadata: {}
                 data:
                   hvac_mode: "off"
@@ -1336,7 +1339,7 @@ automation:
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
     action:
-      - service: climate.set_hvac_mode
+      - action: climate.set_hvac_mode
         metadata: {}
         data:
           hvac_mode: cool
@@ -1713,18 +1716,18 @@ script:
           - condition: state
             entity_id: group.jd_computer
             state: "not_home"
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":floppy_disk: Turning off external HDD"
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         target:
           entity_id: switch.external_hdd
     mode: single
   office_pc_turned_off_notification:
     alias: Office PC Turned Off Notification
     sequence:
-      - service: scene.turn_on
+      - action: scene.turn_on
         data:
           transition: 1
         target:
@@ -1734,7 +1737,7 @@ script:
           minutes: 0
           seconds: 1
           milliseconds: 0
-      - service: scene.turn_on
+      - action: scene.turn_on
         data:
           transition: 1
         target:
@@ -1745,7 +1748,7 @@ script:
   office_open_blinds:
     alias: Office Open Blinds
     sequence:
-      - service: cover.set_cover_tilt_position
+      - action: cover.set_cover_tilt_position
         data:
           tilt_position: 50
         target:
@@ -1753,7 +1756,7 @@ script:
   office_close_blinds:
     alias: Office Close Blinds
     sequence:
-      - service: cover.set_cover_tilt_position
+      - action: cover.set_cover_tilt_position
         data:
           tilt_position: 0
         target:

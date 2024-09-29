@@ -9,7 +9,7 @@ automation:
         entity_id: calendar.family
     condition: []
     action:
-      - service: script.calendar_event_started
+      - action: script.calendar_event_started
         data:
           entity_id: calendar.family
           name: "{{ trigger.calendar_event.summary|default(none, true) }}"
@@ -29,7 +29,7 @@ automation:
         entity_id: calendar.tsang_children
     condition: []
     action:
-      - service: script.calendar_event_started
+      - action: script.calendar_event_started
         data:
           entity_id: calendar.tsang_children
           name: "{{ trigger.calendar_event.summary|default(none, true) }}"
@@ -114,7 +114,7 @@ script:
                 value_template: "{{ location is not none }}"
             sequence:
               - parallel:
-                  - service: script.calendar_calculate_travel
+                  - action: script.calendar_calculate_travel
                     data:
                       location: "{{ location|default('', true) }}"
                   - choose:
@@ -130,7 +130,7 @@ script:
                             entity_id: alarm_control_panel.house_alarm
                             state: "armed_away"
                         sequence:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message: >-
                                 Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event. No one home so consider away mode.
@@ -155,7 +155,7 @@ script:
                                 entity_id:
                                   - person.danny
                     default:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: >-
                             Trigger from {{ state_attr(entity_id, 'friendly_name') }} calendar event.
@@ -187,7 +187,7 @@ script:
               - condition: template
                 value_template: "{{ location is not none }}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Trigger all day event from {{ state_attr(entity_id, 'friendly_name') }} calendar.
@@ -211,11 +211,11 @@ script:
                     Duration: {{ duration_formatted }}
                   title: ":date: Calendar"
                   log_level: "Normal"
-              - service: script.calendar_calculate_travel
+              - action: script.calendar_calculate_travel
                 data:
                   location: "{{ location|default('', true) }}"
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             continue_on_error: true
             data:
               message: >-
@@ -255,22 +255,22 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: input_text.set_value
+              - action: input_text.set_value
                 data:
                   value: zone.home
                 target:
                   entity_id: input_text.origin_address
-              - service: input_text.set_value
+              - action: input_text.set_value
                 data:
                   value: "{{ location|default('', true) }}"
                 target:
                   entity_id: input_text.destination_address
             alias: Set locations
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             data: {}
             target:
               entity_id: sensor.google_travel_time_by_car
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: >-
                 {%- if 'zone.' in states('sensor.origin_address')|default('', true)  %}

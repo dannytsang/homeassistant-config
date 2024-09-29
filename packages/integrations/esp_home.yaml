@@ -18,12 +18,12 @@ automation:
               }}"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               log_level: Debug
               message: Updating ESPHome after ESPHome update.
               title: ESPHome
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             data: {}
             target:
               entity_id: group.esphome_device_updates
@@ -58,12 +58,12 @@ automation:
             state: "off"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               log_level: Debug
               message: Updating ESPHome On Timer.
               title: ESPHome
-          - service: homeassistant.update_entity
+          - action: homeassistant.update_entity
             data: {}
             target:
               entity_id: group.esphome_device_updates
@@ -95,18 +95,18 @@ script:
           text:
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "{{ state_attr(entity_id, 'friendly_name') }} updated."
               title: "ESPHome"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: "{{ entity_id }}"
   restart_esp:
     alias: Restart ESP
     sequence:
-      - service: switch.turn_off
+      - action: switch.turn_off
         metadata: {}
         data: {}
         target:
@@ -116,7 +116,7 @@ script:
             - switch.leo_s_bedroom_esp_plug
       - delay:
           seconds: 5
-      - service: switch.turn_on
+      - action: switch.turn_on
         metadata: {}
         data: {}
         target:

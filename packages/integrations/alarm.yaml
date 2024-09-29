@@ -14,17 +14,17 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":no_bell: disarmed."
               title: ":bell: Alarm"
               log_level: "Normal"
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":camera: Turning off indoor cameras."
               log_level: "Debug"
-          - service: script.utility_room_turn_off_camera
-          - service: script.set_central_heating_to_home_mode
+          - action: script.utility_room_turn_off_camera
+          - action: script.set_central_heating_to_home_mode
     mode: single
   - id: "1587680439012"
     alias: "Alarm: Arm Overnight Home Mode"
@@ -67,7 +67,7 @@ automation:
                     entity_id: binary_sensor.alarmed_doors_and_windows
                     state: "on"
                 sequence:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
@@ -84,10 +84,10 @@ automation:
                           - person.terina
             default:
               - parallel:
-                  - service: script.arm_alarm_overnight
+                  - action: script.arm_alarm_overnight
                     data:
                       message: "It's late."
-      - service: script.lock_front_door
+      - action: script.lock_front_door
         data: {}
     mode: single
   - id: "1587680439015"
@@ -111,7 +111,7 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
@@ -160,7 +160,7 @@ automation:
                           minutes: "5"
                     sequence:
                       - parallel:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message: >-
                                 Final check for people failed. :running: :house_with_garden: Danny is not home
@@ -170,8 +170,8 @@ automation:
                                 entity_id:
                                   - person.danny
                                   - person.terina
-                          - service: script.set_alarm_to_home_mode
-                          - service: script.lock_front_door
+                          - action: script.set_alarm_to_home_mode
+                          - action: script.lock_front_door
                   - alias: Terina not home and not long distance and after last check
                     conditions:
                       - condition: state
@@ -189,7 +189,7 @@ automation:
                               - 1 }}"
                     sequence:
                       - parallel:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message: >-
                                 Final check for people failed. :house_with_garden: :woman_dancing: Terina is not
@@ -199,8 +199,8 @@ automation:
                                 entity_id:
                                   - person.danny
                                   - person.terina
-                          - service: script.set_alarm_to_home_mode
-                          - service: script.lock_front_door
+                          - action: script.set_alarm_to_home_mode
+                          - action: script.lock_front_door
                 default: []
     mode: single
   - id: "1587680439013"
@@ -230,7 +230,7 @@ automation:
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
     action:
-      - service: script.arm_alarm_overnight
+      - action: script.arm_alarm_overnight
         data:
           message: "All alarmed :door: doors and :window: windows are now closed."
     mode: single
@@ -247,12 +247,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
               title: ":bell: Alarm"
               log_level: "Normal"
-          - service: script.utility_room_turn_on_camera
+          - action: script.utility_room_turn_on_camera
     mode: single
   - id: "1614197981954"
     alias: "Alarm: Disconnected"
@@ -271,14 +271,14 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               title: ":bell: Alarm"
               message: ":warning: Disconnected from Home Assistant :warning:"
               people:
                 entity_id:
                   - person.danny
-          - service: script.send_to_computers
+          - action: script.send_to_computers
             data:
               message: Disconnected
               title: "🚨 Alarm"
@@ -301,12 +301,12 @@ automation:
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
           title: ":bell: Alarm"
           log_level: "Normal"
-      - service: hassio.addon_restart
+      - action: hassio.addon_restart
         data:
           addon: fdb328a7_ring_mqtt
       - wait_for_trigger:
@@ -322,7 +322,7 @@ automation:
                 entity_id: alarm_control_panel.house_alarm
                 state: "unavailable"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Restarting Ring MQTT add-on failed.
                   title: ":bell: Alarm"
@@ -334,7 +334,7 @@ automation:
                     entity_id: alarm_control_panel.house_alarm
                     state: "unavailable"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Ring MQTT restarted successfully.
                   title: ":bell: Alarm"
@@ -354,7 +354,7 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: Has triggered!
               title: ":rotating_light: Alarm"
@@ -363,7 +363,7 @@ automation:
                   - person.danny
                   - person.terina
                   - person.leo
-          - service: script.send_actionable_notification_with_2_buttons
+          - action: script.send_actionable_notification_with_2_buttons
             data:
               message: Triggered! Turn off?
               title: ":rotating_light: Alarm"
@@ -374,7 +374,7 @@ automation:
               action1_name: switch_off_alarm
               action2_title: "No"
               action2_name: ignore
-          - service: script.post_home_assistant_direct_notification
+          - action: script.post_home_assistant_direct_notification
             data:
               message: Has triggered!
               title: "🚨 Alarm"
@@ -383,7 +383,7 @@ automation:
                 - person.terina
                 - person.leo
               priority: high
-          - service: script.send_to_computers
+          - action: script.send_to_computers
             data:
               message: Triggered
               title: "🚨 Alarm"
@@ -403,12 +403,12 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: "armed_away"
             then:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :bell: alarm on in away mode."
                   title: ":bell: Alarm"
                   log_level: "Normal"
-              - service: alarm_control_panel.alarm_arm_away
+              - action: alarm_control_panel.alarm_arm_away
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
@@ -425,12 +425,12 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: "disarmed"
             then:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :no_bell: alarm off."
                   title: ":bell: Alarm"
                   log_level: "Normal"
-              - service: alarm_control_panel.alarm_disarm
+              - action: alarm_control_panel.alarm_disarm
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
@@ -447,12 +447,12 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: "armed_home"
             then:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Changing :bell: alarm to home mode(door sensors only)."
                   title: ":bell: Alarm"
                   log_level: "Normal"
-              - service: alarm_control_panel.alarm_arm_home
+              - action: alarm_control_panel.alarm_arm_home
                 data: {}
                 target:
                   entity_id: alarm_control_panel.house_alarm
@@ -483,13 +483,13 @@ script:
                   minutes: "5"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "{{ message }} Turning :bell: alarm on."
                       title: ":bell: Alarm"
                       log_level: "Normal"
-                  - service: script.set_alarm_to_home_mode
-                  - service: script.lock_front_door
+                  - action: script.set_alarm_to_home_mode
+                  - action: script.lock_front_door
           - alias: Danny not home and not long distance
             conditions:
               - not:
@@ -508,7 +508,7 @@ script:
               - condition: time
                 before: "02:00:00"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     {{ message }} :running: :house_with_garden: Danny is not home.
@@ -531,7 +531,7 @@ script:
                 for:
                   minutes: "5"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     {{ message }} :running: :house_with_garden: Danny is not home and more than
@@ -540,7 +540,7 @@ script:
                     Turning alarm on.
                   title: ":bell: Alarm"
                   log_level: "Normal"
-              - service: script.set_alarm_to_home_mode
+              - action: script.set_alarm_to_home_mode
           - alias: Terina not home and not long distance
             conditions:
               - condition: state
@@ -559,7 +559,7 @@ script:
               - condition: time
                 before: "02:00:00"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     {{ message }} :house_with_garden: :woman_dancing: Terina is not
@@ -581,7 +581,7 @@ script:
                   - 1 }}"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         {{ message }} :house_with_garden: :woman_dancing: Terina is not home and more than
@@ -590,10 +590,10 @@ script:
                         Turning alarm on.
                       title: ":bell: Alarm"
                       log_level: "Normal"
-                  - service: script.set_alarm_to_home_mode
-                  - service: script.lock_front_door
+                  - action: script.set_alarm_to_home_mode
+                  - action: script.lock_front_door
         default:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: >-
                 :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:

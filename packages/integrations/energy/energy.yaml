@@ -25,7 +25,7 @@ automation:
         condition: template
         value_template: "{{ trigger.from_state.state != 'unknown'}}"
     action:
-      - service: script.energy_notify_excess_solar
+      - action: script.energy_notify_excess_solar
         data: {}
     mode: single
   - id: "1660858653319"
@@ -45,7 +45,7 @@ automation:
                 entity_id: sensor.total_solar_forecast_estimated_energy_production_tomorrow
                 below: input_number.solar_generation_minimum_threshold
             then:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Forecast generation is expected to be low
@@ -57,17 +57,17 @@ automation:
                     {{ state_attr('input_number.consecutive_forecast_days_below_solar_generation', 'unit_of_measurement') }}.
                   title: ":sunny: :zap: Solar"
                   log_level: "Normal"
-              - service: input_number.increment
+              - action: input_number.increment
                 data: {}
                 target:
                   entity_id: input_number.consecutive_forecast_days_below_solar_generation
             else:
-              - service: input_number.set_value
+              - action: input_number.set_value
                 data:
                   value: 0
                 target:
                   entity_id: input_number.consecutive_forecast_days_below_solar_generation
-          - service: script.energy_notify_tomorrows_solar_forecast
+          - action: script.energy_notify_tomorrows_solar_forecast
             data: {}
     mode: single
   - id: "1664743590782"
@@ -82,12 +82,12 @@ automation:
         entity_id: input_boolean.battery_charged_today
         state: "off"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Battery charged today
           title: ":sunny: :zap: Solar"
           log_level: "Debug"
-      - service: input_boolean.turn_on
+      - action: input_boolean.turn_on
         data: {}
         target:
           entity_id: input_boolean.battery_charged_today
@@ -96,12 +96,12 @@ automation:
             entity_id: input_number.consecutive_days_battery_not_charged
             above: 0
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Resetting days not fully charged.
               title: ":sunny: :zap: Solar"
               log_level: "Debug"
-          - service: input_number.set_value
+          - action: input_number.set_value
             data:
               value: 0
             target:
@@ -122,12 +122,12 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: Resetting battery charged today.
                       title: ":sunny: :zap: Solar"
                       log_level: "Debug"
-                  - service: input_boolean.turn_off
+                  - action: input_boolean.turn_off
                     data: {}
                     target:
                       entity_id: input_boolean.battery_charged_today
@@ -136,7 +136,7 @@ automation:
                 entity_id: input_boolean.battery_charged_today
                 state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Battery did not fully charge today
@@ -145,7 +145,7 @@ automation:
                     ({{ states('input_number.consecutive_days_battery_not_charged') }}).
                   title: ":sunny: :zap: Solar"
                   log_level: "Debug"
-              - service: input_number.increment
+              - action: input_number.increment
                 data: {}
                 target:
                   entity_id: input_number.consecutive_days_battery_not_charged
@@ -159,7 +159,7 @@ automation:
         above: input_number.solar_generation_minimum_threshold
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Production above threshold. Resetting Forecast
           title: ":sunny: :zap: Solar"
@@ -174,7 +174,7 @@ automation:
         above: 6
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message:
             It has been {{ states('input_number.consecutive_days_battery_not_charged')
@@ -193,7 +193,7 @@ automation:
         above: 6
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message:
             It has been {{ states('input_number.consecutive_forecast_days_below_solar_generation')
@@ -214,7 +214,7 @@ automation:
         value_template: "{{ (states('sensor.growatt_sph_battery_state_of_charge')|int(0)) >
         ((states('number.growatt_sph_load_first_stop_discharge')|int(0)) + 1) }}"
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message: >-
             {{ states('sensor.growatt_sph_battery_state_of_charge') }}%
@@ -241,7 +241,7 @@ automation:
           entity_id: sensor.growatt_sph_inverter_mode
           state: "Battery first"
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message: >-
             Battery will not last beyond 19:00 today
@@ -265,7 +265,7 @@ automation:
           seconds: 0
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message:
             No electricty consumption detected for over a minute. Check for power
@@ -282,7 +282,7 @@ automation:
         above: sensor.grid_max_import_power_warning
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: >-
@@ -308,12 +308,12 @@ automation:
         value_template: >-
           {{ state_attr(trigger.entity_id, 'available_events') | length > 0 }}
     action:
-      - service: octopus_energy.join_octoplus_saving_session_event
+      - action: octopus_energy.join_octoplus_saving_session_event
         data:
           event_code: "{{ state_attr(trigger.entity_id, 'available_events')[0]['code'] }}"
         target:
           entity_id: event.octopus_energy_octoplus_saving_session_events
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: >-
@@ -334,7 +334,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: Energy Saver Session Started
@@ -355,7 +355,7 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: Energy Saver Session Finished
@@ -561,7 +561,7 @@ script:
   todays_solar_forecast_data:
     alias: Today's Solar Forecast Data
     sequence:
-      - service: weather.get_forecasts
+      - action: weather.get_forecasts
         target:
           entity_id: weather.home
         data:
@@ -627,7 +627,7 @@ script:
   tomorrows_solar_forecast_data:
     alias: Tomorrow's Solar Forecast Data
     sequence:
-      - service: weather.get_forecasts
+      - action: weather.get_forecasts
         target:
           entity_id: weather.home
         data:
@@ -703,9 +703,9 @@ script:
         {{ states('sensor.home_electricity_power_daily_average_over_a_week')|float(1) }}
         {%- endif -%}
     sequence:
-      - service: script.tomorrows_solar_forecast_data
+      - action: script.tomorrows_solar_forecast_data
         response_variable: solar_forecast_data
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message: >-
             {%- from 'emoji.jinja' import get_weather -%}
@@ -931,14 +931,14 @@ script:
           - condition: template
             value_template: "{{ (people_home|default([]))|length > 0 }}"
         then:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: "{{ message }}"
               title: ":sunny: :zap: :electric_plug: Solar"
               people:
                 entity_id: "{{ people_home }}"
         else:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "{{ message }}"
               title: ":sunny: :zap: :electric_plug: Solar"

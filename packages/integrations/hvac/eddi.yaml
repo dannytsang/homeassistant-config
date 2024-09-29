@@ -20,7 +20,7 @@ automation:
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             :fuelpump: Eddi diverting energy.
@@ -52,7 +52,7 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :clock{{ now().strftime('%I') | int }}{% if now().minute | int >
@@ -60,11 +60,11 @@ automation:
                 Eddi back on.
               title: myEnergi
               log_level: "Debug"
-          - service: timer.cancel
+          - action: timer.cancel
             target:
               entity_id: timer.eddi_max_temperature_reached
             data: {}
-          - service: select.select_option
+          - action: select.select_option
             data:
               option: Normal
             target:
@@ -85,7 +85,7 @@ automation:
         entity_id: water_heater.thermostat
         state: "on"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             Eddi has heated enough hot water
@@ -98,7 +98,7 @@ automation:
             Turning off hot water.
           title: ":hotsprings: Central Heating"
           log_level: "Normal"
-      - service: script.set_hot_water_to_home_mode
+      - action: script.set_hot_water_to_home_mode
         data: {}
     mode: single
   - id: "1703760630207"
@@ -122,14 +122,14 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Hot water timer has finished. Turning :fuelpump:
                 Eddi back on.
               title: myEnergi
               log_level: Debug
-          - service: select.select_option
+          - action: select.select_option
             data:
               option: Normal
             target:
@@ -149,18 +149,18 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             metadata: {}
             data:
               message: Hot water tank reached max temperature.
               title: Eddi
               log_level: Debug
-          - service: timer.start
+          - action: timer.start
             target:
               entity_id: timer.eddi_max_temperature_reached
             data:
               duration: "04:00:00"
-          - service: script.hvac_check_eddi_boost_hot_water
+          - action: script.hvac_check_eddi_boost_hot_water
             data: {}
     mode: single
   # Unit rate related automations
@@ -213,7 +213,7 @@ automation:
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
     action:
-      - service: script.hvac_check_eddi_boost_hot_water
+      - action: script.hvac_check_eddi_boost_hot_water
         data: {}
     mode: single
 
@@ -222,13 +222,13 @@ script:
     alias: HVAC Set Solar Diverter To Holiday Mode
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Turning :fuelpump: Eddi back on.
               title: myEnergi
               log_level: "Normal"
-          - service: select.select_option
+          - action: select.select_option
             data:
               option: Stopped
             target:
@@ -239,13 +239,13 @@ script:
     alias: HVAC Set Solar Diverter To normal Mode
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Turning :fuelpump: Eddi back on.
               title: myEnergi
               log_level: "Normal"
-          - service: select.select_option
+          - action: select.select_option
             data:
               option: Normal
             target:
@@ -265,14 +265,14 @@ script:
             unit_of_measurement: "min"
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Turning :fuelpump: Eddi to boost for
                 {{ minutes|float(0) }} mins.
               title: myEnergi
               log_level: "Normal"
-          - service: myenergi.myenergi_eddi_boost
+          - action: myenergi.myenergi_eddi_boost
             data:
               target: Heater 1
               time: "{{ minutes|float(0) }}"
@@ -309,7 +309,7 @@ script:
                     entity_id: input_select.home_mode
                     state: "Holiday"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Incorrect state to start charging {{ states('sensor.myenergi_eddi_status') }}. Skipping.
@@ -325,13 +325,13 @@ script:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Electrictity rate is below 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                  - service: script.hvac_set_solar_diverter_to_boost_mode
+                  - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
           - alias: "Unit rate is on 0p/kw"
@@ -344,13 +344,13 @@ script:
                 state: "on"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Electrictity rate is 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
                         Boosting hot water with eddi.
                       title: Eddi
-                  - service: script.hvac_set_solar_diverter_to_boost_mode
+                  - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
           - alias: "Charging schedule is enabled"
@@ -368,7 +368,7 @@ script:
                         state: "on"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         Scheduled boosting of hot water by electrictity. Boosting hot water with eddi.
@@ -376,7 +376,7 @@ script:
                       people:
                         entity_id:
                           - person.danny
-                  - service: script.hvac_set_solar_diverter_to_boost_mode
+                  - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
                       minutes: 20
           - alias: "Exceed Cut Off Threshold"
@@ -397,7 +397,7 @@ script:
                         state: "Stopped"
                 then:
                   - parallel:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: >-
                             Stopping :fuelpump: Eddi. Divered {{ states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle') }}
@@ -406,7 +406,7 @@ script:
                             {{ state_attr('sensor.myenergi_eddi_energy_consumed_session', 'unit_of_measurement') }}.
                           title: myEnergi
                           log_level: "Debug"
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: "Stopped"
                         target:
@@ -419,13 +419,13 @@ script:
                     state: "Normal"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Scheduled boosting of hot water by electrictity. Boosting hot water with eddi.
                       title: Eddi
                       log_level: "Debug"
-                  - service: script.hvac_set_solar_diverter_to_normal_mode
+                  - action: script.hvac_set_solar_diverter_to_normal_mode
                     data: {}
         default: []
 

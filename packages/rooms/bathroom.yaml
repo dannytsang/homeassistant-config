@@ -39,7 +39,7 @@ automation:
                     state: "on"
                 sequence:
                   - parallel:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: >-
                             :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_illuminance') }} <
@@ -48,7 +48,7 @@ automation:
                             :bulb: :high_brightness: light on.
                           title: ":bathtub: Bathroom"
                           log_level: "Debug"
-                      - service: scene.turn_on
+                      - action: scene.turn_on
                         target:
                           entity_id: scene.bathroom_light_on
               - conditions:
@@ -61,7 +61,7 @@ automation:
                       - condition: time
                         before: "05:30:00"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_illuminance') }} <
@@ -69,7 +69,7 @@ automation:
                         it's :clock12: late. Turning night :bulb: :low_brightness: light on.
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.bathroom_night_light
               - conditions:
@@ -81,7 +81,7 @@ automation:
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - parallel:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: >-
                             :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
@@ -90,7 +90,7 @@ automation:
                             Turning :bulb: :high_brightness: lights on.
                           title: ":bathtub: Bathroom"
                           log_level: "Debug"
-                      - service: scene.turn_on
+                      - action: scene.turn_on
                         target:
                           entity_id: scene.bathroom_light_on
               - conditions:
@@ -103,7 +103,7 @@ automation:
                     below: input_number.bathroom_light_level_threshold
                 sequence:
                   - parallel:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: >-
                             :paw_prints: Motion detected, it's dark
@@ -112,15 +112,15 @@ automation:
                             Turning :bulb: :high_brightness: lights on.
                           title: ":bathtub: Bathroom"
                           log_level: "Debug"
-                      - service: scene.turn_on
+                      - action: scene.turn_on
                         target:
                           entity_id: scene.bathroom_light_on
             default: []
-          - service: timer.cancel
+          - action: timer.cancel
             data: {}
             target:
               entity_id: timer.bathroom_light_off
-          - service: timer.cancel
+          - action: timer.cancel
             data: {}
             target:
               entity_id: timer.bathroom_light_dim
@@ -167,7 +167,7 @@ automation:
                       - condition: time
                         before: "05:30:00"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_illuminance') }} &
@@ -176,7 +176,7 @@ automation:
                         and it's :clock12: late. Turning stairs night :bulb: :low_brightness: light on.
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.bathroom_night_light
               - conditions:
@@ -191,7 +191,7 @@ automation:
                         entity_id: sensor.bathroom_motion_illuminance
                         below: input_number.bathroom_light_level_threshold
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected, it's dark in :busts_in_silhouette:
@@ -201,7 +201,7 @@ automation:
                         Turning :bulb: :high_brightness: lights on.
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.bathroom_light_on
               - conditions:
@@ -217,7 +217,7 @@ automation:
                         entity_id: sensor.bathroom_motion_illuminance
                         below: input_number.bathroom_light_level_threshold
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         :paw_prints: Motion detected, it's dark ({{ states('sensor.bathroom_motion_illuminance') }} &
@@ -226,15 +226,15 @@ automation:
                         Turning :bulb: :high_brightness: lights on.
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.bathroom_light_on
             default: []
-          - service: timer.cancel
+          - action: timer.cancel
             data: {}
             target:
               entity_id: timer.bathroom_light_off
-          - service: timer.cancel
+          - action: timer.cancel
             data: {}
             target:
               entity_id: timer.bathroom_light_dim
@@ -260,7 +260,7 @@ automation:
                 entity_id: sensor.dannys_toothbrush_state
                 state: "running"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Danny's :toothbrush: toothbrush is on. Skipping dimming light."
                   title: ":bathtub: Bathroom"
@@ -270,7 +270,7 @@ automation:
                 entity_id: sensor.dannys_toothbrush_state
                 state: "running"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Danny's :toothbrush: toothbrush is on. Skipping dimming light."
                   title: ":bathtub: Bathroom"
@@ -285,7 +285,7 @@ automation:
               - condition: time
                 before: "22:00:00"
             sequence:
-              - service: script.bathroom_start_dim_light
+              - action: script.bathroom_start_dim_light
                 data:
                   message_prefix: ":no_pedestrians: No motion."
           - conditions:
@@ -298,11 +298,11 @@ automation:
               - condition: time
                 after: "22:00:00"
             sequence:
-              - service: script.bathroom_start_dim_light
+              - action: script.bathroom_start_dim_light
                 data:
                   message_prefix: ":no_pedestrians: No motion."
         default:
-          - service: script.bathroom_start_dim_light
+          - action: script.bathroom_start_dim_light
             data:
               message_prefix: ":no_pedestrians: No motion."
   - id: "1658842750490"
@@ -316,17 +316,17 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Bathroom light timer finished. Turning dimming light.
               title: ":bathtub: Bathroom"
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.bathroom_dim_lights
             data:
               transition: 2
-          - service: timer.start
+          - action: timer.start
             data:
               duration: "00:00:30"
             target:
@@ -342,12 +342,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Bathroom light timer finished. Turning light off.
               title: ":bathtub: Bathroom"
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.bathroom_turn_off_light
             data:
@@ -362,13 +362,13 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: timer.cancel
+      - action: timer.cancel
         data: {}
         target:
           entity_id:
             - timer.bathroom_light_off
             - timer.bathroom_light_dim
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Cancelling light timers.
           title: Bathroom
@@ -407,7 +407,7 @@ automation:
                 entity_id: sensor.dannys_toothbrush_state
                 state: "running"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":toothbrush: Toothbrush is on. Skipping lights off."
                   title: ":bathtub: Bathroom"
@@ -424,14 +424,14 @@ automation:
               - condition: time
                 before: "22:00:00"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":no_pedestrians: No motion again and door is open. Turning
                     light off."
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_turn_off_light
                 data:
@@ -448,14 +448,14 @@ automation:
               - condition: time
                 after: "22:00:00"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     :no_pedestrians: No motion and :door: door is open after :clock10: 22:00.
                     Turning light off."
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_turn_off_light
                 data:
@@ -467,12 +467,12 @@ automation:
               - condition: trigger
                 id: door_closed
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":no_pedestrians: No motion. Turning light off."
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_turn_off_light
                 data:
@@ -490,7 +490,7 @@ automation:
         from: "off"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             :door: Door opened. Incrementing counter :abacus: from
@@ -499,7 +499,7 @@ automation:
             | int + state_attr('counter.bathroom_door_opened_closed', 'step') | int }}.
           title: ":bathtub: Bathroom"
           log_level: "Debug"
-      - service: counter.increment
+      - action: counter.increment
         data: {}
         entity_id: counter.bathroom_door_opened_closed
     mode: single
@@ -531,7 +531,7 @@ automation:
                   - condition: time
                     before: "05:30:00"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     :paw_prints: Motion detected, it's dark
@@ -540,11 +540,11 @@ automation:
                     and it's :clock12: late. Turning night :bulb: :low_brightness: light on.
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_night_light
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :paw_prints: Motion detected, :door: door closed and it's dark
@@ -552,7 +552,7 @@ automation:
                 Turning :bulb: :high_brightness: light on.
               title: ":bathtub: Bathroom"
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.bathroom_light_on
     mode: single
@@ -570,7 +570,7 @@ automation:
         entity_id: counter.bathroom_door_opened_closed
         below: "2"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             :door: Door opened for more than 20 secs. Resetting :abacus: counter
@@ -578,7 +578,7 @@ automation:
             }} to 0
           title: ":bathtub: Bathroom"
           log_level: "Debug"
-      - service: counter.reset
+      - action: counter.reset
         data: {}
         entity_id: counter.bathroom_door_opened_closed
     mode: single
@@ -600,27 +600,27 @@ automation:
                 entity_id: input_boolean.bathroom_light_override
                 state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":door: Door closed and opened {{ states('counter.bathroom_door_opened_closed')
                     }}x in 30 seconds, keeping :bulb: lights on for 10 minutes."
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: script.bathroom_flash_light
+              - action: script.bathroom_flash_light
                 data: {}
               - delay:
                   hours: 0
                   minutes: 0
                   seconds: 2
                   milliseconds: 0
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_light_on
-              - service: counter.reset
+              - action: counter.reset
                 data: {}
                 entity_id: counter.bathroom_door_opened_closed
-              - service: input_boolean.turn_on
+              - action: input_boolean.turn_on
                 data: {}
                 entity_id: input_boolean.bathroom_light_override
           - conditions:
@@ -628,29 +628,29 @@ automation:
                 entity_id: input_boolean.bathroom_light_override
                 state: "on"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":door: Door closed and opened {{ states('counter.bathroom_door_opened_closed')
                     }} in 30 seconds, resetting lights to :paw_prints: motion detection."
                   title: ":bathtub: Bathroom"
                   log_level: "Debug"
-              - service: script.bathroom_flash_light
+              - action: script.bathroom_flash_light
                 data: {}
               - delay:
                   hours: 0
                   minutes: 0
                   seconds: 2
                   milliseconds: 0
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.bathroom_turn_off_light
                 data:
                   transition: 2
-              - service: counter.reset
+              - action: counter.reset
                 data: {}
                 entity_id: counter.bathroom_door_opened_closed
-              - service: input_boolean.turn_off
+              - action: input_boolean.turn_off
                 data: {}
                 entity_id: input_boolean.bathroom_light_override
         default: []
@@ -666,12 +666,12 @@ automation:
         for: 00:10:00
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Light override has been on for 10 minutes. :bulb: :low_brightness: Dimming lights."
           title: ":bathtub: Bathroom"
           log_level: "Debug"
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id: scene.bathroom_dim_lights
     mode: single
@@ -685,15 +685,15 @@ automation:
         for: 00:11:00
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Light override has been on for 11 minutes. Turning light off."
           title: ":bathtub: Bathroom"
           log_level: "Debug"
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id: scene.bathroom_turn_off_light
-      - service: input_boolean.turn_off
+      - action: input_boolean.turn_off
         data: {}
         entity_id: input_boolean.bathroom_light_override
     mode: single
@@ -708,12 +708,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Danny's :toothbrush: toothbrush is on."
               title: ":bathtub: Bathroom"
               log_level: "Debug"
-          - service: timer.cancel
+          - action: timer.cancel
             data: {}
             target:
               entity_id:
@@ -750,7 +750,7 @@ automation:
             entity_id: timer.bathroom_light_off
             state: "active"
     action:
-      - service: script.bathroom_start_dim_light
+      - action: script.bathroom_start_dim_light
         data:
           message_prefix: "Danny's :toothbrush: toothbrush stopped."
     mode: single
@@ -770,7 +770,7 @@ automation:
         entity_id: binary_sensor.bathroom_window_contact
         state: "off"
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%) and window is closed."
           title: ":bathtub: Bathroom"
@@ -861,11 +861,11 @@ script:
       - repeat:
           count: "2"
           sequence:
-            - service: light.turn_on
+            - action: light.turn_on
               data:
                 brightness_pct: 100
               entity_id: light.bathroom
-            - service: light.turn_off
+            - action: light.turn_off
               data: {}
               entity_id: light.bathroom
     mode: single
@@ -891,12 +891,12 @@ script:
                 before: "22:00:00"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "{{ message_prefix }} :door: Door is open. Sarting dim light timer."
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: timer.start
+                  - action: timer.start
                     data:
                       duration: "00:03:00"
                     target:
@@ -912,12 +912,12 @@ script:
                 after: "22:00:00"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "{{ message_prefix }} :door: Door is open after :clock10: 22:00. Sarting dim light timer."
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: timer.start
+                  - action: timer.start
                     data:
                       duration: "00:05:00"
                     target:
@@ -928,12 +928,12 @@ script:
                 state: "off"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "{{ message_prefix }} :door: Door closed. Sarting dim light timer."
                       title: ":bathtub: Bathroom"
                       log_level: "Debug"
-                  - service: timer.start
+                  - action: timer.start
                     data:
                       duration: "{{ states('input_text.bathroom_light_on_door_close_time') }}"
                     target:

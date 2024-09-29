@@ -14,7 +14,7 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: |-
                 user_id: {{ trigger.data.user_id }}
@@ -36,7 +36,7 @@ automation:
                       - condition: template
                         value_template: "{{ trigger.data.user_id|string|default('', true)  == states('input_text.dannys_slack_id') }}"
                     sequence:
-                      - service: conversation.process
+                      - action: conversation.process
                         data:
                           agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
                           text: "{{ trigger.data.text }}"
@@ -48,7 +48,7 @@ automation:
                               assist.response.response_type == 'error'}}
                         then:
                           - parallel:
-                            - service: script.post_slack_notification
+                            - action: script.post_slack_notification
                               data:
                                 message: >-
                                   {%- set wait_response = ['hmm...', 'thinking...', '...', 'er...', 'um...', 'well'] -%}
@@ -56,19 +56,19 @@ automation:
                                 title: "{{ trigger.data.text }}"
                                 people: "{{ '<@'~trigger.data.user_name~'>' }}"
                                 target: "{{ trigger.data.channel_name }}"
-                            - service: conversation.process
+                            - action: conversation.process
                               data:
                                 agent_id: "{{ states('input_text.dannys_secondary_selected_conversation_agent') }}"
                                 text: "{{ trigger.data.text }}"
                               response_variable: assist
-                      - service: script.post_slack_notification
+                      - action: script.post_slack_notification
                         data:
                           message: "{{ assist.response.speech.plain.speech }}"
                           title: "{{ trigger.data.text }}"
                           people: "{{ '<@'~trigger.data.user_name~'>' }}"
                           target: "{{ trigger.data.channel_name }}"
             else:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: |-
                     user_id: {{ trigger.data.user_id }}
@@ -118,7 +118,7 @@ script:
             - condition: template
               value_template: "{{ title|default(none, true) is not none }}"
           sequence:
-            - service: notify.danny_tsang
+            - action: notify.danny_tsang
               data:
                 message: >-
                   {{ iif(people is not none,people|default('', true)~' ','') }}
@@ -140,7 +140,7 @@ script:
                           {%- from 'process_messages.jinja' import process_messages -%}
                           {{ process_messages(message, 'Slack') }}
         default:
-          - service: notify.danny_tsang
+          - action: notify.danny_tsang
             data:
               message: >-
                 {{ iif(people is not none,people|default('', true)~' ','') }}
@@ -201,7 +201,7 @@ script:
               - condition: template
                 value_template: "{{ title|default(none, true) is not none }}"
             sequence:
-              - service: notify.danny_tsang
+              - action: notify.danny_tsang
                 data:
                   message: >-
                     {% from 'process_messages.jinja' import process_messages %}
@@ -228,7 +228,7 @@ script:
                           alt_text: "{{ title|default('Failed to load image', true) }}"
         # No title set
         default:
-          - service: notify.danny_tsang
+          - action: notify.danny_tsang
             data:
               message: >-
                 {{ iif(people is not none,people|default('', true)~' ','') }}
@@ -286,7 +286,7 @@ script:
         selector:
           text:
     sequence:
-      - service: notify.danny_tsang
+      - action: notify.danny_tsang
         data:
           message: >-
             {{ iif(people is not none,people|default('', true)~' ','') }}

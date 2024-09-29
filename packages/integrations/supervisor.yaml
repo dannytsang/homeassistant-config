@@ -15,12 +15,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: timer.start
+          - action: timer.start
             data:
               duration: 01:00:00
             target:
               entity_id: timer.stop_add_on_file_editor
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "File Editor started."
               title: ":heavy_plus_sign: Add-on"
@@ -39,7 +39,7 @@ automation:
         entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
-      - service: script.stop_add_on
+      - action: script.stop_add_on
         data:
           addonEntityId: core_configurator
           message:
@@ -60,12 +60,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: timer.start
+          - action: timer.start
             data:
               duration: 01:00:00
             target:
               entity_id: timer.stop_add_on_terminal_ssh
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Terminal SSH started."
               title: ":heavy_plus_sign: Add-on"
@@ -84,7 +84,7 @@ automation:
         entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
-      - service: script.stop_add_on
+      - action: script.stop_add_on
         data:
           addonEntityId: a0d7b954_ssh
           message: SSH has been on for more than an hour. Turning SSH off.
@@ -102,12 +102,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Zigbee 2 MQTT Proxy started."
               title: ":heavy_plus_sign: Add-on"
               log_level: "Debug"
-          - service: timer.start
+          - action: timer.start
             metadata: {}
             data:
               duration: "00:30:00"
@@ -126,7 +126,7 @@ automation:
         entity_id: input_boolean.enable_stop_add_ons
         state: "on"
     action:
-      - service: script.stop_add_on
+      - action: script.stop_add_on
         data:
           addonEntityId: 45df7312_zigbee2mqtt_proxy
           message: Zigbee2MQTT Proxy has been on for more than an hour. Turning Zigbee2MQTT Proxy off.
@@ -147,14 +147,14 @@ automation:
             state: sensor.file_editor_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 File Editor updated from {{ states('sensor.file_editor_version') }} to
                 {{ states('sensor.file_editor_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.file_editor_update
@@ -174,14 +174,14 @@ automation:
             state: sensor.advanced_ssh_web_terminal_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Terminal & SSH updated from {{ states('sensor.advanced_ssh_web_terminal_version') }} to
                 {{ states('sensor.advanced_ssh_web_terminal_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.advanced_ssh_web_terminal_update
@@ -201,14 +201,14 @@ automation:
             state: sensor.esphome_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 ESPHome updated from {{ states('sensor.esphome_version') }} to
                 {{ states('sensor.esphome_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.esphome_update
@@ -228,14 +228,14 @@ automation:
             state: sensor.zigbee2mqtt_proxy_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Zigbee2MQTT Proxy updated from {{ states('sensor.zigbee2mqtt_proxy_version') }} to
                 {{ states('sensor.zigbee2mqtt_proxy_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.zigbee2mqtt_proxy_update
@@ -255,14 +255,14 @@ automation:
             state: sensor.log_viewer_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Log Viewer updated from {{ states('sensor.log_viewer_version') }} to
                 {{ states('sensor.log_viewer_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.log_viewer_update
@@ -282,14 +282,14 @@ automation:
             state: sensor.visual_studio_code_version
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Log Viewer updated from {{ states('sensor.visual_studio_code_version') }} to
                 {{ states('sensor.visual_studio_code_newest_version')}}.
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: update.install
+          - action: update.install
             data: {}
             target:
               entity_id: update.studio_code_server_update
@@ -311,11 +311,11 @@ script:
           text:
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "{{ message|default(none, true) }}"
               title: ":heavy_plus_sign: Add-on"
               log_level: "Normal"
-          - service: hassio.addon_stop
+          - action: hassio.addon_stop
             data:
               addon: "{{ addonEntityId }}"

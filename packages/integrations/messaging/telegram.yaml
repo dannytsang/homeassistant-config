@@ -14,11 +14,11 @@ automation:
               - condition: template
                 value_template: "{{ trigger.event.data.command == 'get_camera'}}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Getting camera {{trigger.event.data.args}}
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: |-
                 Recieved Telegram event:
@@ -53,7 +53,7 @@ automation:
                       {{ assist.response.response_type|default(none, true)  != none and
                       assist.response.response_type == 'error'}}
                 then:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: |-
                         :speech_balloon: Recieved Telegram event:
@@ -71,7 +71,7 @@ automation:
                       - condition: template
                         value_template: "{{ trigger.event.data.user_id|string|default('', true)  == states('input_text.dannys_telegram_chat_id') }}"
                     sequence:
-                      - service: conversation.process
+                      - action: conversation.process
                         data:
                           agent_id: "{{ states('input_text.dannys_selected_conversation_agent') }}"
                           text: "{{ trigger.event.data.text }}"
@@ -83,17 +83,17 @@ automation:
                               assist.response.response_type == 'error'}}
                         then:
                           - parallel:
-                            - service: notify.telegram
+                            - action: notify.telegram
                               data:
                                 message: >-
                                   {%- set wait_response = ['hmm...', 'thinking...', '...', 'er...', 'um...', 'well'] -%}
                                   {{ wait_response[range(0, wait_response|length)|random] }}
-                            - service: conversation.process
+                            - action: conversation.process
                               data:
                                 agent_id: "{{ states('input_text.dannys_secondary_selected_conversation_agent') }}"
                                 text: "{{ trigger.event.data.text }}"
                               response_variable: assist
-                      - service: notify.telegram
+                      - action: notify.telegram
                         data:
                           message: "{{ assist.response.speech.plain.speech }}"
                 default: []
@@ -107,7 +107,7 @@ automation:
         event_type: telegram_callback
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: |-
             :speech_balloon: Recieved Telegram event:
@@ -164,14 +164,14 @@ script:
               - condition: template
                 value_template: "{{ 'person.danny' in people }}"
             sequence:
-              - service: telegram_bot.send_message
+              - action: telegram_bot.send_message
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.dannys_telegram_chat_id') }}"
                 continue_on_error: true
         default:
-          - service: telegram_bot.send_message
+          - action: telegram_bot.send_message
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
@@ -201,7 +201,7 @@ script:
         selector:
           text:
     sequence:
-      - service: notify.danny_tsang
+      - action: notify.danny_tsang
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"

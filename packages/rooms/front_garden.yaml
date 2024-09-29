@@ -13,17 +13,17 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: "Some pressed the door bell."
               title: "Porch"
               people:
                 - person.danny
                 - person.terina
-          - service: script.alexa_announce
+          - action: script.alexa_announce
             data:
               message: "Ding dong."
-          - service: input_boolean.turn_on
+          - action: input_boolean.turn_on
             target:
               entity_id: input_boolean.wait_for_doorbell_camera_update
           - if:
@@ -31,7 +31,7 @@ automation:
                 entity_id: group.adult_people
                 state: "not_home"
             then:
-              - service: todo.add_item
+              - action: todo.add_item
                 data:
                   item: ":door: :bell: Someone rung the door bell."
                 target:
@@ -50,13 +50,13 @@ automation:
           != states('input_text.doorbell_last_video_id') | string}}"
     action:
       # Bug: https://github.com/home-assistant/home-assistant.io/issues/21599
-      - service: downloader.download_file
+      - action: downloader.download_file
         data:
           url: "{{ state_attr('camera.front_door', 'video_url') }}"
           subdir: "front_door"
           filename: "latest.mp4"
           overwrite: true
-      # - service: shell_command.copy_doorbell_footage
+      # - action: shell_command.copy_doorbell_footage
       #   data: {}
     mode: queued
     max: 10
@@ -71,13 +71,13 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: camera.snapshot
+      - action: camera.snapshot
         metadata: {}
         data:
           filename: "{{ states('input_text.driveway_vehicle_latest_image_path') }}/vehicle_latest.jpg"
         target:
           entity_id: camera.driveway_high_resolution_channel
-      - service: gpt4vision.image_analyzer
+      - action: gpt4vision.image_analyzer
         data:
           provider: Ollama
           max_tokens: 100
@@ -89,7 +89,7 @@ automation:
           message: Is there a Tesco van Ignoring all other vehicles found.
           image_file: "{{ states('input_text.driveway_vehicle_latest_image_path') }}/vehicle_latest.jpg"
         response_variable: ai
-      - service: script.send_home_log_with_local_attachments
+      - action: script.send_home_log_with_local_attachments
         data:
           message: "{{ ai.response_text }}"
           title: Vehicle Detected
@@ -114,7 +114,7 @@ automation:
         entity_id: sensor.season
         state: "summer"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message:
             Sun light has fallen below {{ states('input_number.close_blinds_brightness_threshold')
@@ -122,7 +122,7 @@ automation:
             }}). Opening office blinds/curtains.
           title: Front Garden
           log_level: "Normal"
-      - service: cover.set_cover_position
+      - action: cover.set_cover_position
         data:
           position: 25
         target:
@@ -138,7 +138,7 @@ automation:
             entity_id: binary_sensor.bedroom_tv_powered_on
             state: "off"
         then:
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.bedroom_blinds
       - if:
@@ -149,7 +149,7 @@ automation:
           - condition: time
             before: input_datetime.childrens_bed_time
         then:
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.ashlees_bedroom_blinds
     mode: single
@@ -162,7 +162,7 @@ automation:
           - binary_sensor.outdoor_lock_box_contact
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           title: Lock Box
@@ -185,7 +185,7 @@ automation:
           seconds: 0
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         metadata: {}
         data:
           message: Lockbox sensor has disconnected.

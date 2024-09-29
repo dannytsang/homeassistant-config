@@ -9,7 +9,7 @@ automation:
         entity_id: input_select.home_mode
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":repeat: Entering {{ states('input_select.home_mode') }} mode."
           title: "Home Mode"
@@ -20,14 +20,14 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.home_mode_turn_on_holiday_mode
+              - action: script.home_mode_turn_on_holiday_mode
                 data: {}
           - conditions:
               - condition: state
                 entity_id: input_select.home_mode
                 state: "Normal"
             sequence:
-              - service: script.home_mode_turn_on_normal_mode
+              - action: script.home_mode_turn_on_normal_mode
                 data: {}
         default: []
     mode: single
@@ -41,11 +41,11 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":detective: Privacy mode enabled."
           log_level: "Debug"
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":camera: Turning conservatory camera recording and detction off."
     mode: single
@@ -60,18 +60,18 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Entering naughty step mode.
           log_level: "Debug"
-      - service: scene.turn_on
+      - action: scene.turn_on
         data: {}
         target:
           entity_id:
             - scene.living_room_lights_off
             - scene.stairs_light_2_off
             - scene.stairs_light_off
-      - service: input_boolean.turn_off
+      - action: input_boolean.turn_off
         data: {}
         target:
           entity_id:
@@ -167,15 +167,15 @@ script:
     icon: mdi:airplane
     sequence:
       - parallel:
-          - service: script.set_central_heating_to_away_mode
+          - action: script.set_central_heating_to_away_mode
             data: {}
-          - service: script.set_how_water_to_away_mode
+          - action: script.set_how_water_to_away_mode
             data: {}
-          - service: script.hvac_set_solar_diverter_to_holiday_mode
+          - action: script.hvac_set_solar_diverter_to_holiday_mode
             data: {}
-          - service: script.holiday_mode_swtich_off
+          - action: script.holiday_mode_swtich_off
             data: {}
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Finished setting up :airplane: holiday mode"
           title: Home Mode
@@ -186,17 +186,17 @@ script:
     icon: mdi:home
     sequence:
       - parallel:
-          - service: script.set_central_heating_to_home_mode
+          - action: script.set_central_heating_to_home_mode
             data: {}
-          - service: script.set_hot_water_to_home_mode
+          - action: script.set_hot_water_to_home_mode
             data: {}
-          - service: script.hvac_turn_on_heater_schedule
+          - action: script.hvac_turn_on_heater_schedule
             data: {}
-          - service: script.normal_mode_swtich_on
+          - action: script.normal_mode_swtich_on
             data: {}
-          - service: script.hvac_set_solar_diverter_to_normal_mode
+          - action: script.hvac_set_solar_diverter_to_normal_mode
             data: {}
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Finished setting up normal mode"
               title: Home Mode
@@ -207,12 +207,12 @@ script:
     alias: Holiday Mode Switch Off
     icon: mdi:power-plug-off
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning off Kitchen."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
@@ -220,56 +220,56 @@ script:
             - switch.kettle
             - switch.kitchen_echo_plug
             - switch.toaster
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning off Lounge."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
             - switch.harmony_hub_plug
             - switch.playstation_plug
             - switch.tv_plug
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Bedroom."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
             - switch.bedroom_tv_plug
             - switch.bedroom_fan
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning off Conservatory."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
             - switch.printer_plug
             - switch.conservatory_extension_1
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning off Office."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
             - switch.ecoflow_office_ac_enabled
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning off mmWave."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_off
+      - action: switch.turn_off
         data: {}
         target:
           entity_id:
@@ -281,12 +281,12 @@ script:
     alias: Normal Mode Switch On
     icon: mdi:power-plug
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Kitchen."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id:
@@ -294,51 +294,51 @@ script:
             - switch.kitchen_echo_plug
             - switch.toaster
             - switch.ecoflow_kitchen_usb_enabled
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Lounge."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id:
             - switch.harmony_hub_plug
             - switch.playstation_plug
             - switch.tv_plug
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Bedroom."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id:
             - switch.bedroom_tv_plug
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Conservatory."
           title: Home Mode
           log_level: "Debug"
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id:
             - switch.printer_plug
             - switch.conservatory_extension_1
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning on Office."
           title: Home Mode
           log_level: "Debug"
       - parallel:
-          - service: switch.turn_on
+          - action: switch.turn_on
             data: {}
             target:
               entity_id:
                 - switch.ecoflow_office_ac_enabled
-      - service: switch.turn_on
+      - action: switch.turn_on
         data: {}
         target:
           entity_id:
@@ -366,11 +366,11 @@ script:
                         state: "on"
                     sequence:
                       - parallel:
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message: ":warning: Guest mode is active and no one is home."
                               log_level: "Normal"
-                          - service: notify.mobile_app_top_dog
+                          - action: notify.mobile_app_top_dog
                             data:
                               message: Guest mode is on. Do you want to turn on the alarm?
                               title: No One Home In Guest Mode
@@ -382,7 +382,7 @@ script:
                                     action: guest_mode_arm_alarm_away
                                   - title: Turn Off Devices Only
                                     action: guest_mode_turn_off_devices
-                          - service: notify.mobile_app_terina_s_phone
+                          - action: notify.mobile_app_terina_s_phone
                             data:
                               message: Guest mode is on. Do you want to turn on the alarm?
                               title: No One Home In Guest Mode
@@ -403,11 +403,11 @@ script:
                         state: "on"
                     sequence:
                       - parallel:
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message: ":warning: Family :computer: computer is on."
                               log_level: "Normal"
-                          - service: notify.mobile_app_top_dog
+                          - action: notify.mobile_app_top_dog
                             data:
                               message: Family computer is on. Do you want to turn on the alarm?
                               title: No One Home Family Computer On
@@ -419,7 +419,7 @@ script:
                                     action: guest_mode_arm_alarm_away
                                   - title: Turn Off Devices Only
                                     action: guest_mode_turn_off_devices
-                          - service: notify.mobile_app_terina_s_phone
+                          - action: notify.mobile_app_terina_s_phone
                             data:
                               message: Family computer is on. Do you want to turn on the alarm?
                               title: No One Home Family Computer On
@@ -432,15 +432,15 @@ script:
                                   - title: Turn Off Devices Only
                                     action: guest_mode_turn_off_devices
                 default:
-                  - service: script.set_alarm_to_away_mode
-                  - service: script.lock_front_door
+                  - action: script.set_alarm_to_away_mode
+                  - action: script.lock_front_door
                   - choose:
                       - conditions:
                           - condition: state
                             entity_id: binary_sensor.external_doors_and_windows
                             state: "on"
                         sequence:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message:
                                 ":information_source: :door: :window: :bell: Alarm was turned on.
@@ -455,7 +455,7 @@ script:
                                 entity_id: input_boolean.enable_direct_notifications
                                 state: "on"
                             sequence:
-                              - service: script.send_actionable_notification_with_3_buttons
+                              - action: script.send_actionable_notification_with_3_buttons
                                 data:
                                   message: Alarm armed and turning off devices.
                                   title: No One Home
@@ -478,14 +478,14 @@ script:
                                       - condition: template
                                         value_template: "{{ wait is defined and wait.trigger.event.data.action == 'disarm' }}"
                                     sequence:
-                                      - service: script.set_alarm_to_disarmed_mode
+                                      - action: script.set_alarm_to_disarmed_mode
                                   - conditions:
                                       - condition: template
                                         value_template:
                                           "{{ wait is defined and wait.trigger.event.data.action == 'leave_on'
                                           }}"
                                     sequence:
-                                      - service: script.send_to_home_log
+                                      - action: script.send_to_home_log
                                         data:
                                           message: Leaving devices on.
                                           log_level: "Normal"
@@ -496,15 +496,15 @@ script:
                                           }}"
                                     sequence:
                                       - parallel:
-                                          - service: script.set_alarm_to_disarmed_mode
-                                          - service: script.send_to_home_log
+                                          - action: script.set_alarm_to_disarmed_mode
+                                          - action: script.send_to_home_log
                                             data:
                                               message: Skipping turning off devices.
                                               log_level: "Normal"
                                 default:
-                                  - service: script.everybody_leave_home
+                                  - action: script.everybody_leave_home
                         default:
-                          - service: script.everybody_leave_home
+                          - action: script.everybody_leave_home
           - alias: Not locked
             conditions:
               - condition: state
@@ -518,7 +518,7 @@ script:
                             entity_id: input_select.home_mode
                             state: "Guest"
                     sequence:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message:
                             "No one is home and couldn't turn on the alarm because
@@ -538,39 +538,39 @@ script:
     sequence:
       - alias: Turn off Magic Mirror
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":mirror: Turning off Magic Mirror."
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             target:
               entity_id: switch.magic_mirror_plug
       - alias: Turn off office lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off office lights."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.office_all_lights_off
       - alias: Turn off fans
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off bedroom fan."
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             target:
               entity_id:
                 - switch.bedroom_fan
       - alias: Turn off air conditioners
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off office air conditioner."
               log_level: "Debug"
-          - service: climate.set_hvac_mode
+          - action: climate.set_hvac_mode
             metadata: {}
             data:
               hvac_mode: off
@@ -578,28 +578,28 @@ script:
               entity_id: climate.office_air_conditioner
       - alias: Turn off kitchen lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off kitchen lights."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id:
                 - scene.kitchen_all_lights_off
-          - service: switch.turn_off
+          - action: switch.turn_off
             data: {}
             target:
               entity_id: switch.ecoflow_kitchen_usb_enabled
       - alias: Turn off lounge lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off lounge lights."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.living_room_lights_off
-          - service: light.turn_off
+          - action: light.turn_off
             target:
               entity_id:
                 - light.living_room_left
@@ -610,40 +610,40 @@ script:
                 - light.living_room_right_3
       - alias: Turn off conservatory lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":running: :house: :bulb: Turning off conservatory light."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.conservatory_turn_off_light
       - alias: Turn off stairs lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off stairs light."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id:
                 - scene.stairs_light_off
                 - scene.stairs_light_2_off
       - alias: Turn off porch lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off porch light."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.porch_lights_off
       - alias: Turn off bathroom lights
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":bulb: Turning off bathroom light."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.bathroom_turn_off_light
       - alias: Turn off streaming devices
@@ -659,11 +659,11 @@ script:
                         state: "unavailable"
             then:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turning Google :tv: TV off."
                       log_level: "Debug"
-                  - service: media_player.turn_off
+                  - action: media_player.turn_off
                     data: {}
                     target:
                       entity_id: media_player.lounge_tv
@@ -678,11 +678,11 @@ script:
                         state: "unavailable"
             then:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turning Bedroom Chromecast off."
                       log_level: "Debug"
-                  - service: media_player.turn_off
+                  - action: media_player.turn_off
                     data: {}
                     target:
                       entity_id: media_player.bedroom_tv
@@ -693,11 +693,11 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :couch_and_lamp: Lounge :tv: TV off."
                   log_level: "Debug"
-              - service: remote.turn_off
+              - action: remote.turn_off
                 data: {}
                 target:
                   entity_id: remote.living_room
@@ -708,11 +708,11 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :bed: Bedroom :tv: TV off."
                   log_level: "Debug"
-              - service: remote.send_command
+              - action: remote.send_command
                 data:
                   device: Bedroom TV
                   command: power
@@ -725,19 +725,19 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :couch_and_lamp: Lounge :tv: TV remote off."
                   log_level: "Debug"
-              - service: switch.turn_off
+              - action: switch.turn_off
                 data: {}
                 target:
                   entity_id: switch.harmony_hub_plug
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning conservatory under floor heating."
           log_level: "Debug"
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           temperature: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
           hvac_mode: "heat"
@@ -749,11 +749,11 @@ script:
     sequence:
       - alias: Turn off Magic Mirror
         parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":mirror: Turning off Magic Mirror."
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             target:
               entity_id: switch.magic_mirror_plug
       - if:
@@ -767,11 +767,11 @@ script:
                     state: "unavailable"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning Bedroom Chromecast off."
                   log_level: "Debug"
-              - service: media_player.turn_off
+              - action: media_player.turn_off
                 data: {}
                 target:
                   entity_id: media_player.bedroom_tv
@@ -782,11 +782,11 @@ script:
             state: "on"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning :bed: Bedroom :tv: TV off."
                   log_level: "Debug"
-              - service: remote.send_command
+              - action: remote.send_command
                 data:
                   device: Bedroom TV
                   command: power

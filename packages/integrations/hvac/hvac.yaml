@@ -10,7 +10,7 @@ automation:
           - sensor.thermostat_target_temperature
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             Home thermostat target temperature changed.
@@ -19,7 +19,7 @@ automation:
             to {{ state_attr('climate.thermostat', 'temperature')|float(22) }}c.
           title: ":hotsprings: :droplet: Boiler"
           log_level: "Debug"
-      - service: climate.set_temperature
+      - action: climate.set_temperature
         data:
           temperature: "{{ states('sensor.thermostat_target_temperature')|float(22) }}"
         target:
@@ -83,7 +83,7 @@ automation:
                 entity_id: binary_sensor.conservatory_door
                 state: "off"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: Radiator to call for heat.
                   title: ":office: Office"
@@ -91,7 +91,7 @@ automation:
                     entity_id:
                       - person.danny
         default:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: Radiator call for heat in.
               title: >-

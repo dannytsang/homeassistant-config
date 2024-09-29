@@ -28,12 +28,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Opening blinds.
               title: ":bed: Leo's Bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
     mode: single
@@ -64,12 +64,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Opening blinds.
               title: ":bed: Leo's Bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
     mode: single
@@ -95,12 +95,12 @@ automation:
         entity_id: binary_sensor.workday_sensor
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Opening blinds with {{ states('input_select.home_mode') }} on a non working day.
               title: ":bed: Leo's Bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
     mode: single
@@ -130,7 +130,7 @@ automation:
                     entity_id: binary_sensor.leos_bedroom_window_contact
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -145,7 +145,7 @@ automation:
                   - condition: trigger
                     id: no_children
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -153,7 +153,7 @@ automation:
                         Leo's blinds"
                       title: "Leo's :bed: bedroom"
                       log_level: "Debug"
-                  - service: cover.close_cover
+                  - action: cover.close_cover
                     target:
                       entity_id: cover.leos_bedroom_blinds
               - conditions:
@@ -161,7 +161,7 @@ automation:
                     entity_id: binary_sensor.leos_bedroom_window_contact
                     state: "off"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -169,7 +169,7 @@ automation:
                         Leo's blinds"
                       title: "Leo's :bed: bedroom"
                       log_level: "Debug"
-                  - service: cover.close_cover
+                  - action: cover.close_cover
                     target:
                       entity_id: cover.leos_bedroom_blinds
             default: []
@@ -194,10 +194,10 @@ automation:
         state: "off"
     action:
       - parallel:
-          - service: cover.close_cover
+          - action: cover.close_cover
             target:
               entity_id: cover.leos_bedroom_blinds
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":city_sunset: :window: closing Leo's blinds."
               title: "Leo's :bed: bedroom"
@@ -219,12 +219,12 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":sunrise: :window: Opening Leo's blinds"
               title: "Leo's :bed: bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
     mode: single
@@ -256,12 +256,12 @@ automation:
             state: "Guest"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":window: :bed: Someone is in Leo's bed. Closing blinds."
               title: "Leo's :bed: bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             target:
               entity_id: cover.leos_bedroom_blinds
     mode: single
@@ -293,14 +293,14 @@ automation:
                 entity_id: binary_sensor.leos_bed_occupied
                 state: "on"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":window: :bed: Leo's window closed and someone is in bed. Closing
                     blinds."
                   title: "Leo's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.close_cover
+              - action: cover.close_cover
                 target:
                   entity_id: cover.leos_bedroom_blinds
           - conditions:
@@ -308,14 +308,14 @@ automation:
                 entity_id: input_boolean.enable_leos_bed_sensor
                 state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":window: :bed: Leo's window closed and someone is in bed. Closing
                     blinds."
                   title: "Leo's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.close_cover
+              - action: cover.close_cover
                 target:
                   entity_id: cover.leos_bedroom_blinds
         default: []
@@ -337,7 +337,7 @@ automation:
         state: "playing"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message:
                 ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
@@ -345,7 +345,7 @@ automation:
                 music in Leo's Bedroom :radio: Echo."
               title: "Leo's :bed: bedroom"
               log_level: "Debug"
-          - service: media_player.media_pause
+          - action: media_player.media_pause
             data: {}
             target:
               entity_id: media_player.spotify_danny
@@ -361,7 +361,7 @@ automation:
         to: on_press_release
     condition: []
     action:
-      - service: light.turn_on
+      - action: light.turn_on
         target:
           entity_id: light.leos_bedroom_main_light
         data: {}
@@ -376,7 +376,7 @@ automation:
         to: off_press_release
     condition: []
     action:
-      - service: light.turn_off
+      - action: light.turn_off
         data: {}
         target:
           entity_id: light.leos_bedroom_main_light
@@ -391,7 +391,7 @@ automation:
         to: up_press_release
     condition: []
     action:
-      - service: cover.open_cover
+      - action: cover.open_cover
         target:
           entity_id: cover.bedroom_blinds
         data: {}
@@ -406,7 +406,7 @@ automation:
         to: down_press_release
     condition: []
     action:
-      - service: cover.close_cover
+      - action: cover.close_cover
         target:
           entity_id: cover.bedroom_blinds
         data: {}
@@ -462,7 +462,7 @@ script:
                             state: "on"
                         sequence:
                           # TODO: replace with actionable notification
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message:
                                 "It's going to be hot ({{ temperature }} {{ weather_condition }}) and
@@ -470,12 +470,12 @@ script:
                               title: "Leo's :bed: Bedroom"
                               log_level: "Debug"
                     default:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
                           title: "Leo's :bed: Bedroom"
                           log_level: "Debug"
-                      - service: cover.close_cover
+                      - action: cover.close_cover
                         target:
                           entity_id: cover.leos_bedroom_blinds
             default: []

@@ -20,16 +20,16 @@ automation:
                 value_template: "{{ trigger.json.key_token|string == states('input_text.github_pull_key') }}"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "build :white_check_mark: passed. Pulling changes."
                       title: ":construction_worker: :hammer_and_wrench: GitHub"
                       log_level: "Normal"
-                  - service: hassio.addon_start
+                  - action: hassio.addon_start
                     data:
                       addon: core_git_pull
         default:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: "Build :white_check_mark: passed but incorrect :key: key was sent."
               title: ":warning: :construction_worker: :hammer_and_wrench: GitHub :warning:"

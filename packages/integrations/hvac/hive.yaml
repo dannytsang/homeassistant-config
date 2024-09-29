@@ -16,7 +16,7 @@ automation:
         to: "eco"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Central heating mode changed to {{ states('sensor.thermostat_mode') }}
           title: ":hotsprings: :droplet: Boiler"
@@ -26,14 +26,14 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: In holiday mode so heating schould not be on. Turning heating off.
                   title: ":hotsprings: :droplet: Boiler"
                   people:
                     entity_id:
                       - person.danny
-              - service: script.set_central_heating_to_away_mode
+              - action: script.set_central_heating_to_away_mode
                 data: {}
     mode: single
   - id: "1666470473973"
@@ -46,7 +46,7 @@ automation:
         to: "auto"
     condition: []
     action:
-      - service: script.send_direct_notification
+      - action: script.send_direct_notification
         data:
           message: Thermostat switched to auto mode (again).
           title: ":hotsprings: :droplet: Boiler"
@@ -69,7 +69,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: Hot water mode changed to {{ states('water_heater.thermostat') }}
           title: ":hotsprings: :droplet: Boiler"
@@ -79,14 +79,14 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: In holiday mode so hot water schould not be on. Turning hot water off.
                   title: ":hotsprings: :droplet: Boiler"
                   people:
                     entity_id:
                       - person.danny
-              - service: script.set_how_water_to_away_mode
+              - action: script.set_how_water_to_away_mode
                 data: {}
     mode: single
   - id: "1662589192400"
@@ -113,7 +113,7 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning on hot water.
                   title: ":hotsprings: Central Heating"
@@ -125,7 +125,7 @@ automation:
                   {{ (states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle')|float(0)) >
                   (states('input_number.hot_water_solar_diverter_boiler_cut_off')|float(0)) }}
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Eddi has heated the hot water {{ states('sensor.myenergi_eddi_energy_consumed_per_heating_cycle') }}
@@ -138,12 +138,12 @@ automation:
                   title: ":hotsprings: Central Heating"
                   log_level: "Normal"
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Turning on hot water from schedule.
               title: ":hotsprings: Central Heating"
               log_level: "Debug"
-          - service: script.set_how_water_to_on
+          - action: script.set_how_water_to_on
             data: {}
     mode: single
   - id: "1662589333109"
@@ -173,18 +173,18 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning off hot water.
                   title: ":hotsprings: Central Heating"
                   log_level: "Normal"
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Turning off hot water from schedule.
               title: ":hotsprings: Central Heating"
               log_level: "Normal"
-          - service: script.set_hot_water_to_home_mode
+          - action: script.set_hot_water_to_home_mode
             data: {}
     mode: single
 
@@ -205,20 +205,20 @@ script:
                     attribute: temperature
                     state: 7
         then:
-          - service: script.hvac_turn_off_heater_schedule
+          - action: script.hvac_turn_off_heater_schedule
             data: {}
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Setting heating to :running: away mode."
                   title: ":hotsprings: :droplet: Boiler"
                   log_level: "Normal"
-              - service: climate.set_temperature
+              - action: climate.set_temperature
                 target:
                   entity_id: climate.thermostat
                 data:
                   temperature: 7
-              - service: climate.set_hvac_mode
+              - action: climate.set_hvac_mode
                 data:
                   hvac_mode: heat
                 target:
@@ -235,15 +235,15 @@ script:
                 state: "heat"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Setting heating to :house_with_garden: home mode."
                   title: ":hotsprings: :droplet: Boiler"
                   log_level: "Normal"
               - sequence:
-                  - service: script.hvac_turn_on_heater_schedule
+                  - action: script.hvac_turn_on_heater_schedule
                     data: {}
-                  - service: script.check_and_run_central_heating
+                  - action: script.check_and_run_central_heating
                     data: {}
     mode: single
   set_central_heating_to_off:
@@ -257,17 +257,17 @@ script:
                 state: "off"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Setting heating to off."
                   title: ":hotsprings: :droplet: Boiler"
                   log_level: "Normal"
-              - service: climate.set_hvac_mode
+              - action: climate.set_hvac_mode
                 data:
                   hvac_mode: "off"
                 target:
                   entity_id: climate.thermostat
-              - service: script.hvac_turn_off_heater_schedule
+              - action: script.hvac_turn_off_heater_schedule
     mode: single
   check_and_run_central_heating:
     alias: Check And Run Central Heating Schedule
@@ -279,23 +279,23 @@ script:
           - condition: template
             value_template: "{{ states(current_schedule) == 'off' }}"
         then:
-          - service: switch.turn_on
+          - action: switch.turn_on
             data: {}
             target:
               entity_id: "{{ current_schedule }}"
-      - service: scheduler.run_action
+      - action: scheduler.run_action
         data:
           entity_id: "{{ current_schedule }}"
   hvac_turn_off_heater_schedule:
     alias: "HVAC: Turn Off Heater Schedule"
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Turning off schedule.
               title: ":hotsprings: :droplet: Boiler"
               log_level: "Normal"
-          - service: switch.turn_off
+          - action: switch.turn_off
             data: {}
             target:
               entity_id:
@@ -311,12 +311,12 @@ script:
     alias: "HVAC: Turn On Heater Schedule"
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Turning on schedule.
               title: ":hotsprings: :droplet: Boiler"
               log_level: "Normal"
-          - service: switch.turn_on
+          - action: switch.turn_on
             data: {}
             target:
               entity_id:
@@ -344,12 +344,12 @@ script:
                     state: "eco"
             then:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turning on the hot water."
                       title: ":hotsprings: :droplet: Boiler"
                       log_level: "Normal"
-                  - service: water_heater.set_operation_mode
+                  - action: water_heater.set_operation_mode
                     data:
                       operation_mode: "eco"
                     target:
@@ -362,12 +362,12 @@ script:
                     state: "auto"
             then:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Turning on the hot water."
                       title: ":hotsprings: :droplet: Boiler"
                       log_level: "Normal"
-                  - service: water_heater.set_operation_mode
+                  - action: water_heater.set_operation_mode
                     data:
                       operation_mode: "auto"
                     target:
@@ -384,12 +384,12 @@ script:
                 state: "off"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning off the hot water."
                   title: ":hotsprings: :droplet: Boiler"
                   log_level: "Debug"
-              - service: water_heater.set_operation_mode
+              - action: water_heater.set_operation_mode
                 data:
                   operation_mode: "off"
                 target:
@@ -406,12 +406,12 @@ script:
                 state: "on"
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Turning on the hot water."
                   title: ":hotsprings: :droplet: Boiler"
                   log_level: "Debug"
-              - service: water_heater.set_operation_mode
+              - action: water_heater.set_operation_mode
                 data:
                   operation_mode: "on"
                 target:

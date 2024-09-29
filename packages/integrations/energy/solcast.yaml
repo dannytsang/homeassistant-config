@@ -9,7 +9,7 @@ automation:
         at: "08:00:00"
     condition: []
     action:
-      - service: script.update_solcast
+      - action: script.update_solcast
         data: {}
     mode: single
 
@@ -23,15 +23,15 @@ script:
             below: sensor.solcast_pv_forecast_api_limit
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "Updating Solcast forecast."
                   title: ":sunny: :zap: :electric_plug: Solcast"
                   log_level: "Debug"
-              - service: solcast_solar.update_forecasts
+              - action: solcast_solar.update_forecasts
                 data: {}
         else:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Reached API limit."
               title: ":warning: :sunny: :zap: :electric_plug: Solcast :warning:"

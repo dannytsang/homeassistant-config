@@ -16,7 +16,7 @@ automation:
                     entity_id: sensor.porch_motion_illuminance_lux
                     below: "100"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Front :door: door opened it's dark
@@ -24,11 +24,11 @@ automation:
                         Turning on :bulb: :high_brightness: light.
                       title: "Porch"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id: scene.porch_light_on
             default: []
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             Front :door: door opened. Incrementing counter :abacus:
@@ -36,13 +36,13 @@ automation:
             | int + state_attr('counter.front_door_opened_closed', 'step') | int }}.
           title: "Porch"
           log_level: "Debug"
-      - service: counter.increment
+      - action: counter.increment
         data: {}
         entity_id: counter.front_door_opened_closed
       - alias: Add delay otherwise the picture is too quick to capture someone walking through the door
         delay:
           seconds: 2
-      - service: script.send_to_computers
+      - action: script.send_to_computers
         data:
           message: Opened
           title: "🚪🛎 Front Door"
@@ -63,14 +63,14 @@ automation:
         entity_id: counter.front_door_opened_closed
         below: "2"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             Front door has been opened for more than 20 secs.
             Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
           title: "Porch"
           log_level: "Debug"
-      - service: counter.reset
+      - action: counter.reset
         data: {}
         entity_id: counter.front_door_opened_closed
   - id: "1611931052908"
@@ -87,14 +87,14 @@ automation:
         state: "home"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 front :door: door is open and:people_holding_hands: someone is home.
                 Turning on notification :bulb: :high_brightness: light.
               title: "Porch"
               log_level: "Debug"
-          - service: script.front_door_open_notification
+          - action: script.front_door_open_notification
             data: {}
     mode: single
   - id: "1615224190495"
@@ -109,14 +109,14 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Front door closed for more than 20 secs.
                 Resetting :abacus: counter from {{ states('counter.front_door_opened_closed') }} to 0.
               title: "Porch"
               log_level: "Debug"
-          - service: counter.reset
+          - action: counter.reset
             target:
               entity_id: counter.front_door_opened_closed
     mode: single
@@ -131,14 +131,14 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Front :door: door closed."
               title: "Porch"
               log_level: "Debug"
-          - service: script.front_door_closed_notification
+          - action: script.front_door_closed_notification
             data: {}
-          - service: script.send_to_computers
+          - action: script.send_to_computers
             data:
               message: Closed.
               title: "🚪🛎 Front Door"
@@ -157,10 +157,10 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.porch_lights_off
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Front :door: door closed for 1 minute.
@@ -173,12 +173,12 @@ automation:
                     entity_id: light.stairs
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Front door closed. Turning stairs light off as fall back."
                       title: "Porch"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id:
                         - scene.stairs_light_off
@@ -189,12 +189,12 @@ automation:
                     entity_id: light.office_light
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: "Front door closed. Turning office light off as fall back."
                       title: "Porch"
                       log_level: "Debug"
-                  - service: scene.turn_on
+                  - action: scene.turn_on
                     target:
                       entity_id:
                         - scene.office_turn_off_light_notification
@@ -216,7 +216,7 @@ automation:
         state: "off"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             metadata: {}
             data:
               log_level: Debug
@@ -224,7 +224,7 @@ automation:
               message:
                 "Light has been on for 5 minutes and :door: is closed. Turning light
                 off."
-          - service: light.turn_off
+          - action: light.turn_off
             metadata: {}
             data:
               transition: 2
@@ -246,11 +246,11 @@ automation:
           - "unavailable"
     condition: []
     action:
-      - service: light.toggle
+      - action: light.toggle
         data: {}
         target:
           entity_id: light.porch
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           log_level: Debug
           title: Porch
@@ -469,11 +469,11 @@ script:
   front_door_closed_notification:
     alias: Front Door Closed Notification
     sequence:
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id:
             - scene.current_office_light_1
-      - service: light.turn_off
+      - action: light.turn_off
         data: {}
         target:
           entity_id:
@@ -492,31 +492,31 @@ script:
                     entity_id: alarm_control_panel.house_alarm
                     state: "disarmed"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":no_bell: Turning off alarm."
                   title: ":bell: Alarm"
                   log_level: "Debug"
-              - service: script.set_alarm_to_disarmed_mode
-              - service: script.living_room_flash_lounge_lights_green
+              - action: script.set_alarm_to_disarmed_mode
+              - action: script.living_room_flash_lounge_lights_green
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":no_bell: Alarm is not on so nothing to do."
               title: ":bell: Alarm"
               log_level: "Debug"
-          - service: script.living_room_flash_lounge_lights_red
+          - action: script.living_room_flash_lounge_lights_red
     mode: single
     icon: mdi:nfc
   front_door_open_notification:
     alias: Front Door Open Notification
     sequence:
-      - service: scene.create
+      - action: scene.create
         data:
           scene_id: current_office_light_1
           snapshot_entities:
             - light.office_light
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id:
             - scene.front_door_open_notification
@@ -530,28 +530,28 @@ script:
       - repeat:
           count: "2"
           sequence:
-            - service: light.turn_on
+            - action: light.turn_on
               data:
                 brightness: 255
                 color_name: blue
               entity_id: light.porch
-            - service: light.turn_on
+            - action: light.turn_on
               data:
                 brightness: 178
                 color_name: white
               entity_id: light.porch
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id: scene.porch_light_on
     mode: single
   stop_lock_status_light:
     alias: Stop Lock Status Light
     sequence:
-      - service: script.turn_off
+      - action: script.turn_off
         data: {}
         target:
           entity_id: script.front_door_lock_status
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.porch
         data: {}

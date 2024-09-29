@@ -1,13 +1,13 @@
 lounge_flash_lounge_lights_red:
   alias: "Lounge: Flash Lounge Lights Red"
   sequence:
-    - service: scene.create
+    - action: scene.create
       data:
         scene_id: current_lounge_lights
         snapshot_entities:
           - light.living_room_lamp_left
           - light.living_room_lamp_right
-    - service: scene.turn_on
+    - action: scene.turn_on
       target:
         entity_id: scene.living_room_lights_red
       data:
@@ -17,7 +17,7 @@ lounge_flash_lounge_lights_red:
         minutes: 0
         seconds: 0
         milliseconds: 500
-    - service: scene.turn_on
+    - action: scene.turn_on
       target:
         entity_id: scene.current_lounge_lights
   mode: single
@@ -25,16 +25,16 @@ lounge_flash_lounge_lights_red:
 nfc_bedroom_right:
   alias: NFC Bedroom Right
   sequence:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Turning everything off.
-    - service: script.turn_everything_off
+    - action: script.turn_everything_off
   mode: single
   icon: mdi:nfc
 downstairs_random_light:
   alias: Downstairs Random Light
   sequence:
-    - service: homeassistant.toggle
+    - action: homeassistant.toggle
       data:
         entity_id:
           "{% set group_id = 'light.downstairs_random_lights' %}  {% set max_on
@@ -49,7 +49,7 @@ downstairs_random_light:
 upstairs_random_lights:
   alias: Upstairs Random Lights
   sequence:
-    - service: homeassistant.toggle
+    - action: homeassistant.toggle
       data:
         entity_id:
           "{% set group_id = 'light.upstairs_random_lights' %}  {% set max_on
@@ -65,11 +65,11 @@ update_travel_time_by_car:
   alias: Update Travel Time By Car
   sequence:
     - parallel:
-        - service: homeassistant.update_entity
+        - action: homeassistant.update_entity
           data: {}
           target:
             entity_id: sensor.google_travel_time_by_car
-        - service: script.send_to_home_log
+        - action: script.send_to_home_log
           data:
             message:
               "Updating.\nOrigin: {{ states('sensor.origin_address') }} \nDestination:

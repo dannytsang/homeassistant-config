@@ -24,12 +24,12 @@ automation:
             state: "armed_away"
     action:
       parallel:
-        - service: script.send_to_home_log
+        - action: script.send_to_home_log
           data:
             message: Casting Home Assistant.
             title: ":mirror: Magic Mirror"
             log_level: "Debug"
-        - service: cast.show_lovelace_view
+        - action: cast.show_lovelace_view
           data:
             entity_id: media_player.stairs_chromecast
             dashboard_path: lovelace-magicmirror
@@ -66,7 +66,7 @@ automation:
                   {{ state_attr(trigger.entity_id, 'media_position') !=
                   none }}
             sequence:
-              - service: script.google_tv_playing_notification
+              - action: script.google_tv_playing_notification
                 data:
                   entity_id: "{{ trigger.entity_id }}"
     mode: queued
@@ -104,7 +104,7 @@ script:
                   camera !=
                   none}}
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Google :tv: TV started playing
@@ -118,7 +118,7 @@ script:
                   title: "{{ title }}"
                   log_level: "Debug"
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Google :tv: TV started playing {{ state_attr(entity_id, 'media_title') }} on {{ state_attr(entity_id, 'app_name') }}"
               title: "{{ title }}"

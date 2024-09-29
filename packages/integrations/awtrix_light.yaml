@@ -31,7 +31,7 @@ script:
           - condition: template
             value_template: "{{ icon|default('', true)|length > 0 }}"
         then:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
               payload_template: >-
@@ -41,7 +41,7 @@ script:
                   'duration': {{ duration|default(10, true) }}
                 }"
         else:
-          - service: mqtt.publish
+          - action: mqtt.publish
             data:
               topic: "{{ states('sensor.bedroom_clock_device_topic')}}/notify"
               payload_template: >-

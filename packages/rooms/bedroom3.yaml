@@ -26,7 +26,7 @@ automation:
                 entity_id: binary_sensor.ashlees_bedroom_window_contact
                 state: "on"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -45,12 +45,12 @@ automation:
                 entity_id: binary_sensor.ashlees_bedroom_window_contact
                 state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: ":city_sunset: :window: It's getting dark, closing Ashlee's blinds."
                   title: "Ashlee's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.close_cover
+              - action: cover.close_cover
                 target:
                   entity_id: cover.ashlees_bedroom_blinds
           # Bed sensor enabled
@@ -64,7 +64,7 @@ automation:
               - condition: trigger
                 id: sunset
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -73,7 +73,7 @@ automation:
                     closing Ashlee's blinds."
                   title: "Ashlee's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.close_cover
+              - action: cover.close_cover
                 target:
                   entity_id: cover.ashlees_bedroom_blinds
           # Bed sensor is off
@@ -85,14 +85,14 @@ automation:
                 entity_id: input_boolean.enable_ashlees_bed_sensor
                 state: "off"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                     > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :city_sunset: :window: It's getting dark, closing Ashlee's blinds."
                   title: "Ashlee's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.close_cover
+              - action: cover.close_cover
                 target:
                   entity_id: cover.ashlees_bedroom_blinds
         default: []
@@ -121,12 +121,12 @@ automation:
       - condition: time
         after: input_datetime.childrens_bed_time
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":window: Window closed and it's dark. Closing blinds."
           title: "Ashlee's :bed: bedroom"
           log_level: "Debug"
-      - service: cover.close_cover
+      - action: cover.close_cover
         target:
           entity_id: cover.ashlees_bedroom_blinds
         data: {}
@@ -166,7 +166,7 @@ automation:
                 id: late
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -174,7 +174,7 @@ automation:
                       title: "Ashlee's :bed: bedroom"
                       log_level: "Debug"
 
-                  - service: cover.open_cover
+                  - action: cover.open_cover
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
           - conditions:
@@ -185,14 +185,14 @@ automation:
                 id: early
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunrise: :window: Non school day. Opening Ashlee's blinds"
                       title: "Ashlee's :bed: bedroom"
                       log_level: "Debug"
-                  - service: cover.open_cover
+                  - action: cover.open_cover
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
         default: []
@@ -220,7 +220,7 @@ automation:
               - condition: trigger
                 id: workday
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -228,7 +228,7 @@ automation:
                     with {{ states('input_select.home_mode') }} on a non working day."
                   title: "Ashlee's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.open_cover
+              - action: cover.open_cover
                 target:
                   entity_id: cover.ashlees_bedroom_blinds
           - conditions:
@@ -238,7 +238,7 @@ automation:
               - condition: trigger
                 id: non_workday
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message:
                     ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
@@ -246,7 +246,7 @@ automation:
                     with {{ states('input_select.home_mode') }} on a working day."
                   title: "Ashlee's :bed: bedroom"
                   log_level: "Debug"
-              - service: cover.open_cover
+              - action: cover.open_cover
                 target:
                   entity_id: cover.ashlees_bedroom_blinds
         default: []
@@ -288,14 +288,14 @@ automation:
                     entity_id: binary_sensor.ashlees_bedroom_window_contact
                     state: "off"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message:
                         "Someone is in Ashlee's :bed: bed after :clock730:. Closing
                         blinds."
                       title: "Ashlee's :bed: bedroom"
                       log_level: "Debug"
-                  - service: cover.close_cover
+                  - action: cover.close_cover
                     data: {}
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
@@ -317,12 +317,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":fan: Fan has been on for an hour. Turning fan off."
               title: ":bed: Ashlee's bedroom"
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             data: {}
             target:
               entity_id: switch.ashlees_bedroom_fan
@@ -338,12 +338,12 @@ automation:
         to: on_press
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Power button pressed. :bulb: Toggling light."
           title: ":bed: Ashlee's Bedroom"
           log_level: "Debug"
-      - service: light.toggle
+      - action: light.toggle
         data: {}
         target:
           entity_id: light.ashlees_main_light
@@ -360,12 +360,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Bright buttom on remote pressed. Opening :window: Ashlee's blinds."
               title: ":bed: Ashlee's Bedroom"
               log_level: "Debug"
-          - service: cover.open_cover
+          - action: cover.open_cover
             data: {}
             target:
               entity_id: cover.ashlees_bedroom_blinds
@@ -382,12 +382,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Dim buttom on remote pressed. Closing :window: Ashlee's blinds."
               title: ":bed: Ashlee's Bedroom"
               log_level: "Debug"
-          - service: cover.close_cover
+          - action: cover.close_cover
             data: {}
             target:
               entity_id: cover.ashlees_bedroom_blinds
@@ -404,12 +404,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: "Hue buttom on remote pressed. Toggle Ahlee's :bulb: lamp."
               title: ":bed: Ashlee's Bedroom"
               log_level: "Debug"
-          - service: switch.toggle
+          - action: switch.toggle
             data: {}
             target:
               entity_id: switch.ashlees_lamp
@@ -462,7 +462,7 @@ script:
                             state: "on"
                         sequence:
                           # TODO: replace with actionable notification
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message:
                                 "It's going to be hot ({{ temperature }} {{ weather_condition }}) and
@@ -470,12 +470,12 @@ script:
                               title: "Ashlee's :bed: bedroom"
                               log_level: "Debug"
                     default:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: "It's going to be hot ({{ temperature }} {{ weather_condition }}). Closing blinds."
                           title: "Ashlee's :bed: bedroom"
                           log_level: "Debug"
-                      - service: cover.close_cover
+                      - action: cover.close_cover
                         target:
                           entity_id: cover.ashlees_bedroom_blinds
             default: []

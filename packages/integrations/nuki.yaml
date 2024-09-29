@@ -28,9 +28,9 @@ automation:
                     state: unlocking
             sequence:
               - parallel:
-                  - service: script.front_door_lock_status
+                  - action: script.front_door_lock_status
                     data: {}
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: Front door "{{ states('lock.unified_front_door') }}".
                       title: Porch
@@ -44,12 +44,12 @@ automation:
                     entity_id: lock.unified_front_door
                     state: unlocked
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Front door "{{ states('lock.unified_front_door') }}".
                   title: Porch
                   log_level: Normal
-              - service: script.turn_off
+              - action: script.turn_off
                 data: {}
                 target:
                   entity_id: script.front_door_lock_status
@@ -71,7 +71,7 @@ script:
                     entity_id: binary_sensor.front_door
                     state: "on"
                 sequence:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: ":warning: Open and cannot :lock: Lock. :warning:"
                       title: ":warning: :door: Front Door :warning:"
@@ -94,12 +94,12 @@ script:
                                 state: unavailable
                         sequence:
                           - parallel:
-                              - service: script.send_to_home_log
+                              - action: script.send_to_home_log
                                 data:
                                   message: ":lock: Locking."
                                   title: ":door: Front Door"
                                   log_level: "Normal"
-                              - service: lock.lock
+                              - action: lock.lock
                                 data: {}
                                 target:
                                   entity_id: lock.front_door
@@ -112,17 +112,17 @@ script:
                                 state: unavailable
                         sequence:
                           - parallel:
-                              - service: script.send_to_home_log
+                              - action: script.send_to_home_log
                                 data:
                                   message: ":lock: Locking."
                                   title: ":door: Front Door"
                                   log_level: "Normal"
-                              - service: lock.lock
+                              - action: lock.lock
                                 data: {}
                                 target:
                                   entity_id: lock.nuki_front_door_lock
                     default:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: ":warning: Unable to lock the front door."
                           title: ":door: Front Door"
@@ -157,12 +157,12 @@ script:
                                 state: unavailable
                         sequence:
                           - parallel:
-                              - service: script.send_to_home_log
+                              - action: script.send_to_home_log
                                 data:
                                   message: ":unlock: Unlocking."
                                   title: ":door: Front Door"
                                   log_level: "Normal"
-                              - service: lock.unlock
+                              - action: lock.unlock
                                 data: {}
                                 target:
                                   entity_id: lock.front_door
@@ -175,17 +175,17 @@ script:
                                 state: unavailable
                         sequence:
                           - parallel:
-                              - service: script.send_to_home_log
+                              - action: script.send_to_home_log
                                 data:
                                   message: ":unlock: Unlocking."
                                   title: ":door: Front Door"
                                   log_level: "Normal"
-                              - service: lock.unlock
+                              - action: lock.unlock
                                 data: {}
                                 target:
                                   entity_id: lock.nuki_front_door_lock
                     default:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: ":unlock: Unlocking."
                           title: ":door: Front Door"

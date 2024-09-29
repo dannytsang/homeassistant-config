@@ -11,7 +11,7 @@ automation:
         entity_id: binary_sensor.alarmed_doors_and_windows
         state: "on"
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message:
             ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window:
@@ -30,13 +30,13 @@ automation:
     condition: []
     action:
       parallel:
-        - service: script.send_to_home_log
+        - action: script.send_to_home_log
           data:
             message:
               ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
               Deleting :camera: files"
             log_level: "Debug"
-        - service: delete.files_in_folder
+        - action: delete.files_in_folder
           data:
             folder: /config/camera/
             scan_subfolders: true
@@ -70,7 +70,7 @@ automation:
           - data: {}
             entity_id: input_boolean.enable_morning_routine
             service: input_boolean.turn_on
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
               log_level: "Debug"
@@ -96,14 +96,14 @@ automation:
               - 2am
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message:
                 ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
                 25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning downstairs
                 light off."
               log_level: "Debug"
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id: scene.turn_off_downstairs_lights
     mode: single
@@ -116,19 +116,19 @@ script:
         entity_id: input_boolean.enable_morning_routine
         service: input_boolean.turn_off
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message:
                 ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
                 Running morning routine."
               log_level: "Normal"
-          - service: script.set_alarm_to_disarmed_mode
-          - service: switch.turn_off
+          - action: script.set_alarm_to_disarmed_mode
+          - action: switch.turn_off
             target:
               entity_id: switch.indoor_cameras
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: ":clock9: :sunrise: Morning routine complete."
               log_level: "Normal"
-          - service: script.announce_delayed_notifications
+          - action: script.announce_delayed_notifications
     mode: single

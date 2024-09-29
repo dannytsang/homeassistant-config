@@ -10,7 +10,7 @@
       entity_id: sensor.lounge_ups_status_data
       state: OB DISCHRG
   action:
-    - service: script.send_direct_notification
+    - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: :warning:"
         title: ":battery: Lounge UPS"
@@ -31,7 +31,7 @@
       entity_id: sensor.server_ups_status_data
       state: OB DISCHRG
   action:
-    - service: script.send_direct_notification
+    - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
         title: ":battery: Server UPS"
@@ -49,7 +49,7 @@
       to: "on"
   condition: []
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":warning: :droplet: Potential leak detected :droplet: :warning:"
         log_level: Normal
@@ -64,7 +64,7 @@
       to: "off"
   condition: []
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Potential leak has stopped
         log_level: Normal
@@ -81,7 +81,7 @@
       entity_id: sensor.computer_ups_status_data
       state: OB DISCHRG
   action:
-    - service: script.send_direct_notification
+    - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
         title: ":battery: PC UPS"
@@ -105,7 +105,7 @@
       entity_id: group.jd_computer
       state: "off"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the office!"
         log_level: Normal
@@ -125,7 +125,7 @@
       entity_id: group.jd_computer
       state: "off"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the kitchen!"
         log_level: Normal
@@ -150,7 +150,7 @@
       entity_id: input_boolean.enable_leos_bed_sensor
       state: "on"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":city_sunrise: :bed: Someone is in Leo's bed. Closing blinds."
     - choose:
@@ -159,14 +159,14 @@
               entity_id: binary_sensor.leos_bedroom_window_contact
               state: "on"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message:
                   ":warning: :wondow: Leo's bedroom window is still open. Waiting
                   until it's closed before closing blinds. :warning:"
                 log_level: Normal
       default:
-        - service: cover.close_cover
+        - action: cover.close_cover
           target:
             entity_id: cover.leos_bedroom_blinds
     - wait_for_trigger:
@@ -174,11 +174,11 @@
           entity_id: binary_sensor.leos_bedroom_window_contact
           to: "off"
       timeout: 03:00:00
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":white_check_mark: :window: Leo's window closed. Closing blinds."
         log_level: Normal
-    - service: cover.close_cover
+    - action: cover.close_cover
       target:
         entity_id: cover.leos_bedroom_blinds
   mode: single
@@ -198,17 +198,17 @@
               entity_id: binary_sensor.office_door_contact
               state: "on"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message:
                   ":warning: :alarm: Unable to arm office door because the door is
                   not closed. Disabling alarm."
                 log_level: Normal
-            - service: input_boolean.turn_off
+            - action: input_boolean.turn_off
               target:
                 entity_id: input_boolean.alarm_office_door
       default:
-        - service: script.send_to_home_log
+        - action: script.send_to_home_log
           data:
             message: ":bell: :door: Office door armed."
             log_level: Normal
@@ -226,10 +226,10 @@
       entity_id: input_boolean.alarm_office_door
       state: "on"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":rotating_light: :door: Office door armed and was opened:rotating_light:"
-    - service: input_boolean.turn_off
+    - action: input_boolean.turn_off
       target:
         entity_id: input_boolean.alarm_office_door
   mode: queued
@@ -243,7 +243,7 @@
       to: No Children
   condition: []
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: ":repeat: Entering No Children mode."
         log_level: Normal
@@ -265,26 +265,26 @@
             - condition: template
               value_template: "{{ trigger.event.data.tag_id == '47e42f4c-3ffa-463f-ae2f-ed0b97a4fe9c'}}"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message:
                   ":door: :label: Front door tag scanned by {{ states.person|selectattr('attributes.user_id',
                   '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
                   }}."
                 log_level: Normal
-            - service: script.nfc_front_door
+            - action: script.nfc_front_door
         - conditions:
             - condition: template
               value_template: "{{ trigger.event.data.tag_id == '8b6d6755-b4d5-4b23-8e8b-cf224d221bb7'}}"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message:
                   ":door: :label: Bedroom right tag scanned by {{ states.person|selectattr('attributes.user_id',
                   '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
                   }}."
                 log_level: Normal
-            - service: script.nfc_bedroom_right
+            - action: script.nfc_bedroom_right
       default: []
   mode: single
 - id: "1636203020481"
@@ -303,7 +303,7 @@
               entity_id: binary_sensor.porch_motion_occupancy
               state: "on"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message: ":door: Someone leaving."
         - conditions:
@@ -311,7 +311,7 @@
               entity_id: binary_sensor.porch_motion_occupancy
               state: "off"
           sequence:
-            - service: script.send_to_home_log
+            - action: script.send_to_home_log
               data:
                 message: ":test_tube: :door: Someone entering."
                 log_level: Normal
@@ -327,11 +327,11 @@
       to: "off"
   condition: []
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Exiting naught step mode.
         log_level: Normal
-    - service: input_boolean.turn_on
+    - action: input_boolean.turn_on
       data: {}
       target:
         entity_id:
@@ -346,11 +346,11 @@
       topic: frigate/events
   condition: []
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: "A {{trigger.payload_json['after']['label']}} was detected. id:
           {{trigger.payload_json['after']['id']}}"
-    - service: script.send_home_log_with_url
+    - action: script.send_home_log_with_url
       data:
         title: Frigate event
         message: A {{trigger.payload_json['after']['label']}} was detected.
@@ -377,7 +377,7 @@
               entity_id: binary_sensor.front_door
               state: "on"
           sequence:
-            - service: script.send_direct_notification
+            - action: script.send_direct_notification
               data:
                 message: Consider closing the front door or turning the heating off.
                 title: "Heating turned on and front :door: door is open."
@@ -428,13 +428,13 @@
             "{{ states('sensor.danny_home_nearest_distance')|float(0)
             > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Changing lights to pretend someone is at home.
         log_level: Normal
-    - service: script.downstairs_random_light
+    - action: script.downstairs_random_light
       data: {}
-    - service: script.upstairs_random_lights
+    - action: script.upstairs_random_lights
       data: {}
   mode: single
 - id: "1659199066864"
@@ -462,11 +462,11 @@
             "{{ states('sensor.danny_home_nearest_distance')|float(0)
             > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Turning off all lights from faking someone at home.
         log_level: Normal
-    - service: script.turn_everything_off
+    - action: script.turn_everything_off
       data: {}
   mode: single
 - id: "1660326219450"
@@ -489,12 +489,12 @@
         - mon
         - wed
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned off.
         title: ":sun_small_cloud: Weather"
         log_level: Normal
-    - service: script.set_how_water_to_away_mode
+    - action: script.set_how_water_to_away_mode
       data: {}
   mode: single
 - id: "1660326219451"
@@ -517,11 +517,11 @@
         - mon
         - wed
   action:
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned on.
         title: ":sun_small_cloud: Weather"
-    - service: script.set_hot_water_to_home_mode
+    - action: script.set_hot_water_to_home_mode
       data: {}
   mode: single
 - id: "1674478124534"
@@ -533,10 +533,10 @@
       below: 3
   condition: []
   action:
-    - service: climate.set_preset_mode
+    - action: climate.set_preset_mode
       data:
         preset_mode: boost
-    - service: script.send_to_home_log
+    - action: script.send_to_home_log
       data:
         message: Conservatory fell below 3c. Boosting central heating.
         log_level: Normal
@@ -561,11 +561,11 @@
           state: "on"
   action:
     - parallel:
-        - service: script.send_to_home_log
+        - action: script.send_to_home_log
           data:
             message: Bedroom light turned off. Turning stairs lights off.
             title: ":bed: Bedroom"
-        - service: scene.turn_on
+        - action: scene.turn_on
           data:
             transition: 2
           target:
@@ -584,7 +584,7 @@
       entity_id: input_select.home_mode
       state: Holiday
   action:
-    - service: switch.turn_off
+    - action: switch.turn_off
       data: {}
       target:
         entity_id: switch.kitchen_motion_mmwave_sensor

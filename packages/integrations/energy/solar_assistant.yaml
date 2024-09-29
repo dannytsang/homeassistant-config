@@ -57,7 +57,7 @@ automation:
                 entity_id: sensor.electricity_current_rate
                 above: sensor.electricity_export_current_rate
             sequence:
-              - service: script.solar_assistant_check_charging_mode
+              - action: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
         default:
@@ -66,11 +66,11 @@ automation:
                   - condition: trigger
                     id: "time_backup"
                 sequence:
-                  - service: script.solar_assistant_check_charging_mode
+                  - action: script.solar_assistant_check_charging_mode
                     data:
                       event: "time"
             default:
-              - service: script.solar_assistant_check_charging_mode
+              - action: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
     mode: restart
@@ -95,7 +95,7 @@ automation:
                 entity_id: sensor.electricity_current_rate
                 below: sensor.electricity_export_current_rate
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Electrictity rate has gove above 0
@@ -107,14 +107,14 @@ automation:
                   log_level: "Debug"
         default:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Electrictity rate has gove above 0
                     ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
                   title: Solar Assistant
                   log_level: "Debug"
-              - service: script.load_first_priority_mode
+              - action: script.load_first_priority_mode
                 data: {}
     mode: single
   # Octopus
@@ -135,13 +135,13 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             metadata: {}
             data:
               log_level: Debug
               message: Target battery charge turned on.
               title: Solar Assistant
-          - service: script.solar_assistant_check_charging_mode
+          - action: script.solar_assistant_check_charging_mode
             data: {}
     mode: single
 
@@ -174,14 +174,14 @@ script:
             entity_id: select.growatt_sph_work_mode_priority
             state: Battery first
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Priority is already set to battery first. Skipping.
               title: Solar Assistant
               log_level: "Normal"
         else:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -220,7 +220,7 @@ script:
             entity_id: select.growatt_sph_work_mode_priority
             state: Grid first
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Priority is already set to grid first. Skipping.
@@ -245,7 +245,7 @@ script:
                         state: EV Disconnected
                 sequence:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -255,12 +255,12 @@ script:
                             entity_id:
                               - person.danny
                               - person.terina
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Stopped
                         target:
                           entity_id: select.myenergi_eddi_operating_mode
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Stopped
                         target:
@@ -272,7 +272,7 @@ script:
                         state: "Stopped"
                 sequence:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -282,12 +282,12 @@ script:
                             entity_id:
                               - person.danny
                               - person.terina
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Stopped
                         target:
                           entity_id: select.myenergi_eddi_operating_mode
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Stopped
                         target:
@@ -302,7 +302,7 @@ script:
                         state: EV Disconnected
                 sequence:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -312,13 +312,13 @@ script:
                             entity_id:
                               - person.danny
                               - person.terina
-                      - service: select.select_option
+                      - action: select.select_option
                         data:
                           option: Stopped
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
             default:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -357,14 +357,14 @@ script:
             entity_id: switch.growatt_sph_grid_first_slot_1_enabled
             state: "off"
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Priority is already set to load first. Skipping.
               title: Solar Assistant
               log_level: "Normal"
         else:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Setting priority from {{ states('sensor.growatt_sph_inverter_mode') }}
@@ -391,7 +391,7 @@ script:
       - parallel:
           - repeat:
               sequence:
-                - service: switch.turn_off
+                - action: switch.turn_off
                   target:
                     entity_id: switch.growatt_sph_battery_first_slot_1_enabled
                   data: {}
@@ -405,7 +405,7 @@ script:
                     seconds: 30
           - repeat:
               sequence:
-                - service: switch.turn_off
+                - action: switch.turn_off
                   target:
                     entity_id: switch.growatt_sph_grid_first_slot_1_enabled
                   data: {}
@@ -442,7 +442,7 @@ script:
                 above: sensor.growatt_sph_battery_state_of_charge
         then:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     Set battery first stop charging to {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}.
@@ -455,7 +455,7 @@ script:
                 data:
                   max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|int(100) }}"
         else:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Set battery first stop charging to {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}.
@@ -485,10 +485,10 @@ script:
             after: "00:00:00"
             before: "08:00:00"
         then:
-          - service: script.todays_solar_forecast_data
+          - action: script.todays_solar_forecast_data
             response_variable: solar_forecast_data
         else:
-          - service: script.tomorrows_solar_forecast_data
+          - action: script.tomorrows_solar_forecast_data
             response_variable: solar_forecast_data
       - choose:
           - alias: Battery First Schedule
@@ -516,7 +516,7 @@ script:
                         state: "Battery first"
                 then:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Battery schedule is enabled and on. Switching from
@@ -525,7 +525,7 @@ script:
                           people:
                             entity_id:
                               - person.danny
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data: {}
           - alias: Grid First Schedule
             conditions:
@@ -545,7 +545,7 @@ script:
                         state: "Grid first"
                 then:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Grid schedule is enabled and on. Switching from
@@ -554,7 +554,7 @@ script:
                           people:
                             entity_id:
                               - person.danny
-                      - service: script.grid_first_priority_mode
+                      - action: script.grid_first_priority_mode
                         data: {}
           - alias: Maintenance First Schedule
             conditions:
@@ -581,7 +581,7 @@ script:
                         state: "Maintain"
                 then:
                   - parallel:
-                      - service: script.send_direct_notification
+                      - action: script.send_direct_notification
                         data:
                           message: >-
                             Maintenancce schedule is enabled and on. Switching from
@@ -590,7 +590,7 @@ script:
                           people:
                             entity_id:
                               - person.danny
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data:
                           max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
           - alias: "Unit rate is 0p/kw"
@@ -614,7 +614,7 @@ script:
                               - condition: template
                                 value_template: "{{ event == 'time'}}"
                             sequence:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     Electrictity rate is
@@ -626,7 +626,7 @@ script:
                                     entity_id:
                                       - person.danny
                         default:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message: >-
                                 Electrictity rate costs nothing
@@ -636,12 +636,12 @@ script:
                               people:
                                 entity_id:
                                   - person.danny
-                      - service: number.set_value
+                      - action: number.set_value
                         target:
                           entity_id: number.growatt_sph_battery_first_stop_charge
                         data:
                           value: "100"
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data: {}
           - alias: "Unit rate is below 0p/kw"
             conditions:
@@ -664,7 +664,7 @@ script:
                               - condition: template
                                 value_template: "{{ event == 'time'}}"
                             sequence:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     Electrictity rate has gove below 0
@@ -676,7 +676,7 @@ script:
                                     entity_id:
                                       - person.danny
                         default:
-                          - service: script.send_direct_notification
+                          - action: script.send_direct_notification
                             data:
                               message: >-
                                 Electrictity rate
@@ -687,12 +687,12 @@ script:
                               people:
                                 entity_id:
                                   - person.danny
-                      - service: number.set_value
+                      - action: number.set_value
                         target:
                           entity_id: number.growatt_sph_battery_first_stop_charge
                         data:
                           value: "100"
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data: {}
           - alias: Unit rate below export and charge below export enabled
             conditions:
@@ -740,7 +740,7 @@ script:
                               - condition: template
                                 value_template: "{{ event == 'time'}}"
                             sequence:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     Electrictity rate
@@ -752,7 +752,7 @@ script:
                                     entity_id:
                                       - person.danny
                         default:
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message: >-
                                 Electricity unit rate is below export rate
@@ -760,12 +760,12 @@ script:
                                 states('sensor.electricity_export_current_rate') }}). Charging house battery.
                               title: Solar Assistant
                               debug: "Debug"
-                      - service: number.set_value
+                      - action: number.set_value
                         target:
                           entity_id: number.growatt_sph_battery_first_stop_charge
                         data:
                           value: "100"
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data: {}
           - alias: Unit rate below target rate and charge below export enabled
             conditions:
@@ -788,7 +788,7 @@ script:
                               - condition: template
                                 value_template: "{{ event == 'time'}}"
                             sequence:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     Electrictity rate
@@ -800,7 +800,7 @@ script:
                                     entity_id:
                                       - person.danny
                         default:
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message: >-
                                 Electricity unit rate is below target rate
@@ -808,12 +808,12 @@ script:
                                 states('input_number.target_electricity_unit_rate') }}). Charging house battery.
                               title: Solar Assistant
                               debug: "Debug"
-                      - service: number.set_value
+                      - action: number.set_value
                         target:
                           entity_id: number.growatt_sph_battery_first_stop_charge
                         data:
                           value: "100"
-                      - service: script.battery_first_priority_mode
+                      - action: script.battery_first_priority_mode
                         data: {}
           - alias: Octopus scheduled charge enabled
             conditions:
@@ -963,7 +963,7 @@ script:
                                 entity_id: binary_sensor.octopus_energy_target_overnight_home_battery_charge_6_hours
                                 state: "on"
                     then:
-                      - service: weather.get_forecasts
+                      - action: weather.get_forecasts
                         target:
                           entity_id: weather.home
                         data:
@@ -974,7 +974,7 @@ script:
                               - condition: template
                                 value_template: "{{ event == 'time'}}"
                             then:
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     Scheduled to charge
@@ -1030,7 +1030,7 @@ script:
                                     {{ false }}
                                     {%- endif -%}
                                 continue_on_error: true
-                              - service: script.send_direct_notification
+                              - action: script.send_direct_notification
                                 data:
                                   message: >-
                                     {%- from 'get_solar_forecast.jinja' import get_first_solar_generation -%}
@@ -1086,7 +1086,7 @@ script:
                                       - condition: template
                                         value_template: "{{ solar_forecast_data.estimate_charge_percentage|int(100) < states('sensor.growatt_sph_battery_state_of_charge')|int(0) }}"
                                     sequence:
-                                      - service: script.send_direct_notification
+                                      - action: script.send_direct_notification
                                         data:
                                           message: >-
                                             Battery SOC ({{ states('sensor.growatt_sph_battery_state_of_charge') }}%) > Target charge ({{ solar_forecast_data.estimate_charge_percentage|int(100) }}%).
@@ -1100,7 +1100,7 @@ script:
                                       - condition: template
                                         value_template: "{{ runtime_greater_than_first_generation }}"
                                     sequence:
-                                      - service: script.send_direct_notification
+                                      - action: script.send_direct_notification
                                         data:
                                           message: >-
                                             Runtime > first Generation. Skipping charge.
@@ -1109,7 +1109,7 @@ script:
                                             entity_id:
                                               - person.danny
                                 default:
-                                  - service: script.battery_first_priority_mode
+                                  - action: script.battery_first_priority_mode
                                     data:
                                       max_charge: "{{ solar_forecast_data.estimate_charge_percentage|int(100) }}"
                                 continue_on_error: true
@@ -1126,7 +1126,7 @@ script:
                 value_template: "{{ event == 'time'}}"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         Electrictity rate has gove above export
@@ -1141,7 +1141,7 @@ script:
                       people:
                         entity_id:
                           - person.danny
-                  - service: script.load_first_priority_mode
+                  - action: script.load_first_priority_mode
                     data: {}
           - alias: Default mode
             conditions:
@@ -1151,13 +1151,13 @@ script:
                     state: "Load first"
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Default mode: Changing to Load first.
                       title: Solar Assistant
                       debug: "Debug"
-                  - service: script.load_first_priority_mode
+                  - action: script.load_first_priority_mode
                     data: {}
         default: []
     mode: single

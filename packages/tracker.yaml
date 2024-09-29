@@ -26,21 +26,21 @@ automation:
                     entity_id: input_boolean.enable_morning_routine
                     state: "off"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: ":house: :running: Someone arrived home."
                       log_level: "Debug"
-                  - service: script.set_alarm_to_disarmed_mode
+                  - action: script.set_alarm_to_disarmed_mode
               - conditions:
                   - condition: state
                     entity_id: input_boolean.enable_morning_routine
                     state: "on"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: ":house: :running: Someone arrived home before :city_sunrise: sunrise."
                       log_level: "Debug"
-                  - service: script.set_alarm_to_disarmed_mode
+                  - action: script.set_alarm_to_disarmed_mode
             default: []
           - choose:
               - conditions:
@@ -48,12 +48,12 @@ automation:
                     entity_id: climate.thermostat
                     state: "off"
                 sequence:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: Heating is off. Turning heating on.
                       title: ":hotsprings: :droplet: Boiler"
                       log_level: "Debug"
-                  - service: script.set_central_heating_to_home_mode
+                  - action: script.set_central_heating_to_home_mode
             default: []
     mode: single
   - id: "1655063863297"
@@ -84,7 +84,7 @@ automation:
                     entity_id: sensor.terina_home_nearest_direction_of_travel
                     state: "towards"
             sequence:
-              - service: input_text.set_value
+              - action: input_text.set_value
                 data:
                   value: >-
                     {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
@@ -94,16 +94,16 @@ automation:
                     {%- endif -%}
                 target:
                   entity_id: input_text.origin_address
-              - service: input_text.set_value
+              - action: input_text.set_value
                 data:
                   value: zone.home
                 target:
                   entity_id: input_text.destination_address
-              - service: homeassistant.update_entity
+              - action: homeassistant.update_entity
                 data: {}
                 target:
                   entity_id: sensor.google_travel_time_by_car
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: >-
                     {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
@@ -121,11 +121,11 @@ automation:
                     state: "Holiday"
                 then:
                   - parallel:
-                      - service: script.send_to_home_log
+                      - action: script.send_to_home_log
                         data:
                           message: Changing to normal mode
                           log_level: "Debug"
-                      - service: input_select.select_option
+                      - action: input_select.select_option
                         data:
                           option: Normal
                         target:
@@ -135,7 +135,7 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: >-
                     {%- if trigger.entity_id == 'sensor.danny_home_nearest_distance' -%}
@@ -177,7 +177,7 @@ automation:
             entity_id: person.terina
             state: "home"
     action:
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: >-
             {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
@@ -187,12 +187,12 @@ automation:
             {% endif %}
         target:
           entity_id: input_text.origin_address
-      - service: input_text.set_value
+      - action: input_text.set_value
         data:
           value: zone.home
         target:
           entity_id: input_text.destination_address
-      - service: homeassistant.update_entity
+      - action: homeassistant.update_entity
         data: {}
         target:
           entity_id: sensor.google_travel_time_by_car
@@ -201,7 +201,7 @@ automation:
             entity_id: person.danny
             state: "home"
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
@@ -220,7 +220,7 @@ automation:
             entity_id: person.terina
             state: "home"
         then:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 {% if trigger.entity_id == 'sensor.danny_home_nearest_distance' %}
@@ -254,9 +254,9 @@ automation:
             state: "unavailable"
     action:
       - parallel:
-          - service: script.lock_house
-          - service: script.3d_printer_left_unattended
-          - service: calendar.get_events
+          - action: script.lock_house
+          - action: script.3d_printer_left_unattended
+          - action: calendar.get_events
             target:
               entity_id:
                 - calendar.tsang_children
@@ -276,7 +276,7 @@ automation:
                   - condition: template
                     value_template: "{{ calendar['calendar.family'].events[0].location is not defined }}"
                 sequence:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         No one home and there's a family event on:
@@ -298,7 +298,7 @@ automation:
                   - condition: template
                     value_template: "{{ calendar['calendar.family'].events | count > 0 }}"
                 sequence:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: >-
                         No one home and there's a childrens' event on:
@@ -336,7 +336,7 @@ automation:
                 above: input_number.long_distance_away_from_home
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     data:
                       message: Everyone is far away from home.
                       log_level: "Normal"
@@ -348,12 +348,12 @@ automation:
                             state: "Holiday"
                     then:
                       - parallel:
-                          - service: script.send_to_home_log
+                          - action: script.send_to_home_log
                             data:
                               message: Changing to holiday mode.
                               title: Home Mode
                               log_level: "Normal"
-                          - service: input_select.select_option
+                          - action: input_select.select_option
                             data:
                               option: Holiday
                             target:
@@ -381,12 +381,12 @@ automation:
         state: "towards"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Danny is arriving home. Turning alarm off.
               title: ":man: Danny"
               log_level: "Normal"
-          - service: script.set_alarm_to_disarmed_mode
+          - action: script.set_alarm_to_disarmed_mode
     mode: single
   - id: "1581867286886"
     alias: "People: Danny Arrives Home"
@@ -407,16 +407,16 @@ automation:
                 entity_id: light.living_room_lamps
                 state: "off"
             then:
-              - service: script.front_door_lock_status
+              - action: script.front_door_lock_status
                 data: {}
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :house: :running: Arrived home and it's dark.
                 Turning Lounge and kitchen ambient lights on.
               title: ":man: Danny"
               log_level: "Normal"
-          - service: script.announce_delayed_notifications
+          - action: script.announce_delayed_notifications
             data:
               people:
                 - person.danny
@@ -436,12 +436,12 @@ automation:
         state: "not_home"
     action:
       - parallel:
-          - service: scene.turn_on
+          - action: scene.turn_on
             target:
               entity_id:
                 - scene.turn_off_downstairs_lights
                 - scene.office_all_lights_off
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message:
                 ":running: :house: Danny has left the house and no one is home. Turning
@@ -468,12 +468,12 @@ automation:
         state: "towards"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Terina is arriving home. Turning alarm off.
               title: ":woman: Terina"
               log_level: "Normal"
-          - service: script.set_alarm_to_disarmed_mode
+          - action: script.set_alarm_to_disarmed_mode
     mode: single
   - id: "1582754128581"
     alias: "People: Terina Arrives Home"
@@ -494,16 +494,16 @@ automation:
                 entity_id: light.living_room_lamps
                 state: "off"
             then:
-              - service: script.front_door_lock_status
+              - action: script.front_door_lock_status
                 data: {}
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 :dancer: :house: :bulb: Arrived home and it's dark.
                 Turning Lounge and kitchen ambient lights on.
               title: ":woman: Terina"
               log_level: "Normal"
-          - service: script.announce_delayed_notifications
+          - action: script.announce_delayed_notifications
             data:
               people:
                 - person.terina
@@ -521,12 +521,12 @@ automation:
         entity_id: person.danny
         state: "not_home"
     action:
-      - service: scene.turn_on
+      - action: scene.turn_on
         target:
           entity_id:
             - scene.turn_off_downstairs_lights
             - scene.office_all_lights_off
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":house: :dancer: Left the house and no one is home."
           title: ":woman: Terina"
@@ -562,17 +562,17 @@ automation:
           - mon
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message:
                 Looks like Terina is working from home. Changing to Terina Working
                 from home schedule
               log_level: "Debug"
-          - service: switch.turn_off
+          - action: switch.turn_off
             data: {}
             target:
               entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
-          - service: switch.turn_on
+          - action: switch.turn_on
             data: {}
             target:
               entity_id: switch.schedule_terina_working_from_home
@@ -595,16 +595,16 @@ automation:
         state: "on"
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Turning off Terina working from home heating schedule
               log_level: "Debug"
           - sequence:
-              - service: switch.turn_off
+              - action: switch.turn_off
                 data: {}
                 target:
                   entity_id: switch.schedule_terina_working_from_home
-              - service: script.check_and_run_central_heating
+              - action: script.check_and_run_central_heating
                 data: {}
     mode: single
   # Children
@@ -626,7 +626,7 @@ automation:
                 state: No Children
             sequence:
               - parallel:
-                  - service: script.send_to_home_log
+                  - action: script.send_to_home_log
                     metadata: {}
                     data:
                       log_level: Debug
@@ -634,7 +634,7 @@ automation:
                         Leo's Nintendo Switch came home and in No Children mode. Switching
                         to Normal.
                       title: People
-                  - service: input_select.select_option
+                  - action: input_select.select_option
                     metadata: {}
                     data:
                       option: Normal
@@ -673,7 +673,7 @@ automation:
           - condition: template
             value_template: "{{ adjusted_source|lower in state_attr('media_player.spotify_danny', 'source_list')|lower }}"
         then:
-          - service: media_player.select_source
+          - action: media_player.select_source
             data:
               source: "{{ adjusted_source }}"
             target:
@@ -738,13 +738,13 @@ script:
   everybody_leave_home:
     alias: Everybody Leave Home
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message:
             ":running: :house: :dancer: Everyone has left the house. Running the
             following:"
           log_level: "Debug"
-      - service: script.turn_everything_off
+      - action: script.turn_everything_off
     mode: single
   front_door_lock_status:
     alias: Front Door Lock Status
@@ -755,7 +755,7 @@ script:
                 entity_id: lock.unified_front_door
                 state: locked
             sequence:
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.porch_red_light
           - conditions:
@@ -763,7 +763,7 @@ script:
                 entity_id: lock.unified_front_door
                 state: unlocked
             sequence:
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.porch_light_green
           - conditions:
@@ -775,14 +775,14 @@ script:
                     entity_id: lock.unified_front_door
                     state: locking
             sequence:
-              - service: scene.turn_on
+              - action: scene.turn_on
                 target:
                   entity_id: scene.porch_blue_light
     mode: single
   check_terinas_work_laptop_status:
     alias: Check If Terina's Work Laptop Status
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Checking Terina's :briefcase: work :computer: laptop status."
           log_level: "Debug"
@@ -791,10 +791,10 @@ script:
             entity_id: group.terinas_work_computer
             state: "home"
         then:
-          - service: script.terinas_work_laptop_turned_on
+          - action: script.terinas_work_laptop_turned_on
             data: {}
         else:
-          - service: script.terinas_work_laptop_turned_off
+          - action: script.terinas_work_laptop_turned_off
             data: {}
     mode: single
     icon: mdi:laptop
@@ -802,16 +802,16 @@ script:
     alias: People Terina's Work Laptop Turned Off
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Setting higher threshold for lounge lights 30 and 25 respectively.
               log_level: "Debug"
-          - service: input_number.set_value
+          - action: input_number.set_value
             data:
               value: 30
             target:
               entity_id: input_number.living_room_light_level_2_threshold
-          - service: input_number.set_value
+          - action: input_number.set_value
             data:
               value: 25
             target:
@@ -822,16 +822,16 @@ script:
     alias: People Terina's Work Laptop Turned On
     sequence:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Setting lower threshold for lounge lights 81 and 65 respectively.
               log_level: "Debug"
-          - service: input_number.set_value
+          - action: input_number.set_value
             data:
               value: 81
             target:
               entity_id: input_number.living_room_light_level_2_threshold
-          - service: input_number.set_value
+          - action: input_number.set_value
             data:
               value: 65
             target:

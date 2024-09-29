@@ -39,7 +39,7 @@ automation:
                 entity_id: device_tracker.tesla_2
                 state: "home"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: >-
                     Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.electricity_current_rate') }}).
@@ -58,7 +58,7 @@ automation:
                 entity_id: device_tracker.tesla_2
                 state: "home"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: >-
                     Car is not plugged in and electricity rates is {{ states('sensor.electricity_current_rate', with_unit=True) }}.
@@ -83,7 +83,7 @@ automation:
                 entity_id: sensor.tesla_model_y_home_location_tracker_distance
                 below: "5000"
             sequence:
-              - service: script.send_direct_notification
+              - action: script.send_direct_notification
                 data:
                   message: >-
                     Electricity rates is or below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
@@ -109,7 +109,7 @@ automation:
         webhook_id: teslausb
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             {{ trigger.json.value2 }}
@@ -121,8 +121,8 @@ automation:
 mqtt:
   - sensor:
       name: Display Name
-      object_id: tesla_display_name  # entity_id
-      unique_id: teslamate_1_display_name  # internal id, used for device grouping
+      object_id: tesla_display_name # entity_id
+      unique_id: teslamate_1_display_name # internal id, used for device grouping
       availability: &teslamate_availability
         - topic: teslamate/cars/1/healthy
           payload_available: "true"

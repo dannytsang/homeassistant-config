@@ -10,7 +10,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":door: :snowflake: Freezer door is open."
           title: ":fountain: Utility Room"
@@ -26,7 +26,7 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":door: :snowflake: Freezer door closed"
           title: ":fountain: Utility Room"
@@ -56,13 +56,13 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_direct_notification
+          - action: script.send_direct_notification
             data:
               message: >-
                 :warning: :door: :snowflake: Freezer door has been open for more than
                 {{ relative_time(states.binary_sensor.utility_freezer_door_contact.last_changed) }}!
               title: ":fountain: Utility Room"
-          - service: script.alexa_announce
+          - action: script.alexa_announce
             data:
               message: >-
                 Utility Room ❄ Freezer door has been open for more than
@@ -83,12 +83,12 @@ automation:
     condition: []
     action:
       - parallel:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: Freezer plug is turned off.
               title: ":fountain: Utility Room"
               log_level: "Normal"
-          - service: script.send_actionable_notification_with_2_buttons
+          - action: script.send_actionable_notification_with_2_buttons
             data:
               message: Freezer plug is turned off. Turn on?
               title: ":fountain: Utility Room"
@@ -110,7 +110,7 @@ automation:
         to: "on"
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: ":shirt: :soap: Washing Machine :arrow_forward: Started."
           title: "Utility Room"
@@ -126,7 +126,7 @@ automation:
         to: "off"
     condition: []
     action:
-      - service: script.washing_complete_notification
+      - action: script.washing_complete_notification
         data:
           message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
           title: "Utility Room"
@@ -166,24 +166,24 @@ script:
                 after: "09:00:00"
             sequence:
               - parallel:
-                  - service: script.send_direct_notification
+                  - action: script.send_direct_notification
                     data:
                       message: "{{ message }}"
                       title: "{{ title }}"
                       people:
                         entity_id: "{{ people_home }}"
-                  - service: script.alexa_announce
+                  - action: script.alexa_announce
                     data:
                       message: "{{ message|replace(':shirt:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
                       title: "{{ title }}"
         default:
           - parallel:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: "{{ message }}"
                   title: "{{ title }}"
                   log_level: "Debug"
-              - service: todo.add_item
+              - action: todo.add_item
                 data:
                   item: "{{ message }}"
                 target:
@@ -194,10 +194,10 @@ script:
     alias: Utility_room Turn Off Camera
     icon: mdi:cctv-off
     sequence:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: "Turning utility_room :camera: camera detection off."
-      - service: switch.turn_off
+      - action: switch.turn_off
         target:
           entity_id:
             - switch.utility_room_detect
@@ -207,7 +207,7 @@ script:
     alias: Utility_room Turn On Camera
     icon: mdi:cctv
     sequence:
-      - service: switch.turn_on
+      - action: switch.turn_on
         target:
           entity_id:
             - switch.utility_room_detect
