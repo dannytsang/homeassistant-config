@@ -67,9 +67,9 @@ automation:
     condition: []
     action:
       - parallel:
-          - data: {}
+          - action: input_boolean.turn_on
             entity_id: input_boolean.enable_morning_routine
-            service: input_boolean.turn_on
+            data: {}
           - action: script.send_to_home_log
             data:
               message: ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :sunny: Reset morning routine run flag"
@@ -112,9 +112,9 @@ script:
   morning_script:
     alias: Morning Script
     sequence:
-      - data: {}
+      - action: input_boolean.turn_off
         entity_id: input_boolean.enable_morning_routine
-        service: input_boolean.turn_off
+        data: {}
       - parallel:
           - action: script.send_to_home_log
             data:
