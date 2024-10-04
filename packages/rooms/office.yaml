@@ -374,48 +374,29 @@ automation:
                       entity_id: switch.office_fan
         default: []
     mode: single
-  - id: "1596190251094"
-    alias: "Office: Turn Fan Off After 1 Hour"
+  - id: "1728046359271"
+    alias: "Office: Fan Switch Is Off"
     description: ""
-    trigger:
-      - entity_id: switch.office_fan
-        for: 01:00:00
-        platform: state
-        to: "on"
-        id: 1h
-        from: "off"
-      - entity_id: switch.office_fan
-        for: 02:00:00
-        platform: state
-        to: "on"
-        id: 2h
-        from: "off"
-    condition: []
-    action:
-      parallel:
-        - choose:
-            - conditions:
-                - condition: trigger
-                  id: 1h
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: Turned off office Fan after 1 hour.
-                    title: ":office: Office"
-                    log_level: "Debug"
-            - conditions:
-                - condition: trigger
-                  id: 2h
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: Turned off office Fan after 2 hours.
-                    title: ":office: Office"
-                    log_level: "Debug"
-          default: []
-        - action: switch.turn_off
-          target:
-            entity_id: switch.office_fan
+    triggers:
+      - trigger: state
+        entity_id:
+          - climate.office_air_conditioner
+        to: unavailable
+        for:
+          minutes: 5
+    conditions:
+      - condition: state
+        entity_id: switch.office_fan
+        state: "off"
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: Office Fan switch has turned off.
+          title: ":office: Office"
+          people:
+            entity_id:
+              - person.danny
     mode: single
   # Computer related automations
   - id: "1619865008647"
