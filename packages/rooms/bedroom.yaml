@@ -4,8 +4,8 @@ automation:
   - id: "1601641236163"
     alias: "Bedroom: Close Blinds When Someone Is In Bed After Sunset"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bed_occupied
         from: "off"
         to: "on"
@@ -26,7 +26,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bed_sensor
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -42,10 +42,10 @@ automation:
   - id: "1600127180656"
     alias: "Bedroom: Close Blinds Before Sunrise"
     description: ""
-    trigger:
-      - event: sunrise
+    triggers:
+      - trigger: sun
+        event: sunrise
         offset: -02:00:00
-        platform: sun
     condition:
       - condition: numeric_state
         entity_id: cover.bedroom_blinds
@@ -57,7 +57,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.bedroom_window_contact
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -73,8 +73,8 @@ automation:
   - id: "1622667464880"
     alias: "Bedroom: Window Closed At Night"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bedroom_window_contact
         from: "on"
         to: "off"
@@ -90,7 +90,7 @@ automation:
           - condition: state
             entity_id: cover.bedroom_blinds
             state: "closed"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -106,8 +106,8 @@ automation:
   - id: "1615689096351"
     alias: "Bedroom: Window Closed And Someone Is In Bed At Night"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bedroom_window_contact
         from: "on"
         to: "off"
@@ -122,7 +122,7 @@ automation:
         state: "on"
       - condition: sun
         after: sunset
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -165,8 +165,8 @@ automation:
   - id: "1601641292576"
     alias: "Bedroom: Open Blind When No One Is In Bed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bed_occupied
         from: "on"
         to: "off"
@@ -186,7 +186,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bed_sensor
         state: "on"
-    action:
+    actions:
       - delay: 00:01:00
       - parallel:
           - action: script.send_to_home_log
@@ -204,15 +204,15 @@ automation:
   - id: "1715955339483"
     alias: "Bedroom: Door Closed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bedroom_door_contact
         to: "off"
         for:
           seconds: 10
     condition: []
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -268,13 +268,13 @@ automation:
   - id: "1615209552353"
     alias: "Bedroom: Other Bedroom Door Opens Warning"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.leos_bedroom_door_contact
         from: "off"
         to: "on"
         id: leo
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.ashlees_bedroom_door_contact
         id: ashlee
         from: "off"
@@ -296,7 +296,7 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: "No Children"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -355,13 +355,13 @@ automation:
   - id: "1615209552354"
     alias: "Bedroom: Other Bedroom Door Closes Warning"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.leos_bedroom_door_contact
         from: "on"
         to: "off"
         id: leo
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.ashlees_bedroom_door_contact
         id: ashlee
         from: "on"
@@ -379,7 +379,7 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: "No Children"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -438,8 +438,8 @@ automation:
   - id: "1724001157269"
     alias: "Bedroom: Pause TV When Door Opens At Night"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bedroom_door_contact
         from: "off"
@@ -453,7 +453,7 @@ automation:
       - condition: state
         entity_id: media_player.bedroom_tv
         state: playing
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -470,8 +470,8 @@ automation:
   - id: "1621713217274"
     alias: "Bedroom: Motion Detected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bedroom_motion_occupancy
         from: "off"
@@ -493,7 +493,7 @@ automation:
             entity_id: light.under_bed_right
             below: "100"
             attribute: brightness
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -562,8 +562,8 @@ automation:
   - id: "1621713867762"
     alias: "Bedroom: No Motion"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bedroom_motion_occupancy
         from: "on"
@@ -580,7 +580,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bedroom_motion_trigger
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -596,8 +596,8 @@ automation:
   - id: "1621713867763"
     alias: "Bedroom: No Motion For Long Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bedroom_area_motion
         from: "on"
         to: "off"
@@ -609,7 +609,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bedroom_motion_trigger
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -626,8 +626,8 @@ automation:
   - id: "1725207477313"
     alias: "Bedroom: No Motion And Fan Is On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bedroom_motion_3_presence
         to: "off"
@@ -639,7 +639,7 @@ automation:
       - condition: state
         entity_id: switch.bedroom_fan
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: switch.turn_off
             metadata: {}
@@ -651,8 +651,8 @@ automation:
   - id: "1690844451011"
     alias: "Bedroom: Turn Off Fan"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.bedroom_fan
         to: "on"
@@ -661,7 +661,7 @@ automation:
           minutes: 0
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -677,17 +677,17 @@ automation:
   - id: "1621875409014"
     alias: "Bedroom: Morning Timed Open Blinds"
     description: "TODO: Take into account high temperature."
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "08:00:00"
         id: "workday"
-      - platform: time
+      - trigger: time
         at: "08:30:00"
         id: "083000"
-      - platform: time
+      - trigger: time
         at: "09:00:00"
         id: "090000"
-      - platform: time
+      - trigger: time
         at: "09:30:00"
         id: "093000"
     condition:
@@ -701,7 +701,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.bedroom_tv_powered_on
         state: "off"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -790,8 +790,8 @@ automation:
   - id: "1621875567853"
     alias: "Bedroom: Evening Timed Close Blinds"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "22:00:00"
     condition:
       - condition: state
@@ -801,7 +801,7 @@ automation:
         entity_id: cover.bedroom_blinds
         attribute: current_position
         above: input_number.blind_closed_position_threshold
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -832,13 +832,13 @@ automation:
   - id: "1581800266867"
     alias: "Bedroom: Turn off Electric Blanket After 1 hour"
     description: ""
-    trigger:
-      - entity_id: switch.bedroom_blanket
+    triggers:
+      - trigger: state
+        entity_id: switch.bedroom_blanket
         for: 01:00:00
-        platform: state
         to: "'on'"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: switch.turn_off
             entity_id: switch.bedroom_blanket
@@ -851,8 +851,8 @@ automation:
   - id: "1624194131454"
     alias: "Bedroom: TV Turned On During Bright Day"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bedroom_tv_powered_on
         from: "off"
         to: "on"
@@ -867,7 +867,7 @@ automation:
         entity_id: cover.bedroom_blinds
         attribute: current_position
         above: input_number.blind_open_position_threshold
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -911,13 +911,13 @@ automation:
   - id: "1699308571385"
     alias: "Bedroom: Remote Button 1"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to: button_1_press_release
     condition: []
-    action:
+    actions:
       - action: light.toggle
         data: {}
         target:
@@ -926,13 +926,13 @@ automation:
   - id: "1699308571386"
     alias: "Bedroom: Remote Button 2"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to: button_2_press_release
     condition: []
-    action:
+    actions:
       - if:
           - condition: state
             entity_id: light.bedroom_lamps
@@ -952,13 +952,13 @@ automation:
   - id: "1699308571387"
     alias: "Bedroom: Remote Button 3"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to: button_3_press_release
     condition: []
-    action:
+    actions:
       - action: cover.open_cover
         target:
           entity_id: cover.bedroom_blinds
@@ -967,13 +967,13 @@ automation:
   - id: "1699308571388"
     alias: "Bedroom: Remote Button 4"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to: button_4_press_release
     condition: []
-    action:
+    actions:
       - action: cover.close_cover
         target:
           entity_id: cover.bedroom_blinds
@@ -982,8 +982,8 @@ automation:
   - id: "1710079376648"
     alias: "Bedroom: Remote Dial Action Right"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to:
@@ -993,7 +993,7 @@ automation:
     condition:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
-    action:
+    actions:
       - action: light.turn_on
         metadata: {}
         data:
@@ -1010,8 +1010,8 @@ automation:
   - id: "1710079376649"
     alias: "Bedroom: Remote Dial Action Left"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.bedroom_dial_remote_action
         to:
@@ -1021,7 +1021,7 @@ automation:
     condition:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
-    action:
+    actions:
       - action: light.turn_on
         metadata: {}
         data:
@@ -1042,8 +1042,8 @@ automation:
   - id: "1624194439043"
     alias: "Bedroom: TV Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bedroom_tv_powered_on
         from: "on"
         to: "off"
@@ -1062,7 +1062,7 @@ automation:
         after: sunrise
       - condition: time
         after: "08:30"
-    action:
+    actions:
       - action: weather.get_forecasts
         target:
           entity_id: weather.home
@@ -1107,8 +1107,8 @@ automation:
   - id: "1633272413519"
     alias: "Bedroom: Turn Off Heated Blanket"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: switch.bedroom_blanket
         to: "on"
         for:
@@ -1117,7 +1117,7 @@ automation:
           seconds: 0
           milliseconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

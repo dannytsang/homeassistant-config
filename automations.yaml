@@ -1,15 +1,15 @@
 - id: "1590564595890"
   alias: "Lounge: UPS Below 5 Minutes Run time"
   description: ""
-  trigger:
-    - below: "301"
+  triggers:
+    - trigger: numeric_state
       entity_id: sensor.lounge_ups_battery_runtime
-      platform: numeric_state
+      below: "301"
   condition:
     - condition: state
       entity_id: sensor.lounge_ups_status_data
       state: OB DISCHRG
-  action:
+  actions:
     - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: :warning:"
@@ -22,15 +22,15 @@
 - id: "1591705795121"
   alias: "Office: Server UPS On Battery With Less Than 5 Minutes"
   description: ""
-  trigger:
-    - below: "301"
+  triggers:
+    - trigger: numeric_state
       entity_id: sensor.server_ups_battery_runtime
-      platform: numeric_state
+      below: "301"
   condition:
     - condition: state
       entity_id: sensor.server_ups_status_data
       state: OB DISCHRG
-  action:
+  actions:
     - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
@@ -43,12 +43,12 @@
 - id: "1604998439600"
   alias: "House: Water detected"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.water_leak_sensors
       to: "on"
   condition: []
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":warning: :droplet: Potential leak detected :droplet: :warning:"
@@ -57,13 +57,13 @@
 - id: "1604998512525"
   alias: "House: Water Not Detected"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.water_leak_sensors
       from: "on"
       to: "off"
   condition: []
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Potential leak has stopped
@@ -72,15 +72,15 @@
 - id: "1613246359438"
   alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
   description: ""
-  trigger:
-    - below: "301"
+  triggers:
+    - trigger: numeric_state
       entity_id: sensor.computer_ups_battery_runtime
-      platform: numeric_state
+      below: "301"
   condition:
     - condition: state
       entity_id: sensor.computer_ups_status_data
       state: OB DISCHRG
-  action:
+  actions:
     - action: script.send_direct_notification
       data:
         message: ":warning: Less than 5 minutes left on :battery: battery :warning:"
@@ -93,8 +93,8 @@
 - id: "1613264719942"
   alias: "Office: Alarm Armed Home Mode & Motion Detected"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.office_area_motion
       to: "on"
   condition:
@@ -104,7 +104,7 @@
     - condition: state
       entity_id: group.jd_computer
       state: "off"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the office!"
@@ -113,8 +113,8 @@
 - id: "1613264961246"
   alias: "Kitchen: Alarm Armed Home Mode & Motion Detected"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.kitchen_area_motion
       to: "on"
   condition:
@@ -124,7 +124,7 @@
     - condition: state
       entity_id: group.jd_computer
       state: "off"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":paw_prints: Motioned detected in the kitchen!"
@@ -133,8 +133,8 @@
 - id: "1617395256574"
   alias: "Leo's Room: Bed Occupied At Night"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.leos_bed_occupied
       to: "on"
   condition:
@@ -149,7 +149,7 @@
     - condition: state
       entity_id: input_boolean.enable_leos_bed_sensor
       state: "on"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":city_sunrise: :bed: Someone is in Leo's bed. Closing blinds."
@@ -170,7 +170,7 @@
           target:
             entity_id: cover.leos_bedroom_blinds
     - wait_for_trigger:
-        - platform: state
+        - trigger: state
           entity_id: binary_sensor.leos_bedroom_window_contact
           to: "off"
       timeout: 03:00:00
@@ -185,13 +185,13 @@
 - id: "1622973276606"
   alias: "Office: Arm Office Door"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.alarm_office_door
       from: "off"
       to: "on"
   condition: []
-  action:
+  actions:
     - choose:
         - conditions:
             - condition: state
@@ -216,8 +216,8 @@
 - id: "1622973478458"
   alias: "Office: Trigger Armed Door"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.office_door_contact
       from: "off"
       to: "on"
@@ -225,7 +225,7 @@
     - condition: state
       entity_id: input_boolean.alarm_office_door
       state: "on"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":rotating_light: :door: Office door armed and was opened:rotating_light:"
@@ -237,12 +237,12 @@
 - id: "1627509008928"
   alias: Enter No Children Mode
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_select.home_mode
       to: No Children
   condition: []
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: ":repeat: Entering No Children mode."
@@ -251,15 +251,15 @@
 - id: "1634576629865"
   alias: "NFC Tag: Scanned Locked By User"
   description: ""
-  trigger:
-    - platform: event
+  triggers:
+    - trigger: event
       event_type: tag_scanned
       context:
         user_id:
           - 06cbf6deafc54cf0beffa49552a396b1
           - 2df8a2a6e0be4d5d902aad2d39ed4c9b
   condition: []
-  action:
+  actions:
     - choose:
         - conditions:
             - condition: template
@@ -290,13 +290,13 @@
 - id: "1636203020481"
   alias: "Porch: Some One Leaving"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: binary_sensor.front_door
       from: "off"
       to: "on"
   condition: []
-  action:
+  actions:
     - choose:
         - conditions:
             - condition: state
@@ -320,13 +320,13 @@
 - id: "1647094935963"
   alias: Exit Naughty Step Mode
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id: input_boolean.naughty_step_mode
       from: "on"
       to: "off"
   condition: []
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Exiting naught step mode.
@@ -341,11 +341,11 @@
 - id: "1650032888798"
   alias: "Frigate: Event"
   description: ""
-  trigger:
-    - platform: mqtt
+  triggers:
+    - trigger: mqtt
       topic: frigate/events
   condition: []
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: "A {{trigger.payload_json['after']['label']}} was detected. id:
@@ -359,8 +359,8 @@
 - id: "1653857006776"
   alias: "Porch: Heating Turned On Check Entrances"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id:
         - climate.thermostat
       attribute: hvac_action
@@ -370,7 +370,7 @@
     - condition: state
       entity_id: climate.thermostat
       state: auto
-  action:
+  actions:
     - choose:
         - conditions:
             - condition: state
@@ -386,26 +386,26 @@
 - id: "1659198098255"
   alias: "House: Turn On Fake Presence"
   description: ""
-  trigger:
-    - platform: sun
+  triggers:
+    - trigger: sun
       event: sunset
       offset: 0
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "17"
       minutes: /15
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "18"
       minutes: /15
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "19"
       minutes: /15
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "20"
       minutes: /15
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "21"
       minutes: /15
-    - platform: time_pattern
+    - trigger: time_pattern
       hours: "22"
       minutes: /15
   condition:
@@ -427,7 +427,7 @@
           value_template:
             "{{ states('sensor.danny_home_nearest_distance')|float(0)
             > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Changing lights to pretend someone is at home.
@@ -440,8 +440,8 @@
 - id: "1659199066864"
   alias: "Home: Turn Off Scheduled Fake Presence"
   description: ""
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: "23:00:00"
   condition:
     - condition: state
@@ -461,7 +461,7 @@
           value_template:
             "{{ states('sensor.danny_home_nearest_distance')|float(0)
             > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Turning off all lights from faking someone at home.
@@ -472,8 +472,8 @@
 - id: "1660326219450"
   alias: "Weather: Morning Check For Hot Day Forecast"
   description: ""
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: 09:00:00
   condition:
     - condition: not
@@ -488,7 +488,7 @@
         - tue
         - mon
         - wed
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned off.
@@ -500,8 +500,8 @@
 - id: "1660326219451"
   alias: "Weather: Afternoon Check For Hot Day Forecast"
   description: ""
-  trigger:
-    - platform: time
+  triggers:
+    - trigger: time
       at: "14:00:00"
   condition:
     - condition: not
@@ -516,7 +516,7 @@
         - tue
         - mon
         - wed
-  action:
+  actions:
     - action: script.send_to_home_log
       data:
         message: Checking if hot water needs to be turned on.
@@ -527,12 +527,12 @@
 - id: "1674478124534"
   alias: "Conservatory: Cold Temperature"
   description: ""
-  trigger:
-    - platform: numeric_state
+  triggers:
+    - trigger: numeric_state
       entity_id: sensor.conservatory_area_mean_temperature
       below: 3
   condition: []
-  action:
+  actions:
     - action: climate.set_preset_mode
       data:
         preset_mode: boost
@@ -544,8 +544,8 @@
 - id: "1674916813112"
   alias: "Bedroom: Lamps Off And Stairs Light On"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id:
         - light.bedroom_lamps
       from: "on"
@@ -559,7 +559,7 @@
         - condition: state
           entity_id: light.stairs_2
           state: "on"
-  action:
+  actions:
     - parallel:
         - action: script.send_to_home_log
           data:
@@ -574,8 +574,8 @@
 - id: "1698342875093"
   alias: "Kitchen: mmWave Turned On Whilst In Holiday Mode"
   description: ""
-  trigger:
-    - platform: state
+  triggers:
+    - trigger: state
       entity_id:
         - switch.kitchen_motion_mmwave_sensor
       to: "on"
@@ -583,7 +583,7 @@
     - condition: state
       entity_id: input_select.home_mode
       state: Holiday
-  action:
+  actions:
     - action: switch.turn_off
       data: {}
       target:

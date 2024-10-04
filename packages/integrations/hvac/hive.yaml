@@ -5,17 +5,17 @@ automation:
   - id: "1666470473971"
     alias: "HVAC: Heating Mode Changed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.thermostat_mode
         to: "SCHEDULE"
-      - platform: state
+      - trigger: state
         entity_id:
           - water_heater.thermostat
         to: "eco"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Central heating mode changed to {{ states('sensor.thermostat_mode') }}
@@ -39,13 +39,13 @@ automation:
   - id: "1666470473973"
     alias: "HVAC: Heating Mode Changed To Automatic"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - climate.thermostat
         to: "auto"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: Thermostat switched to auto mode (again).
@@ -58,17 +58,17 @@ automation:
   - id: "1666470473972"
     alias: "HVAC: Hot Water Mode Changed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - water_heater.thermostat
         to: "eco"
-      - platform: state
+      - trigger: state
         entity_id:
           - water_heater.thermostat
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Hot water mode changed to {{ states('water_heater.thermostat') }}
@@ -92,8 +92,8 @@ automation:
   - id: "1662589192400"
     alias: "Central Heating: Turn On Hot Water"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - schedule.hot_water
         to: "on"
@@ -105,7 +105,7 @@ automation:
           - condition: state
             entity_id: water_heater.thermostat
             state: "on"
-    action:
+    actions:
       - choose:
           - alias: "In Holiday Mode"
             conditions:
@@ -149,8 +149,8 @@ automation:
   - id: "1662589333109"
     alias: "Central Heating: Turn Off Hot Water"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - schedule.hot_water
         to: "off"
@@ -166,7 +166,7 @@ automation:
           - condition: state
             entity_id: water_heater.thermostat
             state: "off"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state

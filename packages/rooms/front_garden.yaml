@@ -4,14 +4,14 @@ automation:
   - id: "1694521590171"
     alias: "Porch: Doorbell Pressed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.front_door_ding
           - binary_sensor.front_door_ding_2
         to: "on"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             data:
@@ -40,15 +40,15 @@ automation:
   - id: "1621070004545"
     alias: "Front Garden: Doorbell Camera Updated"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: camera.front_door
     condition:
       - condition: template
         value_template:
           "{{ state_attr('camera.front_door', 'last_video_id') | string
           != states('input_text.doorbell_last_video_id') | string}}"
-    action:
+    actions:
       # Bug: https://github.com/home-assistant/home-assistant.io/issues/21599
       - action: downloader.download_file
         data:
@@ -63,14 +63,14 @@ automation:
   - id: "1720276673719"
     alias: "Front Garden: Vehicle Detected On Driveway"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.driveway_vehicle_detected
         from: "off"
         to: "on"
     condition: []
-    action:
+    actions:
       - action: camera.snapshot
         metadata: {}
         data:
@@ -101,8 +101,8 @@ automation:
   - id: "1660894232444"
     alias: "Front Garden: Below Direct Sun Light"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         for:
           hours: 0
@@ -113,7 +113,7 @@ automation:
       - condition: state
         entity_id: sensor.season
         state: "summer"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message:
@@ -156,12 +156,12 @@ automation:
   - id: "1714914120928"
     alias: "Front Garden: Lock Box State Changed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.outdoor_lock_box_contact
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -174,8 +174,8 @@ automation:
   - id: "1718364408150"
     alias: "Front Garden: Lockbox Sensor Disconnected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.outdoor_lock_box_contact
         to: unavailable
@@ -184,7 +184,7 @@ automation:
           minutes: 5
           seconds: 0
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:

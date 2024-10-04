@@ -4,36 +4,36 @@ automation:
   - id: "1691009694611"
     alias: "Solar Assistant: Check Solar Mode"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: sensor.electricity_export_current_rate
         id: event
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: sensor.electricity_export_current_rate
         id: event
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
         id: event
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0"
         id: event
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "1"
         id: time
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "5"
         id: time
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "31"
         id: time
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "35"
         id: time
-      - platform: homeassistant
+      - trigger: homeassistant
         event: start
     condition:
       - condition: state
@@ -43,7 +43,7 @@ automation:
           - condition: state
             entity_id: select.growatt_sph_work_mode_priority
             state: "unavailable"
-    action:
+    actions:
       - choose:
           - alias: Rates remain above export
             conditions:
@@ -77,18 +77,18 @@ automation:
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: 0
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: sensor.electricity_export_current_rate
     condition:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: numeric_state
@@ -121,8 +121,8 @@ automation:
   - id: "1708679917302"
     alias: Solar Assistant Target Octopus Rate Turned On
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.octopus_energy_target_overnight_home_battery_charge_6_hours
         to: "on"
@@ -133,7 +133,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             metadata: {}
@@ -1251,7 +1251,7 @@ sensor:
 template:
   # Solar Assistant
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.growatt_sph_battery_power
     sensor:
@@ -1264,7 +1264,7 @@ template:
         unit_of_measurement: "W"
         state_class: "measurement"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.growatt_sph_battery_power
     sensor:
@@ -1281,7 +1281,7 @@ template:
         unit_of_measurement: "W"
         state_class: "measurement"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - number.growatt_sph_battery_first_stop_charge
           - switch.growatt_sph_battery_first_slot_1_enabled
@@ -1313,7 +1313,7 @@ template:
           mdi:home-battery
           {%- endif -%}
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - number.growatt_sph_load_first_stop_discharge
           - sensor.growatt_sph_battery_state_of_charge
@@ -1329,7 +1329,7 @@ template:
         device_class: "battery"
         unit_of_measurement: "%"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.solar_battery_size
           - sensor.growatt_sph_load_power
@@ -1347,7 +1347,7 @@ template:
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.solar_battery_size
           - sensor.growatt_sph_load_power
@@ -1363,7 +1363,7 @@ template:
         unit_of_measurement: "s"
         device_class: "duration"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.solar_battery_size
           - sensor.growatt_battery_charge_power
@@ -1380,7 +1380,7 @@ template:
             {{ '{:02d}:{:02d}:{:02d}'.format(ts // 3600, (ts % 3600) // 60, (ts % 3600) % 60) }}
         device_class: "timestamp"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.growatt_battery_charge_power
           - sensor.growatt_sph_inverter_mode

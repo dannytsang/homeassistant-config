@@ -3,14 +3,14 @@ automation:
   - id: "1583797341647"
     alias: "Kitchen: Turn Off Lights At Night"
     description: ""
-    trigger:
-      - at: "23:30:00"
-        platform: time
+    triggers:
+      - trigger: time
+        at: "23:30:00"
     condition:
       - condition: state
         entity_id: light.kitchen_lights
         state: "on"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -27,8 +27,8 @@ automation:
   - id: "1606652871369"
     alias: "Kitchen: No Motion"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.kitchen_area_motion
         from: "on"
         to: "off"
@@ -37,7 +37,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -136,8 +136,8 @@ automation:
   - id: "1606652871370"
     alias: "Kitchen: No Motion Turn Off Lights"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         from: "on"
         to: "off"
         for: 00:07:00
@@ -146,7 +146,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -229,11 +229,11 @@ automation:
   - id: "1606294735952"
     alias: "Kitchen: Turn Off Lights In The Morning"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "09:00:00"
         id: weekend
-      - platform: time
+      - trigger: time
         at: "08:50:00"
         id: weekday
     condition:
@@ -247,7 +247,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -296,10 +296,10 @@ automation:
   - id: "1588197104336"
     alias: "Kitchen: Timed Turn On Lights (Dim)"
     description: ""
-    trigger:
-      - event: sunset
-        platform: sun
-      - platform: time
+    triggers:
+      - trigger: sun
+        event: sunset
+      - trigger: time
         at: "06:45:00"
     condition:
       - and:
@@ -310,7 +310,7 @@ automation:
           - condition: state
             entity_id: group.adult_people
             state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -328,8 +328,8 @@ automation:
   - id: "1606158191303"
     alias: "Kitchen: Motion Detected Table Lights Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
           - binary_sensor.kitchen_motion_2_occupancy
@@ -351,7 +351,7 @@ automation:
                 entity_id: light.kitchen_table_white
                 attribute: brightness
                 below: 100
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -368,8 +368,8 @@ automation:
   - id: "1606158191306"
     alias: "Kitchen: Motion Detected Cooker Lights Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
           - binary_sensor.kitchen_motion_2_occupancy
@@ -382,7 +382,7 @@ automation:
       - condition: state
         entity_id: light.kitchen_cooker_white
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -403,8 +403,8 @@ automation:
   - id: "1606158191309"
     alias: "Kitchen: Motion Detected Cooker Lights On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
           - binary_sensor.kitchen_motion_2_occupancy
@@ -421,7 +421,7 @@ automation:
         entity_id: light.kitchen_cooker_white
         attribute: brightness
         below: 100
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -442,8 +442,8 @@ automation:
   - id: "1606158191304"
     alias: "Kitchen: Motion Detected Ambient Lights On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.kitchen_area_motion
         to: "on"
     condition:
@@ -460,7 +460,7 @@ automation:
           - condition: state
             entity_id: light.kitchen_draws
             state: "on"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -496,8 +496,8 @@ automation:
   - id: "1606158191305"
     alias: "Kitchen: Motion Detected Ambient Lights Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.kitchen_area_motion
         to: "on"
     condition:
@@ -514,7 +514,7 @@ automation:
           - condition: state
             entity_id: light.kitchen_draws
             state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -532,8 +532,8 @@ automation:
   - id: "1619356833117"
     alias: "Kitchen: Turn Off Coffee Machine"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: switch.coffee_machine
         from: "off"
         to: "on"
@@ -542,7 +542,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_coffee_machine_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -559,12 +559,12 @@ automation:
   - id: "1721248529363"
     alias: "Kitchen: Cooker Light Switch Toggle"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_cooker_light_input
     condition: []
-    action:
+    actions:
       - action: light.toggle
         metadata: {}
         data:
@@ -576,12 +576,12 @@ automation:
   - id: "1721248529364"
     alias: "Kitchen: TableLight Switch Toggle"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_table_light_input
     condition: []
-    action:
+    actions:
       - action: light.toggle
         metadata: {}
         data:
@@ -594,13 +594,13 @@ automation:
   - id: "1595678795895"
     alias: "Kitchen: Fridge Door Open"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.kitchen_fridge_door_contact
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_fridge_door_contact
         from: "off"
-        platform: state
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":door: :snowflake: Fridge door opened."
@@ -611,13 +611,13 @@ automation:
   - id: "1595678900778"
     alias: "Kitchen: Fridge Door Closed"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.kitchen_fridge_door_contact
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_fridge_door_contact
         from: "on"
-        platform: state
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":snowflake: Fridge :door: door closed."
@@ -627,26 +627,26 @@ automation:
   - id: "1595679010793"
     alias: "Kitchen: Fridge Open For A Long Period Of Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.kitchen_fridge_door_contact
         from: "off"
         to: "on"
         for: 00:04:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.kitchen_fridge_door_contact
         to: "on"
         for: 00:30:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.kitchen_fridge_door_contact
         to: "on"
         for: 00:45:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.kitchen_fridge_door_contact
         to: "on"
         for: 01:00:00
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             data:
@@ -664,13 +664,13 @@ automation:
   - id: "1595678795896"
     alias: "Kitchen: Freezer Door Open"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.kitchen_freezer_door_contact
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_freezer_door_contact
         from: "off"
-        platform: state
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":snowflake: Freezer :door: door opened."
@@ -680,13 +680,13 @@ automation:
   - id: "1595678900779"
     alias: "Kitchen: Freezer Door Closed"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.kitchen_freezer_door_contact
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_freezer_door_contact
         from: "on"
-        platform: state
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":snowflake: Freezer :door: door closed."
@@ -696,14 +696,14 @@ automation:
   - id: "1595679010796"
     alias: "Kitchen: Freezer Open For A Long Period Of Time"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.kitchen_freezer_door_contact
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_freezer_door_contact
         for: 00:04:00
         from: "off"
-        platform: state
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: ":snowflake: Freezer :door: door has been open for more than 4 minutes!"
@@ -712,8 +712,8 @@ automation:
   - id: "1657801925107"
     alias: "Kitchen: Fridge Freezer Plug Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.ecoflow_kitchen_plug
         to: "unavailable"
@@ -722,7 +722,7 @@ automation:
           minutes: 2
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -739,8 +739,8 @@ automation:
   - id: "1688681085048"
     alias: "Kitchen: Low Water Softener Salt"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.water_softener_salt_level
         above: input_number.low_water_softener_salt_level
         for:
@@ -748,7 +748,7 @@ automation:
           minutes: 0
           seconds: 0
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: Low salt in water softener.
@@ -761,12 +761,12 @@ automation:
   - id: "1688681085049"
     alias: "Kitchen: No Water Softener Salt"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: sensor.water_softener_salt_level
         to: input_number.no_water_softener_salt_level
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: ":warning: No salt in water softener. :warning:"
@@ -779,8 +779,8 @@ automation:
   - id: "1694521590170"
     alias: "Kitchen: Oven Preheated"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.oven_channel_1_power
         below: 100
     condition:
@@ -793,7 +793,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_oven_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.kitchen_oven_preheated_notification
             data:
@@ -810,8 +810,8 @@ automation:
   - id: "1694521864037"
     alias: "Kitchen: Reset Oven Preheated"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.oven_powered_on
         to: "off"
@@ -826,7 +826,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_oven_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -842,12 +842,12 @@ automation:
   - id: "1595679010797"
     alias: "Kitchen: Dishwasher Started"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.dishwasher_powered_on
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":knife_fork_plate: :soap: Washing Machine :arrow_forward: Started."
@@ -857,13 +857,13 @@ automation:
   - id: "1595679010798"
     alias: "Kitchen: Dishwasher Finished"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.dishwasher_powered_on
         from: "on"
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.dishwashing_complete_notification
         data:
           message: ":knife_fork_plate: :soap: Washing Machine :checkered_flag: Finished."
@@ -872,14 +872,14 @@ automation:
   - id: "1716112515827"
     alias: "Kitchen: Paper Draw Opened"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.kitchen_paper_draw_contact
         from: "off"
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -1506,7 +1506,7 @@ template:
         device_class: running
         state: "{{ states('sensor.kettle_power') | float(0) >= 10 }}"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.ecoflow_kitchen_ac_out_power
         not_to: "unavailable"
@@ -1517,7 +1517,7 @@ template:
         device_class: running
         state: "{{ states('sensor.ecoflow_kitchen_ac_out_power') | float(0) >= 10 and states('sensor.ecoflow_kitchen_ac_out_power') | float(0) <= 100 }}"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.oven_channel_1_power
         not_to: "unavailable"
@@ -1528,7 +1528,7 @@ template:
         device_class: running
         state: "{{ states('sensor.oven_channel_1_power') | float(0) >= 10 }}"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.low_water_softener_salt_level
           - sensor.water_softener_salt_level
@@ -1538,7 +1538,7 @@ template:
         icon: "mdi:water-alert"
         state: "{{ states('sensor.water_softener_salt_level') | float(100) >= states('input_number.low_water_softener_salt_level') | float(0) }}"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.no_water_softener_salt_level
           - sensor.water_softener_salt_level

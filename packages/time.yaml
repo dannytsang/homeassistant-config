@@ -3,14 +3,14 @@ automation:
   - id: "1622667704047"
     alias: "Time: Warn Doors or Windows Still Open At Night"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "22:00:00"
     condition:
       - condition: state
         entity_id: binary_sensor.alarmed_doors_and_windows
         state: "on"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message:
@@ -24,11 +24,11 @@ automation:
   - id: "1619466600288"
     alias: "Time: Delete Old Camera Files"
     description: ""
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         hours: "/2"
     condition: []
-    action:
+    actions:
       parallel:
         - action: script.send_to_home_log
           data:
@@ -61,11 +61,11 @@ automation:
   - id: "1588859384208"
     alias: "Time: Reset Morning Run"
     description: ""
-    trigger:
-      - at: "04:59:00"
-        platform: time
+    triggers:
+      - trigger: time
+        at: "04:59:00"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: input_boolean.turn_on
             entity_id: input_boolean.enable_morning_routine
@@ -78,13 +78,13 @@ automation:
   - id: "1582406380123"
     alias: "Timed: Turn Off Downstairs Lights at 2am"
     description: "Fall back to turn off all lights should there be any connectivity issues etc."
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "02:00:00"
         id: 2am
-      - platform: time
+      - trigger: time
         at: "03:00:00"
-      - platform: time
+      - trigger: time
         at: "04:00:00"
     condition:
       - not:
@@ -94,7 +94,7 @@ automation:
           - condition: trigger
             id:
               - 2am
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

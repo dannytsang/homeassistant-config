@@ -6,12 +6,12 @@ automation:
     description:
       "Split automation depending on light state due to dynamic attributes based on state.
       See https://community.home-assistant.io/t/dynamic-attributes/93226/2?u=tuxinator94"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.office_motion_2_presence
         to: "on"
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id:
           - sensor.office_motion_2_target_distance
         above: 0.1
@@ -26,7 +26,7 @@ automation:
           - condition: state
             entity_id: light.office_3
             state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - and:
@@ -151,12 +151,12 @@ automation:
     description:
       "Split automation depending on light state due to dynamic attributes based on state.
       See https://community.home-assistant.io/t/dynamic-attributes/93226/2?u=tuxinator94"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.office_motion_2_presence
         to: "on"
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id:
           - sensor.office_motion_2_target_distance
         above: 0.1
@@ -171,7 +171,7 @@ automation:
           - condition: state
             entity_id: light.office_3
             state: "off"
-    action:
+    actions:
       - choose:
           - conditions:
               - or:
@@ -234,8 +234,8 @@ automation:
   - id: "1587044886896"
     alias: "Office: No Motion Detected"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.office_motion_2_target_distance
         below: 0.01
         for: 00:02:00
@@ -249,7 +249,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.office_motion_2_presence
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -267,8 +267,8 @@ automation:
   - id: "1587044886897"
     alias: "Office: Office Light Off Timer Finished"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.office_lights_off
@@ -277,7 +277,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -294,15 +294,15 @@ automation:
   - id: "1622584959878"
     alias: "Office: High Temperature"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.office_area_mean_temperature
         above: "26"
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.office_area_mean_temperature
         above: "29"
         for: 00:01:00
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.office_area_mean_temperature
         for: 00:01:00
         above: "31"
@@ -310,7 +310,7 @@ automation:
       - condition: state
         entity_id: switch.office_fan
         state: "off"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -378,7 +378,7 @@ automation:
     alias: "Office: Fan Switch Is Off"
     description: ""
     triggers:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.office_air_conditioner
         to: unavailable
@@ -402,13 +402,13 @@ automation:
   - id: "1619865008647"
     alias: "Office: Computer Turned On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: group.jd_computer
         from: "not_home"
         to: "home"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -440,8 +440,8 @@ automation:
   - id: "1606256309890"
     alias: "Office: Computer Turned Off For A Period Of Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: group.jd_computer
         for: 00:10:00
         to: "not_home"
@@ -452,7 +452,7 @@ automation:
           - condition: state
             entity_id: device_tracker.udm_pro
             state: "unavailable"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: trigger
@@ -513,8 +513,8 @@ automation:
   - id: "1678741966796"
     alias: "Office: Computer Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.jd_computer
         from: "home"
@@ -524,7 +524,7 @@ automation:
           minutes: 1
           seconds: 0
     condition: []
-    action:
+    actions:
       - if:
           - alias: Is work computer on?
             condition: state
@@ -546,8 +546,8 @@ automation:
   - id: "1678741966794"
     alias: "Office: Computer Turned Off After Sunrise"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.jd_computer
         from: "home"
@@ -566,7 +566,7 @@ automation:
         after: "08:00:30"
       - condition: sun
         before: sunset
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -580,8 +580,8 @@ automation:
   - id: "1619865008649"
     alias: "Office: Work Computer Turned On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: group.dannys_work_computer
         from: "not_home"
         to: "home"
@@ -589,7 +589,7 @@ automation:
       - condition: state
         entity_id: switch.office_monitor_bar
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: switch.turn_on
             target:
@@ -603,8 +603,8 @@ automation:
   - id: "1678741966795"
     alias: "Office: Work Computer Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.dannys_work_computer
         from: "home"
@@ -614,7 +614,7 @@ automation:
           minutes: 1
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - if:
               - alias: Is personal computer on?
@@ -638,11 +638,11 @@ automation:
   - id: "1622374444832"
     alias: "Office: Open Blinds In The Morning"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "08:00:00"
     condition: []
-    action:
+    actions:
       - action: weather.get_forecasts
         target:
           entity_id: weather.home
@@ -713,8 +713,8 @@ automation:
   - id: "1622374233312"
     alias: "Office: Close Office Blinds At Night 2"
     description: ""
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
     condition:
       - condition: state
@@ -724,7 +724,7 @@ automation:
         entity_id: cover.office_blinds
         attribute: current_tilt_position
         above: 25
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -754,8 +754,8 @@ automation:
   - id: "1622374233310"
     alias: "Office: Close Office Blinds At Night 2"
     description: ""
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
         offset: 01:00:00
     condition:
@@ -766,7 +766,7 @@ automation:
         entity_id: cover.office_blinds
         attribute: current_tilt_position
         above: 0
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -793,8 +793,8 @@ automation:
   - id: "1622666920056"
     alias: "Office: Window Closed At Night"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.office_windows
         from: "on"
         to: "off"
@@ -812,7 +812,7 @@ automation:
             after_offset: -01:00:00
           - condition: sun
             before: sunrise
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -827,8 +827,8 @@ automation:
   - id: "1680528200295"
     alias: "Office: No Direct Sun Light In The Morning"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: azimuth
         below: input_number.office_blinds_morning_sun_azimuth_threshold
@@ -847,7 +847,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.office_windows
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -865,12 +865,12 @@ automation:
   - id: "1680528200297"
     alias: "Office: No Direct Sun Light In The Afternoon"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: azimuth
         above: input_number.office_blinds_afternoon_sun_azimuth_threshold
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: elevation
         above: input_number.office_blinds_afternoon_sun_elevation_threshold
@@ -896,7 +896,7 @@ automation:
       - condition: state
         entity_id: light.office_key_lights
         state: "off"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -913,8 +913,8 @@ automation:
   - id: "1678300398737"
     alias: "Office: Bright Outside"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         above: input_number.blind_low_brightness_threshold
         for: "00:01:00"
@@ -958,7 +958,7 @@ automation:
           - condition: state
             entity_id: group.jd_computer
             state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -980,8 +980,8 @@ automation:
   - id: "1678300398736"
     alias: "Office: Really Bright Outside"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         above: input_number.blind_high_brightness_threshold
         for: "00:01:00"
@@ -1017,7 +1017,7 @@ automation:
           - condition: state
             entity_id: group.jd_computer
             state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1032,8 +1032,8 @@ automation:
   - id: "1678637987424"
     alias: "Office: Outside Went Darker"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         for:
           hours: 0
@@ -1060,7 +1060,7 @@ automation:
       - condition: state
         entity_id: light.office_key_lights
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1076,8 +1076,8 @@ automation:
   - id: "1719349686247"
     alias: "Office: Light On And Bright Room"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - light.office_area_lights
         to: "on"
@@ -1092,7 +1092,7 @@ automation:
       - condition: numeric_state
         entity_id: sensor.office_area_mean_light_level
         above: input_number.office_light_level_threshold
-    action:
+    actions:
       - parallel:
           - action: light.turn_off
             metadata: {}
@@ -1118,8 +1118,8 @@ automation:
   - id: "1721434316175"
     alias: "Office: Fly Zapper"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.fly_zapper
         for:
@@ -1127,7 +1127,7 @@ automation:
           minutes: 0
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1144,13 +1144,13 @@ automation:
   - id: "1722108194998"
     alias: "Office: Remote Keylight"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.office_remote_action
         to: open
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1167,13 +1167,13 @@ automation:
   - id: "1722108194999"
     alias: "Office: Remote Fan"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.office_remote_action
         to: close
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1190,8 +1190,8 @@ automation:
   - id: "1724261391488"
     alias: "Office: Scheduled Air Conditioning On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - input_boolean.enable_office_air_conditioner_schedule_1
           - input_boolean.enable_office_air_conditioner_schedule_2
@@ -1225,7 +1225,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1252,8 +1252,8 @@ automation:
   - id: "1724261391489"
     alias: "Office: Scheduled Air Conditioning Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - input_boolean.enable_office_air_conditioner_schedule_1
           - input_boolean.enable_office_air_conditioner_schedule_2
@@ -1288,7 +1288,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1307,8 +1307,8 @@ automation:
   - id: "1725986264578"
     alias: "Office: Negative Rates Turn On Air Conditioner"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id:
           - event.octopus_energy_electricity_19l3860833_1012829255330_current_day_rates
         below: 0
@@ -1319,7 +1319,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
-    action:
+    actions:
       - action: climate.set_hvac_mode
         metadata: {}
         data:

@@ -5,15 +5,15 @@ automation:
   - id: "1622374233311"
     alias: "Weather: Forecast To Be Hot"
     description: "Watches weather forecast for hot temperatures"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: weather.home
         attribute: temperature
         above: input_number.forecast_high_temperature
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.temperature_forecast_next_hour
         above: input_number.forecast_high_temperature
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id:
           - sensor.front_garden_motion_illuminance_lux
           - sensor.back_garden_motion_illuminance_lux
@@ -30,7 +30,7 @@ automation:
       - condition: state
         entity_id: sensor.season
         state: "summer"
-    action:
+    actions:
       - parallel:
           - if:
               - condition: numeric_state
@@ -58,12 +58,12 @@ automation:
   - id: "1645568214221"
     alias: "Weather: Warning Notification"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.met_office_rss_weather_warnings
         above: 0
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification_with_url
         data:
           message: >-

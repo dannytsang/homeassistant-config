@@ -4,8 +4,8 @@ automation:
   - id: "1712086876964"
     alias: "Zappi: Charging Schedule Started"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.ev_charger_schedule_1
           - binary_sensor.ev_charger_schedule_2
@@ -33,7 +33,7 @@ automation:
               - condition: state
                 entity_id: binary_sensor.ev_charger_schedule_2
                 state: "on"
-    action:
+    actions:
       - action: script.zappi_check_ev_charge
         data: {}
     mode: single
@@ -42,8 +42,8 @@ automation:
     description: ""
     trace:
       stored_traces: 10
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.ev_charger_schedule_1
           - binary_sensor.ev_charger_schedule_2
@@ -68,7 +68,7 @@ automation:
           - condition: state
             entity_id: input_boolean.enable_ev_charger_schedule_2
             state: "on"
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -93,8 +93,8 @@ automation:
   - id: "1712435997060"
     alias: "Zappi: Connected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.myenergi_zappi_plug_status
         from: EV Disconnected
@@ -103,21 +103,21 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
-    action:
+    actions:
       - action: script.zappi_check_ev_charge
         data: {}
     mode: single
   - id: "1712435997062"
     alias: "Zappi: Check Charging Conditions"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0.0"
-      - platform: homeassistant
+      - trigger: homeassistant
         event: start
     condition:
       - condition: state
@@ -126,15 +126,15 @@ automation:
       - condition: state
         entity_id: sensor.myenergi_zappi_plug_status
         state: "EV Connected"
-    action:
+    actions:
       - action: script.zappi_check_ev_charge
         data: {}
     mode: single
   - id: "1715345710884"
     alias: "Zappi: Unidentified Vehicle Connected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.myenergi_zappi_plug_status
         from: EV Disconnected
@@ -154,7 +154,7 @@ automation:
       - condition: state
         entity_id: input_boolean.guest_ev
         state: "off"
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -167,8 +167,8 @@ automation:
   - id: "1715345710885"
     alias: "Zappi: Vehicle Disconnected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.myenergi_zappi_plug_status
         to: EV Disconnected
@@ -179,7 +179,7 @@ automation:
       - condition: state
         entity_id: input_boolean.guest_ev
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             metadata: {}

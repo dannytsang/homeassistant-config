@@ -5,10 +5,10 @@ automation:
   - id: "1647307174048"
     alias: "Stairs: Check Magic Mirror Is Casting Home Assistant"
     description: ""
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         minutes: "0"
-      - platform: homeassistant
+      - trigger: homeassistant
         event: start
     condition:
       - or:
@@ -22,7 +22,7 @@ automation:
           - condition: state
             entity_id: alarm_control_panel.house_alarm
             state: "armed_away"
-    action:
+    actions:
       parallel:
         - action: script.send_to_home_log
           data:
@@ -39,26 +39,26 @@ automation:
   - id: "1672397019959"
     alias: "Chromecast: Google TV Turned Playing"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - media_player.lounge_tv
           - media_player.bedroom_tv
         to: "playing"
-      - platform: state
+      - trigger: state
         entity_id:
           - media_player.lounge_tv
           - media_player.bedroom_tv
         attribute: media_title
         to: "playing"
-      - platform: state
+      - trigger: state
         entity_id:
           - media_player.lounge_tv
           - media_player.bedroom_tv
         attribute: app_name
         to: "playing"
     condition: []
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: template

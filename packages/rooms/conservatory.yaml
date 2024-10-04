@@ -4,8 +4,8 @@ automation:
   - id: "1610234394136"
     alias: "Conservatory: Motion Detected And It's Dark"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.conservatory_area_motion
           - binary_sensor.conservatory_motion_occupancy
@@ -25,7 +25,7 @@ automation:
             below: "9"
           - condition: template
             value_template: "{{ state_attr('light.conservatory', 'brightness') == none }}"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -45,8 +45,8 @@ automation:
   - id: "1610234794461"
     alias: "Conservatory: No Motion Detected Dim Lights"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         to: "off"
         for: 00:01:00
         entity_id: binary_sensor.conservatory_area_motion
@@ -58,7 +58,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -74,8 +74,8 @@ automation:
   - id: "1610238960657"
     alias: "Conservatory: No Motion Turning Turn Lights Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.conservatory_area_motion
         to: "off"
         for: 00:01:30
@@ -86,7 +86,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_conservatory_motion_trigger
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -103,8 +103,8 @@ automation:
   - id: "1629146628067"
     alias: "Conservatory: Person Detected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.conservatory_person_detected
         from: "off"
         to: "on"
@@ -112,7 +112,7 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
         state: "armed_away"
-    action:
+    actions:
       - action: camera.snapshot
         data_template:
           filename:
@@ -132,12 +132,12 @@ automation:
   - id: "1628985027639"
     alias: "Conservatory: Door Open"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.conservatory_door
         to: "on"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -162,13 +162,13 @@ automation:
   - id: "1628985156167"
     alias: "Conservatory: Door Closed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.conservatory_door
         to: "off"
         from: "on"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -235,8 +235,8 @@ automation:
   - id: "1689626117479"
     alias: "Conservatory: Electricity Rates Pays For Usage"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
     condition:
@@ -251,7 +251,7 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: Holiday
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: numeric_state
@@ -308,8 +308,8 @@ automation:
   - id: "1689626117480"
     alias: "Conservatory: Electricity Rates Starts To Cost"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: "0"
     condition:
@@ -325,7 +325,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

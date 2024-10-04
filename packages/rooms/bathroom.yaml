@@ -4,8 +4,8 @@ automation:
   - id: "1610307951215"
     alias: "Bathroom: Motion Detected, Light Off And It's Dark"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bathroom_light_trigger
           - binary_sensor.bathroom_motion_occupancy
@@ -21,7 +21,7 @@ automation:
       - condition: state
         entity_id: light.bathroom
         state: "off"
-    action:
+    actions:
       - parallel:
           - choose:
               # Bedroom light is on
@@ -128,8 +128,8 @@ automation:
   - id: "1610307951216"
     alias: "Bathroom: Motion Detected, Light is On And It's Dark"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.bathroom_light_trigger
           - binary_sensor.bathroom_motion_occupancy
@@ -150,7 +150,7 @@ automation:
             entity_id: light.bathroom
             attribute: brightness
             below: input_number.bathroom_light_level_threshold
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -242,8 +242,8 @@ automation:
   - id: "1610314735645"
     alias: "Bathroom: No Motion Detected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_light_trigger
         to: "off"
     condition:
@@ -253,7 +253,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_triggers
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -308,13 +308,13 @@ automation:
   - id: "1658842750490"
     alias: "Bathroom: Light Dim Timer Complete"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.bathroom_light_dim
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -334,13 +334,13 @@ automation:
   - id: "1658842750489"
     alias: "Bathroom: Light Off Timer Complete"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.bathroom_light_off
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -355,13 +355,13 @@ automation:
   - id: "1689338126105"
     alias: "Bathroom: Light Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - light.bathroom
         to: "off"
     condition: []
-    action:
+    actions:
       - action: timer.cancel
         data: {}
         target:
@@ -377,18 +377,18 @@ automation:
   - id: "1610314735644"
     alias: "Bathroom: No Motion Detected Light On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_light_trigger
         to: "off"
         for: 00:03:30
         id: door_open
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.bathroom_light_trigger
         to: "off"
         for: 00:05:30
         id: door_open_night
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.bathroom_light_trigger
         to: "off"
         for: 00:12:00
@@ -400,7 +400,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_bathroom_motion_triggers
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -483,13 +483,13 @@ automation:
   - id: "1613684184857"
     alias: "Bathroom: Door Opened"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_door_contact
         to: "on"
         from: "off"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -506,8 +506,8 @@ automation:
   - id: "1611164672680"
     alias: "Bathroom: Door Closed And It's Dark"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_door_contact
         to: "off"
         from: "on"
@@ -522,7 +522,7 @@ automation:
           - condition: state
             entity_id: sensor.bathroom_motion_illuminance
             state: "unavailable"
-    action:
+    actions:
       - choose:
           - conditions:
               - or:
@@ -559,8 +559,8 @@ automation:
   - id: "1613684645058"
     alias: "Bathroom: Door Opened Once For More than 20 seconds"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_door_contact
         to: "on"
         from: "off"
@@ -569,7 +569,7 @@ automation:
       - condition: numeric_state
         entity_id: counter.bathroom_door_opened_closed
         below: "2"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -585,15 +585,15 @@ automation:
   - id: "1613697803282"
     alias: "Bathroom: Door Closed And Opened In Succession"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: counter.bathroom_door_opened_closed
         above: "1"
     condition:
       - condition: state
         entity_id: input_boolean.enable_bathroom_light_override
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -658,14 +658,14 @@ automation:
   - id: "1613695680298"
     alias: "Bathroom: Light Override Dim"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_boolean.bathroom_light_override
         to: "on"
         from: "off"
         for: 00:10:00
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: "Light override has been on for 10 minutes. :bulb: :low_brightness: Dimming lights."
@@ -678,13 +678,13 @@ automation:
   - id: "1613695788304"
     alias: "Bathroom: Light Override Turn Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_boolean.bathroom_light_override
         to: "on"
         for: 00:11:00
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: "Light override has been on for 11 minutes. Turning light off."
@@ -700,13 +700,13 @@ automation:
   - id: "1669561588163"
     alias: "Bathroom: Danny's Toothbrush Is On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.dannys_toothbrush_state
         to: running
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -723,8 +723,8 @@ automation:
   - id: "1669562577595"
     alias: "Bathroom: Danny's Toothbrush Stopped"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.dannys_toothbrush_state
         to: "unavailable"
@@ -732,7 +732,7 @@ automation:
           hours: 0
           minutes: 1
           seconds: 0
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.dannys_toothbrush_state
         to: idle
@@ -749,7 +749,7 @@ automation:
           - condition: state
             entity_id: timer.bathroom_light_off
             state: "active"
-    action:
+    actions:
       - action: script.bathroom_start_dim_light
         data:
           message_prefix: "Danny's :toothbrush: toothbrush stopped."
@@ -757,8 +757,8 @@ automation:
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.bathroom_motion_humidity
         for:
           hours: 0
@@ -769,7 +769,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.bathroom_window_contact
         state: "off"
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%) and window is closed."

@@ -4,8 +4,8 @@ automation:
   - id: "1700645933582"
     alias: "ESPHome: Bed Update"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.esphome_device_updates
         not_to: "off"
@@ -16,7 +16,7 @@ automation:
             value_template:
               "{{ state_attr(trigger.entity_id, 'in_progress') == false
               }}"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -31,23 +31,23 @@ automation:
   - id: "1701191210535"
     alias: "ESPHome: Update Firmware"
     description: ""
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         hours: "0"
         minutes: "/15"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "1"
         minutes: "/15"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "2"
         minutes: "/15"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "3"
         minutes: "/15"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "4"
         minutes: "/15"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "5"
         minutes: "/15"
     condition:
@@ -56,7 +56,7 @@ automation:
           - condition: state
             entity_id: group.esphome_device_updates
             state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

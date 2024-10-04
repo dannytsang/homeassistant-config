@@ -4,8 +4,8 @@ automation:
   - id: "1583956425622"
     alias: "Living Room: Motion Detected"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.living_room_area_motion
           - binary_sensor.lounge_motion
@@ -16,7 +16,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - or:
@@ -126,8 +126,8 @@ automation:
   - id: "1606170045630"
     alias: "Living Room: No Motion After Short Time Dim Lights"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.living_room_area_motion
         to: "off"
         for: 00:05:00
@@ -135,7 +135,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -183,8 +183,8 @@ automation:
   - id: "1605567425876"
     alias: "Living Room: No Motion For Long Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.living_room_area_motion
         from: "on"
         to: "off"
@@ -193,7 +193,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -241,8 +241,8 @@ automation:
   - id: "1610409803685"
     alias: "Living Room: TV Turned Off Turn Off Lights"
     description: "TV is turned off and turn lights off if there has been no motion."
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.tv_plug_power
         for: 00:10:00
         below: input_number.tv_plug_powered_on_threshold
@@ -263,7 +263,7 @@ automation:
       - condition: state
         entity_id: device_tracker.doug
         state: "not_home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -309,8 +309,8 @@ automation:
   - id: "1714512650107"
     alias: "Living Room: Lamps On And No Motion"
     description: "Caters for when lights are on and Home Assistant was restarted"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - light.living_room_lamps
         for:
@@ -320,7 +320,7 @@ automation:
         value_template:
           "{{ as_timestamp(now()) - as_timestamp(states.living_room_lamps.last_changed)
           >= 360 }}"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -336,12 +336,12 @@ automation:
   - id: "1588859622571"
     alias: "Living Room: Motion Detected In The Morning"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.lounge_motion
-        platform: state
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.lounge_motion
         to: "on"
-      - entity_id: binary_sensor.stairs_motion_occupancy
-        platform: state
+      - trigger: state
+        entity_id: binary_sensor.stairs_motion_occupancy
         to: "on"
     condition:
       - condition: state
@@ -356,7 +356,7 @@ automation:
       - condition: time
         before: "23:00:00"
         after: "05:00:00"
-    action:
+    actions:
       - data: {}
         action: script.morning_script
     mode: single
@@ -364,13 +364,13 @@ automation:
   - id: "1608493783373"
     alias: "Living Room: Bay Window High Temperature"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: ifttt_webhook_received
         event_data:
           action: bay_window_high_temp
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -386,13 +386,13 @@ automation:
   - id: "1608493853210"
     alias: "Living Room: Bay Window Below High Temperature"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: ifttt_webhook_received
         event_data:
           action: bay_window_low_temp
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -408,13 +408,13 @@ automation:
   - id: "1611063957341"
     alias: "Living Room: Server Fan Running Longer Than 1 Hour"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: switch.server_fan
         to: "on"
         for: 01:00:00
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -443,8 +443,8 @@ automation:
   - id: "1677711735249"
     alias: "Living Room: Open Blinds In The Morning"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "07:30:00"
     condition:
       - condition: state
@@ -453,7 +453,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.living_room_windows
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -474,8 +474,8 @@ automation:
   - id: "1677711735250"
     alias: "Living Room: Open Blinds In The Morning 2"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "08:00:00"
     condition:
       - condition: state
@@ -484,7 +484,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.living_room_windows
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -505,10 +505,10 @@ automation:
   - id: "1677969986112"
     alias: "Living Room: Close Blinds In The Evening"
     description: ""
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
-      - platform: time
+      - trigger: time
         at: "20:00:00"
     condition:
       - condition: state
@@ -530,7 +530,7 @@ automation:
             entity_id: cover.living_room_blinds_right
             attribute: tilt_position
             above: 25
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -551,11 +551,11 @@ automation:
   - id: "1677969986113"
     alias: "Living Room: Close Blinds In The Evening 2"
     description: ""
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
         offset: "01:00:00"
-      - platform: time
+      - trigger: time
         at: "21:00:00"
     condition:
       - condition: state
@@ -564,7 +564,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.living_room_windows
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -585,8 +585,8 @@ automation:
   - id: "1680528200298"
     alias: "Living Room: No Direct Sun Light In The Morning"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: azimuth
         below: input_number.living_room_blinds_morning_sun_azimuth_threshold
@@ -614,7 +614,7 @@ automation:
             entity_id: cover.living_room_blinds_right
             attribute: current_tilt_position
             below: 50
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -638,12 +638,12 @@ automation:
   - id: "1680528200296"
     alias: "Living Room: No Direct Sun Light In The Afternoon"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: azimuth
         above: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sun.sun
         attribute: elevation
         above: input_number.living_room_blinds_afternoon_sun_elevation_threshold
@@ -675,7 +675,7 @@ automation:
             entity_id: cover.living_room_blinds_right
             attribute: current_tilt_position
             below: 50
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -698,8 +698,8 @@ automation:
   - id: "1678300398735"
     alias: "Living Room: Bright Outside"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         above: input_number.blind_low_brightness_threshold
         for: "00:01:00"
@@ -759,7 +759,7 @@ automation:
               - condition: state
                 entity_id: group.terinas_work_computer
                 state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -779,8 +779,8 @@ automation:
   - id: "1678300398734"
     alias: "Living Room: Really Bright Outside"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         above: input_number.blind_high_brightness_threshold
         for: "00:01:00"
@@ -835,7 +835,7 @@ automation:
               - condition: state
                 entity_id: group.terinas_work_computer
                 state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -855,8 +855,8 @@ automation:
   - id: "1678637987423"
     alias: "Living Room: Outside Went Darker"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.front_garden_motion_illuminance_lux
         for:
           hours: 0
@@ -889,7 +889,7 @@ automation:
             entity_id: cover.living_room_blinds_middle
             attribute: current_tilt_position
             below: 50
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -911,13 +911,13 @@ automation:
   - id: "1630015457540"
     alias: "Living Room: Person Detected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.living_room_person
         from: "off"
         to: "on"
     condition: []
-    action:
+    actions:
       - action: camera.snapshot
         data_template:
           filename:
@@ -938,8 +938,8 @@ automation:
   - id: "1610918759041"
     alias: "Living Room: Restart Harmony Hub"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "03:00:00"
     condition:
       - condition: time
@@ -948,7 +948,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.tv_powered_on
         state: "off"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":TV: Restarting Harmony hub."
@@ -969,12 +969,12 @@ automation:
   - id: "1610388192224"
     alias: "Living Room: TV Turned On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.tv_powered_on
         to: "on"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -993,14 +993,14 @@ automation:
   - id: "1610388192225"
     alias: "Living Room: TV Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.tv_powered_on
         from: "on"
         to: "off"
         for: 00:00:30
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1028,14 +1028,14 @@ automation:
   - id: "1654005357582"
     alias: "Living Room: Terina's Work Laptop Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.terinas_work_computer
         not_from: "unavailable"
         to: "not_home"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1048,14 +1048,14 @@ automation:
   - id: "1654005357583"
     alias: "Living Room: Terina's Work Laptop Turned On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.terinas_work_computer
         not_from: "unavailable"
         to: "not_home"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -1068,8 +1068,8 @@ automation:
   - id: "1678741966793"
     alias: "Living Room: Computer Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - group.family_computer
           - group.terinas_work_computer
@@ -1108,7 +1108,7 @@ automation:
             entity_id: cover.living_room_blinds_right
             attribute: current_tilt_position
             state: 50
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

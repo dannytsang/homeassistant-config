@@ -4,8 +4,8 @@ automation:
   - id: "1689437015870"
     alias: "EcoFlow: Solar Below House Consumption"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.ecoflow_solar_excess
         below: 0
         for:
@@ -38,7 +38,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-    action:
+    actions:
       - action: script.ecoflow_check_charging_mode
         data: {}
       - if:
@@ -54,15 +54,15 @@ automation:
   - id: "1689437015871"
     alias: "EcoFlow: Solar Above House Consumption"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.ecoflow_solar_excess
         above: input_number.ecoflow_charge_solar_threshold
         for:
           hours: 0
           minutes: 5
           seconds: 0
-      - platform: event
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.check_solar_excess
@@ -76,7 +76,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.ecoflow_check_charging_mode
             data: {}
@@ -104,29 +104,29 @@ automation:
   - id: "1689626117476"
     alias: "Ecoflow: Electricity Rates Low To Cost Nothing"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: sensor.electricity_export_current_rate
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: sensor.electricity_export_current_rate
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0.0"
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "0"
         seconds: "30"
-      - platform: time_pattern
+      - trigger: time_pattern
         minutes: "30"
     condition:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.ecoflow_check_charging_mode
             data: {}
@@ -135,11 +135,11 @@ automation:
   - id: "1695566530591"
     alias: "EcoFlow: Battery Low And Plug Is Off"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.ecoflow_kitchen_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.ecoflow_office_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
     condition:
@@ -153,7 +153,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: template
@@ -208,8 +208,8 @@ automation:
   - id: "1719062430507"
     alias: "EcoFlow: Kitchen Plug Offline"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id:
           - sensor.ecoflow_kitchen_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
@@ -225,7 +225,7 @@ automation:
           - condition: state
             entity_id: switch.ecoflow_kitchen_plug
             state: unknown
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -238,8 +238,8 @@ automation:
   - id: "1719062430508"
     alias: "EcoFlow: Office Plug Offline"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id:
           - sensor.ecoflow_office_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
@@ -255,7 +255,7 @@ automation:
           - condition: state
             entity_id: switch.ecoflow_office_plug
             state: unknown
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -268,8 +268,8 @@ automation:
   - id: "1719061926981"
     alias: "Ecoflow: Kitchen Battery Low And Switch Comes Online"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.ecoflow_kitchen_plug
         from: unavailable
@@ -281,7 +281,7 @@ automation:
       - condition: numeric_state
         entity_id: sensor.ecoflow_kitchen_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             metadata: {}
@@ -301,8 +301,8 @@ automation:
   - id: "1719061926982"
     alias: "Ecoflow: Office Battery Low And Switch Comes Online"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.ecoflow_office_plug
         from: unavailable
@@ -314,7 +314,7 @@ automation:
       - condition: numeric_state
         entity_id: sensor.ecoflow_office_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             metadata: {}
@@ -335,8 +335,8 @@ automation:
   - id: "1714563193661"
     alias: "EcoFlow: Battery Ultra Low And Plug Is Off"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id:
           - sensor.ecoflow_kitchen_battery_level
         below: 6
@@ -344,7 +344,7 @@ automation:
       - condition: state
         entity_id: switch.ecoflow_kitchen_plug
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             metadata: {}
@@ -359,14 +359,14 @@ automation:
   - id: "1714641195916"
     alias: "Ecoflow: Goes Offline"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.ecoflow_kitchen_main_battery_level
         to: unknown
         for:
           minutes: 30
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.ecoflow_kitchen_main_battery_level
         to: unavailable
@@ -376,7 +376,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
-    action:
+    actions:
       - if:
           - condition: state
             entity_id: switch.ecoflow_kitchen_plug
@@ -1359,7 +1359,7 @@ script:
 
 template:
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.eddi_power
           - sensor.house_grid_export_power
@@ -1378,7 +1378,7 @@ template:
           {%- endif -%}
         unit_of_measurement: kW
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.ecoflow_kitchen_total_in_power
           - sensor.ecoflow_kitchen_total_out_power
@@ -1389,7 +1389,7 @@ template:
           {{ states('sensor.ecoflow_kitchen_total_in_power')|float(0) - states('sensor.ecoflow_kitchen_total_out_power')|float(0) }}
         unit_of_measurement: w
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.ecoflow_kitchen_minimum_backup_reserve
     sensor:
@@ -1398,7 +1398,7 @@ template:
         state: "{{ states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10) + 1 }}"
         unit_of_measurement: "%"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.ecoflow_office_minimum_backup_reserve
     sensor:

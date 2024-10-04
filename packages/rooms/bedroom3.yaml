@@ -4,10 +4,10 @@ automation:
   - id: "1605925028960"
     alias: "Ashlee's Bedroom: Timed Close Blinds"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: input_datetime.childrens_bed_time
-      - platform: time
+      - trigger: time
         at: "22:00:00"
         id: no_children
     condition:
@@ -18,7 +18,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_ashlees_blind_automations
         state: "on"
-    action:
+    actions:
       - choose:
           # Window is still open
           - conditions:
@@ -100,8 +100,8 @@ automation:
   - id: "1622891806607"
     alias: "Ashlee's Bedroom: Window Closed After Dark"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.ashlees_bedroom_window_contact
         from: "on"
@@ -120,7 +120,7 @@ automation:
         state: "on"
       - condition: time
         after: input_datetime.childrens_bed_time
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":window: Window closed and it's dark. Closing blinds."
@@ -134,12 +134,12 @@ automation:
   - id: "1599994669457"
     alias: "Ashlee's Bedroom: Open Blinds In The Morning"
     description: ""
-    trigger:
-      - at: "08:00:00"
-        platform: time
+    triggers:
+      - trigger: time
+        at: "08:00:00"
         id: early
-      - at: "09:00:00"
-        platform: time
+      - trigger: time
+        at: "09:00:00"
         id: late
     condition:
       - condition: numeric_state
@@ -156,7 +156,7 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: "No Children"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -200,18 +200,18 @@ automation:
   - id: "1599994669458"
     alias: "Ashlee's Bedroom: Open Blinds In The Morning No Children Mode"
     description: ""
-    trigger:
-      - at: "08:00:00"
-        platform: time
+    triggers:
+      - trigger: time
+        at: "08:00:00"
         id: workday
-      - at: "09:00:00"
-        platform: time
+      - trigger: time
+        at: "09:00:00"
         id: non_workday
     condition:
       - condition: state
         entity_id: input_select.home_mode
         state: "No Children"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -254,8 +254,8 @@ automation:
   - id: "1655237597647"
     alias: "Ashlee's Bedroom: Someone Is In Bed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.ashlees_bed_occupied
         from: "off"
@@ -265,7 +265,7 @@ automation:
           minutes: 0
           seconds: 30
     condition: []
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -305,8 +305,8 @@ automation:
   - id: "1655235874989"
     alias: "Ashlee's Bedroom: Turn Off Fan After 1 Hour"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.ashlees_bedroom_fan
         to: "on"
@@ -315,7 +315,7 @@ automation:
           minutes: 0
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -331,13 +331,13 @@ automation:
   - id: "1656355431188"
     alias: "Ashlee's Bedroom: Hue Remote On Button"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.ashlees_bedroom_remote_action
         to: on_press
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: "Power button pressed. :bulb: Toggling light."
@@ -352,13 +352,13 @@ automation:
   - id: "1656355431189"
     alias: "Ashlee's Bedroom: Hue Remote Up Button"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.ashlees_bedroom_remote_action
         to: up_press
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -374,13 +374,13 @@ automation:
   - id: "1656355431190"
     alias: "Ashlee's Bedroom: Hue Remote Down Button"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.ashlees_bedroom_remote_action
         to: down_press
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -396,13 +396,13 @@ automation:
   - id: "1656355431191"
     alias: "Ashlee's Bedroom: Hue Remote Off Button"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.ashlees_bedroom_remote_action
         to: off_press
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

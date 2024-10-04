@@ -4,13 +4,13 @@ automation:
   - id: "1624918278463"
     alias: "Stairs: Motion Detected For Ambient Lights"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.stairs_motion_occupancy
         from: "off"
         to: "on"
     condition: []
-    action:
+    actions:
       - parallel:
         - choose:
             - conditions:
@@ -63,13 +63,13 @@ automation:
   - id: "1598726353326"
     alias: "Stairs: Upstairs Dark, Before Kids Bed Time, Light Off And Motion Detected"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -86,7 +86,7 @@ automation:
       - condition: state
         entity_id: light.stairs
         state: "off"
-    action:
+    actions:
       - parallel:
         - action: script.send_to_home_log
           data:
@@ -107,13 +107,13 @@ automation:
   - id: "1598726353327"
     alias: "Stairs: Upstairs Dark, Before Kids Bed Time, Light On And Motion Detected"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -134,7 +134,7 @@ automation:
         entity_id: light.stairs
         attribute: brightness
         below: "5"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -154,13 +154,14 @@ automation:
     alias: "Stairs: Upstairs Dark, After Bed Time, Light Off and Motion Detected Before Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
+        
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -176,7 +177,7 @@ automation:
       - condition: state
         entity_id: light.stairs
         state: "off"
-    action:
+    actions:
       - parallel:
         - choose:
           - conditions:
@@ -308,13 +309,13 @@ automation:
     alias: "Stairs: Upstairs Dark, After Bed Time, Light On and Motion Detected Before Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -334,7 +335,7 @@ automation:
         entity_id: light.stairs
         attribute: brightness
         below: "5"
-    action:
+    actions:
       - parallel:
         - choose:
           - conditions:
@@ -466,13 +467,13 @@ automation:
     alias: "Stairs: Dark, After Bed Time, Light Off and Motion Detected After Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -491,7 +492,7 @@ automation:
       - condition: state
         entity_id: light.stairs
         state: "off"
-    action:
+    actions:
       - parallel:
         - choose:
           # Bedroom light is on
@@ -547,13 +548,13 @@ automation:
     alias: "Stairs: Dark, After Bed Time, Light On and Motion Detected After Midnight"
     description: "Deliberately default to dim light because it's safer than having the light go to full
     brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         from: "off"
-        platform: state
         to: "on"
       # If Ring integration d/c then fall back to Zigbee specifically.
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.upstairs_motion_occupancy
         from: "off"
         to: "on"
@@ -576,7 +577,7 @@ automation:
         entity_id: light.stairs
         attribute: brightness
         below: "5"
-    action:
+    actions:
       - parallel:
         - choose:
           # Bedroom light is on
@@ -630,12 +631,12 @@ automation:
   - id: "1592062695452"
     alias: "Stairs: Motion Detected And MagicMirror Is Off"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.living_room_area_motion
-        platform: state
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.living_room_area_motion
         to: "on"
-      - entity_id: binary_sensor.stairs_motion_occupancy
-        platform: state
+      - trigger: state
+        entity_id: binary_sensor.stairs_motion_occupancy
         to: "on"
     condition:
       - condition: state
@@ -647,7 +648,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: switch.turn_on
           target:
@@ -662,12 +663,12 @@ automation:
   - id: "1587595847618"
     alias: "Stairs: No Motion Detected"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.upstairs_area_motion
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.upstairs_area_motion
         for: 00:01:00
-        platform: state
         to: "off"
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:01:00
@@ -675,7 +676,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -722,8 +723,8 @@ automation:
   - id: "1624918387840"
     alias: "Stairs: No Motion Detected Bottom Of Stairs"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:01:00
@@ -734,7 +735,7 @@ automation:
       - condition: state
         entity_id: light.stairs_2
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: script.send_to_home_log
           data:
@@ -752,12 +753,12 @@ automation:
   - id: "1591553945554"
     alias: "Stairs: No Motion At Night Turn Off Magic Mirror"
     description: ""
-    trigger:
-      - entity_id: binary_sensor.stairs_motion_occupancy
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.stairs_motion_occupancy
         for: 00:03:00
-        platform: state
         to: "off"
-      - platform: time
+      - trigger: time
         at: "23:30:00"
     condition:
       - after: "23:00:00"
@@ -769,7 +770,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_magic_mirror_automations
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: switch.turn_off
           target:
@@ -786,8 +787,8 @@ automation:
   - id: "1714869692076"
     alias: "Stairs: Light Switch"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.stairs_light_input_0_input
         not_from:
@@ -797,7 +798,7 @@ automation:
           - "unknown"
           - "unavailable"
     condition: []
-    action:
+    actions:
       - action: light.toggle
         metadata: {}
         data:
@@ -810,12 +811,12 @@ automation:
   - id: "1615849889104"
     alias: "Stairs: Light On And Children's Door Open After Bedtime And Before Midnight"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.leos_bedroom_door_contact
         from: "off"
         to: "on"
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.ashlees_bedroom_door_contact
         from: "off"
         to: "on"
@@ -830,7 +831,7 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: "No Children"
-    action:
+    actions:
       - parallel:
         - choose:
             - conditions:
@@ -881,12 +882,12 @@ automation:
   - id: "1615850302527"
     alias: "Stairs: Light On And Children's Door Closed Before Midnight"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.leos_bedroom_door_contact
         from: "on"
         to: "off"
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.ashlees_bedroom_door_contact
         from: "on"
         to: "off"
@@ -900,7 +901,7 @@ automation:
       - condition: state
         entity_id: input_select.home_mode
         state: "Normal"
-    action:
+    actions:
       - parallel:
         - choose:
             - conditions:
@@ -981,8 +982,8 @@ automation:
   - id: "1588856667889"
     alias: "MagicMirror: Turn Off Based On Time During Weekday"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.stairs_motion_occupancy
         to: "off"
         for: 00:05:00
@@ -1003,7 +1004,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_stairs_motion_triggers
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: switch.turn_off
           target:
@@ -1017,8 +1018,8 @@ automation:
   - id: "1630760046947"
     alias: "Stairs: Close Blinds At Night"
     description: ""
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
         offset: 01:00:00
     condition:
@@ -1028,7 +1029,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_stairs_blind_automations
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: script.send_to_home_log
           data:
@@ -1042,8 +1043,8 @@ automation:
   - id: "1630760149356"
     alias: "Stairs: Open Blinds In The Morning"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "08:00:00"
     condition:
       - condition: state
@@ -1052,7 +1053,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_stairs_blind_automations
         state: "on"
-    action:
+    actions:
       - parallel:
         - action: script.send_to_home_log
           data:
@@ -1067,8 +1068,8 @@ automation:
   - id: "1630015410190"
     alias: "Stairs: Person Detected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.stairs_person_detected
         from: "off"
         to: "on"
@@ -1076,7 +1077,7 @@ automation:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
         state: "armed_away"
-    action:
+    actions:
       - parallel:
         - action: camera.snapshot
           data_template:

@@ -5,14 +5,14 @@ automation:
   - id: "1614285576722"
     alias: "Sleep As Android: Event"
     description: ""
-    trigger:
-      - platform: webhook
+    triggers:
+      - trigger: webhook
         webhook_id: sleep_as_android
         allowed_methods:
           - POST
         local_only: false
     condition: []
-    action:
+    actions:
       - parallel:
           - action: input_text.set_value
             entity_id: input_text.sleep_as_android
@@ -63,13 +63,13 @@ automation:
   - id: "1658438667856"
     alias: "Sleep As Android: Started Tracking"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - input_text.sleep_as_android
         to: sleep_tracking_started
     condition: []
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -120,8 +120,8 @@ automation:
   - id: "1658843567854"
     alias: "Sleep As Android: Awake"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - input_text.sleep_as_android
         to: awake
@@ -129,7 +129,7 @@ automation:
       - condition: state
         entity_id: timer.sleep
         state: "active"
-    action:
+    actions:
       - parallel:
         - action: timer.pause
           data: {}
@@ -146,8 +146,8 @@ automation:
   - id: "1658843828191"
     alias: "Sleep As Android: Fall Asleep"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - input_text.sleep_as_android
         from: "awake"
@@ -155,7 +155,7 @@ automation:
       - condition: state
         entity_id: timer.sleep
         state: "paused"
-    action:
+    actions:
       - parallel:
           - action: timer.start
             data:
@@ -180,8 +180,8 @@ automation:
   - id: "1659861914053"
     alias: "Sleep As Android: Danny Asleep For A Period Of Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.danny_asleep
         to: "on"
@@ -193,7 +193,7 @@ automation:
       - condition: state
         entity_id: timer.sleep
         state: "active"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Asleep for 15 minutes. Taking 5 minutes off the timer.
@@ -241,13 +241,13 @@ automation:
   - id: "1658842750488"
     alias: "Timer: Sleep Timer Complete"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: timer.finished
         event_data:
           entity_id: timer.sleep
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Sleep timer finished. Turning everything off.
@@ -278,12 +278,12 @@ automation:
   - id: "1644769166837"
     alias: "Bedroom: Danny's Alarm"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_text.sleep_as_android
         to: "alarm_alert_start"
     condition: []
-    action:
+    actions:
       - parallel:
         - choose:
             - conditions:
@@ -339,8 +339,8 @@ automation:
   - id: "1667424349110"
     alias: "Sleep As Android: Stop Sleep Timer"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "05:00:00"
     condition:
       - condition: or
@@ -351,7 +351,7 @@ automation:
           - condition: state
             entity_id: timer.sleep
             state: "paused"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:

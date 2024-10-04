@@ -4,14 +4,14 @@ automation:
   - id: "1619254173099"
     alias: "Steam: Status Change"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: sensor.steam_danny
     condition:
       - condition: state
         entity_id: input_boolean.enable_steam_notifications
         state: "on"
-    action:
+    actions:
       - action: script.send_home_log_with_url
         data:
           message: "Steam status changed to {{ trigger.to_state.state|default('Unknown', true) }}."
@@ -22,8 +22,8 @@ automation:
   - id: "1619254173097"
     alias: "Steam: Playing Game"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.steam_danny
         attribute: game
@@ -33,7 +33,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_steam_notifications
         state: "on"
-    action:
+    actions:
       - action: script.send_home_log_with_url
         data:
           message: "Playing {{ state_attr(trigger.entity_id|default('sensor.steam_danny', true), 'game') }}."

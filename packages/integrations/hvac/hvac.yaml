@@ -4,12 +4,12 @@ automation:
   - id: "1678125037184"
     alias: "HVAC: House Target Temperature Changed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.thermostat_target_temperature
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -34,29 +34,29 @@ automation:
   - id: "1678271646645"
     alias: "HVAC: Radiators Below Target Temperature"
     description: "Monitor rooms below temperature with TRVs"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.bedroom_radiator_temperature
         for:
           hours: 0
           minutes: 30
           seconds: 0
         below: sensor.bedroom_radiator_minimum_target_temperature
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.leos_radiator_temperature
         for:
           hours: 0
           minutes: 30
           seconds: 0
         below: sensor.leos_radiator_minimum_target_temperature
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.living_room_radiator_temperature
         for:
           hours: 0
           minutes: 30
           seconds: 0
         below: sensor.living_room_radiator_minimum_target_temperature
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.office_radiator_temperature
         for:
           hours: 0
@@ -70,7 +70,7 @@ automation:
             entity_id: climate.thermostat
             attribute: hvac_action
             state: "heating"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: trigger
@@ -264,11 +264,11 @@ template:
         unit_of_measurement: "°C"
         state: "{{ state_attr('climate.thermostat', 'temperature') | float(0) }}"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.ashlees_bedroom_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.ashlees_bedroom_radiator_heating_threshold
     sensor:
@@ -277,11 +277,11 @@ template:
         state: "{{ state_attr('climate.ashlees_bedroom_radiator', 'temperature')|float(10) - states('input_number.ashlees_bedroom_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.bedroom_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.bedroom_radiator_heating_threshold
     sensor:
@@ -290,11 +290,11 @@ template:
         state: "{{ state_attr('climate.bedroom_radiator', 'temperature')|float(10) - states('input_number.bedroom_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.kitchen_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.kitchen_radiator_heating_threshold
     sensor:
@@ -303,11 +303,11 @@ template:
         state: "{{ state_attr('climate.kitchen_radiator', 'temperature')|float(10) - states('input_number.kitchen_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.leos_bedroom_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.leos_bedroom_radiator_heating_threshold
     sensor:
@@ -316,11 +316,11 @@ template:
         state: "{{ state_attr('climate.leos_bedroom_radiator', 'temperature')|float(10) - states('input_number.leos_bedroom_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.living_room_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.living_room_radiator_heating_threshold
     sensor:
@@ -329,11 +329,11 @@ template:
         state: "{{ state_attr('climate.living_room_radiator', 'temperature')|float(10) - states('input_number.living_room_radiator_heating_threshold')|float(0) }}"
         unit_of_measurement: "°C"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - climate.office_radiator
         attribute: temperature
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.office_radiator_heating_threshold
     sensor:

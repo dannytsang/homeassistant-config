@@ -5,17 +5,17 @@ automation:
   - id: "1712435997061"
     alias: "Tesla: Not Connected And Home"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: sensor.electricity_export_current_rate
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: sensor.electricity_export_current_rate
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
-      - platform: state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0.0"
     condition:
@@ -28,7 +28,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_tesla_automations
         state: "on"
-    action:
+    actions:
       - choose:
           - alias: Rates Below 0p/kW
             conditions:
@@ -101,14 +101,14 @@ automation:
   - id: "1726077652711"
     alias: "Tesla: USB Archive"
     description: ""
-    trigger:
-      - platform: webhook
+    triggers:
+      - trigger: webhook
         allowed_methods:
           - POST
         local_only: true
         webhook_id: teslausb
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -736,7 +736,7 @@ mqtt:
       unit_of_measurement: bar
       icon: mdi:car-tire-alert
 
-  binary_sensor:    
+  binary_sensor:
     - name: Healthy
       object_id: tesla_healthy
       unique_id: teslamate_1_healthy
@@ -777,7 +777,6 @@ mqtt:
       payload_off: "false"
       icon: mdi:cctv
 
-
     - name: Windows Open
       object_id: tesla_windows_open
       unique_id: teslamate_1_windows_open
@@ -788,7 +787,6 @@ mqtt:
       payload_on: "true"
       payload_off: "false"
       icon: mdi:car-door
-
 
     - name: Doors Open
       object_id: tesla_doors_open
@@ -801,7 +799,6 @@ mqtt:
       payload_off: "false"
       icon: mdi:car-door
 
-
     - name: Trunk Open
       object_id: tesla_trunk_open
       unique_id: teslamate_1_trunk_open
@@ -812,7 +809,6 @@ mqtt:
       payload_on: "true"
       payload_off: "false"
       icon: mdi:car-side
-
 
     - name: Frunk Open
       object_id: tesla_frunk_open
@@ -877,7 +873,7 @@ mqtt:
       payload_on: "true"
       payload_off: "false"
       icon: mdi:ev-plug-tesla
-  # Car 2
+    # Car 2
     - name: Healthy
       object_id: tesla_healthy
       unique_id: teslamate_2_healthy
@@ -918,7 +914,6 @@ mqtt:
       payload_off: "false"
       icon: mdi:cctv
 
-
     - name: Windows Open
       object_id: tesla_windows_open
       unique_id: teslamate_2_windows_open
@@ -929,7 +924,6 @@ mqtt:
       payload_on: "true"
       payload_off: "false"
       icon: mdi:car-door
-
 
     - name: Doors Open
       object_id: tesla_doors_open
@@ -942,7 +936,6 @@ mqtt:
       payload_off: "false"
       icon: mdi:car-door
 
-
     - name: Trunk Open
       object_id: tesla_trunk_open
       unique_id: teslamate_2_trunk_open
@@ -953,7 +946,6 @@ mqtt:
       payload_on: "true"
       payload_off: "false"
       icon: mdi:car-side
-
 
     - name: Frunk Open
       object_id: tesla_frunk_open
@@ -1021,7 +1013,7 @@ mqtt:
 
 template:
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.tesla_charger_power
           - switch.model_y_charger
@@ -1034,7 +1026,7 @@ template:
           {{ states('sensor.tesla_charger_power')|is_number and states('switch.model_y_charger') != 'unavailable' }}
   # Car 2
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.tesla_charger_power_2
           - switch.model_3_charger

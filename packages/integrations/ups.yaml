@@ -4,18 +4,18 @@ automation:
   - id: "1591553714916"
     alias: "UPS: Fully Charged"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
         from: "OL CHRG"
-        platform: state
         to: "OL"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":battery: Battery is fully charged."
@@ -38,27 +38,28 @@ automation:
   - id: "1590564212294"
     alias: "UPS: Charging"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
+        
         from: "OB DISCHRG"
         to: "OL CHRG"
         id: battery_to_charge
-      - entity_id:
+      - trigger: state
+        entity_id:
           - sensor.computer_ups_status_data
           - sensor.lounge_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
         to: "OL CHRG"
         id: "charge"
     condition: []
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -111,17 +112,18 @@ automation:
   - id: "1591963855737"
     alias: "UPS: Unavailable"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
+        
         to: "unavailable"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":battery: Battery is not connected."
@@ -145,17 +147,17 @@ automation:
   - id: "1590564041899"
     alias: "UPS: UPS On Battery"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
         to: "OB DISCHRG"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: "Running on :battery: battery."
@@ -179,17 +181,18 @@ automation:
   - id: "1591963855738"
     alias: "UPS: UPS Online Offline"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
+        
         to: "OL OFF"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: "Running on :battery: battery because it's 'Online Offline' status."
@@ -213,17 +216,17 @@ automation:
   - id: "1591705427771"
     alias: "UPS: Replace Battery Alarm"
     description: ""
-    trigger:
-      - entity_id:
+    triggers:
+      - trigger: state
+        entity_id:
           - sensor.lounge_ups_status_data
           - sensor.computer_ups_status_data
           - sensor.server_ups_status_data
           - sensor.threedprinterups_status_data
           - sensor.family_computer_ups_status_data
-        platform: state
         to: "ALARM OL RB"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: "Replace battery alarm."

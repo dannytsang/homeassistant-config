@@ -5,14 +5,14 @@ automation:
     alias: "Alarm: Disarmed"
     description: ""
     trigger:
-      - platform: state
+      - trigger: state
         entity_id: alarm_control_panel.house_alarm
         to: "disarmed"
     condition:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -29,23 +29,23 @@ automation:
   - id: "1587680439012"
     alias: "Alarm: Arm Overnight Home Mode"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - schedule.alarm_scheduled_home_mode
         from: "off"
         to: "on"
-      - platform: time
+      - trigger: time
         at: "00:00:00"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "0"
         minutes: "/30"
-      - platform: time
+      - trigger: time
         at: "01:00:00"
-      - platform: time_pattern
+      - trigger: time_pattern
         hours: "1"
         minutes: "/30"
-      - platform: time
+      - trigger: time
         at: "02:00:00"
     condition:
       - or:
@@ -59,7 +59,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -93,9 +93,9 @@ automation:
   - id: "1587680439015"
     alias: "Alarm: Arm Overnight Home Mode Final Check"
     description: ""
-    trigger:
-      - at: "02:05:00"
-        platform: time
+    triggers:
+      - trigger: time
+        at: "02:05:00"
     condition:
       - condition: state
         entity_id: alarm_control_panel.house_alarm
@@ -103,7 +103,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -206,8 +206,8 @@ automation:
   - id: "1587680439013"
     alias: "Alarm: Arm Overnight When Doors And Windows Shut"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.alarmed_doors_and_windows
         from: "on"
@@ -229,7 +229,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - action: script.arm_alarm_overnight
         data:
           message: "All alarmed :door: doors and :window: windows are now closed."
@@ -237,15 +237,15 @@ automation:
   - id: "1630366065607"
     alias: "Alarm: Armed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: alarm_control_panel.house_alarm
         to: "armed_away"
     condition:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -257,8 +257,8 @@ automation:
   - id: "1614197981954"
     alias: "Alarm: Disconnected"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: alarm_control_panel.house_alarm
         to: "unavailable"
         for:
@@ -269,7 +269,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             data:
@@ -287,8 +287,8 @@ automation:
   - id: "1658658845650"
     alias: "Alarm: Disconnected For A Period Of Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - alarm_control_panel.house_alarm
         to: "unavailable"
@@ -300,7 +300,7 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
@@ -310,7 +310,7 @@ automation:
         data:
           addon: fdb328a7_ring_mqtt
       - wait_for_trigger:
-          - platform: state
+          - trigger: state
             entity_id:
               - alarm_control_panel.house_alarm
             from: "unavailable"
@@ -344,15 +344,15 @@ automation:
   - id: "1589026420341"
     alias: "Alarm: Triggered"
     description: ""
-    trigger:
-      - entity_id: alarm_control_panel.house_alarm
-        platform: state
+    triggers:
+      - trigger: state
+        entity_id: alarm_control_panel.house_alarm
         to: "triggered"
     condition:
       - condition: state
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             data:

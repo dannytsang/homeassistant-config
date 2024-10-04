@@ -3,13 +3,13 @@ automation:
   - id: "1595678795894"
     alias: "Utility: Freezer Door Open"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         from: "off"
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":door: :snowflake: Freezer door is open."
@@ -19,13 +19,13 @@ automation:
   - id: "1595678900777"
     alias: "Utility: Freezer Door Closed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         from: "on"
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":door: :snowflake: Freezer door closed"
@@ -35,26 +35,26 @@ automation:
   - id: "1595679010792"
     alias: "Utility: Freezer Open For A Long Period Of Time"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         from: "off"
         to: "on"
         for: 00:04:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         to: "on"
         for: 00:30:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         to: "on"
         for: 00:45:00
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.utility_freezer_door_contact
         to: "on"
         for: 01:00:00
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_direct_notification
             data:
@@ -71,8 +71,8 @@ automation:
   - id: "1657801925106"
     alias: "Utility: Freezer Plug Turned Off"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - switch.freezer
         to: "off"
@@ -81,7 +81,7 @@ automation:
           minutes: 1
           seconds: 0
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -104,12 +104,12 @@ automation:
   - id: "1595679010794"
     alias: "Utility: Washing Machine Started"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.washing_machine_powered_on
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: ":shirt: :soap: Washing Machine :arrow_forward: Started."
@@ -119,13 +119,13 @@ automation:
   - id: "1595679010795"
     alias: "Utility: Washing Machine Finished"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.washing_machine_powered_on
         from: "on"
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.washing_complete_notification
         data:
           message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
@@ -262,21 +262,21 @@ sensor:
 
 template:
   - trigger:
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_current_consumption
         for:
           hours: 0
           minutes: 1
           seconds: 0
         above: "9"
-      - platform: numeric_state
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_current_consumption
         for:
           hours: 0
           minutes: 1
           seconds: 30
         below: "10"
-      - platform: homeassistant
+      - trigger: homeassistant
         event: start
     binary_sensor:
       - name: "Washing Machine Powered On"

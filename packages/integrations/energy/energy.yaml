@@ -4,8 +4,8 @@ automation:
   - id: "1661076689668"
     alias: "Energy: Battery Charged And Forecasted Excess Solar"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.battery_charged_notification
     condition:
@@ -24,18 +24,18 @@ automation:
       - alias: Not from an unknown state before
         condition: template
         value_template: "{{ trigger.from_state.state != 'unknown'}}"
-    action:
+    actions:
       - action: script.energy_notify_excess_solar
         data: {}
     mode: single
   - id: "1660858653319"
     alias: "Energy: Solar Forecast Tomorrow"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "21:00:00"
     condition: []
-    action:
+    actions:
       - alias: update forecast
         action: script.update_solcast
         data: {}
@@ -73,15 +73,15 @@ automation:
   - id: "1664743590782"
     alias: "Energy: Battery Charged Today"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.growatt_battery_charged_threshold
     condition:
       - condition: state
         entity_id: input_boolean.battery_charged_today
         state: "off"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Battery charged today
@@ -110,11 +110,11 @@ automation:
   - id: "1664743700827"
     alias: "Energy: Reset Battery Charged Today"
     description: ""
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "00:00:00"
     condition: []
-    action:
+    actions:
       - choose:
           - conditions:
               - condition: state
@@ -153,12 +153,12 @@ automation:
   - id: "1663589154517"
     alias: "Energy: Solar Production exceed threshold"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.total_solar_forecast_estimated_energy_production_today
         above: input_number.solar_generation_minimum_threshold
     condition: []
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: Production above threshold. Resetting Forecast
@@ -168,12 +168,12 @@ automation:
   - id: "1664744505278"
     alias: "Energy: Consecutive Days Battery Not Charged"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: input_number.consecutive_days_battery_not_charged
         above: 6
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message:
@@ -187,12 +187,12 @@ automation:
   - id: "1663588514009"
     alias: "Energy: Consecutive Low Solar Generation"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: input_number.consecutive_forecast_days_below_solar_generation
         above: 6
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message:
@@ -206,14 +206,14 @@ automation:
   - id: "1674508693884"
     alias: "Energy: Battery Charge Notification"
     description: Used for Demand Flexibility Service
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "15:55:00"
     condition:
       - condition: template
         value_template: "{{ (states('sensor.growatt_sph_battery_state_of_charge')|int(0)) >
         ((states('number.growatt_sph_load_first_stop_discharge')|int(0)) + 1) }}"
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: >-
@@ -227,10 +227,10 @@ automation:
   - id: "1704121569476"
     alias: "Energy: Low Battery Before Peak Time"
     description: "TODO: Make this dynmaic"
-    trigger:
-      - platform: time
+    triggers:
+      - trigger: time
         at: "14:00:00"
-      - platform: time
+      - trigger: time
         at: "15:00:00"
     condition:
       - condition: template
@@ -240,7 +240,7 @@ automation:
         - condition: state
           entity_id: sensor.growatt_sph_inverter_mode
           state: "Battery first"
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message: >-
@@ -254,8 +254,8 @@ automation:
   - id: "1680444237958"
     alias: "Energy: Power Cut Notification"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - sensor.growatt_sph_load_power
         to: "0"
@@ -264,7 +264,7 @@ automation:
           minutes: 1
           seconds: 0
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         data:
           message:
@@ -275,13 +275,13 @@ automation:
   - id: "1712404842177"
     alias: "Energy: High Grid Power Draw"
     description: ""
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id:
           - sensor.house_current
         above: sensor.grid_max_import_power_warning
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -299,15 +299,15 @@ automation:
   - id: "1719079836561"
     alias: "Energy: Join Energy Saver Session"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - event.octopus_energy_octoplus_saving_session_events
     condition:
       - condition: template
         value_template: >-
           {{ state_attr(trigger.entity_id, 'available_events') | length > 0 }}
-    action:
+    actions:
       - action: octopus_energy.join_octoplus_saving_session_event
         data:
           event_code: "{{ state_attr(trigger.entity_id, 'available_events')[0]['code'] }}"
@@ -326,14 +326,14 @@ automation:
   - id: "1719080490915"
     alias: "Energy: Saving Session Started"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.octopus_energy_octoplus_saving_sessions
         not_from: "unavailable"
         to: "on"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -347,14 +347,14 @@ automation:
   - id: "1719080490916"
     alias: "Energy: Saving Session Finished"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.octopus_energy_octoplus_saving_sessions
         not_from: "unavailable"
         to: "off"
     condition: []
-    action:
+    actions:
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -948,7 +948,7 @@ script:
 
 template:
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.house_power
           - sensor.smart_meter_electricity_power
@@ -967,7 +967,7 @@ template:
         device_class: "power"
         unit_of_measurement: "W"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.house_power
           - sensor.smart_meter_electricity_power
@@ -987,7 +987,7 @@ template:
         unit_of_measurement: "W"
         state_class: "measurement"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - sensor.house_power
           - sensor.smart_meter_electricity_power
@@ -1007,7 +1007,7 @@ template:
         unit_of_measurement: "W"
         state_class: "measurement"
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id:
           - input_number.cut_out_fuse_size
     sensor:

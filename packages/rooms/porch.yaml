@@ -3,12 +3,12 @@ automation:
   - id: "1606157753577"
     alias: "Porch: Front Door Open Turn Light On"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         to: "on"
     condition: []
-    action:
+    actions:
       - parallel:
           - choose:
               - conditions:
@@ -52,8 +52,8 @@ automation:
   - id: "1614033445487"
     alias: "Porch: Front Door Opened Once For More than 20 seconds"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         to: "on"
         from: "off"
@@ -62,7 +62,7 @@ automation:
       - condition: numeric_state
         entity_id: counter.front_door_opened_closed
         below: "2"
-    action:
+    actions:
       - action: script.send_to_home_log
         data:
           message: >-
@@ -76,8 +76,8 @@ automation:
   - id: "1611931052908"
     alias: "Porch: Front Door Open Indicator"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         from: "off"
         to: "on"
@@ -85,7 +85,7 @@ automation:
       - condition: state
         entity_id: group.adult_people
         state: "home"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -100,14 +100,14 @@ automation:
   - id: "1615224190495"
     alias: "Porch: Front Door Closed For More than 20 seconds"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         to: "off"
         from: "on"
         for: 00:00:20
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -123,13 +123,13 @@ automation:
   - id: "1611931640441"
     alias: "Porch: Front Door Closed"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         from: "on"
         to: "off"
     condition: []
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -148,14 +148,14 @@ automation:
   - id: "1606157835544"
     alias: "Porch: Front Door Closed Turn Off Porch Light"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.front_door
         from: "on"
         to: "off"
         for: 00:01:00
     condition: []
-    action:
+    actions:
       - parallel:
           - action: scene.turn_on
             target:
@@ -203,8 +203,8 @@ automation:
   - id: "1708895092115"
     alias: "Porch: Light On And Door Is Shut"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - light.porch
         to: "on"
@@ -214,7 +214,7 @@ automation:
       - condition: state
         entity_id: binary_sensor.front_door
         state: "off"
-    action:
+    actions:
       - parallel:
           - action: script.send_to_home_log
             metadata: {}
@@ -234,8 +234,8 @@ automation:
   - id: "1700940016581"
     alias: "Porch: Light Switch"
     description: ""
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id:
           - binary_sensor.porch_main_light_input
         not_from:
@@ -245,7 +245,7 @@ automation:
           - "unknown"
           - "unavailable"
     condition: []
-    action:
+    actions:
       - action: light.toggle
         data: {}
         target:
@@ -562,7 +562,7 @@ template:
   # Replicate Switchbot contact sensor to know if someone is entering or leaving. Thanks to @damieng5
   # https://www.switch-bot.com/products/contact-sensor
   - trigger:
-      - platform: state
+      - trigger: state
         entity_id: binary_sensor.front_door
     sensor:
       - name: Door Entry Direction
