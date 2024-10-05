@@ -54,6 +54,70 @@ automation:
             entity_id:
               - person.danny
     mode: single
+  - id: "1666470473974"
+    alias: "HVAC: Heating Turned On"
+    description: "Also check every 5 minutes for back to back schedules"
+    triggers:
+      - trigger: state
+        entity_id:
+          - schedule.central_heating
+        to: "on"
+      - trigger: time_pattern
+        minutes: "/5"
+    condition:
+        - condition: not
+          conditions:
+            - or:
+                - alias: Thermostat temperature is the same as schedule temperature
+                  condition: template
+                  value_template: "{{ state_attr('climate.thermostat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
+                - condition: state
+                  entity_id: climate.thermostat
+                  state: "heat"
+        - condition: state
+          entity_id: schedule.central_heating
+          state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                Thermostat switched on. Setting temperature to {{ state_attr('schedule.central_heating', 'temperature') }}.
+              title: ":hotsprings: :droplet: Boiler"
+              log_level: "Normal"
+          - action: climate.set_temperature
+            target:
+              entity_id:
+                - climate.thermostat
+            data:
+              hvac_mode: heat
+              temperature: "{{ state_attr('schedule.central_heating', 'temperature') }}"
+    mode: single
+  - id: "1666470473975"
+    alias: "HVAC: Heating Turned Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - schedule.central_heating
+        to: "off"
+    condition: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                Thermostat switched off. Setting temperature to 7c.
+              title: ":hotsprings: :droplet: Boiler"
+              log_level: "Normal"
+          - action: climate.set_temperature
+            target:
+              entity_id:
+                - climate.thermostat
+            data:
+              hvac_mode: heat
+              temperature: 7
+    mode: single
   # Hot Water
   - id: "1666470473972"
     alias: "HVAC: Hot Water Mode Changed"
@@ -187,6 +251,57 @@ automation:
           - action: script.set_hot_water_to_home_mode
             data: {}
     mode: single
+
+schedule:
+  central_heating:
+    name: "Central Heating Schedule"
+    monday:
+      - from: "06:00:00"
+        to: "15:30:00"
+        data:
+          temperature: 20
+      - from: "15:30:00"
+        to: "17:30:00"
+        data:
+          temperature: 22
+      - from: "17:30:00"
+        to: "20:00:00"
+        data:
+          temperature: 20
+      - from: "20:00:00"
+        to: "22:00:00"
+        data:
+          temperature: 22
+    saturday:
+      - from: "06:00:00"
+        to: "10:45:00"
+        data:
+          temperature: 22
+      - from: "10:45:00"
+        to: "18:00:00"
+        data:
+          temperature: 20
+      - from: "18:00:00"
+        to: "23:30:00"
+        data:
+          temperature: 22
+    sunday:
+      - from: "06:00:00"
+        to: "12:00:00"
+        data:
+          temperature: 20
+      - from: "12:00:00"
+        to: "17:30:00"
+        data:
+          temperature: 21
+      - from: "17:30:00"
+        to: "18:55:00"
+        data:
+          temperature: 20
+      - from: "18:55:00"
+        to: "22:00:00"
+        data:
+          temperature: 22
 
 script:
   set_central_heating_to_away_mode:
