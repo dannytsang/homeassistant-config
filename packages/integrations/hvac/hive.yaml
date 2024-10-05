@@ -62,6 +62,7 @@ automation:
         entity_id:
           - schedule.central_heating
         to: "on"
+        id: turned_on
       - trigger: time_pattern
         minutes: "/5"
     conditions:
@@ -78,21 +79,41 @@ automation:
         entity_id: schedule.central_heating
         state: "on"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Thermostat switched on. Setting temperature to {{ state_attr('schedule.central_heating', 'temperature') }}.
-              title: ":hotsprings: :droplet: Boiler"
-              log_level: "Normal"
-          - action: climate.set_temperature
-            target:
-              entity_id:
-                - climate.thermostat
-            data:
-              hvac_mode: heat
-              temperature: "{{ state_attr('schedule.central_heating', 'temperature') }}"
-    mode: single
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - alias: Post notification if schedule turned on only
+                if:
+                  - condition: trigger
+                    id:
+                      - turned_on
+                then:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        In Holiday mode. Skipping turning on central heating.
+                      title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Normal"
+        default:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    Thermostat switched on. Setting temperature to {{ state_attr('schedule.central_heating', 'temperature') }}.
+                  title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
+              - action: climate.set_temperature
+                target:
+                  entity_id:
+                    - climate.thermostat
+                data:
+                  hvac_mode: heat
+                  temperature: "{{ state_attr('schedule.central_heating', 'temperature') }}"
+    mode: queued
+    max: 2
   - id: "1666470473975"
     alias: "HVAC: Heating Turned Off"
     description: ""
@@ -103,20 +124,33 @@ automation:
         to: "off"
     conditions: []
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Thermostat switched off. Setting temperature to 7c.
-              title: ":hotsprings: :droplet: Boiler"
-              log_level: "Normal"
-          - action: climate.set_temperature
-            target:
-              entity_id:
-                - climate.thermostat
-            data:
-              hvac_mode: heat
-              temperature: 7
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    In Holiday mode. Skipping turning off central heating.
+                  title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
+        default:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    Thermostat switched off. Setting temperature to 7c.
+                  title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
+              - action: climate.set_temperature
+                target:
+                  entity_id:
+                    - climate.thermostat
+                data:
+                  hvac_mode: heat
+                  temperature: 7
     mode: single
   # Hot Water
   - id: "1666470473972"
