@@ -14,7 +14,7 @@ automation:
         entity_id:
           - water_heater.thermostat
         to: "eco"
-    condition: []
+    conditions: []
     actions:
       - action: script.send_to_home_log
         data:
@@ -44,7 +44,7 @@ automation:
         entity_id:
           - climate.thermostat
         to: "auto"
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         data:
@@ -64,19 +64,19 @@ automation:
         to: "on"
       - trigger: time_pattern
         minutes: "/5"
-    condition:
-        - condition: not
-          conditions:
-            - or:
-                - alias: Thermostat temperature is the same as schedule temperature
-                  condition: template
-                  value_template: "{{ state_attr('climate.thermostat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
-                - condition: state
-                  entity_id: climate.thermostat
-                  state: "heat"
-        - condition: state
-          entity_id: schedule.central_heating
-          state: "on"
+    conditions:
+      - condition: not
+        conditions:
+          - or:
+              - alias: Thermostat temperature is the same as schedule temperature
+                condition: template
+                value_template: "{{ state_attr('climate.thermostat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
+              - condition: state
+                entity_id: climate.thermostat
+                state: "heat"
+      - condition: state
+        entity_id: schedule.central_heating
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -101,7 +101,7 @@ automation:
         entity_id:
           - schedule.central_heating
         to: "off"
-    condition: []
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -131,7 +131,7 @@ automation:
         entity_id:
           - water_heater.thermostat
         to: "on"
-    condition: []
+    conditions: []
     actions:
       - action: script.send_to_home_log
         data:
@@ -161,7 +161,7 @@ automation:
         entity_id:
           - schedule.hot_water
         to: "on"
-    condition:
+    conditions:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
@@ -222,7 +222,7 @@ automation:
           hours: 0
           minutes: 0
           seconds: 30
-    condition:
+    conditions:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"

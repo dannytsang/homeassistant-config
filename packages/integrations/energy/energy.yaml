@@ -8,7 +8,7 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.battery_charged_notification
-    condition:
+    conditions:
       - condition: or
         conditions:
           - condition: numeric_state
@@ -34,7 +34,7 @@ automation:
     triggers:
       - trigger: time
         at: "21:00:00"
-    condition: []
+    conditions: []
     actions:
       - alias: update forecast
         action: script.update_solcast
@@ -77,7 +77,7 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.growatt_sph_battery_state_of_charge
         above: input_number.growatt_battery_charged_threshold
-    condition:
+    conditions:
       - condition: state
         entity_id: input_boolean.battery_charged_today
         state: "off"
@@ -113,7 +113,7 @@ automation:
     triggers:
       - trigger: time
         at: "00:00:00"
-    condition: []
+    conditions: []
     actions:
       - choose:
           - conditions:
@@ -157,7 +157,7 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.total_solar_forecast_estimated_energy_production_today
         above: input_number.solar_generation_minimum_threshold
-    condition: []
+    conditions: []
     actions:
       - action: script.send_to_home_log
         data:
@@ -172,7 +172,7 @@ automation:
       - trigger: numeric_state
         entity_id: input_number.consecutive_days_battery_not_charged
         above: 6
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         data:
@@ -191,7 +191,7 @@ automation:
       - trigger: numeric_state
         entity_id: input_number.consecutive_forecast_days_below_solar_generation
         above: 6
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         data:
@@ -209,7 +209,7 @@ automation:
     triggers:
       - trigger: time
         at: "15:55:00"
-    condition:
+    conditions:
       - condition: template
         value_template: "{{ (states('sensor.growatt_sph_battery_state_of_charge')|int(0)) >
         ((states('number.growatt_sph_load_first_stop_discharge')|int(0)) + 1) }}"
@@ -232,7 +232,7 @@ automation:
         at: "14:00:00"
       - trigger: time
         at: "15:00:00"
-    condition:
+    conditions:
       - condition: template
         value_template: >-
           {{ today_at("19:00") < as_datetime(states('sensor.battery_charge_remaining_hours')) }}
@@ -263,7 +263,7 @@ automation:
           hours: 0
           minutes: 1
           seconds: 0
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         data:
@@ -280,7 +280,7 @@ automation:
         entity_id:
           - sensor.house_current
         above: sensor.grid_max_import_power_warning
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         metadata: {}
@@ -303,7 +303,7 @@ automation:
       - trigger: state
         entity_id:
           - event.octopus_energy_octoplus_saving_session_events
-    condition:
+    conditions:
       - condition: template
         value_template: >-
           {{ state_attr(trigger.entity_id, 'available_events') | length > 0 }}
@@ -332,7 +332,7 @@ automation:
           - binary_sensor.octopus_energy_octoplus_saving_sessions
         not_from: "unavailable"
         to: "on"
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         metadata: {}
@@ -353,7 +353,7 @@ automation:
           - binary_sensor.octopus_energy_octoplus_saving_sessions
         not_from: "unavailable"
         to: "off"
-    condition: []
+    conditions: []
     actions:
       - action: script.send_direct_notification
         metadata: {}
