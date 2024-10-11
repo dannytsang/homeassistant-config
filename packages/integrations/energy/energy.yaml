@@ -296,33 +296,6 @@ automation:
               - person.terina
     mode: single
   # Octopus
-  - id: "1719079836561"
-    alias: "Energy: Join Energy Saver Session"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - event.octopus_energy_octoplus_saving_session_events
-    conditions:
-      - condition: template
-        value_template: >-
-          {{ state_attr(trigger.entity_id, 'available_events') | length > 0 }}
-    actions:
-      - action: octopus_energy.join_octoplus_saving_session_event
-        data:
-          event_code: "{{ state_attr(trigger.entity_id, 'available_events')[0]['code'] }}"
-        target:
-          entity_id: event.octopus_energy_octoplus_saving_session_events
-      - action: script.send_direct_notification
-        metadata: {}
-        data:
-          message: >-
-            Joined Energy Saver Session code {{ state_attr(trigger.entity_id, 'available_events')[0]['code'] }}
-          title: Energy
-          people:
-            entity_id:
-              - person.danny
-    mode: single
   - id: "1719080490915"
     alias: "Energy: Saving Session Started"
     description: ""
