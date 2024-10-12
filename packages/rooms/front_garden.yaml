@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Doorbell
+  #region Doorbell
   - id: "1694521590171"
     alias: "Front Garden: Doorbell Pressed"
     description: ""
@@ -36,6 +36,25 @@ automation:
                   item: ":door: :bell: Someone rung the door bell."
                 target:
                   entity_id: todo.shared_notifications
+              - action: button.press
+                target:
+                  entity_id: button.front_door_take_snapshot
+                data: {}
+              - wait_for_trigger:
+                  - trigger: state
+                    entity_id:
+                      - camera.front_door_snapshot
+                timeout:
+                  minutes: 1
+                continue_on_timeout: false
+              - action: script.send_direct_notification_with_url
+                data:
+                  message: Door bell pressed
+                  title: Front Door
+                  people:
+                    - person.danny
+                  url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
+                  url_type: image
     mode: single
   - id: "1621070004545"
     alias: "Front Garden: Doorbell Camera Updated"
@@ -43,6 +62,7 @@ automation:
     triggers:
       - trigger: state
         entity_id: camera.front_door
+        not_to: "unavailable"
     conditions:
       - condition: template
         value_template:
@@ -60,6 +80,7 @@ automation:
       #   data: {}
     mode: queued
     max: 10
+  #endregion
   - id: "1720276673719"
     alias: "Front Garden: Vehicle Detected On Driveway"
     description: ""
@@ -97,7 +118,7 @@ automation:
           people:
             - person.danny
     mode: single
-  # Light
+  #region Light
   - id: "1660894232444"
     alias: "Front Garden: Below Direct Sun Light"
     description: ""
@@ -153,6 +174,8 @@ automation:
             target:
               entity_id: cover.ashlees_bedroom_blinds
     mode: single
+  #endregion
+  #region Lockbox
   - id: "1714914120928"
     alias: "Front Garden: Lock Box State Changed"
     description: ""
@@ -192,6 +215,7 @@ automation:
           people:
             entity_id: person.danny
     mode: single
+  #endregion
 
 shell_command:
   copy_doorbell_footage: >-
