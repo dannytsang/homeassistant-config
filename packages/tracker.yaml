@@ -235,7 +235,7 @@ automation:
               people:
                 - person.danny
     mode: single
-  # Leaving Home
+  #region Leaving Home
   - id: "1595524992207"
     alias: "People: No One Home"
     description: ""
@@ -361,7 +361,8 @@ automation:
         default: []
     mode: queued
     max: 10
-  # Danny
+  #endregion
+  #region Danny
   - id: "1674735382445"
     alias: "People: Danny Arriving Home"
     description: "Heading towards home and very close."
@@ -448,7 +449,8 @@ automation:
                 off lights."
               title: ":man: Danny"
               log_level: "Normal"
-  # Terina
+  #endregion
+  #region Terina
   - id: "1674735382446"
     alias: "People: Terina Arriving Home"
     description: "Heading towards home and very close."
@@ -531,83 +533,8 @@ automation:
           message: ":house: :dancer: Left the house and no one is home."
           title: ":woman: Terina"
           log_level: "Normal"
-  - id: "1681895229515"
-    alias: "Person: Terina Working From Home"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - person.terina
-        to: "home"
-        for:
-          hours: 0
-          minutes: 1
-          seconds: 0
-    conditions:
-      - condition: time
-        weekday:
-          - fri
-          - thu
-          - wed
-          - tue
-          - mon
-        after: 08:30:00
-      - condition: time
-        before: "14:30:00"
-        weekday:
-          - fri
-          - thu
-          - wed
-          - tue
-          - mon
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message:
-                Looks like Terina is working from home. Changing to Terina Working
-                from home schedule
-              log_level: "Debug"
-          - action: switch.turn_off
-            data: {}
-            target:
-              entity_id: switch.schedule_heating_for_{{ now().timestamp() | timestamp_custom('%A') | lower }}
-          - action: switch.turn_on
-            data: {}
-            target:
-              entity_id: switch.schedule_terina_working_from_home
-    mode: single
-  - id: "1681895332881"
-    alias: "Person: Terina Working From Home And Left"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - person.terina
-        to: "not_home"
-        for:
-          hours: 0
-          minutes: 1
-          seconds: 0
-    conditions:
-      - condition: state
-        entity_id: switch.schedule_terina_working_from_home
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: Turning off Terina working from home heating schedule
-              log_level: "Debug"
-          - sequence:
-              - action: switch.turn_off
-                data: {}
-                target:
-                  entity_id: switch.schedule_terina_working_from_home
-              - action: script.check_and_run_central_heating
-                data: {}
-    mode: single
-  # Children
+  #endregion
+  #region Children
   - id: "1712574983598"
     alias: "People: Children Home And In No Children Mode"
     description: ""
@@ -641,6 +568,7 @@ automation:
                     target:
                       entity_id: input_select.home_mode
     mode: single
+  #endregion
   - id: "1722162099476"
     alias: "People: Music Follow Danny"
     description: ""
