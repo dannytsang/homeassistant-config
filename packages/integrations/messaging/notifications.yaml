@@ -3,6 +3,7 @@
 # Integration: https://www.home-assistant.io/integrations/mobile_app/
 # Integration: https://www.home-assistant.io/integrations/telegram/
 automation:
+  #region Callback router
   - id: "1625924056779"
     alias: Mobile Notification Action Router
     description: ""
@@ -159,6 +160,7 @@ automation:
         default: []
     mode: queued
     max: 10
+  #endregion
 
 input_text:
   # Need the Telegram chat id for telegram integration platform
@@ -174,7 +176,7 @@ notify:
     chat_id: !secret telegram_danny_chat_id
 
 script:
-  # Encapsulated scripts
+  #region Encapsulated scripts
   send_to_home_log:
     alias: Send To Home Log
     icon: mdi:message-outline
@@ -484,7 +486,8 @@ script:
                   continue_on_error: true
     mode: queued
     max: 10
-  # Homelog
+  #endregion
+  #region Homelog
   send_home_log_with_local_attachments:
     alias: Send To Home Log With Local Attachments
     icon: mdi:message-image-outline
@@ -646,6 +649,7 @@ script:
                   url: "{{ url }}"
     mode: queued
     max: 10
+  #region Actionable notifications
   send_actionable_notification_with_2_buttons:
     alias: Send Actionable Notification With 2 Buttons
     icon: mdi:message-draw
@@ -901,6 +905,8 @@ script:
                 action3_title: "{{ action3_title }}"
                 action3_name: "{{ action3_name }}"
     mode: single
+  #endregion
+  #region Computer Notifications
   send_to_computers:
     alias: "Send notification to computers"
     icon: mdi:message-draw
@@ -967,8 +973,6 @@ script:
                       duration: "{{ duration }}"
     mode: queued
     max: 10
-
-  # HASS Agent
   post_to_hass_agent:
     alias: "Post To HASS Agent File Attachments"
     icon: mdi:message-image
@@ -1053,6 +1057,8 @@ script:
                 message: "{{ message }}"
                 data:
                   duration: "{{ duration|default(10, true) }}"
+  #endregion
+  #region Speakers
   announce_delayed_notifications:
     alias: "Announce Delayed Notifications"
     fields:
@@ -1129,3 +1135,4 @@ script:
                           item: "{{ repeat.item.summary }}"
                           status: completed
         default: []
+  #endregion
