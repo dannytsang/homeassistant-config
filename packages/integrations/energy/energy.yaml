@@ -581,9 +581,14 @@ script:
             {%- else -%}
             {{ states.sensor.total_solar_forecast_estimated_energy_production_today.last_changed }}
             {%- endif -%}
+      - action: script.calculate_charge_battery_amount
+        continue_on_error: true
+        data:
+          forecast_kwh: "{{ forecast|default(0, true) }}"
+        response_variable: battery
+      - variables:
           estimate_charge_percentage_based_on_solar: >-
-            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-            {{ calculate_charge_battery_amount(forecast) }}
+            {{ battery.target_soc }}
           estimate_charge_kwh_based_on_solar: >-
             {{ (states('input_number.solar_battery_size')|float(0)
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
@@ -663,9 +668,14 @@ script:
             {%- else -%}
             {{ states.sensor.total_solar_forecast_estimated_energy_production_tomorrow.last_changed }}
             {%- endif -%}
+      - action: script.calculate_charge_battery_amount
+        continue_on_error: true
+        data:
+          forecast_kwh: "{{ forecast|default(0, true) }}"
+        response_variable: battery
+      - variables:
           estimate_charge_percentage_based_on_solar: >-
-            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount -%}
-            {{ calculate_charge_battery_amount(forecast) }}
+            {{ battery.target_soc }}
           estimate_charge_kwh_based_on_solar: >-
             {{ (states('input_number.solar_battery_size')|float(0)
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
@@ -741,6 +751,53 @@ script:
             }}
       - stop: "Stop running the rest of the sequence"
         response_variable: "formatted_data"
+  calculate_charge_battery_amount:
+    alias: Calculate Charge Battery Amount
+    fields:
+      forecast_kwh:
+        description: Forecast amount of solar generation
+        required: true
+        selector:
+          number:
+            min: 0
+            max: 50
+            step: 2
+            unit_of_measurement: "kWh"
+    sequence:
+      - variables:
+          soc_target: >-
+            {%- if forecast_kwh|float(0) < 5 -%}
+            100
+            {%- elif forecast_kwh|float(0) >= 5
+            and forecast_kwh|float(0) < 8.25 -%}
+            85
+            {%- elif forecast_kwh|float(0) >= 8.25
+            and forecast_kwh|float(0) < 11.5 -%}
+            70
+            {%- elif forecast_kwh|float(0) >= 11.5
+            and forecast_kwh|float(0) < 13 -%}
+            65
+            {%- elif forecast_kwh|float(0) >= 13
+            and forecast_kwh|float(0) < 15 -%}
+            50
+            {%- elif forecast_kwh|float(0) >= 15
+            and forecast_kwh|float(0) < 17 -%}
+            45
+            {%- elif forecast_kwh|float(0) >= 17
+            and forecast_kwh|float(0) < 18 -%}
+            40
+            {%- elif forecast_kwh|float(0) >= 18 -%}
+            23
+            {%- endif -%}
+          formatted_data: >-
+            {{
+              {
+                'forecast': forecast_kwh,
+                'target_soc': soc_target
+              }
+            }}
+      - stop: "Stop running the rest of the sequence"
+        response_variable: "formatted_data"
   #endregion
   energy_notify_tomorrows_solar_forecast:
     alias: Energy Notify Tomorrow's Solar Forecast
@@ -765,7 +822,6 @@ script:
             {#- If Solcast is unavailable, fallback to Forecast.io -#}
             {% if states('sensor.solcast_pv_forecast_forecast_tomorrow') not in ('unavailable', 'unknown') %}
             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation %}
-            {%- from 'charge_battery_amount.jinja' import calculate_charge_battery_amount %}
             and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
             ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|float(0)|round(2) }} kWh).
             {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(none, true) is not none %}
