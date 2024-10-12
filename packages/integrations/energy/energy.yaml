@@ -535,6 +535,7 @@ script:
     alias: Today's Solar Forecast Data
     sequence:
       - action: weather.get_forecasts
+        continue_on_error: true
         target:
           entity_id: weather.home
         data:
@@ -573,9 +574,25 @@ script:
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
             *(estimate_charge_percentage_based_on_solar|float(0)/100)
             / states('input_number.solar_battery_max_charge_rate')|float(0) }}
+          weather_condition: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].condition }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+          weather_temperature: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].temperature }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
           weather_compensation_ratio: >-
             {%- from 'charge_battery_amount.jinja' import weather_compensation_ratio -%}
-            {{ weather_compensation_ratio(weather['weather.home'].forecast[1].condition) }}
+            {%- if weather is defined -%}
+            {{ weather_compensation_ratio(weather['weather.home'].forecast[0].condition) }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
           estimate_charge_percentage: >-
             {{ estimate_charge_percentage_based_on_solar }}
           estimate_charge_kwh: >-
@@ -589,8 +606,8 @@ script:
               'estimate_charge_kwh': estimate_charge_kwh|round(2),
               'charge_hours': estimate_charge_hours|round(2),
               'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
-              'weather_condition': ""~weather['weather.home'].forecast[1].condition~"",
-              'weather_temperature': weather['weather.home'].forecast[1].temperature,
+              'weather_condition': ""~weather_condition~"",
+              'weather_temperature': weather_temperature,
               'weather_compensation_ratio': weather_compensation_ratio,
               'last_changed': ""~last_changed~""
               }
@@ -601,6 +618,7 @@ script:
     alias: Tomorrow's Solar Forecast Data
     sequence:
       - action: weather.get_forecasts
+        continue_on_error: true
         target:
           entity_id: weather.home
         data:
@@ -639,9 +657,25 @@ script:
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
             *(estimate_charge_percentage_based_on_solar|float(0)/100)
             / states('input_number.solar_battery_max_charge_rate')|float(0) }}
+          weather_condition: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].condition }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+          weather_temperature: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].temperature }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
           weather_compensation_ratio: >-
             {%- from 'charge_battery_amount.jinja' import weather_compensation_ratio -%}
+            {%- if weather is defined -%}
             {{ weather_compensation_ratio(weather['weather.home'].forecast[1].condition) }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
           estimate_charge_percentage: >-
             {{ estimate_charge_percentage_based_on_solar }}
           estimate_charge_kwh: >-
@@ -658,8 +692,8 @@ script:
               'estimate_charge_kwh': estimate_charge_kwh|round(2),
               'charge_hours': estimate_charge_hours|round(2),
               'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
-              'weather_condition': ""~weather['weather.home'].forecast[1].condition~"",
-              'weather_temperature': weather['weather.home'].forecast[1].temperature,
+              'weather_condition': ""~weather_condition~"",
+              'weather_temperature': weather_temperature,
               'weather_compensation_ratio': weather_compensation_ratio,
               'last_changed': ""~last_changed~""
               }
