@@ -531,6 +531,7 @@ group:
       - binary_sensor.maintain_charge_first_schedule_2
 
 script:
+  #region Forecast data
   todays_solar_forecast_data:
     alias: Today's Solar Forecast Data
     sequence:
@@ -541,6 +542,24 @@ script:
         data:
           type: daily
         response_variable: weather
+      - variables:
+          weather_condition: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].condition }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+          weather_temperature: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].temperature }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+      - action: script.battery_charge_compensation_ratio
+        continue_on_error: true
+        data:
+          weather_conditon: "{{ weather_condition }}"
+        response_variable: compensation_ratio
       - variables:
           forecast: >-
             {#- If Forecast.io is unavailable, fallback to Forecast.io -#}
@@ -574,25 +593,6 @@ script:
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
             *(estimate_charge_percentage_based_on_solar|float(0)/100)
             / states('input_number.solar_battery_max_charge_rate')|float(0) }}
-          weather_condition: >-
-            {%- if weather is defined -%}
-            {{ weather['weather.home'].forecast[1].condition }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
-          weather_temperature: >-
-            {%- if weather is defined -%}
-            {{ weather['weather.home'].forecast[1].temperature }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
-          weather_compensation_ratio: >-
-            {%- from 'charge_battery_amount.jinja' import weather_compensation_ratio -%}
-            {%- if weather is defined -%}
-            {{ weather_compensation_ratio(weather['weather.home'].forecast[0].condition) }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
           estimate_charge_percentage: >-
             {{ estimate_charge_percentage_based_on_solar }}
           estimate_charge_kwh: >-
@@ -608,7 +608,7 @@ script:
               'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
               'weather_condition': ""~weather_condition~"",
               'weather_temperature': weather_temperature,
-              'weather_compensation_ratio': weather_compensation_ratio,
+              'weather_compensation_ratio': compensation_ratio.weather_compensation_ratio,
               'last_changed': ""~last_changed~""
               }
             }}
@@ -624,6 +624,24 @@ script:
         data:
           type: daily
         response_variable: weather
+      - variables:
+          weather_condition: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].condition }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+          weather_temperature: >-
+            {%- if weather is defined -%}
+            {{ weather['weather.home'].forecast[1].temperature }}
+            {%- else -%}
+            {{ none }}
+            {%- endif -%}
+      - action: script.battery_charge_compensation_ratio
+        continue_on_error: true
+        data:
+          weather_conditon: "{{ weather_condition }}"
+        response_variable: compensation_ratio
       - variables:
           forecast: >-
             {#- If Forecast.io is unavailable, fallback to solcast -#}
@@ -657,25 +675,6 @@ script:
             *(1-(states('number.growatt_sph_load_first_stop_discharge')|float(0)/100)))
             *(estimate_charge_percentage_based_on_solar|float(0)/100)
             / states('input_number.solar_battery_max_charge_rate')|float(0) }}
-          weather_condition: >-
-            {%- if weather is defined -%}
-            {{ weather['weather.home'].forecast[1].condition }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
-          weather_temperature: >-
-            {%- if weather is defined -%}
-            {{ weather['weather.home'].forecast[1].temperature }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
-          weather_compensation_ratio: >-
-            {%- from 'charge_battery_amount.jinja' import weather_compensation_ratio -%}
-            {%- if weather is defined -%}
-            {{ weather_compensation_ratio(weather['weather.home'].forecast[1].condition) }}
-            {%- else -%}
-            {{ none }}
-            {%- endif -%}
           estimate_charge_percentage: >-
             {{ estimate_charge_percentage_based_on_solar }}
           estimate_charge_kwh: >-
@@ -694,12 +693,55 @@ script:
               'charge_hours_rounded': (estimate_charge_hours * 2)|round(0, 'ceil')/2,
               'weather_condition': ""~weather_condition~"",
               'weather_temperature': weather_temperature,
-              'weather_compensation_ratio': weather_compensation_ratio,
+              'weather_compensation_ratio': compensation_ratio.weather_compensation_ratio,
               'last_changed': ""~last_changed~""
               }
             }}
       - stop: "Stop running the rest of the sequence"
         response_variable: "solar_forecast_data"
+  battery_charge_compensation_ratio:
+    alias: Battery Charge Compensation Ratio
+    fields:
+      weather_condition:
+        description: Text description of the weather condition
+        example: cloudy
+        required: true
+        selector:
+          text:
+    sequence:
+      - variables:
+          ratio: >-
+            {%- if weather_condition == "rainy" or weather_condition == "pouring" -%}
+            1.5
+            {%- elif weather_condition == "cloudy" -%}
+            1.5
+            {%- elif weather_condition == "partlycloudy" -%}
+            1.25
+            {%- elif weather_condition == "sunny" -%}
+            1
+            {%- elif weather_condition == "lightning-rainy" -%}
+            1.25
+            {%- elif weather_condition == "lightning" or weather_condition == "lightning-rainy" -%}
+            :lightning_cloud:
+            {%- elif weather_condition == "windy" or weather_condition == "windy-variant" -%}
+            1
+            {%- elif weather_condition == "snowy" -%}
+            1.25
+            {%- elif weather_condition == "fog" -%}
+            1.5
+            {%- elif weather_condition == "exceptional" -%}
+            1
+            {%- endif -%}
+          formatted_data: >-
+            {{
+              {
+                'weather_condition': ""~weather_condition~"",
+                'weather_compensation_ratio': ratio
+              }
+            }}
+      - stop: "Stop running the rest of the sequence"
+        response_variable: "formatted_data"
+  #endregion
   energy_notify_tomorrows_solar_forecast:
     alias: Energy Notify Tomorrow's Solar Forecast
     variables:
