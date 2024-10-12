@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Motion
+  #region Motion
   - id: "1606428361967"
     alias: "Office: Motion Detected And Light Is On"
     description:
@@ -290,7 +290,8 @@ automation:
             target:
               entity_id: scene.office_main_light_off
     mode: single
-  # Plugs / switches
+  #endregion
+  #region Plugs / switches
   - id: "1622584959878"
     alias: "Office: High Temperature"
     description: ""
@@ -398,7 +399,8 @@ automation:
             entity_id:
               - person.danny
     mode: single
-  # Computer related automations
+  #endregion
+  #region Computer related automations
   - id: "1619865008647"
     alias: "Office: Computer Turned On"
     description: ""
@@ -634,7 +636,8 @@ automation:
                       entity_id:
                         - switch.office_monitor_bar
     mode: single
-  # Blinds
+  #endregion
+  #region Blinds
   - id: "1622374444832"
     alias: "Office: Open Blinds In The Morning"
     description: ""
@@ -1072,7 +1075,8 @@ automation:
           - action: script.office_open_blinds
             data: {}
     mode: single
-  # Lights
+  #endregion
+  #region Lights
   - id: "1719349686247"
     alias: "Office: Light On And Bright Room"
     description: ""
@@ -1187,6 +1191,8 @@ automation:
             target:
               entity_id: switch.office_fan
     mode: single
+  #endregion
+  #region Air Conditioner
   - id: "1724261391488"
     alias: "Office: Scheduled Air Conditioning On"
     description: ""
@@ -1226,28 +1232,8 @@ automation:
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Schedule to turn on air conditioner.
-              title: ":office: Office"
-              log_level: "Debug"
-          - sequence:
-              - action: climate.set_hvac_mode
-                metadata: {}
-                data:
-                  hvac_mode: cool
-                target:
-                  entity_id: climate.office_air_conditioner
-              - delay:
-                  seconds: 2
-              - action: climate.set_temperature
-                metadata: {}
-                data:
-                  temperature: 21
-                target:
-                  entity_id: climate.office_air_conditioner
+      - action: script.check_office_air_conditioner
+        data: {}
     mode: single
   - id: "1724261391489"
     alias: "Office: Scheduled Air Conditioning Off"
@@ -1289,20 +1275,8 @@ automation:
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Schedule to turn off air conditioner.
-              title: ":office: Office"
-              log_level: "Debug"
-          - sequence:
-              - action: climate.set_hvac_mode
-                metadata: {}
-                data:
-                  hvac_mode: "off"
-                target:
-                  entity_id: climate.office_air_conditioner
+      - action: script.check_office_air_conditioner
+        data: {}
     mode: single
   - id: "1725986264578"
     alias: "Office: Negative Rates Turn On Air Conditioner"
@@ -1320,13 +1294,29 @@ automation:
         entity_id: input_boolean.enable_office_air_conditioner_automations
         state: "on"
     actions:
-      - action: climate.set_hvac_mode
-        metadata: {}
-        data:
-          hvac_mode: cool
-        target:
-          entity_id: climate.office_air_conditioner
+      - action: script.check_office_air_conditioner
+        data: {}
     mode: single
+  - id: "1725986264579"
+    alias: "Office: Positive Rates Turn Off Air Conditioner"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - event.octopus_energy_electricity_19l3860833_1012829255330_current_day_rates
+        above: 0
+    conditions:
+      - condition: state
+        entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_office_air_conditioner_automations
+        state: "on"
+    actions:
+      - action: script.check_office_air_conditioner
+        data: {}
+    mode: single
+  #endregion
 
 scene:
   - id: "1600795089307"
@@ -1686,7 +1676,7 @@ scene:
       light.office_4:
         entity_only: true
 script:
-  # PC
+  #region PC
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive
     sequence:
@@ -1724,7 +1714,8 @@ script:
         target:
           entity_id: scene.office_turn_off_light_notification
     mode: single
-  # Blinds
+  #endregion
+  #region Blinds
   # Used in UI
   office_open_blinds:
     alias: Office Open Blinds
@@ -1742,6 +1733,166 @@ script:
           tilt_position: 0
         target:
           entity_id: cover.office_blinds
+  #endregion
+  #region Air conditioner
+  check_office_air_conditioner:
+    alias: Check Office Air Condiitioner
+    sequence:
+      choose:
+        - alias: Negative rates
+          conditions:
+            - condition: numeric_state
+              entity_id:
+                - event.octopus_energy_electricity_19l3860833_1012829255330_current_day_rates
+              below: 0
+            - condition: state
+              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_office_air_conditioner_automations
+              state: "on"
+          sequence:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: >-
+                      Electricity rates went below 0p/kWh. Turning air conditioner on.
+                    title: ":office: Office"
+                    log_level: "Normal"
+                - sequence:
+                    - action: climate.set_hvac_mode
+                      metadata: {}
+                      data:
+                        hvac_mode: cool
+                      target:
+                        entity_id: climate.office_air_conditioner
+                    - delay:
+                        seconds: 2
+                    - action: climate.set_temperature
+                      metadata: {}
+                      data:
+                        temperature: 21
+                      target:
+                        entity_id: climate.office_air_conditioner
+        - alias: Scheduled turn on
+          conditions:
+            - or:
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_1
+                      state: "on"
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_2
+                      state: "on"
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_3
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_3
+                      state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_office_air_conditioner_automations
+              state: "on"
+          sequence:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: >-
+                      Schedule to turn on air conditioner.
+                    title: ":office: Office"
+                    log_level: "Debug"
+                - sequence:
+                    - action: climate.set_hvac_mode
+                      metadata: {}
+                      data:
+                        hvac_mode: cool
+                      target:
+                        entity_id: climate.office_air_conditioner
+                    - delay:
+                        seconds: 2
+                    - action: climate.set_temperature
+                      metadata: {}
+                      data:
+                        temperature: 21
+                      target:
+                        entity_id: climate.office_air_conditioner
+        - conditions:
+            - or:
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_1
+                      state: "off"
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_2
+                      state: "off"
+                - and:
+                    - condition: state
+                      entity_id: input_boolean.enable_office_air_conditioner_schedule_3
+                      state: "on"
+                    - condition: state
+                      entity_id: binary_sensor.office_air_conditioner_schedule_3
+                      state: "off"
+            - condition: state
+              entity_id: input_boolean.enable_office_air_conditioner_automations
+              state: "on"
+          sequence:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: >-
+                      Schedule to turn off air conditioner.
+                    title: ":office: Office"
+                    log_level: "Debug"
+                - sequence:
+                    - action: climate.set_hvac_mode
+                      metadata: {}
+                      data:
+                        hvac_mode: "off"
+                      target:
+                        entity_id: climate.office_air_conditioner
+        - alias: Positive rates
+          conditions:
+            - condition: numeric_state
+              entity_id:
+                - event.octopus_energy_electricity_19l3860833_1012829255330_current_day_rates
+              above: 0
+            - condition: state
+              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_office_air_conditioner_automations
+              state: "on"
+          sequence:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: >-
+                      Electricity rates went above 0p/kWh. Turning air conditioner off.
+                    title: ":office: Office"
+                    log_level: "Normal"
+                - action: climate.set_hvac_mode
+                  metadata: {}
+                  data:
+                    hvac_mode: "off"
+                  target:
+                    entity_id: climate.office_air_conditioner
+      default: []
+  #endregion
 
 sensor:
   # historical stats
