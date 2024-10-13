@@ -296,25 +296,6 @@ script:
               - time
     sequence:
       - choose:
-          - alias: "Unit rate is on or below 0p/kw"
-            conditions:
-              - or:
-                  - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
-                    state: "Stopped"
-                  - condition: state
-                    entity_id: sensor.myenergi_eddi_status
-                    state: "Boosting"
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "Holiday"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    Incorrect state to start charging {{ states('sensor.myenergi_eddi_status') }}. Skipping.
-                  title: Eddi
-                  log_level: "Debug"
           - alias: "Unit rate is below 0p/kw"
             conditions:
               - condition: numeric_state
@@ -411,6 +392,26 @@ script:
                           option: "Stopped"
                         target:
                           entity_id: select.myenergi_eddi_operating_mode
+          - alias: "Unit rate is above 0p/kWh"
+            conditions:
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: "0"
+              - condition: state
+                entity_id: sensor.myenergi_eddi_status
+                state: "Boosting"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Currently {{ states('sensor.myenergi_eddi_status') }}. Cancelling boost.
+                      title: Eddi
+                      log_level: "Debug"
+                  - action: myenergi.myenergi_stop_boost
+                    target:
+                      entity_id: select.myenergi_eddi_operating_mode
+                    data: {}
           - alias: "Default mode"
             conditions:
               - not:
