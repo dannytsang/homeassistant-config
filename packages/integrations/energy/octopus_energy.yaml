@@ -82,33 +82,37 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: "0"
-    conditions:
-      - condition: template
-        value_template: >-
-          {{ state_attr('climate.conservatory_under_floor_heating', 'temperature')|float >
-          states('input_number.conservatory_default_under_floor_temperature')|float }}
-      - alias: "Not in holiday mode"
-        not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: Holiday
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
-        state: "on"
+    conditions: []
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Turning off under floor heating by setting target temperature to {{ states('input_number.conservatory_default_under_floor_temperature', with_unit=True) }}.
-              title: Conservatory
-              log_level: "Debug"
-          - action: climate.set_temperature
-            data:
-              temperature: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
-              hvac_mode: heat
-            target:
-              entity_id: climate.conservatory_under_floor_heating
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ state_attr('climate.conservatory_under_floor_heating', 'temperature')|float >
+                  states('input_number.conservatory_default_under_floor_temperature')|float }}
+              - alias: "Not in holiday mode"
+                not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: Holiday
+              - condition: state
+                entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
+                state: "on"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Turning off under floor heating by setting target temperature to {{ states('input_number.conservatory_default_under_floor_temperature', with_unit=True) }}.
+                      title: Conservatory
+                      log_level: "Debug"
+                  - action: climate.set_temperature
+                    data:
+                      temperature: "{{ states('input_number.conservatory_default_under_floor_temperature')|float }}"
+                      hvac_mode: heat
+                    target:
+                      entity_id: climate.conservatory_under_floor_heating
+        default: []
     mode: single
   #endregion
   #region Eddi
@@ -119,70 +123,35 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: sensor.electricity_export_current_rate
-        id: event
       - trigger: state
         entity_id: sensor.electricity_current_rate
         to: sensor.electricity_export_current_rate
-        id: event
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
-        id: event
       - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0"
-        id: event
-    conditions:
-      - not:
-          - condition: state
-            entity_id: select.myenergi_eddi_operating_mode
-            state: "Stopped"
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "Holiday"
-      - condition: state
-        entity_id: input_boolean.enable_hot_water_automations
-        state: "on"
+    conditions: []
     actions:
-      - action: script.hvac_check_eddi_boost_hot_water
-        data: {}
-    mode: single
-  - id: "1689626117478"
-    alias: "HVAC: Check Eddi"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-        id: event
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-        id: event
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-        id: event
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0"
-        id: event
-    conditions:
-      - not:
-          - condition: state
-            entity_id: select.myenergi_eddi_operating_mode
-            state: "Stopped"
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "Holiday"
-      - condition: state
-        entity_id: input_boolean.enable_hot_water_automations
-        state: "on"
-    actions:
-      - action: script.hvac_check_eddi_boost_hot_water
-        data: {}
+      - alias: Check Eddi
+        choose:
+          - conditions:
+              - not:
+                  - condition: state
+                    entity_id: select.myenergi_eddi_operating_mode
+                    state: "Stopped"
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "Holiday"
+              - condition: state
+                entity_id: input_boolean.enable_hot_water_automations
+                state: "on"
+            sequence:
+              - action: script.hvac_check_eddi_boost_hot_water
+                data: {}
+        default: []
     mode: single
   #endregion
   #region Ecoflow
@@ -207,52 +176,44 @@ automation:
         seconds: "30"
       - trigger: time_pattern
         minutes: "30"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_ecoflow_automations
-        state: "on"
+    conditions: []
     actions:
-      - parallel:
-          - action: script.ecoflow_check_charging_mode
-            data: {}
+      - alias: Check ecoflow
+        choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.enable_ecoflow_automations
+                state: "on"
+            sequence:
+              - action: script.ecoflow_check_charging_mode
+                data: {}
     mode: single
   #endregion
   #region Office
   - id: "1725986264578"
-    alias: "Office: Negative Rates Turn On Air Conditioner"
+    alias: "Office: Check Air Conditioner"
     description: ""
     triggers:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         below: 0
-    conditions:
-      - condition: state
-        entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_office_air_conditioner_automations
-        state: "on"
-    actions:
-      - action: script.check_office_air_conditioner
-        data: {}
-    mode: single
-  - id: "1725986264579"
-    alias: "Office: Positive Rates Turn Off Air Conditioner"
-    description: ""
-    triggers:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: 0
-    conditions:
-      - condition: state
-        entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_office_air_conditioner_automations
-        state: "on"
+    conditions: []
     actions:
-      - action: script.check_office_air_conditioner
-        data: {}
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+            sequence:
+              - action: script.check_office_air_conditioner
+                data: {}
+        default: []
     mode: single
   #endregion
   #region Solar Assistant
