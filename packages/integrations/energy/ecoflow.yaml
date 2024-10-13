@@ -100,37 +100,6 @@ automation:
                           entity_id: timer.check_solar_excess
     mode: queued
     max: 10
-  # Unit rate related automations
-  - id: "1689626117476"
-    alias: "Ecoflow: Electricity Rates Low To Cost Nothing"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0.0"
-      - trigger: time_pattern
-        minutes: "0"
-        seconds: "30"
-      - trigger: time_pattern
-        minutes: "30"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_ecoflow_automations
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.ecoflow_check_charging_mode
-            data: {}
-    mode: single
   # Battery level
   - id: "1695566530591"
     alias: "EcoFlow: Battery Low And Plug Is Off"

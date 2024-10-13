@@ -163,59 +163,6 @@ automation:
           - action: script.hvac_check_eddi_boost_hot_water
             data: {}
     mode: single
-  # Unit rate related automations
-  - id: "1689626117478"
-    alias: "HVAC: Check Eddi"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-        id: event
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-        id: event
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-        id: event
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0"
-        id: event
-      - trigger: time_pattern
-        minutes: "0"
-        seconds: "10"
-        id: time
-      - trigger: time_pattern
-        minutes: "5"
-        id: time
-      - trigger: time_pattern
-        minutes: "30"
-        seconds: "10"
-        id: time
-      - trigger: time_pattern
-        minutes: "35"
-        id: time
-      - trigger: homeassistant
-        event: start
-    conditions:
-      - not:
-          - condition: state
-            entity_id: select.myenergi_eddi_operating_mode
-            state: "Stopped"
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "Holiday"
-      - condition: state
-        entity_id: input_boolean.enable_hot_water_automations
-        state: "on"
-    actions:
-      - action: script.hvac_check_eddi_boost_hot_water
-        data: {}
-    mode: single
 
 script:
   hvac_set_solar_diverter_to_holiday_mode:

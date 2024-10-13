@@ -111,21 +111,18 @@ automation:
     alias: "Zappi: Check Charging Conditions"
     description: ""
     triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
       - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0.0"
+        entity_id: event.octopus_energy_electricity_current_day_rates
       - trigger: homeassistant
         event: start
     conditions:
       - condition: state
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
-      - condition: state
-        entity_id: sensor.myenergi_zappi_plug_status
-        state: "EV Connected"
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_zappi_plug_status
+            state: "EV Disconnected"
     actions:
       - action: script.zappi_check_ev_charge
         data: {}
@@ -199,7 +196,7 @@ script:
     sequence:
       - parallel:
           - choose:
-              - alias: "Scheduled Charge"
+              - alias: "Scheduled charge"
                 conditions:
                   - or:
                       - and:
@@ -250,7 +247,7 @@ script:
                               option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-              - alias: "Electricity Rates Below 0p/kWh"
+              - alias: "Electricity rates below 0p/kWh"
                 conditions:
                   - condition: numeric_state
                     entity_id: sensor.electricity_current_rate
@@ -302,7 +299,7 @@ script:
                               option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-              - alias: "Electricity Rates is 0p/kWh"
+              - alias: "Electricity rates is 0p/kWh"
                 conditions:
                   - condition: state
                     entity_id: sensor.electricity_current_rate
@@ -346,15 +343,59 @@ script:
                               option: Fast
                             target:
                               entity_id: select.myenergi_zappi_charge_mode
-              - alias: "Electricity Rates Starts To Cost"
+              - alias: "Electricity rates below export"
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: sensor.electricity_export_current_rate
+                  - condition: state
+                    entity_id: input_boolean.zappi_charge_when_electricity_cost_below_export
+                    state: "on"
+                sequence:
+                  - if:
+                      - condition: state
+                        entity_id: sensor.myenergi_zappi_plug_status
+                        state: EV Connected
+                    then:
+                      - parallel:
+                          - if:
+                              - condition: state
+                                entity_id: binary_sensor.model_y_charger
+                                state: "on"
+                            then:
+                              - action: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is 0p/kWh. Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.terina
+                            else:
+                              - action: script.send_direct_notification
+                                metadata: {}
+                                data:
+                                  message: >-
+                                    Electricity rate is 0p/kWh. Charging started.
+                                  title: "Zappi"
+                                  people:
+                                    entity_id:
+                                      - person.danny
+                          - action: select.select_option
+                            data:
+                              option: Fast
+                            target:
+                              entity_id: select.myenergi_zappi_charge_mode
+              - alias: "Electricity rates starts to cost"
                 conditions:
                   - not:
                       - condition: state
                         entity_id: sensor.myenergi_zappi_plug_status
-                        state: EV Connected
-                      - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
                         state: EV Disconnected
+                  - condition: state
+                    entity_id: select.myenergi_zappi_charge_mode
+                    state: Fast
                   - condition: numeric_state
                     entity_id: sensor.electricity_current_rate
                     above: "0"
@@ -364,6 +405,9 @@ script:
                         state: "on"
                       - condition: state
                         entity_id: input_boolean.zappi_charge_when_electricity_cost_below_nothing
+                        state: "on"
+                      - condition: state
+                        entity_id: input_boolean.zappi_charge_when_electricity_cost_below_export
                         state: "on"
                 sequence:
                   - parallel:
@@ -404,22 +448,6 @@ script:
                           option: Eco+
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
-              - alias: "Default"
-                conditions:
-                  - not:
-                      - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
-                        state: EV Disconnected
-                      - condition: state
-                        entity_id: select.myenergi_zappi_charge_mode
-                        state: Stopped
-                sequence:
-                  - action: select.select_option
-                    target:
-                      entity_id:
-                        - select.myenergi_zappi_charge_mode
-                    data:
-                      option: Eco+
             default: []
           - if:
               - condition: state
