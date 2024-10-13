@@ -1,6 +1,37 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy
 automation:
+  - id: "168962611780"
+    alias: "Octopus Energy: Electricity Rates Changed"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: sensor.electricity_current_rate
+    conditions: []
+    actions:
+      - parallel:
+          - alias: Check ecoflow
+            choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_ecoflow_automations
+                    state: "on"
+                sequence:
+                  - action: script.ecoflow_check_charging_mode
+                    data: {}
+          - alias: Check office air conditioner
+            choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_office_air_conditioner_automations
+                    state: "on"
+                sequence:
+                  - action: script.check_office_air_conditioner
+                    data: {}
+            default: []
   #region Conservatory
   - id: "1689626117479"
     alias: "Conservatory: Electricity Rates Pays For Usage"
@@ -150,68 +181,6 @@ automation:
                 state: "on"
             sequence:
               - action: script.hvac_check_eddi_boost_hot_water
-                data: {}
-        default: []
-    mode: single
-  #endregion
-  #region Ecoflow
-  - id: "1689626117476"
-    alias: "Ecoflow: Electricity Rates Low To Cost Nothing"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0.0"
-      - trigger: time_pattern
-        minutes: "0"
-        seconds: "30"
-      - trigger: time_pattern
-        minutes: "30"
-    conditions: []
-    actions:
-      - alias: Check ecoflow
-        choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.enable_ecoflow_automations
-                state: "on"
-            sequence:
-              - action: script.ecoflow_check_charging_mode
-                data: {}
-    mode: single
-  #endregion
-  #region Office
-  - id: "1725986264578"
-    alias: "Office: Check Air Conditioner"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: 0
-    conditions: []
-    actions:
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_office_air_conditioner_automations
-                state: "on"
-            sequence:
-              - action: script.check_office_air_conditioner
                 data: {}
         default: []
     mode: single
