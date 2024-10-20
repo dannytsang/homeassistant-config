@@ -1233,7 +1233,9 @@ automation:
         state: "on"
     actions:
       - action: script.check_office_air_conditioner
-        data: {}
+        data:
+          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   - id: "1724261391489"
     alias: "Office: Scheduled Air Conditioning Off"
@@ -1276,7 +1278,9 @@ automation:
         state: "on"
     actions:
       - action: script.check_office_air_conditioner
-        data: {}
+        data:
+          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   #endregion
 
@@ -1699,6 +1703,25 @@ script:
   #region Air conditioner
   check_office_air_conditioner:
     alias: Check Office Air Condiitioner
+    fields:
+      current_electricity_import_rate:
+        description: Pence per kiloWatt for importing.
+        example: "15.01"
+        required: true
+        selector:
+          number:
+            min: -15
+            max: 100
+            step: 2
+      current_electricity_export_rate:
+        description: Pence per kiloWatt for exporting.
+        example: "15.01"
+        required: true
+        selector:
+          number:
+            min: 0
+            max: 50
+            step: 2
     sequence:
       choose:
         - alias: Negative rates

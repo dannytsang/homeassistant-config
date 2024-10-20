@@ -19,6 +19,7 @@ automation:
                 sequence:
                   - action: script.ecoflow_check_charging_mode
                     data: {}
+            default: []
           - alias: Check office air conditioner
             choose:
               - conditions:
@@ -30,92 +31,21 @@ automation:
                     state: "on"
                 sequence:
                   - action: script.check_office_air_conditioner
-                    data: {}
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default: []
   #region Conservatory
-  - id: "1689626117479"
-    alias: "Conservatory: Electricity Rates Pays For Usage"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.conservatory_under_floor_heating_cost_below_nothing
-        state: "on"
-      - alias: "Not in holiday mode"
-        not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: Holiday
-    actions:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.conservatory_area_mean_temperature
-                below: "25"
-              - condition: numeric_state
-                entity_id: climate.conservatory_under_floor_heating
-                attribute: temperature
-                below: "20"
-            sequence:
-              - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Electrictity rate below 0 ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
-                      Setting under floor target temperature to 20°C (currently
-                      {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
-                    title: Conservatory
-                    log_level: "Normal"
-                - action: climate.set_temperature
-                  data:
-                    temperature: 20
-                    hvac_mode: heat
-                  target:
-                    entity_id: climate.conservatory_under_floor_heating
-          - alias: "Air temperature is hot but floor is cool"
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.conservatory_area_mean_temperature
-                above: "24"
-              - condition: numeric_state
-                entity_id: climate.conservatory_under_floor_heating
-                attribute: temperature
-                below: "20"
-            sequence:
-              - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: "Ambient air temperature is above 24°C ({{ states('sensor.conservatory_area_mean_temperature', with_unit=True) }})
-                    but floor is cool {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
-                    Skipping Underfloor heating."
-                    title: "Conservatory"
-                    people:
-                      - person.danny
-        default:
-          - action: script.send_direct_notification
-            data:
-              message: "Ambient air temperature is above 21°C. Skipping Underfloor heating."
-              title: "Conservatory"
-              people:
-                entity_id:
-                  - person.danny
-    mode: single
   - id: "1689626117480"
-    alias: "Conservatory: Electricity Rates Starts To Cost"
+    alias: "Conservatory: Electricity Rates Change"
     description: ""
     triggers:
-      - trigger: numeric_state
+      - trigger: state
         entity_id: sensor.electricity_current_rate
-        above: "0"
     conditions: []
     actions:
-      - choose:
+      - alias: Conservatory underfloor heating
+        choose:
           - conditions:
               - condition: template
                 value_template: >-
@@ -126,6 +56,9 @@ automation:
                   - condition: state
                     entity_id: input_select.home_mode
                     state: Holiday
+              - condition: numeric_state
+                entity_id: sensor.electricity_current_rate
+                above: "0"
               - condition: state
                 entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
                 state: "on"
@@ -144,6 +77,74 @@ automation:
                     target:
                       entity_id: climate.conservatory_under_floor_heating
         default: []
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_conservatory_under_floor_heating_automations
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.conservatory_under_floor_heating_cost_below_nothing
+            state: "on"
+          - alias: "Not in holiday mode"
+            not:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: Holiday
+          - condition: numeric_state
+            entity_id: sensor.electricity_current_rate
+            below: 0
+        then:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.conservatory_area_mean_temperature
+                    below: "25"
+                  - condition: numeric_state
+                    entity_id: climate.conservatory_under_floor_heating
+                    attribute: temperature
+                    below: "20"
+                sequence:
+                  - parallel:
+                    - action: script.send_to_home_log
+                      data:
+                        message: >-
+                          Electrictity rate below 0 ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                          Setting under floor target temperature to 20°C (currently
+                          {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
+                        title: Conservatory
+                        log_level: "Normal"
+                    - action: climate.set_temperature
+                      data:
+                        temperature: 20
+                        hvac_mode: heat
+                      target:
+                        entity_id: climate.conservatory_under_floor_heating
+              - alias: "Air temperature is hot but floor is cool"
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.conservatory_area_mean_temperature
+                    above: "24"
+                  - condition: numeric_state
+                    entity_id: climate.conservatory_under_floor_heating
+                    attribute: temperature
+                    below: "20"
+                sequence:
+                  - parallel:
+                    - action: script.send_to_home_log
+                      data:
+                        message: "Ambient air temperature is above 24°C ({{ states('sensor.conservatory_area_mean_temperature', with_unit=True) }})
+                        but floor is cool {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
+                        Skipping Underfloor heating."
+                        title: "Conservatory"
+                        people:
+                          - person.danny
+            default:
+              - action: script.send_direct_notification
+                data:
+                  message: "Ambient air temperature is above 21°C. Skipping Underfloor heating."
+                  title: "Conservatory"
+                  people:
+                    entity_id:
+                      - person.danny
     mode: single
   #endregion
   #region Eddi
@@ -206,44 +207,20 @@ automation:
         entity_id: sensor.electricity_current_rate
         to: "0"
         id: event
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
-      - not:
-          - condition: state
-            entity_id: select.growatt_sph_work_mode_priority
-            state: "unavailable"
+    conditions: []
     actions:
-      - choose:
-          - alias: Rates remain above export
-            conditions:
-              - condition: trigger
-                id:
-                  - time
-              - condition: numeric_state
-                entity_id: sensor.electricity_previous_rate
-                above: sensor.electricity_export_current_rate
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: sensor.electricity_export_current_rate
-            sequence:
-              - action: script.solar_assistant_check_charging_mode
-                data:
-                  event: "event"
-        default:
-          - choose:
-              - conditions:
-                  - condition: trigger
-                    id: "time_backup"
-                sequence:
-                  - action: script.solar_assistant_check_charging_mode
-                    data:
-                      event: "time"
-            default:
-              - action: script.solar_assistant_check_charging_mode
-                data:
-                  event: "event"
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_solar_assistant_automations
+            state: "on"
+          - not:
+              - condition: state
+                entity_id: select.growatt_sph_work_mode_priority
+                state: "unavailable"
+        then:
+          - action: script.solar_assistant_check_charging_mode
+            data:
+              event: "event"
     mode: restart
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
@@ -255,38 +232,40 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: sensor.electricity_export_current_rate
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
+    conditions: []
     actions:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                    but below export
-                    ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                    Keeping house battery charged.
-                  title: Solar Assistant
-                  log_level: "Debug"
-        default:
-          - parallel:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
-                  title: Solar Assistant
-                  log_level: "Debug"
-              - action: script.load_first_priority_mode
-                data: {}
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_solar_assistant_automations
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: sensor.electricity_export_current_rate
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        but below export
+                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                        Keeping house battery charged.
+                      title: Solar Assistant
+                      log_level: "Debug"
+            default:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
+                      title: Solar Assistant
+                      log_level: "Debug"
+                  - action: script.load_first_priority_mode
+                    data: {}
     mode: single
   - id: "1689626117481"
     alias: "Solar Assistant: Electricity Rates Starts To Cost"
@@ -298,38 +277,40 @@ automation:
       - trigger: numeric_state
         entity_id: sensor.electricity_current_rate
         above: sensor.electricity_export_current_rate
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
+    conditions: []
     actions:
-      - choose:
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                    but below export
-                    ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                    Keeping house battery charged.
-                  title: Solar Assistant
-                  log_level: "Debug"
-        default:
-          - parallel:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    Electrictity rate has gove above 0
-                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
-                  title: Solar Assistant
-                  log_level: "Debug"
-              - action: script.load_first_priority_mode
-                data: {}
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_solar_assistant_automations
+            state: "on"
+        then:
+          - choose:
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: sensor.electricity_export_current_rate
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        but below export
+                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                        Keeping house battery charged.
+                      title: Solar Assistant
+                      log_level: "Debug"
+            default:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electrictity rate has gove above 0
+                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
+                      title: Solar Assistant
+                      log_level: "Debug"
+                  - action: script.load_first_priority_mode
+                    data: {}
     mode: single
   #endregion
   #region Tesla
@@ -349,84 +330,86 @@ automation:
       - trigger: state
         entity_id: sensor.electricity_current_rate
         to: "0.0"
-    conditions:
-      - condition: state
-        entity_id: binary_sensor.model_y_charger
-        state: "Unplugged"
-      - condition: state
-        entity_id: sensor.myenergi_zappi_plug_status
-        state: "EV Disconnected"
-      - condition: state
-        entity_id: input_boolean.enable_tesla_automations
-        state: "on"
+    conditions: []
     actions:
-      - choose:
-          - alias: Rates Below 0p/kW
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: "0"
-              - condition: state
-                entity_id: device_tracker.tesla_2
-                state: "home"
-            sequence:
-              - action: script.send_direct_notification
-                data:
-                  message: >-
-                    Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.electricity_current_rate') }}).
+      - if:
+          - condition: state
+            entity_id: binary_sensor.model_y_charger
+            state: "Unplugged"
+          - condition: state
+            entity_id: sensor.myenergi_zappi_plug_status
+            state: "EV Disconnected"
+          - condition: state
+            entity_id: input_boolean.enable_tesla_automations
+            state: "on"
+        then:
+          - choose:
+              - alias: Rates Below 0p/kW
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: "0"
+                  - condition: state
+                    entity_id: device_tracker.tesla_2
+                    state: "home"
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.electricity_current_rate') }}).
 
-                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                  title: "Tesla"
-                  people:
-                    entity_id:
-                      - person.terina
-          - alias: Rates Cost Nothing
-            conditions:
-              - condition: state
-                entity_id: sensor.electricity_current_rate
-                state: "0.0"
-              - condition: state
-                entity_id: device_tracker.tesla_2
-                state: "home"
-            sequence:
-              - action: script.send_direct_notification
-                data:
-                  message: >-
-                    Car is not plugged in and electricity rates is {{ states('sensor.electricity_current_rate', with_unit=True) }}.
+                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                      title: "Tesla"
+                      people:
+                        entity_id:
+                          - person.terina
+              - alias: Rates Cost Nothing
+                conditions:
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "0.0"
+                  - condition: state
+                    entity_id: device_tracker.tesla_2
+                    state: "home"
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        Car is not plugged in and electricity rates is {{ states('sensor.electricity_current_rate', with_unit=True) }}.
 
-                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                  title: "Tesla"
-                  people:
-                    entity_id:
-                      - person.terina
-          - alias: Cheap Rates And Near Home
-            conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: "0"
-              - condition: state
-                entity_id: sensor.electricity_current_rate
-                state: "0.0"
-              - condition: state
-                entity_id: device_tracker.tesla_2
-                state: "not_home"
-              - condition: numeric_state
-                entity_id: sensor.tesla_model_y_home_location_tracker_distance
-                below: "5000"
-            sequence:
-              - action: script.send_direct_notification
-                data:
-                  message: >-
-                    Electricity rates is or below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                      title: "Tesla"
+                      people:
+                        entity_id:
+                          - person.terina
+              - alias: Cheap Rates And Near Home
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.electricity_current_rate
+                    below: "0"
+                  - condition: state
+                    entity_id: sensor.electricity_current_rate
+                    state: "0.0"
+                  - condition: state
+                    entity_id: device_tracker.tesla_2
+                    state: "not_home"
+                  - condition: numeric_state
+                    entity_id: sensor.tesla_model_y_home_location_tracker_distance
+                    below: "5000"
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        Electricity rates is or below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
 
-                    You're close to home ({{ states('sensor.tesla_model_y_home_location_tracker_distance') }}
-                    < 5000m) so this is a FYI.
+                        You're close to home ({{ states('sensor.tesla_model_y_home_location_tracker_distance') }}
+                        < 5000m) so this is a FYI.
 
-                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                  title: "Tesla"
-                  people:
-                    entity_id:
-                      - person.terina
-        default: []
+                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                      title: "Tesla"
+                      people:
+                        entity_id:
+                          - person.terina
+            default: []
     mode: single
   #endregion
