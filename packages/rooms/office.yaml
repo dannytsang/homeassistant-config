@@ -1235,7 +1235,6 @@ automation:
       - action: script.check_office_air_conditioner
         data:
           current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   - id: "1724261391489"
     alias: "Office: Scheduled Air Conditioning Off"
@@ -1280,7 +1279,6 @@ automation:
       - action: script.check_office_air_conditioner
         data:
           current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   #endregion
 
@@ -1705,31 +1703,54 @@ script:
     alias: Check Office Air Condiitioner
     fields:
       current_electricity_import_rate:
-        description: Pence per kiloWatt for importing.
-        example: "15.01"
-        required: true
+        description: Pounds per kiloWatt for importing.
+        example: "0.15"
         selector:
           number:
             min: -15
             max: 100
             step: 2
-      current_electricity_export_rate:
-        description: Pence per kiloWatt for exporting.
-        example: "15.01"
-        required: true
-        selector:
-          number:
-            min: 0
-            max: 50
-            step: 2
     sequence:
-      choose:
+      - variables:
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
+      - choose:
         - alias: Negative rates
           conditions:
-            - condition: numeric_state
-              entity_id:
-                - event.octopus_energy_electricity_current_day_rates
-              below: 0
+            - condition: template
+              value_template: "{{ current_import_rate < 0}}"
+            - condition: state
+              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+              state: "on"
+            - condition: state
+              entity_id: input_boolean.enable_office_air_conditioner_automations
+              state: "on"
+          sequence:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: >-
+                      Electricity rates went below 0p/kWh. Turning air conditioner on.
+                    title: ":office: Office"
+                    log_level: "Normal"
+                - sequence:
+                    - action: climate.set_hvac_mode
+                      metadata: {}
+                      data:
+                        hvac_mode: cool
+                      target:
+                        entity_id: climate.office_air_conditioner
+                    - delay:
+                        seconds: 2
+                    - action: climate.set_temperature
+                      metadata: {}
+                      data:
+                        temperature: 21
+                      target:
+                        entity_id: climate.office_air_conditioner
+        - alias: Cost Nothing
+          conditions:
+            - condition: template
+              value_template: "{{ current_import_rate == 0}}"
             - condition: state
               entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
               state: "on"
@@ -1852,10 +1873,8 @@ script:
                         entity_id: climate.office_air_conditioner
         - alias: Positive rates
           conditions:
-            - condition: numeric_state
-              entity_id:
-                - event.octopus_energy_electricity_current_day_rates
-              above: 0
+            - condition: template
+              value_template: "{{ current_import_rate > 0 }}"
             - condition: state
               entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
               state: "on"
@@ -1876,7 +1895,7 @@ script:
                     hvac_mode: "off"
                   target:
                     entity_id: climate.office_air_conditioner
-      default: []
+        default: []
   #endregion
 
 sensor:
