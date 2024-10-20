@@ -161,7 +161,8 @@ automation:
             data:
               duration: "04:00:00"
           - action: script.hvac_check_eddi_boost_hot_water
-            data: {}
+            data:
+              current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
     mode: single
 
 script:
@@ -232,6 +233,14 @@ script:
     trace:
       stored_traces: 40
     fields:
+      current_electricity_import_rate:
+        description: Pounds per kiloWatt for importing.
+        example: "0.1501"
+        selector:
+          number:
+            min: -15
+            max: 100
+            step: 2
       event:
         description: The trigger for running an electricity rate check.
         example: time
@@ -242,12 +251,14 @@ script:
               - event
               - time
     sequence:
+      - variables:
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_import_rate_unit_of_measurement: "GBP/kWh"
       - choose:
           - alias: "Unit rate is below 0p/kw"
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: "0"
+              - condition: template
+                value_template: "{{ current_import_rate < 0}}"
               - condition: state
                 entity_id: input_boolean.eddi_heat_water_cost_below_nothing
                 state: "on"
@@ -256,7 +267,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        Electrictity rate is below 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Electrictity rate is below 0p/kW ({{ current_import_rate~' '~current_import_rate_unit_of_measurement }}).
                         Boosting hot water with eddi.
                       title: Eddi
                   - action: script.hvac_set_solar_diverter_to_boost_mode
@@ -264,9 +275,8 @@ script:
                       minutes: 20
           - alias: "Unit rate is on 0p/kw"
             conditions:
-              - condition: state
-                entity_id: sensor.electricity_current_rate
-                state: "0.0"
+              - condition: template
+                value_template: "{{ current_import_rate == 0}}"
               - condition: state
                 entity_id: input_boolean.eddi_heat_water_cost_nothing
                 state: "on"
@@ -275,7 +285,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        Electrictity rate is 0p/kW ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Electrictity rate is 0p/kW ({{ current_import_rate~' '~current_import_rate_unit_of_measurement }}).
                         Boosting hot water with eddi.
                       title: Eddi
                   - action: script.hvac_set_solar_diverter_to_boost_mode
@@ -341,9 +351,8 @@ script:
                           entity_id: select.myenergi_eddi_operating_mode
           - alias: "Unit rate is above 0p/kWh"
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: "0"
+              - condition: template
+                value_template: "{{ current_import_rate > 0}}"
               - condition: state
                 entity_id: sensor.myenergi_eddi_status
                 state: "Boosting"

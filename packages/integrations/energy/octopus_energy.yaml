@@ -10,6 +10,40 @@ automation:
     conditions: []
     actions:
       - parallel:
+          - alias: Check Zappi
+            choose:
+            - conditions:
+                - condition: state
+                  entity_id: input_boolean.enable_zappi_automations
+                  state: "on"
+                - not:
+                    - condition: state
+                      entity_id: sensor.myenergi_zappi_plug_status
+                      state: "EV Disconnected"
+              sequence:
+                - alias: Check Zappi
+                  action: script.zappi_check_ev_charge
+                  data: {}
+            default: []
+          - alias: Check Eddi
+            choose:
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: select.myenergi_eddi_operating_mode
+                        state: "Stopped"
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "Holiday"
+                  - condition: state
+                    entity_id: input_boolean.enable_hot_water_automations
+                    state: "on"
+                sequence:
+                  - action: script.hvac_check_eddi_boost_hot_water
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+            default: []
           - alias: Check ecoflow
             choose:
               - conditions:
@@ -145,45 +179,6 @@ automation:
                   people:
                     entity_id:
                       - person.danny
-    mode: single
-  #endregion
-  #region Eddi
-  - id: "1689626117478"
-    alias: "HVAC: Check Eddi"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0"
-    conditions: []
-    actions:
-      - alias: Check Eddi
-        choose:
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
-                    state: "Stopped"
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "Holiday"
-              - condition: state
-                entity_id: input_boolean.enable_hot_water_automations
-                state: "on"
-            sequence:
-              - action: script.hvac_check_eddi_boost_hot_water
-                data: {}
-        default: []
     mode: single
   #endregion
   #region Solar Assistant
