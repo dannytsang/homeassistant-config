@@ -23,7 +23,10 @@ automation:
               sequence:
                 - alias: Check Zappi
                   action: script.zappi_check_ev_charge
-                  data: {}
+                  data:
+                    current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                    current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                    current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default: []
           - alias: Check Eddi
             choose:
