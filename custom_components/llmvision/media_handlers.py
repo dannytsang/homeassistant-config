@@ -3,9 +3,11 @@ import io
 import os
 import shutil
 import logging
-from homeassistant.helpers.network import get_url
 from PIL import Image
+import numpy as np
+from homeassistant.helpers.network import get_url
 from homeassistant.exceptions import ServiceValidationError
+
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,6 +32,43 @@ class MediaProcessor:
         with open(clip_path, "wb") as f:
             f.write(clip_data)
 
+    def _convert_to_rgb(self, img):
+        if img.mode == 'RGBA' or img.format == 'GIF':
+            img = img.convert('RGB')
+        return img
+
+    def _similarity_score(self, previous_frame, current_frame_gray):
+        """
+        SSIM by Z. Wang: https://ece.uwaterloo.ca/~z70wang/research/ssim/
+        Paper:  Z. Wang, A. C. Bovik, H. R. Sheikh and E. P. Simoncelli,
+        "Image quality assessment: From error visibility to structural similarity," IEEE Transactions on Image Processing, vol. 13, no. 4, pp. 600-612, Apr. 2004.
+        """
+        K1 = 0.005
+        K2 = 0.015
+        L = 255
+
+        C1 = (K1 * L) ** 2
+        C2 = (K2 * L) ** 2
+
+        previous_frame_np = np.array(previous_frame, dtype=np.float64)
+        current_frame_np = np.array(current_frame_gray, dtype=np.float64)
+
+        # Calculate mean (mu)
+        mu1 = np.mean(previous_frame_np)
+        mu2 = np.mean(current_frame_np)
+
+        # Calculate variance (sigma^2) and covariance (sigma12)
+        sigma1_sq = np.var(previous_frame_np)
+        sigma2_sq = np.var(current_frame_np)
+        sigma12 = np.cov(previous_frame_np.flatten(),
+                         current_frame_np.flatten())[0, 1]
+
+        # Calculate SSIM
+        ssim = ((2 * mu1 * mu2 + C1) * (2 * sigma12 + C2)) / \
+            ((mu1**2 + mu2**2 + C1) * (sigma1_sq + sigma2_sq + C2))
+
+        return ssim
+
     async def resize_image(self, target_width, image_path=None, image_data=None, img=None):
         """Resize image to target_width"""
         if image_path:
@@ -37,10 +76,7 @@ class MediaProcessor:
             img = await self.hass.loop.run_in_executor(None, Image.open, image_path)
             with img:
                 # Check if the image is a GIF and convert if necessary
-                _LOGGER.debug(f"Image format: {img.format}")
-                if img.format == 'GIF':
-                    # Convert GIF to RGB
-                    img = img.convert('RGB')
+                img = self._convert_to_rgb(img)
                 # calculate new height based on aspect ratio
                 width, height = img.size
                 aspect_ratio = width / height
@@ -59,10 +95,7 @@ class MediaProcessor:
             img_byte_arr.write(image_data)
             img = await self.hass.loop.run_in_executor(None, Image.open, img_byte_arr)
             with img:
-                _LOGGER.debug(f"Image format: {img.format}")
-                if img.format == 'GIF':
-                    # Convert GIF to RGB
-                    img = img.convert('RGB')
+                img = self._convert_to_rgb(img)
                 # calculate new height based on aspect ratio
                 width, height = img.size
                 aspect_ratio = width / height
@@ -74,6 +107,7 @@ class MediaProcessor:
                 base64_image = await self._encode_image(img)
         elif img:
             with img:
+                img = self._convert_to_rgb(img)
                 # calculate new height based on aspect ratio
                 width, height = img.size
                 aspect_ratio = width / height
@@ -86,6 +120,107 @@ class MediaProcessor:
 
         return base64_image
 
+    async def record(self, image_entities, duration, max_frames, target_width, include_filename):
+        """Wrapper for client.add_frame with integrated recorder
+
+        Args:
+            image_entities (list[string]): List of camera entities to record
+            duration (float): Duration in seconds to record
+            target_width (int): Target width for the images in pixels
+        """
+        import time
+        import asyncio
+
+        interval = 1 if duration < 3 else 2 if duration < 10 else 4 if duration < 30 else 6 if duration < 60 else 10
+        camera_frames = {}
+
+        # Record on a separate thread for each camera
+        async def record_camera(image_entity, camera_number):
+            start = time.time()
+            frame_counter = 0
+            frames = {}
+            previous_frame = None
+            iteration_time = 0
+
+            while time.time() - start < duration + iteration_time:
+                fetch_start_time = time.time()
+                base_url = get_url(self.hass)
+                frame_url = base_url + \
+                    self.hass.states.get(image_entity).attributes.get(
+                        'entity_picture')
+                frame_data = await self.client._fetch(frame_url)
+
+                # Skip frame if fetch failed
+                if not frame_data:
+                    continue
+
+                fetch_duration = time.time() - fetch_start_time
+                _LOGGER.info(f"Fetched {image_entity} in {fetch_duration:.2f} seconds")
+                
+                preprocessing_start_time = time.time()
+                img = Image.open(io.BytesIO(frame_data))
+                current_frame_gray = np.array(img.convert('L'))
+
+                if previous_frame is not None:
+                    score = self._similarity_score(
+                        previous_frame, current_frame_gray)
+
+                    # Encode the image back to bytes
+                    buffer = io.BytesIO()
+                    img.save(buffer, format="JPEG")
+                    frame_data = buffer.getvalue()
+
+                    # Use either entity name or assign number to each camera
+                    frame_label = (image_entity.replace("camera.", "") + " frame " + str(frame_counter)
+                                   if include_filename else "Camera " + str(camera_number) + " frame " + str(frame_counter))
+                    frames.update(
+                        {frame_label: {"frame_data": frame_data, "ssim_score": score}})
+
+                    frame_counter += 1
+                    previous_frame = current_frame_gray
+                else:
+                    # Initialize previous_frame with the first frame
+                    previous_frame = current_frame_gray
+
+                preprocessing_duration = time.time() - preprocessing_start_time
+                _LOGGER.info(f"Preprocessing took: {preprocessing_duration:.2f} seconds")
+
+                adjusted_interval = max(0, interval - fetch_duration - preprocessing_duration)
+
+                if iteration_time == 0:
+                    iteration_time = time.time() - start
+                    _LOGGER.info(f"First iteration took: {iteration_time:.2f} seconds, interval adjusted to: {adjusted_interval}")
+                
+                await asyncio.sleep(adjusted_interval)
+
+            camera_frames.update({image_entity: frames})
+
+        _LOGGER.info(f"Recording {', '.join([entity.replace(
+            'camera.', '') for entity in image_entities])} for {duration} seconds")
+
+        # start threads for each camera
+        await asyncio.gather(*(record_camera(image_entity, image_entities.index(image_entity)) for image_entity in image_entities))
+
+        # Extract frames and their SSIM scores
+        frames_with_scores = []
+        for frame in camera_frames:
+            for frame_name, frame_data in camera_frames[frame].items():
+                frames_with_scores.append(
+                    (frame_name, frame_data["frame_data"], frame_data["ssim_score"]))
+
+        # Sort frames by SSIM score
+        frames_with_scores.sort(key=lambda x: x[2])
+
+        # Select frames with lowest ssim SIM scores
+        selected_frames = frames_with_scores[:max_frames]
+
+        # Add selected frames to client while keeping the order
+        for frame_name, frame_data, _ in selected_frames:
+            self.client.add_frame(
+                base64_image=await self.resize_image(target_width=target_width, image_data=frame_data),
+                filename=frame_name
+            )
+
     async def add_images(self, image_entities, image_paths, target_width, include_filename):
         """Wrapper for client.add_frame for images"""
         if image_entities:
@@ -97,20 +232,19 @@ class MediaProcessor:
                             'entity_picture')
                     image_data = await self.client._fetch(image_url)
 
-                    # If entity snapshot requested, use entity name as 'filename'
-                    if include_filename:
-                        entity_name = self.hass.states.get(
-                            image_entity).attributes.get('friendly_name')
+                    # Skip frame if fetch failed
+                    if not image_data:
+                        if len(image_entities) == 1:
+                            raise ServiceValidationError(
+                                f"Failed to fetch image from {image_entity}")
 
-                        self.client.add_frame(
-                            base64_image=await self.resize_image(target_width=target_width, image_data=image_data),
-                            filename=entity_name
-                        )
-                    else:
-                        self.client.add_frame(
-                            base64_image=await self.resize_image(target_width=target_width, image_data=image_data),
-                            filename=""
-                        )
+                    # If entity snapshot requested, use entity name as 'filename'
+                    self.client.add_frame(
+                        base64_image=await self.resize_image(target_width=target_width, image_data=image_data),
+                        filename=self.hass.states.get(
+                            image_entity).attributes.get('friendly_name') if include_filename else ""
+                    )
+
                 except AttributeError as e:
                     raise ServiceValidationError(
                         f"Entity {image_entity} does not exist")
@@ -135,30 +269,38 @@ class MediaProcessor:
                     raise ServiceValidationError(f"Error: {e}")
         return self.client
 
-    async def add_videos(self, video_paths, event_ids, interval, target_width, include_filename):
+    async def add_videos(self, video_paths, event_ids, max_frames, target_width, include_filename):
+        """Wrapper for client.add_frame for videos"""
         tmp_clips_dir = f"/config/custom_components/{DOMAIN}/tmp_clips"
         tmp_frames_dir = f"/config/custom_components/{DOMAIN}/tmp_frames"
         if not video_paths:
             video_paths = []
-        """Wrapper for client.add_frame for videos"""
         if event_ids:
             for event_id in event_ids:
                 try:
                     base_url = get_url(self.hass)
                     frigate_url = base_url + "/api/frigate/notifications/" + event_id + "/clip.mp4"
                     clip_data = await self.client._fetch(frigate_url)
+
+                    if not clip_data:
+                            raise ServiceValidationError(
+                                f"Failed to fetch frigate clip {event_id}")
+
                     # create tmp dir to store video clips
                     os.makedirs(tmp_clips_dir, exist_ok=True)
                     _LOGGER.info(f"Created {tmp_clips_dir}")
                     # save clip to file with event_id as filename
-                    clip_path = os.path.join(tmp_clips_dir, event_id.split("-")[-1] + ".mp4")
+                    clip_path = os.path.join(
+                        tmp_clips_dir, event_id.split("-")[-1] + ".mp4")
                     await self.hass.loop.run_in_executor(None, self._save_clip, clip_data, clip_path)
-                    _LOGGER.info(f"Saved frigate clip to {clip_path} (temporarily)")
+                    _LOGGER.info(
+                        f"Saved frigate clip to {clip_path} (temporarily)")
                     # append to video_paths
                     video_paths.append(clip_path)
 
                 except AttributeError as e:
-                    raise ServiceValidationError(f"Failed to fetch frigate clip {event_id}: {e}")
+                    raise ServiceValidationError(
+                        f"Failed to fetch frigate clip {event_id}: {e}")
         if video_paths:
             _LOGGER.debug(f"Processing videos: {video_paths}")
             for video_path in video_paths:
@@ -170,8 +312,12 @@ class MediaProcessor:
                         if os.path.exists(tmp_frames_dir):
                             _LOGGER.debug(f"Created {tmp_frames_dir}")
                         else:
-                            _LOGGER.error(f"Failed to create temp directory {tmp_frames_dir}")
+                            _LOGGER.error(
+                                f"Failed to create temp directory {tmp_frames_dir}")
+                            
+                        interval = 2
 
+                        # Extract frames from video every interval seconds
                         ffmpeg_cmd = [
                             "ffmpeg",
                             "-i", video_path,
@@ -182,10 +328,13 @@ class MediaProcessor:
                         await self.hass.loop.run_in_executor(None, os.system, " ".join(ffmpeg_cmd))
 
                         frame_counter = 0
+                        previous_frame = None
+                        frames = {}
+
                         for frame_file in await self.hass.loop.run_in_executor(None, os.listdir, tmp_frames_dir):
                             _LOGGER.debug(f"Adding frame {frame_file}")
-                            frame_counter = 0
-                            frame_path = os.path.join(tmp_frames_dir, frame_file)
+                            frame_path = os.path.join(
+                                tmp_frames_dir, frame_file)
 
                             # Remove transparency for compatibility
                             with Image.open(frame_path) as img:
@@ -193,12 +342,33 @@ class MediaProcessor:
                                     img = img.convert('RGB')
                                     img.save(frame_path)
 
+                                current_frame_gray = np.array(img.convert('L'))
+
+                            # Calculate similarity score
+                            if previous_frame is not None:
+                                score = self._similarity_score(
+                                    previous_frame, current_frame_gray)
+
+                                frames.update({frame_path: score})
+                                frame_counter += 1
+                                previous_frame = current_frame_gray
+                            else:
+                                # Initialize previous_frame with the first frame
+                                previous_frame = current_frame_gray
+
+                        # get the max_frames many frames with the lowest ssim scores
+                        sorted_frames = sorted(frames.items(), key=lambda x: x[1])[:max_frames]
+
+                        # Add frames to client
+                        for frame_path, _ in sorted_frames:
+                            counter = 1
                             self.client.add_frame(
                                 base64_image=await self.resize_image(image_path=frame_path, target_width=target_width),
-                                filename=video_path.split(
-                                    '/')[-1].split('.')[-2] + " (frame " + str(frame_counter) + ")" if include_filename else "Video frame " + str(frame_counter)
+                                filename=video_path.split('/')[-1].split('.')[-2] + " (frame " + str(
+                                    counter) + ")" if include_filename else "Video frame " + str(counter)
                             )
-                            frame_counter += 1
+                            counter += 1
+
                     else:
                         raise ServiceValidationError(
                             f"File {video_path} does not exist")
@@ -211,11 +381,22 @@ class MediaProcessor:
             _LOGGER.info(
                 f"Deleted tmp folder: {tmp_clips_dir}")
         except FileNotFoundError as e:
-            _LOGGER.error(f"Failed to delete tmp folder: {e}")
+            _LOGGER.info(f"Failed to delete tmp folder: {e}")
         try:
             await self.hass.loop.run_in_executor(None, shutil.rmtree, tmp_frames_dir)
             _LOGGER.info(
                 f"Deleted tmp folder: {tmp_frames_dir}")
         except FileNotFoundError as e:
-            _LOGGER.error(f"Failed to delete tmp folders: {e}")
+            _LOGGER.info(f"Failed to delete tmp folders: {e}")
+        return self.client
+
+    async def add_streams(self, image_entities, duration, max_frames, target_width, include_filename):
+        if image_entities:
+            await self.record(
+                image_entities=image_entities,
+                duration=duration,
+                max_frames=max_frames,
+                target_width=target_width,
+                include_filename=include_filename
+            )
         return self.client
