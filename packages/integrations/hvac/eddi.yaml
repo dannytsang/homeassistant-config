@@ -241,6 +241,11 @@ script:
             min: -15
             max: 100
             step: 2
+      current_electricity_import_rate_unit:
+        description: Unit describing the unit rate.
+        example: "GBP/kWh"
+        selector:
+          text:
       event:
         description: The trigger for running an electricity rate check.
         example: time
@@ -253,7 +258,7 @@ script:
     sequence:
       - variables:
           current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
-          current_import_rate_unit_of_measurement: "GBP/kWh"
+          current_import_rate_unit_of_measurement: "{{ current_electricity_import_rate_unit|state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
       - choose:
           - alias: "Unit rate is below 0p/kw"
             conditions:
