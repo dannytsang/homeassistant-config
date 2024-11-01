@@ -233,13 +233,19 @@ automation:
       - trigger: time
         at: "15:00:00"
     conditions:
-      - condition: template
+      - alias: Battery runtime less than 19:00 (usually end of peak time)
+        condition: template
         value_template: >-
           {{ today_at("19:00") > as_datetime(states('sensor.battery_charge_remaining_hours')) }}
-      - not:
+      - alias: Not already charging battery
+        not:
         - condition: state
           entity_id: sensor.growatt_sph_inverter_mode
           state: "Battery first"
+      - alias: Check tariff is on Agile
+        condition: template
+        value_template: >-
+          {{ 'AGILE' in state_attr('event.octopus_energy_electricity_current_day_rates', 'tariff_code')|upper }}
     actions:
       - action: script.send_direct_notification
         data:
