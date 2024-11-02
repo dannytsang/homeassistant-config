@@ -107,104 +107,18 @@ automation:
                       current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
                       current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
             default: []
-  #endregion
-  #region Tesla
-  - id: "1712435997061"
-    alias: "Tesla: Not Connected And Home"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: sensor.electricity_export_current_rate
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: sensor.electricity_export_current_rate
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        below: 0
-      - trigger: state
-        entity_id: sensor.electricity_current_rate
-        to: "0.0"
-    conditions: []
-    actions:
-      - if:
-          - condition: state
-            entity_id: binary_sensor.model_y_charger
-            state: "Unplugged"
-          - condition: state
-            entity_id: sensor.myenergi_zappi_plug_status
-            state: "EV Disconnected"
-          - condition: state
-            entity_id: input_boolean.enable_tesla_automations
-            state: "on"
-        then:
-          - choose:
-              - alias: Rates Below 0p/kW
-                conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: "0"
+          - alias: Tesla not connected and home
+            choose:
+              - conditions:
                   - condition: state
-                    entity_id: device_tracker.tesla_2
-                    state: "home"
+                    entity_id: binary_sensor.model_y_charger
+                    state: "Unplugged"
+                  - condition: state
+                    entity_id: sensor.myenergi_zappi_plug_status
+                    state: "EV Disconnected"
+                  - condition: state
+                    entity_id: input_boolean.enable_tesla_automations
+                    state: "on"
                 sequence:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.electricity_current_rate') }}).
-
-                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                      title: "Tesla"
-                      people:
-                        entity_id:
-                          - person.terina
-              - alias: Rates Cost Nothing
-                conditions:
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0.0"
-                  - condition: state
-                    entity_id: device_tracker.tesla_2
-                    state: "home"
-                sequence:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        Car is not plugged in and electricity rates is {{ states('sensor.electricity_current_rate', with_unit=True) }}.
-
-                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                      title: "Tesla"
-                      people:
-                        entity_id:
-                          - person.terina
-              - alias: Cheap Rates And Near Home
-                conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: "0"
-                  - condition: state
-                    entity_id: sensor.electricity_current_rate
-                    state: "0.0"
-                  - condition: state
-                    entity_id: device_tracker.tesla_2
-                    state: "not_home"
-                  - condition: numeric_state
-                    entity_id: sensor.tesla_model_y_home_location_tracker_distance
-                    below: "5000"
-                sequence:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        Electricity rates is or below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
-
-                        You're close to home ({{ states('sensor.tesla_model_y_home_location_tracker_distance') }}
-                        < 5000m) so this is a FYI.
-
-                        Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                      title: "Tesla"
-                      people:
-                        entity_id:
-                          - person.terina
-            default: []
-    mode: single
-  #endregion
+                  - action: script.tesla_notify_low_electricity_rates
+                    data: {}
