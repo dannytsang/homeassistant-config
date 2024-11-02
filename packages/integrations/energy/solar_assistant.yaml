@@ -17,8 +17,6 @@ automation:
       - trigger: time_pattern
         minutes: "35"
         id: time
-      - trigger: homeassistant
-        event: start
     conditions:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
@@ -59,13 +57,7 @@ automation:
                       current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
                       current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
                       current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
-            default:
-              - action: script.solar_assistant_check_charging_mode
-                data:
-                  event: "event"
-                  current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-                  current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
-                  current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
+            default: []
     mode: restart
 
 script:

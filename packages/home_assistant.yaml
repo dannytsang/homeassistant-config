@@ -22,20 +22,25 @@ automation:
         event: start
     conditions: []
     actions:
-      - action: script.send_to_home_log
-        data:
-          message: ":arrow_forward: Started."
-          title: "Home Assistant"
-          log_level: "Debug"
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: "Performing startup checks."
+              message: ":arrow_forward: Started."
               title: "Home Assistant"
               log_level: "Debug"
-          - action: script.check_terinas_work_laptop_status
+          - alias: Check Solar Assistant
+            action: script.solar_assistant_check_charging_mode
+            data:
+              event: "event"
+              current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+              current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+              current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
+          - alias: Is Terina working from home
+            action: script.check_terinas_work_laptop_status
             data: {}
-          - action: script.3d_printer_check_turn_off_light
+          - alias: Check 3D printer enclosure light
+            action: script.3d_printer_check_turn_off_light
+            data: {}
     mode: single
   - id: "1664657264986"
     alias: "Home Assistant: Update Available"
