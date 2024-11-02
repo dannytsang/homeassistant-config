@@ -35,6 +35,22 @@ automation:
               current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
               current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
               current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
+          - alias: Check Zappi
+            choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_zappi_automations
+                    state: "on"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.myenergi_zappi_plug_status
+                        state: "EV Disconnected"
+                sequence:
+                  - action: script.zappi_check_ev_charge
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                      current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
           - alias: Is Terina working from home
             action: script.check_terinas_work_laptop_status
             data: {}

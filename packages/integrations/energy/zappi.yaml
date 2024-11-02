@@ -35,7 +35,10 @@ automation:
                 state: "on"
     actions:
       - action: script.zappi_check_ev_charge
-        data: {}
+        data:
+          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   - id: "1712086876965"
     alias: "Zappi: Charging Schedule Stopped"
@@ -105,25 +108,10 @@ automation:
         state: "on"
     actions:
       - action: script.zappi_check_ev_charge
-        data: {}
-    mode: single
-  - id: "1712435997062"
-    alias: "Zappi: Check Charging Conditions When Home Assistant Starts"
-    description: ""
-    triggers:
-      - trigger: homeassistant
-        event: start
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_zappi_automations
-        state: "on"
-      - not:
-          - condition: state
-            entity_id: sensor.myenergi_zappi_plug_status
-            state: "EV Disconnected"
-    actions:
-      - action: script.zappi_check_ev_charge
-        data: {}
+        data:
+          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: single
   - id: "1715345710884"
     alias: "Zappi: Unidentified Vehicle Connected"
