@@ -75,7 +75,10 @@ automation:
                     state: "on"
                 sequence:
                   - action: script.ecoflow_check_charging_mode
-                    data: {}
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                      current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default: []
           - alias: Check office air conditioner
             choose:
@@ -104,97 +107,6 @@ automation:
                       current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
                       current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
             default: []
-  #region Solar Assistant
-  - id: "1689626117481"
-    alias: "Solar Assistant: Electricity Rates Starts To Cost"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: 0
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: sensor.electricity_export_current_rate
-    conditions: []
-    actions:
-      - if:
-          - condition: state
-            entity_id: input_boolean.enable_solar_assistant_automations
-            state: "on"
-        then:
-          - choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: sensor.electricity_export_current_rate
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                        but below export
-                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                        Keeping house battery charged.
-                      title: Solar Assistant
-                      log_level: "Debug"
-            default:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
-                      title: Solar Assistant
-                      log_level: "Debug"
-                  - action: script.load_first_priority_mode
-                    data: {}
-    mode: single
-  - id: "1689626117481"
-    alias: "Solar Assistant: Electricity Rates Starts To Cost"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: 0
-      - trigger: numeric_state
-        entity_id: sensor.electricity_current_rate
-        above: sensor.electricity_export_current_rate
-    conditions: []
-    actions:
-      - if:
-          - condition: state
-            entity_id: input_boolean.enable_solar_assistant_automations
-            state: "on"
-        then:
-          - choose:
-              - conditions:
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    below: sensor.electricity_export_current_rate
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
-                        but below export
-                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
-                        Keeping house battery charged.
-                      title: Solar Assistant
-                      log_level: "Debug"
-            default:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw.
-                      title: Solar Assistant
-                      log_level: "Debug"
-                  - action: script.load_first_priority_mode
-                    data: {}
-    mode: single
   #endregion
   #region Tesla
   - id: "1712435997061"

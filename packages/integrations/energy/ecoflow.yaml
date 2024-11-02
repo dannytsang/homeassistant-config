@@ -40,7 +40,10 @@ automation:
         state: "on"
     actions:
       - action: script.ecoflow_check_charging_mode
-        data: {}
+        data:
+          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
       - if:
           - condition: state
             entity_id: timer.check_solar_excess
@@ -92,7 +95,10 @@ automation:
                 sequence:
                   - parallel:
                       - action: script.ecoflow_check_charging_mode
-                        data: {}
+                        data:
+                          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
                       - action: timer.start
                         data:
                           duration: "00:05:00"
@@ -786,7 +792,32 @@ script:
     description: ""
     trace:
       stored_traces: 80
+    fields:
+      current_electricity_import_rate:
+        description: Pounds per kiloWatt for importing.
+        example: "0.15"
+        selector:
+          number:
+            min: -15
+            max: 100
+            step: 2
+      current_electricity_import_rate_unit:
+        description: Unit describing the unit rate.
+        example: "GBP/kWh"
+        selector:
+          text:
+      current_electricity_export_rate:
+        description: Pence per kiloWatt for exporting.
+        example: "0.15"
+        selector:
+          number:
+            min: 0
+            max: 50
+            step: 2
     sequence:
+      - variables:
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.electricity_current_rate'), true) }}"
       - choose:
           - alias: Holiday Mode
             conditions:
@@ -940,9 +971,8 @@ script:
               - condition: state
                 entity_id: input_boolean.ecoflow_kitchen_charge_electricity_below_nothing
                 state: "on"
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: "0"
+              - condition: template
+                value_template: "{{ current_import_rate < 0}}"
             sequence:
               - alias: Check if fridge freezer plug has been switched off
                 if:
@@ -954,7 +984,7 @@ script:
                       - action: script.send_to_home_log
                         data:
                           message: >-
-                            Electrictity rate is below 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                            Electrictity rate is below 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                             Setting backup reserve to 100% and maximum charge rate (1200w).
 
                             Turning Fridge Freezer plug.
@@ -967,7 +997,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        Electrictity rate is below 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                        Electrictity rate is below 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                         Setting backup reserve to 100% and maximum charge rate (1200w).
                       title: EcoFlow
                       log_level: "Debug"
@@ -987,9 +1017,8 @@ script:
               - condition: state
                 entity_id: input_boolean.ecoflow_kitchen_charge_below_export
                 state: "on"
-              - condition: state
-                entity_id: sensor.electricity_current_rate
-                state: "0.0"
+              - condition: template
+                value_template: "{{ current_import_rate == 0}}"
             sequence:
               - parallel:
                   - sequence:
@@ -1003,7 +1032,7 @@ script:
                               - action: script.send_to_home_log
                                 data:
                                   message: >-
-                                    Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                                    Electrictity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                                     Setting backup reserve to 100% and maximum charge rate (1200w).
 
                                     Turning Fridge Freezer plug.
@@ -1016,7 +1045,7 @@ script:
                           - action: script.send_to_home_log
                             data:
                               message: >-
-                                Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                                Electrictity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                                 Setting kitchen backup reserve to 100% and maximum charge rate (1200w).
                               title: EcoFlow
                               log_level: "Debug"
@@ -1039,7 +1068,7 @@ script:
                               - action: script.send_to_home_log
                                 data:
                                   message: >-
-                                    Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                                    Electrictity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                                     Setting backup reserve to 100% and maximum charge rate (1200w).
 
                                     Turning office battery plug.
@@ -1052,7 +1081,7 @@ script:
                           - action: script.send_to_home_log
                             data:
                               message: >-
-                                Electrictity rate is 0p/kw ({{ states('sensor.electricity_current_rate', with_unit=True)}}).
+                                Electrictity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
                                 Setting office backup reserve to 100% and maximum charge rate (1200w).
                               title: EcoFlow
                               log_level: "Debug"
@@ -1083,9 +1112,8 @@ script:
               - condition: state
                 entity_id: input_boolean.ecoflow_kitchen_charge_below_export
                 state: "on"
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
+              - condition: template
+                value_template: "{{ current_import_rate < current_export_rate }}"
             sequence:
               - if:
                   - condition: numeric_state
@@ -1103,8 +1131,8 @@ script:
                             data:
                               message: >-
                                 Electricity unit rate is the same or below export rate
-                                ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                                states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+                                ({{ current_import_rate ~'<=' ~
+                                current_export_rate }}). Charging kitchen Ecoflow.
 
                                 Turning Fridge Freezer plug on.
                               title: EcoFlow
@@ -1119,8 +1147,7 @@ script:
                         data:
                           message: >-
                             Electricity unit rate is the same or below export rate
-                            ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                            states('sensor.electricity_export_current_rate') }}). Charging kitchen Ecoflow.
+                            ({{ current_import_rate ~'<=' ~ current_export_rate }}). Charging kitchen Ecoflow.
                           title: EcoFlow
                           log_level: "Debug"
                   - action: script.ecoflow_set_charge_rate
@@ -1136,17 +1163,15 @@ script:
                     data:
                       message: >-
                         Electricity unit rate is the same or below export rate
-                        ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                        states('sensor.electricity_export_current_rate') }}) but backup reserve
+                        ({{ current_import_rate ~'<=' ~ current_export_rate }}) but backup reserve
                         already set to 100%. Skipping.
                       title: EcoFlow
                       log_level: "Debug"
           - alias: No Excess Solar
             conditions:
               - or:
-                  - condition: numeric_state
-                    entity_id: sensor.electricity_current_rate
-                    above: sensor.electricity_export_current_rate
+                  - condition: template
+                    value_template: "{{ current_import_rate > current_export_rate }}"
                   - condition: state
                     entity_id: sensor.electricity_current_rate
                     state: "unavailable"
@@ -1237,9 +1262,8 @@ script:
               - condition: state
                 entity_id: switch.ecoflow_backup_reserve_enabled
                 state: "on"
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: sensor.electricity_export_current_rate
+              - condition: template
+                value_template: "{{ current_import_rate > current_export_rate }}"
             sequence:
               - alias: Check Ecoflow Kitchen
                 if:
@@ -1255,7 +1279,7 @@ script:
                         data:
                           message: >-
                             Electrictity rate has gove above 0
-                            ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                            ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})
                             and no excess electricity detected
                             ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                             Setting backup reserve to
@@ -1273,7 +1297,7 @@ script:
                     data:
                       message: >-
                         Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})
                         and no excess electricity detected
                         ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                         Kitchen battery reserve already set
@@ -1296,7 +1320,7 @@ script:
                         data:
                           message: >-
                             Electrictity rate has gove above 0
-                            ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                            ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})
                             and no excess electricity detected
                             ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                             Setting backup reserve to
@@ -1314,7 +1338,7 @@ script:
                     data:
                       message: >-
                         Electrictity rate has gove above 0
-                        ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                        ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})
                         and no excess electricity detected
                         ({{ states('sensor.ecoflow_solar_excess', with_unit=True) }}).
                         Office battery reserve already set
