@@ -44,6 +44,9 @@ automation:
               - action: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
+                  current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                  current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                  current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
         default:
           - choose:
               - conditions:
@@ -53,38 +56,17 @@ automation:
                   - action: script.solar_assistant_check_charging_mode
                     data:
                       event: "time"
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                      current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default:
               - action: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
+                  current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                  current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                  current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
     mode: restart
-  # Octopus
-  - id: "1708679917302"
-    alias: Solar Assistant Target Octopus Rate Turned On
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.octopus_energy_target_overnight_home_battery_charge_6_hours
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.charge_octopus_schedule
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            metadata: {}
-            data:
-              log_level: Debug
-              message: Target battery charge turned on.
-              title: Solar Assistant
-          - action: script.solar_assistant_check_charging_mode
-            data: {}
-    mode: single
 
 script:
   battery_first_priority_mode:
@@ -420,7 +402,36 @@ script:
             options:
               - event
               - time
+      current_electricity_import_rate:
+        description: Pounds per kiloWatt for importing.
+        example: "0.1501"
+        selector:
+          number:
+            min: -15
+            max: 100
+            step: 2
+      current_electricity_import_rate_unit:
+        description: Unit describing the unit rate.
+        example: "GBP/kWh"
+        selector:
+          text:
+      current_electricity_export_rate:
+        description: Pence per kiloWatt for exporting.
+        example: "0.15"
+        selector:
+          number:
+            min: 0
+            max: 50
+            step: 2
+      current_electricity_export_rate_unit:
+        description: Unit describing the unit rate.
+        example: "GBP/kWh"
+        selector:
+          text:
     sequence:
+      - variables:
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.electricity_current_rate'), true) }}"
       - if:
           - condition: time
             after: "00:00:00"
@@ -536,9 +547,8 @@ script:
                           max_charge: "{{ states('sensor.growatt_sph_battery_state_of_charge')|float(100) }}"
           - alias: "Unit rate is 0p/kw"
             conditions:
-              - condition: state
-                entity_id: sensor.electricity_current_rate
-                state: "0.0"
+              - condition: template
+                value_template: "{{ current_import_rate == 0 }}"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_electricity_cost_nothing
                 state: "on"
@@ -559,7 +569,7 @@ script:
                                 data:
                                   message: >-
                                     Electrictity rate is
-                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                                    ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})p/kw
                                     and inverter has not switched from
                                     {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
                                   title: Solar Assistant
@@ -571,7 +581,7 @@ script:
                             data:
                               message: >-
                                 Electrictity rate costs nothing
-                                ({{ states('sensor.electricity_export_current_rate', with_unit=True) }}).
+                                ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }}).
                                 Charging house battery.
                               title: Solar Assistant
                               people:
@@ -586,9 +596,8 @@ script:
                         data: {}
           - alias: "Unit rate is below 0p/kw"
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: "0"
+              - condition: template
+                value_template: "{{ current_import_rate < 0 }}"
               - condition: state
                 entity_id: input_boolean.solar_assistant_charge_electricity_cost_below_nothing
                 state: "on"
@@ -609,7 +618,7 @@ script:
                                 data:
                                   message: >-
                                     Electrictity rate has gove below 0
-                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }})p/kw
+                                    ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }})p/kw
                                     and inverter has not switched from
                                     {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
                                   title: Solar Assistant
@@ -621,7 +630,7 @@ script:
                             data:
                               message: >-
                                 Electrictity rate
-                                ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
+                                ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}) has fallen
                                 below 0.00 GBP/kWh.
                                 Charging house battery.
                               title: Solar Assistant
@@ -637,12 +646,10 @@ script:
                         data: {}
           - alias: Unit rate below export and charge below export enabled
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: sensor.electricity_export_current_rate
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: 0
+              - condition: template
+                value_template: "{{ current_import_rate < current_electricity_export_rate }}"
+              - condition: template
+                value_template: "{{ current_import_rate > 0 }}"
               - or:
                   - condition: state
                     entity_id: input_boolean.enable_permanent_charge_below_export
@@ -685,8 +692,8 @@ script:
                                 data:
                                   message: >-
                                     Electrictity rate
-                                    ({{ states('sensor.electricity_current_rate', with_unit=True) }}) has fallen
-                                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                                    ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}) has fallen
+                                    below export ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }})
                                     and inverter has not switched to battery first mode.
                                   title: Solar Assistant
                                   people:
@@ -697,8 +704,7 @@ script:
                             data:
                               message: >-
                                 Electricity unit rate is below export rate
-                                ({{ states('sensor.electricity_current_rate') ~'<=' ~
-                                states('sensor.electricity_export_current_rate') }}). Charging house battery.
+                                ({{ current_import_rate ~'<=' ~ current_export_rate }}). Charging house battery.
                               title: Solar Assistant
                               debug: "Debug"
                       - action: number.set_value
@@ -713,9 +719,8 @@ script:
               - condition: state
                 entity_id: input_boolean.enable_target_electricity_unit_rate
                 state: "on"
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                below: input_number.target_electricity_unit_rate
+              - condition: template
+                value_template: "{{ current_import_rate < states('input_number.target_electricity_unit_rate')|float(0) }}"
             sequence:
               - if:
                   - not:
@@ -733,8 +738,8 @@ script:
                                 data:
                                   message: >-
                                     Electrictity rate
-                                    ({{ states('sensor.electricity_current_rate')|round(0) }}) has fallen
-                                    below export ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
+                                    ({{ current_import_rate }}) has fallen
+                                    below export ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }})
                                     and inverter has not switched to battery first mode.
                                   title: Solar Assistant
                                   people:
@@ -745,7 +750,7 @@ script:
                             data:
                               message: >-
                                 Electricity unit rate is below target rate
-                                ({{ states('sensor.electricity_current_rate')|round(0) ~'<=' ~
+                                ({{ current_import_rate|round(0) ~'<=' ~
                                 states('input_number.target_electricity_unit_rate') }}). Charging house battery.
                               title: Solar Assistant
                               debug: "Debug"
@@ -1056,9 +1061,8 @@ script:
                                 continue_on_error: true
           - alias: Rates go above export fail safe
             conditions:
-              - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
-                above: sensor.electricity_export_current_rate
+              - condition: template
+                value_template: "{{ current_import_rate > current_export_rate }}"
               - not:
                   - condition: state
                     entity_id: select.growatt_sph_work_mode_priority
@@ -1071,8 +1075,8 @@ script:
                     data:
                       message: >-
                         Electrictity rate has gove above export
-                        ({{ states('sensor.electricity_export_current_rate', with_unit=True) }})
-                        {{ states('sensor.electricity_current_rate', with_unit=True) }}
+                        ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }})
+                        {{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}
                         and inverter has not switched from
                         {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
 
