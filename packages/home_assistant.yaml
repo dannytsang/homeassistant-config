@@ -57,6 +57,33 @@ automation:
           - alias: Check 3D printer enclosure light
             action: script.3d_printer_check_turn_off_light
             data: {}
+          - alias: Check Magic Mirror casting
+            choose:
+              - conditions:
+                  - or:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "guest"
+                      - condition: state
+                        entity_id: group.adult_people
+                        state: "home"
+                  - not:
+                      - condition: state
+                        entity_id: alarm_control_panel.house_alarm
+                        state: "armed_away"
+                sequence:
+                  - parallel:
+                    - action: script.send_to_home_log
+                      data:
+                        message: Casting Home Assistant.
+                        title: ":mirror: Magic Mirror"
+                        log_level: "Debug"
+                    - action: cast.show_lovelace_view
+                      data:
+                        entity_id: media_player.stairs_chromecast
+                        dashboard_path: lovelace-magicmirror
+                        view_path: home
+            default: []
     mode: single
   - id: "1664657264986"
     alias: "Home Assistant: Update Available"
