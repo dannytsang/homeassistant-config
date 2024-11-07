@@ -1,7 +1,7 @@
 # Hardware 🔩
-I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) to use multiple eco systems together.
+I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) to bring multiple eco systems together.
 
-[Home Assistant](https://home-assistant.io) is running on a custom built computer running [Unraid](https://unraid.net/) as the base Operating System.
+[Home Assistant](https://home-assistant.io) is running on a custom built computer running [Unraid](https://unraid.net/) as the host Operating System.
 
 ## <a name="controllers"></a>Hubs / Controllers
 At the heart of everything are hubs / controllers. These are devices that bridge the different protocols to talk to computers. For example Zigbee to WiFi.
@@ -34,7 +34,6 @@ Weather station for more local and accurate weather data. Unfortunately, it does
 ## Elgato
 I love Elgato products. They are generally well designed however you do pay a price.
 *   [Key Light](https://www.elgato.com/en/key-light)
-*   [Stream Deck](https://www.elgato.com/en/stream-deck)
 
 ## Everything Smart Home
 From Everything Smart Home, Lewis has created an ESP32 mmWave kit.
@@ -45,7 +44,13 @@ Makes chips and used in popular commercial IOT applications like [Tuya](https://
 *   [ESP32 CP2102](https://www.espressif.com/en/products/socs/esp32)
 
 ## Feasycom
-*   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag.
+*   [FSC-BP108](https://www.feasycom.com/bluetooth-5-1-waterproof-bluetooth-beacon) Waterproof (IP67) Bluetooth Low Energy iBeacon. A cheaper version of an Apple Air Tag. Accuracy of the BLE is hit and miss and suspect it's not the hardware's fault.
+
+## Frient
+*   [Intelligent Heat Alarm](https://frient.com/products/intelligent-heat-alarm/)
+
+## Garmin
+*   [Vivoactive 4](https://www.garmin.com/en-GB/p/643382)
 
 ## GLEDOPTO
 Third party WLED to Zigbee controller.
@@ -59,6 +64,7 @@ An in home display (IHD) that supports live smart meter reading to APIs and MQTT
 Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
 *   [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 *   [Google TV](https://store.google.com/gb/product/chromecast_google_tv?hl=en-GB)
+*   [Nest Protect](https://store.google.com/gb/product/nest_protect_2nd_gen) Has API limit of 10 minutes making the motion sensor unusable compared to other motion sensors.
 
 ## Growatt
 Solar manufacturer. I use Solar Assistant to get local and faster updates.
@@ -112,6 +118,9 @@ A powerful and relatively cheap SOC board to power home projects. I have these m
 *   [Raspberry Pi 4 model B](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
 *   [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
+## Reolink
+*   [RLC-520A](https://reolink.com/gb/product/rlc-520a/)
+
 ## Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general. The 1st generation alarm works with 2nd generation sensors.
 *   [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
@@ -120,7 +129,6 @@ Does not have all the support with [Home Assistant](https://home-assistant.io), 
 *   [Ring Alarm Contact Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-contact-sensor-2nd-generation/dp/B08L5BZFJ7/ref=sr_1_3?crid=2EHCOKQXDB8D&keywords=ring+alarm&qid=1640880930&sprefix=ring+alarm%2Caps%2C81&sr=8-3)
 *   [Ring Alarm Motion Sensor 1st Gen](https://www.amazon.co.uk/gp/product/B07QQV5RCZ/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 *   [Ring Alarm Motion Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-motion-detector-2nd-generation/dp/B08J6C5JJN/ref=sr_1_1_sspa?crid=1CS8GPODHRQ0A&keywords=ring+alarm+motion&qid=1640881018&sprefix=ring+alarm+motion%2Caps%2C80&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUExRE9SRE1PSEtHNk0mZW5jcnlwdGVkSWQ9QTA2OTcyMDVUSE9KMFJJSjI4R00mZW5jcnlwdGVkQWRJZD1BMDMzMTIwNzVIUFE2TFFYV1ZRRiZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=)
-*   [Stickup Cam Elite](https://en-uk.ring.com/products/stick-up-security-camera-elite)
 
 ## <a name="smartthings"></a>Samsung SmartThings
 Some real gems that Samsung has made like the multipurpose sensor where Philips doesn't have. Generally reliable and well packaged.
@@ -162,13 +170,13 @@ Fully kitted networking gear of choice and provides really good integration with
 *   [G5 Turret Ultra](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-turret-ultra?s=uk)
 *   [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
 *   Unifi Swtich 8
+*   [Unifi Swtich 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
 *   [Unifi Switch Lite 8 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-8-poe)
 *   [Unifi Switch Lite 16 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-16-poe)
-*   [Unifi Swtich 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
-*   [Unifi Switch 24](https://uk.store.ui.com/uk/en/collections/unifi-switching-standard-ethernet)
+*   [Unifi Switch Pro Max 16 PoE](https://uk.store.ui.com/uk/en/category/switching-professional-max/products/usw-pro-max-16-poe)
 
 ## UseeLink
-A no name zigbee brand.
+A no name zigbee brand. One downside to the extension lead is it has no physical buttons.
 *   [SM-0306E-2W](https://www.amazon.co.uk/dp/B09JWP6TJG?psc=1&ref=ppx_yo2ov_dt_b_product_details) Sockets are individually controllable. USBs are all controlled together as a group. I wish it had power monitoring as well.
 
 ## Wemos
