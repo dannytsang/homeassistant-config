@@ -832,9 +832,35 @@ script:
     sequence:
       - action: script.tomorrows_solar_forecast_data
         response_variable: solar_forecast_data
-      - action: script.send_direct_notification
-        data:
-          message: >-
+      - variables:
+          start_generation_datetime: >-
+            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation %}
+            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01) }}
+      - variables:
+          start_generation_kwh: >-
+            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation %}
+            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01) }}
+          self_sustaining_generation_datetime: >-
+            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation %}
+            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage) }}
+          self_sustaining_generation_kwh: >-
+            {%- from 'get_solar_forecast.jinja' import get_first_solar_generation %}
+            {{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage) }}
+      - variables:
+          last_self_sustaining_generation_datetime: >-
+            {%- from 'get_solar_forecast.jinja' import get_last_solar_generation %}
+            {{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage) }}
+          last_self_sustaining_generation_kwh: >-
+            {%- from 'get_solar_forecast.jinja' import get_last_solar_generation %}
+            {{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage) }}
+          last_generation_datetime: >-
+            {%- from 'get_solar_forecast.jinja' import get_last_solar_generation %}
+            {{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01) }}
+          last_generation_kwh: >-
+            {%- from 'get_solar_forecast.jinja' import get_last_solar_generation %}
+            {{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01) }}
+      - variables:
+          forecast_text: >-
             {%- from 'emoji.jinja' import get_weather -%}
             Tommorow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
             weather is {{ get_weather(solar_forecast_data.weather_condition, 'Slack') }} with a generation of
@@ -843,22 +869,24 @@ script:
             {#- If Solcast is unavailable, fallback to Forecast.io -#}
             {% if states('sensor.solcast_pv_forecast_forecast_tomorrow') not in ('unavailable', 'unknown') %}
             {%- from 'get_solar_forecast.jinja' import get_first_solar_generation, get_last_solar_generation %}
-            and will start at {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|float(0)|round(2) }} kWh).
-            {%- if get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage)|default(none, true) is not none %}
+            and will start at {{ as_timestamp(start_generation_datetime)|timestamp_custom('%H:%M:%S') }}
+            ({{ start_generation_kwh|float(0)|round(2) }} kWh).
+            
+            {%- if self_sustaining_generation_kwh|float(-1) != -1 %}
             The first self sustaining generation ({{ avg_hourly_energy_usage }} kWh) will occur at
-            {{ as_timestamp(get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_first_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh).
+            {{ as_timestamp(self_sustaining_generation_datetime)|timestamp_custom('%H:%M:%S') }}
+            ({{ self_sustaining_generation_kwh|round(2) }} kWh).
             {%- endif %}
-            {%- if get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage) is not none %}
+
+            {%- if last_self_sustaining_generation_kwh|float(-1) != -1 %}
 
 
             The last self sustaining generation of the day will be at
-            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', avg_hourly_energy_usage))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', avg_hourly_energy_usage)|round(2) }} kWh)
+            {{ as_timestamp(last_self_sustaining_generation_datetime)|timestamp_custom('%H:%M:%S') }}
+            ({{ last_self_sustaining_generation_kwh|round(2) }} kWh)
             finishing at
-            {{ as_timestamp(get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01))|timestamp_custom('%H:%M:%S') }}
-            ({{ get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'pv_estimate', 'pv_estimate', 0.01)|round(2) }} kWh).
+            {{ as_timestamp(last_generation_datetime)|timestamp_custom('%H:%M:%S') }}
+            ({{ last_generation_kwh|round(2) }} kWh).
             {%- elif get_last_solar_generation('sensor.solcast_pv_forecast_forecast_tomorrow', 'detailedForecast', 'period_start', 'pv_estimate', 0.01) is not none %}
 
 
@@ -870,6 +898,10 @@ script:
             {{ states('sensor.total_solar_forecast_estimated_energy_production_tomorrow')|float(0)|round(2) }}
             {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_tomorrow','unit_of_measurement') }}.
             {%- endif %}
+      - action: script.send_direct_notification
+        data:
+          message: >-
+            {{ forecast_text }}
 
 
             The battery is {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }} charged. The household load is
@@ -892,8 +924,9 @@ script:
           people:
             entity_id:
               - person.danny
-              - person.terina
+              #- person.terina
   remaining_solar_forecast_today:
+    alias: Remaining Solar Forecast Today
     variables:
       remaining: >-
         {
