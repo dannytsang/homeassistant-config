@@ -3,7 +3,10 @@ import io
 import os
 import shutil
 import logging
-from PIL import Image
+import time
+import asyncio
+from functools import partial
+from PIL import Image, UnidentifiedImageError
 import numpy as np
 from homeassistant.helpers.network import get_url
 from homeassistant.exceptions import ServiceValidationError
@@ -28,9 +31,22 @@ class MediaProcessor:
             img_byte_arr.getvalue()).decode('utf-8')
         return base64_image
 
-    def _save_clip(self, clip_data, clip_path):
-        with open(clip_path, "wb") as f:
-            f.write(clip_data)
+    async def _save_clip(self, clip_data=None, clip_path=None, image_data=None, image_path=None):
+        # Ensure dir exists
+        await self.hass.loop.run_in_executor(None, partial(os.makedirs, "/config/www/llmvision", exist_ok=True))
+
+        def _run_save_clips(clip_data, clip_path, image_data, image_path):
+            _LOGGER.info(f"[save_clip] clip: {clip_path}, image: {image_path}")
+            if image_data:
+                with open(image_path, "wb") as f:
+                    if type(image_data) == bytes:
+                        f.write(image_data)
+                    else:
+                        f.write(base64.b64decode(image_data))
+            elif clip_data:
+                with open(clip_path, "wb") as f:
+                    f.write(clip_data)
+        await self.hass.loop.run_in_executor(None, _run_save_clips, clip_data, clip_path, image_data, image_path)
 
     def _convert_to_rgb(self, img):
         if img.mode == 'RGBA' or img.format == 'GIF':
@@ -120,7 +136,7 @@ class MediaProcessor:
 
         return base64_image
 
-    async def record(self, image_entities, duration, max_frames, target_width, include_filename):
+    async def record(self, image_entities, duration, max_frames, target_width, include_filename, expose_images):
         """Wrapper for client.add_frame with integrated recorder
 
         Args:
@@ -128,8 +144,6 @@ class MediaProcessor:
             duration (float): Duration in seconds to record
             target_width (int): Target width for the images in pixels
         """
-        import time
-        import asyncio
 
         interval = 1 if duration < 3 else 2 if duration < 10 else 4 if duration < 30 else 6 if duration < 60 else 10
         camera_frames = {}
@@ -218,14 +232,17 @@ class MediaProcessor:
         # Select frames with lowest ssim SIM scores
         selected_frames = frames_with_scores[:max_frames]
 
-        # Add selected frames to client while keeping the order
+        # Add selected frames to client
         for frame_name, frame_data, _ in selected_frames:
+            resized_image = await self.resize_image(target_width=target_width, image_data=frame_data)
+            if expose_images:
+                await self._save_clip(image_data=resized_image, image_path=f"/config/www/llmvision/{frame_name.replace(" frame ", "_")}.jpg")
             self.client.add_frame(
-                base64_image=await self.resize_image(target_width=target_width, image_data=frame_data),
+                base64_image=resized_image,
                 filename=frame_name
             )
 
-    async def add_images(self, image_entities, image_paths, target_width, include_filename):
+    async def add_images(self, image_entities, image_paths, target_width, include_filename, expose_images):
         """Wrapper for client.add_frame for images"""
         if image_entities:
             for image_entity in image_entities:
@@ -243,11 +260,15 @@ class MediaProcessor:
                                 f"Failed to fetch image from {image_entity}")
 
                     # If entity snapshot requested, use entity name as 'filename'
+                    resized_image = await self.resize_image(target_width=target_width, image_data=image_data)
                     self.client.add_frame(
-                        base64_image=await self.resize_image(target_width=target_width, image_data=image_data),
+                        base64_image=resized_image,
                         filename=self.hass.states.get(
                             image_entity).attributes.get('friendly_name') if include_filename else ""
                     )
+
+                    if expose_images:
+                        await self._save_clip(image_data=resized_image, image_path=f"/config/www/llmvision/{image_entity.replace('camera.', '')}.jpg")
 
                 except AttributeError as e:
                     raise ServiceValidationError(
@@ -273,10 +294,11 @@ class MediaProcessor:
                     raise ServiceValidationError(f"Error: {e}")
         return self.client
 
-    async def add_videos(self, video_paths, event_ids, max_frames, target_width, include_filename):
+    async def add_videos(self, video_paths, event_ids, max_frames, target_width, include_filename, expose_images):
         """Wrapper for client.add_frame for videos"""
         tmp_clips_dir = f"/config/custom_components/{DOMAIN}/tmp_clips"
         tmp_frames_dir = f"/config/custom_components/{DOMAIN}/tmp_frames"
+
         if not video_paths:
             video_paths = []
         if event_ids:
@@ -287,16 +309,16 @@ class MediaProcessor:
                     clip_data = await self.client._fetch(frigate_url)
 
                     if not clip_data:
-                            raise ServiceValidationError(
-                                f"Failed to fetch frigate clip {event_id}")
+                        raise ServiceValidationError(
+                            f"Failed to fetch frigate clip {event_id}")
 
                     # create tmp dir to store video clips
-                    os.makedirs(tmp_clips_dir, exist_ok=True)
+                    await self.hass.loop.run_in_executor(None, partial(os.makedirs, tmp_clips_dir, exist_ok=True))
                     _LOGGER.info(f"Created {tmp_clips_dir}")
                     # save clip to file with event_id as filename
                     clip_path = os.path.join(
-                        tmp_clips_dir, event_id.split("-")[-1] + ".mp4")
-                    await self.hass.loop.run_in_executor(None, self._save_clip, clip_data, clip_path)
+                        tmp_clips_dir, event_id + ".mp4")
+                    await self._save_clip(clip_data, clip_path)
                     _LOGGER.info(
                         f"Saved frigate clip to {clip_path} (temporarily)")
                     # append to video_paths
@@ -312,7 +334,7 @@ class MediaProcessor:
                     video_path = video_path.strip()
                     if os.path.exists(video_path):
                         # create tmp dir to store extracted frames
-                        os.makedirs(tmp_frames_dir, exist_ok=True)
+                        await self.hass.loop.run_in_executor(None, partial(os.makedirs, tmp_frames_dir, exist_ok=True))
                         if os.path.exists(tmp_frames_dir):
                             _LOGGER.debug(f"Created {tmp_frames_dir}")
                         else:
@@ -333,44 +355,50 @@ class MediaProcessor:
 
                         frame_counter = 0
                         previous_frame = None
-                        frames = {}
+                        frames = []
 
                         for frame_file in await self.hass.loop.run_in_executor(None, os.listdir, tmp_frames_dir):
                             _LOGGER.debug(f"Adding frame {frame_file}")
-                            frame_path = os.path.join(
-                                tmp_frames_dir, frame_file)
-
-                            # Remove transparency for compatibility
-                            img = await self.hass.loop.run_in_executor(None, Image.open, frame_path)
-
-                            if img.mode == 'RGBA':
+                            frame_path = os.path.join(tmp_frames_dir, frame_file)
+                            try:
+                                # open image in hass.loop
+                                img = await self.hass.loop.run_in_executor(None, Image.open, frame_path)
+                                # Remove transparency for compatibility
+                                if img.mode == 'RGBA':
                                     img = img.convert('RGB')
-                                    img.save(frame_path)
-
-                            current_frame_gray = np.array(img.convert('L'))
-
-                            # Calculate similarity score
-                            if previous_frame is not None:
-                                score = self._similarity_score(
-                                    previous_frame, current_frame_gray)
-
-                                frames.update({frame_path: score})
-                                frame_counter += 1
-                                previous_frame = current_frame_gray
-                            else:
-                                # Initialize previous_frame with the first frame
-                                previous_frame = current_frame_gray
-
-                        # get the max_frames many frames with the lowest ssim scores
-                        sorted_frames = sorted(frames.items(), key=lambda x: x[1])[:max_frames]
-
+                                    await self.hass.loop.run_in_executor(None, img.save, frame_path)
+                        
+                                current_frame_gray = np.array(img.convert('L'))
+                        
+                                # Calculate similarity score
+                                if previous_frame is not None:
+                                    score = self._similarity_score(previous_frame, current_frame_gray)
+                                    frames.append((frame_path, score))
+                                    frame_counter += 1
+                                    previous_frame = current_frame_gray
+                                else:
+                                    # Initialize previous_frame with the first frame
+                                    previous_frame = current_frame_gray
+                            except UnidentifiedImageError:
+                                _LOGGER.error(f"Cannot identify image file {frame_path}")
+                                continue
+                        
+                        # Keep only max_frames many frames with lowest SSIM scores
+                        sorted_frames = sorted(frames, key=lambda x: x[1])[:max_frames]
+                        
+                        # Ensure at least one frame is present
+                        if not sorted_frames and frames:
+                            sorted_frames.append(frames[0])
+                        
                         # Add frames to client
+                        counter = 1
                         for frame_path, _ in sorted_frames:
-                            counter = 1
+                            resized_image = await self.resize_image(image_path=frame_path, target_width=target_width)
+                            if expose_images:
+                                await self._save_clip(image_path="/config/www/llmvision/" + frame_path.split("/")[-1], image_data=resized_image)
                             self.client.add_frame(
-                                base64_image=await self.resize_image(image_path=frame_path, target_width=target_width),
-                                filename=video_path.split('/')[-1].split('.')[-2] + " (frame " + str(
-                                    counter) + ")" if include_filename else "Video frame " + str(counter)
+                                base64_image=resized_image,
+                                filename=video_path.split('/')[-1].split('.')[-2] + " (frame " + str(counter) + ")" if include_filename else "Video frame " + str(counter)
                             )
                             counter += 1
 
@@ -395,13 +423,25 @@ class MediaProcessor:
             _LOGGER.info(f"Failed to delete tmp folders: {e}")
         return self.client
 
-    async def add_streams(self, image_entities, duration, max_frames, target_width, include_filename):
+    async def add_streams(self, image_entities, duration, max_frames, target_width, include_filename, expose_images):
         if image_entities:
             await self.record(
                 image_entities=image_entities,
                 duration=duration,
                 max_frames=max_frames,
                 target_width=target_width,
-                include_filename=include_filename
+                include_filename=include_filename,
+                expose_images=expose_images
             )
+        return self.client
+
+    async def add_visual_data(self, image_entities, image_paths, target_width, include_filename):
+        """Wrapper for add_images for visual data"""
+        await self.add_images(
+            image_entities=image_entities,
+            image_paths=image_paths,
+            target_width=target_width,
+            include_filename=include_filename,
+            expose_images=False
+        )
         return self.client
