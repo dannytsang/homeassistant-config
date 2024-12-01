@@ -10,7 +10,6 @@ from typing import TYPE_CHECKING, Any
 
 import homeassistant.util.dt as dt_util
 import voluptuous as vol
-from homeassistant.components.hassio.const import ATTR_DATA
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
 from homeassistant.const import (
     ATTR_DOMAIN,
@@ -23,6 +22,7 @@ from homeassistant.const import (
     CONF_PARALLEL,
     CONF_REPEAT,
     CONF_SEQUENCE,
+    CONF_SERVICE_DATA,
     CONF_TARGET,
     CONF_THEN,
     ENTITY_MATCH_ALL,
@@ -70,7 +70,7 @@ from .const import (
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
-DEFAULT_BACKOFF = "[[ 2 ** attempt ]]"
+DEFAULT_BACKOFF = "{{ 2 ** attempt }}"
 DEFAULT_RETRIES = 7
 DEFAULT_STATE_GRACE = 0.2
 GROUP_DOMAIN = "group"
@@ -81,11 +81,7 @@ _running_retries_write_lock = threading.Lock()
 
 def _template_parameter(value: Any) -> str:
     """Render template parameter."""
-    output = cv.template(value).async_render(parse_result=False)
-    if not isinstance(output, str):
-        message = "template rendered value should be a string"
-        raise vol.Invalid(message)
-    return output
+    return cv.template(value).async_render(parse_result=False)
 
 
 def _fix_template_tokens(value: str) -> str:
@@ -102,24 +98,35 @@ def _fix_template_tokens(value: str) -> str:
     return value
 
 
-DEFAULT_BACKOFF_FIXED = _fix_template_tokens(DEFAULT_BACKOFF)
+def _backoff_parameter(value: Any | None) -> str | None:
+    """Check backoff parameter."""
+    cv.positive_float(
+        cv.template(_fix_template_tokens(cv.string(value))).async_render(
+            variables={"attempt": 0}
+        )
+    )
+    return value
 
 
-def _backoff_parameter(value: Any | None) -> Template:
-    """Convert backoff parameter to template."""
-    return cv.template(_fix_template_tokens(cv.string(value)))
-
-
-def _validation_parameter(value: Any | None) -> Template:
-    """Convert validation parameter to template."""
-    return cv.dynamic_template(_fix_template_tokens(cv.string(value)))
+def _validation_parameter(value: Any | None) -> str | None:
+    """Check validation parameter."""
+    cv.dynamic_template(_fix_template_tokens(cv.string(value)))
+    return value
 
 
 def _rename_legacy_service_key(value: Any | None) -> Any:
-    if not isinstance(value, dict):
-        return value
-    if ATTR_SERVICE in value:
+    if isinstance(value, dict) and ATTR_SERVICE in value:
         value[CONF_ACTION] = value.pop(ATTR_SERVICE)
+        LOGGER.log(
+            logging.WARNING,
+            (
+                "'service: %s' should be renamed to 'action: %s'. "
+                "Support for the deprecated 'service' field will be removed "
+                "in a future release."
+            ),
+            value[CONF_ACTION],
+            value[CONF_ACTION],
+        )
     return value
 
 
@@ -195,6 +202,9 @@ class RetryParams:
             raise ServiceNotFound(domain, service)
         retry_data[ATTR_DOMAIN] = domain
         retry_data[ATTR_SERVICE] = service
+        for key in [ATTR_BACKOFF, ATTR_VALIDATION]:
+            if key in retry_data:
+                retry_data[key] = Template(_fix_template_tokens(retry_data[key]), hass)
         return retry_data
 
     def _inner_data(self, hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
@@ -253,7 +263,7 @@ class RetryParams:
 
 
 class RetryAction:
-    """Handle a single service call with retries."""
+    """Perform an action with retries on failures."""
 
     def __init__(
         self,
@@ -347,7 +357,7 @@ class RetryAction:
         return self._action_str_value
 
     def _compose_action_str(self) -> str:
-        """Return a string with the service call parameters."""
+        """Return a string with the action parameters."""
         service_call = (
             f"{self._params.retry_data[ATTR_DOMAIN]}."
             f"{self._params.retry_data[ATTR_SERVICE]}"
@@ -371,7 +381,7 @@ class RetryAction:
             (
                 ATTR_BACKOFF,
                 self._params.retry_data[ATTR_BACKOFF].template,
-                DEFAULT_BACKOFF_FIXED,
+                DEFAULT_BACKOFF,
             ),
             (
                 ATTR_VALIDATION,
@@ -415,6 +425,7 @@ class RetryAction:
 
     def _repair(self) -> None:
         """Create a repair ticket."""
+        ir.async_delete_issue(self._hass, DOMAIN, self._action_str)
         ir.async_create_issue(
             self._hass,
             DOMAIN,
@@ -443,13 +454,12 @@ class RetryAction:
         if not self._retry_id:
             return
         with _running_retries_write_lock:
-            if not self._check_id():
-                return
-            count = _running_retries[self._retry_id][1] - 1
-            if not count:
-                del _running_retries[self._retry_id]
-            else:
-                self._set_id(count)
+            if self._check_id():
+                count = _running_retries[self._retry_id][1] - 1
+                if not count:
+                    del _running_retries[self._retry_id]
+                else:
+                    self._set_id(count)
 
     def _set_id(self, count: int) -> None:
         """Set the retry_id entry with a counter."""
@@ -490,7 +500,7 @@ class RetryAction:
                 "Failed",
                 stack_info=True,
             )
-            if self._attempt == self._params.retry_data[ATTR_RETRIES]:
+            if self._attempt >= self._params.retry_data[ATTR_RETRIES]:
                 if not getattr(self._params.config_entry, "options", {}).get(
                     CONF_DISABLE_REPAIR
                 ):
@@ -539,15 +549,15 @@ def _wrap_actions(  # noqa: PLR0912
                 ]:
                     message = f"{domain_service} inside retry.actions is disallowed"
                     raise IntegrationError(message)
-                action[ATTR_DATA] = action.get(ATTR_DATA, {})
-                action[ATTR_DATA][CONF_ACTION] = domain_service
-                action[ATTR_DATA].update(retry_params)
+                action[CONF_SERVICE_DATA] = action.get(CONF_SERVICE_DATA, {})
+                action[CONF_SERVICE_DATA][CONF_ACTION] = domain_service
+                action[CONF_SERVICE_DATA].update(retry_params)
                 action[CONF_ACTION] = f"{DOMAIN}.{ACTION_SERVICE}"
                 # Validate parameters so errors are not raised in the background.
                 RetryParams(
                     hass,
                     None,
-                    {**action[ATTR_DATA], **action.get(CONF_TARGET, {})},
+                    {**action[CONF_SERVICE_DATA], **action.get(CONF_TARGET, {})},
                 )
             case cv.SCRIPT_ACTION_REPEAT:
                 _wrap_actions(hass, action[CONF_REPEAT][CONF_SEQUENCE], retry_params)
@@ -571,7 +581,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     """Set up domain."""
 
     async def async_action(service_call: ServiceCall) -> None:
-        """Execute action with background retries."""
+        """Perform action with background retries."""
         params = RetryParams(hass, config_entry, service_call.data)
         for entity_id in params.entities or [None]:
             hass.async_create_task(
@@ -581,22 +591,31 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     hass.services.async_register(
         DOMAIN, ACTION_SERVICE, async_action, ACTION_SERVICE_SCHEMA
     )
+
+    async def async_call(service_call: ServiceCall) -> None:
+        """Legacy 'retry.call' action."""
+        LOGGER.log(
+            logging.WARNING,
+            (
+                "'retry.call' should be renamed to 'retry.action'. "
+                "Support for the deprecated 'retry.call' action will be removed "
+                "in a future release."
+            ),
+        )
+        return await async_action(service_call)
+
     hass.services.async_register(
-        DOMAIN, CALL_SERVICE, async_action, ACTION_SERVICE_SCHEMA
+        DOMAIN, CALL_SERVICE, async_call, ACTION_SERVICE_SCHEMA
     )
 
     async def async_actions(service_call: ServiceCall) -> None:
-        """Execute actions and retry failed actions."""
+        """Perform actions and retry failed actions."""
         sequence = service_call.data[CONF_SEQUENCE].copy()
         retry_params: dict[str, Any] = {
             key: service_call.data[key]
             for key in service_call.data
             if key in SERVICE_SCHEMA_BASE_FIELDS
         }
-        for key in [ATTR_BACKOFF, ATTR_VALIDATION]:
-            if key in retry_params:
-                # Revert it back to string so it won't get rendered in advance.
-                retry_params[key] = retry_params[key].template
         _wrap_actions(hass, sequence, retry_params)
         await script.Script(hass, sequence, ACTIONS_SERVICE, DOMAIN).async_run(
             context=Context(service_call.context.user_id, service_call.context.id)
