@@ -231,6 +231,33 @@ automation:
                           - person.terina
             default: []
     mode: single
+  - id: "1733767153966"
+    alias: "Conservatory: Turn Off Airer"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.airer
+        to: "on"
+        for:
+          hours: 4
+          minutes: 0
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Normal
+              message: Airer has been on for 2 hours. Turning off.
+              title: Conservatory
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.airer
+    mode: single
 
 scene:
   - id: "1610234583738"
@@ -400,6 +427,25 @@ script:
               people:
                 entity_id:
                   - person.danny
+  conservatory_turn_on_airer:
+    alias: Conservatory Turn On Airer
+    description: ""
+    sequence:
+      - choose:
+          - alias: "Check helper is enabled"
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_conservatory_airer_schedule
+                state: "on"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "Turning on airer."
+                      title: "Conservatory"
+                  - action: input_boolean.turn_off
+                    target:
+                      entity_id: input_boolean.enable_conservatory_airer_schedule
 
 sensor:
   - platform: mold_indicator

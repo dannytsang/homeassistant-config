@@ -123,3 +123,18 @@ automation:
                   - action: script.tesla_notify_low_electricity_rates
                     data: {}
             default: []
+          - alias: Check Airer
+            choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_conservatory_airer_schedule
+                    state: "on"
+                  - condition: template
+                    value_template: >-
+                      {{ states('sensor.electricity_current_rate')|float(100) <
+                       states('sensor.electricity_export_current_rate')|float(5) }}
+                sequence:
+                  - action: script.conservatory_turn_on_airer
+                    data: {}
+            default: []
+            
