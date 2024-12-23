@@ -77,6 +77,25 @@ automation:
               - person.terina
           url: "{{state_attr('sensor.met_office_rss_weather_warnings', 'entries')[0].links[1].href }}"
     mode: single
+  - id: "1734968573793"
+    alias: "Weather: Storm Warning"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.bedroom_air_pressure_difference
+        above: 2.9
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: ":thunder_cloud_and_rain: Storm Alert"
+          title: ":cloud: Weather"
+          people:
+            entity_id:
+              - person.danny
+    mode: single
 
 sensor:
   # https://community.home-assistant.io/t/uk-met-office-severe-weather-warnings/189680/4
