@@ -126,15 +126,16 @@ automation:
           - alias: Check Airer
             choose:
               - conditions:
-                  - condition: state
-                    entity_id: input_boolean.enable_conservatory_airer_schedule
-                    state: "on"
-                  - condition: template
-                    value_template: >-
-                      {{ states('sensor.electricity_current_rate')|float(100) <
-                       states('sensor.electricity_export_current_rate')|float(5) }}
+                  - or:
+                      - condition: state
+                        entity_id: input_boolean.enable_conservatory_airer_when_cost_below_nothing
+                        state: "on"
+                      - condition: state
+                        entity_id: input_boolean.enable_conservatory_airer_when_cost_nothing
+                        state: "on"
                 sequence:
-                  - action: script.conservatory_turn_on_airer
-                    data: {}
+                  - action: script.check_conservatory_airer
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
             default: []
-            
