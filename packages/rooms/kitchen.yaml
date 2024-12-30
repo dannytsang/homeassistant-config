@@ -831,13 +831,9 @@ automation:
           - sensor.grid_power
         above: 100
     conditions:
-      - or:
-          - condition: state
-            entity_id: binary_sensor.kitchen_motion
-            state: "on"
-          - condition: state
-            entity_id: binary_sensor.kitchen_motion
-            state: "on"
+      - condition: state
+        entity_id: binary_sensor.kitchen_area_motion
+        state: "on"
       - condition: state
         entity_id: light.kitchen_cooker_rgb
         state: "off"
@@ -846,7 +842,7 @@ automation:
         state: "off"
       - condition: numeric_state
         entity_id: sensor.growatt_sph_battery_state_of_charge
-        above: 12
+        above: input_number.growatt_battery_discharge_stop_soc
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -854,11 +850,34 @@ automation:
               message: Pulling power from the grid
               title: ":cook: Kitchen"
               log_level: Debug
-          - action: scene.turn_on
-            target:
-              entity_id:
-                - scene.kitchen_table_ambient_light_to_pink
-                - scene.kitchen_cooker_ambient_light_to_pink
+          - choose:
+            - alias: Battery has charge left
+              conditions:
+                - or:
+                    - condition: numeric_state
+                      entity_id: sensor.growatt_sph_battery_state_of_charge
+                      above: input_number.growatt_battery_discharge_stop_soc
+                    - condition: numeric_state
+                      entity_id: sensor.growatt_battery_discharge_power
+                      below: 100
+              sequence:
+                - action: scene.turn_on
+                  target:
+                    entity_id:
+                      - scene.kitchen_table_ambient_light_to_pink
+                      - scene.kitchen_cooker_ambient_light_to_pink
+            - alias: Battery has charge left
+              conditions:
+                - or:
+                    - condition: template
+                      value_template: >-
+                        {{ states('sensor.growatt_sph_battery_state_of_charge')|float(0) <= states('input_number.growatt_battery_discharge_stop_soc')|float(0) }}
+                    - condition: numeric_state
+                      entity_id: sensor.growatt_battery_discharge_power
+                      below: 100
+              sequence:
+                - action: script.kitchen_pulse_ambient_light_pink
+                  data: {}
     mode: single
   - id: "1735567472489"
     alias: "Kitchen: Stops using Power From The Grid"
@@ -1472,6 +1491,24 @@ script:
                   entity_id: todo.dannys_notifications
     mode: single
     icon: mdi:dishwasher
+  kitchen_pulse_ambient_light_pink:
+    alias: Kitchen Pulse Ambient Light Pink
+    sequence:
+      - repeat:
+          count: 5
+          sequence:
+            - action: scene.turn_on
+              target:
+                entity_id:
+                  - scene.kitchen_table_ambient_light_to_pink
+                  - scene.kitchen_cooker_ambient_light_to_pink
+            - delay:
+                seconds: 1
+            - action: light.turn_off
+              target:
+                entity_id:
+                  - light.kitchen_cooker_rgb
+                  - light.kitchen_table_rgb
 
 sensor:
   # Dishwasher
