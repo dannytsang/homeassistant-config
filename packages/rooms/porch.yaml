@@ -183,22 +183,6 @@ automation:
                       entity_id:
                         - scene.stairs_light_off
             default: []
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: light.office_light
-                    state: "on"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Front door closed. Turning office light off as fall back."
-                      title: "Porch"
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    target:
-                      entity_id:
-                        - scene.office_turn_off_light_notification
-            default: []
     mode: single
   - id: "1708895092115"
     alias: "Porch: Light On And Door Is Shut"
@@ -469,10 +453,6 @@ script:
   front_door_closed_notification:
     alias: Front Door Closed Notification
     sequence:
-      - action: scene.turn_on
-        target:
-          entity_id:
-            - scene.current_office_light_1
       - action: light.turn_off
         data: {}
         target:
@@ -480,6 +460,7 @@ script:
             - light.stairs_ambient
             - light.kitchen_cooker_rgb
             - light.kitchen_table_rgb
+            - light.office_light
     mode: single
     icon: mdi:door
   nfc_front_door:
