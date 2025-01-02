@@ -50,6 +50,9 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_eddi_automatic_reset
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -100,40 +103,6 @@ automation:
           log_level: "Normal"
       - action: script.set_hot_water_to_home_mode
         data: {}
-    mode: single
-  - id: "1703760630207"
-    alias: "Eddi: Reset Mode"
-    description: ""
-    triggers:
-      - trigger: event
-        event_type: timer.finished
-        event_data:
-          entity_id: timer.eddi_max_temperature_reached
-    conditions:
-      - condition: state
-        entity_id: select.myenergi_eddi_operating_mode
-        state: "Stopped"
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "Holiday"
-      - condition: state
-        entity_id: input_boolean.enable_hot_water_automations
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Hot water timer has finished. Turning :fuelpump:
-                Eddi back on.
-              title: myEnergi
-              log_level: Debug
-          - action: select.select_option
-            data:
-              option: Normal
-            target:
-              entity_id: select.myenergi_eddi_operating_mode
     mode: single
   - id: "1712238362391"
     alias: "Eddi: Max Temperature Reached"
