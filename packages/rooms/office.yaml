@@ -34,11 +34,11 @@ automation:
                     before: sunset
                     before_offset: "-01:00:00"
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance_lux
+                    entity_id: sensor.office_motion_2_illuminance
                     above: input_number.office_light_level_threshold
               - not:
                   - condition: state
-                    entity_id: sensor.office_motion_2_illuminance_lux
+                    entity_id: sensor.office_motion_2_illuminance
                     state: "unavailable"
             sequence:
               - parallel:
@@ -46,7 +46,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
+                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Skipping turning light on.
                       title: ":office: Office"
@@ -58,7 +58,7 @@ automation:
           - conditions:
               - and:
                   - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance_lux
+                    entity_id: sensor.office_motion_2_illuminance
                     below: input_number.office_light_level_threshold
                   - or:
                       - condition: numeric_state
@@ -78,7 +78,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_2_illuminance_lux') }} <
+                        and it's dark ({{ states('sensor.office_motion_2_illuminance') }} <
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning up :bulb: :high_brightness: lights.
                       title: ":office: Office"
@@ -91,10 +91,10 @@ automation:
               - and:
                   - or:
                       - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance_lux
+                        entity_id: sensor.office_motion_2_illuminance
                         above: input_number.office_light_level_threshold
                       - condition: state
-                        entity_id: sensor.office_motion_2_illuminance_lux
+                        entity_id: sensor.office_motion_2_illuminance
                         state: "unavailable"
                   - or:
                       - condition: numeric_state
@@ -114,7 +114,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_2_illuminance_lux') }} <
+                        and bright ({{ states('sensor.office_motion_2_illuminance') }} <
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning office lights off.
                       title: ":office: Office"
@@ -180,10 +180,10 @@ automation:
                         before: sunset
                         before_offset: "-01:00:00"
                       - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance_lux
+                        entity_id: sensor.office_motion_2_illuminance
                         above: input_number.office_light_level_threshold
                   - condition: state
-                    entity_id: sensor.office_motion_2_illuminance_lux
+                    entity_id: sensor.office_motion_2_illuminance
                     state: "unavailable"
             sequence:
               - parallel:
@@ -191,7 +191,7 @@ automation:
                     data:
                       message: >-
                         :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance_lux') }} >
+                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Skipping turning light on.
                       title: ":office: Office"
@@ -221,7 +221,7 @@ automation:
                 data:
                   message: >-
                     :paw_prints: :bulb: :high_brightness: Motion detected in the office
-                    and it's dark ({{ states('sensor.office_motion_2_illuminance_lux') }} <
+                    and it's dark ({{ states('sensor.office_motion_2_illuminance') }} <
                     {{ states('input_number.office_light_level_threshold') }}).
                     Turning :bulb: :high_brightness: lights on.
                   title: ":office: Office"
@@ -656,7 +656,7 @@ automation:
           - alias: "Really bright and blinds are closed already"
             conditions:
               - condition: numeric_state
-                entity_id: sensor.front_garden_motion_illuminance_lux
+                entity_id: sensor.front_garden_motion_illuminance
                 above: input_number.blind_high_brightness_threshold
               - or:
                   - condition: state
@@ -675,10 +675,10 @@ automation:
                   log_level: "Debug"
           - conditions:
               - condition: numeric_state
-                entity_id: sensor.front_garden_motion_illuminance_lux
+                entity_id: sensor.front_garden_motion_illuminance
                 above: input_number.blind_low_brightness_threshold
               - condition: numeric_state
-                entity_id: sensor.front_garden_motion_illuminance_lux
+                entity_id: sensor.front_garden_motion_illuminance
                 below: input_number.blind_high_brightness_threshold
               - or:
                   - condition: state
@@ -693,7 +693,7 @@ automation:
                     data:
                       message: >-
                         :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                        It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) so partially opening office blinds.
+                        It's bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}) so partially opening office blinds.
                       title: ":office: Office"
                       log_level: "Debug"
                   - action: cover.set_cover_tilt_position
@@ -918,7 +918,7 @@ automation:
     description: ""
     triggers:
       - trigger: numeric_state
-        entity_id: sensor.front_garden_motion_illuminance_lux
+        entity_id: sensor.front_garden_motion_illuminance
         above: input_number.blind_low_brightness_threshold
         for: "00:01:00"
     conditions:
@@ -929,7 +929,7 @@ automation:
       - condition: sun
         before: sunset
       - condition: numeric_state
-        entity_id: sensor.front_garden_motion_illuminance_lux
+        entity_id: sensor.front_garden_motion_illuminance
         above: input_number.blind_high_brightness_threshold
       # Between morning and afternoon non direct sun light positon
       - condition: numeric_state
@@ -966,7 +966,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                It's bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}) and computer is on.
+                It's bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}) and computer is on.
                 Partially closing blinds.
 
                 Azimuth: {{ state_attr('sun.sun', 'azimuth') }}.
@@ -985,7 +985,7 @@ automation:
     description: ""
     triggers:
       - trigger: numeric_state
-        entity_id: sensor.front_garden_motion_illuminance_lux
+        entity_id: sensor.front_garden_motion_illuminance
         above: input_number.blind_high_brightness_threshold
         for: "00:01:00"
     conditions:
@@ -1025,7 +1025,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                It's really bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                It's really bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}).
                 Closing blinds.
               title: ":office: Office"
               log_level: "Debug"
@@ -1037,7 +1037,7 @@ automation:
     description: ""
     triggers:
       - trigger: numeric_state
-        entity_id: sensor.front_garden_motion_illuminance_lux
+        entity_id: sensor.front_garden_motion_illuminance
         for:
           hours: 0
           minutes: 5
@@ -1068,7 +1068,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance_lux', with_unit=True) }}).
+                It is not as bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}).
                 Opening Blinds
               title: ":office: Office"
               log_level: "Debug"
@@ -1714,202 +1714,202 @@ script:
       - variables:
           current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
       - choose:
-        - alias: Negative rates
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate < 0}}"
-            - condition: state
-              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_office_air_conditioner_automations
-              state: "on"
-            - condition: state
-              entity_id: climate.office_air_conditioner
-              state: "off"
-          sequence:
-            - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Electricity rates went below 0p/kWh. Turning air conditioner on.
-                    title: ":office: Office"
-                    log_level: "Normal"
-                - sequence:
-                    - action: climate.set_hvac_mode
-                      metadata: {}
-                      data:
-                        hvac_mode: cool
-                      target:
-                        entity_id: climate.office_air_conditioner
-                    - delay:
-                        seconds: 2
-                    - action: climate.set_temperature
-                      metadata: {}
-                      data:
-                        temperature: 21
-                      target:
-                        entity_id: climate.office_air_conditioner
-        - alias: Cost Nothing
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate == 0}}"
-            - condition: state
-              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_office_air_conditioner_automations
-              state: "on"
-            - condition: state
-              entity_id: climate.office_air_conditioner
-              state: "off"
-          sequence:
-            - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Electricity rates went below 0p/kWh. Turning air conditioner on.
-                    title: ":office: Office"
-                    log_level: "Normal"
-                - sequence:
-                    - action: climate.set_hvac_mode
-                      metadata: {}
-                      data:
-                        hvac_mode: cool
-                      target:
-                        entity_id: climate.office_air_conditioner
-                    - delay:
-                        seconds: 2
-                    - action: climate.set_temperature
-                      metadata: {}
-                      data:
-                        temperature: 21
-                      target:
-                        entity_id: climate.office_air_conditioner
-        - alias: Scheduled turn on
-          conditions:
-            - or:
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_1
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_1
-                      state: "on"
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_2
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_2
-                      state: "on"
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_3
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_3
-                      state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_office_air_conditioner_automations
-              state: "on"
-            - condition: state
-              entity_id: climate.office_air_conditioner
-              state: "off"
-          sequence:
-            - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Schedule to turn on air conditioner.
-                    title: ":office: Office"
-                    log_level: "Debug"
-                - sequence:
-                    - action: climate.set_hvac_mode
-                      metadata: {}
-                      data:
-                        hvac_mode: cool
-                      target:
-                        entity_id: climate.office_air_conditioner
-                    - delay:
-                        seconds: 2
-                    - action: climate.set_temperature
-                      metadata: {}
-                      data:
-                        temperature: 21
-                      target:
-                        entity_id: climate.office_air_conditioner
-        - conditions:
-            - or:
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_1
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_1
-                      state: "off"
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_2
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_2
-                      state: "off"
-                - and:
-                    - condition: state
-                      entity_id: input_boolean.enable_office_air_conditioner_schedule_3
-                      state: "on"
-                    - condition: state
-                      entity_id: binary_sensor.office_air_conditioner_schedule_3
-                      state: "off"
-            - condition: state
-              entity_id: input_boolean.enable_office_air_conditioner_automations
-              state: "on"
-            - condition: state
-              entity_id: climate.office_air_conditioner
-              state: "off"
-          sequence:
-            - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Schedule to turn off air conditioner.
-                    title: ":office: Office"
-                    log_level: "Debug"
-                - sequence:
-                    - action: climate.set_hvac_mode
-                      metadata: {}
-                      data:
-                        hvac_mode: "off"
-                      target:
-                        entity_id: climate.office_air_conditioner
-        - alias: Positive rates
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate > 0 }}"
-            - condition: state
-              entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-              state: "on"
-            - condition: state
-              entity_id: input_boolean.enable_office_air_conditioner_automations
-              state: "on"
-            - condition: state
-              entity_id: climate.office_air_conditioner
-              state: "cool"
-          sequence:
-            - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      Electricity rates went above 0p/kWh. Turning air conditioner off.
-                    title: ":office: Office"
-                    log_level: "Normal"
-                - action: climate.set_hvac_mode
-                  metadata: {}
-                  data:
-                    hvac_mode: "off"
-                  target:
-                    entity_id: climate.office_air_conditioner
+          - alias: Negative rates
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate < 0}}"
+              - condition: state
+                entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+              - condition: state
+                entity_id: climate.office_air_conditioner
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electricity rates went below 0p/kWh. Turning air conditioner on.
+                      title: ":office: Office"
+                      log_level: "Normal"
+                  - sequence:
+                      - action: climate.set_hvac_mode
+                        metadata: {}
+                        data:
+                          hvac_mode: cool
+                        target:
+                          entity_id: climate.office_air_conditioner
+                      - delay:
+                          seconds: 2
+                      - action: climate.set_temperature
+                        metadata: {}
+                        data:
+                          temperature: 21
+                        target:
+                          entity_id: climate.office_air_conditioner
+          - alias: Cost Nothing
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate == 0}}"
+              - condition: state
+                entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+              - condition: state
+                entity_id: climate.office_air_conditioner
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electricity rates went below 0p/kWh. Turning air conditioner on.
+                      title: ":office: Office"
+                      log_level: "Normal"
+                  - sequence:
+                      - action: climate.set_hvac_mode
+                        metadata: {}
+                        data:
+                          hvac_mode: cool
+                        target:
+                          entity_id: climate.office_air_conditioner
+                      - delay:
+                          seconds: 2
+                      - action: climate.set_temperature
+                        metadata: {}
+                        data:
+                          temperature: 21
+                        target:
+                          entity_id: climate.office_air_conditioner
+          - alias: Scheduled turn on
+            conditions:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_1
+                        state: "on"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_2
+                        state: "on"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_3
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_3
+                        state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+              - condition: state
+                entity_id: climate.office_air_conditioner
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Schedule to turn on air conditioner.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - sequence:
+                      - action: climate.set_hvac_mode
+                        metadata: {}
+                        data:
+                          hvac_mode: cool
+                        target:
+                          entity_id: climate.office_air_conditioner
+                      - delay:
+                          seconds: 2
+                      - action: climate.set_temperature
+                        metadata: {}
+                        data:
+                          temperature: 21
+                        target:
+                          entity_id: climate.office_air_conditioner
+          - conditions:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_1
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_1
+                        state: "off"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_2
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_2
+                        state: "off"
+                  - and:
+                      - condition: state
+                        entity_id: input_boolean.enable_office_air_conditioner_schedule_3
+                        state: "on"
+                      - condition: state
+                        entity_id: binary_sensor.office_air_conditioner_schedule_3
+                        state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+              - condition: state
+                entity_id: climate.office_air_conditioner
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Schedule to turn off air conditioner.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - sequence:
+                      - action: climate.set_hvac_mode
+                        metadata: {}
+                        data:
+                          hvac_mode: "off"
+                        target:
+                          entity_id: climate.office_air_conditioner
+          - alias: Positive rates
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate > 0 }}"
+              - condition: state
+                entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
+                state: "on"
+              - condition: state
+                entity_id: input_boolean.enable_office_air_conditioner_automations
+                state: "on"
+              - condition: state
+                entity_id: climate.office_air_conditioner
+                state: "cool"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Electricity rates went above 0p/kWh. Turning air conditioner off.
+                      title: ":office: Office"
+                      log_level: "Normal"
+                  - action: climate.set_hvac_mode
+                    metadata: {}
+                    data:
+                      hvac_mode: "off"
+                    target:
+                      entity_id: climate.office_air_conditioner
         default: []
   #endregion
 

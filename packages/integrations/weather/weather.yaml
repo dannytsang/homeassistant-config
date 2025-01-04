@@ -15,8 +15,8 @@ automation:
         above: input_number.forecast_high_temperature
       - trigger: numeric_state
         entity_id:
-          - sensor.front_garden_motion_illuminance_lux
-          - sensor.back_garden_motion_illuminance_lux
+          - sensor.front_garden_motion_illuminance
+          - sensor.back_garden_motion_illuminance
         above: input_number.close_blinds_brightness_threshold
     conditions:
       - or:
@@ -34,7 +34,7 @@ automation:
       - parallel:
           - if:
               - condition: numeric_state
-                entity_id: sensor.front_garden_motion_illuminance_lux
+                entity_id: sensor.front_garden_motion_illuminance
                 above: input_number.close_blinds_brightness_threshold
             then:
               - action: script.bedroom_close_blinds_by_weather
@@ -47,7 +47,7 @@ automation:
                   weather_condition: "{{ states(trigger.entity_id) }}"
           - if:
               - condition: numeric_state
-                entity_id: sensor.back_garden_motion_illuminance_lux
+                entity_id: sensor.back_garden_motion_illuminance
                 above: input_number.close_blinds_brightness_threshold
             then:
               - action: script.leos_bedroom_close_blinds_by_weather
