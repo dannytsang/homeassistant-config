@@ -24,35 +24,52 @@ automation:
           - action: input_boolean.turn_on
             target:
               entity_id: input_boolean.wait_for_doorbell_camera_update
-          - if:
-              - condition: state
-                entity_id: group.adult_people
-                state: "not_home"
-            then:
-              - action: todo.add_item
-                data:
-                  item: ":door: :bell: Someone rung the door bell."
+          - sequence:
+              - action: todo.get_items
                 target:
-                  entity_id: todo.shared_notifications
-              - action: button.press
-                target:
-                  entity_id: button.front_door_take_snapshot
-                data: {}
-              - wait_for_trigger:
-                  - trigger: state
-                    entity_id:
-                      - camera.front_door_snapshot
-                timeout:
-                  minutes: 1
-                continue_on_timeout: false
-              - action: script.send_direct_notification_with_url
+                  entity_id:
+                    - todo.shared_notifications
                 data:
-                  message: Door bell pressed
-                  title: Front Door
-                  people:
-                    - person.danny
-                  url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
-                  url_type: image
+                  status: needs_action
+                response_variable: todo_list
+              - if:
+                  - condition: state
+                    entity_id: group.adult_people
+                    state: "not_home"
+                  - alias: Does not already exist
+                    condition: template
+                    value_template: >-
+                      {%- for t in todo_list['todo.shared_notifications']['items'] -%}
+                      {%- if t.summary == ':door: :bell: Someone rung the door bell.' -%}
+                      {{ false }}
+                      {%- break -%}
+                      {%- endif-%}
+                      {%- endfor -%}
+                then:
+                  - action: todo.add_item
+                    data:
+                      item: ":door: :bell: Someone rung the door bell."
+                    target:
+                      entity_id: todo.shared_notifications
+                  - action: button.press
+                    target:
+                      entity_id: button.front_door_take_snapshot
+                    data: {}
+                  - wait_for_trigger:
+                      - trigger: state
+                        entity_id:
+                          - camera.front_door_snapshot
+                    timeout:
+                      minutes: 1
+                    continue_on_timeout: false
+                  - action: script.send_direct_notification_with_url
+                    data:
+                      message: Door bell pressed
+                      title: Front Door
+                      people:
+                        - person.danny
+                      url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
+                      url_type: image
     mode: single
   - id: "1621070004545"
     alias: "Front Garden: Doorbell Camera Updated"
