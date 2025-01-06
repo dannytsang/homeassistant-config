@@ -34,7 +34,11 @@ automation:
     triggers:
       - trigger: time
         at: "21:00:00"
-    conditions: []
+    conditions:
+      - alias: Check tariff is on Agile
+        condition: template
+        value_template: >-
+          {{ 'AGILE' in state_attr('event.octopus_energy_electricity_current_day_rates', 'tariff_code')|upper }}
     actions:
       - alias: update forecast
         action: script.update_solcast
