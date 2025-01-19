@@ -1,5 +1,48 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  #region Motion
+  - id: "1737283018707"
+    alias: "Porch: Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.porch_motion_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.porch_motion_occupancy
+        state: "off"
+    actions:
+      - parallel:
+          - action: light.turn_on
+            metadata: {}
+            data:
+              brightness_pct: 100
+            target:
+              entity_id: light.porch
+    mode: single
+  - id: "1737283018708"
+    alias: "Porch: NoMotion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.porch_motion_occupancy
+        to: "off"
+        for: "00:01:00"
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.porch_motion_occupancy
+        state: "on"
+    actions:
+      - parallel:
+          - action: light.turn_off
+            target:
+              entity_id: light.porch
+    mode: single
+  #endregion
+  #region: Door
   - id: "1606157753577"
     alias: "Porch: Front Door Open Turn Light On"
     description: ""
