@@ -149,7 +149,7 @@ script:
           text:
     variables:
       people_home: "{% set people = namespace(home=[]) %}
-        {% for p in state_attr('group.adult_people', 'entity_id')|default([]) %}
+        {% for p in state_attr('group.tracked_people', 'entity_id')|default([]) %}
         {% if states(p) == 'home' %}
         {% set people.home = people.home + [p] %}
         {% endif %}
@@ -159,7 +159,7 @@ script:
       - choose:
           - conditions:
               - condition: state
-                entity_id: group.adult_people
+                entity_id: group.tracked_people
                 state: "home"
               - condition: time
                 before: "22:00:00"
