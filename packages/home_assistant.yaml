@@ -73,16 +73,16 @@ automation:
                         state: "armed_away"
                 sequence:
                   - parallel:
-                    - action: script.send_to_home_log
-                      data:
-                        message: Casting Home Assistant.
-                        title: ":mirror: Magic Mirror"
-                        log_level: "Debug"
-                    - action: cast.show_lovelace_view
-                      data:
-                        entity_id: media_player.stairs_chromecast
-                        dashboard_path: lovelace-magicmirror
-                        view_path: home
+                      - action: script.send_to_home_log
+                        data:
+                          message: Casting Home Assistant.
+                          title: ":mirror: Magic Mirror"
+                          log_level: "Debug"
+                      - action: cast.show_lovelace_view
+                        data:
+                          entity_id: media_player.stairs_chromecast
+                          dashboard_path: lovelace-magicmirror
+                          view_path: home
             default: []
     mode: single
   - id: "1664657264986"
@@ -101,6 +101,43 @@ automation:
     actions:
       - action: script.upgrade_home_assistant
         data: {}
+    mode: single
+  - id: "1738875026613"
+    alias: "Home Assistant: Weekday Backup"
+    description: ""
+    triggers:
+      - trigger: time
+        at: "17:00:00"
+    conditions:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    actions:
+      - action: hassio.backup_full
+        metadata: {}
+        data:
+          compressed: true
+    mode: single
+  - id: "1738875026613"
+    alias: "Home Assistant: Weekend Backup"
+    description: ""
+    triggers:
+      - trigger: time
+        at: "11:00:00"
+    conditions:
+      - condition: time
+        weekday:
+          - sat
+          - sun
+    actions:
+      - action: hassio.backup_full
+        metadata: {}
+        data:
+          compressed: true
     mode: single
 
 script:
