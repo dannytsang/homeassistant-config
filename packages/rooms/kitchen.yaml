@@ -727,12 +727,68 @@ automation:
     mode: single
   #endRegion
   #region Dishwashing Machine
+  - id: "1694521590172"
+    alias: "Kitchen: Dishwasher Cycle Starts"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.dishwasher_powered_on
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.dishwasher_cycle_in_progress
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_dishwasher_automations
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: "Dishwasher has started."
+              title: ":cook: Kitchen"
+          - action: input_boolean.turn_on
+            data: {}
+            target:
+              entity_id: input_boolean.dishwasher_cycle_in_progress
+    mode: single
+  - id: "1694521864038"
+    alias: "Kitchen: Reset Oven Preheated"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.dishwasher_powered_on
+        to: "off"
+        for:
+          hours: 0
+          minutes: 31
+          seconds: 0
+    conditions:
+      - condition: state
+        entity_id: input_boolean.dishwasher_cycle_in_progress
+        state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_dishwasher_automations
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: Dishwasher cycle completed.
+              title: ":cook: Kitchen"
+              log_level: Normal
+          - action: input_boolean.turn_off
+            data: {}
+            target:
+              entity_id: input_boolean.dishwasher_cycle_in_progress
+    mode: single
   - id: "1595679010797"
     alias: "Kitchen: Dishwasher Started"
     description: ""
     triggers:
       - trigger: state
-        entity_id: binary_sensor.dishwasher_powered_on
+        entity_id: input_boolean.dishwasher_cycle_in_progress
         to: "on"
     conditions: []
     actions:
@@ -773,7 +829,7 @@ automation:
     description: ""
     triggers:
       - trigger: state
-        entity_id: binary_sensor.dishwasher_powered_on
+        entity_id: input_boolean.dishwasher_cycle_in_progress
         from: "on"
         to: "off"
     conditions: []
@@ -783,6 +839,8 @@ automation:
           message: ":knife_fork_plate: :soap: Washing Machine :checkered_flag: Finished."
           title: ":cook: Kitchen"
     mode: single
+  #endRegion
+  #region General
   - id: "1716112515827"
     alias: "Kitchen: Paper Draw Opened"
     description: ""
@@ -1630,9 +1688,9 @@ template:
   - binary_sensor:
       - name: Dishwasher Powered On
         unique_id: 63be053e-e80c-4b19-b6a4-32ec1405bb8f
-        icon: "mdi:dishwasher{{ '' if states('sensor.dishwasher_power') | float(0) >= 10 else '-off' }}"
+        icon: "mdi:dishwasher{{ '' if states('sensor.dishwasher_power') | float(0) >= 2 else '-off' }}"
         device_class: running
-        state: "{{ states('sensor.dishwasher_power') | float(0) >= 10 }}"
+        state: "{{ states('sensor.dishwasher_power') | float(0) >= 2 }}"
       - name: Kettle Powered On
         unique_id: 76b99ef4-c4d8-47fa-88f8-17ba6f8ef3cf
         icon: "mdi:kettle{{ '' if states('sensor.dishwasher_power') | float(0) >= 10 else '-off' }}"
