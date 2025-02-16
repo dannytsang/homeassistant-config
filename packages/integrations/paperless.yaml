@@ -25,3 +25,13 @@ automation:
               - person.danny
     mode: queued
     max: 10
+sensor:
+  # https://flemmingss.com/monitoring-paperless-ngx-in-home-assistant/
+  - platform: rest
+    name: Paperless-NGX - Total documents In Inbox
+    resource: !secret paperless_inbox_url
+    method: GET
+    headers:
+      Authorization: !secret paperless_inbox_token
+    value_template: "{{ value_json.document_count }}"
+    scan_interval: 300
