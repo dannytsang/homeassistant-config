@@ -441,7 +441,7 @@ automation:
             target:
               entity_id: scene.kitchen_dim_accent_lights
     mode: single
-  #region Switch/Shelly
+  # region Switch/Shelly
   - id: "1721248529363"
     alias: "Kitchen: Cooker Light Switch Toggle"
     description: ""
@@ -546,8 +546,8 @@ automation:
                 Kitchen Freezer door has been open for more than
                 {{ relative_time(states.binary_sensor.kitchen_fridge_door_contact.last_changed) }}!
     mode: single
-  #endRegion
-  #region Freezer
+  # endregion
+  # region Freezer
   - id: "1595678795896"
     alias: "Kitchen: Freezer Door Open"
     description: ""
@@ -725,8 +725,8 @@ automation:
             target:
               entity_id: input_boolean.oven_preheated
     mode: single
-  #endRegion
-  #region Dishwashing Machine
+  # endregion
+  # region Dishwashing Machine
   - id: "1694521590172"
     alias: "Kitchen: Dishwasher Cycle Starts"
     description: ""
@@ -839,8 +839,8 @@ automation:
           message: ":knife_fork_plate: :soap: Washing Machine :checkered_flag: Finished."
           title: ":cook: Kitchen"
     mode: single
-  #endRegion
-  #region General
+  # endregion
+  # region General
   - id: "1716112515827"
     alias: "Kitchen: Paper Draw Opened"
     description: ""
@@ -878,8 +878,8 @@ automation:
               - person.terina
               - person.danny
     mode: single
-  #endRegion
-  #region Notifications
+  # endregion
+  # region Notifications
   - id: "1735567472488"
     alias: "Kitchen: Using Power From The Grid"
     description: ""
@@ -913,33 +913,33 @@ automation:
               title: ":cook: Kitchen"
               log_level: Debug
           - choose:
-            - alias: Battery has charge left
-              conditions:
-                - or:
-                    - condition: numeric_state
-                      entity_id: sensor.growatt_sph_battery_state_of_charge
-                      above: input_number.growatt_battery_discharge_stop_soc
-                    - condition: numeric_state
-                      entity_id: sensor.growatt_battery_discharge_power
-                      below: 100
-              sequence:
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.kitchen_table_ambient_light_to_pink
-                      - scene.kitchen_cooker_ambient_light_to_pink
-            - alias: Battery has charge left
-              conditions:
-                - or:
-                    - condition: template
-                      value_template: >-
-                        {{ states('sensor.growatt_sph_battery_state_of_charge')|float(0) <= states('input_number.growatt_battery_discharge_stop_soc')|float(0) }}
-                    - condition: numeric_state
-                      entity_id: sensor.growatt_battery_discharge_power
-                      below: 100
-              sequence:
-                - action: script.kitchen_pulse_ambient_light_pink
-                  data: {}
+              - alias: Battery has charge left
+                conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: sensor.growatt_sph_battery_state_of_charge
+                        above: input_number.growatt_battery_discharge_stop_soc
+                      - condition: numeric_state
+                        entity_id: sensor.growatt_battery_discharge_power
+                        below: 100
+                sequence:
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.kitchen_table_ambient_light_to_pink
+                        - scene.kitchen_cooker_ambient_light_to_pink
+              - alias: Battery has charge left
+                conditions:
+                  - or:
+                      - condition: template
+                        value_template: >-
+                          {{ states('sensor.growatt_sph_battery_state_of_charge')|float(0) <= states('input_number.growatt_battery_discharge_stop_soc')|float(0) }}
+                      - condition: numeric_state
+                        entity_id: sensor.growatt_battery_discharge_power
+                        below: 100
+                sequence:
+                  - action: script.kitchen_pulse_ambient_light_pink
+                    data: {}
     mode: single
   - id: "1735567472489"
     alias: "Kitchen: Stops using Power From The Grid"
@@ -972,7 +972,7 @@ automation:
                 - light.kitchen_cooker_rgb
                 - light.kitchen_table_rgb
     mode: single
-  #endRegion
+  # endregion
 
 scene:
   - id: "kitchen_main_lights_dim"

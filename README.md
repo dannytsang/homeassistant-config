@@ -19,17 +19,17 @@ More details [here](hardware.md).
 
 # Addons ➕
 This is not an exhaustive list and it changes quite a lot. Too keep up to date, please subscribe to my [blog](https://dannytsang.com).
-*   [ESPHome](https://esphome.io/)
-*   [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
-*   [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
-*   [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
-*   [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
-*   [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
+* [ESPHome](https://esphome.io/)
+* [Git pull](https://github.com/home-assistant/addons/tree/master/git_pull)
+* [Home Assistant Google Drive Backup](https://github.com/sabeechen/hassio-google-drive-backup)
+* [Log Viewer](https://github.com/hassio-addons/addon-log-viewer)
+* [Ring Device Integration via MQTT](https://github.com/tsightler/ring-mqtt-ha-addon)
+* [Visual Studio Code](https://github.com/hassio-addons/addon-vscode)
 
 Add-ons that I run outside of Home Assistant:
-*   [EMQX](https://github.com/hassio-addons/addon-emqx)
-*   [Grafana](https://github.com/hassio-addons/addon-grafana)
-*   [Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt)
+* [EMQX](https://github.com/hassio-addons/addon-emqx)
+* [Grafana](https://github.com/hassio-addons/addon-grafana)
+* [Zigbee2MQTT](https://github.com/zigbee2mqtt/hassio-zigbee2mqtt)
 
 # Integrations 🖧
 More details [here](/packages/integrations/README.md).

@@ -15,6 +15,6 @@ The [Display and CAD](https://shop.glowmarkt.com/products/display-and-cad-combin
 [Ubiquiti Unifi](https://www.home-assistant.io/integrations/unifi/) allows for network based presence detection. The advantage is the integration will poll for devices from the controller which would be aware of the network where as the UPnP integration relies on network scans instead.
 
 Other noteworthy mentions:
-*   [CO2 Signal](https://www.home-assistant.io/integrations/co2signal/)
-*   [Network UPS Tool](https://www.home-assistant.io/integrations/nut/)
-*   [Slack](https://www.home-assistant.io/integrations/slack/)
+* [CO2 Signal](https://www.home-assistant.io/integrations/co2signal/)
+* [Network UPS Tool](https://www.home-assistant.io/integrations/nut/)
+* [Slack](https://www.home-assistant.io/integrations/slack/)

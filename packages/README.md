@@ -6,9 +6,9 @@ The main reason I use packages is to better manage configurations from automatio
 For automations, I use a caret (^) prefix to denote the automations are stored in a package and therefore cannot be editted from the UI.
 
 I tried to split the files into three categories and a corresponding folder in /config/packages/:
-1.  *rooms* - settings based on a room in the house.
-2.  *integrations* - settings around an integration. If the integration was removed, then the package would be self contained.
-3.  *other* - is stored in the root package folder.
+1. *rooms* - settings based on a room in the house.
+2. *integrations* - settings around an integration. If the integration was removed, then the package would be self contained.
+3. *other* - is stored in the root package folder.
 
 The priority where settings reside is in the above order with the top being the highest priority. For example for a new light bulb in the lounge then it will (eventually) go into the `/config/packages/rooms/lounge.yaml` package rather than in the integrations.
 
