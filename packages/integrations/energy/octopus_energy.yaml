@@ -31,21 +31,21 @@ automation:
                   current_electricity_export_rate_unit: "{{ state_attr('sensor.electricity_export_current_rate', 'unit_of_measurement') }}"
           - alias: Check Zappi
             choose:
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_zappi_automations
-                  state: "on"
-                - not:
-                    - condition: state
-                      entity_id: sensor.myenergi_zappi_plug_status
-                      state: "EV Disconnected"
-              sequence:
-                - alias: Check Zappi
-                  action: script.zappi_check_ev_charge
-                  data:
-                    current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-                    current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
-                    current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_zappi_automations
+                    state: "on"
+                  - not:
+                      - condition: state
+                        entity_id: sensor.myenergi_zappi_plug_status
+                        state: "EV Disconnected"
+                sequence:
+                  - alias: Check Zappi
+                    action: script.zappi_check_ev_charge
+                    data:
+                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                      current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default: []
           - alias: Check Eddi
             choose:
@@ -139,3 +139,23 @@ automation:
                       current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
                       current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
             default: []
+  - id: "168962611781"
+    alias: Refresh intelligent dispatches
+    description: "Example from: https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches"
+    triggers:
+      - trigger: state
+        entity_id: sensor.myenergi_zappi_plug_status
+        not_to: "EV Disconnected"
+      # Refresh every 3 minutes in case the schedule has changed
+      - trigger: time_pattern
+        minutes: /3
+    conditions:
+      - not:
+          - condition: state
+            entity_id: sensor.myenergi_zappi_plug_status
+            state: "EV Disconnected"
+    actions:
+      - action: octopus_energy.refresh_intelligent_dispatches
+        target:
+          entity_id: binary_sensor.octopus_energy_intelligent_dispatching
+    mode: single
