@@ -6,7 +6,7 @@ All electrical related integrations from solar to EV charging.
 Battery system that provides a convenient EPS system and some energy monitoring capabilities.
 
 ## MyEnergi
-[Eddi](https://github.com/CJNE/ha-myenergi) for the EV charger.
+[Eddi](https://github.com/CJNE/ha-myenergi) for the solar diverter and EV charger.
 
 ## Solcast
 Used for solar forecasting. The data it provides is better than forecast.io but unfortunately there is no homelab friendly subscription.
