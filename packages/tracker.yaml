@@ -512,7 +512,7 @@ automation:
               test: false
   - id: "1582456025977"
     alias: "People: Terina Leaves Home"
-    description: "Heading towards home and very close."
+    description: ""
     triggers:
       - trigger: state
         entity_id: person.terina
@@ -532,6 +532,31 @@ automation:
         data:
           message: ":house: :dancer: Left the house and no one is home."
           title: ":woman: Terina"
+          log_level: "Normal"
+  # endregion
+  # region Leo
+  - id: "1582456025978"
+    alias: "People: Leo Leaves Home"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: person.leo
+        from: "home"
+        to: "not_home"
+    conditions:
+      - condition: state
+        entity_id: group.all_tracked_people
+        state: "not_home"
+    actions:
+      - action: scene.turn_on
+        target:
+          entity_id:
+            - scene.turn_off_downstairs_lights
+            - scene.office_all_lights_off
+      - action: script.send_to_home_log
+        data:
+          message: ":house: :boy: Left the house and no one is home."
+          title: ":boy: Leo"
           log_level: "Normal"
   # endregion
   # region Children
