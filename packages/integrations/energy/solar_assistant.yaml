@@ -1066,7 +1066,7 @@ script:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        Electrictity rate has gove above export
+                        Electricity rate has gone above export
                         ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }})
                         {{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}
                         and inverter has not switched from
@@ -1223,6 +1223,7 @@ template:
           - number.growatt_sph_battery_first_stop_charge
           - switch.growatt_sph_battery_first_slot_1_enabled
           - switch.growatt_sph_grid_first_slot_1_enabled
+          - sensor.growatt_sph_inverter_mode
           - select.growatt_sph_work_mode_priority
     sensor:
       - name: "Growatt SPH Inverter Mode"
@@ -1308,7 +1309,7 @@ template:
     sensor:
       - name: "Time To Charge Battery"
         unique_id: 78ea1413-0d1c-4b89-b109-c961fc30f84d
-        # 359999 seconds = 99:99:99 suration (H:M:S)
+        # 359999 seconds = 99:99:99 duration (H:M:S)
         state: "{{ now() + timedelta( seconds = (((((states('input_number.solar_battery_size')|float(0)) * (1 - (states('sensor.growatt_sph_battery_state_of_charge')|float(0)/100))) /([states('sensor.growatt_battery_charge_power')|float(1),1]|max|float(1)))*60*60)|round(0)) if (states('sensor.growatt_battery_charge_power')|float(0)) != 0 else 359999) }}"
         icon: mdi:battery-clock
         attributes:
@@ -1322,7 +1323,7 @@ template:
           - sensor.growatt_battery_charge_power
           - sensor.growatt_sph_inverter_mode
     sensor:
-      - name: "Growatt SPH Estimted AC Battery Charge Power"
+      - name: "Growatt SPH Estimated AC Battery Charge Power"
         unique_id: fd5d04da-c5aa-496c-82dc-0252b6dd54b7
         state: >-
           {%- if states('sensor.growatt_sph_inverter_mode') not in ['unavailable', 'unknown'] and
