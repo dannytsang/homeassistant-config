@@ -230,7 +230,7 @@ automation:
     mode: single
   - id: "1704121569476"
     alias: "Energy: Low Battery Before Peak Time"
-    description: "TODO: Make this dynmaic"
+    description: "TODO: Make this dynamic"
     triggers:
       - trigger: time
         at: "14:00:00"
@@ -569,7 +569,7 @@ script:
       - action: script.battery_charge_compensation_ratio
         continue_on_error: true
         data:
-          weather_conditon: "{{ weather_condition }}"
+          weather_condition: "{{ weather_condition }}"
         response_variable: compensation_ratio
       - variables:
           forecast: >-
@@ -656,7 +656,7 @@ script:
       - action: script.battery_charge_compensation_ratio
         continue_on_error: true
         data:
-          weather_conditon: "{{ weather_condition }}"
+          weather_condition: "{{ weather_condition }}"
         response_variable: compensation_ratio
       - variables:
           forecast: >-
@@ -866,7 +866,7 @@ script:
       - variables:
           forecast_text: >-
             {%- from 'emoji.jinja' import get_weather -%}
-            Tommorow's ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
+            Tomorrows ({{ (as_timestamp(now()) - (24*3600)) | timestamp_custom('%Y-%m-%d', True) }})
             weather is {{ get_weather(solar_forecast_data.weather_condition, 'Slack') }} with a generation of
             {{ solar_forecast_data.generation_forecast|float(0)|round(2) }}
             {{ solar_forecast_data.generation_forecast_unit_of_measurement }}
@@ -957,7 +957,7 @@ script:
         required: true
         selector:
           text:
-      get_atttribute:
+      get_attribute:
         description: Attribute name of the value to return.
         example: period_start
         required: true
@@ -970,7 +970,7 @@ script:
           text:
       min_generation:
         description: >-
-          (Optional) first occurance above specified kWh.
+          (Optional) first occurrence above specified kWh.
           If not set then the first hour with any generation will be returned.
         selector:
           number:
@@ -983,12 +983,12 @@ script:
         {%- set forecast = namespace(value=[]) -%}
         {%- for period in state_attr(forecast_entity, attribute_name) -%}
         {%- if period.get(generation_attribute_name|default('pv_estimate', true)) > min_generation|default(0, true) -%}
-        {%- set forecast.value = period.get(get_atttribute) -%}
+        {%- set forecast.value = period.get(get_attribute) -%}
         {%- break -%}
         {%- endif -%}
         {%- endfor -%}
         {#- If no results were found, return none -#}
-        {%- if get_atttribute == 'pv_estimate' -%}
+        {%- if get_attribute == 'pv_estimate' -%}
         {{
         {
         'forecast': forecast.value|default(none, true)
@@ -1017,7 +1017,7 @@ script:
         example: detailedForecast
         default: detailedForecast
         required: true
-      get_atttribute:
+      get_attribute:
         description: Attribute name of the value to return.
         example: period_start
         required: true
@@ -1026,19 +1026,19 @@ script:
         example: pv_estimate
       min_generation:
         description: >-
-          (Optional) first occurance above specified kWh.
+          (Optional) first occurrence above specified kWh.
           If not set then the first hour with any generation will be returned.
     variables:
       solar: >-
         {%- set forecast = namespace(value=[]) -%}
         {%- for period in state_attr(forecast_entity, attribute_name)|reverse -%}
         {%- if period.get(generation_attribute_name) > min_generation|default(0, true) -%}
-        {%- set forecast.value = period.get(get_atttribute) -%}
+        {%- set forecast.value = period.get(get_attribute) -%}
         {%- break -%}
         {%- endif -%}
         {%- endfor -%}
         {#- If no results were found, return none -#}
-        {%- if get_atttribute == 'pv_estimate' -%}
+        {%- if get_attribute == 'pv_estimate' -%}
         {{
         {
         'forecast': forecast.value|default(none, true)

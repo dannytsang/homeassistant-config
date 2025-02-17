@@ -61,7 +61,7 @@ An in home display (IHD) that supports live smart meter reading to APIs and MQTT
 * [CAD](https://shop.glowmarkt.com/products/display-and-cad-combined-for-smart-meter-customers)
 
 ## Google
-Really like the casting feature to share content however found it was relatiely unstable and would loose connectivity or stop playing.
+Really like the casting feature to share content however found it was relatively unstable and would loose connectivity or stop playing.
 * [Chromecast Ultra](https://store.google.com/nz/product/chromecast_ultra?hl=en-GB)
 * [Google TV](https://store.google.com/gb/product/chromecast_google_tv?hl=en-GB)
 * [Nest Protect](https://store.google.com/gb/product/nest_protect_2nd_gen) Has API limit of 10 minutes making the motion sensor unusable compared to other motion sensors.
@@ -72,7 +72,7 @@ Solar manufacturer. I use Solar Assistant to get local and faster updates.
 * [GBLI 6532 Battery](https://www.ginverter.com/products/gbli-6532-battery) 
 
 ## <a name="hive"></a>Hive Home
-Probably the first smart house item we purchased in 2010. I have since upgraded to gen 2 of the hardware which has improved on reliablilty on the hub.
+Probably the first smart house item we purchased in 2010. I have since upgraded to gen 2 of the hardware which has improved on reliability on the hub.
 * [Hive 2 (SLT3)](https://www.hivehome.com/shop/smart-heating/hive-active-heating?icid=mname%3Amega-menu.iname%3Ahive-active-heating)
 
 ## HP
@@ -106,7 +106,7 @@ A toothbrush manufacturer that now supports bluetooth enabled electric toothbrus
 * [6000N](https://www.oralb.co.uk/en-gb/products/electric-toothbrushes/oral-b-smart-6-6000n-white-electric-toothbrush)
 
 ## <a name="philipshue"></a>Philips Hue
-Well engineered and personally, asthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
+Well engineered and personally, aesthetically pleasing compared to some of it's competitor. Whilst I have a Hue Hub, not all Hue devices are paired to the hue Hub e.g motion sensors are paired to the Samsung SmartThings hub.
 * Dimmer switch
 * [Motion sensor](https://www.philips-hue.com/en-gb/p/hue-motion-sensor/8718696743171)
 * [Outdoor (motion) sensor](https://www.philips-hue.com/en-gb/p/hue-outdoor-sensor/8718699625474)
@@ -169,8 +169,8 @@ Fully kitted networking gear of choice and provides really good integration with
 * [G5 Flex](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-flex)
 * [G5 Turret Ultra](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-turret-ultra?s=uk)
 * [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
-* Unifi Swtich 8
-* [Unifi Swtich 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
+* Unifi switch 8
+* [Unifi switch 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
 * [Unifi Switch Lite 8 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-8-poe)
 * [Unifi Switch Lite 16 PoE](https://techspecs.ui.com/unifi/switching/usw-lite-16-poe)
 * [Unifi Switch Pro Max 16 PoE](https://uk.store.ui.com/uk/en/category/switching-professional-max/products/usw-pro-max-16-poe)

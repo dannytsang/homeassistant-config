@@ -67,13 +67,13 @@ I have yet to explore this feature yet. See [here](https://github.com/dannytsang
 Private directory to hold camera images. Predominantly used for sending images to [DeepStack](https://deepstack.cc/).
 
 ### ESPHome 🔌
-Files related to managing the ESP microcontroller. See [ESPHome.io](https://esphome.io/) for more details.
+Files related to managing the ESP micro controller. See [ESPHome.io](https://esphome.io/) for more details.
 
 ### Packages 📦
 See [packages readme](packages/README.md) for more details.
 
 ### Split Configurations 📦🪓
-I use split configuration files to help manage and keep the `configuration.yaml` size down. The advantange is each type of configuration such as scripts, scenes, etc will be managed by [Home Assistant](https://home-assistant.io) UI with minimal setup.
+I use split configuration files to help manage and keep the `configuration.yaml` size down. The advantage is each type of configuration such as scripts, scenes, etc will be managed by [Home Assistant](https://home-assistant.io) UI with minimal setup.
 
 ### www 🌍
 A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
