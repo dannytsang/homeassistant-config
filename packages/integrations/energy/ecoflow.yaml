@@ -70,9 +70,6 @@ automation:
         event_data:
           entity_id: timer.check_solar_excess
     conditions:
-      - condition: numeric_state
-        entity_id: number.ecoflow_kitchen_backup_reserve_level
-        below: 100
       - condition: state
         entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
         state: "on"
@@ -82,28 +79,25 @@ automation:
     actions:
       - parallel:
           - action: script.ecoflow_check_charging_mode
-            data: {}
+            data:
+              current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+              current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+              current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
           - choose:
               - conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_solar_excess
-                    above: input_number.ecoflow_charge_solar_threshold
+                    entity_id: sensor.house_power
+                    below: 0
                   - not:
                       - condition: state
                         entity_id: timer.check_solar_excess
                         state: "active"
                 sequence:
-                  - parallel:
-                      - action: script.ecoflow_check_charging_mode
-                        data:
-                          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-                          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
-                          current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
-                      - action: timer.start
-                        data:
-                          duration: "00:05:00"
-                        target:
-                          entity_id: timer.check_solar_excess
+                  - action: timer.start
+                    data:
+                      duration: "00:05:00"
+                    target:
+                      entity_id: timer.check_solar_excess
     mode: queued
     max: 10
   # Battery level
@@ -1170,6 +1164,9 @@ script:
                       log_level: "Debug"
           - alias: No Excess Solar
             conditions:
+              - condition: numeric_state
+                entity_id: sensor.house_power
+                above: 0
               - condition: template
                 value_template: "{{ current_import_rate > current_export_rate }}"
               - or:
