@@ -124,6 +124,29 @@ automation:
                   hvac_mode: heat
                   temperature: 7
     mode: single
+  - id: "1740955286496"
+    alias: "HVAC: Unavailable"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - climate.thermostat
+        to: unavailable
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+          message: Hive central heating is offline.
+    mode: single
   # endregion
   # region Hot Water
   - id: "1666470473972"
@@ -564,45 +587,76 @@ script:
     alias: Set Hot Water To Off
     icon: mdi:water-boiler-off
     sequence:
-      - if:
-          - not:
+      - choose:
+          - alias: Integration unavailable
+            conditions:
               - condition: state
                 entity_id: water_heater.thermostat
-                state: "off"
-        then:
-          - parallel:
-              - action: script.send_to_home_log
+                state: "unavailable"
+            sequence:
+              - action: script.send_direct_notification
                 data:
-                  message: "Turning off the hot water."
-                  title: ":hotsprings: :droplet: Boiler"
-                  log_level: "Debug"
-              - action: water_heater.set_operation_mode
-                data:
-                  operation_mode: "off"
-                target:
-                  entity_id: water_heater.thermostat
+                  message: Hive central heating is offline.
+                  title: ":warning: :hotsprings: :droplet: Boiler :warning:"
+                  people:
+                      - person.danny
+                      - person.terina
+          - alias: Hot water is not on
+            conditions:
+              - not:
+                  - condition: state
+                    entity_id: water_heater.thermostat
+                    state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "Turning off the hot water."
+                      title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Debug"
+                  - action: water_heater.set_operation_mode
+                    data:
+                      operation_mode: "off"
+                    target:
+                      entity_id: water_heater.thermostat
     mode: single
   set_how_water_to_on:
     alias: Set Hot Water To On
     icon: mdi:water-boiler
     sequence:
-      - if:
-          - not:
+      - choose:
+          - alias: Integration unavailable
+            conditions:
               - condition: state
                 entity_id: water_heater.thermostat
-                state: "on"
-        then:
-          - parallel:
-              - action: script.send_to_home_log
+                state: "unavailable"
+            sequence:
+              - action: script.send_direct_notification
                 data:
-                  message: "Turning on the hot water."
-                  title: ":hotsprings: :droplet: Boiler"
-                  log_level: "Debug"
-              - action: water_heater.set_operation_mode
-                data:
-                  operation_mode: "on"
-                target:
-                  entity_id: water_heater.thermostat
+                  message: Hive central heating is offline.
+                  title: ":warning: :hotsprings: :droplet: Boiler :warning:"
+                  people:
+                      - person.danny
+                      - person.terina
+          - alias: Hot water is not on
+            conditions:
+              - not:
+                  - condition: state
+                    entity_id: water_heater.thermostat
+                    state: "on"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "Turning on the hot water."
+                      title: ":hotsprings: :droplet: Boiler"
+                      log_level: "Debug"
+                  - action: water_heater.set_operation_mode
+                    data:
+                      operation_mode: "on"
+                    target:
+                      entity_id: water_heater.thermostat
+        default: []
     mode: single
 
 sensor:
