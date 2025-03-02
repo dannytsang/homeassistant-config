@@ -1079,6 +1079,38 @@ automation:
           - action: script.office_open_blinds
             data: {}
     mode: single
+  - id: "1740826205022"
+    alias: "Office: Bright Inside"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.office_motion_2_illuminance
+        above: 200
+    conditions:
+      - or:
+          - condition: state
+            entity_id: group.jd_computer
+            state: "home"
+          - condition: state
+            entity_id: group.dannys_work_computer
+            state: "home"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                It's bright inside ({{ states('sensor.office_motion_2_illuminance', with_unit=True) }} >
+                200 lx).
+                Opening Blinds
+              title: ":office: Office"
+              log_level: "Debug"
+          - action: cover.close_cover_tilt
+            metadata: {}
+            data: {}
+            target:
+              entity_id: cover.office_blinds
+    mode: single
   # endregion
   # region Lights
   - id: "1719349686247"
