@@ -1,5 +1,56 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  #region Motion
+  - id: "1741438466512"
+    alias: "Utility Room: Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.utility_room_motion_occupancy
+        to: "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: ":paw_prints: Motion detected. Turning :bulb: light off."
+              title: ":fountain: Utility Room"
+              log_level: "Debug"
+          - action: switch.turn_on
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.utility_room_light_switch_0
+    mode: single
+  - id: "1741438515604"
+    alias: "Utility Room: No Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.utility_room_motion_occupancy
+        to: "off"
+        for:
+          hours: 0
+          minutes: 2
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: ":no_pedestrians: No motion detected. Turning light off."
+              title: ":fountain: Utility Room"
+              log_level: "Debug"
+          - action: switch.turn_off
+            metadata: {}
+            data: {}
+            target:
+              entity_id: switch.utility_room_light_switch_0
+    mode: single
+  #endRegion
+  #region Freezer
   - id: "1595678795894"
     alias: "Utility: Freezer Door Open"
     description: ""
@@ -101,7 +152,8 @@ automation:
               action2_title: "No"
               action2_name: ignore
     mode: single
-  # Washing Machine
+  #endRegion
+  #region Washing Machine
   - id: "1595679010794"
     alias: "Utility: Washing Machine Started"
     description: ""
@@ -132,6 +184,7 @@ automation:
           message: ":shirt: :soap: Washing Machine :checkered_flag: Finished."
           title: "Utility Room"
     mode: single
+  #endRegion
 
 script:
   washing_complete_notification:
