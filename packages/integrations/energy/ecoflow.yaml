@@ -621,12 +621,29 @@ script:
                     entity_id: sensor.ecoflow_kitchen_battery_level
                     above: 99
                 sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Battery fully charged. No changes to charging rate required.
-                      title: EcoFlow
-                      log_level: "Debug"
+                  - if:
+                      - not:
+                          - condition: state
+                            entity_id: number.ecoflow_kitchen_backup_reserve_level
+                            state: "100"
+                    then:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.ecoflow_kitchen_backup_reserve_level', with_unit=True) }}).
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - action: script.ecoflow_set_backup_reserve
+                        data:
+                          entity_id: number.ecoflow_kitchen_backup_reserve_level
+                          target_reserve_amount: 100
+                    else:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Battery fully charged. No changes to charging rate required.
+                          title: EcoFlow
+                          log_level: "Debug"
               - alias: No excess for Kitchen
                 conditions:
                   - condition: template
@@ -712,12 +729,29 @@ script:
                     entity_id: sensor.ecoflow_office_battery_level
                     above: 99
                 sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Battery fully charged. No changes to charging rate required.
-                      title: EcoFlow
-                      log_level: "Debug"
+                  - if:
+                      - not:
+                          - condition: state
+                            entity_id: number.ecoflow_office_backup_reserve_level
+                            state: "100"
+                    then:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.ecoflow_kitchen_backup_reserve_level', with_unit=True) }}).
+                          title: EcoFlow
+                          log_level: "Debug"
+                      - action: script.ecoflow_set_backup_reserve
+                        data:
+                          entity_id: number.ecoflow_office_backup_reserve_level
+                          target_reserve_amount: 100
+                    else:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Battery fully charged. No changes to charging rate required.
+                          title: EcoFlow
+                          log_level: "Debug"
               - alias: No excess for Office
                 conditions:
                   - condition: template
