@@ -798,26 +798,20 @@ automation:
           message: ":knife_fork_plate: :soap: Dishwasher :arrow_forward: Started."
           title: ":cook: Kitchen"
           log_level: "Debug"
+      - action: counter.increment
+        target: 
+          entity_id: counter.dishwasher_tablets_remaining
+        data: {}
       - if:
           - condition: numeric_state
-            entity_id: input_number.dishwasher_tablets_remaining
-            above: 0
-        then:
-          - action: input_number.decrement
-            target:
-              entity_id: input_number.dishwasher_tablets_remaining
-            data:
-              amount: 1
-      - if:
-          - condition: numeric_state
-            entity_id: input_number.dishwasher_tablets_remaining
+            entity_id: counter.dishwasher_tablets_remaining
             below: 9
         then:
           - action: script.send_direct_notification
             data:
               message: >-
                 Dishwasher tablets are running low (
-                {{ states('input_number.dishwasher_tablets_remaining') }}
+                {{ states('counter.dishwasher_tablets_remaining') }}
                 remaining). Consider ordering more.
               title: ":cook: Kitchen"
               people:
