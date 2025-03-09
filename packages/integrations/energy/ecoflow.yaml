@@ -100,7 +100,7 @@ automation:
                       entity_id: timer.check_solar_excess
     mode: queued
     max: 10
-  # Battery level
+  #region Battery level
   - id: "1695566530591"
     alias: "EcoFlow: Battery Low And Plug Is Off"
     description: ""
@@ -302,7 +302,6 @@ automation:
             target:
               entity_id: switch.ecoflow_office_plug
     mode: single
-  # Ecoflow
   - id: "1714563193661"
     alias: "EcoFlow: Battery Ultra Low And Plug Is Off"
     description: ""
@@ -366,6 +365,26 @@ automation:
                 data: {}
                 target:
                   entity_id: switch.ecoflow_kitchen_plug
+    mode: single
+  - id: "1734262347581"
+    alias: "Ecoflow: No Power Drawn By Device"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.ecoflow_kitchen_power_over_12_hours
+        below: 9.9
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: Check Ecoflow In the kitchen for power.
+          title: Kitchen
+          people:
+            entity_id:
+              - person.terina
+              - person.danny
     mode: single
 
 script:
