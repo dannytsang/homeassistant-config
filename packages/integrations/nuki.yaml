@@ -6,7 +6,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - lock.unified_front_door
+          - lock.nuki_front_door_lock
         not_from:
           - "unlocked"
     conditions:
@@ -21,10 +21,10 @@ automation:
           - conditions:
               - or:
                   - condition: state
-                    entity_id: lock.unified_front_door
+                    entity_id: lock.nuki_front_door_lock
                     state: locking
                   - condition: state
-                    entity_id: lock.unified_front_door
+                    entity_id: lock.nuki_front_door_lock
                     state: unlocking
             sequence:
               - parallel:
@@ -32,21 +32,21 @@ automation:
                     data: {}
                   - action: script.send_to_home_log
                     data:
-                      message: Front door "{{ states('lock.unified_front_door') }}".
+                      message: Front door "{{ states('lock.nuki_front_door_lock') }}".
                       title: Porch
                       log_level: Normal
           - conditions:
               - or:
                   - condition: state
-                    entity_id: lock.unified_front_door
+                    entity_id: lock.nuki_front_door_lock
                     state: locked
                   - condition: state
-                    entity_id: lock.unified_front_door
+                    entity_id: lock.nuki_front_door_lock
                     state: unlocked
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: Front door "{{ states('lock.unified_front_door') }}".
+                  message: Front door "{{ states('lock.nuki_front_door_lock') }}".
                   title: Porch
                   log_level: Normal
               - action: script.turn_off
@@ -93,26 +93,3 @@ script:
               entity_id: lock.nuki_front_door_lock
     mode: single
     icon: mdi:lock
-
-lock:
-  - platform: template
-    name: Unified Front Door Lock
-    unique_id: ac45a3d0-cc1c-4b52-adb5-e6147572b210
-    value_template: >-
-      {{ iif(not(is_state('lock.front_door', 'unavailable')),
-      states('lock.front_door'),
-      states('lock.nuki_front_door_lock')) }}
-    lock:
-      action: lock.lock
-      target:
-        entity_id: >-
-          {{ iif(not(is_state('lock.front_door', 'unavailable')),
-          'lock.front_door',
-          'lock.nuki_front_door_lock') }}
-    unlock:
-      action: lock.unlock
-      target:
-        entity_id: >-
-          {{ iif(not(is_state('lock.front_door', 'unavailable')),
-          'lock.front_door',
-          'lock.nuki_front_door_lock') }}
