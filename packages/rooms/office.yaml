@@ -698,10 +698,10 @@ automation:
                       title: ":office: Office"
                       log_level: "Debug"
                   - action: cover.set_cover_tilt_position
-                    data:
-                      tilt_position: 25
                     target:
                       entity_id: cover.office_blinds
+                    data:
+                      tilt_position: 25
         default:
           - parallel:
               - action: script.send_to_home_log
@@ -750,10 +750,10 @@ automation:
                   title: ":office: Office"
                   log_level: "Debug"
               - action: cover.set_cover_tilt_position
-                data:
-                  tilt_position: 25
                 target:
                   entity_id: cover.office_blinds
+                data:
+                  tilt_position: 25
     mode: single
   - id: "1622374233310"
     alias: "Office: Close Office Blinds At Night 2"
@@ -976,10 +976,11 @@ automation:
               title: ":office: Office"
               log_level: "Debug"
           - action: cover.set_cover_tilt_position
-            data:
-              tilt_position: 25
             target:
               entity_id: cover.office_blinds
+            data:
+              tilt_position: 25
+            
     mode: single
   - id: "1678300398736"
     alias: "Office: Really Bright Outside"
@@ -1079,41 +1080,6 @@ automation:
               log_level: "Debug"
           - action: script.office_open_blinds
             data: {}
-    mode: single
-  - id: "1740826205022"
-    alias: "Office: Bright Inside"
-    description: ""
-    triggers:
-      - trigger: numeric_state
-        entity_id:
-          - sensor.office_motion_2_illuminance
-        above: 200
-    conditions:
-      - or:
-          - condition: state
-            entity_id: group.jd_computer
-            state: "home"
-          - condition: state
-            entity_id: group.dannys_work_computer
-            state: "home"
-      - condition: sun
-        after: sunrise
-        before: sunset
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                It's bright inside ({{ states('sensor.office_motion_2_illuminance', with_unit=True) }} >
-                200 lx).
-                Opening Blinds
-              title: ":office: Office"
-              log_level: "Debug"
-          - action: cover.close_cover_tilt
-            metadata: {}
-            data: {}
-            target:
-              entity_id: cover.office_blinds
     mode: single
   # endregion
   # region Lights
