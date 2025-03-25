@@ -75,6 +75,7 @@ DEFAULT_BACKOFF = "{{ 2 ** attempt }}"
 DEFAULT_RETRIES = 7
 DEFAULT_STATE_GRACE = 0.2
 GROUP_DOMAIN = "group"
+ENTITY_SERVICE_FIELDS = [str(key) for key in cv.ENTITY_SERVICE_FIELDS]
 
 _running_retries: dict[str, tuple[str, int]] = {}
 _running_retries_write_lock = threading.Lock()
@@ -280,9 +281,12 @@ class RetryAction:
         """Initialize the object."""
         self._hass = hass
         self._params = params
+        self._action = (
+            f"{params.retry_data[ATTR_DOMAIN]}.{params.retry_data[ATTR_SERVICE]}"
+        )
         self._inner_data = params.inner_data.copy()
         if entity_id:
-            for key in cv.ENTITY_SERVICE_FIELDS:
+            for key in ENTITY_SERVICE_FIELDS:
                 if key in self._inner_data:
                     del self._inner_data[key]
             self._inner_data = {
@@ -290,6 +294,7 @@ class RetryAction:
                 **self._inner_data,
             }
         self._entity_id = entity_id
+        self._validation_variables = {CONF_ACTION: self._action, **self._inner_data}
         self._context = context
         self._attempt = 1
         self._retry_id = params.retry_data.get(ATTR_RETRY_ID)
@@ -297,11 +302,8 @@ class RetryAction:
             if self._entity_id:
                 self._retry_id = self._entity_id
             else:
-                self._retry_id = (
-                    f"{params.retry_data[ATTR_DOMAIN]}."
-                    + params.retry_data[ATTR_SERVICE]
-                )
-        self._action_str_value = None
+                self._retry_id = self._action
+        self._str_cache = None
         self._start_id()
 
     async def _async_validate(self) -> None:
@@ -351,24 +353,23 @@ class RetryAction:
             return True
         return result_as_boolean(
             self._params.retry_data[ATTR_VALIDATION].async_render(
-                variables={"entity_id": self._entity_id} if self._entity_id else None
+                variables=self._validation_variables,
             )
         )
 
-    @property
-    def _action_str(self) -> str:
-        if self._action_str_value is None:
-            self._action_str_value = self._compose_action_str()
-        return self._action_str_value
+    def __str__(self) -> str:
+        """Return a string representation of the object."""
+        if self._str_cache is None:
+            self._str_cache = self._compose_str()
+        return self._str_cache
 
-    def _compose_action_str(self) -> str:
-        """Return a string with the action parameters."""
-        service_call = (
-            f"{self._params.retry_data[ATTR_DOMAIN]}."
-            f"{self._params.retry_data[ATTR_SERVICE]}"
-            f"({', '.join(
-                [f'{key}={value}' for key, value in self._inner_data.items()]
-            )})"
+    def _compose_str(self) -> str:
+        """Compose a string representation of the object."""
+        str_value = (
+            self._action
+            + f"({
+                ', '.join([f'{key}={value}' for key, value in self._inner_data.items()])
+            })"
         )
         retry_params = []
         if (
@@ -378,9 +379,9 @@ class RetryAction:
                 retry_params.append(f"expected_state={expected_state[0]}")
             else:
                 retry_params.append(
-                    f"expected_state in ({', '.join(
-                        state for state in expected_state
-                    )})"
+                    f"expected_state in ({
+                        ', '.join(state for state in expected_state)
+                    })"
                 )
         for name, value, default in (
             (
@@ -413,8 +414,8 @@ class RetryAction:
                 else:
                     retry_params.append(f"{name}={value}")
         if len(retry_params) > 0:
-            service_call += f"[{', '.join(retry_params)}]"
-        return service_call
+            str_value += f"[{', '.join(retry_params)}]"
+        return str_value
 
     def _log(self, level: int, prefix: str, stack_info: bool = False) -> None:  # noqa: FBT001, FBT002
         """Log entry."""
@@ -424,23 +425,23 @@ class RetryAction:
             prefix,
             self._attempt,
             self._params.retry_data[ATTR_RETRIES],
-            self._action_str,
+            str(self),
             exc_info=stack_info,
         )
 
     def _repair(self) -> None:
         """Create a repair ticket."""
-        ir.async_delete_issue(self._hass, DOMAIN, self._action_str)
+        ir.async_delete_issue(self._hass, DOMAIN, str(self))
         ir.async_create_issue(
             self._hass,
             DOMAIN,
-            self._action_str,
+            str(self),
             is_fixable=False,
             learn_more_url="https://github.com/amitfin/retry#retryaction",
             severity=ir.IssueSeverity.ERROR,
             translation_key="failure",
             translation_placeholders={
-                "action": self._action_str,
+                "action": str(self),
                 "retries": self._params.retry_data[ATTR_RETRIES],
             },
         )
