@@ -1,5 +1,26 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/signal_messenger/
+automation:
+  - id: "1743359583659"
+    alias: "Signal: Message Received"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.signal_message_received
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          people:
+            entity_id:
+              - person.danny
+          message: Signal Message Received
+          title: Signal
+    mode: queued
+    max: 10
+
 notify:
   - name: signal_danny
     platform: signal_messenger
@@ -7,6 +28,17 @@ notify:
     number: !secret signal_phone_number
     recipients: # one or more recipients
       - !secret signal_recipient1
+
+rest:
+  - resource: !secret signal_receive_url
+    headers:
+      Content-Type: application/json
+    sensor:
+      - name: "Signal message received"
+        value_template: "" #this will fetch the message
+        json_attributes_path: $[0].envelope
+        json_attributes:
+          - source # sender phone number
 
 script:
   post_signal_notification:
@@ -28,20 +60,20 @@ script:
           text:
     sequence:
       - choose:
-        # Check a title was set
-        - conditions:
-            - condition: template
-              value_template: "{{ title|default(none, true) is not none }}"
-          sequence:
-            - action: notify.signal_danny
-              data:
-                message: >-
-                  **{{ title }}**
-
-                  {{ message }}
-                title: ""
+          # Check a title was set
+          - conditions:
+              - condition: template
+                value_template: "{{ title|default(none, true) is not none }}"
+            sequence:
+              - action: notify.signal_danny
                 data:
-                  text_mode: styled
+                  message: >-
+                    **{{ title }}**
+
+                    {{ message }}
+                  title: ""
+                  data:
+                    text_mode: styled
         default:
           - action: notify.signal_danny
             data:
