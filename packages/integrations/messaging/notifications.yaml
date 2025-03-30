@@ -1,7 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/slack/
 # Integration: https://www.home-assistant.io/integrations/mobile_app/
-# Integration: https://www.home-assistant.io/integrations/telegram/
 automation:
   # region Callback router
   - id: "1625924056779"
@@ -162,19 +161,6 @@ automation:
     max: 10
   # endregion
 
-input_text:
-  # Need the Telegram chat id for telegram integration platform
-  # so no point in storing it in a helper and secret.
-  dannys_telegram_chat_id:
-    name: Danny's Telegram Chat ID
-    icon: mdi:message-reply-text
-    initial: !secret telegram_danny_chat_id
-
-notify:
-  - platform: telegram
-    name: telegram
-    chat_id: !secret telegram_danny_chat_id
-
 script:
   # region Encapsulated scripts
   send_to_home_log:
@@ -271,9 +257,6 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Telegram') }}
       whatsapp: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'WhatsApp') }}
@@ -317,16 +300,6 @@ script:
                     |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
                     |replace('person.ashlee', '<@'~states('input_text.ashlees_discord_chat_id')~'>') }}"
                 continue_on_error: true
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - action: script.post_telegram_direct_notification
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default(none, true) }}"
-                    target: "{{ states('input_text.telegram_direct_notification_channel_id') }}"
-                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
-                  continue_on_error: true
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
@@ -399,9 +372,6 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
       whatsapp: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'WhatsApp') }}
@@ -447,20 +417,6 @@ script:
                     |replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
                     |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>') }}"
                 continue_on_error: true
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - action: script.post_telegram_direct_notification
-                  data:
-                    message: >-
-                      {{ message }}
-
-
-                      {{ url }}
-                    title: "{{ title|default(none, true) }}"
-                    target: "{{ states('input_text.telegram_direct_notification_channel_id') }}"
-                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
-                  continue_on_error: true
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
@@ -531,9 +487,6 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Telegram') }}
     sequence:
       - parallel:
           - if:
@@ -593,17 +546,6 @@ script:
                       |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>') }}"
                       filePath: "{{ filePath }}"
                     continue_on_error: true
-              - repeat:
-                  for_each: "{{ telegram|default([], true) }}"
-                  sequence:
-                    - action: script.post_to_discord_with_local_attachments
-                      data:
-                        message: "{{ message }}"
-                        title: "{{ title|default(none, true) }}"
-                        target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                        people: "{{ repeat.item|replace('person.danny', '<@'~states('input_text.dannys_telegram_chat_id'))~'>' }}"
-                        filePath: "{{ filePath }}"
-                      continue_on_error: true
     mode: queued
     max: 10
   send_home_log_with_url:
@@ -698,24 +640,12 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - action: script.post_telegram_direct_notification
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default(none, true) }}"
-                    target: "{{ states('input_text.telegram_direct_notification_channel_id') }}"
-                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
           - repeat:
               # for_each: "{{ mobile|default([], true) }}"
               for_each: "{{ people.entity_id|default([], true) }}"
@@ -822,24 +752,12 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - action: script.post_telegram_direct_notification
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default(none, true) }}"
-                    target: "{{ states('input_text.telegram_direct_notification_channel_id') }}"
-                    people: "{{ repeat.item|replace('person.danny', states('input_text.dannys_telegram_chat_id')) }}"
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
