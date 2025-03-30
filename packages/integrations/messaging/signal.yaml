@@ -33,24 +33,114 @@ script:
             - condition: template
               value_template: "{{ title|default(none, true) is not none }}"
           sequence:
-            - action: notify.signal
+            - action: notify.signal_danny
               data:
                 message: >-
-                  {{ iif(people is not none,people|default('', true)~' ','') }}
-                  {%- from 'process_messages.jinja' import process_messages -%}
-                  {{ process_messages(message, 'Slack') }}
-                title: "{{ title }}"
+                  **{{ title }}**
+
+                  {{ message }}
+                title: ""
                 data:
                   text_mode: styled
         default:
-          - action: notify.signal
+          - action: notify.signal_danny
             data:
               message: >-
-                {{ iif(people is not none,people|default('', true)~' ','') }}
-                {%- from 'process_messages.jinja' import process_messages -%}
-                {{ process_messages(message, 'Slack') }}
+                {{ message }}
               data:
                 text_mode: styled
+        continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_signal_with_url_attachment:
+    alias: "Post To signal With URL"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a URL attachment. Only a URL can be set. Not both or neither. Please use a
+      send script to decouple from the messaging platform."
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+      url:
+        description: Link to file.
+        example: "https://picsum.photos/200/300"
+        required: true
+        selector:
+          text:
+            type: "url"
+    sequence:
+      # Check if a title has been set
+      - choose:
+          # Check at least filePath or url is set.
+          - conditions:
+              - condition: template
+                value_template: "{{ title|default(none, true) is not none }}"
+            sequence:
+              - action: notify.signal_danny
+                data:
+                  message: >-
+                    {{ message }}
+                  title: "{{ title|default('', true) }}"
+                  target: "{{ target }}"
+                  data:
+                    verify_ssl: false
+                    urls:
+                      - "{{ url }}"
+        # No title set
+        default:
+          - action: notify.signal_danny
+            data:
+              message: >-
+                {{ message }}
+              title: "{{ title|default('', true) }}"
+              target: "{{ target }}"
+              data:
+                verify_ssl: false
+                urls:
+                  - "{{ url }}"
+        continue_on_error: true
+    mode: queued
+    max: 10
+  post_to_signal_with_local_attachments:
+    alias: "Post To signal With File Attachments"
+    icon: mdi:message-image
+    description: >-
+      Post a message with a file. Only a file can be set. Not both or neither. Please use a
+      send script to decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+      filePath:
+        description: File path to attach to post.
+        required: true
+        selector:
+          text:
+    sequence:
+      - action: notify.signal_danny
+        data:
+          message: >-
+            {{ message }}
+          title: "{{ title|default('', true) }}"
+          target: "{{ target }}"
+          data:
+            attachments:
+              - "{{ filePath }}"
         continue_on_error: true
     mode: queued
     max: 10
