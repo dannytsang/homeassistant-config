@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Motion
+  #region Motion
   - id: "1624918278463"
     alias: "Stairs: Motion Detected For Ambient Lights"
     description: ""
@@ -782,7 +782,7 @@ automation:
             title: "Porch"
             log_level: "Debug"
     mode: single
-  # Light Switch
+  #region Light Switch
   - id: "1714869692076"
     alias: "Stairs: Light Switch"
     description: ""
@@ -806,7 +806,7 @@ automation:
         target:
           entity_id: light.stairs
     mode: single
-  # Contact sensor
+  #region Contact sensor
   - id: "1615849889104"
     alias: "Stairs: Light On And Children's Door Open After Bedtime And Before Midnight"
     description: ""
@@ -977,7 +977,7 @@ automation:
                     transition: 0.5
           default: []
     mode: single
-  # Timed
+  #region Timed
   - id: "1588856667889"
     alias: "MagicMirror: Turn Off Based On Time During Weekday"
     description: ""
@@ -1063,7 +1063,7 @@ automation:
           target:
             entity_id: cover.stairs_blinds
     mode: single
-  # Camera
+  #region Camera
   - id: "1630015410190"
     alias: "Stairs: Person Detected"
     description: ""
@@ -1094,6 +1094,38 @@ automation:
               }}"
     mode: queued
     max: 10
+  #region Light
+  - id: "1743186662872"
+    alias: "Stairs: Front Door Status On For Long Time"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - light.stairs_ambient
+        to: "on"
+        for:
+          hours: 0
+          minutes: 3
+          seconds: 0
+      - trigger: state
+        entity_id:
+          - light.stairs_ambient
+        to: "on"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.front_door
+        state: "off"
+    actions:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.office_light
+    mode: single
 
 scene:
   - id: "1609512133205"
