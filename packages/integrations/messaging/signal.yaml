@@ -1,0 +1,56 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/signal_messenger/
+notify:
+  - name: signal_danny
+    platform: signal_messenger
+    url: !secret signal_api_server
+    number: !secret signal_phone_number
+    recipients: # one or more recipients
+      - !secret signal_recipient1
+
+script:
+  post_signal_notification:
+    alias: Post Signal Message
+    icon: mdi:message-reply
+    description: >-
+      Post a text message to Signal. Please use a send script to
+      decouple from the messaging platform.
+    fields:
+      message:
+        description: Message to post
+        required: true
+        selector:
+          text:
+            multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
+    sequence:
+      - choose:
+        # Check a title was set
+        - conditions:
+            - condition: template
+              value_template: "{{ title|default(none, true) is not none }}"
+          sequence:
+            - action: notify.signal
+              data:
+                message: >-
+                  {{ iif(people is not none,people|default('', true)~' ','') }}
+                  {%- from 'process_messages.jinja' import process_messages -%}
+                  {{ process_messages(message, 'Slack') }}
+                title: "{{ title }}"
+                data:
+                  text_mode: styled
+        default:
+          - action: notify.signal
+            data:
+              message: >-
+                {{ iif(people is not none,people|default('', true)~' ','') }}
+                {%- from 'process_messages.jinja' import process_messages -%}
+                {{ process_messages(message, 'Slack') }}
+              data:
+                text_mode: styled
+        continue_on_error: true
+    mode: queued
+    max: 10
