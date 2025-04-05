@@ -503,7 +503,7 @@ intent_script:
     speech:
       text: >-
         {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) - states('sensor.growatt_sph_pv_energy')|float(0))|round(2) }}
-        {{ state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }} remaining.
+        {{ state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') }} remaining.
   getSolarForecastToday:
     speech:
       text: >-
@@ -517,7 +517,7 @@ intent_script:
   getSolarGeneratedToday:
     speech:
       text: >-
-        {{ states('sensor.growatt_solar_generated_energy_today', with_unit=True) }}
+        {{ states('sensor.growatt_sph_pv_energy', with_unit=True) }}
 
 group:
   battery_first_charging_schedules:
@@ -934,8 +934,8 @@ script:
     variables:
       remaining: >-
         {
-          'value':{{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) - states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) }},
-          'unit_of_measurement': '{{ state_attr('sensor.growatt_solar_generated_energy_today', 'unit_of_measurement') }}'
+          'value':{{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0) - states('sensor.growatt_sph_pv_energy')|float(0))|round(2) }},
+          'unit_of_measurement': '{{ state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') }}'
         }
     sequence:
       - stop: End
@@ -1078,12 +1078,12 @@ script:
 
         {% if states('sensor.total_solar_forecast_estimated_energy_production_today') %}
         There's {{ states('sensor.solcast_pv_forecast_forecast_remaining_today', with_unit=True) }} remaining.
-        {% elif (states('sensor.growatt_solar_generated_energy_today')|float(0))|round(2) < (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) %}
+        {% elif (states('sensor.growatt_sph_pv_energy')|float(0))|round(2) < (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) %}
 
 
         There's approximately
         {{ ((states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0)) -
-        (states('sensor.growatt_solar_generated_energy_today')|float(0)))|round(2) }}
+        (states('sensor.growatt_sph_pv_energy')|float(0)))|round(2) }}
         (out of {{ (states('sensor.total_solar_forecast_estimated_energy_production_today')|float(0))|round(2) }})
         {{ state_attr('sensor.total_solar_forecast_estimated_energy_production_today', 'unit_of_measurement') }}
         to be produced to the end of the day ({{ as_timestamp(state_attr('sun.sun','next_setting')) | timestamp_custom('%H:%M') }}).
