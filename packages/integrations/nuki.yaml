@@ -6,7 +6,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - lock.nuki_front_door_lock
+          - lock.front_door
         not_from:
           - "unlocked"
     conditions:
@@ -21,10 +21,10 @@ automation:
           - conditions:
               - or:
                   - condition: state
-                    entity_id: lock.nuki_front_door_lock
+                    entity_id: lock.front_door
                     state: locking
                   - condition: state
-                    entity_id: lock.nuki_front_door_lock
+                    entity_id: lock.front_door
                     state: unlocking
             sequence:
               - parallel:
@@ -32,21 +32,21 @@ automation:
                     data: {}
                   - action: script.send_to_home_log
                     data:
-                      message: Front door "{{ states('lock.nuki_front_door_lock') }}".
+                      message: Front door "{{ states('lock.front_door') }}".
                       title: Porch
                       log_level: Normal
           - conditions:
               - or:
                   - condition: state
-                    entity_id: lock.nuki_front_door_lock
+                    entity_id: lock.front_door
                     state: locked
                   - condition: state
-                    entity_id: lock.nuki_front_door_lock
+                    entity_id: lock.front_door
                     state: unlocked
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: Front door "{{ states('lock.nuki_front_door_lock') }}".
+                  message: Front door "{{ states('lock.front_door') }}".
                   title: Porch
                   log_level: Normal
               - action: script.turn_off
@@ -74,7 +74,7 @@ script:
               - action: lock.lock
                 data: {}
                 target:
-                  entity_id: lock.nuki_front_door_lock
+                  entity_id: lock.front_door
     mode: queued
     max: 10
     icon: mdi:lock
@@ -90,6 +90,6 @@ script:
           - action: lock.unlock
             data: {}
             target:
-              entity_id: lock.nuki_front_door_lock
+              entity_id: lock.front_door
     mode: single
     icon: mdi:lock
