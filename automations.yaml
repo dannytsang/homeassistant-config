@@ -437,38 +437,6 @@
     - action: script.upstairs_random_lights
       data: {}
   mode: single
-- id: "1659199066864"
-  alias: "Home: Turn Off Scheduled Fake Presence"
-  description: ""
-  triggers:
-    - trigger: time
-      at: "23:00:00"
-  condition:
-    - condition: state
-      entity_id: alarm_control_panel.house_alarm
-      state: armed_away
-    - condition: state
-      entity_id: group.tracked_people
-      state: not_home
-    - condition: sun
-      after: sunset
-    - or:
-        - condition: template
-          value_template:
-            "{{ states('sensor.terina_home_nearest_distance')|float(0)
-            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
-        - condition: template
-          value_template:
-            "{{ states('sensor.danny_home_nearest_distance')|float(0)
-            > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
-  actions:
-    - action: script.send_to_home_log
-      data:
-        message: Turning off all lights from faking someone at home.
-        log_level: Normal
-    - action: script.turn_everything_off
-      data: {}
-  mode: single
 - id: "1660326219450"
   alias: "Weather: Morning Check For Hot Day Forecast"
   description: ""
