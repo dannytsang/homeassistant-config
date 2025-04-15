@@ -2,25 +2,20 @@ esphome:
   name: water-softener
   friendly_name: water-softener
 
+packages:
+  bluetooth_base: !include common/bluetooth-base.yaml
+  esp32_base: !include common/esp32-base.yaml
+
 esp32:
   board: esp32dev
   framework:
     type: arduino
-
-bluetooth_proxy:
-  active: true
-
-esp32_ble_tracker:
 
 sensor:
   - platform: ultrasonic
     trigger_pin: GPIO13
     echo_pin: GPIO12
     name: "Salt Level"
-
-switch:
-  - platform: restart
-    name: "Water Softener Restart"
 
 # Enable logging
 logger:
@@ -33,7 +28,3 @@ api:
 ota:
   platform: esphome
   password: !secret water_softener_ota_password
-
-wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
