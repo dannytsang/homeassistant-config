@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Blinds
+  #region Blinds
   - id: "1627285063813"
     alias: "Leo's Bedroom: Timed Open Blinds Weekday"
     description: ""
@@ -320,37 +320,7 @@ automation:
                   entity_id: cover.leos_bedroom_blinds
         default: []
     mode: single
-  # Music
-  - id: "1650915676886"
-    alias: "Leo's Bedroom: Turn Off Spotify At Night"
-    description: ""
-    triggers:
-      - trigger: time
-        at: "22:00:00"
-    conditions:
-      - condition: state
-        entity_id: media_player.spotify_danny
-        attribute: source
-        state: "Leo's Bedroom"
-      - condition: state
-        entity_id: media_player.spotify_danny
-        state: "playing"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message:
-                ":clock{{ now().strftime('%I') | int }}{% if now().minute | int >
-                25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning off :musical_note:
-                music in Leo's Bedroom :radio: Echo."
-              title: "Leo's :bed: bedroom"
-              log_level: "Debug"
-          - action: media_player.media_pause
-            data: {}
-            target:
-              entity_id: media_player.spotify_danny
-    mode: single
-  # Remotes
+  #region Remotes
   - id: "1699308571381"
     alias: "Leo's Bedroom: Remote Turn On"
     description: ""
