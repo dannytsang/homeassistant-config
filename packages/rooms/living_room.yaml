@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Lights related automation.
+  #region Motion
   - id: "1583956425622"
     alias: "Living Room: Motion Detected"
     description: Added a second delay https://community.home-assistant.io/t/hue-motion-sensor-with-illuminance-condition/128290
@@ -232,11 +232,38 @@ automation:
                 sequence:
                   - action: scene.turn_on
                     target:
-                      entity_id: scene.lving_room_ceiling_lights_off
+                      entity_id: scene.living_room_ceiling_lights_off
                     data:
                       transition: 1
             default: []
     mode: single
+  - id: "1714512650107"
+    alias: "Living Room: Lamps On And No Motion"
+    description: "Caters for when lights are on and Home Assistant was restarted"
+    triggers:
+      - trigger: state
+        entity_id:
+          - light.living_room_lamps
+        for:
+          minutes: 10
+    conditions:
+      - condition: template
+        value_template:
+          "{{ as_timestamp(now()) - as_timestamp(states.living_room_lamps.last_changed)
+          >= 360 }}"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: ":Lights on for 10 minutes with no motion. Turning lights off."
+              title: ":couch_and_lamp: Living Room"
+              log_level: "Debug"
+          - action: scene.turn_on
+            metadata: {}
+            target:
+              entity_id: scene.living_room_lamps_off
+    mode: single
+  #region TV
   - id: "1610409803685"
     alias: "Living Room: TV Turned Off Turn Off Lights"
     description: "TV is turned off and turn lights off if there has been no motion."
@@ -300,38 +327,12 @@ automation:
                 sequence:
                   - action: scene.turn_on
                     target:
-                      entity_id: scene.lving_room_ceiling_lights_off
+                      entity_id: scene.living_room_ceiling_lights_off
                     data:
                       transition: 1
             default: []
     mode: single
-  - id: "1714512650107"
-    alias: "Living Room: Lamps On And No Motion"
-    description: "Caters for when lights are on and Home Assistant was restarted"
-    triggers:
-      - trigger: state
-        entity_id:
-          - light.living_room_lamps
-        for:
-          minutes: 10
-    conditions:
-      - condition: template
-        value_template:
-          "{{ as_timestamp(now()) - as_timestamp(states.living_room_lamps.last_changed)
-          >= 360 }}"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: ":Lights on for 10 minutes with no motion. Turning lights off."
-              title: ":couch_and_lamp: Living Room"
-              log_level: "Debug"
-          - action: scene.turn_on
-            metadata: {}
-            target:
-              entity_id: scene.living_room_lamps_off
-    mode: single
-  # Alarm
+  #region Alarm
   - id: "1588859622571"
     alias: "Living Room: Motion Detected In The Morning"
     description: ""
@@ -359,7 +360,7 @@ automation:
       - data: {}
         action: script.morning_script
     mode: single
-  # Bay Window
+  #region Bay Window
   - id: "1608493783373"
     alias: "Living Room: Bay Window High Temperature"
     description: ""
@@ -439,7 +440,7 @@ automation:
                   action2_title: "No"
                   action2_name: ignore
     mode: single
-  # Blinds
+  #region Blinds
   - id: "1677711735249"
     alias: "Living Room: Open Blinds In The Morning"
     description: ""
@@ -719,19 +720,20 @@ automation:
       - condition: state
         entity_id: binary_sensor.living_room_windows
         state: "off"
-      # Check sun's positon
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: azimuth
-        above: input_number.living_room_blinds_morning_sun_azimuth_threshold
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: azimuth
-        below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: elevation
-        below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
+      - alias: Check sun's position
+        and:
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            above: input_number.living_room_blinds_morning_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: elevation
+            below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
       - or:
           - not:
               - condition: state
@@ -797,19 +799,20 @@ automation:
       - condition: state
         entity_id: binary_sensor.living_room_windows
         state: "off"
-      # Check sun's positon
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: azimuth
-        above: input_number.living_room_blinds_morning_sun_azimuth_threshold
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: azimuth
-        below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
-      - condition: numeric_state
-        entity_id: sun.sun
-        attribute: elevation
-        below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
+      - alias: Check sun's position
+        and:
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            above: input_number.living_room_blinds_morning_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            below: input_number.living_room_blinds_afternoon_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: elevation
+            below: input_number.living_room_blinds_afternoon_sun_elevation_threshold
       - or:
           - condition: numeric_state
             entity_id: cover.living_room_blinds_middle
@@ -913,7 +916,7 @@ automation:
                 - cover.living_room_blinds_middle
                 - cover.living_room_blinds_right
     mode: single
-  # Camera
+  #region Camera
   - id: "1630015457540"
     alias: "Living Room: Person Detected"
     description: ""
@@ -940,7 +943,7 @@ automation:
             }}"
     mode: queued
     max: 10
-  # Switches
+  #region Switches
   - id: "1610918759041"
     alias: "Living Room: Restart Harmony Hub"
     description: ""
@@ -1030,7 +1033,7 @@ automation:
                         target:
                           entity_id: light.tv_backlight
     mode: single
-  # People / Devices
+  #region People / Devices
   - id: "1654005357582"
     alias: "Living Room: Terina's Work Laptop Turned Off"
     description: ""
@@ -3208,7 +3211,7 @@ script:
           device: Onkyo AV Receiver
           command: InputBd/Dvd
     mode: single
-    alias: Living Room Reciever Select VCR/DVR Input
+    alias: Living Room Receiver Select VCR/DVR Input
     description: >-
       Cater for Onkyo / Samsung where the HDMI input select changes
       to TV after the 2 devices are powered on."
