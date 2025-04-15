@@ -25,7 +25,8 @@ automation:
           - action: input_boolean.turn_on
             target:
               entity_id: input_boolean.wait_for_doorbell_camera_update
-          - sequence:
+          - alias: Delayed notification
+            sequence:
               - action: todo.get_items
                 target:
                   entity_id:
@@ -52,26 +53,28 @@ automation:
                       item: ":door: :bell: Someone rung the door bell."
                     target:
                       entity_id: todo.shared_notifications
-                  - action: button.press
-                    target:
-                      entity_id: button.front_door_take_snapshot
-                    data: {}
-                  - wait_for_trigger:
-                      - trigger: state
-                        entity_id:
-                          - camera.front_door_snapshot
-                    timeout:
-                      minutes: 1
-                    continue_on_timeout: false
-                  - action: script.send_direct_notification_with_url
-                    data:
-                      message: Door bell pressed
-                      title: Front Door
-                      people:
-                        entity_id:
-                          - person.danny
-                      url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
-                      url_type: image
+          - alias: Take picture
+            sequence:
+              - action: button.press
+                target:
+                  entity_id: button.front_door_take_snapshot
+                data: {}
+              - wait_for_trigger:
+                  - trigger: state
+                    entity_id:
+                      - camera.front_door_snapshot
+                timeout:
+                  minutes: 1
+                continue_on_timeout: false
+              - action: script.send_direct_notification_with_url
+                data:
+                  message: Door bell pressed
+                  title: Front Door
+                  people:
+                    entity_id:
+                      - person.danny
+                  url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
+                  url_type: image
     mode: single
   - id: "1621070004545"
     alias: "Front Garden: Doorbell Camera Updated"
@@ -97,7 +100,7 @@ automation:
       #   data: {}
     mode: queued
     max: 10
-  # endregion
+  #region Camera
   - id: "1720276673719"
     alias: "Front Garden: Vehicle Detected On Driveway"
     description: ""
@@ -192,7 +195,6 @@ automation:
             target:
               entity_id: cover.ashlees_bedroom_blinds
     mode: single
-  # endregion
   # region Lockbox
   - id: "1714914120928"
     alias: "Front Garden: Lock Box State Changed"
@@ -201,7 +203,7 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.outdoor_lock_box_contact
-        not_from: 
+        not_from:
           - "unknown"
           - "unavailable"
     conditions: []
@@ -235,7 +237,7 @@ automation:
         data:
           message: Lockbox sensor has disconnected.
           people:
-            entity_id: 
+            entity_id:
               - person.danny
     mode: single
   # endregion
