@@ -1,6 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
-  # Bed
+  #region Bed
   - id: "1601641236163"
     alias: "Bedroom: Close Blinds When Someone Is In Bed After Sunset"
     description: ""
@@ -200,7 +200,7 @@ automation:
             target:
               entity_id: cover.bedroom_blinds
     mode: single
-  # Door
+  #region Door
   - id: "1715955339483"
     alias: "Bedroom: Door Closed"
     description: ""
@@ -471,7 +471,7 @@ automation:
               entity_id: media_player.bedroom_tv
             data: {}
     mode: single
-  # Motion triggers
+  #region Motion triggers
   - id: "1621713217274"
     alias: "Bedroom: Motion Detected"
     description: ""
@@ -652,7 +652,7 @@ automation:
             target:
               entity_id: switch.bedroom_fan
     mode: single
-  # Fan
+  #region Fan
   - id: "1690844451011"
     alias: "Bedroom: Turn Off Fan"
     description: ""
@@ -678,7 +678,7 @@ automation:
             target:
               entity_id: switch.bedroom_fan
     mode: single
-  # Time
+  #region Time
   - id: "1621875409014"
     alias: "Bedroom: Morning Timed Open Blinds"
     description: "TODO: Take into account high temperature."
@@ -709,17 +709,16 @@ automation:
     actions:
       - choose:
           - conditions:
-              - condition: state
+              - alias: Working day
+                condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "on"
-                alias: Working day
-              # Check if there's an event with "A/L in the work calendar" and the event is on.
-              - condition: template
+              - alias: No annual leave in calendar
+                condition: template
                 value_template: >-
                   {{ 'Danny' not in state_attr('calendar.work','message')|string and
                   'A/L' not in state_attr('calendar.work','message')|string and
                   states('calendar.work') == 'off' }}
-                alias: No annual leave in calendar
             sequence:
               - action: cover.open_cover
                 target:
@@ -731,8 +730,8 @@ automation:
                     Opening blinds because it's closed on a working weekday!"
                   title: ":bed: bedroom"
                   log_level: "Debug"
-          - conditions:
-              # Non workday and no children
+          - alias: Non workday and no children
+            conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "off"
@@ -754,8 +753,8 @@ automation:
                     Opening blinds because it's closed and its 09:00 on a weekend!"
                   title: ":bed: bedroom"
                   log_level: "Debug"
-          - conditions:
-              # Non workday and no children
+          - alias: Non workday and no children
+            conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "off"
@@ -833,7 +832,7 @@ automation:
                 target:
                   entity_id: cover.bedroom_blinds
     mode: single
-  # Plugs / switches
+  #region Plugs / switches
   - id: "1581800266867"
     alias: "Bedroom: Turn off Electric Blanket After 1 hour"
     description: ""
@@ -913,7 +912,7 @@ automation:
                       position: 20
             default: []
     mode: single
-  # Remotes
+  #region Remotes
   - id: "1699308571385"
     alias: "Bedroom: Remote Button 1"
     description: ""
@@ -1064,7 +1063,7 @@ automation:
             - light.bedroom_lamps
     mode: queued
     max: 10
-  # Other
+  #region Other
   - id: "1624194439043"
     alias: "Bedroom: TV Turned Off"
     description: ""
