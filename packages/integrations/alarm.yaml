@@ -586,12 +586,69 @@ script:
                       log_level: "Normal"
                   - action: script.set_alarm_to_home_mode
                   - action: script.lock_front_door
+          - alias: Leo not home and not long distance
+            conditions:
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+                for:
+                  minutes: "5"
+              - not:
+                  - condition: state
+                    entity_id: person.leo
+                    state: "home"
+                  - condition: template
+                    value_template:
+                      "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                      - 1 }}"
+              - condition: time
+                before: "02:00:00"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    {{ message }} :house_with_garden: :boy: Leo is not
+                    home. :no_bell: Alarm not turned on and a check will be performed later.
+                  title: ":bell: Alarm"
+                  log_level: "Normal"
+          - alias: Leo not home and long distance away
+            conditions:
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+              - not:
+                  - condition: state
+                    entity_id: person.leo
+                    state: "home"
+              - condition: template
+                value_template:
+                  "{{ states('sensor.leo_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
+                  - 1 }}"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        {{ message }} :house_with_garden: :boy: Leo is not home and more than
+                        {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
+                        ({{ states('sensor.leo_home_nearest_distance')|float(0) }}).
+                        Turning alarm on.
+                      title: ":bell: Alarm"
+                      log_level: "Normal"
+                  - action: script.set_alarm_to_home_mode
+                  - action: script.lock_front_door
         default:
           - action: script.send_direct_notification
             data:
               message: >-
                 :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                Did not turned on because not everyone is home yet.
+                Did not turned on because the following people are not home:
+
+                {% for p in state_attr('group.all_tracked_people', 'entity_id') -%}
+                {%- if states(p) != 'home' -%}
+                {{ state_attr(p, 'friendly_name')~' is at '~states(p)~'.\n' }}
+                {%- endif -%}
+                {%- endfor -%}
 
                 Trying again later.
               title: ":warning: :bell: Alarm"
