@@ -468,6 +468,24 @@ script:
             multiline: true
     sequence:
       - choose:
+          - alias: Already locked and armed
+            conditions:
+              - condition: state
+                entity_id: lock.front_door
+                state: "locked"
+              - not:
+                  - condition: state
+                    entity_id: alarm_control_panel.house_alarm
+                    state: "disarmed"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        Already locked and alarm is {{ states('alarm_control_panel.house_alarm') }}.
+                        Skipping.
+                      title: ":bell: Alarm"
+                      log_level: "Normal"
           - alias: Everyone home
             conditions:
               - condition: state
@@ -486,6 +504,16 @@ script:
                   - action: script.lock_front_door
           - alias: Danny not home and not long distance
             conditions:
+              - condition: state
+                entity_id: person.terina
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.danny
@@ -511,6 +539,16 @@ script:
                   log_level: "Normal"
           - alias: Danny not home and long distance away
             conditions:
+              - condition: state
+                entity_id: person.terina
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.danny
@@ -537,6 +575,16 @@ script:
               - action: script.set_alarm_to_home_mode
           - alias: Terina not home and not long distance
             conditions:
+              - condition: state
+                entity_id: person.danny
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.terina
@@ -557,6 +605,16 @@ script:
                   log_level: "Normal"
           - alias: Terina not home and long distance away
             conditions:
+              - condition: state
+                entity_id: person.danny
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.leo
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.terina
@@ -580,6 +638,16 @@ script:
                   - action: script.lock_front_door
           - alias: Leo not home and not long distance
             conditions:
+              - condition: state
+                entity_id: person.danny
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.terina
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.leo
@@ -600,6 +668,16 @@ script:
                   log_level: "Normal"
           - alias: Leo not home and long distance away
             conditions:
+              - condition: state
+                entity_id: person.danny
+                state: "home"
+                for:
+                  minutes: "1"
+              - condition: state
+                entity_id: person.terina
+                state: "home"
+                for:
+                  minutes: "1"
               - not:
                   - condition: state
                     entity_id: person.leo
