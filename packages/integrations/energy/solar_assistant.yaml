@@ -17,6 +17,14 @@ automation:
       - trigger: time_pattern
         minutes: "35"
         id: time_backup
+      - trigger: state
+        entity_id: sensor.growatt_sph_inverter_mode
+        from: "unknown"
+        id: event
+      - trigger: state
+        entity_id: sensor.growatt_sph_inverter_mode
+        from: "unavailable"
+        id: event
     conditions:
       - condition: state
         entity_id: input_boolean.enable_solar_assistant_automations
@@ -25,13 +33,19 @@ automation:
           - condition: state
             entity_id: select.growatt_sph_work_mode_priority
             state: "unavailable"
+          - condition: state
+            entity_id: sensor.growatt_sph_inverter_mode
+            state: "unknown"
+          - condition: state
+            entity_id: sensor.growatt_sph_inverter_mode
+            state: "unavailable"
     actions:
       - choose:
           - alias: Rates remain above export
             conditions:
               - condition: trigger
                 id:
-                  - time
+                  - event
               - condition: numeric_state
                 entity_id: sensor.electricity_previous_rate
                 above: sensor.electricity_export_current_rate
