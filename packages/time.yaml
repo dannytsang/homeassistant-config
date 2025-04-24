@@ -107,6 +107,69 @@ automation:
             target:
               entity_id: scene.turn_off_downstairs_lights
     mode: single
+  - id: "1745396436913"
+    alias: "Time: Announce Bed Time"
+    description: ""
+    triggers:
+      - trigger: time
+        at:
+          entity_id: input_datetime.childrens_bed_time
+          offset: "-1:15:00"
+        id: 1h
+      - trigger: time
+        at:
+          entity_id: input_datetime.childrens_bed_time
+          offset: "-0:15:00"
+        id: 0h
+    conditions:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: person.leo
+            state: home
+          - condition: state
+            entity_id: person.ashlee
+            state: home
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: input_select.home_mode
+            state: No Children
+    actions:
+      - choose:
+          - conditions:
+              - condition: trigger
+                id:
+                  - 1h
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    metadata: {}
+                    data:
+                      log_level: Debug
+                      message: Sending bed time notification
+                  - action: script.alexa_announce
+                    metadata: {}
+                    data:
+                      method: speak
+                      message: It's one hour before bedtime.
+          - conditions:
+              - condition: trigger
+                id:
+                  - 0h
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    metadata: {}
+                    data:
+                      log_level: Debug
+                      message: Sending bed time notification
+                  - action: script.alexa_announce
+                    metadata: {}
+                    data:
+                      method: speak
+                      message: It's bed time. Don't forget your reading book.
+    mode: single
 
 script:
   morning_script:
