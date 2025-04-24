@@ -1,7 +1,7 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/hive/
 automation:
-  # region Central Heating
+  #region Central Heating
   - id: "1666470473971"
     alias: "HVAC: Heating Mode Changed"
     description: ""
@@ -84,6 +84,9 @@ automation:
       - condition: state
         entity_id: schedule.central_heating
         state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_central_heating_automations
+        state: "on"
     actions:
       - action: script.check_and_run_central_heating
         data: {}
@@ -97,7 +100,10 @@ automation:
         entity_id:
           - schedule.central_heating
         to: "off"
-    conditions: []
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_central_heating_automations
+        state: "on"
     actions:
       - choose:
           - conditions:
@@ -139,7 +145,10 @@ automation:
           hours: 1
           minutes: 0
           seconds: 0
-    conditions: []
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_central_heating_automations
+        state: "on"
     actions:
       - action: script.send_direct_notification
         metadata: {}
@@ -150,8 +159,7 @@ automation:
               - person.terina
           message: Hive central heating is offline.
     mode: single
-  # endregion
-  # region Hot Water
+  #region Hot Water
   - id: "1666470473972"
     alias: "HVAC: Hot Water Mode Changed"
     description: ""
