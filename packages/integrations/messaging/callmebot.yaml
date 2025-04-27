@@ -7,6 +7,13 @@ notify:
       source: Home_Assistant
       phone: !secret callmebot_dannys_whatsapp_phone_number
       apikey: !secret callmebot_dannys_whatsapp_api
+  - name: Terina's WhatsApp
+    platform: rest
+    resource: https://api.callmebot.com/whatsapp.php
+    data:
+      source: Home_Assistant
+      phone: !secret callmebot_terinas_whatsapp_phone_number
+      apikey: !secret callmebot_terinas_whatsapp_api
 
 script:
   post_whatsapp_direct_notification:
@@ -24,7 +31,7 @@ script:
             multiline: true
       people:
         description: Person to send the message to. If not specified then it goes to everyone.
-        example: "['person.danny'] or ['person.danny','person.terina']"
+        example: person.danny
         selector:
           target:
             entity:
@@ -32,11 +39,21 @@ script:
                 - person
     sequence:
       - choose:
-          - conditions:
+          - alias: Danny
+            conditions:
               - condition: template
                 value_template: "{{ 'person.danny' in people }}"
             sequence:
               - action: notify.danny_s_whatsapp
+                data:
+                  message: "{{ message }}"
+                continue_on_error: true
+          - alias: Terina
+            conditions:
+              - condition: template
+                value_template: "{{ 'person.terina' in people }}"
+            sequence:
+              - action: notify.terina_s_whatsapp
                 data:
                   message: "{{ message }}"
                 continue_on_error: true
