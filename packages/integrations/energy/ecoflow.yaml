@@ -100,7 +100,7 @@ automation:
                       entity_id: timer.check_solar_excess
     mode: queued
     max: 10
-  #region Battery level
+  # region Battery level
   - id: "1695566530591"
     alias: "EcoFlow: Battery Low And Plug Is Off"
     description: ""
@@ -385,6 +385,17 @@ automation:
             entity_id:
               - person.terina
               - person.danny
+    mode: single
+  - id: "1745329568830"
+    alias: "Ecoflow: Sunset"
+    description: ""
+    triggers:
+      - trigger: sun
+        event: sunset
+    conditions: []
+    actions:
+      - action: script.ecoflow_office_turn_off_plug
+        data: {}
     mode: single
 
 script:
@@ -1398,6 +1409,76 @@ script:
                       log_level: "Debug"
         default: []
     mode: single
+  ecoflow_office_turn_off_plug:
+    alias: EcoFlow Office Turn Off Plug
+    description: ""
+    sequence:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ states('number.ecoflow_office_backup_reserve_level')|int(100) ==
+              states('input_number.ecoflow_office_minimum_backup_reserve')|int(10)}}
+          - condition: state
+            entity_id: switch.ecoflow_office_backup_reserve_enabled
+            state: "on"
+          - condition: state
+            entity_id: switch.ecoflow_office_plug
+            state: "on"
+        then:
+          - choose:
+              - alias: Office computer is still on
+                conditions:
+                  - or:
+                      - condition: state
+                        entity_id: device_tracker.jd
+                        state: "home"
+                      - condition: state
+                        entity_id: group.dannys_work_computer
+                        state: "home"
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        Computer in the office is still on:
+
+
+                        Home: {{ states('device_tracker.jd')}}
+
+                        Work: {{ states('group.dannys_work_computer')}}
+                      title: Ecoflow
+                      people:
+                        entity_id:
+                          - person.danny
+              - alias: Office computer is still on
+                conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.ecoflow_solar_excess
+                    above: input_number.ecoflow_charge_solar_threshold
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        Solar detected!
+
+
+                        {{ states('sensor.ecoflow_solar_excess') > states('input_number.ecoflow_charge_solar_threshold') }}
+                      title: Ecoflow
+                      people:
+                        entity_id:
+                          - person.danny
+            default:
+              - parallel:
+                  - action: script.send_direct_notification
+                    data:
+                      message: Turning off office plug.
+                      title: Ecoflow
+                      people:
+                        entity_id:
+                          - person.danny
+                  - action: switch.turn_off
+                    data: {}
+                    target:
+                      entity_id: switch.ecoflow_office_plug
 
 template:
   - trigger:
