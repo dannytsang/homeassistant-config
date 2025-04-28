@@ -272,7 +272,6 @@ automation:
         event_type: timer.finished
         event_data:
           entity_id: timer.office_lights_off
-
     conditions:
       - condition: state
         entity_id: input_boolean.enable_office_motion_triggers
@@ -290,7 +289,6 @@ automation:
             target:
               entity_id: scene.office_main_light_off
     mode: single
-  # endregion
   # region Plugs / switches
   - id: "1622584959878"
     alias: "Office: High Temperature"
@@ -400,7 +398,6 @@ automation:
             entity_id:
               - person.danny
     mode: single
-  # endregion
   # region Computer related automations
   - id: "1619865008647"
     alias: "Office: Computer Turned On"
@@ -511,6 +508,7 @@ automation:
                       title: ":desktop_computer: Computer"
                       log_level: "Debug"
                   - action: script.office_turn_off_backup_drive
+                  - action: script.ecoflow_office_turn_off_plug
         default: []
     mode: single
   - id: "1678741966796"
@@ -637,7 +635,6 @@ automation:
                       entity_id:
                         - switch.office_monitor_bar
     mode: single
-  # endregion
   # region Blinds
   - id: "1622374444832"
     alias: "Office: Open Blinds In The Morning"
@@ -980,7 +977,6 @@ automation:
               entity_id: cover.office_blinds
             data:
               tilt_position: 25
-            
     mode: single
   - id: "1678300398736"
     alias: "Office: Really Bright Outside"
@@ -1081,7 +1077,6 @@ automation:
           - action: script.office_open_blinds
             data: {}
     mode: single
-  # endregion
   # region Lights
   - id: "1719349686247"
     alias: "Office: Light On And Bright Room"
@@ -1230,7 +1225,6 @@ automation:
         target:
           entity_id: light.office_light
     mode: single
-  # endregion
   # region Air Conditioner
   - id: "1724261391488"
     alias: "Office: Scheduled Air Conditioning On"
@@ -1319,7 +1313,6 @@ automation:
         data:
           current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
     mode: single
-  # endregion
 
 scene:
   - id: "1600795089307"
@@ -1717,7 +1710,7 @@ script:
         target:
           entity_id: scene.office_turn_off_light_notification
     mode: single
-  # endregion
+
   # region Blinds
   # Used in UI
   office_open_blinds:
@@ -1736,7 +1729,6 @@ script:
           tilt_position: 0
         target:
           entity_id: cover.office_blinds
-  # endregion
   # region Air conditioner
   check_office_air_conditioner:
     alias: Check Office Air Condiitioner
@@ -1950,10 +1942,9 @@ script:
                     target:
                       entity_id: climate.office_air_conditioner
         default: []
-  # endregion
 
 sensor:
-  # historical stats
+  # region historical stats
   # Computer
   - platform: history_stats
     name: PC Uptime Today
