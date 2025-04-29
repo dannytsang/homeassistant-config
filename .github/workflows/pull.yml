@@ -1,0 +1,87 @@
+---
+  name: Home Assistant PR CI
+  
+  # yamllint disable-line rule:truthy
+  on:
+    pull_request:
+  
+  jobs:
+    yamllint:
+      name: "🧹 YAML Lint"
+      runs-on: ubuntu-latest
+      steps:
+        - name: ⤵️ Getting your configuration from GitHub
+          uses: actions/checkout@v4
+        - name: Running YAMLlint
+          uses: ibiqlik/action-yamllint@v3
+          continue-on-error: true
+          with:
+            config_file: .github/yamllint-config.yml
+            # https://github.com/ibiqlik/action-yamllint/issues/14#issuecomment-796554388
+            format: parsable
+    remarklint:
+      name: "🧹 Remark Lint"
+      runs-on: ubuntu-latest
+      steps:
+        - name: ⤵️ Getting your configuration from GitHub
+          uses: actions/checkout@v4
+        - name: Running Remark lint
+          uses: "docker://pipelinecomponents/remark-lint:latest"
+          continue-on-error: true
+          with:
+            args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
+  
+    ha-stable-check:
+      name: "🏡 Home Assistant Core Stable Configuration Check"
+      needs: [yamllint, remarklint]
+      runs-on: ubuntu-latest
+      steps:
+        - name: ⤵️ Check out configuration from GitHub
+          uses: actions/checkout@v4
+        # Create test directory
+        - name: ➕ Create test directory
+          run: |
+            mkdir -p camera
+        # Integrations does not exist in custom components during checkout:
+        - name: ➖ Remove battery_notes integration
+          run: |
+            sed -i -e '/battery_notes\:/,+2d' configuration.yaml
+        - name: ➖ Remove delete integration
+          run: |
+            sed -i -e '/delete\:/,+1d' configuration.yaml
+        - name: ➖ Remove Powercalc integration
+          run: |
+            sed -i -e '/powercalc\:/,+2d' configuration.yaml
+        - name: ➖ Remove Sonoff integration
+          run: |
+            sed -i -e '/sonoff\:/,+3d' configuration.yaml
+        - name: 🚀 Run Home Assistant Configuration Check
+          uses: frenck/action-home-assistant@v1
+          with:
+            path: "./"
+            secrets: ./secrets.yaml.sample
+            version: "stable"
+  
+    esphome:
+      name: "🛠️ ESPHome check"
+      runs-on: ubuntu-latest
+      needs: [yamllint]
+      steps:
+        - name: ⤵️ Check out configuration from GitHub
+          uses: actions/checkout@v4
+        - name: Set up Python
+          uses: actions/setup-python@v4
+          with:
+            python-version: 3.12
+        - name: Install dependencies
+          run: |
+            python -m pip install --upgrade pip setuptools wheel
+            pip install esphome
+            pip list
+            esphome version
+        - name: ✍️ Copy stub files into configuration folder
+          run: cp -R ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
+        - name: 🚀 Run esphome on all files
+          continue-on-error: true
+          run: |
+            for file in $(find ./esphome -type f -name "*.yaml" -not -name "secrets.yaml"); do esphome config "${file}"; done
