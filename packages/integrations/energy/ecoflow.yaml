@@ -642,6 +642,21 @@ script:
             (excess_solar - kitchen_target_charge_rate|float(0)),
             200,
             1200)|int(0) }}
+      - alias: Check charge level by priority
+        if:
+          - alias: Kitchen fully charged
+            condition: numeric_state
+            entity_id: sensor.ecoflow_kitchen_battery_level
+            above: 99
+        then:
+          - alias: Give full excess to office
+            variables:
+              office_target_charge_rate: >-
+                {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
+                {{ calculate_ecoflow_delta2_charge_rate(
+                excess_solar,
+                200,
+                1200)|int(0) }}
       - parallel:
           - alias: Ecoflow Kitchen
             choose:
