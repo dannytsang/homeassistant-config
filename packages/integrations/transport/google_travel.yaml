@@ -1,0 +1,82 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/google_travel_time/
+script:
+  calculate_travel_by_car:
+    alias: Calculate Travel Time By Car
+    fields:
+      origin:
+        name: Origin
+        description: Location of the start point.
+        selector:
+          text:
+      destination:
+        name: Destination
+        description: Location of the end point.
+        required: true
+        selector:
+          text:
+    sequence:
+      - alias: Set locations
+        parallel:
+          - action: input_text.set_value
+            data:
+              value: "{{ origin|default('zone.home', true) }}"
+            target:
+              entity_id: input_text.origin_address
+          - action: input_text.set_value
+            data:
+              value: "{{ destination|default('', true) }}"
+            target:
+              entity_id: input_text.destination_address
+      - sequence:
+          - action: homeassistant.update_entity
+            data: {}
+            target:
+              entity_id: sensor.google_travel_time_by_car
+          - variables:
+              origin_address: >-
+                {%- if 'zone.' in states('sensor.origin_address')|default('', true)  %}
+                {{ state_attr(states('sensor.origin_address'), 'friendly_name') }}
+                {%- elif 'person.' in states('sensor.origin_address')|default('', true)  %}
+                {{ state_attr(states('sensor.origin_address'), 'friendly_name') }}
+                {%- else %}
+                {{ states('sensor.origin_address') }}
+                {%- endif %}
+              destination_address: >-
+                {%- if 'zone.' in states('sensor.destination_address')|default('', true)  %}
+                {{ state_attr(states('sensor.destination_address'), 'friendly_name') }}
+                {%- elif 'person.' in states('sensor.destination_address')|default('', true)  %}
+                {{ state_attr(states('sensor.destination_address'), 'friendly_name') }}
+                {%- else %}
+                {{ states('sensor.destination_address') }}
+                {%- endif %}
+              distance: "{{ state_attr('sensor.google_travel_time_by_car', 'distance') }}"
+              travel_time: "{{ states('sensor.google_travel_time_by_car')|float(0) }}"
+              travel_time_unit_of_measurement: "{{ state_attr('sensor.google_travel_time_by_car', 'unit_of_measurement') }}"
+              travel_time_with_traffic: "{{ state_attr('sensor.google_travel_time_by_car', 'duration_in_traffic') }}"
+          - variables:
+              journey: >-
+                {
+                  'origin_address': '{{ origin_address }}',
+                  'destination_address': '{{ destination_address }}',
+                  'display_distance': '{{ distance }}',
+                  'travel_time': {{ travel_time }},
+                  'travel_time_unit_of_measurement': '{{ travel_time_unit_of_measurement }}',
+                  'display_travel_time': '{{ travel_time_with_traffic }}'
+                }
+          - action: script.send_direct_notification
+            data:
+              message: >-
+                Origin: {{ origin_address }}
+
+
+                Destination: {{ destination_address }}
+
+
+                Journey Time: {{ travel_time_with_traffic }} ({{ distance }})
+              title: ":car: Travel"
+              people:
+                entity_id:
+                  - person.danny
+          - stop: End
+            response_variable: journey
