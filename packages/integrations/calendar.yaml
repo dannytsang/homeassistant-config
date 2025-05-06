@@ -65,13 +65,13 @@ script:
     sequence:
       - action: calendar.get_events
         target:
-          entity_id: "{{ calendar_id.entity_id }}"
+          entity_id: "{{ calendar_id.entity_id | first }}"
         data:
           start_date_time: "{{ start_date_time|default(now(), true) }}"
           duration: "{{ duration|default('1:0:0', true) }}"
         response_variable: calendars
       - repeat:
-          for_each: "{{ calendars[calendar_id.entity_id].events }}"
+          for_each: "{{ calendars[calendar_id.entity_id | first ].events }}"
           sequence:
             - variables:
                 travel:
@@ -119,3 +119,4 @@ script:
                           entity_id:
                             - person.danny
               default: []
+    mode: queued
