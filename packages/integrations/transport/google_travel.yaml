@@ -53,7 +53,8 @@ script:
               distance: "{{ state_attr('sensor.google_travel_time_by_car', 'distance') }}"
               travel_time: "{{ states('sensor.google_travel_time_by_car')|float(0) }}"
               travel_time_unit_of_measurement: "{{ state_attr('sensor.google_travel_time_by_car', 'unit_of_measurement') }}"
-              travel_time_with_traffic: "{{ state_attr('sensor.google_travel_time_by_car', 'duration_in_traffic') }}"
+              display_travel_time_with_traffic: "{{ state_attr('sensor.google_travel_time_by_car', 'duration_in_traffic') }}"
+              display_travel_time: "{{ state_attr('sensor.google_travel_time_by_car', 'duration') }}"
           - variables:
               journey: >-
                 {
@@ -62,9 +63,9 @@ script:
                   'display_distance': '{{ distance }}',
                   'travel_time': {{ travel_time }},
                   'travel_time_unit_of_measurement': '{{ travel_time_unit_of_measurement }}',
-                  'display_travel_time': '{{ travel_time_with_traffic }}'
+                  'display_travel_time': '{{ display_travel_time_with_traffic }}'
                 }
-          - action: script.send_direct_notification
+          - action: script.send_to_home_log
             data:
               message: >-
                 Origin: {{ origin_address }}
@@ -73,10 +74,8 @@ script:
                 Destination: {{ destination_address }}
 
 
-                Journey Time: {{ travel_time_with_traffic }} ({{ distance }})
+                Journey Time: {{ display_travel_time_with_traffic }} ({{ distance }})
               title: ":car: Travel"
-              people:
-                entity_id:
-                  - person.danny
+              log_level: Normal
           - stop: End
             response_variable: journey
