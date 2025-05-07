@@ -446,70 +446,36 @@ automation:
         for: 00:10:00
         to: "not_home"
         from: "home"
-        id: router
     conditions:
       - not:
           - condition: state
             entity_id: device_tracker.udm_pro
             state: "unavailable"
     actions:
-      - choose:
-          - conditions:
-              - condition: trigger
-                id: router
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Turned off for more than 10 minutes."
-                      title: ":desktop_computer: Computer"
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.office_desk_lights_off
-                  - action: script.send_to_home_log
-                    data:
-                      messsage: Turned off desk lights.
-                      log_level: "Debug"
-                  - action: switch.turn_off
-                    target:
-                      entity_id: switch.goxlr
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Turned off for more than 10 minutes. Turned
-                        off :level_slider: goXLR"
-                      title: ":desktop_computer: Computer"
-                      log_level: "Debug"
-                  - action: script.office_turn_off_backup_drive
-          - conditions:
-              - condition: trigger
-                id: pc
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: ":desktop_computer: :tv: Computer turned off for more than 10 minutes."
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.office_desk_lights_off
-                  - action: script.send_to_home_log
-                    data:
-                      messsage: Turned off desk lights.
-                      log_level: "Debug"
-                  - action: switch.turn_off
-                    target:
-                      entity_id:
-                        - switch.goxlr
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Turned off for more than 10 minutes. Turned
-                        off :level_slider: goXLR"
-                      title: ":desktop_computer: Computer"
-                      log_level: "Debug"
-                  - action: script.office_turn_off_backup_drive
-                  - action: script.ecoflow_office_turn_off_plug
-        default: []
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: "Turned off for more than 10 minutes."
+              title: ":desktop_computer: Computer"
+              log_level: "Debug"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.office_desk_lights_off
+          - action: script.send_to_home_log
+            data:
+              messsage: Turned off desk lights.
+              log_level: "Debug"
+          - action: switch.turn_off
+            target:
+              entity_id: switch.goxlr
+          - action: script.send_to_home_log
+            data:
+              message: "Turned off for more than 10 minutes. Turned
+                off :level_slider: goXLR"
+              title: ":desktop_computer: Computer"
+              log_level: "Debug"
+          - action: script.office_turn_off_backup_drive
+          - action: script.ecoflow_office_turn_off_plug
     mode: single
   - id: "1678741966796"
     alias: "Office: Computer Turned Off"
