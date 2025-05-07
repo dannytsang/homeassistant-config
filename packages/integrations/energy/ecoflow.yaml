@@ -100,7 +100,7 @@ automation:
                       entity_id: timer.check_solar_excess
     mode: queued
     max: 10
-  # region Battery level
+  # region Monitoring
   - id: "1695566530591"
     alias: "EcoFlow: Battery Low And Plug Is Off"
     description: ""
@@ -386,6 +386,7 @@ automation:
               - person.terina
               - person.danny
     mode: single
+  # Timed / Scheduled
   - id: "1745329568830"
     alias: "Ecoflow: Sunset"
     description: ""
@@ -394,8 +395,11 @@ automation:
         event: sunset
     conditions: []
     actions:
-      - action: script.ecoflow_office_turn_off_plug
-        data: {}
+      - parallel:
+          - action: script.ecoflow_office_turn_off_plug
+            data: {}
+          - action: script.ecoflow_kitchen_turn_off_plug
+            data: {}
     mode: single
 
 script:
@@ -1494,6 +1498,50 @@ script:
                     data: {}
                     target:
                       entity_id: switch.ecoflow_office_plug
+  ecoflow_kitchen_turn_off_plug:
+    alias: EcoFlow Kitchen Turn Off Plug
+    description: ""
+    sequence:
+      - if:
+          - condition: template
+            value_template: >-
+              {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(100) ==
+              states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10)}}
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+            state: "on"
+          - condition: state
+            entity_id: switch.ecoflow_kitchen_plug
+            state: "on"
+        then:
+          - choose:
+              - alias: No one home
+                conditions:
+                  - condition: state
+                    entity_id: group.adult_people
+                    state: "not_home"
+                sequence:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        No one home. Skipping turning off kitchen plug.
+                      title: Ecoflow
+                      people:
+                        entity_id:
+                          - person.danny
+            default:
+              - parallel:
+                  - action: script.send_direct_notification
+                    data:
+                      message: Turning off kitchen plug.
+                      title: Ecoflow
+                      people:
+                        entity_id:
+                          - person.danny
+                  - action: switch.turn_off
+                    data: {}
+                    target:
+                      entity_id: switch.ecoflow_kichen_plug
 
 template:
   - trigger:
