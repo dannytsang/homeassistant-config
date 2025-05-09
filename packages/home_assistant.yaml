@@ -12,7 +12,7 @@ automation:
         data:
           message: ":black_square_for_stop: Shutting down."
           title: "Home Assistant"
-          log_level: "Debug"
+          log_level: "Normal"
     mode: single
   - id: "1608489396143"
     alias: "Home Assistant: Start Up"
@@ -27,7 +27,7 @@ automation:
             data:
               message: ":arrow_forward: Started."
               title: "Home Assistant"
-              log_level: "Debug"
+              log_level: "Normal"
           - alias: Check Solar Assistant
             action: script.solar_assistant_check_charging_mode
             data:
@@ -84,6 +84,17 @@ automation:
                           dashboard_path: lovelace-magicmirror
                           view_path: home
             default: []
+          - if:
+              - condition: state
+                entity_id: binary_sensor.front_door
+                state: "off"
+            then:
+              - action: light.turn_off
+                target:
+                  label_id: dedicate_notification_light
+                  entity_id: light.porch
+                data: {}
+
     mode: single
   - id: "1664657264986"
     alias: "Home Assistant: Update Available"
