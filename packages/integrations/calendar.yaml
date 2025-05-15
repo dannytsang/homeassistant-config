@@ -79,7 +79,9 @@ script:
                 - alias: Non all day event and has location
                   conditions:
                     - condition: template
-                      value_template: "{{ repeat.item.location is not none }}"
+                      value_template: "{{ repeat.item.location is defined }}"
+                    - condition: template
+                      value_template: "{{ repeat.item.start | string | length > 10 }}"
                   sequence:
                     - if:
                         - alias: Adults are all home
@@ -98,10 +100,17 @@ script:
                             origin: person.terina
                             destination: "{{ repeat.item.location|default('', true) }}"
                           response_variable: travel
+                    - variables:
+                        buffer_start_time_minutes: >-
+                          {%- set ts= states('input_datetime.travel_start_time_buffer').split(':') -%}
+                          {{ (ts[0]|int(0) * 60 ) + (ts[1]|int(0)) + ts[2]|int(0)/60 }}
+                        buffer_end_time_minutes: >-
+                          {%- set ts = states('input_datetime.travel_end_time_buffer').split(':') -%}
+                          {{ (ts[0]|int(0) * 60 ) + (ts[1]|int(0)) + ts[2]|int(0)/60 }}
                     - action: script.send_direct_notification
                       data:
                         message: >-
-                          Trigger from *{{ state_attr(calendar_id.entity_id, 'friendly_name') }}* calendar.
+                          Trigger from *{{ state_attr(calendar_id.entity_id | first, 'friendly_name') }}* calendar.
 
                           Event: {{ repeat.item.summary|default('N/A', true) }}
 
@@ -113,7 +122,30 @@ script:
 
 
                           Travel: From *{{ travel.origin_address }}* will take
-                          {{ travel.display_travel_time ~ ' (' ~ travel.display_distance ~ ')' }}
+                          {{ travel.display_travel_time ~ ' (' ~ travel.display_distance ~ ')' }}.
+
+
+                          Leave at {{ repeat.item.start - timedelta( minutes = buffer_start_time_minutes + buffer_end_time_minutes ) }}
+                        title: ":date: Calendar"
+                        people:
+                          entity_id:
+                            - person.danny
+                - alias: Non all day event and no location
+                  conditions:
+                    - condition: template
+                      value_template: "{{ repeat.item.start | string | length > 10 }}"
+                  sequence:
+                    - action: script.send_direct_notification
+                      data:
+                        message: >-
+                          Trigger from *{{ state_attr(calendar_id.entity_id | first, 'friendly_name') }}* calendar.
+
+                          Event: {{ repeat.item.summary|default('N/A', true) }}
+
+                          Start Time: {{ repeat.item.start|default('N/A', true) }}
+
+                          End Time: {{ repeat.item.end|default('N/A', true) }}
+
                         title: ":date: Calendar"
                         people:
                           entity_id:
