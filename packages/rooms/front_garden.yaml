@@ -55,14 +55,10 @@ automation:
                       entity_id: todo.shared_notifications
           - alias: Take picture
             sequence:
-              - action: button.press
-                target:
-                  entity_id: button.front_door_take_snapshot
-                data: {}
               - wait_for_trigger:
                   - trigger: state
                     entity_id:
-                      - camera.front_door_snapshot
+                      - camera.front_door
                 timeout:
                   minutes: 1
                 continue_on_timeout: false
@@ -73,8 +69,17 @@ automation:
                   people:
                     entity_id:
                       - person.danny
-                  url: "{{ state_attr('camera.front_door_snapshot', 'entity_picture') }}"
+                  url: "{{ state_attr('camera.front_door', 'entity_picture') }}"
                   url_type: image
+              - action: script.send_direct_notification_with_url
+                data:
+                  message: Door bell pressed
+                  title: Front Door
+                  people:
+                    entity_id:
+                      - person.danny
+                  url: "{{ state_attr('camera.front_door', 'video_url') }}"
+                  url_type: video
     mode: single
   - id: "1621070004545"
     alias: "Front Garden: Doorbell Camera Updated"
