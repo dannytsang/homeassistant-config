@@ -15,10 +15,10 @@ automation:
     conditions:
       - or:
           - condition: numeric_state
-            entity_id: sensor.electricity_current_rate
+            entity_id: sensor.octopus_energy_electricity_current_rate
             above: sensor.electricity_export_current_rate
           - condition: state
-            entity_id: sensor.electricity_current_rate
+            entity_id: sensor.octopus_energy_electricity_current_rate
             state: "unavailable"
       - or:
           - and:
@@ -41,8 +41,8 @@ automation:
     actions:
       - action: script.ecoflow_check_charging_mode
         data:
-          current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-          current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+          current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
+          current_electricity_import_rate_unit: "{{ state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
           current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
       - if:
           - condition: state
@@ -80,8 +80,8 @@ automation:
       - parallel:
           - action: script.ecoflow_check_charging_mode
             data:
-              current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-              current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+              current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
+              current_electricity_import_rate_unit: "{{ state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
               current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
           - choose:
               - conditions:
@@ -389,7 +389,7 @@ automation:
           title: Kitchen
           people:
             entity_id:
-              - person.terina
+              # - person.terina
               - person.danny
     mode: single
   # Timed / Scheduled
@@ -902,8 +902,8 @@ script:
             step: 2
     sequence:
       - variables:
-          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
-          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
+          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
       - choose:
           - alias: Holiday Mode
             conditions:

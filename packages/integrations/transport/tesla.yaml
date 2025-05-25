@@ -930,68 +930,68 @@ script:
             step: 2
     sequence:
       - variables:
-          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
       - choose:
-        - alias: Rates Below 0p/kW
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate < 0}}"
-            - condition: state
-              entity_id: device_tracker.tesla_2
-              state: "home"
-          sequence:
-            - action: script.send_direct_notification
-              data:
-                message: >-
-                  Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.electricity_current_rate') }}).
+          - alias: Rates Below 0p/kW
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate < 0}}"
+              - condition: state
+                entity_id: device_tracker.tesla_2
+                state: "home"
+            sequence:
+              - action: script.send_direct_notification
+                data:
+                  message: >-
+                    Car is not plugged in and electricity rates are below 0p/kWh ({{ states('sensor.octopus_energy_electricity_current_rate') }}).
 
-                  Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                title: "Tesla"
-                people:
-                  entity_id:
-                    - person.terina
-        - alias: Rates Cost Nothing
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate == 0}}"
-            - condition: state
-              entity_id: device_tracker.tesla_2
-              state: "home"
-          sequence:
-            - action: script.send_direct_notification
-              data:
-                message: >-
-                  Car is not plugged in and electricity rates is {{ states('sensor.electricity_current_rate', with_unit=True) }}.
+                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                  title: "Tesla"
+                  people:
+                    entity_id:
+                      - person.terina
+          - alias: Rates Cost Nothing
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate == 0}}"
+              - condition: state
+                entity_id: device_tracker.tesla_2
+                state: "home"
+            sequence:
+              - action: script.send_direct_notification
+                data:
+                  message: >-
+                    Car is not plugged in and electricity rates is {{ states('sensor.octopus_energy_electricity_current_rate', with_unit=True) }}.
 
-                  Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                title: "Tesla"
-                people:
-                  entity_id:
-                    - person.terina
-        - alias: Cheap Rates And Near Home
-          conditions:
-            - condition: template
-              value_template: "{{ current_import_rate <= 0}}"
-            - condition: state
-              entity_id: device_tracker.tesla_2
-              state: "not_home"
-            - condition: numeric_state
-              entity_id: sensor.tesla_model_y_home_location_tracker_distance
-              below: "5000"
-          sequence:
-            - action: script.send_direct_notification
-              data:
-                message: >-
-                  Electricity rates is or below 0p/kWh ({{ states('sensor.electricity_current_rate', with_unit=True) }}).
+                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                  title: "Tesla"
+                  people:
+                    entity_id:
+                      - person.terina
+          - alias: Cheap Rates And Near Home
+            conditions:
+              - condition: template
+                value_template: "{{ current_import_rate <= 0}}"
+              - condition: state
+                entity_id: device_tracker.tesla_2
+                state: "not_home"
+              - condition: numeric_state
+                entity_id: sensor.tesla_model_y_home_location_tracker_distance
+                below: "5000"
+            sequence:
+              - action: script.send_direct_notification
+                data:
+                  message: >-
+                    Electricity rates is or below 0p/kWh ({{ states('sensor.octopus_energy_electricity_current_rate', with_unit=True) }}).
 
-                  You're close to home ({{ states('sensor.tesla_model_y_home_location_tracker_distance') }}
-                  < 5000m) so this is a FYI.
+                    You're close to home ({{ states('sensor.tesla_model_y_home_location_tracker_distance') }}
+                    < 5000m) so this is a FYI.
 
-                  Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
-                title: "Tesla"
-                people:
-                  entity_id:
-                    - person.terina
+                    Your car is {{ states('sensor.model_y_battery', with_unit=True) }} charged.
+                  title: "Tesla"
+                  people:
+                    entity_id:
+                      - person.terina
         default: []
     mode: single
 

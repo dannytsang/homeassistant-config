@@ -131,7 +131,7 @@ automation:
               duration: "04:00:00"
           - action: script.hvac_check_eddi_boost_hot_water
             data:
-              current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
+              current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
     mode: single
 
 script:
@@ -226,8 +226,8 @@ script:
               - time
     sequence:
       - variables:
-          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
-          current_import_rate_unit_of_measurement: "{{ current_electricity_import_rate_unit|state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
+          current_import_rate_unit_of_measurement: "{{ current_electricity_import_rate_unit|state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
       - choose:
           - alias: "Unit rate is below 0p/kw"
             conditions:

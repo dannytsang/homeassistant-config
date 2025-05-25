@@ -50,14 +50,14 @@ automation:
                 entity_id: sensor.electricity_previous_rate
                 above: sensor.electricity_export_current_rate
               - condition: numeric_state
-                entity_id: sensor.electricity_current_rate
+                entity_id: sensor.octopus_energy_electricity_current_rate
                 above: sensor.electricity_export_current_rate
             sequence:
               - action: script.solar_assistant_check_charging_mode
                 data:
                   event: "event"
-                  current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-                  current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                  current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
+                  current_electricity_import_rate_unit: "{{ state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
                   current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
         default:
           - choose:
@@ -68,8 +68,8 @@ automation:
                   - action: script.solar_assistant_check_charging_mode
                     data:
                       event: "time"
-                      current_electricity_import_rate: "{{ states('sensor.electricity_current_rate') }}"
-                      current_electricity_import_rate_unit: "{{ state_attr('sensor.electricity_current_rate', 'unit_of_measurement') }}"
+                      current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
+                      current_electricity_import_rate_unit: "{{ state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
                       current_electricity_export_rate: "{{ states('sensor.electricity_export_current_rate') }}"
             default: []
     mode: restart
@@ -436,8 +436,8 @@ script:
           text:
     sequence:
       - variables:
-          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.electricity_current_rate'), true) }}"
-          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.electricity_current_rate'), true) }}"
+          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
+          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
       - if:
           - condition: time
             after: "00:00:00"
