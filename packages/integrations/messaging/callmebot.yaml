@@ -29,6 +29,10 @@ script:
         selector:
           text:
             multiline: true
+      title:
+        description: (optional)Title to the message posted.
+        selector:
+          text:
       people:
         description: Person to send the message to. If not specified then it goes to everyone.
         example: person.danny
@@ -46,7 +50,11 @@ script:
             sequence:
               - action: notify.danny_s_whatsapp
                 data:
-                  message: "{{ message }}"
+                  message: >-
+                    *{{ title }}*
+
+
+                    {{ message }}
                 continue_on_error: true
           - alias: Terina
             conditions:
@@ -60,7 +68,11 @@ script:
         default:
           - action: notify.danny_s_whatsapp
             data:
-              message: "{{ message }}"
+              message: >-
+                  *{{ title }}*
+
+
+                  {{ message }}
             continue_on_error: true
     max: 10
     mode: queued
