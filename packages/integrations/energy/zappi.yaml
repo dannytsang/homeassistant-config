@@ -176,6 +176,57 @@ automation:
               entity_id: input_boolean.guest_ev
             data: {}
     mode: single
+  - id: "1748515764878"
+    alias: "Zappi: Set Target Charge Time For Weekday"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.myenergi_zappi_plug_status
+        to: EV Connected
+      - trigger: state
+        entity_id:
+          - binary_sensor.model_y_charger
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: sensor.myenergi_zappi_plug_status
+        state: EV Connected
+      - condition: state
+        entity_id: binary_sensor.model_y_charger
+        state: "on"
+    actions:
+      - choose:
+          - conditions:
+              - condition: time
+                weekday:
+                  - sun
+                  - mon
+                  - tue
+                  - wed
+                  - thu
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: select.octopus_energy_intelligent_target_time
+                    state: 08:00
+            sequence:
+              - parallel:
+                  - action: script.send_direct_notification
+                    metadata: {}
+                    data:
+                      title: MyEnergi
+                      message: Changing Zappi target ready by time to 08:00.
+                      people:
+                        entity_id:
+                          - person.terina
+                  - action: select.select_option
+                    metadata: {}
+                    data:
+                      option: 08:00
+                    target:
+                      entity_id: select.octopus_energy_intelligent_target_time
+    mode: single
 
 script:
   zappi_check_ev_charge:
