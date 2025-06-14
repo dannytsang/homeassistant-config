@@ -160,9 +160,6 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_zappi_automations
         state: "on"
-      - condition: state
-        entity_id: input_boolean.guest_ev
-        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -171,10 +168,28 @@ automation:
               message: Vehicle disconnected.
               title: Zappi
               debug: "Debug"
-          - action: input_boolean.turn_off
-            target:
-              entity_id: input_boolean.guest_ev
-            data: {}
+          - alias: Turn off guest EV mode if it's on
+            if:
+              - condition: state
+                entity_id: input_boolean.guest_ev
+                state: "on"
+            then:
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.guest_ev
+                data: {}
+          - alias: Update Predbat mode
+            if:
+              - condition: state
+                entity_id: input_boolean.enable_predbat_automations
+                state: "on"
+            then:
+              - action: select.select_option
+                metadata: {}
+                target:
+                  entity_id: select.predbat_mode
+                data:
+                  option: Control charge & discharge
     mode: single
   - id: "1748515764878"
     alias: "Zappi: Set Target Charge Time For Weekday"
@@ -258,7 +273,7 @@ script:
     sequence:
       - variables:
           current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
-          current_import_rate_unit_of_measurement: "{{ current_electricity_import_rate_unit|state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
+          current_import_rate_unit_of_measurement: "{{ current_electricity_import_rate_unit|default(state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement'), true) }}"
           current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.octopus_energy_electricity_export_current_rate'), true) }}"
       - parallel:
           - choose:
@@ -511,23 +526,36 @@ script:
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
             default: []
-          - if:
-              - condition: state
-                entity_id: sensor.growatt_sph_inverter_mode
-                state: Grid first
-            then:
-              - action: script.send_actionable_notification_with_2_buttons
-                data:
-                  message:
-                    Solar is in {{ states('sensor.growatt_sph_inverter_mode') }}.
-                    This may start charging the car rather than exporting back to the grid.
-                    Turn off EV charging?
-                  title: Zappi
-                  people:
-                    entity_id:
-                      - person.danny
-                      - person.terina
-                  action1_title: "Yes"
-                  action1_name: zappi_stop
-                  action2_title: "No"
-                  action2_name: ignore
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_predbat_automations
+                    state: "on"
+                sequence:
+                  - action: select.select_option
+                    metadata: {}
+                    target:
+                      entity_id: select.predbat_mode
+                    data:
+                      option: Control charge
+              - conditions:
+                  - condition: state
+                    entity_id: sensor.growatt_sph_inverter_mode
+                    state: Grid first
+                sequence:
+                  - action: script.send_actionable_notification_with_2_buttons
+                    data:
+                      message:
+                        Solar is in {{ states('sensor.growatt_sph_inverter_mode') }}.
+                        This may start charging the car rather than exporting back to the grid.
+                        Turn off EV charging?
+                      title: Zappi
+                      people:
+                        entity_id:
+                          - person.danny
+                          - person.terina
+                      action1_title: "Yes"
+                      action1_name: zappi_stop
+                      action2_title: "No"
+                      action2_name: ignore
+            default: []
