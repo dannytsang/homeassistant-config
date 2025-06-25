@@ -210,21 +210,24 @@ automation:
       - condition: state
         entity_id: binary_sensor.model_y_charger
         state: "on"
+      - condition: time
+        weekday:
+          - sun
+          - mon
+          - tue
+          - wed
+          - thu
+      - condition: not
+        conditions:
+          - condition: state
+            entity_id: select.octopus_energy_intelligent_target_time
+            state: 08:00
     actions:
       - choose:
           - conditions:
-              - condition: time
-                weekday:
-                  - sun
-                  - mon
-                  - tue
-                  - wed
-                  - thu
-              - condition: not
-                conditions:
-                  - condition: state
-                    entity_id: select.octopus_energy_intelligent_target_time
-                    state: 08:00
+              - condition: state
+                entity_id: binary_sensor.model_y_charger
+                state: "on"
             sequence:
               - parallel:
                   - action: script.send_direct_notification
@@ -235,12 +238,6 @@ automation:
                       people:
                         entity_id:
                           - person.terina
-                  - action: select.select_option
-                    metadata: {}
-                    data:
-                      option: 08:00
-                    target:
-                      entity_id: select.octopus_energy_intelligent_target_time
     mode: single
 
 script:
