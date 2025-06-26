@@ -19,6 +19,9 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_eddi_automations
+        state: "on"
     actions:
       - action: script.send_to_home_log
         data:
@@ -51,7 +54,7 @@ automation:
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
       - condition: state
-        entity_id: input_boolean.enable_eddi_automatic_reset
+        entity_id: input_boolean.enable_eddi_automations
         state: "on"
     actions:
       - parallel:
@@ -87,6 +90,9 @@ automation:
       - condition: state
         entity_id: water_heater.thermostat
         state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_eddi_automations
+        state: "on"
     actions:
       - action: script.send_to_home_log
         data:
@@ -116,6 +122,9 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_hot_water_automations
         state: "on"
+      - condition: state
+        entity_id: input_boolean.enable_eddi_automations
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -138,35 +147,45 @@ script:
   hvac_set_solar_diverter_to_holiday_mode:
     alias: HVAC Set Solar Diverter To Holiday Mode
     sequence:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Turning :fuelpump: Eddi back on.
-              title: myEnergi
-              log_level: "Normal"
-          - action: select.select_option
-            data:
-              option: Stopped
-            target:
-              entity_id: select.myenergi_eddi_operating_mode
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_eddi_automations
+            state: "on"
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    Turning :fuelpump: Eddi back on.
+                  title: myEnergi
+                  log_level: "Normal"
+              - action: select.select_option
+                data:
+                  option: Stopped
+                target:
+                  entity_id: select.myenergi_eddi_operating_mode
     mode: single
     icon: mdi:gas-station
   hvac_set_solar_diverter_to_normal_mode:
     alias: HVAC Set Solar Diverter To normal Mode
     sequence:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Turning :fuelpump: Eddi back on.
-              title: myEnergi
-              log_level: "Normal"
-          - action: select.select_option
-            data:
-              option: Normal
-            target:
-              entity_id: select.myenergi_eddi_operating_mode
+      - if:
+          - condition: state
+            entity_id: input_boolean.enable_eddi_automations
+            state: "on"
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    Turning :fuelpump: Eddi back on.
+                  title: myEnergi
+                  log_level: "Normal"
+              - action: select.select_option
+                data:
+                  option: Normal
+                target:
+                  entity_id: select.myenergi_eddi_operating_mode
     mode: single
     icon: mdi:gas-station
   hvac_set_solar_diverter_to_boost_mode:
