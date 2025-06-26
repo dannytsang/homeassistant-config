@@ -1,0 +1,71 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# https://github.com/PhillyGilly/Carbon-Intensity-UK-HA
+rest:
+  - resource_template: 'https://api.carbonintensity.org.uk/regional/postcode/{{states("input_text.carbon_intensity_postcode")}}'
+    scan_interval: 600
+    headers:
+      Accept: "application/json"
+      Content-Type: "application/json"
+    sensor:
+      - name: "Carbon Intensity UK"
+        unique_id: carbonintensitypostcode
+        unit_of_measurement: 'g/kWh'
+        icon: 'mdi:molecule-co2'
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ value_json['data'][0]['data'][0]['intensity']['forecast']|float|round(0) }}"
+
+      - name: "Carbon Intensity genmix coal"
+        unique_id: carbonintensitygenmixcoal
+        unit_of_measurement: '%'
+        icon: mdi:molecule-co2
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','coal')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix imports"
+        unique_id: carbonintensitygenmiximports
+        unit_of_measurement: '%'
+        icon: mdi:transmission-tower-import
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','imports')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix gas"
+        unique_id: carbonintensitygenmixgas
+        unit_of_measurement: '%'
+        icon: mdi:fire-circle
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','gas')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix nuclear"
+        unique_id: carbonintensitygenmixnuclear
+        unit_of_measurement: '%'
+        icon: mdi:atom
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','nuclear')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix other"
+        unique_id: carbonintensitygenmixother
+        unit_of_measurement: '%'
+        icon: mdi:molecule-co2
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','other')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix hydro"
+        unique_id: carbonintensitygenmixhydro
+        unit_of_measurement: '%'
+        icon: mdi:hydro-power
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','hydro')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix solar"
+        unique_id: carbonintensitygenmixsolar
+        unit_of_measurement: '%'
+        icon: mdi:solar-panel-large
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','solar')|first)['perc']|float|round(1) }}"
+
+      - name: "Carbon Intensity genmix wind"
+        unique_id: carbonintensitygenmixwind
+        icon: mdi:wind-turbine
+        unit_of_measurement: '%'
+        availability: "{{ value_json is defined }}"
+        value_template: "{{ (value_json['data'][0]['data'][0]['generationmix']|selectattr('fuel','==','wind')|first)['perc']|float|round(1) }}"
