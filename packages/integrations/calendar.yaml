@@ -19,7 +19,7 @@ automation:
               - calendar.family
     mode: queued
   - id: "1654008759008"
-    alias: "Calendar: Children"
+    alias: "Calendar: Children Start Event"
     description: "https://community.home-assistant.io/t/how-to-calculate-subtract-two-date-time-from-eachother/8197/6"
     trace:
       stored_traces: 20
@@ -36,10 +36,148 @@ automation:
             entity_id:
               - calendar.tsang_children
     mode: queued
+  - id: "1654008759009"
+    alias: "Calendar: Children End Event"
+    description: "https://community.home-assistant.io/t/how-to-calculate-subtract-two-date-time-from-eachother/8197/6"
+    trace:
+      stored_traces: 20
+    triggers:
+      - trigger: calendar
+        event: end
+        entity_id: calendar.tsang_children
+        offset: "-0:30:0"
+    conditions: []
+    actions:
+      - action: script.calendar_event_ended
+        data:
+          calendar_id:
+            entity_id:
+              - calendar.tsang_children
+    mode: queued
 
 script:
   calendar_event_started:
     alias: Calendar event Started
+    fields:
+      calendar_id:
+        name: Calendar (Entity ID)
+        description: Calendar entity ID. Although it accepts a list, script will only get the first.
+        required: true
+        selector:
+          target:
+            entity:
+              domain:
+                - calendar
+      start_date_time:
+        name: Start Date and Time
+        description: Start date and time
+        required: true
+        selector:
+          datetime:
+      duration:
+        name: Duration
+        description: Hours to look from now where an event may start.
+        default: "1:0:0"
+        selector:
+          duration:
+    sequence:
+      - action: calendar.get_events
+        target:
+          entity_id: "{{ calendar_id.entity_id | first }}"
+        data:
+          start_date_time: "{{ start_date_time|default(now(), true) }}"
+          duration: "{{ duration|default('1:0:0', true) }}"
+        response_variable: calendars
+      - repeat:
+          for_each: "{{ calendars[calendar_id.entity_id | first ].events }}"
+          sequence:
+            - variables:
+                travel:
+            - choose:
+                - alias: Non all day event and has location
+                  conditions:
+                    - condition: template
+                      value_template: "{{ repeat.item.location is defined }}"
+                    - condition: template
+                      value_template: "{{ as_timestamp(repeat.item.start) | timestamp_custom('%H%M%S') != '000000' }}"
+                  sequence:
+                    - if:
+                        - alias: Adults are all home
+                          condition: state
+                          entity_id: group.all_adult_people
+                          state: "home"
+                      then:
+                        - action: script.calculate_travel
+                          data:
+                            origin: zone.home
+                            destination: "{{ repeat.item.location|default('', true) }}"
+                          response_variable: travel
+                      else:
+                        - action: script.calculate_travel
+                          data:
+                            origin: person.terina
+                            destination: "{{ repeat.item.location|default('', true) }}"
+                          response_variable: travel
+                    - variables:
+                        buffer_start_time_minutes: >-
+                          {%- set ts= states('input_datetime.travel_start_time_buffer').split(':') -%}
+                          {{ (ts[0]|int(0) * 60 ) + (ts[1]|int(0)) + ts[2]|int(0)/60 }}
+                        buffer_end_time_minutes: >-
+                          {%- set ts = states('input_datetime.travel_end_time_buffer').split(':') -%}
+                          {{ (ts[0]|int(0) * 60 ) + (ts[1]|int(0)) + ts[2]|int(0)/60 }}
+                    - action: script.send_direct_notification
+                      data:
+                        message: >-
+                          Trigger from *{{ state_attr(calendar_id.entity_id | first, 'friendly_name') }}* calendar.
+
+                          Event: {{ repeat.item.summary|default('N/A', true) }}
+
+                          Location: {{ repeat.item.location|default('N/A', true) }}
+
+                          Start Time: {{ repeat.item.start|default('N/A', true) }}
+
+                          End Time: {{ repeat.item.end|default('N/A', true) }}
+
+
+                          Travel: {{ state_attr('sensor.google_travel_time_by_car', 'mode') }} from *{{ travel.origin_address }}* will take
+                          {{ travel.display_travel_time ~ ' (' ~ travel.display_distance ~ ')' }}.
+
+
+                          Leave at {{ as_datetime(repeat.item.start, now()) - timedelta(minutes = buffer_start_time_minutes + buffer_end_time_minutes) }}
+                          {% if state_attr('sensor.google_travel_time_by_car', 'distance').split(' ') | first | float(0) >= 30 %}
+
+                          Travel: {{ state_attr('sensor.google_travel_time_by_transit', 'mode') }} from *{{ travel.origin_address }}* will take
+                          {{ travel.display_travel_time ~ ' (' ~ travel.display_distance ~ ')' }}.
+                          {% endif %}
+                        title: ":date: Calendar"
+                        people:
+                          entity_id:
+                            - person.danny
+                            - person.terina
+                - alias: Non all day event and no location
+                  conditions:
+                    - condition: template
+                      value_template: "{{ as_timestamp(repeat.item.start) | timestamp_custom('%H%M%S') != '000000' }}"
+                  sequence:
+                    - action: script.send_direct_notification
+                      data:
+                        message: >-
+                          Trigger from *{{ state_attr(calendar_id.entity_id | first, 'friendly_name') }}* calendar.
+
+                          Event: {{ repeat.item.summary|default('N/A', true) }}
+
+                          Start Time: {{ as_datetime(repeat.item.start) | timestamp_custom('%H:%M') }}
+
+                          End Time: {{ as_datetime(repeat.item.end) | timestamp_custom('%H:%M') }}
+
+                        title: ":date: Calendar"
+                        people:
+                          entity_id:
+                            - person.danny
+              default: []
+    mode: queued
+  calendar_event_ended:
+    alias: Calendar event Ended
     fields:
       calendar_id:
         name: Calendar (Entity ID)
