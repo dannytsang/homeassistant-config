@@ -523,7 +523,8 @@ script:
                         target:
                           entity_id: select.myenergi_zappi_charge_mode
             default: []
-          - choose:
+          - alias: Predbat
+            choose:
               - conditions:
                   - condition: state
                     entity_id: input_boolean.enable_predbat_automations
@@ -535,24 +536,21 @@ script:
                       entity_id: select.predbat_mode
                     data:
                       option: Control charge
-              - conditions:
-                  - condition: state
-                    entity_id: sensor.growatt_sph_inverter_mode
-                    state: Grid first
-                sequence:
-                  - action: script.send_actionable_notification_with_2_buttons
-                    data:
-                      message:
-                        Solar is in {{ states('sensor.growatt_sph_inverter_mode') }}.
-                        This may start charging the car rather than exporting back to the grid.
-                        Turn off EV charging?
-                      title: Zappi
-                      people:
-                        entity_id:
-                          - person.danny
-                          - person.terina
-                      action1_title: "Yes"
-                      action1_name: zappi_stop
-                      action2_title: "No"
-                      action2_name: ignore
+                  - if:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: Grid first
+                    then:
+                      - action: script.send_direct_notification
+                        metadata: {}
+                        data:
+                          message: >-
+                            Solar is in {{ states('sensor.growatt_sph_inverter_mode') }} and changing it to
+                            Load first to stop the battery charging the the car.
+                          title: Zappi
+                          people:
+                            entity_id:
+                              - person.danny
+                      - action: script.load_first_priority_mode
+                        data: {}
             default: []
