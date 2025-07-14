@@ -1,6 +1,11 @@
 # Danny's Home Assistant 🏡
+This repository contains my personal Home Assistant configuration for automating and monitoring my smart home environment. It covers lights, sensors, automations, integrations, and more.
+
 [![Home Assistant CI](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml/badge.svg)](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml)
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
+![GitHub repo size](https://img.shields.io/github/repo-size/dannytsang/homeassistant-config)
+![GitHub last commit](https://img.shields.io/github/last-commit/dannytsang/homeassistant-config)
+![GitHub stars](https://img.shields.io/github/stars/dannytsang/homeassistant-config?style=social)
 
 # Introduction 📢
 My ⚽goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a 💡light through to household chores such as 👕washing clothes. Currently, my journey continues.
@@ -10,6 +15,8 @@ I have always been interested in technology starting from the x10 days. At the t
 This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾)
 
 More details on my 📜[website](https://dannytsang.com).
+
+> ⚠️ **Note:** This configuration is highly specific to my environment. Some parts may not work without adaptation.
 
 ## Statistics 📊
 I have 6,287 states (📉91) in Home Assistant. in Home Assistant. More details [here](statistics.md).
