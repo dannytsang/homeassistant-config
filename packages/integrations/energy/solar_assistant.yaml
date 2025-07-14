@@ -25,10 +25,18 @@ automation:
         entity_id: sensor.growatt_sph_inverter_mode
         from: "unavailable"
         id: event
+      - trigger: state
+        entity_id: predbat.status
+        to:
+        id: event
     conditions:
-      - condition: state
-        entity_id: input_boolean.enable_solar_assistant_automations
-        state: "on"
+      - or:
+          - condition: state
+            entity_id: input_boolean.enable_solar_assistant_automations
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.enable_predbat_automations
+            state: "on"
       - not:
           - condition: state
             entity_id: select.growatt_sph_work_mode_priority
@@ -774,39 +782,81 @@ script:
                           value: "100"
                       - action: script.battery_first_priority_mode
                         data: {}
-          - alias: Rates go above export fail safe
+          - alias: "Check Predbat Mode: Demand"
             conditions:
-              - condition: template
-                value_template: "{{ current_import_rate > current_export_rate }}"
-              - not:
-                  - or:
-                      - condition: state
-                        entity_id: select.growatt_sph_work_mode_priority
-                        state: Load first
+              - condition: state
+                entity_id: input_boolean.enable_predbat_automations
+                state: "on"
+              - condition: state
+                entity_id: predbat.status
+                state: "Demand"
+            sequence:
+              - if:
+                  - not:
                       - condition: state
                         entity_id: sensor.growatt_sph_inverter_mode
-                        state: Load first
-              - condition: template
-                value_template: "{{ event == 'time'}}"
-            sequence:
-              - parallel:
+                        state: "Load first"
+                then:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        Electricity rate has gone above export
-                        ({{ current_export_rate ~ ' ' ~ current_electricity_export_rate_unit }})
-                        {{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}
-                        and inverter has not switched from
-                        {{ states('sensor.growatt_sph_inverter_mode') }} to load first mode.
-
-
-                        Switching.
-                      title: Solar Assistant
+                        In {{ states('predbat.status') }} but inverter is not in load first({{ states('sensor.growatt_sph_inverter_mode') }})
+                      title: "Predbat"
                       people:
                         entity_id:
                           - person.danny
-                  - action: script.load_first_priority_mode
-                    data: {}
+          - alias: "Check Predbat Mode: Exporting"
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_predbat_automations
+                state: "on"
+              - condition: state
+                entity_id: predbat.status
+                state: "Exporting"
+            sequence:
+              - if:
+                  - not:
+                      - condition: state
+                        entity_id: sensor.growatt_sph_inverter_mode
+                        state: "Grid first"
+                then:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        In {{ states('predbat.status') }} but inverter is not in grid first({{ states('sensor.growatt_sph_inverter_mode') }})
+                      title: "Predbat"
+                      people:
+                        entity_id:
+                          - person.danny
+          - alias: "Check Predbat Mode: Hold charging"
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_predbat_automations
+                state: "on"
+              - condition: state
+                entity_id: predbat.status
+                state: "Hold charging"
+
+            sequence:
+              - if:
+                  - or:
+                      - not:
+                          - condition: state
+                            entity_id: sensor.growatt_sph_inverter_mode
+                            state: "Load first"
+                      - not:
+                          - condition: state
+                            entity_id: sensor.growatt_sph_inverter_mode
+                            state: "Maintain"
+                then:
+                  - action: script.send_direct_notification
+                    data:
+                      message: >-
+                        In {{ states('predbat.status') }} but inverter is not in grid first({{ states('sensor.growatt_sph_inverter_mode') }})
+                      title: "Predbat"
+                      people:
+                        entity_id:
+                          - person.danny
           - alias: Default mode
             conditions:
               - not:
