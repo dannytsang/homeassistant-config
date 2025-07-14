@@ -7,6 +7,15 @@ This repository contains my personal Home Assistant configuration for automating
 ![GitHub last commit](https://img.shields.io/github/last-commit/dannytsang/homeassistant-config)
 ![GitHub stars](https://img.shields.io/github/stars/dannytsang/homeassistant-config?style=social)
 
+## Table of Contents
+
+- [Introduction](#introduction)
+- [Hardware](#hardware)
+- [Addons](#addons)
+- [Integrations](#integrations)
+- [Github](#github)
+- [Miscellaneous](#miscellaneous)
+
 # Introduction 📢
 My ⚽goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a 💡light through to household chores such as 👕washing clothes. Currently, my journey continues.
 
