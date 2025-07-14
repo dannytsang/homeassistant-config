@@ -71,28 +71,27 @@ I use GitHub actions to verify the changes committed by running it against [Home
 
 For this reason, the `custom_components` is stored in the repository to allow a successful build and configuration check.
 
-## Structure 🧱
+## Folder Structure 📂
 This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).
 
 I use some of the "advance" configuration options such as [split configuration](https://www.home-assistant.io/docs/configuration/splitting_configuration/) and [packages](https://www.home-assistant.io/docs/configuration/packages/).
 
-### Blueprints 📝
-I have yet to explore this feature yet. See [here](https://github.com/dannytsang/homeassistant-config/issues/9).
 
-### Camera 📸
-Private directory to hold camera images. Predominantly used for sending images to [DeepStack](https://deepstack.cc/).
-
-### ESPHome 🔌
-Files related to managing the ESP micro controller. See [ESPHome.io](https://esphome.io/) for more details.
-
-### Packages 📦
-See [packages readme](packages/README.md) for more details.
-
-### Split Configurations 📦🪓
-I use split configuration files to help manage and keep the `configuration.yaml` size down. The advantage is each type of configuration such as scripts, scenes, etc will be managed by [Home Assistant](https://home-assistant.io) UI with minimal setup.
-
-### www 🌍
-A public folder for holding any files such as images that does not need authentication. I use it for attaching images to notifications.
+```
+packages/               # See README.md in folder
+  └── integrations/     # Intgration based YAML files
+  └── rooms/            # Room based YAML files
+blueprints/             # Blueprints for automations
+camera/                 # Private directory to hold camera images
+esphome/                # Files related to managing the ESP micro controller
+lovelace/               # Dashboard configs
+scripts/                # Automation scripts
+www/                    # A public folder for holding any files such as images that does not need authentication
+automations.yaml        # UI automation file
+configurations.yaml     # Home Assistant's main configuration file
+scene.yaml              # UI scene file
+script.yaml             # UI script file
+```
 
 ## Tags / Releases 🏷️
 I will apply a tag around the time of upgrading to a monthly release of [Home Assistant](https://home-assistant.io). These will represent a snapshot of a (hopefully) stable configuration used prior to upgrading and a point to restore back to if needed. The `main` branch will contain the latest changes so there is no *latest* tag.
