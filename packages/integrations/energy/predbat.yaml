@@ -1,0 +1,25 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://github.com/springfall2008/batpred
+automation:
+  - id: "1750929784418"
+    alias: "Predbat: Daily Summary"
+    description: ""
+    triggers:
+      - trigger: time
+        at: 08:00:00
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "
+
+
+            {{ state_attr('predbat.plan_html', 'text')|replace('<li>', '- ') |replace('</li>',
+            '')|replace('<ul>', '')|replace('</ul>', '')|replace('&percnt;',
+            '%') }}"
+          title: Predbat
+          people:
+            entity_id:
+              - person.danny
+    mode: single
