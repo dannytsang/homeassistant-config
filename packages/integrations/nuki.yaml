@@ -54,6 +54,32 @@ automation:
                 target:
                   entity_id: script.front_door_lock_status
     mode: single
+  - id: "1752928735125"
+    alias: "Nuki: Unavailable"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - lock.front_door
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: button.press
+            metadata: {}
+            data: {}
+            target:
+              entity_id: button.front_door_reboot_nuki
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                Nuki hub is unavailable. Restarting Hub.
+              title: "Nuki"
+              log_level: "Debug"
+    mode: single
 
 script:
   # Front Door
