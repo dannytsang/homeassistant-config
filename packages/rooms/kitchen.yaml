@@ -801,10 +801,6 @@ automation:
               message: ":knife_fork_plate: :soap: Dishwasher :arrow_forward: Started."
               title: ":cook: Kitchen"
               log_level: "Debug"
-          - action: counter.decrement
-            target:
-              entity_id: counter.dishwasher_tablets_remaining
-            data: {}
           - action: rest_command.consume_dishwasher_tablet
             data: {}
           - action: homeassistant.update_entity
@@ -813,14 +809,14 @@ automation:
                 - sensor.dishwasher_tablet_stock
           - if:
               - condition: numeric_state
-                entity_id: counter.dishwasher_tablets_remaining
+                entity_id: sensor.dishwasher_tablet_stock
                 below: 9
             then:
               - action: script.send_direct_notification
                 data:
                   message: >-
                     Dishwasher tablets are running low (
-                    {{ states('counter.dishwasher_tablets_remaining') }}
+                    {{ states('sensor.dishwasher_tablet_stock') }}
                     remaining). Consider ordering more.
                   title: ":cook: Kitchen"
                   people:
