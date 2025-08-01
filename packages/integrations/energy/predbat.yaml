@@ -23,3 +23,33 @@ automation:
             entity_id:
               - person.danny
     mode: single
+  - id: "1752209130762"
+    alias: "Predbat: Mode Check"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - predbat.status
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_predbat_automations
+        state: "on"
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: predbat.status
+                state: Demand
+              - condition: not
+                conditions:
+                  - condition: state
+                    entity_id: sensor.growatt_sph_inverter_mode
+                    state: Load first
+            sequence:
+              - action: script.send_direct_notification
+                metadata: {}
+                data:
+                  message: inverter is not in the right mode
+                  title: Predbat
+                  people:
+                    entity_id: person.danny
