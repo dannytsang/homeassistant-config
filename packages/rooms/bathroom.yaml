@@ -1,5 +1,42 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
+  # region Motion
+  - id: "1754227355547"
+    alias: "Bathroom: Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.bathroom_motion_pir
+        to: "on"
+    conditions: []
+    actions:
+      - action: light.turn_on
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.bathroom_lights
+    mode: single
+  - id: "1754227694151"
+    alias: "Bathroom: No Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.bathroom_motion_pir
+        to: "off"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions: []
+    actions:
+      - action: light.turn_off
+        metadata: {}
+        data: {}
+        target:
+          entity_id: light.bathroom_lights
+    mode: single
   # region Door
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
