@@ -210,24 +210,25 @@ automation:
               {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
               {{ (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) > 0 }}"
         then:
-          - action: timer.start
-            data:
-              duration:
-                "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
-                {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
-                {% set new_ts = ts if (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) < 0 else (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) %}
-                {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
-            target:
-              entity_id: timer.sleep
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Danny has been asleep for more than 15 minutes.
-                Taking {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes
-                off sleeper timer. New time remaining:
-                {{ state_attr('timer.sleep', 'remaining') }}
-              title: ":zzz: Sleep as :robot_face: Android"
-              log_level: "Normal"
+          - parallel:
+              - action: timer.start
+                data:
+                  duration:
+                    "{% set t = state_attr('timer.sleep', 'remaining').split(':') %}
+                    {% set ts = (t[0]|int * 3600) + (t[1]|int * 60) + t[2]|int + states('input_number.sleep_as_android_time_to_add')|int(0) %}
+                    {% set new_ts = ts if (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) < 0 else (ts - (states('input_number.sleep_as_android_time_to_subtract')|int(0) * 60)) %}
+                    {{ '{:02d}:{:02d}:{:02d}'.format(new_ts // 3600, (new_ts % 3600) // 60, (new_ts % 3600) % 60) }}"
+                target:
+                  entity_id: timer.sleep
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    Danny has been asleep for more than 15 minutes.
+                    Taking {{ states('input_number.sleep_as_android_time_to_subtract') }} minutes
+                    off sleeper timer. New time remaining:
+                    {{ state_attr('timer.sleep', 'remaining') }}
+                  title: ":zzz: Sleep as :robot_face: Android"
+                  log_level: "Normal"
         else:
           - action: script.send_to_home_log
             data:
