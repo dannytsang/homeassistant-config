@@ -37,6 +37,29 @@ automation:
         target:
           entity_id: light.bathroom_lights
     mode: single
+  # region Lights
+  - id: "1754254675071"
+    alias: "Bathroom: Lights Turned On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - light.bathroom_lights
+        to: "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: ":bulb: Lights turned on. Starting :hourglass_flowing_sand: timer."
+              title: ":bathtub: Bathroom"
+              debug: "Debug"
+          - action: timer.start
+            target:
+              entity_id: timer.bathroom_light
+            data:
+              duration: 00:05:00
+    mode: single
   # region Door
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
