@@ -11,11 +11,33 @@ automation:
         to: "on"
     conditions: []
     actions:
-      - action: light.turn_on
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.bathroom_lights
+      - parallel:
+          - if:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "off"
+            then:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: ":paw_prints: Motion detected. Turning :bulb: light on."
+                      title: ":bathtub: Bathroom"
+                      debug: "Debug"
+                  - action: light.turn_on
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: light.bathroom_lights
+            else:
+              - action: script.send_to_home_log
+                data:
+                  message: ":paw_prints: Motion detected and :bulb: light is already on."
+                  title: ":bathtub: Bathroom"
+                  debug: "Debug"
+          - action: timer.cancel
+            target:
+              entity_id: timer.bathroom_light
+            data: {}
     mode: single
   - id: "1754227694151"
     alias: "Bathroom: No Motion Detected"
@@ -31,35 +53,112 @@ automation:
           seconds: 0
     conditions: []
     actions:
-      - action: light.turn_off
-        metadata: {}
-        data: {}
-        target:
-          entity_id: light.bathroom_lights
+      - choose:
+          - alias: Door closed
+            conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door_contact
+                state: "on"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: ":no_pedestrians: No motion detected and door closed. Skipping turning :bulb: light off."
+                  title: ":bathtub: Bathroom"
+                  debug: "Debug"
+          - alias: Door open
+            conditions:
+              - condition: state
+                entity_id: binary_sensor.bathroom_door_contact
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
+                      title: ":bathtub: Bathroom"
+                      debug: "Debug"
+                  - action: timer.start
+                    target:
+                      entity_id: timer.bathroom_light
+                    data:
+                      duration: 00:05:00
+        default: []
     mode: single
   # region Lights
   - id: "1754254675071"
-    alias: "Bathroom: Lights Turned On"
+    alias: "Bathroom: Light Turned Off"
     description: ""
     triggers:
       - trigger: state
         entity_id:
           - light.bathroom_lights
-        to: "on"
+        to: "off"
+    conditions: []
+    actions:
+
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: ":bulb: Lights turned off. Cancelling light timer."
+              title: ":bathtub: Bathroom"
+              debug: "Debug"
+          - action: timer.cancel
+            target:
+              entity_id: timer.bathroom_light
+            data: {}
+    mode: single
+  - id: "1754254675073"
+    alias: "Bathroom: Light Switch Toggled"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.bathroom_light_input_0
+    conditions: []
+    actions:
+      - delay:
+          seconds: 1
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "on"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "Light switch used"
+                      title: ":bathtub: Bathroom"
+                      debug: "Debug"
+                  - action: timer.cancel
+                    target:
+                      entity_id: timer.bathroom_light
+                    data: {}
+        default: []
+    mode: single
+  - id: "1754254675072"
+    alias: "Bathroom: Light Timer Finished"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.bathroom_light
     conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":bulb: Lights turned on. Starting :hourglass_flowing_sand: timer."
+              message: ":bulb: Light timer finished. Turning off lights."
               title: ":bathtub: Bathroom"
               debug: "Debug"
-          - action: timer.start
+          - action: light.turn_off
+            metadata: {}
+            data: {}
             target:
-              entity_id: timer.bathroom_light
-            data:
-              duration: 00:05:00
+              entity_id: light.bathroom_lights
     mode: single
+    
   # region Door
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
