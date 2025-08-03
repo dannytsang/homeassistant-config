@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 import homeassistant.util.dt as dt_util
 import voluptuous as vol
-from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry
+from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry, ConfigEntryState
 from homeassistant.const import (
     ATTR_DOMAIN,
     ATTR_ENTITY_ID,
@@ -32,6 +32,7 @@ from homeassistant.exceptions import (
     IntegrationError,
     InvalidStateError,
     ServiceNotFound,
+    ServiceValidationError,
 )
 from homeassistant.helpers import (
     config_validation as cv,
@@ -311,12 +312,9 @@ class RetryAction:
         self._validation_variables = {CONF_ACTION: self._action, **self._inner_data}
         self._context = context
         self._attempt = 1
-        self._retry_id = params.retry_data.get(ATTR_RETRY_ID)
-        if ATTR_RETRY_ID not in params.retry_data:
-            if self._entity_id:
-                self._retry_id = self._entity_id
-            else:
-                self._retry_id = self._action
+        self._retry_id = params.retry_data.get(
+            ATTR_RETRY_ID, self._entity_id or self._action
+        )
         self._str_cache = None
         self._start_id()
 
@@ -534,7 +532,7 @@ class RetryAction:
                     self._params.retry_data[ATTR_SERVICE],
                     self._inner_data.copy(),
                     blocking=True,
-                    context=Context(self._context.user_id, self._context.id),
+                    context=self._context,
                 )
                 await self._async_validate()
             self._log(
@@ -565,7 +563,7 @@ class RetryAction:
                         run_variables={ATTR_ENTITY_ID: self._entity_id}
                         if self._entity_id
                         else None,
-                        context=Context(self._context.user_id, self._context.id),
+                        context=self._context,
                     )
                 return
             next_retry = dt_util.now() + datetime.timedelta(
@@ -629,12 +627,29 @@ def _wrap_actions(  # noqa: PLR0912
                 _wrap_actions(hass, action[CONF_SEQUENCE], retry_params)
 
 
-async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> bool:
-    """Set up domain."""
+async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
+    """Set up integration."""
+    if not hass.config_entries.async_entries(DOMAIN):
+        hass.async_create_task(
+            hass.config_entries.flow.async_init(
+                DOMAIN, context={"source": SOURCE_IMPORT}
+            )
+        )
+
+    def get_config_entry() -> ConfigEntry:
+        """Get integration's config first (and only) entry."""
+        config_entries = hass.config_entries.async_entries(DOMAIN)
+        if not config_entries:
+            message = "Config entry not found"
+            raise ServiceValidationError(message)
+        if config_entries[0].state is not ConfigEntryState.LOADED:
+            message = "Config entry not loaded"
+            raise ServiceValidationError(message)
+        return config_entries[0]
 
     async def async_action(service_call: ServiceCall) -> None:
         """Perform action with background retries."""
-        params = RetryParams(hass, config_entry, service_call.data)
+        params = RetryParams(hass, get_config_entry(), service_call.data)
         for entity_id in params.entities or [None]:
             hass.async_create_task(
                 RetryAction(hass, params, service_call.context, entity_id).async_retry()
@@ -670,7 +685,7 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
         }
         _wrap_actions(hass, sequence, retry_params)
         await script.Script(hass, sequence, ACTIONS_SERVICE, DOMAIN).async_run(
-            context=Context(service_call.context.user_id, service_call.context.id)
+            context=service_call.context
         )
 
     hass.services.async_register(
@@ -680,20 +695,11 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry) -> b
     return True
 
 
-async def async_setup(hass: HomeAssistant, _: ConfigType) -> bool:
-    """Create config entry from configuration.yaml."""
-    if not hass.config_entries.async_entries(DOMAIN):
-        hass.async_create_task(
-            hass.config_entries.flow.async_init(
-                DOMAIN, context={"source": SOURCE_IMPORT}
-            )
-        )
+async def async_setup_entry(_hass: HomeAssistant, _config_entry: ConfigEntry) -> bool:
+    """Set up config entry."""
     return True
 
 
-async def async_unload_entry(hass: HomeAssistant, _: ConfigEntry) -> bool:
+async def async_unload_entry(_hass: HomeAssistant, _config_entry: ConfigEntry) -> bool:
     """Unload a config entry."""
-    hass.services.async_remove(DOMAIN, ACTION_SERVICE)
-    hass.services.async_remove(DOMAIN, CALL_SERVICE)
-    hass.services.async_remove(DOMAIN, ACTIONS_SERVICE)
     return True
