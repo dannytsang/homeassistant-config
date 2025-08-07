@@ -338,24 +338,6 @@
           - input_boolean.enable_living_room_motion_triggers
           - input_boolean.enable_stairs_motion_triggers
   mode: single
-- id: "1650032888798"
-  alias: "Frigate: Event"
-  description: ""
-  triggers:
-    - trigger: mqtt
-      topic: frigate/events
-  condition: []
-  actions:
-    - action: script.send_to_home_log
-      data:
-        message: "A {{trigger.payload_json['after']['label']}} was detected. id:
-          {{trigger.payload_json['after']['id']}}"
-    - action: script.send_home_log_with_url
-      data:
-        title: Frigate event
-        message: A {{trigger.payload_json['after']['label']}} was detected.
-        url: http://{{states('input_text.frigate_domain')}}:5000/api/frigate/notifications/{{trigger.payload_json['after']['id']}}/thumbnail.jpg?format=android
-  mode: queued
 - id: "1653857006776"
   alias: "Porch: Heating Turned On Check Entrances"
   description: ""
@@ -536,6 +518,7 @@
           data:
             message: Bedroom light turned off. Turning stairs lights off.
             title: ":bed: Bedroom"
+            debug: "Debug"
         - action: scene.turn_on
           data:
             transition: 2
@@ -559,25 +542,4 @@
       data: {}
       target:
         entity_id: switch.kitchen_motion_mmwave_sensor
-  mode: single
-- id: "1750929784418"
-  alias: "Predbat: Daily Summary"
-  description: ""
-  triggers:
-    - trigger: time
-      at: 08:00:00
-  conditions: []
-  actions:
-    - action: script.send_direct_notification
-      metadata: {}
-      data:
-        message: >-
-          
-          
-          {{ state_attr('predbat.plan_html', 'text')|replace('<li>', '- ')
-          |replace('</li>', '')|replace('<ul>', '')|replace('</ul>', '') }}
-        title: Predbat
-        people:
-          entity_id:
-            - person.danny
   mode: single
