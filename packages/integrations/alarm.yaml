@@ -457,6 +457,8 @@ script:
       Does not check:
       * alarm automation is enabled
       * alarm state.
+    trace:
+      stored_traces: 10
     fields:
       message:
         description: Message prefix to post.
@@ -489,17 +491,29 @@ script:
               - condition: state
                 entity_id: group.all_tracked_people
                 state: "home"
-                for:
-                  minutes: "5"
             sequence:
-              - parallel:
+              - if:
+                  - condition: state
+                    entity_id: group.all_tracked_people
+                    state: "home"
+                    for:
+                      minutes: "5"
+                then:
                   - action: script.send_to_home_log
                     data:
-                      message: "{{ message }} Turning :bell: alarm on."
+                      message: >-
+                        {{ message }} :house_with_garden: Everyone is home but not for 5 minutes. Delaying alarm.
                       title: ":bell: Alarm"
                       log_level: "Normal"
-                  - action: script.set_alarm_to_home_mode
-                  - action: script.lock_front_door
+                else:
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: "{{ message }} Turning :bell: alarm on."
+                          title: ":bell: Alarm"
+                          log_level: "Normal"
+                      - action: script.set_alarm_to_home_mode
+                      - action: script.lock_front_door
           - alias: Danny not home and not long distance
             conditions:
               - condition: state
