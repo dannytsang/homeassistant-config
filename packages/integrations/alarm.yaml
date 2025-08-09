@@ -467,6 +467,17 @@ script:
           text:
             multiline: true
     sequence:
+      - variables:
+          # binary array [home, far away]
+          danny: >-
+            {{ [ states('person.danny') == 'home',
+              states('sensor.danny_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0) - 1] }}
+          terina: >-
+            {{ [ states('person.terina') == 'home',
+              states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0) - 1] }}
+          leo: >-
+            {{ [ states('person.leo') == 'home',
+              states('sensor.leo_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0) - 1] }}
       - choose:
           - alias: Already locked and armed
             conditions:
@@ -514,203 +525,58 @@ script:
                           log_level: "Normal"
                       - action: script.set_alarm_to_home_mode
                       - action: script.lock_front_door
-          - alias: Danny not home and not long distance
+          - alias: Someone is not far distance
             conditions:
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.leo
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.danny
-                    state: "home"
-                  - condition: template
-                    value_template:
-                      "{{ states('sensor.danny_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                      - 1 }}"
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "5"
+              - condition: template
+                value_template: >-
+                  {{ not(danny | first) and not(danny[1]) or
+                  not(terina | first) and not(terina[1]) or
+                  not(leo | first) and not(leo[1]) }}
               - condition: time
                 before: "02:00:00"
             sequence:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    {{ message }} :running: :house_with_garden: Danny is not home.
-                    :no_bell: Alarm not turned on and a check will be performed later.
+                    {{ message }} :running: :house_with_garden:
+                    {{ iif(not(danny | first and danny[1], 'Danny')) }}
+                    {{ iif(not(terina | first and terina[1], 'Terina')) }}
+                    {{ iif(not(leo | first and leo[1], 'Leo')) }}
+                    is not home. :no_bell: Alarm not turned on and a check will be performed later.
                   title: ":bell: Alarm"
                   log_level: "Normal"
-          - alias: Danny not home and long distance away
+          - alias: Someone is home and rest are far away
             conditions:
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.leo
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.danny
-                    state: "home"
               - condition: template
-                value_template:
-                  "{{ states('sensor.danny_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "5"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    {{ message }} :running: :house_with_garden: Danny is not home and more than
-                    {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
-                    ({{ states('sensor.danny_home_nearest_distance')|float(0) }}).
-                    Turning alarm on.
-                  title: ":bell: Alarm"
-                  log_level: "Normal"
-              - action: script.set_alarm_to_home_mode
-          - alias: Terina not home and not long distance
-            conditions:
-              - condition: state
-                entity_id: person.danny
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.leo
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.terina
-                    state: "home"
-                  - condition: template
-                    value_template:
-                      "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                      - 1 }}"
-              - condition: time
-                before: "02:00:00"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    {{ message }} :house_with_garden: :woman_dancing: Terina is not
-                    home. :no_bell: Alarm not turned on and a check will be performed later.
-                  title: ":bell: Alarm"
-                  log_level: "Normal"
-          - alias: Terina not home and long distance away
-            conditions:
-              - condition: state
-                entity_id: person.danny
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.leo
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.terina
-                    state: "home"
-              - condition: template
-                value_template:
-                  "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
+                value_template: "{{ (danny | first or danny[1]) and (terina | first or terina[1]) and (leo | first or leo[1]) }}"
+              - or:
+                  - condition: time
+                    after: "22:59:00"
+                  - condition: time
+                    before: "02:00:00"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        {{ message }} :house_with_garden: :woman_dancing: Terina is not home and more than
-                        {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
-                        ({{ states('sensor.terina_home_nearest_distance')|float(0) }}).
+                        {{ message }} :running: :house_with_garden:
+                        {%- if not(danny | first) or danny[1] %}
+                        Danny is not home and more than {{ (states('input_number.long_distance_away_from_home')|int(0)*0.000621371)|round(1) }} miles away
+                        ({{ (states('sensor.danny_home_nearest_distance')|float(0)*0.000621371)|round(1) }}).
+                        {% endif %}
+                        {%- if not(terina | first) or terina[1] %}
+                        Terina is not home and more than {{ (states('input_number.long_distance_away_from_home')|int(0)*0.000621371)|round(1) }} miles away
+                        ({{ (states('sensor.terina_home_nearest_distance')|float(0)*0.000621371)|round(1) }}).
+                        {% endif %}
+                        {%- if not(leo | first) or leo[1] %}
+                        Leo is not home and more than {{ (states('input_number.long_distance_away_from_home')|int(0)*0.000621371)|round(1) }} miles away
+                        ({{ (states('sensor.leo_home_nearest_distance')|float(0)*0.000621371)|round(1) }}).
+                        {% endif %}
+
                         Turning alarm on.
                       title: ":bell: Alarm"
                       log_level: "Normal"
                   - action: script.set_alarm_to_home_mode
-                  - action: script.lock_front_door
-          - alias: Leo not home and not long distance
-            conditions:
-              - condition: state
-                entity_id: person.danny
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.leo
-                    state: "home"
-                  - condition: template
-                    value_template:
-                      "{{ states('sensor.terina_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                      - 1 }}"
-              - condition: time
-                before: "02:00:00"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    {{ message }} :house_with_garden: :boy: Leo is not
-                    home. :no_bell: Alarm not turned on and a check will be performed later.
-                  title: ":bell: Alarm"
-                  log_level: "Normal"
-          - alias: Leo not home and long distance away
-            conditions:
-              - condition: state
-                entity_id: person.danny
-                state: "home"
-                for:
-                  minutes: "1"
-              - condition: state
-                entity_id: person.terina
-                state: "home"
-                for:
-                  minutes: "1"
-              - not:
-                  - condition: state
-                    entity_id: person.leo
-                    state: "home"
-              - condition: template
-                value_template:
-                  "{{ states('sensor.leo_home_nearest_distance')|float(0) > states('input_number.long_distance_away_from_home')|int(0)
-                  - 1 }}"
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        {{ message }} :house_with_garden: :boy: Leo is not home and more than
-                        {{ states('input_number.long_distance_away_from_home')|int(0) }}miles away
-                        ({{ states('sensor.leo_home_nearest_distance')|float(0) }}).
-                        Turning alarm on.
-                      title: ":bell: Alarm"
-                      log_level: "Normal"
-                  - action: script.set_alarm_to_home_mode
-                  - action: script.lock_front_door
         default:
           - action: script.send_direct_notification
             data:
