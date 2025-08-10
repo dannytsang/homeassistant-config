@@ -1033,6 +1033,45 @@ automation:
                         target:
                           entity_id: light.tv_backlight
     mode: single
+  - id: "1754839043037"
+    alias: "Living Room: Ceiling Light Switch Flipped"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.living_room_ceiling_lights_input_0
+        not_from:
+          - "unavailable"
+          - "unknown"
+        not_to:
+          - "unavailable"
+          - "unknown"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: Light switch flipped
+              title: ":couch_and_lamp: Living Room"
+              log_level: Debug
+          - if:
+              - condition: state
+                entity_id: light.living_room_ceiling
+                state: "off"
+            then:
+              - action: scene.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: scene.living_room_ceiling_lights_on
+            else:
+              - action: scene.turn_on
+                metadata: {}
+                data: {}
+                target:
+                  entity_id: scene.living_room_ceiling_lights_off
+    mode: single
   # region People / Devices
   - id: "1654005357582"
     alias: "Living Room: Terina's Work Laptop Turned Off"
@@ -3335,7 +3374,7 @@ sensor:
     indoor_temp_sensor: sensor.living_room_motion_temperature
     indoor_humidity_sensor: sensor.living_room_motion_humidity
     outdoor_temp_sensor: sensor.gw2000a_outdoor_temperature
-    calibration_factor: 1.5  # Estimate
+    calibration_factor: 1.5 # Estimate
 
 template:
   - binary_sensor:
