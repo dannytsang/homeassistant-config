@@ -11,24 +11,40 @@ automation:
         to: "on"
     conditions: []
     actions:
-      - parallel:
-          - if:
-              - condition: state
-                entity_id: light.bathroom_lights
-                state: "off"
-            then:
-              - parallel:
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: light.bathroom_lights
+                    state: "off"
+                  - condition: numeric_state
+                    entity_id: sensor.bathroom_area_mean_light_level
+                    above: input_number.bathroom_light_level_threshold
+                sequence:
                   - action: script.send_to_home_log
                     data:
-                      message: ":paw_prints: Motion detected. Turning :bulb: light on."
+                      message: >-
+                        :paw_prints: Motion detected. but it's too bright (
+                        {{ states('sensor.bathroom_area_mean_light_level') }} > {{ states('input_number.bathroom_light_level_threshold') }}).
+                        Skipping turning on lights.
                       title: ":bathtub: Bathroom"
                       debug: "Debug"
-                  - action: light.turn_on
-                    metadata: {}
-                    data: {}
-                    target:
-                      entity_id: light.bathroom_lights
-            else:
+              - conditions:
+                  - condition: state
+                    entity_id: light.bathroom_lights
+                    state: "off"
+                sequence:
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: ":paw_prints: Motion detected. Turning :bulb: light on."
+                          title: ":bathtub: Bathroom"
+                          debug: "Debug"
+                      - action: light.turn_on
+                        metadata: {}
+                        data: {}
+                        target:
+                          entity_id: light.bathroom_lights
+            default:
               - action: script.send_to_home_log
                 data:
                   message: ":paw_prints: Motion detected and :bulb: light is already on."
