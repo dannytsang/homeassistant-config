@@ -21,9 +21,13 @@ automation:
               brightness_pct: 100
             target:
               entity_id: light.porch
+          - action: timer.cancel
+            target:
+              entity_id: timer.porch_light
+            data: {}
     mode: single
   - id: "1737283018708"
-    alias: "Porch: NoMotion Detected"
+    alias: "Porch: No Motion Detected"
     description: ""
     triggers:
       - trigger: state
@@ -31,19 +35,45 @@ automation:
           - binary_sensor.porch_motion_occupancy
         to: "off"
         for: "00:01:00"
-    conditions:
-      - condition: state
-        entity_id: binary_sensor.porch_motion_occupancy
-        state: "on"
+    conditions: []
     actions:
       - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                No motion. Starting :bulb: light timer.
+              title: "Porch"
+              log_level: "Debug"
+          - action: timer.start
+            data:
+              duration: 00:01:00
+            target:
+              entity_id: timer.porch_light
+    mode: single
+  - id: "1737283018709"
+    alias: "Porch: Light Timer Finished"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.porch_light
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                Timer finished. Turning light off.
+              title: "Porch"
+              log_level: "Debug"
           - action: light.turn_off
             target:
               entity_id: light.porch
     mode: single
   # region: Door
   - id: "1606157753577"
-    alias: "Porch: Front Door Open Turn Light On"
+    alias: "Porch: Front Door Opened"
     description: ""
     triggers:
       - trigger: state
@@ -69,6 +99,10 @@ automation:
                   - action: scene.turn_on
                     target:
                       entity_id: scene.porch_light_on
+                  - action: timer.cancel
+                    target:
+                      entity_id: timer.porch_light
+                    data: {}
             default: []
       - action: script.send_to_home_log
         data:
@@ -176,25 +210,25 @@ automation:
             data: {}
     mode: single
   - id: "1606157835544"
-    alias: "Porch: Front Door Closed Turn Off Porch Light"
+    alias: "Porch: Front Door Closed"
     description: ""
     triggers:
       - trigger: state
         entity_id: binary_sensor.front_door
         from: "on"
         to: "off"
-        for: 00:01:00
     conditions: []
     actions:
       - parallel:
-          - action: scene.turn_on
+          - action: timer.start
+            data:
+              duration: 00:01:00
             target:
-              entity_id: scene.porch_lights_off
+              entity_id: timer.porch_light
           - action: script.send_to_home_log
             data:
               message: >-
-                Front :door: door closed for 1 minute.
-                Turning off light.
+                Front :door: door closed. Starting timer.
               title: "Porch"
               log_level: "Debug"
           - choose:
@@ -228,6 +262,10 @@ automation:
       - condition: state
         entity_id: binary_sensor.front_door
         state: "off"
+      - not:
+          - condition: state
+            entity_id: timer.porch_light
+            state: "active"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -261,16 +299,32 @@ automation:
           - "unavailable"
     conditions: []
     actions:
-      - action: light.toggle
-        data: {}
-        target:
-          entity_id: light.porch
-      - action: script.send_to_home_log
-        data:
-          log_level: Debug
-          title: Porch
-          message: Light switch changed
-    mode: single
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              log_level: Debug
+              title: Porch
+              message: Light switch changed
+          - if:
+              - condition: state
+                entity_id: light.porch
+                state: "off"
+            then:
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.porch_light_on
+            else:
+              - action: light.turn_off
+                target:
+                  entity_id: light.porch
+                data:
+                  transition: 2
+          - action: timer.cancel
+            target:
+              entity_id: timer.porch_light
+            data: {}
+    mode: queued
+    max: 10
 
 scene:
   - id: "1606157607021"
