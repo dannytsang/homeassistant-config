@@ -375,28 +375,21 @@ automation:
         default: []
     mode: single
   - id: "1728046359271"
-    alias: "Office: Fan Switch Is Off"
-    description: ""
+    alias: "Office: Fan Turns Off at 3am"
+    description: Turns off the office fan at 3am when it's on
     triggers:
-      - trigger: state
-        entity_id:
-          - climate.office_air_conditioner
-        to: unavailable
-        for:
-          minutes: 5
+      - trigger: time
+        at: 03:00:00
     conditions:
       - condition: state
         entity_id: switch.office_fan
-        state: "off"
+        state: "on"
     actions:
-      - action: script.send_direct_notification
+      - action: switch.turn_off
         metadata: {}
-        data:
-          message: Office Fan switch has turned off.
-          title: ":office: Office"
-          people:
-            entity_id:
-              - person.danny
+        data: {}
+        target:
+          entity_id: switch.office_fan
     mode: single
   # region Computer related automations
   - id: "1619865008647"
