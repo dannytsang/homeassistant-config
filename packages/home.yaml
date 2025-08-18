@@ -556,27 +556,14 @@ script:
                 - switch.bedroom_fan
       - alias: Turn off air conditioners
         parallel:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: climate.office_air_conditioner
-                    state: "unavailable"
-            then:
-              - action: script.send_to_home_log
-                data:
-                  message: "Turning off office air conditioner."
-                  log_level: "Debug"
-              - action: climate.set_hvac_mode
-                metadata: {}
-                data:
-                  hvac_mode: "off"
-                target:
-                  entity_id: climate.office_air_conditioner
-            else:
-              - action: switch.turn_off
-                target:
-                  entity_id:
-                    - switch.office_fan
+          - action: script.send_to_home_log
+            data:
+              message: "Turning off office air conditioner."
+              log_level: "Debug"
+          - action: switch.turn_off
+            target:
+              entity_id:
+                - switch.office_fan
       - alias: Turn off kitchen lights
         parallel:
           - action: script.send_to_home_log

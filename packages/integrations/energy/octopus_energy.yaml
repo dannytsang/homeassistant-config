@@ -80,21 +80,6 @@ automation:
                       current_electricity_import_rate_unit: "{{ state_attr('sensor.octopus_energy_electricity_current_rate', 'unit_of_measurement') }}"
                       current_electricity_export_rate: "{{ states('sensor.octopus_energy_electricity_export_current_rate') }}"
             default: []
-          - alias: Check office air conditioner
-            choose:
-              - conditions:
-                  - condition: state
-                    entity_id: input_boolean.office_air_conditioner_on_when_electricity_cost_nothing
-                    state: "on"
-                  - condition: state
-                    entity_id: input_boolean.enable_office_air_conditioner_automations
-                    state: "on"
-                sequence:
-                  - action: script.check_office_air_conditioner
-                    data:
-                      current_electricity_import_rate: "{{ states('sensor.octopus_energy_electricity_current_rate') }}"
-                      current_electricity_export_rate: "{{ states('sensor.octopus_energy_electricity_export_current_rate') }}"
-            default: []
           - alias: Conservatory underfloor heating
             choose:
               - conditions:
