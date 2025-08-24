@@ -256,6 +256,9 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Telegram') }}
       whatsapp: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'WhatsApp') }}
@@ -303,6 +306,16 @@ script:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
                 - action: script.post_home_assistant_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    people: "{{ repeat.item }}"
+                  continue_on_error: true
+          - repeat:
+              for_each: "{{ telegram|default([], true) }}"
+              sequence:
+                - action: script.post_telegram_direct_notification
+
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
@@ -372,6 +385,9 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
       whatsapp: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'WhatsApp') }}
@@ -427,6 +443,18 @@ script:
                     people: "{{ repeat.item }}"
                     data:
                       image: "{{ url }}"
+                  continue_on_error: true
+          - repeat:
+              for_each: "{{ telegram|default([], true) }}"
+              sequence:
+                - action: script.post_telegram_direct_notification
+                  data:
+                    message: >-
+                      {{ message }}
+                      {{ url }}
+                    title: "{{ title|default(none, true) }}"
+                    target: "{{ states('input_text.telegram_direct_notification_channel_id') }}"
+                    people: "{{ repeat.item }}"
                   continue_on_error: true
           - repeat:
               for_each: "{{ whatsapp|default([], true) }}"
@@ -487,6 +515,9 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Telegram') }}
     sequence:
       - parallel:
           - if:
@@ -546,6 +577,17 @@ script:
                       |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>') }}"
                       filePath: "{{ filePath }}"
                     continue_on_error: true
+              - repeat:
+                  for_each: "{{ telegram|default([], true) }}"
+                  sequence:
+                    - action: script.post_to_discord_with_local_attachments
+                      data:
+                        message: "{{ message }}"
+                        title: "{{ title|default(none, true) }}"
+                        target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
+                        people: "{{ repeat.item }}"
+                        filePath: "{{ filePath }}"
+                      continue_on_error: true
     mode: queued
     max: 10
   send_home_log_with_url:
@@ -640,6 +682,9 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
@@ -693,6 +738,14 @@ script:
                                   action: "{{ action1_name }}"
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
+          - repeat:
+              for_each: "{{ telegram|default([], true) }}"
+              sequence:
+                - action: script.post_telegram_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    people: "{{ repeat.item }}"
     mode: queued
     max: 10
   send_actionable_notification_with_3_buttons:
@@ -752,6 +805,9 @@ script:
       mobile: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Mobile') }}
+      telegram: >-
+        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people, 'Telegram') }}
     sequence:
       - if:
           - condition: state
@@ -822,6 +878,14 @@ script:
                 action2_name: "{{ action2_name }}"
                 action3_title: "{{ action3_title }}"
                 action3_name: "{{ action3_name }}"
+          - repeat:
+              for_each: "{{ telegram|default([], true) }}"
+              sequence:
+                - action: script.post_telegram_direct_notification
+                  data:
+                    message: "{{ message }}"
+                    title: "{{ title|default(none, true) }}"
+                    people: "{{ repeat.item }}"
     mode: single
   # region Computer Notifications
   post_to_hass_agent:
