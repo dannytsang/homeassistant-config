@@ -14,11 +14,11 @@ automation:
               - condition: template
                 value_template: "{{ trigger.event.data.command == 'get_camera'}}"
             sequence:
-              - service: script.send_to_home_log
+              - action: script.send_to_home_log
                 data:
                   message: Getting camera {{trigger.event.data.args}}
         default:
-          - service: script.send_to_home_log
+          - action: script.send_to_home_log
             data:
               message: >-
                 Received Telegram event:
@@ -38,7 +38,7 @@ automation:
         event_type: telegram_text
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             :speech_balloon: Received Telegram event:
@@ -57,7 +57,7 @@ automation:
         event_type: telegram_callback
     condition: []
     action:
-      - service: script.send_to_home_log
+      - action: script.send_to_home_log
         data:
           message: >-
             :speech_balloon: Received Telegram event:
@@ -105,14 +105,14 @@ script:
               - condition: template
                 value_template: "{{ 'person.danny' in people }}"
             sequence:
-              - service: telegram_bot.send_message
+              - action: telegram_bot.send_message
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                   config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
                 continue_on_error: true
         default:
-          - service: telegram_bot.send_message
+          - action: telegram_bot.send_message
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
@@ -149,7 +149,7 @@ script:
           text:
             type: "url"
     sequence:
-      - service: notify.danny_tsang
+      - action: telegram_bot.send_message
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
