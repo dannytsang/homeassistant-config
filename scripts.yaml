@@ -78,15 +78,41 @@ test:
       response_variable: calendars
     - action: script.send_to_home_log
       data:
-        message: >-
-          {%- for event in calendars['calendar.tsang_children'].events -%}
+        message:
+          "{%- for event in calendars['calendar.tsang_children'].events -%}
           Name: {{ calendars['calendar.tsang_children'].events[0].summary }}
 
-          Location: {{ calendars['calendar.tsang_children'].events[0].location|default('N/A',true) }}
+          Location: {{ calendars['calendar.tsang_children'].events[0].location|default('N/A',true)
+          }}
 
           Start Time: {{ calendars['calendar.tsang_children'].events[0].start }}
 
-          End Time: {{ calendars['calendar.tsang_children'].events[0].end }}
-          {%- endfor -%}
-        log_level: "Normal"
+          End Time: {{ calendars['calendar.tsang_children'].events[0].end }} {%- endfor
+          -%}"
+        log_level: Normal
   mode: single
+restart_esp:
+  sequence:
+    - action: switch.turn_off
+      metadata: {}
+      data: {}
+      target:
+        entity_id:
+          - switch.bedroom_esp_plug
+          - switch.kitchen_esp_plug
+          - switch.leo_s_bedroom_esp_plug
+    - delay:
+        hours: 0
+        minutes: 0
+        seconds: 10
+        milliseconds: 0
+    - action: switch.turn_on
+      metadata: {}
+      data: {}
+      target:
+        entity_id:
+          - switch.bedroom_esp_plug
+          - switch.kitchen_esp_plug
+          - switch.leo_s_bedroom_esp_plug
+  alias: Restart ESP
+  description: ""
