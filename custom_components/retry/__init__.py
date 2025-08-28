@@ -59,6 +59,7 @@ if TYPE_CHECKING:
 from .const import (
     ACTION_SERVICE,
     ACTIONS_SERVICE,
+    ATTEMPT_VARIABLE,
     ATTR_BACKOFF,
     ATTR_EXPECTED_STATE,
     ATTR_IGNORE_TARGET,
@@ -69,7 +70,6 @@ from .const import (
     ATTR_STATE_DELAY,
     ATTR_STATE_GRACE,
     ATTR_VALIDATION,
-    CALL_SERVICE,
     CONF_DISABLE_INITIAL_CHECK,
     CONF_DISABLE_REPAIR,
     DOMAIN,
@@ -78,7 +78,7 @@ from .const import (
 
 CONFIG_SCHEMA = cv.empty_config_schema(DOMAIN)
 
-DEFAULT_BACKOFF = "{{ 2 ** attempt }}"
+DEFAULT_BACKOFF = f"{{{{ 2 ** {ATTEMPT_VARIABLE} }}}}"
 DEFAULT_RETRIES = 7
 DEFAULT_STATE_GRACE = 0.2
 GROUP_DOMAIN = "group"
@@ -90,7 +90,7 @@ _running_retries_write_lock = threading.Lock()
 
 def _template_parameter(value: Any) -> str:
     """Render template parameter."""
-    return cv.template(value).async_render(parse_result=False)
+    return str(cv.template(value).async_render(parse_result=False))
 
 
 def _fix_template_tokens(value: str) -> str:
@@ -109,11 +109,7 @@ def _fix_template_tokens(value: str) -> str:
 
 def _backoff_parameter(value: Any | None) -> str | None:
     """Check backoff parameter."""
-    cv.positive_float(
-        cv.template(_fix_template_tokens(cv.string(value))).async_render(
-            variables={"attempt": 0}
-        )
-    )
+    vol.Length(min=1)(cv.template(_fix_template_tokens(cv.string(value))).template)
     return value
 
 
@@ -123,29 +119,13 @@ def _validation_parameter(value: Any | None) -> str | None:
     return value
 
 
-def _rename_legacy_service_key(value: Any | None) -> Any:
-    if isinstance(value, dict) and ATTR_SERVICE in value:
-        value[CONF_ACTION] = value.pop(ATTR_SERVICE)
-        LOGGER.log(
-            logging.WARNING,
-            (
-                "'service: %s' should be renamed to 'action: %s'. "
-                "Support for the deprecated 'service' field will be removed "
-                "in a future release."
-            ),
-            value[CONF_ACTION],
-            value[CONF_ACTION],
-        )
-    return value
-
-
 SERVICE_SCHEMA_BASE_FIELDS = {
-    vol.Required(ATTR_RETRIES, default=DEFAULT_RETRIES): cv.positive_int,  # type: ignore[reportArgumentType]
-    vol.Required(ATTR_BACKOFF, default=DEFAULT_BACKOFF): _backoff_parameter,  # type: ignore[reportArgumentType]
+    vol.Required(ATTR_RETRIES, default=DEFAULT_RETRIES): cv.positive_int,
+    vol.Required(ATTR_BACKOFF, default=DEFAULT_BACKOFF): _backoff_parameter,
     vol.Optional(ATTR_EXPECTED_STATE): vol.All(cv.ensure_list, [_template_parameter]),
     vol.Optional(ATTR_VALIDATION): _validation_parameter,
-    vol.Required(ATTR_STATE_DELAY, default=0): cv.positive_float,  # type: ignore[reportArgumentType]
-    vol.Required(ATTR_STATE_GRACE, default=DEFAULT_STATE_GRACE): cv.positive_float,  # type: ignore[reportArgumentType]
+    vol.Required(ATTR_STATE_DELAY, default=0): cv.positive_float,
+    vol.Required(ATTR_STATE_GRACE, default=DEFAULT_STATE_GRACE): cv.positive_float,
     vol.Optional(ATTR_ON_ERROR): cv.SCRIPT_SCHEMA,
     vol.Optional(ATTR_IGNORE_TARGET): cv.boolean,
     vol.Optional(ATTR_REPAIR): cv.boolean,
@@ -154,15 +134,11 @@ SERVICE_SCHEMA_BASE_FIELDS = {
 ACTION_SERVICE_PARAMS = vol.Schema(
     {
         **SERVICE_SCHEMA_BASE_FIELDS,
-        vol.Optional(ATTR_SERVICE): _template_parameter,
-        vol.Optional(CONF_ACTION): _template_parameter,
+        vol.Required(CONF_ACTION): _template_parameter,
     },
     extra=vol.ALLOW_EXTRA,
 )
 ACTION_SERVICE_SCHEMA = vol.All(
-    cv.has_at_least_one_key(ATTR_SERVICE, CONF_ACTION),
-    cv.has_at_most_one_key(ATTR_SERVICE, CONF_ACTION),
-    _rename_legacy_service_key,
     cv.has_at_most_one_key(ATTR_EXPECTED_STATE, ATTR_IGNORE_TARGET),
     ACTION_SERVICE_PARAMS,
 )
@@ -306,14 +282,28 @@ class RetryAction:
                 },
             }
         self._entity_id = entity_id
-        self._validation_variables = {CONF_ACTION: self._action, **self._inner_data}
         self._context = context
         self._attempt = 1
+        self._template_variables = {
+            CONF_ACTION: self._action,
+            ATTEMPT_VARIABLE: 0,
+            **self._inner_data,
+        }
+        cv.positive_float(
+            self._params.retry_data[ATTR_BACKOFF].async_render(
+                variables=self._template_variables
+            )
+        )
         self._retry_id = params.retry_data.get(
             ATTR_RETRY_ID, self._entity_id or self._action
         )
-        self._str_cache = None
+        self._str_cache: str | None = None
         self._start_id()
+
+    def _get_template_variables(self) -> dict[str, Any]:
+        """Return template variables."""
+        self._template_variables[ATTEMPT_VARIABLE] = self._attempt - 1
+        return self._template_variables
 
     async def _async_validate(self) -> None:
         """Check the entity is available has expected state and pass validation."""
@@ -350,7 +340,7 @@ class RetryAction:
             if entity.state == expected:
                 return True
             try:
-                if float(entity.state) == float(expected):  # type: ignore[reportArgumentType]
+                if entity.state is not None and float(entity.state) == float(expected):
                     return True
             except ValueError:
                 pass
@@ -362,7 +352,7 @@ class RetryAction:
             return True
         return result_as_boolean(
             self._params.retry_data[ATTR_VALIDATION].async_render(
-                variables=self._validation_variables,
+                variables=self._get_template_variables(),
             )
         )
 
@@ -566,7 +556,7 @@ class RetryAction:
             next_retry = dt_util.now() + datetime.timedelta(
                 seconds=float(
                     self._params.retry_data[ATTR_BACKOFF].async_render(
-                        variables={"attempt": self._attempt - 1}
+                        variables=self._get_template_variables()
                     )
                 )
             )
@@ -575,26 +565,19 @@ class RetryAction:
 
 
 def _wrap_actions(  # noqa: PLR0912
-    hass: HomeAssistant, sequence: list[dict], retry_params: dict[str, Any]
+    hass: HomeAssistant, sequence: list[dict[str, Any]], retry_params: dict[str, Any]
 ) -> None:
     """Warp any action with retry."""
     for action in sequence:
         action_type = cv.determine_script_action(action)
         match action_type:
             case cv.SCRIPT_ACTION_CALL_SERVICE:
-                domain_service = (
-                    action[CONF_ACTION]
-                    if CONF_ACTION in action
-                    else action[ATTR_SERVICE]
-                )
+                domain_service = action[CONF_ACTION]
                 if domain_service == f"{DOMAIN}.{ACTIONS_SERVICE}":
                     message = "Nested retry.actions are disallowed"
                     raise IntegrationError(message)
-                if domain_service in [
-                    f"{DOMAIN}.{ACTION_SERVICE}",
-                    f"{DOMAIN}.{CALL_SERVICE}",
-                ]:
-                    message = f"{domain_service} inside retry.actions is disallowed"
+                if domain_service == f"{DOMAIN}.{ACTION_SERVICE}":
+                    message = "retry.action inside retry.actions is disallowed"
                     raise IntegrationError(message)
                 action[CONF_SERVICE_DATA] = action.get(CONF_SERVICE_DATA, {})
                 action[CONF_SERVICE_DATA][CONF_ACTION] = domain_service
@@ -647,29 +630,13 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
     async def async_action(service_call: ServiceCall) -> None:
         """Perform action with background retries."""
         params = RetryParams(hass, get_config_entry(), service_call.data)
-        for entity_id in params.entities or [None]:
+        for entity_id in params.entities or [None]:  # type: ignore[list-item]
             hass.async_create_task(
                 RetryAction(hass, params, service_call.context, entity_id).async_retry()
             )
 
     hass.services.async_register(
         DOMAIN, ACTION_SERVICE, async_action, ACTION_SERVICE_SCHEMA
-    )
-
-    async def async_call(service_call: ServiceCall) -> None:
-        """Legacy 'retry.call' action."""
-        LOGGER.log(
-            logging.WARNING,
-            (
-                "'retry.call' should be renamed to 'retry.action'. "
-                "Support for the deprecated 'retry.call' action will be removed "
-                "in a future release."
-            ),
-        )
-        return await async_action(service_call)
-
-    hass.services.async_register(
-        DOMAIN, CALL_SERVICE, async_call, ACTION_SERVICE_SCHEMA
     )
 
     async def async_actions(service_call: ServiceCall) -> None:
