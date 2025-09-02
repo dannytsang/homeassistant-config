@@ -503,28 +503,14 @@ script:
                 entity_id: group.all_tracked_people
                 state: "home"
             sequence:
-              - if:
-                  - condition: state
-                    entity_id: group.all_tracked_people
-                    state: "home"
-                    for:
-                      minutes: "5"
-                then:
+              - parallel:
                   - action: script.send_to_home_log
                     data:
-                      message: >-
-                        {{ message }} :house_with_garden: Everyone is home but not for 5 minutes. Delaying alarm.
+                      message: "{{ message }} Turning :bell: alarm on."
                       title: ":bell: Alarm"
                       log_level: "Normal"
-                else:
-                  - parallel:
-                      - action: script.send_to_home_log
-                        data:
-                          message: "{{ message }} Turning :bell: alarm on."
-                          title: ":bell: Alarm"
-                          log_level: "Normal"
-                      - action: script.set_alarm_to_home_mode
-                      - action: script.lock_front_door
+                  - action: script.set_alarm_to_home_mode
+                  - action: script.lock_front_door
           - alias: Someone is not far distance
             conditions:
               - condition: template
