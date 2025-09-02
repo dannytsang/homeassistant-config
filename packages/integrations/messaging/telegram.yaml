@@ -4,72 +4,155 @@ automation:
   - id: "1653739708849"
     alias: "Telegram: Event Received"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: telegram_command
-    condition: []
-    action:
+    conditions: []
+    actions:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.event.data.command == 'get_camera'}}"
+                value_template: "{{ trigger.event.data.command == 'get_camera' }}"
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: Getting camera {{trigger.event.data.args}}
+                  message: Getting camera {{ trigger.event.data.args}}
         default:
           - action: script.send_to_home_log
             data:
-              message: >-
-                Received Telegram event:
-                command: {{trigger.event.data.command}}
-                args: {{trigger.event.data.args}}
-                from_first: {{trigger.event.data.from_first}}
-                from_last: {{trigger.event.data.from_last}}
-                user_id: {{trigger.event.data.user_id}}
-                chat_id: {{trigger.event.data.chat_id}}
-                chat: {{trigger.event.data.chat}}
+              message: |-
+                Recieved Telegram event:
+
+                command: {{ trigger.event.data.command }}
+                args: {{ trigger.event.data.args }}
+                from_first: {{ trigger.event.data.from_first }}
+                from_last: {{ trigger.event.data.from_last }}
+                user_id: {{ trigger.event.data.user_id }}
+                chat_id: {{ trigger.event.data.chat_id }}
+                chat: {{ trigger.event.data.chat }}
+              title: Telegram
+              log_level: "Debug"
     mode: queued
+    max: 10
   - id: "1653739708850"
     alias: "Telegram: Message Received"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: telegram_text
-    condition: []
-    action:
-      - action: script.send_to_home_log
-        data:
-          message: >-
-            :speech_balloon: Received Telegram event:
-            chat: {{trigger.event.data.chat}}
-            from_first: {{trigger.event.data.from_first}}
-            from_last: {{trigger.event.data.from_last}}
-            user_id: {{trigger.event.data.user_id}}
-            chat_id: {{trigger.event.data.chat_id}}
-            text: {{trigger.event.data.text}}
+    conditions: []
+    actions:
+      - if:
+          - condition: template
+            value_template: "{{ trigger.event.data.text|default(none, true)  != none }}"
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: |-
+                    :speech_balloon: Received Telegram event:
+                    chat: {{ trigger.event.data.chat }}
+                    from_first: {{ trigger.event.data.from_first }}
+                    from_last: {{ trigger.event.data.from_last }}
+                    user_id: {{ trigger.event.data.user_id }}
+                    chat_id: {{ trigger.event.data.chat_id }}
+                    text: {{ trigger.event.data.text }}
+                  title: Telegram
+                  log_level: "Debug"
+              - choose:
+                  - alias: "Message from Danny"
+                    conditions:
+                      - condition: template
+                        value_template: "{{ trigger.event.data.user_id|string|default('', true)  == states('input_text.dannys_telegram_chat_id') }}"
+                    sequence:
+                      - action: conversation.process
+                        data:
+                          agent_id: conversation.llama3_2_vision
+                          text: "{{ trigger.event.data.text }}"
+                        response_variable: assist
+                      - if:
+                          - condition: template
+                            value_template: >-
+                              {{ assist.response.response_type|default(none, true) != none and
+                              assist.response.response_type == 'error'}}
+                        then:
+                          - parallel:
+                            - action: telegram_bot.send_message
+                              data:
+                                message: >-
+                                  {%- set wait_response = ['hmm...', 'thinking...', '...', 'er...', 'um...', 'well'] -%}
+                                  {{ wait_response[range(0, wait_response|length)|random] }}
+                                config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
+                            - action: conversation.process
+                              data:
+                                agent_id: conversation.home_assistant
+                                text: "{{ trigger.event.data.text }}"
+                              response_variable: assist
+                      - action: telegram_bot.send_message
+                        data:
+                          message: "{{ assist.response.speech.plain.speech }}"
+                          config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
+                default:
+                  - action: conversation.process
+                    data:
+                      agent_id: conversation.llama3_2_vision
+                      text: "{{ trigger.event.data.text }}"
+                    response_variable: assist
+                  - if:
+                      - condition: template
+                        value_template: >-
+                          {{ assist.response.response_type|default(none, true)  != none and
+                          assist.response.response_type == 'error'}}
+                    then:
+                      - parallel:
+                        - action: telegram_bot.send_message
+                          data:
+                            message: >-
+                              {%- set wait_response = ['hmm...', 'thinking...', '...', 'er...', 'um...', 'well'] -%}
+                              {{ wait_response[range(0, wait_response|length)|random] }}
+                            config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
+                        - action: conversation.process
+                          data:
+                            agent_id: conversation.home_assistant
+                            text: "{{ trigger.event.data.text }}"
+                          response_variable: assist
+                  - action: telegram_bot.send_message
+                    data:
+                      message: "{{ assist.response.speech.plain.speech }}"
+                      config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
     mode: queued
+    max: 10
   - id: "1653739708851"
     alias: "Telegram: Callback Received"
     description: ""
-    trigger:
-      - platform: event
+    triggers:
+      - trigger: event
         event_type: telegram_callback
-    condition: []
-    action:
+    conditions: []
+    actions:
       - action: script.send_to_home_log
         data:
-          message: >-
-            :speech_balloon: Received Telegram event:
-            data: {{trigger.event.data.data}}
-            message: {{trigger.event.data.message}}
-            from_first: {{trigger.event.data.from_first}}
-            from_last: {{trigger.event.data.from_last}}
-            user_id: {{trigger.event.data.user_id}}
-            id: {{trigger.event.data.id}}
-            chat_id: {{trigger.event.data.chat_id}}
-            text: {{trigger.event.data.text}}
+          message: |-
+            :speech_balloon: Recieved Telegram event:
+            data: {{ trigger.event.data.data }}
+
+            message: {{ trigger.event.data.message }}
+
+            from_first: {{ trigger.event.data.from_first }}
+
+            from_last: {{ trigger.event.data.from_last }}
+
+            user_id: {{ trigger.event.data.user_id }}
+
+            id: {{ trigger.event.data.id }}
+
+            chat_id: {{ trigger.event.data.chat_id }}
+
+            text: {{ trigger.event.data.text }}
+          title: Telegram
+          log_level: "Debug"
     mode: queued
+    max: 10
 
 script:
   post_telegram_direct_notification:
@@ -78,14 +161,13 @@ script:
     description: >-
       Post a direct text message to adults in the house. Please use
       a send script to decouple from the messaging platform.
-    max: 10
-    mode: queued
     fields:
       message:
         description: Message to post
         required: true
         selector:
           text:
+            multiline: true
       title:
         description: Title of post
         selector:
@@ -109,15 +191,17 @@ script:
                 data:
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
-                  config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
+                  target: "{{ states('input_text.dannys_telegram_chat_id') }}"
                 continue_on_error: true
         default:
           - action: telegram_bot.send_message
             data:
               message: "{{ message }}"
               title: "{{ title|default('', true) }}"
-              config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
+              target: "{{ states('input_text.dannys_telegram_chat_id') }}"
             continue_on_error: true
+    mode: queued
+    max: 10
   post_to_telegram_home_log_with_local_attachments:
     alias: "Post To Telegram With Local Attachments"
     icon: mdi:message-reply-text
@@ -129,31 +213,21 @@ script:
         required: true
         selector:
           text:
+            multiline: true
       title:
         description: (optional)Title to the message posted.
         selector:
           text:
-      people:
-        description: Person to send the message to.
-          If not specified then it goes to everyone.
-        example: "['person.danny'] or ['person.danny','person.terina']"
-        selector:
-          target:
-            entity:
-              domain:
-                - person
       filePath:
         description: File path to attach to post.
         required: true
         selector:
           text:
-            type: "url"
     sequence:
-      - action: telegram_bot.send_message
+      - action: notify.danny_tsang
         data:
           message: "{{ message }}"
           title: "{{ title|default('', true) }}"
-          config_entry_id: 01K3E0RTD04WM71CZ2G3F6VZ3W
           file: "{{ filePath }}"
         continue_on_error: true
     mode: queued

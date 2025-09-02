@@ -245,24 +245,26 @@ script:
             entity:
               domain:
                 - person
-    variables:
-      # Get people's preferred messaging platform
-      slack: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Slack') }}
-      discord: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Discord') }}
-      mobile: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'Telegram') }}
-      whatsapp: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0  else people.entity_id, 'WhatsApp') }}
     sequence:
+      - variables:
+          persons: >-
+            {{ people|default('', true) }}
+          # Get people's preferred messaging platform
+          slack: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
+          discord: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
+          mobile: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Mobile') }}
+          telegram: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Telegram') }}
+          whatsapp: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'WhatsApp') }}
       - action: script.send_to_home_log
         data:
           message: "{{ message }}"
