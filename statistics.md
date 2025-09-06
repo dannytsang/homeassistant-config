@@ -1,55 +1,56 @@
 [<- Back](README.md)
 # Statistics 📊
-I have 6,478 states (📈181) in Home Assistant.
+I have 6,531 states (📈53) in Home Assistant.
 By domain these are:
-- 3 ai_task 📈3
+- 2 ai_task 📉1
 - 1 alarm_control_panel
-- 369 automation 📈8
-- 650 binary_sensor 📈20
-- 225 button 📈2
-- 37 calendar
+- 378 automation 📈9
+- 652 binary_sensor 📈2
+- 227 button 📈2
+- 38 calendar 📈1
 - 15 camera
-- 17 climate
+- 16 climate 📉1
 - 4 conversation
-- 1 counter 📉1
-- 24 cover 📉1
-- 386 device_tracker 📈4
+- 1 counter
+- 25 cover 📈1
+- 386 device_tracker
 - 15 event
 - 1 fan
-- 16 group 📉1
+- 16 group
 - 1 image
-- 99 input_boolean 📈1
+- 94 input_boolean 📉5
 - 3 input_datetime
-- 85 input_number 📉3
+- 88 input_number 📈3
 - 4 input_select
-- 61 input_text 📈2
-- 67 light 📈1
+- 62 input_text 📈1
+- 68 light 📈1
 - 10 lock
 - 24 media_player
+- 1 notify
 - 217 number
 - 4 person
-- 103 predbat 📈101
+- 103 predbat
 - 3 remote
-- 75 scene 📉2
+- 76 scene 📈1
 - 3 schedule
-- 136 script 📉6
-- 197 select 📈2
-- 2932 sensor 📈44
+- 139 script 📈3
+- 201 select 📈4
+- 2924 sensor 📉8
 - 2 siren
-- 2 stt 📈1
+- 2 stt
 - 1 sun
-- 423 switch 📈3
+- 460 switch 📈37
 - 2 tag
 - 14 text
-- 10 timer 📈1
+- 11 timer 📈1
 - 20 todo
 - 2 tts
-- 195 update 📈11
+- 196 update 📈1
 - 1 vacuum
 - 3 wake_word
 - 1 water_heater
 - 3 weather
-- 11 zone 📈1
+- 11 zone
 
 ## How To ✋
 To get the above numbers, use the template from [here](https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share)
