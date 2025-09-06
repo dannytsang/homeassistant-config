@@ -153,6 +153,76 @@ automation:
               action2_title: "No"
               action2_name: ignore
     mode: single
+  # region Fridge
+  - id: "1595679010892"
+    alias: "Utility: Freezer Open For A Long Period Of Time"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.utility_fridge_door_contact
+        from: "off"
+        to: "on"
+        for: 00:04:00
+      - trigger: state
+        entity_id: binary_sensor.utility_fridge_door_contact
+        to: "on"
+        for: 00:30:00
+      - trigger: state
+        entity_id: binary_sensor.utility_fridge_door_contact
+        to: "on"
+        for: 00:45:00
+      - trigger: state
+        entity_id: binary_sensor.utility_fridge_door_contact
+        to: "on"
+        for: 01:00:00
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_direct_notification
+            data:
+              message: >-
+                :warning: :door: :snowflake: Fridge door has been open for more than
+                {{ relative_time(states.binary_sensor.utility_fridge_door_contact.last_changed) }}!
+              title: ":fountain: Utility Room"
+          - action: script.alexa_announce
+            data:
+              message: >-
+                Utility Room ❄ Freezer door has been open for more than
+                {{ relative_time(states.binary_sensor.utility_fridge_door_contact.last_changed) }}!
+    mode: single
+  - id: "1657801925107"
+    alias: "Utility: Fridge Plug Turned Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.utility_fridge
+        to: "off"
+        for:
+          hours: 0
+          minutes: 1
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: Fridge plug is turned off.
+              title: ":fountain: Utility Room"
+              log_level: "Normal"
+          - action: script.send_actionable_notification_with_2_buttons
+            data:
+              message: Fridge plug is turned off. Turn on?
+              title: ":fountain: Utility Room"
+              log_level: "Normal"
+              people:
+                entity_id:
+                  - person.danny
+              action1_title: "Yes"
+              action1_name: switch_on_fridge
+              action2_title: "No"
+              action2_name: ignore
+    mode: single
   # region Washing Machine
   - id: "1595679010794"
     alias: "Utility: Washing Machine Started"
