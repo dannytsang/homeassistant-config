@@ -11,49 +11,49 @@ automation:
         to: "on"
     conditions: []
     actions:
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: light.bathroom_lights
-                    state: "off"
-                  - condition: numeric_state
-                    entity_id: sensor.bathroom_area_mean_light_level
-                    above: input_number.bathroom_light_level_threshold
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        :paw_prints: Motion detected but it's too bright (
-                        {{ states('sensor.bathroom_area_mean_light_level') }} > {{ states('input_number.bathroom_light_level_threshold') }}).
-                        Skipping turning on lights.
-                      title: ":bathtub: Bathroom"
-                      debug: "Debug"
-              - conditions:
-                  - condition: state
-                    entity_id: light.bathroom_lights
-                    state: "off"
-                sequence:
-                  - parallel:
-                      - action: script.send_to_home_log
-                        data:
-                          message: ":paw_prints: Motion detected. Turning :bulb: light on."
-                          title: ":bathtub: Bathroom"
-                          debug: "Debug"
-                      - action: light.turn_on
-                        metadata: {}
-                        data: {}
-                        target:
-                          entity_id: light.bathroom_lights
-            default:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "off"
+              - condition: numeric_state
+                entity_id: sensor.bathroom_area_mean_light_level
+                above: input_number.bathroom_light_level_threshold
+            sequence:
               - action: script.send_to_home_log
                 data:
-                  message: ":paw_prints: Motion detected and :bulb: light is already on."
+                  message: >-
+                    :paw_prints: Motion detected but it's too bright (
+                    {{ states('sensor.bathroom_area_mean_light_level') }} > {{ states('input_number.bathroom_light_level_threshold') }}).
+                    Skipping turning on lights.
                   title: ":bathtub: Bathroom"
                   debug: "Debug"
-          - action: timer.cancel
-            target:
-              entity_id: timer.bathroom_light
-            data: {}
+          - conditions:
+              - condition: state
+                entity_id: light.bathroom_lights
+                state: "off"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: ":paw_prints: Motion detected. Turning :bulb: light on."
+                      title: ":bathtub: Bathroom"
+                      debug: "Debug"
+                  - action: light.turn_on
+                    metadata: {}
+                    data: {}
+                    target:
+                      entity_id: light.bathroom_lights
+        default:
+          - action: script.send_to_home_log
+            data:
+              message: ":paw_prints: Motion detected and :bulb: light is already on."
+              title: ":bathtub: Bathroom"
+              debug: "Debug"
+      - action: timer.cancel
+        target:
+          entity_id: timer.bathroom_light
+        data: {}
     mode: single
   - id: "1754227694151"
     alias: "Bathroom: No Motion Detected"
@@ -87,17 +87,39 @@ automation:
                 entity_id: binary_sensor.bathroom_door_contact
                 state: "on"
             sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
-                      title: ":bathtub: Bathroom"
-                      debug: "Debug"
-                  - action: timer.start
-                    target:
-                      entity_id: timer.bathroom_light
-                    data:
-                      duration: 00:05:00
+              - choose:
+                  - alias: After midnight
+                    conditions:
+                      - condition: time
+                        after: "00:00:00"
+                      - condition: time
+                        before: "06:00:00"
+                    sequence:
+                      - parallel:
+                          - action: script.send_to_home_log
+                            data:
+                              message: >-
+                                :no_pedestrians: No motion detected. Starting night 
+                                :hourglass_flowing_sand: timer.
+                              title: ":bathtub: Bathroom"
+                              debug: "Debug"
+                          - action: timer.start
+                            target:
+                              entity_id: timer.bathroom_light
+                            data:
+                              duration: 00:02:00
+                default:
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
+                          title: ":bathtub: Bathroom"
+                          debug: "Debug"
+                      - action: timer.start
+                        target:
+                          entity_id: timer.bathroom_light
+                        data:
+                          duration: 00:05:00
         default: []
     mode: single
   # region Lights
@@ -111,7 +133,6 @@ automation:
         to: "off"
     conditions: []
     actions:
-
       - parallel:
           - action: script.send_to_home_log
             data:
@@ -174,7 +195,7 @@ automation:
             target:
               entity_id: light.bathroom_lights
     mode: single
-    
+
   # region Door
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
