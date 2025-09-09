@@ -80,47 +80,41 @@ automation:
                 data:
                   message: ":no_pedestrians: No motion detected and door closed. Skipping turning :bulb: light off."
                   title: ":bathtub: Bathroom"
-                  debug: "Debug"
-          - alias: Door open
-            conditions:
-              - condition: state
-                entity_id: binary_sensor.bathroom_door_contact
-                state: "on"
-            sequence:
-              - choose:
-                  - alias: After midnight
-                    conditions:
-                      - condition: time
-                        after: "00:00:00"
-                      - condition: time
-                        before: "06:00:00"
-                    sequence:
-                      - parallel:
-                          - action: script.send_to_home_log
-                            data:
-                              message: >-
-                                :no_pedestrians: No motion detected. Starting night 
-                                :hourglass_flowing_sand: timer.
-                              title: ":bathtub: Bathroom"
-                              debug: "Debug"
-                          - action: timer.start
-                            target:
-                              entity_id: timer.bathroom_light
-                            data:
-                              duration: 00:02:00
-                default:
-                  - parallel:
-                      - action: script.send_to_home_log
-                        data:
-                          message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
-                          title: ":bathtub: Bathroom"
-                          debug: "Debug"
-                      - action: timer.start
-                        target:
-                          entity_id: timer.bathroom_light
-                        data:
-                          duration: 00:05:00
-        default: []
+                  debug: "Debug"              
+        default:
+          - choose:
+            - alias: After midnight
+              conditions:
+                - condition: time
+                  after: "00:00:00"
+                - condition: time
+                  before: "06:00:00"
+              sequence:
+                - parallel:
+                    - action: script.send_to_home_log
+                      data:
+                        message: >-
+                          :no_pedestrians: No motion detected. Starting night 
+                          :hourglass_flowing_sand: timer.
+                        title: ":bathtub: Bathroom"
+                        debug: "Debug"
+                    - action: timer.start
+                      target:
+                        entity_id: timer.bathroom_light
+                      data:
+                        duration: 00:02:00
+          default:
+            - parallel:
+                - action: script.send_to_home_log
+                  data:
+                    message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
+                    title: ":bathtub: Bathroom"
+                    debug: "Debug"
+                - action: timer.start
+                  target:
+                    entity_id: timer.bathroom_light
+                  data:
+                    duration: 00:05:00
     mode: single
   # region Lights
   - id: "1754254675071"
