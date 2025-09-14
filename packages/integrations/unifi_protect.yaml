@@ -1,0 +1,92 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Integration: https://www.home-assistant.io/integrations/unifiprotect/
+automation:
+  - id: "1757534420170"
+    alias: "Unifi Protect: Personal Vehicles"
+    description: ""
+    triggers:
+      - trigger: webhook
+        allowed_methods:
+          - POST
+        local_only: true
+        webhook_id: personal-vehicles
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_unifi_protect_events_automations
+        state: "on"
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          people:
+            entity_id:
+              - person.danny
+          message: "Personal vehicles detected
+
+
+            Trigger Value: {{ trigger.json.alarm.triggers[0].value }}
+
+            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}"
+    mode: queued
+    max: 10
+  - id: "1757533154370"
+    alias: "Unifi Protect: Known Faces"
+    description: ""
+    triggers:
+      - trigger: webhook
+        allowed_methods:
+          - POST
+        local_only: true
+        webhook_id: known-faces
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_unifi_protect_events_automations
+        state: "on"
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "Unknown person
+
+
+            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+
+            Event Path: {{ trigger.json.alarm.eventPath }}
+
+            Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
+          people:
+            entity_id:
+              - person.danny
+    mode: queued
+    max: 10
+  - id: "1757533154371"
+    alias: "Unifi Protect: Unknown Faces"
+    description: ""
+    triggers:
+      - trigger: webhook
+        allowed_methods:
+          - POST
+        local_only: true
+        webhook_id: unknown-faces
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_unifi_protect_events_automations
+        state: "on"
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "Unknown person
+
+
+            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+
+            Event Path: {{ trigger.json.alarm.eventPath }}
+
+            Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
+          people:
+            entity_id:
+              - person.danny
+    mode: queued
+    max: 10
+  
