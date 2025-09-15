@@ -972,6 +972,28 @@ automation:
                 - light.kitchen_cooker_rgb
                 - light.kitchen_table_rgb
     mode: single
+  # region Smoke Alarm
+  - id: "1757836826541"
+    alias: "Kitchen: Smoke Alarm"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_smoke_alarm_smoke
+        to: "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_direct_notification
+            metadata: {}
+            data:
+              message: ":warning: Smoke alarm triggered :warning:"
+              title: ":warning: :cook: Kitchen :warning:"
+          - action: script.alexa_announce
+            data:
+              message: >-
+                Warning! Kitchen smoke alarm triggered.
+    mode: single
 
 scene:
   - id: "kitchen_main_lights_dim"
