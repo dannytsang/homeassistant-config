@@ -15,18 +15,17 @@ automation:
         entity_id: input_boolean.enable_unifi_protect_events_automations
         state: "on"
     actions:
-      - action: script.send_direct_notification
-        metadata: {}
+      - action: script.send_to_home_log
         data:
-          people:
-            entity_id:
-              - person.danny
-          message: "Personal vehicles detected
+          message: >-
+            Personal vehicles detected
 
 
             Trigger Value: {{ trigger.json.alarm.triggers[0].value }}
 
-            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}"
+            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+          title: "Front Garden"
+          log_level: "Normal"
     mode: queued
     max: 10
   - id: "1757533154370"
@@ -43,20 +42,27 @@ automation:
         entity_id: input_boolean.enable_unifi_protect_events_automations
         state: "on"
     actions:
-      - action: script.send_direct_notification
-        metadata: {}
-        data:
-          message: "Unknown person
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - action: script.send_direct_notification
+                metadata: {}
+                data:
+                  message: "Unknown person
 
 
-            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+                    Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
 
-            Event Path: {{ trigger.json.alarm.eventPath }}
+                    Event Path: {{ trigger.json.alarm.eventPath }}
 
-            Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
-          people:
-            entity_id:
-              - person.danny
+                    Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
+                  people:
+                    entity_id:
+                      - person.danny
+        default: []
     mode: queued
     max: 10
   - id: "1757533154371"
@@ -73,20 +79,27 @@ automation:
         entity_id: input_boolean.enable_unifi_protect_events_automations
         state: "on"
     actions:
-      - action: script.send_direct_notification
-        metadata: {}
-        data:
-          message: "Unknown person
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: input_select.home_mode
+                state: "Holiday"
+            sequence:
+              - action: script.send_direct_notification
+                metadata: {}
+                data:
+                  message: "Unknown person
 
 
-            Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+                    Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
 
-            Event Path: {{ trigger.json.alarm.eventPath }}
+                    Event Path: {{ trigger.json.alarm.eventPath }}
 
-            Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
-          people:
-            entity_id:
-              - person.danny
+                    Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
+                  people:
+                    entity_id:
+                      - person.danny
+        default: []
     mode: queued
     max: 10
   
