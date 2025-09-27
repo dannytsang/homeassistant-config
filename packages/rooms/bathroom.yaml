@@ -24,10 +24,10 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    :paw_prints: Motion detected but it's too bright (
+                    🐾 Motion detected but it's too bright (
                     {{ states('sensor.bathroom_area_mean_light_level') }} > {{ states('input_number.bathroom_light_level_threshold') }}).
                     Skipping turning on lights.
-                  title: ":bathtub: Bathroom"
+                  title: "🛁 Bathroom"
                   debug: "Debug"
           - conditions:
               - condition: state
@@ -37,8 +37,8 @@ automation:
               - parallel:
                   - action: script.send_to_home_log
                     data:
-                      message: ":paw_prints: Motion detected. Turning :bulb: light on."
-                      title: ":bathtub: Bathroom"
+                      message: "🐾 Motion detected. Turning 💡 light on."
+                      title: "🛁 Bathroom"
                       debug: "Debug"
                   - action: light.turn_on
                     metadata: {}
@@ -48,8 +48,8 @@ automation:
         default:
           - action: script.send_to_home_log
             data:
-              message: ":paw_prints: Motion detected and :bulb: light is already on."
-              title: ":bathtub: Bathroom"
+              message: "🐾 Motion detected and 💡 light is already on."
+              title: "🛁 Bathroom"
               debug: "Debug"
       - action: timer.cancel
         target:
@@ -79,37 +79,37 @@ automation:
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: ":no_pedestrians: No motion detected and door closed. Skipping turning :bulb: light off."
-                  title: ":bathtub: Bathroom"
-                  debug: "Debug"              
+                  message: "🚷 No motion detected and door closed. Skipping turning 💡 light off."
+                  title: "🛁 Bathroom"
+                  debug: "Debug"
         default:
           - choose:
-            - alias: After midnight
-              conditions:
-                - condition: time
-                  after: "00:00:00"
-                - condition: time
-                  before: "06:00:00"
-              sequence:
-                - parallel:
-                    - action: script.send_to_home_log
-                      data:
-                        message: >-
-                          :no_pedestrians: No motion detected. Starting night 
-                          :hourglass_flowing_sand: timer.
-                        title: ":bathtub: Bathroom"
-                        debug: "Debug"
-                    - action: timer.start
-                      target:
-                        entity_id: timer.bathroom_light
-                      data:
-                        duration: 00:02:00
+              - alias: After midnight
+                conditions:
+                  - condition: time
+                    after: "00:00:00"
+                  - condition: time
+                    before: "06:00:00"
+                sequence:
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            🚷 No motion detected. Starting night 
+                            :hourglass_flowing_sand: timer.
+                          title: "🛁 Bathroom"
+                          debug: "Debug"
+                      - action: timer.start
+                        target:
+                          entity_id: timer.bathroom_light
+                        data:
+                          duration: 00:02:00
             default:
               - parallel:
                   - action: script.send_to_home_log
                     data:
-                      message: ":no_pedestrians: No motion detected. Starting :hourglass_flowing_sand: timer."
-                      title: ":bathtub: Bathroom"
+                      message: "🚷 No motion detected. Starting :hourglass_flowing_sand: timer."
+                      title: "🛁 Bathroom"
                       debug: "Debug"
                   - action: timer.start
                     target:
@@ -131,8 +131,8 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":bulb: Lights turned off. Cancelling light timer."
-              title: ":bathtub: Bathroom"
+              message: "💡 Lights turned off. Cancelling light timer."
+              title: "🛁 Bathroom"
               debug: "Debug"
           - action: timer.cancel
             target:
@@ -160,7 +160,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message: "Light switch used"
-                      title: ":bathtub: Bathroom"
+                      title: "🛁 Bathroom"
                       debug: "Debug"
                   - action: timer.cancel
                     target:
@@ -181,8 +181,8 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":bulb: Light timer finished. Turning off lights."
-              title: ":bathtub: Bathroom"
+              message: "💡 Light timer finished. Turning off lights."
+              title: "🛁 Bathroom"
               debug: "Debug"
           - action: light.turn_off
             metadata: {}
@@ -190,7 +190,6 @@ automation:
             target:
               entity_id: light.bathroom_lights
     mode: single
-
   # region Door
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
@@ -211,7 +210,7 @@ automation:
       - action: script.send_direct_notification
         data:
           message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%) and window is closed."
-          title: ":bathtub: Bathroom"
+          title: "🛁 Bathroom"
           log_level: "Debug"
           people:
             entity_id:

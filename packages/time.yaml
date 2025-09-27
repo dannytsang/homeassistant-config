@@ -14,7 +14,7 @@ automation:
       - action: script.send_to_home_log
         data:
           message:
-            ":warning: :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: :door: :window:
+            "⚠️ :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🚪 🪟
             The following entrances are still open:
             {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
             %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
@@ -34,7 +34,7 @@ automation:
           data:
             message:
               ":clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-              Deleting :camera: files"
+              Deleting 📸 files"
             log_level: "Debug"
         - action: delete.files_in_folder
           data:
@@ -188,14 +188,13 @@ script:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message:
-                ":paw_prints: :sunrise: Motion detected in the Lounge in the morning.
+              message: "🐾 🌅 Motion detected in the Lounge in the morning.
                 Running morning routine."
               log_level: "Normal"
           - action: script.set_alarm_to_disarmed_mode
           - action: script.send_to_home_log
             data:
-              message: ":clock9: :sunrise: Morning routine complete."
+              message: ":clock9: 🌅 Morning routine complete."
               log_level: "Normal"
           - action: script.announce_delayed_notifications
     mode: single

@@ -30,10 +30,10 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                :paw_prints: Motion detected and
+                🐾 Motion detected and
                 it's dark ({{ states('sensor.conservatory_motion_illuminance', with_unit=True) }} <
                 ({{ states('input_number.conservatory_light_level_threshold', with_unit=True) }}).
-                Turning :bulb: :high_brightness: light on.
+                Turning 💡 🔆 light on.
               title: "Conservatory"
               log_level: "Debug"
           - action: scene.turn_on
@@ -62,7 +62,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":no_pedestrians: No motion. :bulb: :low_brightness: Dimming lights."
+              message: "🚷 No motion. 💡 🔅 Dimming lights."
               title: "Conservatory"
               log_level: "Debug"
           - action: scene.turn_on
@@ -90,7 +90,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":no_pedestrians: No motion. Turning lights off."
+              message: "🚷 No motion. Turning lights off."
               title: "Conservatory"
               log_level: "Debug"
           - action: scene.turn_on
@@ -99,35 +99,6 @@ automation:
             data:
               transition: 2
     mode: single
-  # region Camera
-  - id: "1629146628067"
-    alias: "Conservatory: Person Detected"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.conservatory_person_detected
-        from: "off"
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: alarm_control_panel.house_alarm
-        state: "armed_away"
-    actions:
-      - action: camera.snapshot
-        data_template:
-          filename:
-            "{{ states('input_text.latest_frigate_conservatory_person_file_path')
-            }}"
-        target:
-          entity_id: camera.conservatory_high_resolution_channel
-      - action: script.send_home_log_with_local_attachments
-        data_template:
-          message: Frigate detected a person in the conservatory.
-          title: Person detected in conservatory
-          log_level: "Normal"
-          filePath: "{{ states('input_text.latest_frigate_conservatory_person_file_path') }}"
-    mode: queued
-    max: 10
   # region Door
   - id: "1628985027639"
     alias: "Conservatory: Door Open"
@@ -141,7 +112,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":door: Door opened."
+              message: "🚪 Door opened."
               title: "Conservatory"
               log_level: "Debug"
           - if:
@@ -172,7 +143,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":door: Conservatory door closed."
+              message: "🚪 Conservatory door closed."
               log_level: "Debug"
           - action: script.set_central_heating_to_home_mode
             data: {}
@@ -187,7 +158,7 @@ automation:
                 sequence:
                   - action: script.send_direct_notification
                     data:
-                      message: ":door: Door closed. :hut: shed :door: door and gate is still open."
+                      message: "🚪 Door closed. 🛖 shed 🚪 door and gate is still open."
                       title: Conservatory
                       people:
                         entity_id:
@@ -200,7 +171,7 @@ automation:
                 sequence:
                   - action: script.send_direct_notification
                     data:
-                      message: ":door: Door closed and :hut: shed :door: door is still open."
+                      message: "🚪 Door closed and 🛖 shed 🚪 door is still open."
                       title: Conservatory
                       people:
                         entity_id:
@@ -213,7 +184,7 @@ automation:
                 sequence:
                   - action: script.send_direct_notification
                     data:
-                      message: ":door: Door closed and gate is still open."
+                      message: "🚪 Door closed and gate is still open."
                       title: Conservatory
                       people:
                         entity_id:

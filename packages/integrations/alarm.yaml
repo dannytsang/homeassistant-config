@@ -16,12 +16,12 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: ":no_bell: disarmed."
-              title: ":bell: Alarm"
+              message: "🔕 disarmed."
+              title: "🔔 Alarm"
               log_level: "Normal"
           - action: script.send_to_home_log
             data:
-              message: ":camera: Turning off indoor cameras."
+              message: "📸 Turning off indoor cameras."
               log_level: "Debug"
           - action: script.set_central_heating_to_home_mode
     mode: single
@@ -78,7 +78,7 @@ automation:
                         }} {% endif %}{% endfor %}"
 
                         Trying again later.
-                      title: ":warning: :bell: Alarm"
+                      title: "⚠️ 🔔 Alarm"
                       people:
                         entity_id:
                           - person.danny
@@ -119,7 +119,7 @@ automation:
                         Did not turned on because the following:
                         {% for opening in state_attr('binary_sensor.alarmed_doors_and_windows', 'entity_id') %}{% if states(opening) == 'on' %}
                         {{ '* ' ~ state_attr(opening, 'friendly_name') ~ '\n' }}{% endif %}{% endfor %}
-                      title: ":warning: :bell: Alarm :warning:"
+                      title: "⚠️ 🔔 Alarm ⚠️"
                       people:
                         entity_id:
                           - person.danny
@@ -164,9 +164,9 @@ automation:
                           - action: script.send_direct_notification
                             data:
                               message: >-
-                                Final check for people failed. :running: :house_with_garden: Danny is not home
-                                and this is the final check. :no_bell: Alarm turned on.
-                              title: ":warning: :bell: Alarm"
+                                Final check for people failed. 🏃 🏡 Danny is not home
+                                and this is the final check. 🔕 Alarm turned on.
+                              title: "⚠️ 🔔 Alarm"
                               people:
                                 entity_id:
                                   - person.danny
@@ -193,9 +193,9 @@ automation:
                           - action: script.send_direct_notification
                             data:
                               message: >-
-                                Final check for people failed. :house_with_garden: :woman_dancing: Terina is not
-                                home and this is the final check. :no_bell: Alarm turned on.
-                              title: ":bell: Alarm"
+                                Final check for people failed. 🏡 💃 Terina is not
+                                home and this is the final check. 🔕 Alarm turned on.
+                              title: "🔔 Alarm"
                               people:
                                 entity_id:
                                   - person.danny
@@ -233,7 +233,7 @@ automation:
     actions:
       - action: script.arm_alarm_overnight
         data:
-          message: "All alarmed :door: doors and :window: windows are now closed."
+          message: "All alarmed 🚪 doors and 🪟 windows are now closed."
     mode: single
   - id: "1630366065607"
     alias: "Alarm: Armed"
@@ -251,7 +251,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: " Set to away mode (all sensors on). Turning on all :camera_with_flash: cameras."
-              title: ":bell: Alarm"
+              title: "🔔 Alarm"
               log_level: "Normal"
     mode: single
   - id: "1614197981954"
@@ -273,8 +273,8 @@ automation:
       - parallel:
           - action: script.send_direct_notification
             data:
-              title: ":bell: Alarm"
-              message: ":warning: Disconnected from Home Assistant :warning:"
+              title: "🔔 Alarm"
+              message: "⚠️ Disconnected from Home Assistant ⚠️"
               people:
                 entity_id:
                   - person.danny
@@ -299,7 +299,7 @@ automation:
       - action: script.send_to_home_log
         data:
           message: Alarm has been unavailable for 5 minutes. Restarting Ring MQTT add-on.
-          title: ":bell: Alarm"
+          title: "🔔 Alarm"
           log_level: "Normal"
       - action: hassio.addon_restart
         data:
@@ -320,7 +320,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: Restarting Ring MQTT add-on failed.
-                  title: ":bell: Alarm"
+                  title: "🔔 Alarm"
                   log_level: "Normal"
           - conditions:
               - condition: not
@@ -332,7 +332,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: Ring MQTT restarted successfully.
-                  title: ":bell: Alarm"
+                  title: "🔔 Alarm"
                   log_level: "Normal"
         default: []
     mode: single
@@ -397,8 +397,8 @@ script:
             then:
               - action: script.send_to_home_log
                 data:
-                  message: "Turning :bell: alarm on in away mode."
-                  title: ":bell: Alarm"
+                  message: "Turning 🔔 alarm on in away mode."
+                  title: "🔔 Alarm"
                   log_level: "Normal"
               - action: alarm_control_panel.alarm_arm_away
                 data: {}
@@ -419,8 +419,8 @@ script:
             then:
               - action: script.send_to_home_log
                 data:
-                  message: "Turning :no_bell: alarm off."
-                  title: ":bell: Alarm"
+                  message: "Turning 🔕 alarm off."
+                  title: "🔔 Alarm"
                   log_level: "Normal"
               - action: alarm_control_panel.alarm_disarm
                 data: {}
@@ -441,8 +441,8 @@ script:
             then:
               - action: script.send_to_home_log
                 data:
-                  message: "Changing :bell: alarm to home mode(door sensors only)."
-                  title: ":bell: Alarm"
+                  message: "Changing 🔔 alarm to home mode(door sensors only)."
+                  title: "🔔 Alarm"
                   log_level: "Normal"
               - action: alarm_control_panel.alarm_arm_home
                 data: {}
@@ -495,7 +495,7 @@ script:
                       message: >-
                         Already locked and alarm is {{ states('alarm_control_panel.house_alarm') }}.
                         Skipping.
-                      title: ":bell: Alarm"
+                      title: "🔔 Alarm"
                       log_level: "Normal"
           - alias: Everyone home
             conditions:
@@ -506,8 +506,8 @@ script:
               - parallel:
                   - action: script.send_to_home_log
                     data:
-                      message: "{{ message }} Turning :bell: alarm on."
-                      title: ":bell: Alarm"
+                      message: "{{ message }} Turning 🔔 alarm on."
+                      title: "🔔 Alarm"
                       log_level: "Normal"
                   - action: script.set_alarm_to_home_mode
                   - action: script.lock_front_door
@@ -524,12 +524,12 @@ script:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    {{ message }} :running: :house_with_garden:
+                    {{ message }} 🏃 🏡
                     {{ iif(not(danny | first and danny[1], 'Danny')) }}
                     {{ iif(not(terina | first and terina[1], 'Terina')) }}
                     {{ iif(not(leo | first and leo[1], 'Leo')) }}
-                    is not home. :no_bell: Alarm not turned on and a check will be performed later.
-                  title: ":bell: Alarm"
+                    is not home. 🔕 Alarm not turned on and a check will be performed later.
+                  title: "🔔 Alarm"
                   log_level: "Normal"
           - alias: Someone is home and rest are far away
             conditions:
@@ -545,7 +545,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        {{ message }} :running: :house_with_garden:
+                        {{ message }} 🏃 🏡
                         {%- if not(danny | first) or danny[1] %}
                         Danny is not home and more than {{ (states('input_number.long_distance_away_from_home')|int(0)*0.000621371)|round(1) }} miles away
                         ({{ (states('sensor.danny_home_nearest_distance')|float(0)*0.000621371)|round(1) }}).
@@ -560,7 +560,7 @@ script:
                         {% endif %}
 
                         Turning alarm on.
-                      title: ":bell: Alarm"
+                      title: "🔔 Alarm"
                       log_level: "Normal"
                   - action: script.set_alarm_to_home_mode
         default:
@@ -577,7 +577,7 @@ script:
                 {%- endfor -%}
 
                 Trying again later.
-              title: ":warning: :bell: Alarm"
+              title: "⚠️ 🔔 Alarm"
               people:
                 entity_id:
                   - person.danny
