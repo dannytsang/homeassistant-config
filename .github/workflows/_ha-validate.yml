@@ -40,23 +40,16 @@ jobs:
     name: ESPHome validate
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-          cache: 'pip'
       - name: Install ESPHome
         run: |
           python -m pip install --upgrade pip
           pip install esphome
       - name: Prepare secrets for CI
-        run: |
-          if [ -f ./esphome/secrets.yaml.sample ]; then
-            cp ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
-          else
-            echo "wifi_ssid: dummy" > ./esphome/secrets.yaml
-            echo "wifi_password: dummy" >> ./esphome/secrets.yaml
-          fi
+        run: cp -R ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
       - name: Validate all ESPHome YAMLs
         run: |
           shopt -s nullglob
