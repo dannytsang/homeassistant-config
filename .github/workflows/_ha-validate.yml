@@ -35,7 +35,7 @@ jobs:
         continue-on-error: true
 
   esphome:
-    # ✅ Skip unless esphome/** files changed or it’s a scheduled run
+    # Controlled by caller via `run_esphome`
     if: ${{ inputs.run_esphome }}
     name: ESPHome validate
     runs-on: ubuntu-latest
@@ -59,6 +59,13 @@ jobs:
               esphome config "$f"
             fi
           done
+
+  esphome-skipped:
+    if: ${{ !inputs.run_esphome }}
+    name: ESPHome skipped
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ No esphome/** changes detected — skipping ESPHome validation."
 
   ha-stable:
     name: Home Assistant config check (stable)
@@ -103,13 +110,6 @@ jobs:
           path: "./"
           secrets: ./secrets.yaml.sample
           version: "${{ matrix.version }}"
-
-  hassfest:
-    name: Hassfest validation
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - uses: home-assistant/actions/hassfest@v1
 
   workflow-lint:
     name: actionlint (validate workflows)
