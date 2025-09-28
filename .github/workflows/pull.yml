@@ -16,7 +16,24 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  changes:
+    name: Detect file changes
+    runs-on: ubuntu-latest
+    outputs:
+      esphome: ${{ steps.filter.outputs.esphome }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          filters: |
+            esphome:
+              - 'esphome/**'
+
   validate:
+    name: Validate config
+    needs: changes
     uses: ./.github/workflows/_ha-validate.yml
     with:
-      run_esphome: true
+      run_esphome: ${{ needs.changes.outputs.esphome == 'true' }}

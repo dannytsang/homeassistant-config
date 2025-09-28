@@ -16,7 +16,7 @@ jobs:
     name: YAML lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: ibiqlik/action-yamllint@v3
         with:
           config_file: .github/yamllint-config.yml
@@ -27,7 +27,7 @@ jobs:
     name: Markdown lint (remark)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: remark-lint
         uses: docker://pipelinecomponents/remark-lint:latest
         with:
@@ -36,7 +36,7 @@ jobs:
 
   esphome:
     # ✅ Skip unless esphome/** files changed or it’s a scheduled run
-    if: ${{ inputs.run_esphome && (github.event_name == 'schedule' || hashFiles('esphome/**') != '') }}
+    if: ${{ inputs.run_esphome }}
     name: ESPHome validate
     runs-on: ubuntu-latest
     steps:
@@ -65,7 +65,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [yamllint, remarklint]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare config for CI
         run: |
           mkdir -p camera
@@ -88,7 +88,7 @@ jobs:
       matrix:
         version: [beta, dev]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Prepare config for CI
         run: |
           mkdir -p camera
@@ -108,12 +108,12 @@ jobs:
     name: Hassfest validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: home-assistant/actions/hassfest@v1
 
   workflow-lint:
     name: actionlint (validate workflows)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: raven-actions/actionlint@v1
