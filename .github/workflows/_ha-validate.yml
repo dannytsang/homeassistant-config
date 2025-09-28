@@ -28,7 +28,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Keep using the same containerized linter you had, just not :latest in prod if you change later
       - name: remark-lint
         uses: docker://pipelinecomponents/remark-lint:latest
         with:
@@ -36,7 +35,8 @@ jobs:
         continue-on-error: true
 
   esphome:
-    if: ${{ inputs.run_esphome }}
+    # ✅ Skip unless esphome/** files changed or it’s a scheduled run
+    if: ${{ inputs.run_esphome && (github.event_name == 'schedule' || hashFiles('esphome/**') != '') }}
     name: ESPHome validate
     runs-on: ubuntu-latest
     steps:
@@ -76,7 +76,6 @@ jobs:
       - name: Prepare config for CI
         run: |
           mkdir -p camera
-          # Trim integrations that cause issues in CI-only environments
           sed -i -e '/battery_notes\:/,+2d' \
                  -e '/delete\:/,+1d' \
                  -e '/powercalc\:/,+2d' \
