@@ -8,6 +8,10 @@ on:
         description: "Run ESPHome config checks"
         type: boolean
         default: true
+      run_hacs:
+        description: "Run HACS checks"
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -78,6 +82,13 @@ jobs:
       - uses: hacs/action@22.5.0
         with:
           category: integration
+  
+  hacs-skipped:
+    if: ${{ !inputs.run_hacs }}
+    name: HACS skipped
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "✅ No custom_components/** changes detected — skipping HACS validation."
 
   ha-stable:
     name: Home Assistant config check (stable)
