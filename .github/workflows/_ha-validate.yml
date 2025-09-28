@@ -67,6 +67,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: echo "✅ No esphome/** changes detected — skipping ESPHome validation."
+  
+  hacs:
+    # Controlled by caller via `run_hacs`
+    if: ${{ inputs.run_hacs }}
+    name: HACS validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hacs/action@22.5.0
+        with:
+          category: integration
 
   ha-stable:
     name: Home Assistant config check (stable)

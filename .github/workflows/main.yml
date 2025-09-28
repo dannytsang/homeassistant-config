@@ -33,6 +33,8 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
+            hacs:
+              - 'custom_components/**'
             esphome:
               - 'esphome/**'
 
@@ -43,6 +45,8 @@ jobs:
     with:
       # Run ESPHome if esphome/** changed, OR on the weekly schedule
       run_esphome: ${{ needs.changes.outputs.esphome == 'true' || github.event_name == 'schedule' }}
+      # Run ESPHome if esphome/** changed, OR on the weekly schedule
+      run_hacs: ${{ needs.changes.outputs.hacs == 'true' || github.event_name == 'schedule' }}
 
   deploy:
     name: Deploy changes
