@@ -1,0 +1,127 @@
+name: Home Assistant — Reusable Validation
+
+on:
+  workflow_call:
+    inputs:
+      run_esphome:
+        description: "Run ESPHome config checks"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  yamllint:
+    name: YAML lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ibiqlik/action-yamllint@v3
+        with:
+          config_file: .github/yamllint-config.yml
+          format: parsable
+        continue-on-error: true
+
+  remarklint:
+    name: Markdown lint (remark)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Keep using the same containerized linter you had, just not :latest in prod if you change later
+      - name: remark-lint
+        uses: docker://pipelinecomponents/remark-lint:latest
+        with:
+          args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
+        continue-on-error: true
+
+  esphome:
+    if: ${{ inputs.run_esphome }}
+    name: ESPHome validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - name: Install ESPHome
+        run: |
+          python -m pip install --upgrade pip
+          pip install esphome
+      - name: Prepare secrets for CI
+        run: |
+          if [ -f ./esphome/secrets.yaml.sample ]; then
+            cp ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
+          else
+            echo "wifi_ssid: dummy" > ./esphome/secrets.yaml
+            echo "wifi_password: dummy" >> ./esphome/secrets.yaml
+          fi
+      - name: Validate all ESPHome YAMLs
+        run: |
+          shopt -s nullglob
+          for f in ./esphome/*.yaml; do
+            if [ "$(basename "$f")" != "secrets.yaml" ]; then
+              echo ">> Checking $f"
+              esphome config "$f"
+            fi
+          done
+
+  ha-stable:
+    name: Home Assistant config check (stable)
+    runs-on: ubuntu-latest
+    needs: [yamllint, remarklint]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare config for CI
+        run: |
+          mkdir -p camera
+          # Trim integrations that cause issues in CI-only environments
+          sed -i -e '/battery_notes\:/,+2d' \
+                 -e '/delete\:/,+1d' \
+                 -e '/powercalc\:/,+2d' \
+                 -e '/sonoff\:/,+3d' configuration.yaml
+      - name: Validate (stable)
+        uses: frenck/action-home-assistant@v1
+        with:
+          path: "./"
+          secrets: ./secrets.yaml.sample
+          version: "stable"
+
+  ha-future:
+    name: Home Assistant future channels (beta/dev)
+    runs-on: ubuntu-latest
+    needs: [yamllint, remarklint]
+    strategy:
+      matrix:
+        version: [beta, dev]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare config for CI
+        run: |
+          mkdir -p camera
+          sed -i -e '/battery_notes\:/,+2d' \
+                 -e '/delete\:/,+1d' \
+                 -e '/powercalc\:/,+2d' \
+                 -e '/sonoff\:/,+3d' configuration.yaml
+      - name: Validate (${{ matrix.version }})
+        uses: frenck/action-home-assistant@v1
+        continue-on-error: true
+        with:
+          path: "./"
+          secrets: ./secrets.yaml.sample
+          version: "${{ matrix.version }}"
+
+  hassfest:
+    name: Hassfest validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: home-assistant/actions/hassfest@v1
+
+  workflow-lint:
+    name: actionlint (validate workflows)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: raven-actions/actionlint@v1
