@@ -16,6 +16,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   yamllint:
     name: YAML lint
@@ -111,6 +115,21 @@ jobs:
           path: "./"
           secrets: ./secrets.yaml.sample
           version: "stable"
+      - name: Summarize results
+        if: always()  # ensures summary is written even if job fails
+        run: |
+          {
+            echo "## 🏠 Home Assistant Config Validation"
+            echo ""
+            echo "- **Version tested:** stable"
+            echo "- **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            if [[ "${{ steps.ha.outcome }}" == "success" ]]; then
+              echo "✅ Passed"
+            else
+              echo "❌ Failed – check the logs above"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   ha-future:
     name: Home Assistant future channels (beta/dev)
@@ -137,6 +156,21 @@ jobs:
           path: "./"
           secrets: ./secrets.yaml.sample
           version: "${{ matrix.version }}"
+      - name: Summarize results
+        if: always()  # ensures summary is written even if job fails
+        run: |
+          {
+            echo "## 🏠 Home Assistant Config Validation"
+            echo ""
+            echo "- **Version tested:** \`${{ matrix.version }}\`"
+            echo "- **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+            echo ""
+            if [[ "${{ steps.ha.outcome }}" == "success" ]]; then
+              echo "✅ Passed"
+            else
+              echo "❌ Failed – check the logs above"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
 
   workflow-lint:
     name: actionlint (validate workflows)
