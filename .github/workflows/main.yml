@@ -60,7 +60,9 @@ jobs:
       contents: read
     steps:
       - name: Connect Tailscale
+        id: ts
         uses: tailscale/github-action@v3
+        if: ${{ needs.validate.result == 'success' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch') }}
         with:
           oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
@@ -68,6 +70,7 @@ jobs:
 
       - name: Deploy (POST webhook with retries)
         uses: Wandalen/wretry.action@v3.8.0
+        if: ${{ steps.ts.outcome == 'success' }}
         with:
           action: fjogeleit/http-request-action@v1
           with: |
@@ -79,3 +82,13 @@ jobs:
             preventFailureOnNoResponse: false
           attempt_limit: 5
           attempt_delay: 3000
+      - name: Post run summary
+        run: |
+          {
+            echo "### Deploy Summary"
+            echo ""
+            echo "* Event: \`${{ github.event_name }}\`"
+            echo "* Ref: \`${{ github.ref }}\`"
+            echo "* SHA: \`${{ github.sha }}\`"
+            echo "* Timestamp: \`$(date -u +"%Y-%m-%dT%H:%M:%SZ")\`"
+          } >> "$GITHUB_STEP_SUMMARY"
