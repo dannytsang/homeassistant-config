@@ -150,6 +150,42 @@ automation:
         data:
           compressed: true
     mode: single
+  - id: "1759178231254"
+    alias: "Home Assistant: Purge Noisy Entities"
+    description: ""
+    triggers:
+      - trigger: time
+        at: 04:00:00
+        weekday:
+          - sat
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Purging entities
+          - action: recorder.purge
+            metadata: {}
+            data:
+              repack: true
+              keep_days: 7
+              apply_filter: true
+              entity_globs:
+                - calendar.*
+                - camera.*
+                - camera.*
+                - counter.*
+                - event.*
+                - image_processing.*
+                - media_player.*
+                - notify.*
+                - siren.*
+                - sun.*
+                - timer.*
+                - vacuum.*
+    mode: single
 
 script:
   upgrade_home_assistant:
