@@ -905,10 +905,28 @@ automation:
         subtype: button_1_press_release
     conditions: []
     actions:
-      - action: light.toggle
-        data: {}
-        target:
-          entity_id: light.bedroom_main_light
+      - if:
+          or:
+            - condition: state
+              entity_id: light.bedroom_main_light
+              state: "on"
+            - condition: state
+              entity_id: light.bedroom_main_light_2
+              state: "on"
+        then:
+          - action: light.turn_off
+            data: {}
+            target:
+              entity_id:
+                - light.bedroom_main_light
+                - light.bedroom_main_light_2
+        else:
+          - action: light.turn_on
+            data: {}
+            target:
+              entity_id:
+                - light.bedroom_main_light
+                - light.bedroom_main_light_2
     mode: single
   - id: "1699308571386"
     alias: "Bedroom: Remote Button 2"
