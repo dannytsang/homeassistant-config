@@ -24,15 +24,301 @@ automation:
         data:
           transition: 2
     mode: single
-  - id: "1606652871369"
+  - id: "1606158191303"
+    alias: "Kitchen: Motion Detected Table Lights Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_area_motion
+          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_pir
+          - binary_sensor.kitchen_motion_mmwave
+          - binary_sensor.kitchen_motion_2_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+      - or:
+          - condition: state
+            entity_id: light.kitchen_table_white
+            state: "off"
+          - and:
+              - condition: state
+                entity_id: light.kitchen_table_white
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.kitchen_table_white
+                attribute: brightness
+                below: 100
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🐾 Motion detected.
+                Turning table 💡 🔆 lights on.
+              title: "🧑‍🍳 Kitchen"
+              log_level: "Debug"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.kitchen_table_lights_on
+          - action: timer.cancel
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+                - timer.kitchen_cooker_light_off
+                - timer.kitchen_table_light_dim
+                - timer.kitchen_table_light_off
+    mode: queued
+    max: 10
+  - id: "1606158191306"
+    alias: "Kitchen: Motion Detected Cooker Lights Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_area_motion
+          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_pir
+          - binary_sensor.kitchen_motion_mmwave
+          - binary_sensor.kitchen_motion_2_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+      - condition: state
+        entity_id: light.kitchen_cooker_white
+        state: "off"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🐾 Motion detected and it's dark
+                ({{ states('sensor.kitchen_motion_illuminance') }} &
+                {{ states('sensor.kitchen_motion_2_illuminance') }}
+                < {{ states('input_number.kitchen_light_level_threshold') }} &
+                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                Turning kitchen cooker 💡 🔆 lights on.
+              title: "🧑‍🍳 Kitchen"
+              log_level: "Debug"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.kitchen_cooker_lights_on
+          - action: timer.cancel
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+                - timer.kitchen_cooker_light_off
+                - timer.kitchen_table_light_dim
+                - timer.kitchen_table_light_off
+    mode: queued
+    max: 10
+  - id: "1606158191309"
+    alias: "Kitchen: Motion Detected Cooker Lights On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_area_motion
+          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_pir
+          - binary_sensor.kitchen_motion_mmwave
+          - binary_sensor.kitchen_motion_2_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+      - condition: state
+        entity_id: light.kitchen_cooker_white
+        state: "on"
+      - condition: numeric_state
+        entity_id: light.kitchen_cooker_white
+        attribute: brightness
+        below: 100
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🐾 Motion detected and it's dark
+                ({{ states('sensor.kitchen_motion_illuminance') }} &
+                {{ states('sensor.kitchen_motion_2_illuminance') }}
+                < {{ states('input_number.kitchen_light_level_threshold') }} &
+                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                Turning up cooker 💡 🔆 lights.
+              title: "🧑‍🍳 Kitchen"
+              log_level: "Debug"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.kitchen_cooker_lights_on
+          - action: timer.cancel
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+                - timer.kitchen_cooker_light_off
+                - timer.kitchen_table_light_dim
+                - timer.kitchen_table_light_off
+    mode: queued
+    max: 10
+  - id: "1606158191304"
+    alias: "Kitchen: Motion Detected Ambient Lights On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_area_motion
+          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_pir
+          - binary_sensor.kitchen_motion_mmwave
+          - binary_sensor.kitchen_motion_2_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+      - or:
+          - condition: state
+            entity_id: light.kitchen_cabinets
+            state: "on"
+          - condition: state
+            entity_id: light.kitchen_down_lights
+            state: "on"
+          - condition: state
+            entity_id: light.kitchen_draws
+            state: "on"
+    actions:
+      - parallel:
+          - choose:
+              - conditions:
+                  - or:
+                      - condition: numeric_state
+                        entity_id: light.kitchen_cabinets
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_down_lights
+                        attribute: brightness
+                        below: "100"
+                      - condition: numeric_state
+                        entity_id: light.kitchen_draws
+                        attribute: brightness
+                        below: "100"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion detected.
+                        Turning up accent 💡 🔆 lights.
+                      title: "🧑‍🍳 Kitchen"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    data:
+                      transition: 1
+                    target:
+                      entity_id: scene.kitchen_accent_lights_on
+            default: []
+          - action: timer.cancel
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+                - timer.kitchen_cooker_light_off
+                - timer.kitchen_table_light_dim
+                - timer.kitchen_table_light_off
+    mode: queued
+    max: 10
+  - id: "1606158191305"
+    alias: "Kitchen: Motion Detected Ambient Lights Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.kitchen_area_motion
+          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_pir
+          - binary_sensor.kitchen_motion_mmwave
+          - binary_sensor.kitchen_motion_2_occupancy
+        to: "on"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+      - or:
+          - condition: state
+            entity_id: light.kitchen_cabinets
+            state: "off"
+          - condition: state
+            entity_id: light.kitchen_down_lights
+            state: "off"
+          - condition: state
+            entity_id: light.kitchen_draws
+            state: "off"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🐾 Motion detected.
+                Turning accent 💡 🔆 lights on.
+              title: "🧑‍🍳 Kitchen"
+              log_level: "Debug"
+          - action: scene.turn_on
+            data:
+              transition: 1
+            target:
+              entity_id: scene.kitchen_dim_accent_lights
+          - action: timer.cancel
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+                - timer.kitchen_cooker_light_off
+                - timer.kitchen_table_light_dim
+                - timer.kitchen_table_light_off
+    mode: single
+  - id: "1606652871368"
     alias: "Kitchen: No Motion"
     description: ""
     triggers:
       - trigger: state
-        entity_id: binary_sensor.kitchen_area_motion
+        entity_id:
+          - binary_sensor.kitchen_area_motion
         from: "on"
         to: "off"
-        for: 00:05:00
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_kitchen_motion_triggers
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🚷 No motion. Starting ⏳timers.
+              title: "🧑‍🍳 Kitchen"
+              log_level: "Debug"
+          - action: timer.start
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_dim
+            data:
+              duration: "00:05:00"
+    mode: single
+  - id: "1606652871369"
+    alias: "Kitchen: No Motion Short Time"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_cooker_light_dim
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_table_light_dim
     conditions:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
@@ -51,6 +337,12 @@ automation:
               entity_id: scene.kitchen_main_lights_dim
             data:
               transition: 2
+          - action: timer.start
+            target:
+              entity_id:
+                - timer.kitchen_cooker_light_off
+            data:
+              duration: "00:05:00"
           - choose:
               - conditions:
                   - condition: time
@@ -93,11 +385,14 @@ automation:
     alias: "Kitchen: No Motion Turn Off Lights"
     description: ""
     triggers:
-      - trigger: state
-        from: "on"
-        to: "off"
-        for: 00:07:00
-        entity_id: binary_sensor.kitchen_area_motion
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_cooker_light_off
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.kitchen_table_light_off
     conditions:
       - condition: state
         entity_id: input_boolean.enable_kitchen_motion_triggers
@@ -236,210 +531,6 @@ automation:
               entity_id: scene.kitchen_dim_accent_lights
             data:
               transition: 2
-    mode: single
-  - id: "1606158191303"
-    alias: "Kitchen: Motion Detected Table Lights Off"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_2_occupancy
-          - binary_sensor.kitchen_motion_occupancy
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - or:
-          - condition: state
-            entity_id: light.kitchen_table_white
-            state: "off"
-          - and:
-              - condition: state
-                entity_id: light.kitchen_table_white
-                state: "on"
-              - condition: numeric_state
-                entity_id: light.kitchen_table_white
-                attribute: brightness
-                below: 100
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                🐾 Motion detected.
-                Turning table 💡 🔆 lights on.
-              title: "🧑‍🍳 Kitchen"
-              log_level: "Debug"
-          - action: scene.turn_on
-            target:
-              entity_id: scene.kitchen_table_lights_on
-    mode: queued
-    max: 10
-  - id: "1606158191306"
-    alias: "Kitchen: Motion Detected Cooker Lights Off"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_2_occupancy
-          - binary_sensor.kitchen_motion_occupancy
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - condition: state
-        entity_id: light.kitchen_cooker_white
-        state: "off"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                🐾 Motion detected and it's dark
-                ({{ states('sensor.kitchen_motion_illuminance') }} &
-                {{ states('sensor.kitchen_motion_2_illuminance') }}
-                < {{ states('input_number.kitchen_light_level_threshold') }} &
-                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                Turning kitchen cooker 💡 🔆 lights on.
-              title: "🧑‍🍳 Kitchen"
-              log_level: "Debug"
-          - action: scene.turn_on
-            target:
-              entity_id: scene.kitchen_cooker_lights_on
-    mode: queued
-    max: 10
-  - id: "1606158191309"
-    alias: "Kitchen: Motion Detected Cooker Lights On"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_2_occupancy
-          - binary_sensor.kitchen_motion_occupancy
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - condition: state
-        entity_id: light.kitchen_cooker_white
-        state: "on"
-      - condition: numeric_state
-        entity_id: light.kitchen_cooker_white
-        attribute: brightness
-        below: 100
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                🐾 Motion detected and it's dark
-                ({{ states('sensor.kitchen_motion_illuminance') }} &
-                {{ states('sensor.kitchen_motion_2_illuminance') }}
-                < {{ states('input_number.kitchen_light_level_threshold') }} &
-                {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                Turning up cooker 💡 🔆 lights.
-              title: "🧑‍🍳 Kitchen"
-              log_level: "Debug"
-          - action: scene.turn_on
-            target:
-              entity_id: scene.kitchen_cooker_lights_on
-    mode: queued
-    max: 10
-  - id: "1606158191304"
-    alias: "Kitchen: Motion Detected Ambient Lights On"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kitchen_area_motion
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - or:
-          - condition: state
-            entity_id: light.kitchen_cabinets
-            state: "on"
-          - condition: state
-            entity_id: light.kitchen_down_lights
-            state: "on"
-          - condition: state
-            entity_id: light.kitchen_draws
-            state: "on"
-    actions:
-      - parallel:
-          - choose:
-              - conditions:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: light.kitchen_cabinets
-                        attribute: brightness
-                        below: "100"
-                      - condition: numeric_state
-                        entity_id: light.kitchen_down_lights
-                        attribute: brightness
-                        below: "100"
-                      - condition: numeric_state
-                        entity_id: light.kitchen_draws
-                        attribute: brightness
-                        below: "100"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        🐾 Motion detected.
-                        Turning up accent 💡 🔆 lights.
-                      title: "🧑‍🍳 Kitchen"
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    data:
-                      transition: 1
-                    target:
-                      entity_id: scene.kitchen_accent_lights_on
-            default: []
-    mode: queued
-    max: 10
-  - id: "1606158191305"
-    alias: "Kitchen: Motion Detected Ambient Lights Off"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kitchen_area_motion
-        to: "on"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_kitchen_motion_triggers
-        state: "on"
-      - or:
-          - condition: state
-            entity_id: light.kitchen_cabinets
-            state: "off"
-          - condition: state
-            entity_id: light.kitchen_down_lights
-            state: "off"
-          - condition: state
-            entity_id: light.kitchen_draws
-            state: "off"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                🐾 Motion detected.
-                Turning accent 💡 🔆 lights on.
-              title: "🧑‍🍳 Kitchen"
-              log_level: "Debug"
-          - action: scene.turn_on
-            data:
-              transition: 1
-            target:
-              entity_id: scene.kitchen_dim_accent_lights
     mode: single
   # region Switch/Shelly
   - id: "1721248529363"
