@@ -994,6 +994,31 @@ automation:
               message: >-
                 Warning! Kitchen smoke alarm triggered.
     mode: single
+  # region Kettle
+  - id: "1759577733332"
+    alias: "Kitchen: Kettle Boiled"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.kettle_status
+        from: heating
+        to: standby
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Kettle finised boiling water
+              title: "🧑‍🍳Kitchen"
+          - action: script.alexa_announce
+            metadata: {}
+            data:
+              method: speak
+              message: Kettle boiled
+    mode: single
 
 scene:
   - id: "kitchen_main_lights_dim"
