@@ -97,9 +97,23 @@ automation:
               - person.danny
     mode: single
 
-sensor:
-  # https://community.home-assistant.io/t/uk-met-office-severe-weather-warnings/189680/4
-  - platform: feedparser
-    name: Met Office RSS Weather Warnings
-    feed_url: !secret weather_warning_rss
-    date_format: "%a, %b %d %I:%M %p"
+rest:
+  - authentication: basic
+    resource: !secret weather_warning_n8n_url
+    method: GET
+    username: !secret n8n_username
+    password: !secret n8n_password
+    headers:
+      User-Agent: Home Assistant
+      Content-Type: application/json
+    verify_ssl: true
+    scan_interval: 60
+    sensor:
+      - name: "Weather Warning"
+        unique_id: 77c4f26c-d940-437f-8693-b7f29debe008
+        value_template: "{{ value_json.isWarning }}"
+        json_attributes:
+          - "title"
+          - "content"
+          - "url"
+          - "image_url"
