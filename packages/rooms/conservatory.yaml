@@ -41,16 +41,19 @@ automation:
               entity_id: scene.conservatory_turn_on_light
             data:
               transition: 2
+          - action: timer.cancel
+            data: {}
+            target:
+              entity_id: timer.conservatory_lights_off
     mode: single
   - id: "1610234794461"
-    alias: "Conservatory: No Motion Detected Dim Lights"
+    alias: "Conservatory: No Motion Detected"
     description: ""
     triggers:
       - trigger: state
-        to: "off"
-        for: 00:01:00
         entity_id: binary_sensor.conservatory_area_motion
         from: "on"
+        to: "off"
     conditions:
       - condition: state
         entity_id: light.conservatory
@@ -62,23 +65,23 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: "🚷 No motion. 💡 🔅 Dimming lights."
+              message: "🚷 No motion. Starting ⏳timer."
               title: "Conservatory"
               log_level: "Debug"
-          - action: scene.turn_on
+          - action: timer.start
             target:
-              entity_id: scene.conservatory_dim_light
+              entity_id: timer.conservatory_lights_off
             data:
-              transition: 2
+              duration: "00:01:30"
     mode: single
   - id: "1610238960657"
     alias: "Conservatory: No Motion Turning Turn Lights Off"
     description: ""
     triggers:
-      - trigger: state
-        entity_id: binary_sensor.conservatory_area_motion
-        to: "off"
-        for: 00:01:30
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.conservatory_lights_off
     conditions:
       - condition: state
         entity_id: light.conservatory
@@ -250,25 +253,6 @@ scene:
           - hs
         color_mode: color_temp
         brightness: 255
-        color_temp: 282
-        effect: none
-        friendly_name: Conservatory
-        supported_features: 63
-        state: "on"
-  - id: "1610238837322"
-    name: "Conservatory: Dim Light"
-    entities:
-      light.conservatory:
-        min_mireds: 153
-        max_mireds: 500
-        effect_list:
-          - colorloop
-          - random
-        supported_color_modes:
-          - color_temp
-          - hs
-        color_mode: color_temp
-        brightness: 128
         color_temp: 282
         effect: none
         friendly_name: Conservatory
