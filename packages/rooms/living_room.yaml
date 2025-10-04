@@ -67,11 +67,18 @@ automation:
                             data:
                               transition: 1
                     default:
-                      - action: scene.turn_on
-                        target:
-                          entity_id: scene.living_room_lamps_on
-                        data:
-                          transition: 1
+                      - parallel:
+                          - action: scene.turn_on
+                            target:
+                              entity_id: scene.living_room_lamps_on
+                            data:
+                              transition: 1
+                          - action: timer.cancel
+                            data: {}
+                            target:
+                              entity_id:
+                                - timer.living_room_lamps_dim
+                                - timer.living_room_lamps_off
           - alias: Room too bright
             conditions:
               - or:
@@ -122,14 +129,39 @@ automation:
         default: []
     mode: queued
     max: 10
-  - id: "1606170045630"
-    alias: "Living Room: No Motion After Short Time Dim Lights"
+  - id: "1606170045632"
+    alias: "Living Room: No Motion"
     description: ""
     triggers:
       - trigger: state
         entity_id: binary_sensor.living_room_area_motion
         to: "off"
-        for: 00:05:00
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_living_room_motion_triggers
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🚷 No motion. Starting dim lamp ⏳timer.
+                💡 🔅 Dimming lights
+              title: "🛋️ Living Room"
+              log_level: "Debug"
+          - action: timer.start
+            target:
+              entity_id: timer.living_room_lamps_dim
+            data:
+              duration: "00:02:00"
+  - id: "1606170045630"
+    alias: "Living Room: No Motion After Short Time Dim Lights"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.living_room_lamps_dim
     conditions:
       - condition: state
         entity_id: input_boolean.enable_living_room_motion_triggers
@@ -143,6 +175,11 @@ automation:
                 💡 🔅 Dimming lights
               title: "🛋️ Living Room"
               log_level: "Debug"
+          - action: timer.start
+            target:
+              entity_id: timer.living_room_lamps_off
+            data:
+              duration: "00:05:00"
           - choose:
               - conditions:
                   - condition: state
@@ -183,11 +220,10 @@ automation:
     alias: "Living Room: No Motion For Long Time"
     description: ""
     triggers:
-      - trigger: state
-        entity_id: binary_sensor.living_room_area_motion
-        from: "on"
-        to: "off"
-        for: 00:10:00
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.living_room_lamps_off
     conditions:
       - condition: state
         entity_id: input_boolean.enable_living_room_motion_triggers
@@ -239,7 +275,7 @@ automation:
     mode: single
   - id: "1714512650107"
     alias: "Living Room: Lamps On And No Motion"
-    description: "Caters for when lights are on and Home Assistant was restarted"
+    description: "DEPRECATED. Caters for when lights are on and Home Assistant was restarted"
     triggers:
       - trigger: state
         entity_id:
@@ -262,75 +298,6 @@ automation:
             metadata: {}
             target:
               entity_id: scene.living_room_lamps_off
-    mode: single
-  # region TV
-  - id: "1610409803685"
-    alias: "Living Room: TV Turned Off Turn Off Lights"
-    description: "TV is turned off and turn lights off if there has been no motion."
-    triggers:
-      - trigger: numeric_state
-        entity_id: sensor.tv_plug_power
-        for: 00:10:00
-        below: input_number.tv_plug_powered_on_threshold
-    conditions:
-      - condition: state
-        entity_id: light.living_room_lamps
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.living_room_area_motion
-        state: "off"
-      - condition: state
-        entity_id: binary_sensor.living_room_area_motion
-        state: "off"
-        for:
-          hours: 0
-          minutes: 10
-          seconds: 0
-      - condition: state
-        entity_id: device_tracker.doug
-        state: "not_home"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: "📺 TV turned off for 10 minutes. Turning lights off."
-              title: "🛋️ Living Room"
-              log_level: "Debug"
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: light.living_room_lamps
-                    state: "on"
-                  - condition: state
-                    entity_id: light.lounge_ceiling
-                    state: "on"
-                sequence:
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.living_room_lights_off
-                    data:
-                      transition: 1
-              - conditions:
-                  - condition: state
-                    entity_id: light.living_room_lamps
-                    state: "on"
-                sequence:
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.living_room_lamps_off
-                    data:
-                      transition: 1
-              - conditions:
-                  - condition: state
-                    entity_id: light.lounge_ceiling
-                    state: "on"
-                sequence:
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.living_room_ceiling_lights_off
-                    data:
-                      transition: 1
-            default: []
     mode: single
   # region Alarm
   - id: "1588859622571"
@@ -3330,7 +3297,7 @@ sensor:
     indoor_temp_sensor: sensor.living_room_motion_temperature
     indoor_humidity_sensor: sensor.living_room_motion_humidity
     outdoor_temp_sensor: sensor.gw2000a_outdoor_temperature
-    calibration_factor: 1.5  # Estimate
+    calibration_factor: 1.5 # Estimate
 
 template:
   - binary_sensor:
