@@ -27,6 +27,9 @@ jobs:
   changes:
     name: Detect file changes
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       esphome: ${{ steps.filter.outputs.esphome }}
     steps:
@@ -43,6 +46,9 @@ jobs:
     name: Validate config
     needs: changes
     uses: ./.github/workflows/_ha-validate.yml
+    timeout-minutes: 25
+    permissions:
+      contents: read
     with:
       # Run ESPHome if esphome/** changed, OR on the weekly schedule
       run_esphome: ${{ needs.changes.outputs.esphome == 'true' || github.event_name == 'schedule' }}
@@ -51,6 +57,7 @@ jobs:
     name: Deploy changes
     needs: [validate]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: production
     permissions:
       contents: read
