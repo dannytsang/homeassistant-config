@@ -1,0 +1,59 @@
+# Created by Danny Tsang <danny@tsang.uk>
+script:
+  # region PC
+  office_turn_off_backup_drive:
+    alias: Office Turn Off Backup Drive
+    sequence:
+      - and:
+          - condition: state
+            entity_id: switch.external_hdd
+            state: "on"
+          - condition: state
+            entity_id: group.jd_computer
+            state: "not_home"
+      - action: script.send_to_home_log
+        data:
+          message: ":floppy_disk: Turning off external HDD"
+          log_level: "Debug"
+      - action: switch.turn_off
+        target:
+          entity_id: switch.external_hdd
+    mode: single
+  office_pc_turned_off_notification:
+    alias: Office PC Turned Off Notification
+    sequence:
+      - action: scene.turn_on
+        data:
+          transition: 1
+        target:
+          entity_id: scene.office_pc_turned_off_notification
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - action: scene.turn_on
+        data:
+          transition: 1
+        target:
+          entity_id: scene.office_turn_off_light_notification
+    mode: single
+
+  # region Blinds
+  # Used in UI
+  office_open_blinds:
+    alias: Office Open Blinds
+    sequence:
+      - action: cover.set_cover_tilt_position
+        data:
+          tilt_position: 50
+        target:
+          entity_id: cover.office_blinds
+  office_close_blinds:
+    alias: Office Close Blinds
+    sequence:
+      - action: cover.set_cover_tilt_position
+        data:
+          tilt_position: 0
+        target:
+          entity_id: cover.office_blinds
