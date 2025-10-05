@@ -245,93 +245,134 @@ script:
             entity:
               domain:
                 - person
+      priority:
+        description: "normal | high | critical (mobile supports critical)"
+        example: "normal"
+        selector:
+          select:
+            options:
+              - normal
+              - high
+              - critical
+      suppress_if_quiet:
+        description: "If quiet hours are on, avoid push; fall back to persistent"
+        default: true
+        example: "true"
+        selector:
+          boolean:
     sequence:
-      - variables:
-          persons: >-
-            {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
-          # Get people's preferred messaging platform
-          slack: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
-          discord: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
-          mobile: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Mobile') }}
-          telegram: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Telegram') }}
-          whatsapp: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'WhatsApp') }}
-      - action: script.send_to_home_log
-        data:
-          message: "{{ message }}"
-          title: "{{ title|default(none, true) }}"
-      # Check if notifications is turned on.
+      - alias: Set defaults
+        variables:
+          v_priority: "{{ (priority | default('normal')) }}"
+          v_suppress_if_quiet: "{{ (suppress_if_quiet | default(true)) }}"
       - if:
-          - condition: state
-            entity_id: input_boolean.enable_direct_notifications
-            state: "on"
-        then:
-          # Check anyone has set Slack for their direct messages
-          - if:
-              - condition: template
-                value_template: "{{ slack|default('', true)|length > 0 }}"
-            then:
-              - action: script.post_slack_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                  people: "{{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
-                  |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
-                  |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}"
-                continue_on_error: true
-          - if:
-              - condition: template
-                value_template: "{{ discord|default('', true)|length > 0 }}"
-            then:
-              - action: script.post_discord_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "{{ states('input_text.discord_direct_notification_channel_id') }}"
-                  people: "{{ discord|join(' ')
-                    |replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
-                    |replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
-                    |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
-                    |replace('person.ashlee', '<@'~states('input_text.ashlees_discord_chat_id')~'>') }}"
-                continue_on_error: true
-          - repeat:
-              for_each: "{{ mobile|default([], true) }}"
-              sequence:
-                - action: script.post_home_assistant_direct_notification
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default(none, true) }}"
-                    people: "{{ repeat.item }}"
-                  continue_on_error: true
-          - repeat:
-              for_each: "{{ telegram|default([], true) }}"
-              sequence:
-                - action: script.post_telegram_direct_notification
+          - or:
+              - alias: "Quiet time is OFF"
+                condition: state
+                entity_id: schedule.notification_quiet_time
+                state: "off"
 
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title|default(none, true) }}"
-                    people: "{{ repeat.item }}"
-                  continue_on_error: true
-          - repeat:
-              for_each: "{{ whatsapp|default([], true) }}"
-              sequence:
-                - action: script.post_whatsapp_direct_notification
-                  data:
-                    message: "{{ message }}"
-                    title: "{{ title }}"
-                    people: "{{ repeat.item }}"
-                  continue_on_error: true
+              - alias: "Quiet time is ON and suppress_if_quiet is FALSE"
+                and:
+                  - condition: state
+                    entity_id: schedule.notification_quiet_time
+                    state: "on"
+                  - condition: template
+                    value_template: "{{ not v_suppress_if_quiet }}"
+
+              - alias: "Quiet time is ON and priority is NOT 'normal'"
+                and:
+                  - condition: state
+                    entity_id: schedule.notification_quiet_time
+                    state: "on"
+                  - condition: template
+                    value_template: "{{ v_priority != 'normal' }}"
+        then:
+          - variables:
+              persons: >-
+                {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
+              # Get people's preferred messaging platform
+              slack: >-
+                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
+              discord: >-
+                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
+              mobile: >-
+                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Mobile') }}
+              telegram: >-
+                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Telegram') }}
+              whatsapp: >-
+                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'WhatsApp') }}
+          - action: script.send_to_home_log
+            data:
+              message: "{{ message }}"
+              title: "{{ title|default(none, true) }}"
+          # Check if notifications is turned on.
+          - if:
+              - condition: state
+                entity_id: input_boolean.enable_direct_notifications
+                state: "on"
+            then:
+              # Check anyone has set Slack for their direct messages
+              - if:
+                  - condition: template
+                    value_template: "{{ slack|default('', true)|length > 0 }}"
+                then:
+                  - action: script.post_slack_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default(none, true) }}"
+                      target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
+                      people: "{{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
+                      |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
+                      |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}"
+                    continue_on_error: true
+              - if:
+                  - condition: template
+                    value_template: "{{ discord|default('', true)|length > 0 }}"
+                then:
+                  - action: script.post_discord_notification
+                    data:
+                      message: "{{ message }}"
+                      title: "{{ title|default(none, true) }}"
+                      target: "{{ states('input_text.discord_direct_notification_channel_id') }}"
+                      people: "{{ discord|join(' ')
+                        |replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
+                        |replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
+                        |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>')
+                        |replace('person.ashlee', '<@'~states('input_text.ashlees_discord_chat_id')~'>') }}"
+                    continue_on_error: true
+              - repeat:
+                  for_each: "{{ mobile|default([], true) }}"
+                  sequence:
+                    - action: script.post_home_assistant_direct_notification
+                      data:
+                        message: "{{ message }}"
+                        title: "{{ title|default(none, true) }}"
+                        people: "{{ repeat.item }}"
+                      continue_on_error: true
+              - repeat:
+                  for_each: "{{ telegram|default([], true) }}"
+                  sequence:
+                    - action: script.post_telegram_direct_notification
+                      data:
+                        message: "{{ message }}"
+                        title: "{{ title|default(none, true) }}"
+                        people: "{{ repeat.item }}"
+                      continue_on_error: true
+              - repeat:
+                  for_each: "{{ whatsapp|default([], true) }}"
+                  sequence:
+                    - action: script.post_whatsapp_direct_notification
+                      data:
+                        message: "{{ message }}"
+                        title: "{{ title }}"
+                        people: "{{ repeat.item }}"
+                      continue_on_error: true
     mode: queued
     max: 10
   send_direct_notification_with_url:
