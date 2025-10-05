@@ -40,6 +40,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: remark-lint
+        id: remark
         uses: docker://pipelinecomponents/remark-lint:latest
         with:
           args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
@@ -70,12 +71,12 @@ jobs:
         run: cp -R ./esphome/secrets.yaml.sample ./esphome/secrets.yaml
       - name: Validate all ESPHome YAMLs
         run: |
+          set -euo pipefail
           shopt -s nullglob
           for f in ./esphome/*.yaml; do
-            if [ "$(basename "$f")" != "secrets.yaml" ]; then
-              echo ">> Checking $f"
-              esphome config "$f"
-            fi
+            [ "$(basename "$f")" = "secrets.yaml" ] && continue
+            echo ">> Checking $f"
+            esphome config "$f"
           done
 
   esphome-skipped:
@@ -180,3 +181,13 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - uses: raven-actions/actionlint@v2
+        continue-on-error: true
+      - name: Summarize actionlint
+        if: ${{ always() }}
+        run: |
+          echo "## actionlint summary" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ No workflow syntax errors detected." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ actionlint found potential issues. See logs for details." >> $GITHUB_STEP_SUMMARY
+          fi
