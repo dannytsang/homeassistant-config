@@ -44,6 +44,11 @@ jobs:
         with:
           args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
         continue-on-error: true
+      - name: Summarize Markdown lint
+        if: ${{ always() }}
+        run: |
+          echo "## Markdown lint summary" >> $GITHUB_STEP_SUMMARY
+          echo "✅ remark-lint finished. Check the logs for any warnings or errors." >> $GITHUB_STEP_SUMMARY
 
   esphome:
     # Controlled by caller via `run_esphome`
