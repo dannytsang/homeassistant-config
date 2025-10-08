@@ -145,7 +145,7 @@ script:
         description: >-
           When battery reaches this charge state,
           it will stop exporting and keep it at this level.
-        default: 50
+        default: 10
         selector:
           number:
             min: 10
@@ -262,13 +262,17 @@ script:
                     to grid first.
                   title: Solar Assistant
                   log_level: "Debug"
-          - alias: Set stop charge level
-            action: number.set_value
-            target:
-              entity_id: number.growatt_sph_battery_first_stop_charge
-            data:
-              value: >-
-                {{ states('number.growatt_sph_grid_first_stop_discharge')|default(50, true)|float(100) }}
+          - alias: Update grid stop SOC if set in field
+            if:
+              - condition: template
+                value_template: "{{ max_discharge|is_number }}"
+            then:
+              - alias: Set stop charge level
+                action: number.set_value
+                target:
+                  entity_id: number.growatt_sph_grid_first_discharge_rate
+                data:
+                  value: "{{ max_discharge|default(10, true)|float(100) }}"
           - alias: Set inverter mode to export first
             action: select.select_option
             target:
