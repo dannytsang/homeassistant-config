@@ -840,33 +840,6 @@ automation:
                 - cover.living_room_blinds_middle
                 - cover.living_room_blinds_right
     mode: single
-  # region Camera
-  - id: "1630015457540"
-    alias: "Living Room: Person Detected"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.living_room_person
-        from: "off"
-        to: "on"
-    conditions: []
-    actions:
-      - action: camera.snapshot
-        data_template:
-          filename:
-            "{{ states('input_text.latest_frigate_lounge_person_file_path')
-            }}"
-        target:
-          entity_id: camera.living_room
-      - action: script.send_home_log_with_local_attachments
-        data_template:
-          message: Frigate detected a person in the lounge.
-          title: ":bust_in_silhouette: Person detected in 🛋️ lounge"
-          filePath:
-            "{{ states('input_text.latest_frigate_lounge_person_file_path')
-            }}"
-    mode: queued
-    max: 10
   # region Switches
   - id: "1610918759041"
     alias: "Living Room: Restart Harmony Hub"
