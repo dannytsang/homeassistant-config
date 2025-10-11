@@ -23,32 +23,58 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Changelog
-        id: changelog
-        uses: metcalfc/changelog-generator@v4.6.2
-        with:
-          myToken: ${{ secrets.GITHUB_TOKEN }}
-          head-ref: 'main'
-          base-ref: 'HEAD~10'  # Last 10 commits
-
-      - name: Create/Update CHANGELOG.md
         run: |
-          cat << 'EOF' > CHANGELOG.md
+          cat << 'HEADER' > CHANGELOG.md
           # Changelog
 
           All notable changes to Home Assistant configuration.
 
-          ## Recent Changes
+          ## Recent Changes (Last 20 Commits)
+
+          HEADER
           
-          ${{ steps.changelog.outputs.changelog }}
+          # Generate changelog from git log
+          git log -20 --pretty=format:"- **%h** - %s (%an, %ar)" --no-merges >> CHANGELOG.md
           
-          ---
-          *Generated on $(date '+%Y-%m-%d %H:%M:%S')*
-          EOF
+          # Add sections for different types of changes
+          echo -e "\n\n## By Category\n" >> CHANGELOG.md
+          
+          # Automations
+          echo "### 🤖 Automations" >> CHANGELOG.md
+          git log -20 --pretty=format:"- %s (%h)" --no-merges -- "automations.yaml" "packages/*/automation*.yaml" >> CHANGELOG.md || echo "_No recent changes_" >> CHANGELOG.md
+          echo -e "\n" >> CHANGELOG.md
+          
+          # Scripts
+          echo "### 📜 Scripts" >> CHANGELOG.md
+          git log -20 --pretty=format:"- %s (%h)" --no-merges -- "scripts.yaml" "script.yaml" "packages/*/script*.yaml" >> CHANGELOG.md || echo "_No recent changes_" >> CHANGELOG.md
+          echo -e "\n" >> CHANGELOG.md
+          
+          # Integrations
+          echo "### 🔌 Integrations" >> CHANGELOG.md
+          git log -20 --pretty=format:"- %s (%h)" --no-merges -- "packages/integrations/*.yaml" >> CHANGELOG.md || echo "_No recent changes_" >> CHANGELOG.md
+          echo -e "\n" >> CHANGELOG.md
+          
+          # Rooms
+          echo "### 🏠 Rooms" >> CHANGELOG.md
+          git log -20 --pretty=format:"- %s (%h)" --no-merges -- "packages/rooms/*.yaml" >> CHANGELOG.md || echo "_No recent changes_" >> CHANGELOG.md
+          echo -e "\n" >> CHANGELOG.md
+          
+          # ESPHome
+          echo "### 🔧 ESPHome" >> CHANGELOG.md
+          git log -20 --pretty=format:"- %s (%h)" --no-merges -- "esphome/*.yaml" >> CHANGELOG.md || echo "_No recent changes_" >> CHANGELOG.md
+          echo -e "\n" >> CHANGELOG.md
+          
+          # Footer with stats
+          echo -e "\n---" >> CHANGELOG.md
+          echo -e "\n### Statistics\n" >> CHANGELOG.md
+          echo "- Total commits: $(git rev-list --count HEAD)" >> CHANGELOG.md
+          echo "- Configuration files: $(find . -name '*.yaml' -o -name '*.yml' | wc -l)" >> CHANGELOG.md
+          echo "- Last updated: $(date '+%Y-%m-%d %H:%M:%S UTC')" >> CHANGELOG.md
+          echo "- Branch: main" >> CHANGELOG.md
 
       - name: Commit Changelog
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add CHANGELOG.md
-          git diff --quiet && git diff --staged --quiet || git commit -m "docs: update changelog [skip ci]"
-          git push
+          git diff --quiet && git diff --staged --quiet || (git commit -m "docs: update changelog [skip ci]" && git push)
