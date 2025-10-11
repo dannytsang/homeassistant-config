@@ -1856,7 +1856,14 @@ template:
         icon: "mdi:fridge"
         device_class: running
         state: "{{ states('sensor.ecoflow_kitchen_ac_out_power') | float(0) >= 10 and states('sensor.ecoflow_kitchen_ac_out_power') | float(0) <= 100 }}"
-  - binary_sensor:
+  - trigger:
+      - trigger: state
+        entity_id:
+          - sensor.oven_channel_1_power
+        not_to: "unavailable"
+      - trigger: time_pattern
+        minutes: 0
+    binary_sensor:
       - name: Oven Powered On
         unique_id: 41566148-cf56-468f-a714-974b6977cc85
         icon: "mdi:toaster-oven"
