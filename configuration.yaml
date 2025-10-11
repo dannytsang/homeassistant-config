@@ -77,11 +77,26 @@ recorder:
   db_url: !secret recorderdb
   purge_keep_days: 30
   exclude:
-    domains: [conversation, image, image_processing, remote, stt, tts, todo]
+    domains: [automation, calendar, conversation, image, image_processing, remote, stt, sun, tts, todo, updater]
     entities:
       - sensor.dannys_phone_last_notification
       - sensor.battery_charge_remaining_hours
       - sensor.time_to_charge_battery
+    entity_globs:
+      - sensor.time
+      - sensor.time_*
+      - sensor.date
+      - sensor.date_time*
+      - sensor.uptime*
+      # ESPHome diagnostic sensors (high frequency, low value)
+      - sensor.*_wifi_signal*
+      - sensor.*_uptime
+      - sensor.*_rssi
+      - sensor.*_ip_address
+      - binary_sensor.*_status  # Device online/offline status
+      # Media player state (constantly changing, rarely useful)
+      - media_player.*_volume_level
+      - media_player.*_media_position
 
 # Example LL-HLS configuration.yaml entry.
 stream:
