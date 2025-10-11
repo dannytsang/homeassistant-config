@@ -1,0 +1,54 @@
+name: Generate Changelog
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.yaml'
+      - '**.yml'
+      - 'automations.yaml'
+      - 'scripts.yaml'
+      - 'scenes.yaml'
+      - 'configuration.yaml'
+
+jobs:
+  changelog:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0  # Fetch all history for changelog
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Changelog
+        id: changelog
+        uses: metcalfc/changelog-generator@v4.6.2
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+          head-ref: 'main'
+          base-ref: 'HEAD~10'  # Last 10 commits
+
+      - name: Create/Update CHANGELOG.md
+        run: |
+          cat << 'EOF' > CHANGELOG.md
+          # Changelog
+
+          All notable changes to Home Assistant configuration.
+
+          ## Recent Changes
+          
+          ${{ steps.changelog.outputs.changelog }}
+          
+          ---
+          *Generated on $(date '+%Y-%m-%d %H:%M:%S')*
+          EOF
+
+      - name: Commit Changelog
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add CHANGELOG.md
+          git diff --quiet && git diff --staged --quiet || git commit -m "docs: update changelog [skip ci]"
+          git push
