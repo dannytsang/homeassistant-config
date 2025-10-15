@@ -4,11 +4,17 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **cc766d47** - Added changed files object matching. (Danny Tsang, 38 seconds ago)
-- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 16 minutes ago)
-- **ed149351** - Add write permissions to create labels. (Danny Tsang, 22 minutes ago)
-- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 32 minutes ago)
-- **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 23 hours ago)
+- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 56 seconds ago)
+- **ed214763** - Match validtion to push permissions. (Danny Tsang, 13 minutes ago)
+- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 14 minutes ago)
+- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 16 minutes ago)
+- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 23 minutes ago)
+- **218113a3** - docs: update changelog (#128) (github-actions[bot], 23 minutes ago)
+- **cc766d47** - Added changed files object matching. (Danny Tsang, 25 minutes ago)
+- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 40 minutes ago)
+- **ed149351** - Add write permissions to create labels. (Danny Tsang, 47 minutes ago)
+- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 57 minutes ago)
+- **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 24 hours ago)
 - **0516091f** - Made the get calendar and choose sequence. (Danny Tsang, 2 days ago)
 - **2e14360e** - docs: update changelog (#127) (github-actions[bot], 4 days ago)
 - **2911b810** - Remove auto merge from PR. (Danny Tsang, 4 days ago)
@@ -18,12 +24,6 @@ All notable changes to Home Assistant configuration.
 - **f7223bae** - Added more entities to exclude from recorder. (Danny Tsang, 4 days ago)
 - **cd9eaf84** - Consider the GlowMrt data as also being valid state. (Danny Tsang, 4 days ago)
 - **24d8e7c2** - Changed oven on to use triggers again because it was less accurate. (Danny Tsang, 4 days ago)
-- **be21ebc9** - Bump LLM vision integration version. (Danny Tsang, 5 days ago)
-- **d2d47325** - Moved cancel timer outside of the choose to always cancel the timers. (Danny Tsang, 7 days ago)
-- **050cb3a8** - Added targets from LD2450 to stop timer. (Danny Tsang, 7 days ago)
-- **fad0315b** - Removed living room camera automation. (Danny Tsang, 7 days ago)
-- **2f55a172** - Fix setting battery stop to grid stop in grid mode. (Danny Tsang, 7 days ago)
-- **dbe83276** - Renamed file extension for dependabot to the same as other workflow files. (Danny Tsang, 9 days ago)
 
 ## By Category
 
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3911
+- Total commits: 3917
 - Configuration files: 110
-- Last updated: 2025-10-15 20:57:25 UTC
+- Last updated: 2025-10-15 21:21:50 UTC
 - Branch: main
