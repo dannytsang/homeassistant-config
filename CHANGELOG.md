@@ -4,26 +4,26 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **2911b810** - Remove auto merge from PR. (Danny Tsang, 39 seconds ago)
-- **b985c7dd** - Changee to PR for changelogs. (Danny Tsang, 2 minutes ago)
-- **e110614c** - Fix error. (Danny Tsang, 11 minutes ago)
-- **77a38c4c** - Created initial changelog automation. (Danny Tsang, 27 minutes ago)
-- **f7223bae** - Added more entities to exclude from recorder. (Danny Tsang, 33 minutes ago)
-- **cd9eaf84** - Consider the GlowMrt data as also being valid state. (Danny Tsang, 77 minutes ago)
-- **24d8e7c2** - Changed oven on to use triggers again because it was less accurate. (Danny Tsang, 78 minutes ago)
-- **be21ebc9** - Bump LLM vision integration version. (Danny Tsang, 21 hours ago)
-- **d2d47325** - Moved cancel timer outside of the choose to always cancel the timers. (Danny Tsang, 3 days ago)
-- **050cb3a8** - Added targets from LD2450 to stop timer. (Danny Tsang, 3 days ago)
-- **fad0315b** - Removed living room camera automation. (Danny Tsang, 3 days ago)
-- **2f55a172** - Fix setting battery stop to grid stop in grid mode. (Danny Tsang, 3 days ago)
-- **dbe83276** - Renamed file extension for dependabot to the same as other workflow files. (Danny Tsang, 5 days ago)
-- **c9da71f6** - Added door open check to high humidity. (Danny Tsang, 5 days ago)
-- **8ad229e4** - Created and moved packages to conservatory. (Danny Tsang, 5 days ago)
-- **3eb7e0f0** - Bump actions/stale from 10.0.0 to 10.1.0 (#126) (dependabot[bot], 5 days ago)
-- **f5cae592** - Attempt to fix labeler error. (Danny Tsang, 5 days ago)
-- **2bfe0afb** - Added step permissions. (Danny Tsang, 5 days ago)
-- **2d6685ac** - Added another occupqncy sensor. (Danny Tsang, 5 days ago)
-- **2469cb05** - Moved steam to the office package. (Danny Tsang, 6 days ago)
+- **cc766d47** - Added changed files object matching. (Danny Tsang, 38 seconds ago)
+- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 16 minutes ago)
+- **ed149351** - Add write permissions to create labels. (Danny Tsang, 22 minutes ago)
+- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 32 minutes ago)
+- **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 23 hours ago)
+- **0516091f** - Made the get calendar and choose sequence. (Danny Tsang, 2 days ago)
+- **2e14360e** - docs: update changelog (#127) (github-actions[bot], 4 days ago)
+- **2911b810** - Remove auto merge from PR. (Danny Tsang, 4 days ago)
+- **b985c7dd** - Changee to PR for changelogs. (Danny Tsang, 4 days ago)
+- **e110614c** - Fix error. (Danny Tsang, 4 days ago)
+- **77a38c4c** - Created initial changelog automation. (Danny Tsang, 4 days ago)
+- **f7223bae** - Added more entities to exclude from recorder. (Danny Tsang, 4 days ago)
+- **cd9eaf84** - Consider the GlowMrt data as also being valid state. (Danny Tsang, 4 days ago)
+- **24d8e7c2** - Changed oven on to use triggers again because it was less accurate. (Danny Tsang, 4 days ago)
+- **be21ebc9** - Bump LLM vision integration version. (Danny Tsang, 5 days ago)
+- **d2d47325** - Moved cancel timer outside of the choose to always cancel the timers. (Danny Tsang, 7 days ago)
+- **050cb3a8** - Added targets from LD2450 to stop timer. (Danny Tsang, 7 days ago)
+- **fad0315b** - Removed living room camera automation. (Danny Tsang, 7 days ago)
+- **2f55a172** - Fix setting battery stop to grid stop in grid mode. (Danny Tsang, 7 days ago)
+- **dbe83276** - Renamed file extension for dependabot to the same as other workflow files. (Danny Tsang, 9 days ago)
 
 ## By Category
 
@@ -94,6 +94,7 @@ All notable changes to Home Assistant configuration.
 - Fix default behaviour to send DM to everyone. (4ff819d7)
 
 ### 🏠 Rooms
+- Up'd timer because it was turning off too quickly. (ccbe01ec)
 - Changed oven on to use triggers again because it was less accurate. (24d8e7c2)
 - Moved cancel timer outside of the choose to always cancel the timers. (d2d47325)
 - Added targets from LD2450 to stop timer. (050cb3a8)
@@ -113,7 +114,6 @@ All notable changes to Home Assistant configuration.
 - Try sub directories for rooms and split the files up to smaller ones. (d977601f)
 - Removed quotes on numbers. (7349b267)
 - Removed quotes on numeric conditions and triggers. (0bcb933b)
-- YAMLint fixees. (f758ed2c)
 
 ### 🔧 ESPHome
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3904
+- Total commits: 3911
 - Configuration files: 110
-- Last updated: 2025-10-11 22:08:39 UTC
+- Last updated: 2025-10-15 20:57:25 UTC
 - Branch: main
