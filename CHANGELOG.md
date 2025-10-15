@@ -4,26 +4,26 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 11 minutes ago)
-- **081aef44** - Removed check because it was not completing. (Danny Tsang, 12 minutes ago)
-- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 21 minutes ago)
-- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 23 minutes ago)
-- **77625131** - docs: update changelog (#130) (github-actions[bot], 52 minutes ago)
-- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 55 minutes ago)
-- **ed214763** - Match validtion to push permissions. (Danny Tsang, 67 minutes ago)
-- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 68 minutes ago)
-- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 70 minutes ago)
-- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 77 minutes ago)
-- **218113a3** - docs: update changelog (#128) (github-actions[bot], 77 minutes ago)
-- **cc766d47** - Added changed files object matching. (Danny Tsang, 79 minutes ago)
+- **c2a94b74** - Added content write due to error 403. (Danny Tsang, 30 seconds ago)
+- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 4 minutes ago)
+- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 8 minutes ago)
+- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 27 minutes ago)
+- **081aef44** - Removed check because it was not completing. (Danny Tsang, 27 minutes ago)
+- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 36 minutes ago)
+- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 38 minutes ago)
+- **77625131** - docs: update changelog (#130) (github-actions[bot], 67 minutes ago)
+- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 70 minutes ago)
+- **ed214763** - Match validtion to push permissions. (Danny Tsang, 82 minutes ago)
+- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 83 minutes ago)
+- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 85 minutes ago)
+- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 2 hours ago)
+- **218113a3** - docs: update changelog (#128) (github-actions[bot], 2 hours ago)
+- **cc766d47** - Added changed files object matching. (Danny Tsang, 2 hours ago)
 - **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 2 hours ago)
 - **ed149351** - Add write permissions to create labels. (Danny Tsang, 2 hours ago)
 - **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 2 hours ago)
 - **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 25 hours ago)
 - **0516091f** - Made the get calendar and choose sequence. (Danny Tsang, 2 days ago)
-- **2e14360e** - docs: update changelog (#127) (github-actions[bot], 4 days ago)
-- **2911b810** - Remove auto merge from PR. (Danny Tsang, 4 days ago)
-- **b985c7dd** - Changee to PR for changelogs. (Danny Tsang, 4 days ago)
 
 ## By Category
 
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3923
+- Total commits: 3927
 - Configuration files: 110
-- Last updated: 2025-10-15 22:15:35 UTC
+- Last updated: 2025-10-15 22:30:42 UTC
 - Branch: main
