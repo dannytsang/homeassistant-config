@@ -1,6 +1,6 @@
 rest_command:
-  consume_dishwasher_tablet:
-    url: "{{ states('input_text.grocy_base_url') }}/stock/products/{{ states('input_text.grocy_dishwasher_tablet_product_id') }}/consume"
+  consume_finish_lemon_dishwasher_tablet:
+    url: "{{ states('input_text.grocy_base_url') }}/stock/products/{{ states('input_number.grocy_finish_lemon_dishwasher_tablet_product_id') }}/consume"
     method: POST
     content_type: "application/json"
     headers:
@@ -13,11 +13,25 @@ rest_command:
         "transaction_type": "consume",
         "spoiled": false
       }
+  consume_salt_block:
+    url: "{{ states('input_text.grocy_base_url') }}/stock/products/{{ states('input_number.grocy_salt_block_product_id') }}/consume"
+    method: POST
+    content_type: "application/json"
+    headers:
+      Accept: application/json
+      Content-Type: application/json
+      GROCY-API-KEY: !secret grocy_api
+    payload: >-
+      {
+        "amount": 2,
+        "transaction_type": "consume",
+        "spoiled": false
+      }
 
 sensor:
   - platform: rest
     name: Dishwasher Tablet Stock
-    resource_template: "{{ states('input_text.grocy_base_url') }}/stock/products/11"
+    resource_template: "{{ states('input_text.grocy_base_url') }}/stock/products/{{ states('input_text.grocy_dishwasher_tablet_product_id') }}"
     scan_interval: 600
     method: GET
     value_template: "{{ value_json.stock_amount_aggregated }}"
@@ -27,4 +41,17 @@ sensor:
       GROCY-API-KEY: !secret grocy_api
     unit_of_measurement: "pcs"
     icon: mdi:pill-multiple
+    state_class: total
+  - platform: rest
+    name: Salt Blocks
+    resource_template: "{{ states('input_text.grocy_base_url') }}/stock/products/{{ states('input_number.grocy_salt_block_product_id') }}"
+    scan_interval: 600
+    method: GET
+    value_template: "{{ value_json.stock_amount_aggregated }}"
+    headers:
+      Accept: application/json
+      Content-Type: application/json
+      GROCY-API-KEY: !secret grocy_api
+    unit_of_measurement: "pcs"
+    icon: mdi:shaker-outline
     state_class: total
