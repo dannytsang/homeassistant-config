@@ -33,12 +33,25 @@ jobs:
             esphome:
               - 'esphome/**'
 
-  validate:
-    name: Validate config
-    needs: changes
-    uses: ./.github/workflows/_ha-validate.yml
+  ha-stable:
+    name: Home Assistant config check (stable)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
     permissions:
       contents: read
-    with:
-      # Run ESPHome if esphome/** changed, OR on the weekly schedule
-      run_esphome: ${{ needs.changes.outputs.esphome == 'true' || github.event_name == 'schedule' }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Prepare config for CI
+        run: |
+          mkdir -p camera
+          sed -i -e '/battery_notes\:/,+2d' \
+                 -e '/delete\:/,+1d' \
+                 -e '/powercalc\:/,+2d' \
+                 -e '/sonoff\:/,+3d' configuration.yaml
+      - name: Validate (stable)
+        id: ha
+        uses: frenck/action-home-assistant@v1
+        with:
+          path: "./"
+          secrets: ./secrets.yaml.sample
+          version: "stable"
