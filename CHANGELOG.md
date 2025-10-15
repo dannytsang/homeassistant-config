@@ -4,16 +4,19 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 56 seconds ago)
-- **ed214763** - Match validtion to push permissions. (Danny Tsang, 13 minutes ago)
-- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 14 minutes ago)
-- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 16 minutes ago)
-- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 23 minutes ago)
-- **218113a3** - docs: update changelog (#128) (github-actions[bot], 23 minutes ago)
-- **cc766d47** - Added changed files object matching. (Danny Tsang, 25 minutes ago)
-- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 40 minutes ago)
-- **ed149351** - Add write permissions to create labels. (Danny Tsang, 47 minutes ago)
-- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 57 minutes ago)
+- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 37 seconds ago)
+- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 2 minutes ago)
+- **77625131** - docs: update changelog (#130) (github-actions[bot], 31 minutes ago)
+- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 34 minutes ago)
+- **ed214763** - Match validtion to push permissions. (Danny Tsang, 47 minutes ago)
+- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 48 minutes ago)
+- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 50 minutes ago)
+- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 56 minutes ago)
+- **218113a3** - docs: update changelog (#128) (github-actions[bot], 57 minutes ago)
+- **cc766d47** - Added changed files object matching. (Danny Tsang, 58 minutes ago)
+- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 74 minutes ago)
+- **ed149351** - Add write permissions to create labels. (Danny Tsang, 80 minutes ago)
+- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 2 hours ago)
 - **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 24 hours ago)
 - **0516091f** - Made the get calendar and choose sequence. (Danny Tsang, 2 days ago)
 - **2e14360e** - docs: update changelog (#127) (github-actions[bot], 4 days ago)
@@ -21,9 +24,6 @@ All notable changes to Home Assistant configuration.
 - **b985c7dd** - Changee to PR for changelogs. (Danny Tsang, 4 days ago)
 - **e110614c** - Fix error. (Danny Tsang, 4 days ago)
 - **77a38c4c** - Created initial changelog automation. (Danny Tsang, 4 days ago)
-- **f7223bae** - Added more entities to exclude from recorder. (Danny Tsang, 4 days ago)
-- **cd9eaf84** - Consider the GlowMrt data as also being valid state. (Danny Tsang, 4 days ago)
-- **24d8e7c2** - Changed oven on to use triggers again because it was less accurate. (Danny Tsang, 4 days ago)
 
 ## By Category
 
@@ -72,6 +72,7 @@ All notable changes to Home Assistant configuration.
 - Renamed lounge lamps. (ed6714c2)
 
 ### 🔌 Integrations
+- Added salt blocks from Grocy. (ab0ee4e0)
 - Consider the GlowMrt data as also being valid state. (cd9eaf84)
 - Fix setting battery stop to grid stop in grid mode. (2f55a172)
 - Created and moved packages to conservatory. (8ad229e4)
@@ -91,9 +92,10 @@ All notable changes to Home Assistant configuration.
 - Unifi Protect automations. (d8dafcf6)
 - Added check for enable solar assistant configuration. (78edc0cb)
 - Only warn lack of battery usage when in Holiday mode. (ff689ecd)
-- Fix default behaviour to send DM to everyone. (4ff819d7)
 
 ### 🏠 Rooms
+- Added notification when over brushing teeth. (98ea4efe)
+- Added salt blocks from Grocy. (ab0ee4e0)
 - Up'd timer because it was turning off too quickly. (ccbe01ec)
 - Changed oven on to use triggers again because it was less accurate. (24d8e7c2)
 - Moved cancel timer outside of the choose to always cancel the timers. (d2d47325)
@@ -112,8 +114,6 @@ All notable changes to Home Assistant configuration.
 - Renamed office package to automations only. (c53ae8b7)
 - Split office package into smaller, separate files. (6c4c5250)
 - Try sub directories for rooms and split the files up to smaller ones. (d977601f)
-- Removed quotes on numbers. (7349b267)
-- Removed quotes on numeric conditions and triggers. (0bcb933b)
 
 ### 🔧 ESPHome
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3917
+- Total commits: 3920
 - Configuration files: 110
-- Last updated: 2025-10-15 21:21:50 UTC
+- Last updated: 2025-10-15 21:55:10 UTC
 - Branch: main
