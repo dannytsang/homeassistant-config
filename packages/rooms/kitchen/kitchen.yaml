@@ -648,6 +648,7 @@ automation:
               message: >-
                 Kitchen Freezer door has been open for more than
                 {{ relative_time(states.binary_sensor.kitchen_fridge_door_contact.last_changed) }}!
+              suppress_if_quiet: false
     mode: single
   # region Freezer
   - id: "1595678795896"
@@ -796,6 +797,7 @@ automation:
           - action: script.alexa_announce
             data:
               message: "Oven has preheated."
+              suppress_if_quiet: true
     mode: single
   - id: "1694521864037"
     alias: "Kitchen: Reset Oven Preheated"
@@ -1084,6 +1086,7 @@ automation:
             data:
               message: >-
                 Warning! Kitchen smoke alarm triggered.
+              suppress_if_quiet: false
     mode: single
   # region Kettle
   - id: "1759577733332"
@@ -1101,14 +1104,15 @@ automation:
           - action: script.send_to_home_log
             metadata: {}
             data:
-              log_level: Debug
-              message: Kettle finised boiling water
+              message: Kettle finished boiling water
               title: "🧑‍🍳Kitchen"
+              log_level: Debug
           - action: script.alexa_announce
             metadata: {}
             data:
               method: speak
               message: Kettle boiled
+              suppress_if_quiet: true
     mode: single
 
 scene:
@@ -1661,9 +1665,6 @@ script:
               - condition: state
                 entity_id: group.tracked_people
                 state: "home"
-              - condition: time
-                before: "22:00:00"
-                after: "09:00:00"
             sequence:
               - parallel:
                   - action: script.send_direct_notification
@@ -1676,6 +1677,7 @@ script:
                     data:
                       message: "{{ message|replace(':knife_fork_plate:', '')|replace(':soap:', '')|replace(':checkered_flag: ', '') }}"
                       title: "{{ title }}"
+                      suppress_if_quiet: true
         default:
           - parallel:
               - action: script.send_to_home_log

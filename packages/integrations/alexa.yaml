@@ -34,15 +34,39 @@ script:
             options:
               - speak
               - all
+      suppress_if_quiet:
+        description: "If quiet hours are on, avoid push; fall back to persistent"
+        default: true
+        example: "true"
+        selector:
+          boolean:
     sequence:
-      - action: notify.alexa_media
-        data:
-          message: "{{ message }}"
-          target: "{{ target|default('media_player.everywhere', true) }}"
-          data:
-            method: "{{ method }}"
-            type: announce
-        continue_on_error: true
+      - alias: Set defaults
+        variables:
+          v_suppress_if_quiet: "{{ (suppress_if_quiet | default(true)) }}"
+      - if:
+          - or:
+              - alias: "Quiet time is OFF"
+                condition: state
+                entity_id: schedule.notification_quiet_time
+                state: "off"
+
+              - alias: "Quiet time is ON and suppress_if_quiet is FALSE"
+                and:
+                  - condition: state
+                    entity_id: schedule.notification_quiet_time
+                    state: "on"
+                  - condition: template
+                    value_template: "{{ not v_suppress_if_quiet }}"
+        then:
+          - action: notify.alexa_media
+            data:
+              message: "{{ message }}"
+              target: "{{ target|default('media_player.everywhere', true) }}"
+              data:
+                method: "{{ method }}"
+                type: announce
+            continue_on_error: true
   alexa_tts:
     alias: Send Alexa TTS
     description: Converts text to speech but without the announcement (bong) sound.
