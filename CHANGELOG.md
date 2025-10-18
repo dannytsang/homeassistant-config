@@ -4,9 +4,11 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 29 seconds ago)
-- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 29 hours ago)
-- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 29 hours ago)
+- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 73 seconds ago)
+- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 32 minutes ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 36 minutes ago)
+- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 30 hours ago)
+- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 30 hours ago)
 - **88cce62e** - docs: update changelog (#133) (github-actions[bot], 3 days ago)
 - **c2a94b74** - Added content write due to error 403. (Danny Tsang, 3 days ago)
 - **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 3 days ago)
@@ -22,8 +24,6 @@ All notable changes to Home Assistant configuration.
 - **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 3 days ago)
 - **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 3 days ago)
 - **218113a3** - docs: update changelog (#128) (github-actions[bot], 3 days ago)
-- **cc766d47** - Added changed files object matching. (Danny Tsang, 3 days ago)
-- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 3 days ago)
 
 ## By Category
 
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3932
+- Total commits: 3935
 - Configuration files: 110
-- Last updated: 2025-10-18 15:43:32 UTC
+- Last updated: 2025-10-18 16:18:42 UTC
 - Branch: main
