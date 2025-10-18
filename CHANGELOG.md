@@ -4,11 +4,13 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 73 seconds ago)
-- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 32 minutes ago)
-- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 36 minutes ago)
-- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 30 hours ago)
-- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 30 hours ago)
+- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 71 seconds ago)
+- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 2 hours ago)
+- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 3 hours ago)
+- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 3 hours ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 3 hours ago)
+- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 33 hours ago)
+- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 33 hours ago)
 - **88cce62e** - docs: update changelog (#133) (github-actions[bot], 3 days ago)
 - **c2a94b74** - Added content write due to error 403. (Danny Tsang, 3 days ago)
 - **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 3 days ago)
@@ -22,8 +24,6 @@ All notable changes to Home Assistant configuration.
 - **ed214763** - Match validtion to push permissions. (Danny Tsang, 3 days ago)
 - **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 3 days ago)
 - **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 3 days ago)
-- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 3 days ago)
-- **218113a3** - docs: update changelog (#128) (github-actions[bot], 3 days ago)
 
 ## By Category
 
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3935
+- Total commits: 3937
 - Configuration files: 110
-- Last updated: 2025-10-18 16:18:42 UTC
+- Last updated: 2025-10-18 19:01:16 UTC
 - Branch: main
