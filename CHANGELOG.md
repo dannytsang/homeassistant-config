@@ -4,11 +4,13 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 71 seconds ago)
-- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 2 hours ago)
+- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 21 seconds ago)
+- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 53 seconds ago)
+- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 26 minutes ago)
+- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 3 hours ago)
 - **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 3 hours ago)
-- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 3 hours ago)
-- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 3 hours ago)
+- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 4 hours ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 4 hours ago)
 - **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 33 hours ago)
 - **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 33 hours ago)
 - **88cce62e** - docs: update changelog (#133) (github-actions[bot], 3 days ago)
@@ -22,8 +24,6 @@ All notable changes to Home Assistant configuration.
 - **77625131** - docs: update changelog (#130) (github-actions[bot], 3 days ago)
 - **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 3 days ago)
 - **ed214763** - Match validtion to push permissions. (Danny Tsang, 3 days ago)
-- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 3 days ago)
-- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 3 days ago)
 
 ## By Category
 
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3937
+- Total commits: 3940
 - Configuration files: 110
-- Last updated: 2025-10-18 19:01:16 UTC
+- Last updated: 2025-10-18 19:26:23 UTC
 - Branch: main
