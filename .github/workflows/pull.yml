@@ -7,11 +7,6 @@ permissions:
 on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
-    paths:
-      - '**.yaml'
-      - '**.yml'
-      - 'esphome/**'
-      - '!**/*.md'
 
 concurrency:
   group: pr-${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +17,7 @@ jobs:
     name: Detect file changes
     runs-on: ubuntu-latest
     outputs:
-      esphome: ${{ steps.filter.outputs.esphome }}
+      config: ${{ steps.filter.outputs.config }}
     steps:
       - uses: actions/checkout@v5
       - id: filter
@@ -30,5 +25,67 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
-            esphome:
+            config:
+              - '**/*.yaml'
+              - '**/*.yml'
               - 'esphome/**'
+
+  ha-stable:
+    # Use the exact check name your branch protection requires
+    name: Home Assistant config check (stable)
+    runs-on: ubuntu-latest
+    needs: changes
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v5
+
+      # When there are NO config changes: mark as "skipped" (but succeed)
+      - name: Mark skipped (no YAML/esphome changes)
+        if: ${{ needs.changes.outputs.config != 'true' }}
+        run: |
+          {
+            echo "## 🏠 Home Assistant Config Validation"
+            echo
+            echo "✅ **Skipped** — no \`*.yaml\`, \`*.yml\`, or \`esphome/**\` changes detected."
+            echo "- PR: ${{ github.server_url }}/${{ github.repository }}/pull/${{ github.event.pull_request.number }}"
+            echo "- Commit: \`${{ github.sha }}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # When there ARE config changes: run the real stable check
+      - name: Prepare config for CI
+        if: ${{ needs.changes.outputs.config == 'true' }}
+        run: |
+          mkdir -p camera
+          sed -i -e '/battery_notes\:/,+2d' \
+                 -e '/delete\:/,+1d' \
+                 -e '/powercalc\:/,+2d' \
+                 -e '/sonoff\:/,+3d' configuration.yaml
+
+      - name: Validate (stable)
+        if: ${{ needs.changes.outputs.config == 'true' }}
+        id: ha
+        uses: frenck/action-home-assistant@v1
+        with:
+          path: "./"
+          secrets: ./secrets.yaml.sample
+          version: "stable"
+
+      - name: Summarize results
+        if: always()
+        run: |
+          {
+            echo "## 🏠 Home Assistant Config Validation"
+            echo
+            if [ "${{ needs.changes.outputs.config }}" = "true" ]; then
+              echo "- **Version tested:** stable"
+              echo "- **Workflow run:** ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+              if [[ "${{ steps.ha.outcome }}" == "success" ]]; then
+                echo "✅ Passed"
+              else
+                echo "❌ Failed – check the logs above"
+              fi
+            else
+              echo "✅ **Skipped** — no \`*.yaml\`, \`*.yml\`, or \`esphome/**\` changes detected."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
