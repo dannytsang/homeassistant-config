@@ -4,26 +4,26 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **c2a94b74** - Added content write due to error 403. (Danny Tsang, 30 seconds ago)
-- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 4 minutes ago)
-- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 8 minutes ago)
-- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 27 minutes ago)
-- **081aef44** - Removed check because it was not completing. (Danny Tsang, 27 minutes ago)
-- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 36 minutes ago)
-- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 38 minutes ago)
-- **77625131** - docs: update changelog (#130) (github-actions[bot], 67 minutes ago)
-- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 70 minutes ago)
-- **ed214763** - Match validtion to push permissions. (Danny Tsang, 82 minutes ago)
-- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 83 minutes ago)
-- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 85 minutes ago)
-- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 2 hours ago)
-- **218113a3** - docs: update changelog (#128) (github-actions[bot], 2 hours ago)
-- **cc766d47** - Added changed files object matching. (Danny Tsang, 2 hours ago)
-- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 2 hours ago)
-- **ed149351** - Add write permissions to create labels. (Danny Tsang, 2 hours ago)
-- **00defdbc** - Attempt to fix PR validation not completing. (Danny Tsang, 2 hours ago)
-- **ccbe01ec** - Up'd timer because it was turning off too quickly. (Danny Tsang, 25 hours ago)
-- **0516091f** - Made the get calendar and choose sequence. (Danny Tsang, 2 days ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 29 seconds ago)
+- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 29 hours ago)
+- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 29 hours ago)
+- **88cce62e** - docs: update changelog (#133) (github-actions[bot], 3 days ago)
+- **c2a94b74** - Added content write due to error 403. (Danny Tsang, 3 days ago)
+- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 3 days ago)
+- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 3 days ago)
+- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 3 days ago)
+- **081aef44** - Removed check because it was not completing. (Danny Tsang, 3 days ago)
+- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 3 days ago)
+- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 3 days ago)
+- **77625131** - docs: update changelog (#130) (github-actions[bot], 3 days ago)
+- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 3 days ago)
+- **ed214763** - Match validtion to push permissions. (Danny Tsang, 3 days ago)
+- **8f0c1cf5** - Renamed push workflow name. (Danny Tsang, 3 days ago)
+- **1d6b7cac** - Renamed main to trigger action. (Danny Tsang, 3 days ago)
+- **42476fa6** - Bump tailscale/github-action from 3 to 4 (#129) (dependabot[bot], 3 days ago)
+- **218113a3** - docs: update changelog (#128) (github-actions[bot], 3 days ago)
+- **cc766d47** - Added changed files object matching. (Danny Tsang, 3 days ago)
+- **8b6def7b** - Add checkout action to pull repo. (Danny Tsang, 3 days ago)
 
 ## By Category
 
@@ -72,6 +72,7 @@ All notable changes to Home Assistant configuration.
 - Renamed lounge lamps. (ed6714c2)
 
 ### 🔌 Integrations
+- Added quiet time to Alexa announcements. (e78914da)
 - Added salt blocks from Grocy. (ab0ee4e0)
 - Consider the GlowMrt data as also being valid state. (cd9eaf84)
 - Fix setting battery stop to grid stop in grid mode. (2f55a172)
@@ -91,9 +92,9 @@ All notable changes to Home Assistant configuration.
 - Adjusted storm alert threshold. (a058580b)
 - Unifi Protect automations. (d8dafcf6)
 - Added check for enable solar assistant configuration. (78edc0cb)
-- Only warn lack of battery usage when in Holiday mode. (ff689ecd)
 
 ### 🏠 Rooms
+- Added quiet time to Alexa announcements. (e78914da)
 - Added notification when over brushing teeth. (98ea4efe)
 - Added salt blocks from Grocy. (ab0ee4e0)
 - Up'd timer because it was turning off too quickly. (ccbe01ec)
@@ -113,7 +114,6 @@ All notable changes to Home Assistant configuration.
 - Added emoji for front and back garden. (4df6d8d7)
 - Renamed office package to automations only. (c53ae8b7)
 - Split office package into smaller, separate files. (6c4c5250)
-- Try sub directories for rooms and split the files up to smaller ones. (d977601f)
 
 ### 🔧 ESPHome
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3927
+- Total commits: 3932
 - Configuration files: 110
-- Last updated: 2025-10-15 22:30:42 UTC
+- Last updated: 2025-10-18 15:43:32 UTC
 - Branch: main
