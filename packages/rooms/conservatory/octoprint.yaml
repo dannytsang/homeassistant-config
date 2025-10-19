@@ -177,6 +177,33 @@ automation:
       - action: script.3d_printer_check_turn_off_light
         data: {}
     mode: single
+  - id: "1656239435553"
+    alias: "3D Printer: Paused Mid Print"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: sensor.octoprint_current_state
+        to:
+          - "Pausing"
+          - "Paused"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_3d_printer_automations
+        state: "on"
+      - condition: state
+        entity_id: binary_sensor.octoprint_printing
+        state: "on"
+    actions:
+      - action: script.send_direct_notification
+        data:
+          message: ":printer: 3D printer is paused mid print. Please check"
+          title: ":printer: :black_square_button: 3D printer"
+          people:
+            entity_id:
+              - person.danny
+          priority: high
+          suppress_if_quiet: false
+    mode: single
 
 scene:
   - id: "1623014393915"
@@ -278,6 +305,8 @@ script:
             entity_id:
               - person.danny
               - person.terina
+          priority: high
+          suppress_if_quiet: false
     mode: single
     icon: mdi:printer-3d
   3d_printer_check_turn_on_light:
