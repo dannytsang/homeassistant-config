@@ -4,26 +4,26 @@ All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
 
-- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 21 seconds ago)
-- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 53 seconds ago)
-- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 26 minutes ago)
-- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 3 hours ago)
-- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 3 hours ago)
-- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 4 hours ago)
-- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 4 hours ago)
-- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 33 hours ago)
-- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 33 hours ago)
-- **88cce62e** - docs: update changelog (#133) (github-actions[bot], 3 days ago)
-- **c2a94b74** - Added content write due to error 403. (Danny Tsang, 3 days ago)
-- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 3 days ago)
-- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 3 days ago)
-- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 3 days ago)
-- **081aef44** - Removed check because it was not completing. (Danny Tsang, 3 days ago)
-- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 3 days ago)
-- **ab0ee4e0** - Added salt blocks from Grocy. (Danny Tsang, 3 days ago)
-- **77625131** - docs: update changelog (#130) (github-actions[bot], 3 days ago)
-- **d62b0310** - replace reuseable workflow with direct check to see if it fixes PR runs. (Danny Tsang, 3 days ago)
-- **ed214763** - Match validtion to push permissions. (Danny Tsang, 3 days ago)
+- **7efdb58e** - Another attempt to fix hung checks on PR. (Danny Tsang, 38 seconds ago)
+- **979ff56f** - Bump Alexa media integration version. (Danny Tsang, 4 hours ago)
+- **c484e264** - docs: update changelog (#137) (github-actions[bot], 8 hours ago)
+- **b22102b0** - Added ashlee's bed and conservatory to restart script. (Danny Tsang, 17 hours ago)
+- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 22 hours ago)
+- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 22 hours ago)
+- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 22 hours ago)
+- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 25 hours ago)
+- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 25 hours ago)
+- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 26 hours ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 26 hours ago)
+- **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 2 days ago)
+- **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 2 days ago)
+- **88cce62e** - docs: update changelog (#133) (github-actions[bot], 4 days ago)
+- **c2a94b74** - Added content write due to error 403. (Danny Tsang, 4 days ago)
+- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 4 days ago)
+- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 4 days ago)
+- **c5e3c6ee** - docs: update changelog (#131) (github-actions[bot], 4 days ago)
+- **081aef44** - Removed check because it was not completing. (Danny Tsang, 4 days ago)
+- **98ea4efe** - Added notification when over brushing teeth. (Danny Tsang, 4 days ago)
 
 ## By Category
 
@@ -50,6 +50,7 @@ All notable changes to Home Assistant configuration.
 - Moved and created bedroom remote automation. (f7ca923d)
 
 ### 📜 Scripts
+- Added ashlee's bed and conservatory to restart script. (b22102b0)
 - Reordered Restart ESP name and description. (c7c4916d)
 - Added basic movie mode script. (509f6699)
 - Added conservatory USB for everything presence. (06a8afac)
@@ -69,7 +70,6 @@ All notable changes to Home Assistant configuration.
 - Removed on holiday switch off script because it's duplicate and not used. (ea761940)
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
-- Renamed lounge lamps. (ed6714c2)
 
 ### 🔌 Integrations
 - Added quiet time to Alexa announcements. (e78914da)
@@ -142,7 +142,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3940
+- Total commits: 3945
 - Configuration files: 110
-- Last updated: 2025-10-18 19:26:23 UTC
+- Last updated: 2025-10-19 17:29:06 UTC
 - Branch: main
