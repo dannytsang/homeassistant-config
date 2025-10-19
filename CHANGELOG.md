@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **000ca7b5** - Fix linting issues. (Danny Tsang, 26 seconds ago)
-- **539eff58** - docs: update changelog (#138) (github-actions[bot], 8 minutes ago)
-- **64e56d84** - Fix shellcheck SC2129 (Danny Tsang, 9 minutes ago)
-- **7efdb58e** - Another attempt to fix hung checks on PR. (Danny Tsang, 44 minutes ago)
-- **979ff56f** - Bump Alexa media integration version. (Danny Tsang, 4 hours ago)
-- **c484e264** - docs: update changelog (#137) (github-actions[bot], 9 hours ago)
-- **b22102b0** - Added ashlee's bed and conservatory to restart script. (Danny Tsang, 18 hours ago)
-- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 23 hours ago)
-- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 23 hours ago)
-- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 23 hours ago)
-- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 26 hours ago)
-- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 26 hours ago)
-- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 26 hours ago)
-- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 26 hours ago)
+- **a30ee100** - Added paused mid print notification. (Danny Tsang, 42 seconds ago)
+- **5e3210fe** - docs: update changelog (#139) (github-actions[bot], 53 seconds ago)
+- **000ca7b5** - Fix linting issues. (Danny Tsang, 3 hours ago)
+- **539eff58** - docs: update changelog (#138) (github-actions[bot], 3 hours ago)
+- **64e56d84** - Fix shellcheck SC2129 (Danny Tsang, 3 hours ago)
+- **7efdb58e** - Another attempt to fix hung checks on PR. (Danny Tsang, 4 hours ago)
+- **979ff56f** - Bump Alexa media integration version. (Danny Tsang, 7 hours ago)
+- **c484e264** - docs: update changelog (#137) (github-actions[bot], 12 hours ago)
+- **b22102b0** - Added ashlee's bed and conservatory to restart script. (Danny Tsang, 21 hours ago)
+- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 26 hours ago)
+- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 26 hours ago)
+- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 26 hours ago)
+- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 29 hours ago)
+- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 29 hours ago)
+- **e50c6a36** - docs: update changelog (#134) (github-actions[bot], 29 hours ago)
+- **fa5eccd3** - Exclude pull checks for any markdown files. (Danny Tsang, 29 hours ago)
 - **e78914da** - Added quiet time to Alexa announcements. (Danny Tsang, 2 days ago)
 - **01a5dca2** - Fix variable being used as a literal string in nearing home automation. (Danny Tsang, 2 days ago)
 - **88cce62e** - docs: update changelog (#133) (github-actions[bot], 4 days ago)
 - **c2a94b74** - Added content write due to error 403. (Danny Tsang, 4 days ago)
-- **bfb77794** - Added permissions to changelog workflow. (Danny Tsang, 4 days ago)
-- **c7adf6b8** - docs: update changelog (#132) (github-actions[bot], 4 days ago)
 
 ## By Category
 
@@ -90,6 +90,7 @@ All notable changes to Home Assistant configuration.
 - Unifi Protect automations. (d8dafcf6)
 - Added check for enable solar assistant configuration. (78edc0cb)
 ### 🏠 Rooms
+- Added paused mid print notification. (a30ee100)
 - Added quiet time to Alexa announcements. (e78914da)
 - Added notification when over brushing teeth. (98ea4efe)
 - Added salt blocks from Grocy. (ab0ee4e0)
@@ -109,7 +110,6 @@ All notable changes to Home Assistant configuration.
 - Remove empty property (87d1cc1a)
 - Added emoji for front and back garden. (4df6d8d7)
 - Renamed office package to automations only. (c53ae8b7)
-- Split office package into smaller, separate files. (6c4c5250)
 ### 🔧 ESPHome
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
 - Changed framework to IDF for smaller firmware. (a59814bb)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3949
+- Total commits: 3951
 - Configuration files: 110
-- Last updated: 2025-10-19 18:12:26 UTC
+- Last updated: 2025-10-19 21:11:53 UTC
 - Branch: main
