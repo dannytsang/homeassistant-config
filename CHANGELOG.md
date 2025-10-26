@@ -3,30 +3,31 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **6288b333** - Removed longitude and latitude. (Danny Tsang, 87 seconds ago)
-- **1cad19ee** - Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (Danny Tsang, 23 minutes ago)
-- **2814d045** - Removed sensors and added missing ones to MQTT. (Danny Tsang, 30 minutes ago)
-- **6c009b47** - Allow energy of car to be added to energy dashboard. (Danny Tsang, 61 minutes ago)
-- **0992cdc9** - Renamed entity_id to default_entity_id as per deprecation message. (Danny Tsang, 62 minutes ago)
-- **3a118b9f** - docs: update changelog (#140) (github-actions[bot], 2 days ago)
-- **a30ee100** - Added paused mid print notification. (Danny Tsang, 2 days ago)
-- **5e3210fe** - docs: update changelog (#139) (github-actions[bot], 2 days ago)
-- **000ca7b5** - Fix linting issues. (Danny Tsang, 2 days ago)
-- **539eff58** - docs: update changelog (#138) (github-actions[bot], 2 days ago)
-- **64e56d84** - Fix shellcheck SC2129 (Danny Tsang, 2 days ago)
-- **7efdb58e** - Another attempt to fix hung checks on PR. (Danny Tsang, 2 days ago)
-- **979ff56f** - Bump Alexa media integration version. (Danny Tsang, 2 days ago)
-- **c484e264** - docs: update changelog (#137) (github-actions[bot], 3 days ago)
-- **b22102b0** - Added ashlee's bed and conservatory to restart script. (Danny Tsang, 3 days ago)
-- **7b50cc61** - docs: update changelog (#136) (github-actions[bot], 3 days ago)
-- **66ee650a** - Renamed workflow name to match required. (Danny Tsang, 3 days ago)
-- **3de0fe4b** - Another attempt at fixing checks not completing in a PR. (Danny Tsang, 3 days ago)
-- **43972bbc** - docs: update changelog (#135) (github-actions[bot], 3 days ago)
-- **3bb3d544** - Addressing SC2086 errors. (Danny Tsang, 3 days ago)
+- **eed85c6b** - Added sensor and notification when the elctricity meter box is opened. (Danny Tsang, 39 seconds ago)
+- **3ef65b5e** - Replaced :battery: with emoji. (Danny Tsang, 59 seconds ago)
+- **6613da6c** - Replaced :date: with calendar emoji. (Danny Tsang, 2 minutes ago)
+- **56744686** - Moved everything presence one lite to conservatory. (Danny Tsang, 4 minutes ago)
+- **834b1151** - docs: update changelog (#141) (github-actions[bot], 5 days ago)
+- **6288b333** - Removed longitude and latitude. (Danny Tsang, 5 days ago)
+- **1cad19ee** - Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (Danny Tsang, 5 days ago)
+- **2814d045** - Removed sensors and added missing ones to MQTT. (Danny Tsang, 5 days ago)
+- **6c009b47** - Allow energy of car to be added to energy dashboard. (Danny Tsang, 5 days ago)
+- **0992cdc9** - Renamed entity_id to default_entity_id as per deprecation message. (Danny Tsang, 5 days ago)
+- **3a118b9f** - docs: update changelog (#140) (github-actions[bot], 7 days ago)
+- **a30ee100** - Added paused mid print notification. (Danny Tsang, 7 days ago)
+- **5e3210fe** - docs: update changelog (#139) (github-actions[bot], 7 days ago)
+- **000ca7b5** - Fix linting issues. (Danny Tsang, 7 days ago)
+- **539eff58** - docs: update changelog (#138) (github-actions[bot], 7 days ago)
+- **64e56d84** - Fix shellcheck SC2129 (Danny Tsang, 7 days ago)
+- **7efdb58e** - Another attempt to fix hung checks on PR. (Danny Tsang, 7 days ago)
+- **979ff56f** - Bump Alexa media integration version. (Danny Tsang, 7 days ago)
+- **c484e264** - docs: update changelog (#137) (github-actions[bot], 8 days ago)
+- **b22102b0** - Added ashlee's bed and conservatory to restart script. (Danny Tsang, 8 days ago)
 
 ## By Category
 
 ### 🤖 Automations
+- Replaced :battery: with emoji. (3ef65b5e)
 - Removed quotes on numbers. (7349b267)
 - Replaced emoji shortcode with UTF. (f0bb198d)
 - Removed quotes from debug parameter. (63ff6545)
@@ -46,7 +47,6 @@ All notable changes to Home Assistant configuration.
 - Changed script name for hot water. (8ed2a328)
 - Removed mmWave turned on during holiday mode for living room. (029f3d59)
 - Replaced deprecated proximity sensors. (c8aefc8b)
-- Moved and created bedroom remote automation. (f7ca923d)
 ### 📜 Scripts
 - Added ashlee's bed and conservatory to restart script. (b22102b0)
 - Reordered Restart ESP name and description. (c7c4916d)
@@ -69,6 +69,8 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Replaced :battery: with emoji. (3ef65b5e)
+- Replaced :date: with calendar emoji. (6613da6c)
 - Removed longitude and latitude. (6288b333)
 - Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (1cad19ee)
 - Removed sensors and added missing ones to MQTT. (2814d045)
@@ -87,9 +89,9 @@ All notable changes to Home Assistant configuration.
 - Added priority and global quiet time to direct notifications. (dc9c758a)
 - Replaced RSS weather warning with n8n version. (952a5bdb)
 - Replace RSS for weather warning with N8N. (f7ec895a)
-- Fix YAMLint errors. (5d428593)
-- Replaced emoji shortcode with UTF. (f0bb198d)
 ### 🏠 Rooms
+- Added sensor and notification when the elctricity meter box is opened. (eed85c6b)
+- Moved everything presence one lite to conservatory. (56744686)
 - Added paused mid print notification. (a30ee100)
 - Added quiet time to Alexa announcements. (e78914da)
 - Added notification when over brushing teeth. (98ea4efe)
@@ -108,9 +110,8 @@ All notable changes to Home Assistant configuration.
 - Replaced fountain with laundry basket emoji. (c2b168d6)
 - Created bedroom folder. Also moved clock into the same folder. (ed993c5d)
 - Remove empty property (87d1cc1a)
-- Added emoji for front and back garden. (4df6d8d7)
-- Renamed office package to automations only. (c53ae8b7)
 ### 🔧 ESPHome
+- Moved everything presence one lite to conservatory. (56744686)
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
 - Changed framework to IDF for smaller firmware. (a59814bb)
 - Changed bed ESP32 to IDF to reduce firmware size. (cdaceef8)
@@ -130,13 +131,12 @@ All notable changes to Home Assistant configuration.
 - Renamed livingroom ESPhome config. (9a95afea)
 - Updated BLE scanning to recommended values. (d5310332)
 - Renamed lounge to living room motion sensor. (d3761ee7)
-- Removed API encryption in EP1 configs. (d6d4a4e3)
 
 ---
 
 ### Statistics
 
-- Total commits: 3957
-- Configuration files: 110
-- Last updated: 2025-10-21 22:56:19 UTC
+- Total commits: 3962
+- Configuration files: 111
+- Last updated: 2025-10-26 22:35:40 UTC
 - Branch: main
