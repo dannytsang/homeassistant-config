@@ -482,3 +482,95 @@ mqtt:
             OFF
         {% endif %}
       icon: mdi:car-brake-parking
+  - device_tracker:
+      name: Location
+      default_entity_id: tesla_location
+      unique_id: teslamate_1_location
+      device: *teslamate_device_info
+      json_attributes_topic: "teslamate/cars/1/location"
+      icon: mdi:crosshairs-gps
+
+  - device_tracker:
+      name: Active route location
+      default_entity_id: tesla_active_route_location
+      unique_id: teslamate_1_active_route_location
+      availability: &teslamate_active_route_availability
+        - topic: "teslamate/cars/1/active_route"
+          value_template: "{{ 'offline' if value_json.error else 'online' }}"
+      device: *teslamate_device_info
+      json_attributes_topic: "teslamate/cars/1/active_route"
+      json_attributes_template: >
+        {% if not value_json.error and value_json.location %}
+          {{ value_json.location | tojson }}
+        {% else %}
+          {}
+        {% endif %}
+      icon: mdi:crosshairs-gps
+  - sensor:
+      name: Active route destination
+      default_entity_id: tesla_active_route_destination
+      unique_id: teslamate_1_active_route_destination
+      availability: *teslamate_active_route_availability
+      device: *teslamate_device_info
+      state_topic: "teslamate/cars/1/active_route"
+      value_template: >
+        {% if not value_json.error and value_json.destination %}
+          {{ value_json.destination }}
+        {% endif %}
+      icon: mdi:map-marker
+  - sensor:
+      name: Active route energy at arrival
+      default_entity_id: tesla_active_route_energy_at_arrival
+      unique_id: teslamate_1_active_route_energy_at_arrival
+      availability: *teslamate_active_route_availability
+      device: *teslamate_device_info
+      state_topic: "teslamate/cars/1/active_route"
+      value_template: >
+        {% if not value_json.error and value_json.energy_at_arrival %}
+          {{ value_json.energy_at_arrival }}
+        {% endif %}
+      device_class: battery
+      unit_of_measurement: "%"
+      icon: mdi:battery-80
+  - sensor:
+      name: Active route distance to arrival
+      default_entity_id: tesla_active_route_distance_to_arrival
+      unique_id: teslamate_1_active_route_distance_to_arrival
+      availability: *teslamate_active_route_availability
+      device: *teslamate_device_info
+      state_topic: "teslamate/cars/1/active_route"
+      value_template: >
+        {% if not value_json.error and value_json.miles_to_arrival %}
+          {{ value_json.miles_to_arrival }}
+        {% endif %}
+      device_class: distance
+      unit_of_measurement: mi
+      icon: mdi:map-marker-distance
+  - sensor:
+      name: Active route minutes to arrival
+      default_entity_id: tesla_active_route_minutes_to_arrival
+      unique_id: teslamate_1_active_route_minutes_to_arrival
+      availability: *teslamate_active_route_availability
+      device: *teslamate_device_info
+      state_topic: "teslamate/cars/1/active_route"
+      value_template: >
+        {% if not value_json.error and value_json.minutes_to_arrival %}
+          {{ value_json.minutes_to_arrival }}
+        {% endif %}
+      device_class: duration
+      unit_of_measurement: min
+      icon: mdi:clock-outline
+  - sensor:
+      name: Active route traffic minutes delay
+      default_entity_id: tesla_active_route_traffic_minutes_delay
+      unique_id: teslamate_1_active_route_traffic_minutes_delay
+      availability: *teslamate_active_route_availability
+      device: *teslamate_device_info
+      state_topic: "teslamate/cars/1/active_route"
+      value_template: >
+        {% if not value_json.error and value_json.traffic_minutes_delay %}
+          {{ value_json.traffic_minutes_delay }}
+        {% endif %}
+      device_class: duration
+      unit_of_measurement: min
+      icon: mdi:clock-alert-outline
