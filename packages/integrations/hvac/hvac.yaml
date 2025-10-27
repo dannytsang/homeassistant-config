@@ -16,7 +16,7 @@ automation:
             Home thermostat target temperature changed.
 
             Updating TRV from {{ state_attr('climate.living_room_radiator', 'temperature')|float(22) }}
-            to {{ state_attr('climate.thermostat', 'temperature')|float(22) }}c.
+            to {{ state_attr('climate.hive_receiver_heat', 'temperature')|float(22) }}c.
           title: ":hotsprings: :droplet: Boiler"
           log_level: "Debug"
       - action: climate.set_temperature
@@ -67,7 +67,7 @@ automation:
     conditions:
       - not:
           - condition: state
-            entity_id: climate.thermostat
+            entity_id: climate.hive_receiver_heat
             attribute: hvac_action
             state: "heating"
     actions:
@@ -257,12 +257,12 @@ template:
         unit_of_measurement: "°C"
       - name: "Thermostat Action"
         unique_id: 8dff3606-6aaf-4713-a668-140e71271416
-        state: "{{ state_attr('climate.thermostat', 'hvac_action') }}"
+        state: "{{ state_attr('climate.hive_receiver_heat', 'hvac_action') }}"
       - name: Thermostat Target Temperature
         unique_id: e4890bce-7126-416b-8a5f-1bd6a7bd9ac0
         device_class: "temperature"
         unit_of_measurement: "°C"
-        state: "{{ state_attr('climate.thermostat', 'temperature') | float(0) }}"
+        state: "{{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) }}"
   - trigger:
       - trigger: state
         entity_id:

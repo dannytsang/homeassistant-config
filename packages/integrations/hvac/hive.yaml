@@ -2,47 +2,13 @@
 # Integration: https://www.home-assistant.io/integrations/hive/
 automation:
   # region Central Heating
-  - id: "1666470473971"
-    alias: "HVAC: Heating Mode Changed"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - sensor.thermostat_mode
-        to: "SCHEDULE"
-      - trigger: state
-        entity_id:
-          - water_heater.thermostat
-        to: "eco"
-    conditions: []
-    actions:
-      - action: script.send_to_home_log
-        data:
-          message: Central heating mode changed to {{ states('sensor.thermostat_mode') }}
-          title: ":hotsprings: :droplet: Boiler"
-      - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "Holiday"
-            sequence:
-              - action: script.send_direct_notification
-                data:
-                  message: In holiday mode so heating should not be on. Turning heating off.
-                  title: ":hotsprings: :droplet: Boiler"
-                  people:
-                    entity_id:
-                      - person.danny
-              - action: script.set_central_heating_to_away_mode
-                data: {}
-    mode: single
   - id: "1666470473973"
     alias: "HVAC: Heating Mode Changed To Automatic"
     description: ""
     triggers:
       - trigger: state
         entity_id:
-          - climate.thermostat
+          - climate.hive_receiver_heat
         to: "auto"
     conditions:
       - condition: state
@@ -75,11 +41,11 @@ automation:
             conditions:
               - alias: Thermostat temperature is the same as schedule temperature
                 condition: template
-                value_template: "{{ state_attr('climate.thermostat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
+                value_template: "{{ state_attr('climate.hive_receiver_heat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
           - condition: not
             conditions:
               - condition: state
-                entity_id: climate.thermostat
+                entity_id: climate.hive_receiver_heat
                 state: "heat"
       - condition: state
         entity_id: schedule.central_heating
@@ -128,7 +94,7 @@ automation:
               - action: climate.set_temperature
                 target:
                   entity_id:
-                    - climate.thermostat
+                    - climate.hive_receiver_heat
                 data:
                   hvac_mode: heat
                   temperature: 7
@@ -139,7 +105,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - climate.thermostat
+          - climate.hive_receiver_heat
         to: unavailable
         for:
           hours: 1
@@ -166,17 +132,13 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - water_heater.thermostat
-        to: "eco"
-      - trigger: state
-        entity_id:
-          - water_heater.thermostat
+          - climate.hive_receiver_water
         to: "on"
     conditions: []
     actions:
       - action: script.send_to_home_log
         data:
-          message: Hot water mode changed to {{ states('water_heater.thermostat') }}
+          message: Hot water mode changed to {{ states('climate.hive_receiver_water') }}
           title: ":hotsprings: :droplet: Boiler"
       - choose:
           - conditions:
@@ -208,7 +170,7 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: water_heater.thermostat
+            entity_id: climate.hive_receiver_water
             state: "on"
     actions:
       - choose:
@@ -269,7 +231,7 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: water_heater.thermostat
+            entity_id: climate.hive_receiver_water
             state: "off"
     actions:
       - choose:
@@ -413,11 +375,11 @@ script:
           - or:
               - not:
                   - condition: state
-                    entity_id: climate.thermostat
+                    entity_id: climate.hive_receiver_heat
                     state: "heat"
               - not:
                   - condition: state
-                    entity_id: climate.thermostat
+                    entity_id: climate.hive_receiver_heat
                     attribute: temperature
                     state: 7
         then:
@@ -431,14 +393,14 @@ script:
                   log_level: "Normal"
               - action: climate.set_temperature
                 target:
-                  entity_id: climate.thermostat
+                  entity_id: climate.hive_receiver_heat
                 data:
                   temperature: 7
               - action: climate.set_hvac_mode
                 data:
                   hvac_mode: heat
                 target:
-                  entity_id: climate.thermostat
+                  entity_id: climate.hive_receiver_heat
     mode: single
   set_central_heating_to_home_mode:
     alias: Set Central Heating To Home Mode
@@ -447,7 +409,7 @@ script:
       - if:
           - not:
               - condition: state
-                entity_id: climate.thermostat
+                entity_id: climate.hive_receiver_heat
                 state: "heat"
         then:
           - parallel:
@@ -467,7 +429,7 @@ script:
       - if:
           - not:
               - condition: state
-                entity_id: climate.thermostat
+                entity_id: climate.hive_receiver_heat
                 state: "off"
         then:
           - parallel:
@@ -478,14 +440,14 @@ script:
                   log_level: "Normal"
               - action: climate.set_temperature
                 target:
-                  entity_id: climate.thermostat
+                  entity_id: climate.hive_receiver_heat
                 data:
                   temperature: 7
               - action: climate.set_hvac_mode
                 data:
                   hvac_mode: heat
                 target:
-                  entity_id: climate.thermostat
+                  entity_id: climate.hive_receiver_heat
               - action: script.hvac_turn_off_heater_schedule
     mode: single
   check_and_run_central_heating:
@@ -513,11 +475,11 @@ script:
                     conditions:
                       - alias: Thermostat temperature is the same as schedule temperature
                         condition: template
-                        value_template: "{{ state_attr('climate.thermostat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
+                        value_template: "{{ state_attr('climate.hive_receiver_heat', 'temperature') == state_attr('schedule.central_heating', 'temperature') }}"
                   - condition: not
                     conditions:
                       - condition: state
-                        entity_id: climate.thermostat
+                        entity_id: climate.hive_receiver_heat
                         state: "heat"
               - condition: state
                 entity_id: schedule.central_heating
@@ -533,7 +495,7 @@ script:
                   - action: climate.set_temperature
                     target:
                       entity_id:
-                        - climate.thermostat
+                        - climate.hive_receiver_heat
                     data:
                       hvac_mode: heat
                       temperature: "{{ state_attr('schedule.central_heating', 'temperature') }}"
@@ -559,28 +521,22 @@ script:
             entity_id: input_boolean.enable_hive_hacs_integration
             state: "on"
         then:
-          - if:
-              - not:
-                  - condition: state
-                    entity_id: water_heater.thermostat
-                    state: "eco"
-            then:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Turning on the hot water."
-                      title: ":hotsprings: :droplet: Boiler"
-                      log_level: "Normal"
-                  - action: water_heater.set_operation_mode
-                    data:
-                      operation_mode: "eco"
-                    target:
-                      entity_id: water_heater.thermostat
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: "Turning on the hot water."
+                  title: ":hotsprings: :droplet: Boiler"
+                  log_level: "Normal"
+              - action: water_heater.set_operation_mode
+                data:
+                  operation_mode: "eco"
+                target:
+                  entity_id: climate.hive_receiver_water
         else:
           - if:
               - not:
                   - condition: state
-                    entity_id: water_heater.thermostat
+                    entity_id: climate.hive_receiver_water
                     state: "auto"
             then:
               - parallel:
@@ -593,7 +549,7 @@ script:
                     data:
                       operation_mode: "auto"
                     target:
-                      entity_id: water_heater.thermostat
+                      entity_id: climate.hive_receiver_water
     mode: single
   set_how_water_to_away_mode:
     alias: Set Hot Water To Off
@@ -603,7 +559,7 @@ script:
           - alias: Integration unavailable
             conditions:
               - condition: state
-                entity_id: water_heater.thermostat
+                entity_id: climate.hive_receiver_water
                 state: "unavailable"
             sequence:
               - action: script.send_direct_notification
@@ -618,7 +574,7 @@ script:
             conditions:
               - not:
                   - condition: state
-                    entity_id: water_heater.thermostat
+                    entity_id: climate.hive_receiver_water
                     state: "off"
             sequence:
               - parallel:
@@ -631,7 +587,7 @@ script:
                     data:
                       operation_mode: "off"
                     target:
-                      entity_id: water_heater.thermostat
+                      entity_id: climate.hive_receiver_water
     mode: single
   set_how_water_to_on:
     alias: Set Hot Water To On
@@ -641,7 +597,7 @@ script:
           - alias: Integration unavailable
             conditions:
               - condition: state
-                entity_id: water_heater.thermostat
+                entity_id: climate.hive_receiver_water
                 state: "unavailable"
             sequence:
               - action: script.send_direct_notification
@@ -656,7 +612,7 @@ script:
             conditions:
               - not:
                   - condition: state
-                    entity_id: water_heater.thermostat
+                    entity_id: climate.hive_receiver_water
                     state: "on"
             sequence:
               - parallel:
@@ -669,7 +625,7 @@ script:
                     data:
                       operation_mode: "on"
                     target:
-                      entity_id: water_heater.thermostat
+                      entity_id: climate.hive_receiver_water
         default: []
     mode: single
 
