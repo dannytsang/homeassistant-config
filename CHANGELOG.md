@@ -3,30 +3,31 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **0ea1125e** - Moved automations and script into the new package. (Danny Tsang, 37 seconds ago)
-- **9f5efdc3** - Added location sensors to car 2. (Danny Tsang, 2 minutes ago)
-- **cc9c899d** - Moved car 2 to match Teslamate documentation. (Danny Tsang, 2 minutes ago)
-- **444446eb** - Added missing navigation entities. (Danny Tsang, 22 minutes ago)
-- **2417ba4d** - Refactored Tesla car 1 to Teslamate's documentation style. (Danny Tsang, 25 minutes ago)
-- **81a28037** - Moved existing Tesla MQTT config to old. (Danny Tsang, 38 minutes ago)
-- **7710ffc2** - docs: update changelog (#143) (github-actions[bot], 87 minutes ago)
-- **84b4e4ce** - Fix invalid default_object_id. (Danny Tsang, 5 hours ago)
-- **5d839f86** - Updated ESPHome secret sample file with living room and conservatory keys. (Danny Tsang, 17 hours ago)
-- **a33afaf5** - docs: update changelog (#142) (github-actions[bot], 17 hours ago)
-- **eed85c6b** - Added sensor and notification when the elctricity meter box is opened. (Danny Tsang, 17 hours ago)
-- **3ef65b5e** - Replaced :battery: with emoji. (Danny Tsang, 17 hours ago)
-- **6613da6c** - Replaced :date: with calendar emoji. (Danny Tsang, 17 hours ago)
-- **56744686** - Moved everything presence one lite to conservatory. (Danny Tsang, 18 hours ago)
-- **834b1151** - docs: update changelog (#141) (github-actions[bot], 6 days ago)
-- **6288b333** - Removed longitude and latitude. (Danny Tsang, 6 days ago)
-- **1cad19ee** - Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (Danny Tsang, 6 days ago)
-- **2814d045** - Removed sensors and added missing ones to MQTT. (Danny Tsang, 6 days ago)
-- **6c009b47** - Allow energy of car to be added to energy dashboard. (Danny Tsang, 6 days ago)
-- **0992cdc9** - Renamed entity_id to default_entity_id as per deprecation message. (Danny Tsang, 6 days ago)
+- **bfa44c41** - List found events to help troubleshooting in the future. (Danny Tsang, 34 seconds ago)
+- **54bedafc** - Changed holiday detection with select filter. (Danny Tsang, 13 minutes ago)
+- **c80d52cf** - Added filter to (Danny Tsang, 31 minutes ago)
+- **d311762f** - Moved check light before wait occurs. (Danny Tsang, 35 minutes ago)
+- **f2723a04** - Added mmWave in the conservatory. (Danny Tsang, 14 hours ago)
+- **dd10e651** - Replaced Hive integration with Z2M. (Danny Tsang, 19 hours ago)
+- **f2547282** - docs: update changelog (#144) (github-actions[bot], 20 hours ago)
+- **0ea1125e** - Moved automations and script into the new package. (Danny Tsang, 20 hours ago)
+- **9f5efdc3** - Added location sensors to car 2. (Danny Tsang, 21 hours ago)
+- **cc9c899d** - Moved car 2 to match Teslamate documentation. (Danny Tsang, 21 hours ago)
+- **444446eb** - Added missing navigation entities. (Danny Tsang, 21 hours ago)
+- **2417ba4d** - Refactored Tesla car 1 to Teslamate's documentation style. (Danny Tsang, 21 hours ago)
+- **81a28037** - Moved existing Tesla MQTT config to old. (Danny Tsang, 21 hours ago)
+- **7710ffc2** - docs: update changelog (#143) (github-actions[bot], 22 hours ago)
+- **84b4e4ce** - Fix invalid default_object_id. (Danny Tsang, 26 hours ago)
+- **5d839f86** - Updated ESPHome secret sample file with living room and conservatory keys. (Danny Tsang, 2 days ago)
+- **a33afaf5** - docs: update changelog (#142) (github-actions[bot], 2 days ago)
+- **eed85c6b** - Added sensor and notification when the elctricity meter box is opened. (Danny Tsang, 2 days ago)
+- **3ef65b5e** - Replaced :battery: with emoji. (Danny Tsang, 2 days ago)
+- **6613da6c** - Replaced :date: with calendar emoji. (Danny Tsang, 2 days ago)
 
 ## By Category
 
 ### 🤖 Automations
+- Replaced Hive integration with Z2M. (dd10e651)
 - Replaced :battery: with emoji. (3ef65b5e)
 - Removed quotes on numbers. (7349b267)
 - Replaced emoji shortcode with UTF. (f0bb198d)
@@ -46,7 +47,6 @@ All notable changes to Home Assistant configuration.
 - Missed removing BMW automation. (a4944c65)
 - Changed script name for hot water. (8ed2a328)
 - Removed mmWave turned on during holiday mode for living room. (029f3d59)
-- Replaced deprecated proximity sensors. (c8aefc8b)
 ### 📜 Scripts
 - Added ashlee's bed and conservatory to restart script. (b22102b0)
 - Reordered Restart ESP name and description. (c7c4916d)
@@ -69,6 +69,7 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Replaced Hive integration with Z2M. (dd10e651)
 - Moved automations and script into the new package. (0ea1125e)
 - Added location sensors to car 2. (9f5efdc3)
 - Moved car 2 to match Teslamate documentation. (cc9c899d)
@@ -88,8 +89,10 @@ All notable changes to Home Assistant configuration.
 - Consider the GlowMrt data as also being valid state. (cd9eaf84)
 - Fix setting battery stop to grid stop in grid mode. (2f55a172)
 - Created and moved packages to conservatory. (8ad229e4)
-- Moved steam to the office package. (2469cb05)
 ### 🏠 Rooms
+- Moved check light before wait occurs. (d311762f)
+- Added mmWave in the conservatory. (f2723a04)
+- Replaced Hive integration with Z2M. (dd10e651)
 - Added sensor and notification when the elctricity meter box is opened. (eed85c6b)
 - Moved everything presence one lite to conservatory. (56744686)
 - Added paused mid print notification. (a30ee100)
@@ -107,9 +110,6 @@ All notable changes to Home Assistant configuration.
 - Moved steam to the office package. (2469cb05)
 - Moved Sleep as Android to bedroom package folder. (0bd3d7e2)
 - Create kitchen folder and moved meater into folder. (64f99bb2)
-- Replaced fountain with laundry basket emoji. (c2b168d6)
-- Created bedroom folder. Also moved clock into the same folder. (ed993c5d)
-- Remove empty property (87d1cc1a)
 ### 🔧 ESPHome
 - Moved everything presence one lite to conservatory. (56744686)
 - Changed ESP framework to fit mememory for Ashlee's bed. (b53a3bd8)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3972
+- Total commits: 3979
 - Configuration files: 111
-- Last updated: 2025-10-27 16:02:33 UTC
+- Last updated: 2025-10-28 12:30:17 UTC
 - Branch: main
