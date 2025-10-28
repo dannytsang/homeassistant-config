@@ -159,11 +159,16 @@ automation:
           - conditions:
               - condition: template
                 value_template: >-
-                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | select('search', 'Half Term|Holidays') | list | count > 0 }}
+                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', 'half term|holidays') | list | count > 0 }}
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: School ✈️Holiday. Skipping
+                  message: >-
+                    Found matching non school event(s):
+                    {% for event in calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', 'half term|holidays') | list -%}
+                    {{ '* '~event~'\n' }}
+                    {% endfor -%}
+                    Skipping.
                   log_level: Normal
           - conditions:
               - condition: trigger
