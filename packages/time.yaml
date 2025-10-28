@@ -143,7 +143,29 @@ automation:
           - mon
           - sun
     actions:
+      - action: calendar.get_events
+        target:
+          entity_id: calendar.tsang_children
+        data:
+          start_date_time: >-
+            {% set tomorrow = now() + timedelta( days = 1 ) -%}
+            {{ tomorrow.year }}-{{ tomorrow.month }}-{{ tomorrow.day }} 00:00:00
+          duration:
+            hours: 1
+            minutes: 0
+            seconds: 0
+        response_variable: calendar_events
       - choose:
+          - conditions:
+              - condition: template
+                value_template: >-
+                  {{ 'School October Half Term' in calendar_events['calendar.tsang_children'].events | map(attribute='summary') | list 
+                  or 'School Christmas Holidays' in calendar_events['calendar.tsang_children'].events | map(attribute='summary') | list }}
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: School Holiday. Skipping
+                  log_level: Normal
           - conditions:
               - condition: trigger
                 id:
@@ -178,6 +200,7 @@ automation:
                       method: speak
                       message: It's bed time. Don't forget your reading book.
                       suppress_if_quiet: true
+        default: []
     mode: single
 
 script:
