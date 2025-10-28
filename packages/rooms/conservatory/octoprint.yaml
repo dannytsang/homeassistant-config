@@ -14,6 +14,60 @@ automation:
         entity_id: input_boolean.enable_3d_printer_automations
         state: "on"
     actions:
+      - choose:
+          - conditions:
+              - condition: sun
+                after: sunset
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "🌇 Printing started after sunset. Turning
+                    Printer 🔆 💡 light on."
+                  title: "🖨️ 🔲 3D printer"
+                  log_level: "Normal"
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+          - conditions:
+              - condition: sun
+                before: sunrise
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "🌇 Printing started before sunrise. Turning
+                    Printer 🔆 💡 light on."
+                  title: "🖨️ 🔲 3D printer"
+                  log_level: "Normal"
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_on
+          - conditions:
+              - condition: sun
+                after: sunrise
+                before: sunset
+              - condition: state
+                entity_id: light.prusa
+                state: "on"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: ":sunny: Printing started during the day. Turning
+                    Printer light off."
+                  title: "🖨️ 🔲 3D printer"
+                  log_level: "Normal"
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.3d_printer_light_off
+        default:
+          - action: script.send_to_home_log
+            data:
+              message: "🌅 Printing started after sunrise. Not turning
+                on printer light."
+              title: "🖨️ 🔲 3D printer"
+              log_level: "Normal"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.3d_printer_light_off
       - wait_for_trigger:
           - trigger: numeric_state
             entity_id: sensor.octoprint_estimated_finish_time
@@ -26,7 +80,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: "Printer priming. Turning on extruder :dash: fan."
-              title: ":printer: :black_square_button: 3D printer"
+              title: "🖨️ 🔲 3D printer"
               log_level: "Normal"
           - wait_for_trigger:
               - trigger: numeric_state
@@ -37,62 +91,8 @@ automation:
             data:
               message: "Printer started. Estimated time to completion:
                 {{ states('sensor.octoprint_estimated_finish_time') }}."
-              title: ":printer: :black_square_button: 3D printer"
+              title: "🖨️ 🔲 3D printer"
               log_level: "Normal"
-          - choose:
-              - conditions:
-                  - condition: sun
-                    after: sunset
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "🌇 Printing started after sunset. Turning
-                        Printer 🔆 💡 light on."
-                      title: ":printer: :black_square_button: 3D printer"
-                      log_level: "Normal"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_on
-              - conditions:
-                  - condition: sun
-                    before: sunrise
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "🌇 Printing started before sunrise. Turning
-                        Printer 🔆 💡 light on."
-                      title: ":printer: :black_square_button: 3D printer"
-                      log_level: "Normal"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_on
-              - conditions:
-                  - condition: sun
-                    after: sunrise
-                    before: sunset
-                  - condition: state
-                    entity_id: light.prusa
-                    state: "on"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: ":sunny: Printing started during the day. Turning
-                        Printer light off."
-                      title: ":printer: :black_square_button: 3D printer"
-                      log_level: "Normal"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.3d_printer_light_off
-            default:
-              - action: script.send_to_home_log
-                data:
-                  message: "🌅 Printing started after sunrise. Not turning
-                    on printer light."
-                  title: ":printer: :black_square_button: 3D printer"
-                  log_level: "Normal"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.3d_printer_light_off
     mode: single
   - id: "1619873649348"
     alias: "3D Printer: 50% Complete"
@@ -109,7 +109,7 @@ automation:
       - action: script.send_to_home_log
         data:
           message: "50% complete and due to finish at {{ states('sensor.octoprint_estimated_finish_time') }}."
-          title: ":printer: :black_square_button: 3D printer"
+          title: "🖨️ 🔲 3D printer"
           log_level: "Normal"
     mode: single
   - id: "1623087278802"
@@ -154,7 +154,7 @@ automation:
           message: >-
             :white_check_mark: Completed 3D printing which
             started {{states('sensor.octoprint_start_time')}}
-          title: ":printer: :black_square_button: 3D printer"
+          title: "🖨️ 🔲 3D printer"
           log_level: "Normal"
     mode: single
   - id: "1656239435552"
@@ -196,8 +196,8 @@ automation:
     actions:
       - action: script.send_direct_notification
         data:
-          message: ":printer: 3D printer is paused mid print. Please check"
-          title: ":printer: :black_square_button: 3D printer"
+          message: "🖨️ 3D printer is paused mid print. Please check"
+          title: "🖨️ 🔲 3D printer"
           people:
             entity_id:
               - person.danny
@@ -298,9 +298,9 @@ script:
       - action: script.send_direct_notification
         data:
           message:
-            ":printer: 3D printer is printing and no one is :house_with_garden:
+            "🖨️ 3D printer is printing and no one is :house_with_garden:
             home."
-          title: ":printer: :black_square_button: 3D printer"
+          title: "🖨️ 🔲 3D printer"
           people:
             entity_id:
               - person.danny
@@ -325,9 +325,9 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        "🌇 :printer: It's getting dark and it's printing.
+                        "🌇 🖨️ It's getting dark and it's printing.
                         Turning 🔆 💡 lights on."
-                      title: ":printer: :black_square_button: 3D printer"
+                      title: "🖨️ 🔲 3D printer"
                       log_level: "Debug"
                   - action: scene.turn_on
                     target:
@@ -350,7 +350,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: "Printer is not printing. Turning light off."
-                      title: ":printer: :black_square_button: 3D printer"
+                      title: "🖨️ 🔲 3D printer"
                       log_level: "Debug"
                   - action: scene.turn_on
                     target:
@@ -366,9 +366,9 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        🌇 :printer: It's getting bright and it's printing.
+                        🌇 🖨️ It's getting bright and it's printing.
                         Turning light off.
-                      title: ":printer: :black_square_button: 3D printer"
+                      title: "🖨️ 🔲 3D printer"
                       log_level: "Debug"
                   - action: scene.turn_on
                     target:
