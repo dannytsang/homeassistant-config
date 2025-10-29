@@ -155,17 +155,19 @@ automation:
             minutes: 0
             seconds: 0
         response_variable: calendar_events
+      - variables:
+          event_title_search_term: "half term|christmas holidays|occasional day"
       - choose:
           - conditions:
               - condition: template
                 value_template: >-
-                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', 'half term|holidays') | list | count > 0 }}
+                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', event_title_search_term) | list | count > 0 }}
             sequence:
               - action: script.send_to_home_log
                 data:
                   message: >-
                     Found matching non school event(s):
-                    {% for event in calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', 'half term|holidays') | list -%}
+                    {% for event in calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | select('search', event_title_search_term) | list -%}
                     {{ '* '~event~'\n' }}
                     {% endfor -%}
                     Skipping.
