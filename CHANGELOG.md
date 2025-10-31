@@ -3,30 +3,31 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 28 seconds ago)
-- **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 3 minutes ago)
-- **a18e911d** - Add 3D printing start automation to trigger when things are heating up. (Danny Tsang, 42 minutes ago)
-- **44b6bbbc** - Removed ESPHome for kitchen to reset it. (Danny Tsang, 42 minutes ago)
+- **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 44 seconds ago)
+- **c49cac17** - docs: update changelog (#146) (github-actions[bot], 14 hours ago)
+- **fc86d30a** - Added missing kitchen motion api key. (Danny Tsang, 14 hours ago)
+- **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 14 hours ago)
+- **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 14 hours ago)
+- **a18e911d** - Add 3D printing start automation to trigger when things are heating up. (Danny Tsang, 15 hours ago)
+- **44b6bbbc** - Removed ESPHome for kitchen to reset it. (Danny Tsang, 15 hours ago)
 - **030a284e** - Declared children event of interest in a variable. (Danny Tsang, 2 days ago)
 - **6afa2e8b** - Fix turning off kitchen light scene turning on lights rather than off. (Danny Tsang, 2 days ago)
-- **585640e4** - docs: update changelog (#145) (github-actions[bot], 2 days ago)
-- **bfa44c41** - List found events to help troubleshooting in the future. (Danny Tsang, 2 days ago)
-- **54bedafc** - Changed holiday detection with select filter. (Danny Tsang, 2 days ago)
-- **c80d52cf** - Added filter to (Danny Tsang, 2 days ago)
-- **d311762f** - Moved check light before wait occurs. (Danny Tsang, 2 days ago)
-- **f2723a04** - Added mmWave in the conservatory. (Danny Tsang, 3 days ago)
-- **dd10e651** - Replaced Hive integration with Z2M. (Danny Tsang, 3 days ago)
-- **f2547282** - docs: update changelog (#144) (github-actions[bot], 3 days ago)
-- **0ea1125e** - Moved automations and script into the new package. (Danny Tsang, 3 days ago)
-- **9f5efdc3** - Added location sensors to car 2. (Danny Tsang, 3 days ago)
-- **cc9c899d** - Moved car 2 to match Teslamate documentation. (Danny Tsang, 3 days ago)
-- **444446eb** - Added missing navigation entities. (Danny Tsang, 3 days ago)
-- **2417ba4d** - Refactored Tesla car 1 to Teslamate's documentation style. (Danny Tsang, 3 days ago)
-- **81a28037** - Moved existing Tesla MQTT config to old. (Danny Tsang, 3 days ago)
+- **585640e4** - docs: update changelog (#145) (github-actions[bot], 3 days ago)
+- **bfa44c41** - List found events to help troubleshooting in the future. (Danny Tsang, 3 days ago)
+- **54bedafc** - Changed holiday detection with select filter. (Danny Tsang, 3 days ago)
+- **c80d52cf** - Added filter to (Danny Tsang, 3 days ago)
+- **d311762f** - Moved check light before wait occurs. (Danny Tsang, 3 days ago)
+- **f2723a04** - Added mmWave in the conservatory. (Danny Tsang, 4 days ago)
+- **dd10e651** - Replaced Hive integration with Z2M. (Danny Tsang, 4 days ago)
+- **f2547282** - docs: update changelog (#144) (github-actions[bot], 4 days ago)
+- **0ea1125e** - Moved automations and script into the new package. (Danny Tsang, 4 days ago)
+- **9f5efdc3** - Added location sensors to car 2. (Danny Tsang, 4 days ago)
+- **cc9c899d** - Moved car 2 to match Teslamate documentation. (Danny Tsang, 4 days ago)
 
 ## By Category
 
 ### 🤖 Automations
+- Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (61c4bc1e)
 - Replaced Hive integration with Z2M. (dd10e651)
 - Replaced :battery: with emoji. (3ef65b5e)
 - Removed quotes on numbers. (7349b267)
@@ -46,7 +47,6 @@ All notable changes to Home Assistant configuration.
 - Renamed services to action as per 2024.8 release. (4e8865b1)
 - Missed removing BMW automation. (a4944c65)
 - Changed script name for hot water. (8ed2a328)
-- Removed mmWave turned on during holiday mode for living room. (029f3d59)
 ### 📜 Scripts
 - Added ashlee's bed and conservatory to restart script. (b22102b0)
 - Reordered Restart ESP name and description. (c7c4916d)
@@ -90,6 +90,7 @@ All notable changes to Home Assistant configuration.
 - Fix setting battery stop to grid stop in grid mode. (2f55a172)
 - Created and moved packages to conservatory. (8ad229e4)
 ### 🏠 Rooms
+- Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (61c4bc1e)
 - Add 3D printing start automation to trigger when things are heating up. (a18e911d)
 - Fix turning off kitchen light scene turning on lights rather than off. (6afa2e8b)
 - Moved check light before wait occurs. (d311762f)
@@ -109,7 +110,6 @@ All notable changes to Home Assistant configuration.
 - Added door open check to high humidity. (c9da71f6)
 - Created and moved packages to conservatory. (8ad229e4)
 - Added another occupqncy sensor. (2d6685ac)
-- Moved steam to the office package. (2469cb05)
 ### 🔧 ESPHome
 - Renamed conservatory motion to kitchen. (8b82abc6)
 - Reset the kitchen motion to be conservatory motion. (9c3789d4)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3986
+- Total commits: 3990
 - Configuration files: 111
-- Last updated: 2025-10-30 20:08:44 UTC
+- Last updated: 2025-10-31 10:32:34 UTC
 - Branch: main
