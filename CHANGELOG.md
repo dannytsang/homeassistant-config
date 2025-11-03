@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **579f3938** - Add trigger for target temp is above 50. (Danny Tsang, 57 minutes ago)
-- **c6028c9f** - Added key check before run automation for unknown faces. (Danny Tsang, 57 minutes ago)
-- **5b471907** - Replaced more short codes with emoji. (Danny Tsang, 30 hours ago)
-- **b7ecd492** - docs: update changelog (#147) (github-actions[bot], 31 hours ago)
-- **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 31 hours ago)
-- **c49cac17** - docs: update changelog (#146) (github-actions[bot], 2 days ago)
-- **fc86d30a** - Added missing kitchen motion api key. (Danny Tsang, 2 days ago)
-- **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 2 days ago)
-- **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 2 days ago)
-- **a18e911d** - Add 3D printing start automation to trigger when things are heating up. (Danny Tsang, 2 days ago)
-- **44b6bbbc** - Removed ESPHome for kitchen to reset it. (Danny Tsang, 2 days ago)
-- **030a284e** - Declared children event of interest in a variable. (Danny Tsang, 4 days ago)
-- **6afa2e8b** - Fix turning off kitchen light scene turning on lights rather than off. (Danny Tsang, 4 days ago)
-- **585640e4** - docs: update changelog (#145) (github-actions[bot], 4 days ago)
-- **bfa44c41** - List found events to help troubleshooting in the future. (Danny Tsang, 4 days ago)
-- **54bedafc** - Changed holiday detection with select filter. (Danny Tsang, 4 days ago)
-- **c80d52cf** - Added filter to (Danny Tsang, 4 days ago)
-- **d311762f** - Moved check light before wait occurs. (Danny Tsang, 4 days ago)
-- **f2723a04** - Added mmWave in the conservatory. (Danny Tsang, 5 days ago)
-- **dd10e651** - Replaced Hive integration with Z2M. (Danny Tsang, 5 days ago)
+- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 15 minutes ago)
+- **364f3b6e** - Created curl to get file related to unifi protect event. (Danny Tsang, 29 hours ago)
+- **65678220** - Updated car proximity entity ID. (Danny Tsang, 29 hours ago)
+- **65c70878** - docs: update changelog (#148) (github-actions[bot], 2 days ago)
+- **579f3938** - Add trigger for target temp is above 50. (Danny Tsang, 2 days ago)
+- **c6028c9f** - Added key check before run automation for unknown faces. (Danny Tsang, 2 days ago)
+- **5b471907** - Replaced more short codes with emoji. (Danny Tsang, 3 days ago)
+- **b7ecd492** - docs: update changelog (#147) (github-actions[bot], 3 days ago)
+- **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 3 days ago)
+- **c49cac17** - docs: update changelog (#146) (github-actions[bot], 4 days ago)
+- **fc86d30a** - Added missing kitchen motion api key. (Danny Tsang, 4 days ago)
+- **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 4 days ago)
+- **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 4 days ago)
+- **a18e911d** - Add 3D printing start automation to trigger when things are heating up. (Danny Tsang, 4 days ago)
+- **44b6bbbc** - Removed ESPHome for kitchen to reset it. (Danny Tsang, 4 days ago)
+- **030a284e** - Declared children event of interest in a variable. (Danny Tsang, 6 days ago)
+- **6afa2e8b** - Fix turning off kitchen light scene turning on lights rather than off. (Danny Tsang, 6 days ago)
+- **585640e4** - docs: update changelog (#145) (github-actions[bot], 6 days ago)
+- **bfa44c41** - List found events to help troubleshooting in the future. (Danny Tsang, 6 days ago)
+- **54bedafc** - Changed holiday detection with select filter. (Danny Tsang, 6 days ago)
 
 ## By Category
 
@@ -69,6 +69,8 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Created curl to get file related to unifi protect event. (364f3b6e)
+- Updated car proximity entity ID. (65678220)
 - Added key check before run automation for unknown faces. (c6028c9f)
 - Replaced more short codes with emoji. (5b471907)
 - Replaced Hive integration with Z2M. (dd10e651)
@@ -87,8 +89,6 @@ All notable changes to Home Assistant configuration.
 - Allow energy of car to be added to energy dashboard. (6c009b47)
 - Renamed entity_id to default_entity_id as per deprecation message. (0992cdc9)
 - Added quiet time to Alexa announcements. (e78914da)
-- Added salt blocks from Grocy. (ab0ee4e0)
-- Consider the GlowMrt data as also being valid state. (cd9eaf84)
 ### 🏠 Rooms
 - Add trigger for target temp is above 50. (579f3938)
 - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (61c4bc1e)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 3994
-- Configuration files: 111
-- Last updated: 2025-11-01 17:44:50 UTC
+- Total commits: 3998
+- Configuration files: 112
+- Last updated: 2025-11-03 21:51:03 UTC
 - Branch: main
