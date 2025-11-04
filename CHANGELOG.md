@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 3 minutes ago)
-- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 4 minutes ago)
-- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 88 minutes ago)
+- **75625da4** - docs: update changelog (#151) (github-actions[bot], 2 minutes ago)
+- **69a08d84** - Moved changelog into push. (Danny Tsang, 3 minutes ago)
+- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 19 minutes ago)
+- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 21 minutes ago)
+- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 2 hours ago)
 - **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 2 hours ago)
 - **374f9149** - docs: update changelog (#149) (github-actions[bot], 24 hours ago)
-- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 25 hours ago)
+- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 26 hours ago)
 - **364f3b6e** - Created curl to get file related to unifi protect event. (Danny Tsang, 2 days ago)
 - **65678220** - Updated car proximity entity ID. (Danny Tsang, 2 days ago)
 - **65c70878** - docs: update changelog (#148) (github-actions[bot], 3 days ago)
 - **579f3938** - Add trigger for target temp is above 50. (Danny Tsang, 3 days ago)
 - **c6028c9f** - Added key check before run automation for unknown faces. (Danny Tsang, 3 days ago)
-- **5b471907** - Replaced more short codes with emoji. (Danny Tsang, 4 days ago)
+- **5b471907** - Replaced more short codes with emoji. (Danny Tsang, 5 days ago)
 - **b7ecd492** - docs: update changelog (#147) (github-actions[bot], 5 days ago)
 - **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 5 days ago)
 - **c49cac17** - docs: update changelog (#146) (github-actions[bot], 5 days ago)
 - **fc86d30a** - Added missing kitchen motion api key. (Danny Tsang, 5 days ago)
 - **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 5 days ago)
 - **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 5 days ago)
-- **a18e911d** - Add 3D printing start automation to trigger when things are heating up. (Danny Tsang, 5 days ago)
-- **44b6bbbc** - Removed ESPHome for kitchen to reset it. (Danny Tsang, 5 days ago)
 
 ## By Category
 
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4003
-- Configuration files: 112
-- Last updated: 2025-11-04 23:01:18 UTC
+- Total commits: 4006
+- Configuration files: 111
+- Last updated: 2025-11-04 23:17:34 UTC
 - Branch: main
