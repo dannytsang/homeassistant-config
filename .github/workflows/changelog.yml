@@ -4,16 +4,15 @@ permissions:
   contents: read
 
 on:
-  push:
+  # Trigger after push.yml completes successfully
+  workflow_run:
+    workflows: ["Push - Validation"]
+    types:
+      - completed
     branches:
       - main
-    paths:
-      - '**.yaml'
-      - '**.yml'
-      - 'automations.yaml'
-      - 'scripts.yaml'
-      - 'scenes.yaml'
-      - 'configuration.yaml'
+  # Allow manual trigger
+  workflow_dispatch:
 
 jobs:
   changelog:
