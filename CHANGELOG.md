@@ -3,10 +3,12 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **75625da4** - docs: update changelog (#151) (github-actions[bot], 2 minutes ago)
-- **69a08d84** - Moved changelog into push. (Danny Tsang, 3 minutes ago)
-- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 19 minutes ago)
-- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 21 minutes ago)
+- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 3 minutes ago)
+- **10df72a6** - docs: update changelog (#152) (github-actions[bot], 5 minutes ago)
+- **75625da4** - docs: update changelog (#151) (github-actions[bot], 10 minutes ago)
+- **69a08d84** - Moved changelog into push. (Danny Tsang, 11 minutes ago)
+- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 27 minutes ago)
+- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 28 minutes ago)
 - **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 2 hours ago)
 - **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 2 hours ago)
 - **374f9149** - docs: update changelog (#149) (github-actions[bot], 24 hours ago)
@@ -21,8 +23,6 @@ All notable changes to Home Assistant configuration.
 - **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 5 days ago)
 - **c49cac17** - docs: update changelog (#146) (github-actions[bot], 5 days ago)
 - **fc86d30a** - Added missing kitchen motion api key. (Danny Tsang, 5 days ago)
-- **8b82abc6** - Renamed conservatory motion to kitchen. (Danny Tsang, 5 days ago)
-- **9c3789d4** - Reset the kitchen motion to be conservatory motion. (Danny Tsang, 5 days ago)
 
 ## By Category
 
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4006
-- Configuration files: 111
-- Last updated: 2025-11-04 23:17:34 UTC
+- Total commits: 4009
+- Configuration files: 112
+- Last updated: 2025-11-04 23:25:21 UTC
 - Branch: main
