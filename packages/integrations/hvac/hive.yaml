@@ -251,7 +251,7 @@ automation:
               message: Turning off hot water from schedule.
               title: ":hotsprings: Central Heating"
               log_level: "Normal"
-          - action: script.set
+          - action: script.set_hot_water_to_off
             data: {}
     mode: single
 
@@ -512,6 +512,20 @@ script:
               title: ":hotsprings: :droplet: Boiler"
               log_level: "Normal"
     mode: single
+  check_and_run_hot_water:
+    alias: Check And Run Central Heating Schedule
+    icon: mdi:water-boiler
+    sequence:
+      - choose:
+          - alias: Integration unavailable
+            conditions:
+              - condition: state
+                entity_id: schedule.hot_water
+                state: "on"
+            sequence:
+              - action: script.set_hot_water_to_on
+        default:
+          - action: script.set_hot_water_to_off
   set_hot_water_to_off:
     alias: Set Hot Water To Off
     icon: mdi:water-boiler-off
