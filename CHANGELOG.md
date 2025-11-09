@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 4 minutes ago)
-- **017c8936** - docs: update changelog (#153) (github-actions[bot], 23 hours ago)
-- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 23 hours ago)
-- **10df72a6** - docs: update changelog (#152) (github-actions[bot], 23 hours ago)
-- **75625da4** - docs: update changelog (#151) (github-actions[bot], 23 hours ago)
-- **69a08d84** - Moved changelog into push. (Danny Tsang, 23 hours ago)
-- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 23 hours ago)
-- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 23 hours ago)
-- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 25 hours ago)
-- **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 25 hours ago)
-- **374f9149** - docs: update changelog (#149) (github-actions[bot], 2 days ago)
-- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 2 days ago)
-- **364f3b6e** - Created curl to get file related to unifi protect event. (Danny Tsang, 3 days ago)
-- **65678220** - Updated car proximity entity ID. (Danny Tsang, 3 days ago)
-- **65c70878** - docs: update changelog (#148) (github-actions[bot], 4 days ago)
-- **579f3938** - Add trigger for target temp is above 50. (Danny Tsang, 4 days ago)
-- **c6028c9f** - Added key check before run automation for unknown faces. (Danny Tsang, 4 days ago)
-- **5b471907** - Replaced more short codes with emoji. (Danny Tsang, 5 days ago)
-- **b7ecd492** - docs: update changelog (#147) (github-actions[bot], 6 days ago)
-- **61c4bc1e** - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (Danny Tsang, 6 days ago)
+- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 2 minutes ago)
+- **88756188** - Bump Alexa media integration version. (Danny Tsang, 3 minutes ago)
+- **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 2 days ago)
+- **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 4 days ago)
+- **4df7280c** - docs: update changelog (#154) (github-actions[bot], 4 days ago)
+- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 4 days ago)
+- **017c8936** - docs: update changelog (#153) (github-actions[bot], 5 days ago)
+- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 5 days ago)
+- **10df72a6** - docs: update changelog (#152) (github-actions[bot], 5 days ago)
+- **75625da4** - docs: update changelog (#151) (github-actions[bot], 5 days ago)
+- **69a08d84** - Moved changelog into push. (Danny Tsang, 5 days ago)
+- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 5 days ago)
+- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 5 days ago)
+- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 5 days ago)
+- **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 5 days ago)
+- **374f9149** - docs: update changelog (#149) (github-actions[bot], 6 days ago)
+- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 6 days ago)
+- **364f3b6e** - Created curl to get file related to unifi protect event. (Danny Tsang, 7 days ago)
+- **65678220** - Updated car proximity entity ID. (Danny Tsang, 7 days ago)
+- **65c70878** - docs: update changelog (#148) (github-actions[bot], 8 days ago)
 
 ## By Category
 
@@ -69,6 +69,7 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Changed notify entity as per deprecation of the old one in Telegram integration. (4bb5c726)
 - Replace set hot water to home mode with check script. (521d865c)
 - Replaced Hive Z2M and using the Hive Local integration from HACS. (1f3f4ddd)
 - Created curl to get file related to unifi protect event. (364f3b6e)
@@ -88,8 +89,8 @@ All notable changes to Home Assistant configuration.
 - Removed longitude and latitude. (6288b333)
 - Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (1cad19ee)
 - Removed sensors and added missing ones to MQTT. (2814d045)
-- Allow energy of car to be added to energy dashboard. (6c009b47)
 ### 🏠 Rooms
+- Change brushing teeth notification from telegram to flashing lights. (db80deb2)
 - Add trigger for target temp is above 50. (579f3938)
 - Changed entities since moving and resetting the mmWave sensors in the conservatory and kitchen. (61c4bc1e)
 - Add 3D printing start automation to trigger when things are heating up. (a18e911d)
@@ -109,7 +110,6 @@ All notable changes to Home Assistant configuration.
 - Added targets from LD2450 to stop timer. (050cb3a8)
 - Removed living room camera automation. (fad0315b)
 - Added door open check to high humidity. (c9da71f6)
-- Created and moved packages to conservatory. (8ad229e4)
 ### 🔧 ESPHome
 - Renamed conservatory motion to kitchen. (8b82abc6)
 - Reset the kitchen motion to be conservatory motion. (9c3789d4)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4012
+- Total commits: 4017
 - Configuration files: 112
-- Last updated: 2025-11-05 22:13:27 UTC
+- Last updated: 2025-11-09 13:49:26 UTC
 - Branch: main
