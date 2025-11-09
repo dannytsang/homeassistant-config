@@ -3,9 +3,13 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 2 minutes ago)
-- **88756188** - Bump Alexa media integration version. (Danny Tsang, 3 minutes ago)
-- **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 2 days ago)
+- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 3 minutes ago)
+- **f00ea309** - Update hive integration used. (Danny Tsang, 16 minutes ago)
+- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 17 minutes ago)
+- **66720130** - docs: update changelog (#155) (github-actions[bot], 8 hours ago)
+- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 8 hours ago)
+- **88756188** - Bump Alexa media integration version. (Danny Tsang, 8 hours ago)
+- **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 3 days ago)
 - **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 4 days ago)
 - **4df7280c** - docs: update changelog (#154) (github-actions[bot], 4 days ago)
 - **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 4 days ago)
@@ -19,10 +23,6 @@ All notable changes to Home Assistant configuration.
 - **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 5 days ago)
 - **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 5 days ago)
 - **374f9149** - docs: update changelog (#149) (github-actions[bot], 6 days ago)
-- **535370ff** - Bump Alexa media integration version. (Danny Tsang, 6 days ago)
-- **364f3b6e** - Created curl to get file related to unifi protect event. (Danny Tsang, 7 days ago)
-- **65678220** - Updated car proximity entity ID. (Danny Tsang, 7 days ago)
-- **65c70878** - docs: update changelog (#148) (github-actions[bot], 8 days ago)
 
 ## By Category
 
@@ -69,6 +69,9 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Updated entities after re-setting up intelligent go devices. (f386b89a)
+- Update hive integration used. (f00ea309)
+- Fix turning on hot water with local Hive. (7a6e0f9a)
 - Changed notify entity as per deprecation of the old one in Telegram integration. (4bb5c726)
 - Replace set hot water to home mode with check script. (521d865c)
 - Replaced Hive Z2M and using the Hive Local integration from HACS. (1f3f4ddd)
@@ -86,9 +89,6 @@ All notable changes to Home Assistant configuration.
 - Fix invalid default_object_id. (84b4e4ce)
 - Replaced :battery: with emoji. (3ef65b5e)
 - Replaced :date: with calendar emoji. (6613da6c)
-- Removed longitude and latitude. (6288b333)
-- Removed availability check as per PR: https://github.com/teslamate-org/teslamate/pull/4362 (1cad19ee)
-- Removed sensors and added missing ones to MQTT. (2814d045)
 ### 🏠 Rooms
 - Change brushing teeth notification from telegram to flashing lights. (db80deb2)
 - Add trigger for target temp is above 50. (579f3938)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4017
+- Total commits: 4022
 - Configuration files: 112
-- Last updated: 2025-11-09 13:49:26 UTC
+- Last updated: 2025-11-09 21:55:43 UTC
 - Branch: main
