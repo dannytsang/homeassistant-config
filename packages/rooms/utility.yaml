@@ -245,6 +245,33 @@ automation:
               action2_title: "No"
               action2_name: ignore
     mode: single
+  - id: "1762804331887"
+    alias: "Fridge: High temperature"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.utility_fridge_interior_temperature
+        above: 7
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "{{ states(trigger.entity_id, 'friendly_name')}} temperature is above 5c ({{ states(trigger.entity_id, with_units=true) }})"
+          title: >-
+            {% if trigger.entity_id == 'sensor.fridge_interior_temperature' %}
+            🧑‍🍳 Kitchen
+            {% elif trigger.entity_id == 'sensor.fridge_interior_temperature' %}
+            Utility Room
+            {% endif %}
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+              - person.leo
+          suppress_if_quiet: false
+    mode: single
   # region Washing Machine
   - id: "1595679010794"
     alias: "Utility: Washing Machine Started"

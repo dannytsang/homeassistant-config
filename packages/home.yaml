@@ -78,6 +78,62 @@ automation:
             - input_boolean.enable_living_room_motion_triggers
             - input_boolean.enable_stairs_motion_triggers
     mode: single
+  #region Common
+  - id: "1762804331885"
+    alias: "Fridge: High temperature"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.utility_fridge_interior_temperature
+        above: 4.9
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "{{ states(trigger.entity_id, 'friendly_name')}} temperature is above 5c ({{ states(trigger.entity_id, with_units=true) }})"
+          title: >-
+            {% if trigger.entity_id == 'sensor.fridge_interior_temperature' %}
+            🧑‍🍳 Kitchen
+            {% elif trigger.entity_id == 'sensor.fridge_interior_temperature' %}
+            Utility Room
+            {% endif %}
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+              - person.leo
+          suppress_if_quiet: false
+    mode: single
+  - id: "1762804331886"
+    alias: "Freezer: High temperature"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.kitchen_freezer_interior_temperature
+          - sensor.utility_freezer_interior_temperature
+        above: -5
+    conditions: []
+    actions:
+      - action: script.send_direct_notification
+        metadata: {}
+        data:
+          message: "{{ states(trigger.entity_id, 'friendly_name')}} temperature is above 5c ({{ states(trigger.entity_id, with_units=true) }})"
+          title: >-
+            {% if trigger.entity_id == 'sensor.kitchen_freezer_interior_temperature' %}
+            🧑‍🍳 Kitchen
+            {% elif trigger.entity_id == 'sensor.utility_freezer_interior_temperature' %}
+            🧺 Utility Room
+            {% endif %}
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+              - person.leo
+          suppress_if_quiet: false
+    mode: single
 
 scene:
   - id: "1582406269472"
