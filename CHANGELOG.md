@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 3 minutes ago)
-- **f00ea309** - Update hive integration used. (Danny Tsang, 16 minutes ago)
-- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 17 minutes ago)
-- **66720130** - docs: update changelog (#155) (github-actions[bot], 8 hours ago)
-- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 8 hours ago)
-- **88756188** - Bump Alexa media integration version. (Danny Tsang, 8 hours ago)
+- **61c0f639** - Removed legacy Telegram integration. (Danny Tsang, 3 minutes ago)
+- **717cb180** - docs: update changelog (#156) (github-actions[bot], 18 hours ago)
+- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 18 hours ago)
+- **f00ea309** - Update hive integration used. (Danny Tsang, 18 hours ago)
+- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 18 hours ago)
+- **66720130** - docs: update changelog (#155) (github-actions[bot], 25 hours ago)
+- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 26 hours ago)
+- **88756188** - Bump Alexa media integration version. (Danny Tsang, 26 hours ago)
 - **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 3 days ago)
-- **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 4 days ago)
-- **4df7280c** - docs: update changelog (#154) (github-actions[bot], 4 days ago)
-- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 4 days ago)
-- **017c8936** - docs: update changelog (#153) (github-actions[bot], 5 days ago)
-- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 5 days ago)
-- **10df72a6** - docs: update changelog (#152) (github-actions[bot], 5 days ago)
-- **75625da4** - docs: update changelog (#151) (github-actions[bot], 5 days ago)
-- **69a08d84** - Moved changelog into push. (Danny Tsang, 5 days ago)
-- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 5 days ago)
-- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 5 days ago)
-- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 5 days ago)
-- **1f3f4ddd** - Replaced Hive Z2M and using the Hive Local integration from HACS. (Danny Tsang, 5 days ago)
-- **374f9149** - docs: update changelog (#149) (github-actions[bot], 6 days ago)
+- **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 5 days ago)
+- **4df7280c** - docs: update changelog (#154) (github-actions[bot], 5 days ago)
+- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 5 days ago)
+- **017c8936** - docs: update changelog (#153) (github-actions[bot], 6 days ago)
+- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 6 days ago)
+- **10df72a6** - docs: update changelog (#152) (github-actions[bot], 6 days ago)
+- **75625da4** - docs: update changelog (#151) (github-actions[bot], 6 days ago)
+- **69a08d84** - Moved changelog into push. (Danny Tsang, 6 days ago)
+- **d7f48912** - Changed changelog action to trigger after the push workflow completes. (Danny Tsang, 6 days ago)
+- **fe4ef13a** - docs: update changelog (#150) (github-actions[bot], 6 days ago)
+- **521d865c** - Replace set hot water to home mode with check script. (Danny Tsang, 6 days ago)
 
 ## By Category
 
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4022
+- Total commits: 4024
 - Configuration files: 112
-- Last updated: 2025-11-09 21:55:43 UTC
+- Last updated: 2025-11-10 15:45:30 UTC
 - Branch: main
