@@ -820,6 +820,35 @@ automation:
             target:
               entity_id: input_boolean.oven_preheated
     mode: single
+  - id: "1763292351760"
+    alias: "Kitchen: Oven On For Long Time"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.oven_powered_on
+        to:
+          - "on"
+        for:
+          hours: 1
+          minutes: 0
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: Oven has been on for over an hour
+              title: "🧑‍🍳 Kitchen"
+              log_level: Debug
+          - action: script.alexa_announce
+            metadata: {}
+            data:
+              message: Oven has been on for over 1 hour
+              method: speak
+              suppress_if_quiet: true
+    mode: single
   # region Dishwashing Machine
   - id: "1694521590172"
     alias: "Kitchen: Dishwasher Cycle Starts"
