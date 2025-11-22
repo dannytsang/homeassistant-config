@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 2 minutes ago)
-- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 3 minutes ago)
-- **286193d9** - docs: update changelog (#158) (github-actions[bot], 24 hours ago)
-- **785b8777** - Bump Alexa media integration version. (Danny Tsang, 2 days ago)
-- **fe16a87a** - Created high temperature warning for the sensors in the fridge and freezers. (Danny Tsang, 6 days ago)
-- **9d9196ae** - docs: update changelog (#157) (github-actions[bot], 6 days ago)
-- **61c0f639** - Removed legacy Telegram integration. (Danny Tsang, 6 days ago)
-- **717cb180** - docs: update changelog (#156) (github-actions[bot], 7 days ago)
-- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 7 days ago)
-- **f00ea309** - Update hive integration used. (Danny Tsang, 7 days ago)
-- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 7 days ago)
-- **66720130** - docs: update changelog (#155) (github-actions[bot], 7 days ago)
-- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 7 days ago)
-- **88756188** - Bump Alexa media integration version. (Danny Tsang, 7 days ago)
-- **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 9 days ago)
-- **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 11 days ago)
-- **4df7280c** - docs: update changelog (#154) (github-actions[bot], 11 days ago)
-- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 11 days ago)
-- **017c8936** - docs: update changelog (#153) (github-actions[bot], 12 days ago)
-- **1074f380** - Reversed merging of changelog and push. (Danny Tsang, 12 days ago)
+- **5e0445a0** - docs: update changelog (#159) (github-actions[bot], 6 days ago)
+- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 6 days ago)
+- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 6 days ago)
+- **286193d9** - docs: update changelog (#158) (github-actions[bot], 7 days ago)
+- **785b8777** - Bump Alexa media integration version. (Danny Tsang, 8 days ago)
+- **fe16a87a** - Created high temperature warning for the sensors in the fridge and freezers. (Danny Tsang, 11 days ago)
+- **9d9196ae** - docs: update changelog (#157) (github-actions[bot], 12 days ago)
+- **61c0f639** - Removed legacy Telegram integration. (Danny Tsang, 12 days ago)
+- **717cb180** - docs: update changelog (#156) (github-actions[bot], 12 days ago)
+- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 12 days ago)
+- **f00ea309** - Update hive integration used. (Danny Tsang, 12 days ago)
+- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 12 days ago)
+- **66720130** - docs: update changelog (#155) (github-actions[bot], 13 days ago)
+- **db80deb2** - Change brushing teeth notification from telegram to flashing lights. (Danny Tsang, 13 days ago)
+- **88756188** - Bump Alexa media integration version. (Danny Tsang, 13 days ago)
+- **4bb5c726** - Changed notify entity as per deprecation of the old one in Telegram integration. (Danny Tsang, 2 weeks ago)
+- **5b1c374d** - Updated statistics from 2025.11 update. (Danny Tsang, 2 weeks ago)
+- **4df7280c** - docs: update changelog (#154) (github-actions[bot], 2 weeks ago)
+- **5ba2662b** - Fix change to name for hot water script that was missed. (Danny Tsang, 2 weeks ago)
+- **017c8936** - docs: update changelog (#153) (github-actions[bot], 2 weeks ago)
 
 ## By Category
 
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4032
+- Total commits: 4033
 - Configuration files: 112
-- Last updated: 2025-11-16 11:31:17 UTC
+- Last updated: 2025-11-22 08:06:55 UTC
 - Branch: main
