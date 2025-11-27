@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **6ad8f786** - Bump to new PR action. (Danny Tsang, 2 minutes ago)
-- **664aecb7** - Bump retry integration version. (Danny Tsang, 42 minutes ago)
-- **a3a9f348** - Bump actions/checkout from 5 to 6 (#160) (dependabot[bot], 52 minutes ago)
-- **5c0ac003** - docs: update changelog (#161) (github-actions[bot], 53 minutes ago)
-- **056c2dd1** - Increased time to incorporate preheating. (Danny Tsang, 5 days ago)
-- **97997034** - Fixed debug parameter with the right log_level name instead. (Danny Tsang, 5 days ago)
-- **df53eba5** - Bump Alexa media integration version. (Danny Tsang, 5 days ago)
-- **5e0445a0** - docs: update changelog (#159) (github-actions[bot], 6 days ago)
-- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 7 days ago)
-- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 7 days ago)
-- **286193d9** - docs: update changelog (#158) (github-actions[bot], 8 days ago)
-- **785b8777** - Bump Alexa media integration version. (Danny Tsang, 9 days ago)
-- **fe16a87a** - Created high temperature warning for the sensors in the fridge and freezers. (Danny Tsang, 12 days ago)
-- **9d9196ae** - docs: update changelog (#157) (github-actions[bot], 12 days ago)
-- **61c0f639** - Removed legacy Telegram integration. (Danny Tsang, 12 days ago)
-- **717cb180** - docs: update changelog (#156) (github-actions[bot], 13 days ago)
-- **f386b89a** - Updated entities after re-setting up intelligent go devices. (Danny Tsang, 13 days ago)
-- **f00ea309** - Update hive integration used. (Danny Tsang, 13 days ago)
-- **7a6e0f9a** - Fix turning on hot water with local Hive. (Danny Tsang, 13 days ago)
-- **66720130** - docs: update changelog (#155) (github-actions[bot], 13 days ago)
+- **68822cec** - Updated powercalc config as per documentation. (Danny Tsang, 2 minutes ago)
+- **f8d576df** - Bump retry integration version. (Danny Tsang, 67 minutes ago)
+- **3154a5f5** - Removed battery config as it's now deprecated. (Danny Tsang, 67 minutes ago)
+- **9240c941** - Updated entity ID from re-adding. (Danny Tsang, 2 days ago)
+- **dee6a935** - Ignore .ssh folder. (Danny Tsang, 2 days ago)
+- **2defe322** - Bump Alexa media integration version. (Danny Tsang, 2 days ago)
+- **f52f5ad9** - docs: update changelog (#162) (github-actions[bot], 3 days ago)
+- **6ad8f786** - Bump to new PR action. (Danny Tsang, 4 days ago)
+- **664aecb7** - Bump retry integration version. (Danny Tsang, 5 days ago)
+- **a3a9f348** - Bump actions/checkout from 5 to 6 (#160) (dependabot[bot], 5 days ago)
+- **5c0ac003** - docs: update changelog (#161) (github-actions[bot], 5 days ago)
+- **056c2dd1** - Increased time to incorporate preheating. (Danny Tsang, 10 days ago)
+- **97997034** - Fixed debug parameter with the right log_level name instead. (Danny Tsang, 10 days ago)
+- **df53eba5** - Bump Alexa media integration version. (Danny Tsang, 10 days ago)
+- **5e0445a0** - docs: update changelog (#159) (github-actions[bot], 11 days ago)
+- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 11 days ago)
+- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 11 days ago)
+- **286193d9** - docs: update changelog (#158) (github-actions[bot], 12 days ago)
+- **785b8777** - Bump Alexa media integration version. (Danny Tsang, 13 days ago)
+- **fe16a87a** - Created high temperature warning for the sensors in the fridge and freezers. (Danny Tsang, 2 weeks ago)
 
 ## By Category
 
@@ -69,6 +69,7 @@ All notable changes to Home Assistant configuration.
 - Fix car entity ID. (24d7a61a)
 - Various fixes from Watchman report. (22c84c84)
 ### 🔌 Integrations
+- Updated entity ID from re-adding. (9240c941)
 - Fixed debug parameter with the right log_level name instead. (97997034)
 - Added other status triggers for EV charger. (6341a329)
 - Updated entities after re-setting up intelligent go devices. (f386b89a)
@@ -88,7 +89,6 @@ All notable changes to Home Assistant configuration.
 - Added missing navigation entities. (444446eb)
 - Refactored Tesla car 1 to Teslamate's documentation style. (2417ba4d)
 - Moved existing Tesla MQTT config to old. (81a28037)
-- Fix invalid default_object_id. (84b4e4ce)
 ### 🏠 Rooms
 - Increased time to incorporate preheating. (056c2dd1)
 - Fixed debug parameter with the right log_level name instead. (97997034)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4041
+- Total commits: 4049
 - Configuration files: 112
-- Last updated: 2025-11-22 23:16:28 UTC
+- Last updated: 2025-11-27 10:14:34 UTC
 - Branch: main
