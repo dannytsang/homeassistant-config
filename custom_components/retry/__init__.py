@@ -179,7 +179,7 @@ class RetryParams:
         self.entities = self._entity_ids(hass)
         if not self.entities and ATTR_EXPECTED_STATE in self.retry_data:
             message = f"{ATTR_EXPECTED_STATE} parameter requires an entity"
-            raise IntegrationError(message)
+            raise ServiceValidationError(message)
 
     @staticmethod
     def _retry_data(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
@@ -511,7 +511,11 @@ class RetryAction:
         while True:
             if not self._check_id():
                 self._log(logging.INFO, "Cancelled")
-                return None
+                msg = (
+                    f"Retry cancelled due to duplicate retry_id '{self._retry_id}': "
+                    f"{self!s}"
+                )
+                raise IntegrationError(msg)
             try:
                 if not self._initial_check():
                     result = await self._hass.services.async_call(
@@ -650,7 +654,7 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
         ):
             raise error
 
-        return next((result for result in results if result is not None), None)
+        return next((result for result in results if result is not None), {})
 
     hass.services.async_register(
         DOMAIN,
@@ -678,7 +682,6 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
         ACTIONS_SERVICE,
         async_actions,
         ACTIONS_SERVICE_SCHEMA,
-        supports_response=SupportsResponse.OPTIONAL,
     )
 
     return True
