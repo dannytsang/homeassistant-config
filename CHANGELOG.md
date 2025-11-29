@@ -3,26 +3,26 @@
 All notable changes to Home Assistant configuration.
 
 ## Recent Changes (Last 20 Commits)
-- **68822cec** - Updated powercalc config as per documentation. (Danny Tsang, 2 minutes ago)
-- **f8d576df** - Bump retry integration version. (Danny Tsang, 67 minutes ago)
-- **3154a5f5** - Removed battery config as it's now deprecated. (Danny Tsang, 67 minutes ago)
-- **9240c941** - Updated entity ID from re-adding. (Danny Tsang, 2 days ago)
-- **dee6a935** - Ignore .ssh folder. (Danny Tsang, 2 days ago)
-- **2defe322** - Bump Alexa media integration version. (Danny Tsang, 2 days ago)
-- **f52f5ad9** - docs: update changelog (#162) (github-actions[bot], 3 days ago)
-- **6ad8f786** - Bump to new PR action. (Danny Tsang, 4 days ago)
-- **664aecb7** - Bump retry integration version. (Danny Tsang, 5 days ago)
-- **a3a9f348** - Bump actions/checkout from 5 to 6 (#160) (dependabot[bot], 5 days ago)
-- **5c0ac003** - docs: update changelog (#161) (github-actions[bot], 5 days ago)
-- **056c2dd1** - Increased time to incorporate preheating. (Danny Tsang, 10 days ago)
-- **97997034** - Fixed debug parameter with the right log_level name instead. (Danny Tsang, 10 days ago)
-- **df53eba5** - Bump Alexa media integration version. (Danny Tsang, 10 days ago)
-- **5e0445a0** - docs: update changelog (#159) (github-actions[bot], 11 days ago)
-- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 11 days ago)
-- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 11 days ago)
-- **286193d9** - docs: update changelog (#158) (github-actions[bot], 12 days ago)
-- **785b8777** - Bump Alexa media integration version. (Danny Tsang, 13 days ago)
-- **fe16a87a** - Created high temperature warning for the sensors in the fridge and freezers. (Danny Tsang, 2 weeks ago)
+- **682f2778** - Exclude lights from powercalc. (Danny Tsang, 10 hours ago)
+- **141be458** - Removed monitor light bar automations. (Danny Tsang, 10 hours ago)
+- **c2f48b54** - docs: update changelog (#163) (github-actions[bot], 2 days ago)
+- **68822cec** - Updated powercalc config as per documentation. (Danny Tsang, 2 days ago)
+- **f8d576df** - Bump retry integration version. (Danny Tsang, 2 days ago)
+- **3154a5f5** - Removed battery config as it's now deprecated. (Danny Tsang, 2 days ago)
+- **9240c941** - Updated entity ID from re-adding. (Danny Tsang, 4 days ago)
+- **dee6a935** - Ignore .ssh folder. (Danny Tsang, 4 days ago)
+- **2defe322** - Bump Alexa media integration version. (Danny Tsang, 4 days ago)
+- **f52f5ad9** - docs: update changelog (#162) (github-actions[bot], 4 days ago)
+- **6ad8f786** - Bump to new PR action. (Danny Tsang, 6 days ago)
+- **664aecb7** - Bump retry integration version. (Danny Tsang, 6 days ago)
+- **a3a9f348** - Bump actions/checkout from 5 to 6 (#160) (dependabot[bot], 6 days ago)
+- **5c0ac003** - docs: update changelog (#161) (github-actions[bot], 6 days ago)
+- **056c2dd1** - Increased time to incorporate preheating. (Danny Tsang, 11 days ago)
+- **97997034** - Fixed debug parameter with the right log_level name instead. (Danny Tsang, 11 days ago)
+- **df53eba5** - Bump Alexa media integration version. (Danny Tsang, 11 days ago)
+- **5e0445a0** - docs: update changelog (#159) (github-actions[bot], 13 days ago)
+- **000898c2** - Added announcement if the oven has been on for over an hour. (Danny Tsang, 13 days ago)
+- **6341a329** - Added other status triggers for EV charger. (Danny Tsang, 13 days ago)
 
 ## By Category
 
@@ -90,6 +90,7 @@ All notable changes to Home Assistant configuration.
 - Refactored Tesla car 1 to Teslamate's documentation style. (2417ba4d)
 - Moved existing Tesla MQTT config to old. (81a28037)
 ### 🏠 Rooms
+- Removed monitor light bar automations. (141be458)
 - Increased time to incorporate preheating. (056c2dd1)
 - Fixed debug parameter with the right log_level name instead. (97997034)
 - Added announcement if the oven has been on for over an hour. (000898c2)
@@ -109,7 +110,6 @@ All notable changes to Home Assistant configuration.
 - Added notification when over brushing teeth. (98ea4efe)
 - Added salt blocks from Grocy. (ab0ee4e0)
 - Up'd timer because it was turning off too quickly. (ccbe01ec)
-- Changed oven on to use triggers again because it was less accurate. (24d8e7c2)
 ### 🔧 ESPHome
 - Renamed conservatory motion to kitchen. (8b82abc6)
 - Reset the kitchen motion to be conservatory motion. (9c3789d4)
@@ -136,7 +136,7 @@ All notable changes to Home Assistant configuration.
 
 ### Statistics
 
-- Total commits: 4049
+- Total commits: 4052
 - Configuration files: 112
-- Last updated: 2025-11-27 10:14:34 UTC
+- Last updated: 2025-11-29 08:06:49 UTC
 - Branch: main
