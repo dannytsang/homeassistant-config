@@ -196,48 +196,6 @@ automation:
                           - person.terina
             default: []
     mode: single
-  # region Other
-  - id: "1733767153966"
-    alias: "Conservatory: Turn On Airer"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.conservatory_airer_schedule_1
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_airer_schedule
-        state: "on"
-    actions:
-      - action: script.check_conservatory_airer
-        data: {}
-    mode: single
-  - id: "1733767153967"
-    alias: "Conservatory: Turn Off Airer"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.conservatory_airer_schedule_1
-        to: "off"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_airer_schedule
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            metadata: {}
-            data:
-              log_level: Normal
-              message: Airer schedule 1 is off. Turning airer off.
-              title: Conservatory
-          - action: switch.turn_off
-            metadata: {}
-            data: {}
-            target:
-              entity_id: switch.airer
-    mode: single
 
 scene:
   - id: "1610234583738"
@@ -374,9 +332,10 @@ script:
               - parallel:
                 - action: script.send_to_home_log
                   data:
-                    message: "Ambient air temperature is above 24°C ({{ states('sensor.conservatory_area_mean_temperature', with_unit=True) }})
-                    but floor is cool {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
-                    Skipping Underfloor heating."
+                    message: >-
+                      Ambient air temperature is above 24°C ({{ states('sensor.conservatory_area_mean_temperature', with_unit=True) }})
+                      but floor is cool {{ state_attr('climate.conservatory_under_floor_heating', 'temperature') }}°C).
+                      Skipping Underfloor heating.
                     title: "Conservatory"
                     people:
                       entity_id:
@@ -389,122 +348,6 @@ script:
               people:
                 entity_id:
                   - person.danny
-  check_conservatory_airer:
-    alias: Check Conservatory Airer
-    description: "https://www.homesandgardens.com/solved/can-you-dry-laundry-outside-in-winter"
-    fields:
-      current_electricity_import_rate:
-        description: Pounds per kiloWatt for importing.
-        example: "0.1501"
-        selector:
-          number:
-            min: -15
-            max: 100
-            step: 2
-      current_electricity_import_rate_unit:
-        description: Unit describing the unit rate.
-        example: "GBP/kWh"
-        selector:
-          text:
-    sequence:
-      - variables:
-          current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
-          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
-      - choose:
-          - alias: "Check schedule is on"
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_conservatory_airer_schedule
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.conservatory_airer_schedule_1
-                state: "on"
-              - condition: numeric_state
-                entity_id: sensor.conservatory_temperature_over_12_hours
-                below: input_number.airer_minimum_temperature
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Schedule turned on. Turning on airer."
-                      title: "Conservatory"
-                  - if:
-                      - condition: state
-                        entity_id: switch.airer
-                        state: "off"
-                    then:
-                      - action: switch.turn_on
-                        target:
-                          entity_id: switch.airer
-          - alias: "Check electricity rates cost nothing"
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_conservatory_airer_when_cost_nothing
-                state: "off"
-              - condition: template
-                value_template: "{{ current_import_rate == 0 }}"
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electricity 0p/kw. Turning on airer.
-                      title: "Conservatory"
-                  - if:
-                      - condition: state
-                        entity_id: switch.airer
-                        state: "on"
-                    then:
-                      - action: switch.turn_on
-                        target:
-                          entity_id: switch.airer
-          - alias: "Check electricity rates cost below nothing"
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_conservatory_airer_when_cost_below_nothing
-                state: "on"
-              - condition: template
-                value_template: "{{ current_import_rate < 0 }}"
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electricity below 0p/kw ({{ current_import_rate }}).Turning on airer.
-                      title: "Conservatory"
-                  - if:
-                      - condition: state
-                        entity_id: switch.airer
-                        state: "off"
-                    then:
-                      - action: switch.turn_on
-                        target:
-                          entity_id: switch.airer
-          - alias: "Check electricity rates starts to cost"
-            conditions:
-              - or:
-                  - condition: state
-                    entity_id: input_boolean.enable_conservatory_airer_when_cost_below_nothing
-                    state: "on"
-                  - condition: state
-                    entity_id: input_boolean.enable_conservatory_airer_when_cost_nothing
-                    state: "on"
-              - condition: state
-                entity_id: switch.airer
-                state: "on"
-              - condition: template
-                value_template: "{{ current_import_rate > 0 }}"
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        Electricity above 0p/kw ({{ current_import_rate }}).Turning off airer.
-                      title: "Conservatory"
-                  - action: switch.turn_off
-                    target:
-                      entity_id: switch.airer
-        default: []
 
 sensor:
   - platform: mold_indicator
