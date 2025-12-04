@@ -39,37 +39,6 @@ automation:
             target:
               entity_id: cover.bedroom_blinds
     mode: single
-  - id: "1600127180656"
-    alias: "Bedroom: Close Blinds Before Sunrise"
-    description: ""
-    triggers:
-      - trigger: sun
-        event: sunrise
-        offset: -02:00:00
-    conditions:
-      - condition: numeric_state
-        entity_id: cover.bedroom_blinds
-        attribute: current_position
-        above: input_number.blind_open_position_threshold
-      - condition: state
-        entity_id: input_boolean.enable_bedroom_blind_automations
-        state: "on"
-      - condition: state
-        entity_id: binary_sensor.bedroom_window_contact
-        state: "off"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                🌅 Bedroom blind is open and it's nearly sunrise. Closing blinds.
-              title: "🛏️ bedroom"
-              log_level: "Debug"
-          - action: cover.close_cover
-            target:
-              entity_id: cover.bedroom_blinds
-    mode: single
   - id: "1622667464880"
     alias: "Bedroom: Window Closed At Night"
     description: ""
@@ -685,16 +654,13 @@ automation:
     triggers:
       - trigger: time
         at: "08:00:00"
-        id: "workday"
-      - trigger: time
-        at: "08:30:00"
-        id: "083000"
+        id: "080000"
       - trigger: time
         at: "09:00:00"
         id: "090000"
       - trigger: time
-        at: "09:30:00"
-        id: "093000"
+        at: "10:00:00"
+        id: "0100000"
     conditions:
       - condition: numeric_state
         entity_id: cover.bedroom_blinds
@@ -707,8 +673,20 @@ automation:
         entity_id: binary_sensor.bedroom_tv_powered_on
         state: "off"
     actions:
+      - action: calendar.get_events
+        target:
+          entity_id:
+            - calendar.danny_tsang_uk
+        data:
+          start_date_time: "{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d %H:%M:%S') }}"
+          duration:
+            hours: 1
+            minutes: 0
+            seconds: 0
+        response_variable: calendar
       - choose:
-          - conditions:
+          - alias: Work day
+            conditions:
               - alias: Working day
                 condition: state
                 entity_id: binary_sensor.workday_sensor
@@ -716,21 +694,22 @@ automation:
               - alias: No annual leave in calendar
                 condition: template
                 value_template: >-
-                  {{ 'Danny' not in state_attr('calendar.work','message')|string and
-                  'A/L' not in state_attr('calendar.work','message')|string and
-                  states('calendar.work') == 'off' }}
+                  {{ 'Danny' not in calendar['calendar.danny_tsang_uk'].events|string }}
+              - condition: trigger
+                id: "080000"
             sequence:
-              - action: cover.open_cover
-                target:
-                  entity_id: cover.bedroom_blinds
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Opening blinds because it's closed on a working weekday!"
-                  title: "🛏️ bedroom"
-                  log_level: "Debug"
-          - alias: Non workday and no children
+              - parallel:
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.bedroom_blinds
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        Opening blinds because it's closed on a working weekday!"
+                      title: "🛏️ bedroom"
+                      log_level: "Debug"
+          - alias: Non workday and not in no children mode
             conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
@@ -753,31 +732,9 @@ automation:
                     Opening blinds because it's closed and its 09:00 on a weekend!"
                   title: "🛏️ bedroom"
                   log_level: "Debug"
-          - alias: Non workday and no children
-            conditions:
-              - condition: state
-                entity_id: binary_sensor.workday_sensor
-                state: "off"
-                alias: Non working day
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "No Children"
-              - condition: trigger
-                id: "093000"
-            sequence:
-              - action: cover.open_cover
-                target:
-                  entity_id: cover.bedroom_blinds
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Opening blinds because it's closed, there are no children and its 09:30 on a weekend!"
-                  title: "🛏️ bedroom"
-                  log_level: "Debug"
           - conditions:
               - condition: trigger
-                id: "093000"
+                id: "100000"
             sequence:
               - action: cover.open_cover
                 target:
@@ -786,7 +743,7 @@ automation:
                 data:
                   message: >-
                     :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                    Opening blinds because it's closed and its 09:30!"
+                    Opening blinds because it's closed and its 10:00!"
                   title: "🛏️ bedroom"
                   log_level: "Debug"
         default: []
