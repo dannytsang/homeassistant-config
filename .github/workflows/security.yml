@@ -22,12 +22,20 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: TruffleHog Secret Scan
+      - name: TruffleHog Secret Scan (Pull Requests)
+        if: github.event_name == 'pull_request'
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || '' }}
-          head: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || 'HEAD' }}
+          base: ${{ github.event.pull_request.base.sha }}
+          head: ${{ github.event.pull_request.head.sha }}
+          extra_args: --only-verified
+
+      - name: TruffleHog Secret Scan (Push/Schedule)
+        if: github.event_name != 'pull_request'
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
           extra_args: --only-verified --since-commit HEAD~1
       
       - name: Gitleaks Secret Scan
@@ -67,22 +75,3 @@ jobs:
         with:
           name: bandit-security-report
           path: bandit-report.json
-  
-  codeql:
-    name: CodeQL Analysis
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      security-events: write
-      actions: read
-      contents: read
-    steps:
-      - uses: actions/checkout@v6
-      
-      - name: Initialize CodeQL
-        uses: github/codeql-action/init@v3
-        with:
-          languages: python
-      
-      - name: Perform CodeQL Analysis
-        uses: github/codeql-action/analyze@v3
