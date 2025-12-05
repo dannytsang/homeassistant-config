@@ -28,7 +28,7 @@ More details on my 📜[website](https://dannytsang.com).
 > ⚠️ **Note:** This configuration is highly specific to my environment. Some parts may not work without adaptation.
 
 ### Statistics 📊
-I have 6,871 states (📈272) in Home Assistant. in Home Assistant. More details [here](statistics.md).
+I have 6,902 states (📈31) in Home Assistant. in Home Assistant. More details [here](statistics.md).
 
 ## Hardware 🔩
 More details [here](hardware.md).
