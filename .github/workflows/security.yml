@@ -22,21 +22,11 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: TruffleHog Secret Scan (Pull Requests)
-        if: github.event_name == 'pull_request'
+      - name: TruffleHog Secret Scan
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          base: ${{ github.event.pull_request.base.sha }}
-          head: ${{ github.event.pull_request.head.sha }}
           extra_args: --only-verified
-
-      - name: TruffleHog Secret Scan (Push/Schedule)
-        if: github.event_name != 'pull_request'
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: ./
-          extra_args: --only-verified --since-commit HEAD~1
       
       - name: Gitleaks Secret Scan
         uses: gitleaks/gitleaks-action@v2
