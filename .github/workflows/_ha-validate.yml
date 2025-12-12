@@ -122,6 +122,10 @@ jobs:
                  -e '/delete\:/,+1d' \
                  -e '/powercalc\:/,+2d' \
                  -e '/sonoff\:/,+3d' configuration.yaml
+      - name: Remove Powercalc in configuration file
+        uses: mikefarah/yq@master
+        with:
+          cmd: yq -i 'del(.. | select(tag == "!!map") | .powercalc?)' 'configuration.yaml'
       - name: Validate (stable)
         if: ${{ inputs.run_ha_stable }}
         id: ha
