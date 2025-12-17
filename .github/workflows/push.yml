@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -71,6 +71,7 @@ jobs:
           tags: tag:homeassistant-ci
 
       - name: Deploy (POST webhook with retries)
+        timeout-minutes: 5
         uses: Wandalen/wretry.action@v3.8.0
         if: ${{ steps.ts.outcome == 'success' }}
         with:
