@@ -48,18 +48,17 @@ intent_script:
     speech:
       text: >-
         {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
-        and will run out in
-        {% set dt = as_datetime(states('sensor.battery_charge_remaining_hours')).astimezone() %}
-        {% set today = now().date() %}
-        {% set tomorrow = (now() + timedelta(days=1)).date() %}
-        {% set target = dt.date() %}
-
-        {% if target == today %}
-          {{ dt.strftime('%H:%M') }}
-        {% elif target == tomorrow %}
-          Tomorrow at {{ dt.strftime('%H:%M') }}
+        and will run out
+        {% set charge_time = as_timestamp(states('sensor.battery_charge_remaining_hours')) %}
+        {% set charge_date = charge_time | timestamp_custom('%Y-%m-%d') %}
+        {% set today = now().strftime('%Y-%m-%d') %}
+        {% set tomorrow = (now() + timedelta(days=1)).strftime('%Y-%m-%d') %}
+        {% if charge_date == today %}
+          at {{ charge_time | timestamp_custom('%H:%M') }}
+        {% elif charge_date == tomorrow %}
+          tomorrow at {{ charge_time | timestamp_custom('%H:%M') }}
         {% else %}
-          {{ dt.strftime('%d/%m/%Y %H:%M') }}
+          at {{ charge_time | timestamp_custom('%d/%m/%Y %H:%M') }}
         {% endif %}
   getChargingScheduleSummary:
     speech:
