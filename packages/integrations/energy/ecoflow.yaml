@@ -1574,25 +1574,21 @@ script:
                           {{ states('sensor.ecoflow_kitchen_battery_level')|int(10) ==
                           states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10)}}
                 sequence:
-                  - action: script.send_direct_notification
+                  - action: script.send_to_home_log
                     data:
                       message: >-
                         Battery level too low ({{ states('sensor.ecoflow_kitchen_battery_level') }} <=
                         {{ states('input_number.ecoflow_kitchen_minimum_backup_reserve') }} %).
                         Not turning plug off.
                       title: Ecoflow
-                      people:
-                        entity_id:
-                          - person.danny
+                      log_level: Debug
             default:
               - parallel:
-                  - action: script.send_direct_notification
+                  - action: script.send_to_home_log
                     data:
                       message: Turning off kitchen plug.
                       title: Ecoflow
-                      people:
-                        entity_id:
-                          - person.danny
+                      log_level: Debug
                   - action: switch.turn_off
                     data: {}
                     target:
