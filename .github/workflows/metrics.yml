@@ -1,0 +1,186 @@
+name: Configuration Metrics
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.yaml'
+      - '**.yml'
+      - 'automations.yaml'
+      - 'scripts.yaml'
+      - 'scenes.yaml'
+      - 'configuration.yaml'
+      - 'esphome/**'
+  schedule:
+    - cron: "0 0 * * 0"  # Weekly on Sunday at midnight UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: metrics-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: Analyze Configuration
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Count configuration elements
+        id: count
+        run: |
+          # Count YAML files (excluding samples and hidden dirs)
+          YAML_FILES=$(find . -type f \( -name '*.yaml' -o -name '*.yml' \) \
+            ! -path '*/\.*' ! -name '*.sample' | wc -l)
+          echo "yaml_files=$YAML_FILES" >> "$GITHUB_OUTPUT"
+          
+          # Count automations
+          if [ -f "automations.yaml" ]; then
+            AUTOMATIONS=$(yq 'length' automations.yaml 2>/dev/null || echo 0)
+          else
+            AUTOMATIONS=0
+          fi
+          echo "automations=$AUTOMATIONS" >> "$GITHUB_OUTPUT"
+          
+          # Count scripts
+          if [ -f "scripts.yaml" ]; then
+            SCRIPTS=$(yq 'length' scripts.yaml 2>/dev/null || echo 0)
+          else
+            SCRIPTS=0
+          fi
+          echo "scripts=$SCRIPTS" >> "$GITHUB_OUTPUT"
+          
+          # Count scenes
+          if [ -f "scenes.yaml" ]; then
+            SCENES=$(yq 'length' scenes.yaml 2>/dev/null || echo 0)
+          else
+            SCENES=0
+          fi
+          echo "scenes=$SCENES" >> "$GITHUB_OUTPUT"
+          
+          # Count ESPHome devices (exclude secrets.yaml)
+          if [ -d "esphome" ]; then
+            ESPHOME_DEVICES=$(find esphome -type f -name '*.yaml' ! -name 'secrets.yaml' | wc -l)
+          else
+            ESPHOME_DEVICES=0
+          fi
+          echo "esphome_devices=$ESPHOME_DEVICES" >> "$GITHUB_OUTPUT"
+          
+          # Count custom components
+          if [ -d "custom_components" ]; then
+            CUSTOM_COMPONENTS=$(find custom_components -mindepth 1 -maxdepth 1 -type d | wc -l)
+          else
+            CUSTOM_COMPONENTS=0
+          fi
+          echo "custom_components=$CUSTOM_COMPONENTS" >> "$GITHUB_OUTPUT"
+          
+          # Total lines of YAML config
+          TOTAL_LINES=$(find . -type f \( -name '*.yaml' -o -name '*.yml' \) \
+            ! -path '*/\.*' ! -name '*.sample' -exec wc -l {} + 2>/dev/null | \
+            tail -1 | awk '{print $1}' || echo 0)
+          echo "total_lines=$TOTAL_LINES" >> "$GITHUB_OUTPUT"
+          
+          # Repository size (in KB)
+          REPO_SIZE=$(du -sk . | cut -f1)
+          echo "repo_size_kb=$REPO_SIZE" >> "$GITHUB_OUTPUT"
+          
+          # Count total commits
+          TOTAL_COMMITS=$(git rev-list --count HEAD)
+          echo "total_commits=$TOTAL_COMMITS" >> "$GITHUB_OUTPUT"
+
+      - name: Calculate changes from last week
+        id: changes
+        run: |
+          # Get metrics from one week ago (if available)
+          WEEK_AGO=$(date -u -d '7 days ago' '+%Y-%m-%d' 2>/dev/null || date -u -v-7d '+%Y-%m-%d')
+          WEEK_AGO_COMMIT=$(git rev-list -1 --before="$WEEK_AGO" HEAD 2>/dev/null || echo "")
+          
+          if [ -n "$WEEK_AGO_COMMIT" ]; then
+            # Count commits in the last week
+            COMMITS_THIS_WEEK=$(git rev-list --count HEAD ^"$WEEK_AGO_COMMIT")
+            echo "commits_this_week=$COMMITS_THIS_WEEK" >> "$GITHUB_OUTPUT"
+            
+            # Files changed this week
+            FILES_CHANGED=$(git diff --name-only "$WEEK_AGO_COMMIT" HEAD | wc -l)
+            echo "files_changed=$FILES_CHANGED" >> "$GITHUB_OUTPUT"
+          else
+            echo "commits_this_week=N/A" >> "$GITHUB_OUTPUT"
+            echo "files_changed=N/A" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Generate summary report
+        if: always()
+        run: |
+          {
+            echo "## 📊 Home Assistant Configuration Metrics"
+            echo ""
+            echo "_Last updated: $(date -u '+%Y-%m-%d %H:%M:%S UTC')_"
+            echo ""
+            echo "### 📈 Overall Statistics"
+            echo ""
+            echo "| Metric | Count |"
+            echo "|--------|------:|"
+            echo "| **Total YAML files** | ${{ steps.count.outputs.yaml_files }} |"
+            echo "| **Automations** | ${{ steps.count.outputs.automations }} |"
+            echo "| **Scripts** | ${{ steps.count.outputs.scripts }} |"
+            echo "| **Scenes** | ${{ steps.count.outputs.scenes }} |"
+            echo "| **ESPHome devices** | ${{ steps.count.outputs.esphome_devices }} |"
+            echo "| **Custom components** | ${{ steps.count.outputs.custom_components }} |"
+            echo "| **Total lines of config** | $(printf '%s' ${{ steps.count.outputs.total_lines }} | sed ':a;s/\B[0-9]\{3\}\>/,&/;ta') |"
+            echo "| **Repository size** | $(echo 'scale=2; ${{ steps.count.outputs.repo_size_kb }} / 1024' | bc) MB |"
+            echo ""
+            echo "### 📅 Activity (Last 7 Days)"
+            echo ""
+            echo "| Metric | Count |"
+            echo "|--------|------:|"
+            echo "| **Commits this week** | ${{ steps.changes.outputs.commits_this_week }} |"
+            echo "| **Files changed** | ${{ steps.changes.outputs.files_changed }} |"
+            echo "| **Total commits (all time)** | ${{ steps.count.outputs.total_commits }} |"
+            echo ""
+            echo "### 🏆 Top Changed Files (Last 30 Days)"
+            echo ""
+            echo "\`\`\`"
+            git log --since="30 days ago" --name-only --pretty=format: | \
+              grep -E '\.(yaml|yml)$' | sort | uniq -c | sort -rn | head -5 || echo "No changes in last 30 days"
+            echo "\`\`\`"
+            echo ""
+            echo "---"
+            echo ""
+            echo "💡 **Tip:** Run this workflow manually anytime via the Actions tab to see current metrics."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Check for concerning growth
+        run: |
+          # Alert if single files are getting too large
+          MAX_LINES=1000
+          LARGE_FILES=""
+          
+          for file in configuration.yaml automations.yaml scripts.yaml; do
+            if [ -f "$file" ]; then
+              LINES=$(wc -l < "$file")
+              if [ "$LINES" -gt "$MAX_LINES" ]; then
+                LARGE_FILES="$LARGE_FILES\n- \`$file\` has $LINES lines (threshold: $MAX_LINES)"
+              fi
+            fi
+          done
+          
+          if [ -n "$LARGE_FILES" ]; then
+            {
+              echo ""
+              echo "### ⚠️ Configuration Health Warnings"
+              echo ""
+              echo "The following files exceed recommended size limits:"
+              echo -e "$LARGE_FILES"
+              echo ""
+              echo "**Recommendation:** Consider splitting large files into packages or includes for better maintainability."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
