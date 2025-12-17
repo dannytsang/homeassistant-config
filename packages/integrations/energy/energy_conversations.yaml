@@ -48,7 +48,14 @@ intent_script:
     speech:
       text: >-
         {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
-        and will run out in {{ states('sensor.battery_charge_remaining_hours') }}
+        and will run out in
+        {% set dt = as_datetime(states('sensor.battery_charge_remaining_hours')) %}
+        {% set today = now().date() %}
+        {% if dt.date() == today %}
+          {{ dt.strftime('%H:%M') }}
+        {% else %}
+          {{ dt.strftime('%d/%m/%Y %H:%M') }}
+        {% endif %}
   getChargingScheduleSummary:
     speech:
       text: >-
