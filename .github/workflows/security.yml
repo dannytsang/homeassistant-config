@@ -39,6 +39,9 @@ jobs:
     name: Python Security Scan
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
     steps:
       - uses: actions/checkout@v6
       
@@ -49,21 +52,48 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install safety bandit
+          pip install safety bandit[sarif]
       
       - name: Safety check (dependencies)
         run: |
           find custom_components -name requirements.txt -exec safety check -r {} \; || true
         continue-on-error: true
       
-      - name: Bandit security scan
+      - name: Bandit security scan (JSON)
         run: |
           bandit -r custom_components/ -f json -o bandit-report.json || true
         continue-on-error: true
       
-      - name: Upload Bandit results
+      - name: Bandit security scan (SARIF)
+        id: bandit
+        run: |
+          bandit -r custom_components/ -f sarif -o bandit.sarif --exit-zero
+        continue-on-error: false
+      
+      - name: Upload SARIF to GitHub Security
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: bandit.sarif
+          category: bandit
+      
+      - name: Upload Bandit JSON results
         uses: actions/upload-artifact@v6
         if: always()
         with:
           name: bandit-security-report
           path: bandit-report.json
+          retention-days: 30
+      
+      - name: Security scan summary
+        if: always()
+        run: |
+          {
+            echo "## 🔒 Security Scan Results"
+            echo ""
+            echo "| Scanner | Status |"
+            echo "|---------|--------|"
+            echo "| Bandit (Python) | ${{ steps.bandit.outcome == 'success' && '✅ Passed' || '⚠️ Issues found' }} |"
+            echo ""
+            echo "View detailed results in the [Security tab](https://github.com/${{ github.repository }}/security/code-scanning)."
+          } >> "$GITHUB_STEP_SUMMARY"
