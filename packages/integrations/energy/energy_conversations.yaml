@@ -49,10 +49,15 @@ intent_script:
       text: >-
         {{ states('sensor.growatt_sph_battery_state_of_charge', with_unit=True) }}
         and will run out in
-        {% set dt = as_datetime(states('sensor.battery_charge_remaining_hours')) %}
+        {% set dt = as_datetime(states('sensor.battery_charge_remaining_hours')).astimezone() %}
         {% set today = now().date() %}
-        {% if dt.date() == today %}
+        {% set tomorrow = (now() + timedelta(days=1)).date() %}
+        {% set target = dt.date() %}
+
+        {% if target == today %}
           {{ dt.strftime('%H:%M') }}
+        {% elif target == tomorrow %}
+          Tomorrow at {{ dt.strftime('%H:%M') }}
         {% else %}
           {{ dt.strftime('%d/%m/%Y %H:%M') }}
         {% endif %}
