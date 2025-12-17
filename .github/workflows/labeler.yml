@@ -18,6 +18,26 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: actions/labeler@v6
+        id: labeler
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           sync-labels: true
+      - name: Summarise labeling
+        if: always()
+        run: |
+          {
+            echo "## 🏷️ PR Labeler Summary"
+            echo ""
+            echo "✅ Auto-labeling completed for PR #${{ github.event.pull_request.number }}"
+            echo ""
+            echo "- **PR Title:** ${{ github.event.pull_request.title }}"
+            echo "- **Branch:** \`${{ github.head_ref }}\`"
+            echo "- **Labels applied:** Check the PR labels above"
+            echo ""
+            echo "Labels are automatically applied based on file changes:"
+            echo "- \`ci\` — Changes to \`.github/**\`"
+            echo "- \`docs\` — Changes to \`*.md\` files"
+            echo "- \`custom-components\` — Changes to \`custom_components/**\`"
+            echo "- \`esphome\` — Changes to \`esphome/**\`"
+            echo "- \`frontend\` — Changes to automations, scripts, or scenes"
+          } >> "$GITHUB_STEP_SUMMARY"
