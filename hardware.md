@@ -50,15 +50,14 @@ Makes chips and used in popular commercial IOT applications like [Tuya](https://
 * [Intelligent Heat Alarm](https://frient.com/products/intelligent-heat-alarm/)
 
 ## Garmin
-* [Vivoactive 4](https://www.garmin.com/en-GB/p/643382)
-
-## GLEDOPTO
-Third party WLED to Zigbee controller.
-* [RGBW CCT 1D](https://www.gledopto.eu/rgbw-controller-zigbee-compatible-eng)
+* [Epix Pro Gen 2](https://www.garmin.com/en-GB/p/884292/pn/010-02803-01/)
 
 ## Glowmarkt
 An in home display (IHD) that supports live smart meter reading to APIs and MQTT.
 * [CAD](https://shop.glowmarkt.com/products/display-and-cad-combined-for-smart-meter-customers)
+
+## GMKTec
+* [M6 Ultra](https://www.gmktec.com/products/amd-ryzen-5-7640hs-mini-pc-nucbox-m6-ultra?srsltid=AfmBOorpQJIcuaTQ9IgC5L1u54l_0N4BHglgrh1h5uSUkRf5HepFWPwI&variant=fac37b4b-d7c1-4869-bc8b-bf0f9f47d9a5) Starting to replace Raspberry Pi's with mini PC's as they are more versitile and able to run x64 architecture. They are used for UPS monitoring in the Home Assistant context.
 
 ## Google
 Really like the casting feature to share content however found it was relatively unstable and would loose connectivity or stop playing.
@@ -68,7 +67,7 @@ Really like the casting feature to share content however found it was relatively
 
 ## Growatt
 Solar manufacturer. I use Solar Assistant to get local and faster updates.
-* SPH3000 Inverter
+* SPH3000-6000 Inverter
 * [GBLI 6532 Battery](https://www.ginverter.com/products/gbli-6532-battery) 
 
 ## <a name="hive"></a>Hive Home
@@ -83,8 +82,12 @@ Rock solid printer however limited support in Home Assistant for mine. For examp
 Love the Ikea blinds. They are easy to get hold of compared to other products and once you get over the pairing, they have worked flawlessly.
 * [FYRTUR](https://www.ikea.com/gb/en/p/fyrtur-block-out-roller-blind-wireless-battery-operated-grey-60408181/)
 * [KADRILJ](https://www.ikea.com/gb/en/p/kadrilj-roller-blind-wireless-battery-operated-grey-30408154/)
+* [PARASOLL](https://www.ikea.com/gb/en/p/parasoll-door-window-sensor-smart-white-80504308/)
 * [TRÅDFRI Signal Repeater](https://www.ikea.com/gb/en/p/tradfri-signal-repeater-80424255/)
 * [TRÅDFRI Remote control](https://www.ikea.com/gb/en/p/tradfri-remote-control-30443124/)
+
+## Innr
+* [Innr Smart Mini Bulb Colour E14](https://innr.com/products/innr-smart-mini-bulb-colour-e14-uk?_pos=5&_fid=3d1563ebd&_ss=c)
 
 ## Lifx
 The light output is one of the best in terms of lumens. The colours are generally very good. The downside has been pairing them to the WiFi on Android has been hit and miss. Once connected, there has been no issues.
@@ -116,7 +119,6 @@ Well engineered and personally, aesthetically pleasing compared to some of it's 
 ## Raspberry Pi Foundation
 A powerful and relatively cheap SOC board to power home projects. I have these monitoring UPS through to in home display (dashboard) through to monitoring 3D prints using Octoprint.
 * [Raspberry Pi 4 model B](https://www.raspberrypi.org/products/raspberry-pi-4-model-b/)
-* [Raspberry Pi 3 model B](https://www.raspberrypi.com/products/raspberry-pi-3-model-b/)
 
 ## Reolink
 * [RLC-520A](https://reolink.com/gb/product/rlc-520a/)
@@ -138,12 +140,16 @@ Some real gems that Samsung has made like the multipurpose sensor where Philips 
 
 ## Shelly
 I like their hardware relays and fits into 35mm back boxes and allows switches to function normally.
-* [Plus 1PM](https://shelly.cloud/shelly-plus-1pm/)
+* [EM](https://www.shelly.com/products/shelly-em-50a-clamp-1?_pos=8&_fid=55fdf4d9e&_ss=c)
+* [Plus 1PM](https://www.shelly.com/products/shelly-1pm-gen4) with various generations. The latest being gen 4.
+* [Plus 1PM Mini](https://www.shelly.com/products/shelly-1pm-mini-gen4) with various generations. The latest being gen 4.
+* [Pro 3EM](https://www.shelly.com/products/shelly-pro-3em-x1?_pos=1&_psq=shelly+pro+3em&_ss=e&_v=1.0)
 
 ## Sonoff
 Relatively cheap hardware and some unique offering however lacks out of the box support.
 * [USB Smart Adaptor](https://sonoff.tech/product/diy-smart-switch/micro/)
 * [USB Smart Adaptor Zigbee](https://sonoff.tech/product/diy-smart-switches/zbmicro/)
+* [SONOFF SNZB-02LD](https://sonoff.tech/en-uk/products/sonoff-snzb-02ld-ip65-zigbee-lcd-smart-thermometer-probe-version?_pos=12&_fid=3df3d08dc&_ss=c)
 
 ## SwitchBot
 The first curtain rod devices. It uses bluetooth which isn't great for range so I pair it with the hub mini
@@ -167,7 +173,8 @@ Very well priced IoT device manufacturer. I am using the temperature sensor for 
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io). I have also gone towards their cameras and protect system.
 * [G4 Instant](https://techspecs.ui.com/unifi/cameras-nvrs/camera-g4-instant)
 * [G5 Flex](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-flex)
-* [G5 Turret Ultra](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-turret-ultra?s=uk)
+* [G6 Instant](https://uk.store.ui.com/uk/en/category/cameras-compact/products/uvc-g6-ins)
+* [G6 Turret](https://uk.store.ui.com/uk/en/category/cameras-dome-turret/products/uvc-g6-turret)
 * [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
 * Unifi switch 8
 * [Unifi switch 8 60W](https://uk.store.ui.com/uk/en/collections/unifi-switching-utility-poe/products/us-8-60w?variant=us-8-60w)
