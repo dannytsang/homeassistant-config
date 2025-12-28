@@ -677,10 +677,11 @@ automation:
         target:
           entity_id:
             - calendar.work
+            - calendar.tsang_children
         data:
           start_date_time: "{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d %H:%M:%S') }}"
           duration:
-            hours: 1
+            hours: 2
             minutes: 0
             seconds: 0
         response_variable: calendar
@@ -709,7 +710,7 @@ automation:
                         Opening blinds because it's closed on a working weekday!"
                       title: "🛏️ bedroom"
                       log_level: "Debug"
-          - alias: Non workday and not in no children mode
+          - alias: Non workday and event is due in the next 2 hours.
             conditions:
               - condition: state
                 entity_id: binary_sensor.workday_sensor
@@ -721,6 +722,10 @@ automation:
                     state: "No Children"
               - condition: trigger
                 id: "090000"
+              - alias: No book activities and exclude holidays
+                condition: template
+                value_template: >-
+                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
             sequence:
               - action: cover.open_cover
                 target:
