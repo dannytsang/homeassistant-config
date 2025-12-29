@@ -87,17 +87,27 @@ automation:
                 entity_id: input_select.home_mode
                 state: "Holiday"
             sequence:
+              - variables:
+                  source_path: "{{ trigger.json.file_path + '/' +trigger.json.file_name }}"
+                  file_path: "{{ states('input_text.camera_external_folder_path') + '/' + trigger.json.camera_name + '/' + trigger.json.file_name }}"
+              - action: shell_command.download_unifi_image
+                data:
+                  base_url: "{{ states('input_text.sftpgo_base_url') }}"
+                  share_id: "{{ states('input_text.sftpgo_unifi_share_id') }}"
+                  password: "{{ states('input_text.sftpgo_unifi_share_password') }}"
+                  source_path: "{{ source_path }}"
+                  destination_path: "{{ file_path }}"
               - action: script.send_direct_notification
                 metadata: {}
                 data:
                   message: "Unknown person
 
 
-                    Event ID: {{ trigger.json.alarm.triggers[0].eventId }}
+                    Source file path: {{ trigger.json.file_path }}
 
-                    Event Path: {{ trigger.json.alarm.eventPath }}
+                    Source file name: {{ trigger.json.file_name }}
 
-                    Event Local Link: {{ trigger.json.alarm.eventLocalLink }}"
+                    Destination file: {{ file_path }}"
                   people:
                     entity_id:
                       - person.danny
