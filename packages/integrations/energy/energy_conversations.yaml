@@ -32,8 +32,6 @@ conversation:
       - "[What is the] solar forecast"
     getSolarGeneratedToday:
       - "[How much] solar [has] [generated|created] [today|so far]"
-    turnOnExportSchedule:
-      - "Turn on (export|grid first) schedule {export_schedule_id}"
 
 intent_script:
   getBatteryLevel:
@@ -177,20 +175,3 @@ intent_script:
     speech:
       text: >-
         {{ states('sensor.growatt_sph_pv_energy', with_unit=True) }}
-  turnOnExportSchedule:
-    action:
-      action: input_boolean.turn_on
-      target:
-        entity_id: "{{ export_schedule_id }}"
-    speech:
-      text: >-
-        {{ state_attr(export_schedule_id, 'friendly_name') }}:
-        {{ states(export_schedule_id) }}
-
-lists:
-  export_schedule_id:
-    values:
-      - in: "1"
-        out: "binary_sensor.grid_first_schedule_1"
-      - in: "2"
-        out: "binary_sensor.grid_first_schedule_2"
