@@ -684,18 +684,26 @@ automation:
             hours: 2
             minutes: 0
             seconds: 0
-        response_variable: calendar
+        response_variable: calendars
       - choose:
           - alias: Work day
             conditions:
-              - alias: Working day
-                condition: state
-                entity_id: binary_sensor.workday_sensor
-                state: "on"
-              - alias: No annual leave in calendar
-                condition: template
-                value_template: >-
-                  {{ 'Danny' not in calendar['calendar.work'].events|string }}
+              - or:
+                  - alias: work day with no annual leave
+                    and:
+                      - alias: Working day
+                        condition: state
+                        entity_id: binary_sensor.workday_sensor
+                        state: "on"
+                      - alias: No annual leave in calendar
+                        condition: template
+                        value_template: >-
+                          {{ 'Danny' not in calendars['calendar.work'].events|string }}
+                  - alias: Booked activities and exclude holidays
+                    and:
+                      - condition: template
+                        value_template: >-
+                          {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
               - condition: trigger
                 id: "080000"
             sequence:
@@ -722,10 +730,10 @@ automation:
                     state: "No Children"
               - condition: trigger
                 id: "090000"
-              - alias: No book activities and exclude holidays
+              - alias: Booked activities and exclude holidays
                 condition: template
                 value_template: >-
-                  {{ calendar_events['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
+                  {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
             sequence:
               - action: cover.open_cover
                 target:
