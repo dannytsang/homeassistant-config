@@ -345,14 +345,16 @@ script:
 
 template:
   - sensor:
-    - default_entity_id: sensor.total_sensors
-      # https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share
-      icon: mdi:radio-tower
-      attributes:
-        break_down: "{% set ns = namespace(domains=[]) %} {%- for s in states -%} {%-
-          set ns.domains = (ns.domains + [s.domain])|unique|list -%} {%- endfor %} [{%-
-          for domain in ns.domains %}\n  {\"{{ domain }}\":{{ states[domain]|length
-          }}},\n{%- endfor %}]"
-      name: Total Sensors
-      state: '{% set ns = namespace(domains=[]) %} {%- for s in states -%} {%- set ns.domains
-        = (ns.domains + [s.domain])|unique|list -%} {%- endfor %} {{ states|length }}'
+      - default_entity_id: sensor.total_sensors
+        # https://www.reddit.com/r/homeassistant/comments/plmy7e/use_this_template_and_show_us_some_details_about/?utm_medium=android_app&utm_source=share
+        icon: mdi:radio-tower
+        attributes:
+          break_down:
+            "{% set ns = namespace(domains=[]) %} {%- for s in states -%} {%-
+            set ns.domains = (ns.domains + [s.domain])|unique|list -%} {%- endfor %} [{%-
+            for domain in ns.domains %}\n  {\"{{ domain }}\":{{ states[domain]|length
+            }}},\n{%- endfor %}]"
+        name: Total Sensors
+        state:
+          "{% set ns = namespace(domains=[]) %} {%- for s in states -%} {%- set ns.domains
+          = (ns.domains + [s.domain])|unique|list -%} {%- endfor %} {{ states|length }}"
