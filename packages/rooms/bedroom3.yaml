@@ -326,6 +326,34 @@ automation:
             target:
               entity_id: switch.ashlees_bedroom_fan
     mode: single
+  - id: "1767114704399"
+    alias: "Ashlee's Bedroom: ESP Plug Turned Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.ashlee_s_bedroom_esp_plug
+        to:
+          - "off"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: "ESP plug turned off. Turning back on."
+              title: "🛏️ Ashlee's bedroom"
+              log_level: "Debug"
+          - action: switch.turn_on
+            metadata: {}
+            target:
+              entity_id: switch.ashlee_s_bedroom_esp_plug
+            data: {}
+    mode: single
   # region Hue Remote
   - id: "1656355431188"
     alias: "Ashlee's Bedroom: Hue Remote On Button"
