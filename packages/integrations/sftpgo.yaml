@@ -1,4 +1,4 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/shell_command/
 shell_command:
-  download_unifi_image: "curl --get --data-urlencode 'path={{ source_path }}' -u ':{{ password }}' --output {{ destination_path }} {{ base_url }}/api/v2/shares/{{ share_id }}/files"
+  download_unifi_image: "curl -X 'GET' -u ':{{ password }}' --output '{{ destination_path }}' '{{ base_url }}/api/v2/shares/{{ share_id }}/files?path={{ source_path|urlencode|replace('/', '%2F') }}' -H 'accept: */*'"
