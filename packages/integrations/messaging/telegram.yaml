@@ -189,6 +189,7 @@ script:
             sequence:
               - action: telegram_bot.send_message
                 data:
+                  config_entry_id: "{{ states('input_text.telegram_config_id') }}"
                   message: "{{ message }}"
                   title: "{{ title|default('', true) }}"
                   target: "{{ states('input_text.dannys_telegram_chat_id') }}"
@@ -205,8 +206,10 @@ script:
   post_to_telegram_home_log_with_local_attachments:
     alias: "Post To Telegram With Local Attachments"
     icon: mdi:message-reply-text
-    description: "Post a message with a file attachment to the home_log channel.
-    Please use a send script to decouple from the messaging platform."
+    description: >-
+      Post a message with a file attachment to the home_log channel.
+      
+      Please use a send script to decouple from the messaging platform.
     fields:
       message:
         description: Message to post
@@ -224,11 +227,13 @@ script:
         selector:
           text:
     sequence:
-      - action: notify.telegram_bot_danny
+      - action: telegram_bot.send_photo
         data:
-          message: "{{ message }}"
-          title: "{{ title|default('', true) }}"
+          config_entry_id: "{{ states('input_text.telegram_config_id') }}"
           file: "{{ filePath }}"
+          caption: "{{ message }}"
+          target:
+            - "{{ states('input_text.dannys_telegram_chat_id') }}"
         continue_on_error: true
     mode: queued
     max: 10

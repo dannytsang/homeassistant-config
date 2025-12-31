@@ -269,6 +269,8 @@ script:
         variables:
           v_priority: "{{ (priority | default('normal')) }}"
           v_suppress_if_quiet: "{{ (suppress_if_quiet | default(true)) }}"
+          persons: >-
+            {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
       - if:
           - or:
               - alias: "Quiet time is OFF"
@@ -292,9 +294,6 @@ script:
                   - condition: template
                     value_template: "{{ v_priority != 'normal' }}"
         then:
-          - variables:
-              persons: >-
-                {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
           - variables:
               # Get people's preferred messaging platform
               slack: >-
@@ -332,9 +331,10 @@ script:
                       message: "{{ message }}"
                       title: "{{ title|default(none, true) }}"
                       target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                      people: "{{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
-                      |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
-                      |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}"
+                      people: >-
+                        {{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
+                        |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
+                        |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}
                     continue_on_error: true
               - if:
                   - condition: template
@@ -552,21 +552,46 @@ script:
             entity:
               domain:
                 - person
-    variables:
-      # Get people's preferred messaging platform
-      slack: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Slack') }}
-      discord: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Discord') }}
-      mobile: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Mobile') }}
-      telegram: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people|default('', true)|length == 0 else people, 'Telegram') }}
+      priority:
+        description: "normal | high | critical (mobile supports critical)"
+        example: "normal"
+        selector:
+          select:
+            options:
+              - normal
+              - high
+              - critical
+      suppress_if_quiet:
+        description: "If quiet hours are on, avoid push; fall back to persistent"
+        default: true
+        example: "true"
+        selector:
+          boolean:
     sequence:
+      - alias: Set defaults
+        variables:
+          v_priority: "{{ (priority | default('normal')) }}"
+          v_suppress_if_quiet: "{{ (suppress_if_quiet | default(true)) }}"
+      - variables:
+          persons: >-
+            {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
+      - variables:
+          # Get people's preferred messaging platform
+          slack: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
+          discord: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
+          mobile: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Mobile') }}
+          telegram: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Telegram') }}
+          whatsapp: >-
+            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
+            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'WhatsApp') }}
       - parallel:
           - if:
               - not:
@@ -628,11 +653,10 @@ script:
               - repeat:
                   for_each: "{{ telegram|default([], true) }}"
                   sequence:
-                    - action: script.post_to_discord_with_local_attachments
+                    - action: script.post_to_telegram_home_log_with_local_attachments
                       data:
                         message: "{{ message }}"
                         title: "{{ title|default(none, true) }}"
-                        target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
                         people: "{{ repeat.item }}"
                         filePath: "{{ filePath }}"
                       continue_on_error: true
