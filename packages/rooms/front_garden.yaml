@@ -272,6 +272,13 @@ automation:
         to: "on"
     conditions: []
     actions:
+      - variables:
+          file_name: "{{ now().strftime('%Y-%m-%d %H.%M.%S') }}.jpg"
+      - action: camera.snapshot
+        target:
+          entity_id: camera.driveway_high_resolution_channel
+        data:
+          filename: "{{states('input_text.camera_external_folder_path')}}/driveway/{{file_name}}"
       - action: script.send_direct_notification
         metadata: {}
         data:
@@ -282,7 +289,18 @@ automation:
             entity_id:
               - person.danny
               - person.terina
-          priority: normal
+          priority: high
+      - action: script.send_home_log_with_local_attachments
+        data:
+          message: Electricity meter door open
+          title: Front Garden
+          suppress_if_quiet: false
+          priority: high
+          filePath: "{{states('input_text.camera_external_folder_path')}}/driveway/{{file_name}}"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
     mode: single
 
 shell_command:
