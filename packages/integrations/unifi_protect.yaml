@@ -88,8 +88,10 @@ automation:
                 state: "Holiday"
             sequence:
               - variables:
+                  camera_name: "{{ trigger.json.camera_name | default('unknown') }}"
                   source_path: "{{ trigger.json.file_path + '/' +trigger.json.file_name }}"
-                  file_path: "{{ states('input_text.camera_external_folder_path') + '/' + trigger.json.camera_name + '/' + trigger.json.file_name }}"
+                  file_path: "{{ states('input_text.camera_external_folder_path') + '/' + camera_name|default(trigger.json.camera_name) + '/' + trigger.json.file_name }}"
+                  
               - action: shell_command.download_unifi_image
                 data:
                   base_url: "{{ states('input_text.sftpgo_base_url') }}"
@@ -97,20 +99,17 @@ automation:
                   password: "{{ states('input_text.sftpgo_unifi_share_password') }}"
                   source_path: "{{ source_path }}"
                   destination_path: "{{ file_path }}"
-              - action: script.send_direct_notification
+              - action: script.send_home_log_with_local_attachments
                 metadata: {}
                 data:
-                  message: "Unknown person
-
-
-                    Source file path: {{ trigger.json.file_path }}
-
-                    Source file name: {{ trigger.json.file_name }}
-
-                    Destination file: {{ file_path }}"
+                  message: "Unknown person in {{ camera_name }}."
                   people:
                     entity_id:
                       - person.danny
+                  filePath: "{{ file_path }}"
+                  priority: normal
+                  suppress_if_quiet: false
+                # TODO: delete image from SFTPGO
         default: []
     mode: queued
     max: 10
