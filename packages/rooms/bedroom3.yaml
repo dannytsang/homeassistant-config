@@ -136,11 +136,14 @@ automation:
     description: ""
     triggers:
       - trigger: time
-        at: "08:00:00"
-        id: early
+        at: "07:45:00"
+        id: "074500"
       - trigger: time
         at: "09:00:00"
-        id: late
+        id: "090000"
+      - trigger: time
+        at: "10:00:00"
+        id: "100000"
     conditions:
       - condition: numeric_state
         entity_id: cover.ashlees_bedroom_blinds
@@ -157,13 +160,35 @@ automation:
             entity_id: input_select.home_mode
             state: "No Children"
     actions:
+      - action: calendar.get_events
+        target:
+          entity_id:
+            - calendar.work
+            - calendar.tsang_children
+        data:
+          start_date_time: "{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d %H:%M:%S') }}"
+          duration:
+            hours: 2
+            minutes: 0
+            seconds: 0
       - choose:
-          - conditions:
-              - condition: state
+          - alias: School day
+            conditions:
+              - alias: Working day
+                condition: state
                 entity_id: binary_sensor.workday_sensor
-                state: "off"
+                state: "on"
+              - alias: Booked activities and exclude holidays
+                and:
+                  - condition: template
+                    value_template: >-
+                      {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "No Children"
               - condition: trigger
-                id: late
+                id: "074500"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
@@ -177,21 +202,53 @@ automation:
                   - action: cover.open_cover
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
-          - conditions:
-              - condition: state
+          - alias: Check for booked activity
+            conditions:
+              - alias: Working day
+                condition: state
                 entity_id: binary_sensor.workday_sensor
                 state: "on"
+              - alias: Booked activities and exclude holidays
+                and:
+                  - condition: template
+                    value_template: >-
+                      {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "No Children"
               - condition: trigger
-                id: early
+                id: "090000"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message:
                         ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 Non school day. Opening Ashlee's blinds"
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
+
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.ashlees_bedroom_blinds
+          - alias: Open if closed
+            conditions:
+              - condition: trigger
+                id: "100000"
+              - condition: numeric_state
+                entity_id: cover.leos_bedroom_blinds
+                below: 100
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message:
+                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
+                      title: "Ashlee's 🛏️ bedroom"
+                      log_level: "Debug"
+
                   - action: cover.open_cover
                     target:
                       entity_id: cover.ashlees_bedroom_blinds

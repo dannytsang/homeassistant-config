@@ -30,42 +30,16 @@ automation:
     triggers:
       - trigger: time
         at: "07:45:00"
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_leos_blind_automations
-        state: "on"
-      - condition: numeric_state
-        entity_id: cover.leos_bedroom_blinds
-        attribute: current_position
-        below: input_number.blind_closed_position_threshold
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "Guest"
-      - not:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "No Children"
-      - condition: state
-        entity_id: binary_sensor.workday_sensor
-        state: "on"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: Opening blinds.
-              title: "🛏️ Leo's Bedroom"
-              log_level: "Debug"
-          - action: cover.open_cover
-            target:
-              entity_id: cover.leos_bedroom_blinds
-    mode: single
-  - id: "1627285063816"
-    alias: "Leo's Bedroom: Timed Open Blinds Weekend"
-    description: ""
-    triggers:
+        id: "074500"
       - trigger: time
         at: "08:00:00"
+        id: "080000"
+      - trigger: time
+        at: "09:00:00"
+        id: "090000"
+      - trigger: time
+        at: "10:00:00"
+        id: "100000"
     conditions:
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
@@ -86,15 +60,90 @@ automation:
         entity_id: binary_sensor.workday_sensor
         state: "on"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: Opening blinds.
-              title: "🛏️ Leo's Bedroom"
-              log_level: "Debug"
-          - action: cover.open_cover
-            target:
-              entity_id: cover.leos_bedroom_blinds
+      - action: calendar.get_events
+        target:
+          entity_id:
+            - calendar.work
+            - calendar.tsang_children
+        data:
+          start_date_time: "{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d %H:%M:%S') }}"
+          duration:
+            hours: 2
+            minutes: 0
+            seconds: 0
+      - choose:
+          - alias: School day
+            conditions:
+              - alias: Working day
+                condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "on"
+              - alias: Booked activities and exclude holidays
+                and:
+                  - condition: template
+                    value_template: >-
+                      {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "No Children"
+              - condition: trigger
+                id: "074500"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: Opening blinds.
+                      title: "🛏️ Leo's Bedroom"
+                      log_level: "Debug"
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.leos_bedroom_blinds
+          - alias: Check for booked activity
+            conditions:
+              - alias: Working day
+                condition: state
+                entity_id: binary_sensor.workday_sensor
+                state: "on"
+              - alias: Booked activities and exclude holidays
+                and:
+                  - condition: template
+                    value_template: >-
+                      {{ calendars['calendar.tsang_children'].events | map(attribute='summary') | map('lower') | reject('search', 'half term|holidays') | list | length > 0 }}
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "No Children"
+              - condition: trigger
+                id: "090000"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: Opening blinds.
+                      title: "🛏️ Leo's Bedroom"
+                      log_level: "Debug"
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.leos_bedroom_blinds
+          - alias: Open if closed
+            conditions:
+              - condition: trigger
+                id: "100000"
+              - condition: numeric_state
+                entity_id: cover.leos_bedroom_blinds
+                below: 100
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: Opening blinds.
+                      title: "🛏️ Leo's Bedroom"
+                      log_level: "Debug"
+                  - action: cover.open_cover
+                    target:
+                      entity_id: cover.leos_bedroom_blinds
+        default: []
     mode: single
   - id: "1627285063814"
     alias: "Leo's Bedroom: Timed Open Blinds Weekend No Children Mode"
