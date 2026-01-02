@@ -408,6 +408,8 @@ automation:
               message: ":level_slider: Turned on GoXLR."
               title: ":desktop_computer: Computer"
               log_level: "Debug"
+          - action: script.office_check_brightness
+            data: {}
     mode: single
   - id: "1606256309890"
     alias: "Office: Computer Turned Off For A Period Of Time"
@@ -430,12 +432,9 @@ automation:
               message: "Turned off for more than 10 minutes."
               title: ":desktop_computer: Computer"
               log_level: "Debug"
-          - action: scene.turn_on
-            target:
-              entity_id: scene.office_desk_lights_off
           - action: script.send_to_home_log
             data:
-              messsage: Turned off desk lights.
+              message: Turned off desk lights.
               log_level: "Debug"
           - action: script.send_to_home_log
             data:
@@ -832,23 +831,8 @@ automation:
             entity_id: group.jd_computer
             state: "home"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                It's bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}) and computer is on.
-                Partially closing blinds.
-
-                Azimuth: {{ state_attr('sun.sun', 'azimuth') }}.
-
-                Elevation: {{ state_attr('sun.sun', 'elevation') }}.
-              title: ":office: Office"
-              log_level: "Debug"
-          - action: cover.set_cover_tilt_position
-            target:
-              entity_id: cover.office_blinds
-            data:
-              tilt_position: 25
+      - action: script.office_check_brightness
+        data: {}
     mode: single
   - id: "1678300398736"
     alias: "Office: Really Bright Outside"
@@ -1097,3 +1081,548 @@ automation:
         target:
           entity_id: light.office_light
     mode: single
+
+scene:
+  - id: "1600795089307"
+    name: "Office: Turn On Main Light"
+    entities:
+      light.office_2:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        color_temp: 285
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "on"
+      light.office_3:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        color_temp: 285
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "on"
+    icon: mdi:lightbulb
+  - id: "1606247204381"
+    name: Office Turn Off Main Light
+    entities:
+      light.office_2:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 2
+        supported_features: 55
+        state: "off"
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light
+        supported_features: 55
+        state: "off"
+      light.office_3:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "off"
+      light.office_4:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 4
+        supported_features: 55
+        state: "off"
+  - id: "1612921949654"
+    name: Office Dim Main Lights
+    entities:
+      light.office_2:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 51
+        color_temp: 285
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "on"
+      light.office_3:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 51
+        color_temp: 285
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "on"
+  - id: "1606247529306"
+    name: Office Turn Off All Lights
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light
+        supported_features: 55
+        state: "off"
+      light.office_2:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 2
+        supported_features: 55
+        state: "off"
+      light.office_3:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 3
+        supported_features: 55
+        state: "off"
+      light.office_4:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light 4
+        supported_features: 55
+        state: "off"
+  - id: "1600776152370"
+    name: "Office: Doorbell Notification"
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        hs_color:
+          - 120
+          - 100
+        rgb_color:
+          - 0
+          - 255
+          - 0
+        xy_color:
+          - 0.172
+          - 0.747
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+    icon: mdi:lightbulb
+  - id: "1606170296807"
+    name: Office Sun Light
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 128
+        color_temp: 245
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+  # Notifications
+  - id: "1645654665047"
+    name: Office PC Turned Off Notification
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        supported_color_modes:
+          - color_temp
+          - hs
+        color_mode: hs
+        brightness: 255
+        hs_color:
+          - 299.997
+          - 100
+        rgb_color:
+          - 254
+          - 0
+          - 255
+        xy_color:
+          - 0.384
+          - 0.154
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+    icon: mdi:lightbulb
+  - id: "1613476016502"
+    name: "Office: Turn Off Light Notification"
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        friendly_name: Office Light
+        supported_features: 55
+        state: "off"
+  - id: "1613476289811"
+    name: "Office: Front Door Open Notification"
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        hs_color:
+          - 240
+          - 100
+        rgb_color:
+          - 0
+          - 0
+          - 255
+        xy_color:
+          - 0.136
+          - 0.04
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+  - id: "1613476535744"
+    name: "Office: Front Garden Motion Notification"
+    entities:
+      light.office_light:
+        min_mireds: 111
+        max_mireds: 400
+        effect_list:
+          - effect_colorloop
+          - effect_pulse
+          - effect_stop
+        brightness: 255
+        hs_color:
+          - 284.995
+          - 100
+        rgb_color:
+          - 191
+          - 0
+          - 255
+        xy_color:
+          - 0.301
+          - 0.116
+        friendly_name: Office Light
+        supported_features: 55
+        state: "on"
+  - id: "1720024018791"
+    name: "Office: Room Brightness Above Threshold"
+    entities:
+      light.office_4:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        hs_color:
+          - 57.874
+          - 99.608
+        rgb_color:
+          - 255
+          - 246
+          - 1
+        xy_color:
+          - 0.454
+          - 0.508
+        friendly_name: Office 4
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.office_4:
+        entity_only: true
+  - id: "1721636570804"
+    name: Office Set Light To Red
+    entities:
+      light.office_4:
+        min_color_temp_kelvin: 2000
+        max_color_temp_kelvin: 6535
+        min_mireds: 153
+        max_mireds: 500
+        effect_list:
+          - blink
+          - breathe
+          - okay
+          - channel_change
+          - candle
+          - fireplace
+          - colorloop
+          - finish_effect
+          - stop_effect
+          - stop_hue_effect
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: xy
+        brightness: 255
+        color_temp_kelvin:
+        hs_color:
+          - 9.231
+          - 66.275
+        rgb_color:
+          - 255
+          - 112
+          - 86
+        xy_color:
+          - 0.589
+          - 0.329
+        friendly_name: Office 4
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.office_4:
+        entity_only: true
+
+script:
+  # region PC
+  office_turn_off_backup_drive:
+    alias: Office Turn Off Backup Drive
+    sequence:
+      - and:
+          - condition: state
+            entity_id: switch.external_hdd
+            state: "on"
+          - condition: state
+            entity_id: group.jd_computer
+            state: "not_home"
+      - action: script.send_to_home_log
+        data:
+          message: ":floppy_disk: Turning off external HDD"
+          log_level: "Debug"
+      - action: switch.turn_off
+        target:
+          entity_id: switch.external_hdd
+    mode: single
+  office_pc_turned_off_notification:
+    alias: Office PC Turned Off Notification
+    sequence:
+      - action: scene.turn_on
+        data:
+          transition: 1
+        target:
+          entity_id: scene.office_pc_turned_off_notification
+      - delay:
+          hours: 0
+          minutes: 0
+          seconds: 1
+          milliseconds: 0
+      - action: scene.turn_on
+        data:
+          transition: 1
+        target:
+          entity_id: scene.office_turn_off_light_notification
+    mode: single
+
+  # region Blinds
+  office_check_brightness:
+    alias: Office Check Brightness
+    sequence:
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.front_garden_motion_illuminance
+            above: input_number.blind_high_brightness_threshold
+          # Between morning and afternoon non direct sun light position
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            above: input_number.office_blinds_morning_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: azimuth
+            below: input_number.office_blinds_afternoon_sun_azimuth_threshold
+          - condition: numeric_state
+            entity_id: sun.sun
+            attribute: elevation
+            below: input_number.office_blinds_afternoon_sun_elevation_threshold
+          - condition: state
+            entity_id: input_boolean.enable_office_blind_automations
+            state: "on"
+          - condition: numeric_state
+            entity_id: cover.office_blinds
+            attribute: current_tilt_position
+            above: 25
+          - condition: state
+            entity_id: binary_sensor.office_windows
+            state: "off"
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    It's bright outside ({{ states('sensor.front_garden_motion_illuminance', with_unit=True) }}) and computer is on.
+                    Partially closing blinds.
+
+                    Azimuth: {{ state_attr('sun.sun', 'azimuth') }}.
+
+                    Elevation: {{ state_attr('sun.sun', 'elevation') }}.
+                  title: ":office: Office"
+                  log_level: "Debug"
+              - action: cover.set_cover_tilt_position
+                target:
+                  entity_id: cover.office_blinds
+                data:
+                  tilt_position: 25
+  # Used in UI
+  office_open_blinds:
+    alias: Office Open Blinds
+    sequence:
+      - action: cover.set_cover_tilt_position
+        data:
+          tilt_position: 50
+        target:
+          entity_id: cover.office_blinds
+  office_close_blinds:
+    alias: Office Close Blinds
+    sequence:
+      - action: cover.set_cover_tilt_position
+        data:
+          tilt_position: 0
+        target:
+          entity_id: cover.office_blinds
+
+sensor:
+  # Computer
+  - platform: history_stats
+    name: PC Uptime Today
+    unique_id: 0991cb72-ffe8-408a-826d-48b0230353c8
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: PC Uptime Last 24 Hours
+    unique_id: 472320b6-4109-4e07-b914-c8ea54491362
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    end: "{{ now() }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: PC Uptime Yesterday
+    unique_id: 8f999940-08bd-49be-85f7-495dfcbe4309
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: PC Uptime This Week
+    unique_id: 837d727a-2290-4527-ab68-3cd78344321c
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: PC Uptime Last 30 Days
+    unique_id: 9ec48946-234a-4093-844c-800ba67ab340
+    entity_id: group.jd_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
+  - platform: history_stats
+    name: Work Computer Uptime Today
+    unique_id: cb2cfc1a-39b5-4225-86b4-5b34d287c0b6
+    entity_id: group.dannys_work_computer
+    state: "home"
+    type: time
+    start: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Work Computer Uptime Yesterday
+    unique_id: 2fd1cec2-a453-4347-8e7f-14f25e08144c
+    entity_id: group.dannys_work_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      hours: 24
+  - platform: history_stats
+    name: Work Computer Uptime This Week
+    unique_id: dc0e517b-2308-4c6f-8ad8-38665f312ce3
+    entity_id: group.dannys_work_computer
+    state: "home"
+    type: time
+    start: "{{ as_timestamp( now().replace(hour=0, minute=0, second=0) ) - now().weekday() * 86400 }}"
+    end: "{{ now() }}"
+  - platform: history_stats
+    name: Work Computer Uptime Last 30 Days
+    unique_id: 3695a5ba-ebfe-43c2-a7b3-2e04704ae4c4
+    entity_id: group.dannys_work_computer
+    state: "home"
+    type: time
+    end: "{{ now().replace(hour=0, minute=0, second=0) }}"
+    duration:
+      days: 30
