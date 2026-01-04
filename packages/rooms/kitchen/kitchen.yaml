@@ -771,6 +771,8 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_oven_automations
         state: "on"
+      - condition: template
+        value_template: "{{ trigger.from_state.state != 'unavailable' }}"
     actions:
       - parallel:
           - action: script.kitchen_oven_preheated_notification
@@ -1091,17 +1093,31 @@ automation:
         to: "on"
     conditions: []
     actions:
+      - variables:
+          file_name: "{{ now().strftime('%Y-%m-%d %H.%M.%S') }}.jpg"
+      - action: camera.snapshot
+        target:
+          entity_id: camera.kitchen_high_resolution_channel
+        data:
+          filename: "{{states('input_text.camera_external_folder_path')}}/kitchen/{{file_name}}"
       - parallel:
-          - action: script.send_direct_notification
-            metadata: {}
-            data:
-              message: "⚠️ Smoke alarm triggered ⚠️"
-              title: "⚠️ 🧑‍🍳 Kitchen ⚠️"
           - action: script.alexa_announce
             data:
               message: >-
                 Warning! Kitchen smoke alarm triggered.
               suppress_if_quiet: false
+          - action: script.send_home_log_with_local_attachments
+            data:
+              message: "⚠️ Smoke alarm triggered ⚠️"
+              title: "⚠️ 🧑‍🍳 Kitchen ⚠️"
+              suppress_if_quiet: false
+              priority: high
+              filePath: "{{states('input_text.camera_external_folder_path')}}/kitchen/{{file_name}}"
+              people:
+                entity_id:
+                  - person.danny
+                  - person.terina
+                  - person.leo
     mode: single
   # region Kettle
   - id: "1759577733332"
