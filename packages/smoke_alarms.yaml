@@ -1,0 +1,190 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1757836826542"
+    alias: "Timer: Check Smoke Alarms Complete"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.start
+        event_data:
+          entity_id: timer.check_smoke_alarms
+    conditions: []
+    actions:
+      - action: script.check_smoke_alarms
+        data: {}
+
+script:
+  check_smoke_alarms:
+    alias: Check Smoke Alarms
+    sequence:
+      # - choose:
+      #     - conditions:
+      #         - condition: state
+      #           entity_id: binary_sensor.smoke_alarms
+      #           state: "on"
+      #       sequence:
+      - variables:
+          alarming: "{{ [] }}"
+      - repeat:
+          for_each: "{{ state_attr('binary_sensor.smoke_alarms', 'entity_id') }}"
+          sequence:
+            - if:
+                - condition: template
+                  value_template: "{{ states(repeat.item) }}"
+              then:
+                - variables:
+                    file_name: "{{ now().strftime('%Y-%m-%d %H.%M.%S') }}.jpg"
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.kitchen_smoke_alarm_smoke' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.kitchen_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/kitchen/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/kitchen/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_living_room_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.living_room_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/lounge/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/lounge/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_office_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.office_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/office/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/office/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_upstairs_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.stairs_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/stairs/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/stairs/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                  default: []
+              else:
+                - variables:
+                    file_name: "{{ now().strftime('%Y-%m-%d %H.%M.%S') }}.jpg"
+                - choose:
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.kitchen_smoke_alarm_smoke' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.kitchen_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/kitchen/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/kitchen/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_living_room_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.living_room_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/lounge/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/lounge/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_office_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.office_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/office/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/office/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                    - conditions:
+                        - condition: template
+                          value_template: "{{ repeat.item == 'binary_sensor.nest_protect_upstairs_smoke_status' }}"
+                      sequence:
+                        - action: camera.snapshot
+                          target:
+                            entity_id: camera.stairs_high_resolution_channel
+                          data:
+                            filename: "{{ states('input_text.camera_external_folder_path') }}/stairs/{{ file_name }}"
+                        - variables:
+                            alarming: >-
+                              {{ alarming + [{"entity_id": repeat.item, "file_path": states('input_text.camera_external_folder_path') ~ '/stairs/' ~ file_name ~ ".jpg", "state": states(repeat.item)}] }}
+                  default: []
+      - parallel:
+          - action: script.alexa_announce
+            data:
+              message: >-
+                Warning! Smoke detected in
+                {{ expand('binary_sensor.smoke_alarms')|map(attribute='entity_id')|select('is_state', 'on')|map('area_name')|unique|join(', ') }}
+              suppress_if_quiet: false
+          - action: script.send_direct_notification
+            data:
+              message: >-
+                ⚠️Smoke detected in the following areas:
+                  {{ expand('binary_sensor.smoke_alarms')|map(attribute='entity_id')|select('is_state', 'on')|map('area_name')|unique|join(', ') }}
+                ⚠️
+              title: "⚠️ Smoke alarm triggered ⚠️"
+              suppress_if_quiet: false
+              priority: high
+          # - action: script.send_home_log_with_local_attachments
+          #   data:
+          #     message: >-
+          #       ⚠️Smoke detected in the following areas:
+          #         {{ expand('binary_sensor.smoke_alarms')|map(attribute='entity_id')|select('is_state', 'on')|map('area_name')|unique|join(', ') }}
+          #       ⚠️
+          #     title: "⚠️ Smoke alarm triggered ⚠️"
+          #     suppress_if_quiet: false
+          #     priority: high
+          #     filePath: "{{states('input_text.camera_external_folder_path')}}/kitchen/{{file_name}}"
+          #     people:
+          #       entity_id:
+          #         - person.danny
+          #         - person.terina
+          #         - person.leo
+          - action: timer.start
+            target:
+              entity_id: timer.check_smoke_alarms
+            data:
+              duration: "00:01:00"
+          # - conditions:
+          #     - condition: state
+          #       entity_id: binary_sensor.smoke_alarms
+          #       state: "off"
+          #   sequence:
+          #     - parallel:
+          #         - action: script.send_direct_notification
+          #           data:
+          #             message: "Smoke alarm has cleared and ok again."
+          #             title: "Smoke Alarms"
+          #         - action: timer.cancel
+          #           target:
+          #             entity_id: timer.check_smoke_alarms
+          #           data: {}
+    mode: single
