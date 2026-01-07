@@ -23,7 +23,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: "File Editor started."
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
     mode: single
   - id: "1638101465298"
@@ -68,7 +68,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: "Terminal SSH started."
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
     mode: single
   - id: "1638101748990"
@@ -105,7 +105,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: "Zigbee 2 MQTT Proxy started."
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Debug"
           - action: timer.start
             metadata: {}
@@ -152,7 +152,7 @@ automation:
               message: >-
                 File Editor updated from {{ states('sensor.file_editor_version') }} to
                 {{ states('sensor.file_editor_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
@@ -179,7 +179,7 @@ automation:
               message: >-
                 Terminal & SSH updated from {{ states('sensor.advanced_ssh_web_terminal_version') }} to
                 {{ states('sensor.advanced_ssh_web_terminal_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
@@ -206,7 +206,7 @@ automation:
               message: >-
                 ESPHome updated from {{ states('sensor.esphome_version') }} to
                 {{ states('sensor.esphome_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
@@ -233,7 +233,7 @@ automation:
               message: >-
                 Zigbee2MQTT Proxy updated from {{ states('sensor.zigbee2mqtt_proxy_version') }} to
                 {{ states('sensor.zigbee2mqtt_proxy_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
@@ -260,7 +260,7 @@ automation:
               message: >-
                 Log Viewer updated from {{ states('sensor.log_viewer_version') }} to
                 {{ states('sensor.log_viewer_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
@@ -287,12 +287,36 @@ automation:
               message: >-
                 Log Viewer updated from {{ states('sensor.visual_studio_code_version') }} to
                 {{ states('sensor.visual_studio_code_newest_version')}}.
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: update.install
             data: {}
             target:
               entity_id: update.studio_code_server_update
+    mode: single
+  - id: "1767778408951"
+    alias: "Add-On: Predbat Core Update"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - update.predbat_version
+        to:
+          - "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Normal
+              message: Updating
+              title: "🦇 Predbat"
+          - action: update.install
+            metadata: {}
+            data: {}
+            target:
+              entity_id: update.predbat_version
     mode: single
 
 script:
@@ -314,7 +338,7 @@ script:
           - action: script.send_to_home_log
             data:
               message: "{{ message|default(none, true) }}"
-              title: ":heavy_plus_sign: Add-on"
+              title: "➕ Add-on"
               log_level: "Normal"
           - action: hassio.addon_stop
             data:
