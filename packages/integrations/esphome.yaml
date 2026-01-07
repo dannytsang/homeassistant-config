@@ -1,0 +1,27 @@
+automation:
+  - id: "1767778408952"
+    alias: "ESPHome: Firmware Update"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - update.bed_firmware
+          - update.leos_bed_firmware
+        to:
+          - "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: "Updating {{ state_attr(trigger.entity_id, 'friendly_name') }}"
+              title: "ESPHome Firmware"
+              log_level: Normal
+          - action: update.install
+            metadata: {}
+            data: {}
+            target:
+              entity_id: "{{ trigger.entity_id }}"
+    mode: queued
+    max: 15
