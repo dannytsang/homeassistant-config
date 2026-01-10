@@ -9,6 +9,9 @@ automation:
         at: "07:45:00"
         id: "074500"
       - trigger: time
+        at: "08:00:00"
+        id: "080000"
+      - trigger: time
         at: "09:00:00"
         id: "090000"
       - trigger: time
@@ -26,9 +29,6 @@ automation:
           - condition: state
             entity_id: input_select.home_mode
             state: "Guest"
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "No Children"
     actions:
       - action: calendar.get_events
         target:
@@ -75,10 +75,6 @@ automation:
                       entity_id: cover.ashlees_bedroom_blinds
           - alias: Check for booked activity
             conditions:
-              - alias: Working day
-                condition: state
-                entity_id: binary_sensor.workday_sensor
-                state: "on"
               - alias: Booked activities and exclude holidays
                 and:
                   - condition: template
@@ -88,8 +84,6 @@ automation:
                   - condition: state
                     entity_id: input_select.home_mode
                     state: "No Children"
-              - condition: trigger
-                id: "090000"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
@@ -103,13 +97,14 @@ automation:
                   - action: cover.open_cover
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
-          - alias: Open if closed
+          - alias: Open if closed and not in no children mode
             conditions:
               - condition: trigger
                 id: "100000"
-              - condition: numeric_state
-                entity_id: cover.leos_bedroom_blinds
-                below: 100
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "No Children"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
