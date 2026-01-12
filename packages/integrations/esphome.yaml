@@ -25,3 +25,36 @@ automation:
               entity_id: "{{ trigger.entity_id }}"
     mode: queued
     max: 15
+  - id: "1767114704399"
+    alias: "ESPHome: ESP Plug Turned Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.ashlee_s_bedroom_esp_plug
+          - switch.bedroom_esp_plug
+          - switch.conservatory_extension_2
+          - switch.kitchen_esp_plug
+          - switch.leo_s_bedroom_esp_plug
+        to:
+          - "off"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: "{{ state_attr(trigger.entity_id, 'friendly_name') }}🔌 turned off. Turning back on."
+              title: "ESPHome"
+              log_level: "Debug"
+          - action: switch.turn_on
+            metadata: {}
+            target:
+              entity_id: "{{ trigger.entity_id }}"
+            data: {}
+    mode: queued
+    max: 10
