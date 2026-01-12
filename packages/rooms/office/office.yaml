@@ -114,7 +114,7 @@ automation:
                     data:
                       message: >-
                         🐾 💡 🔆 Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_2_illuminance') }} <
+                        and bright ({{ states('sensor.office_motion_2_illuminance') }} >
                         {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
                         Turning office lights off.
                       title: ":office: Office"
@@ -254,7 +254,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                🚷 No motion in the office. Starting :hourglass_flowing_sand: timer for 2 minutes
+                🚷 No motion in the office for 2 minutes. Starting :hourglass_flowing_sand: timer for 1 minute
                 before turning lights off.
               title: ":office: Office"
               log_level: "Debug"
@@ -281,7 +281,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                🚷 No motion in the office for 2 minutes.
+                🚷 No motion in the office for 3 minutes (2 min detection + 1 min timer).
                 Turning lights off.
               title: ":office: Office"
               log_level: "Debug"
@@ -585,8 +585,8 @@ automation:
                 data: {}
     mode: single
   - id: "1622374233312"
-    alias: "Office: Close Office Blinds At Night 2"
-    description: ""
+    alias: "Office: Partially Close Office Blinds At Sunset"
+    description: "Partially closes blinds to 25% at sunset"
     triggers:
       - trigger: sun
         event: sunset
@@ -625,8 +625,8 @@ automation:
                   tilt_position: 25
     mode: single
   - id: "1622374233310"
-    alias: "Office: Close Office Blinds At Night 2"
-    description: ""
+    alias: "Office: Fully Close Office Blinds At Night"
+    description: "Fully closes blinds 1 hour after sunset (after partial close at sunset)"
     triggers:
       - trigger: sun
         event: sunset
