@@ -47,9 +47,7 @@ from homeassistant.helpers.target import async_extract_referenced_entity_ids
 from homeassistant.helpers.template import Template, result_as_boolean
 
 try:
-    from homeassistant.helpers.target import (  # type: ignore[attr-defined, unused-ignore]
-        TargetSelection,  # pyright: ignore[reportAttributeAccessIssue]
-    )
+    from homeassistant.helpers.target import TargetSelection
 except ImportError:
     from homeassistant.helpers.target import TargetSelectorData as TargetSelection
 
@@ -112,8 +110,9 @@ def _fix_template_tokens(value: str) -> str:
 
 def _backoff_parameter(value: Any | None) -> str | None:
     """Check backoff parameter."""
-    vol.Length(min=1)(cv.template(_fix_template_tokens(cv.string(value))).template)
-    return value
+    value_str = cv.string(value)
+    vol.Length(min=1)(cv.template(_fix_template_tokens(value_str)).template)
+    return value_str
 
 
 def _validation_parameter(value: Any | None) -> str | None:
