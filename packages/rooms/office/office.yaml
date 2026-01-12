@@ -2,10 +2,11 @@
 automation:
   # region Motion
   - id: "1606428361967"
-    alias: "Office: Motion Detected And Light Is On"
+    alias: "Office: Motion Detected"
     description:
-      "Split automation depending on light state due to dynamic attributes based on state.
-      See https://community.home-assistant.io/t/dynamic-attributes/93226/2?u=tuxinator94"
+      "Consolidated motion detection handling using variables to safely access light attributes.
+      Previously split into two automations due to dynamic attributes issue:
+      https://community.home-assistant.io/t/dynamic-attributes/93226/2?u=tuxinator94"
     triggers:
       - trigger: state
         entity_id:
@@ -19,35 +20,35 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_motion_triggers
         state: "on"
-      - or:
-          - condition: state
-            entity_id: light.office_2
-            state: "on"
-          - condition: state
-            entity_id: light.office_3
-            state: "on"
+    variables:
+      light_office_2_on: "{{ states('light.office_2') == 'on' }}"
+      light_office_3_on: "{{ states('light.office_3') == 'on' }}"
+      any_light_on: "{{ light_office_2_on or light_office_3_on }}"
+      office_2_brightness: "{{ state_attr('light.office_2', 'brightness') | int(0) }}"
+      office_3_brightness: "{{ state_attr('light.office_3', 'brightness') | int(0) }}"
+      lights_below_200: "{{ office_2_brightness < 200 or office_3_brightness < 200 }}"
+      illuminance: "{{ states('sensor.office_motion_2_illuminance') }}"
+      illuminance_available: "{{ illuminance not in ['unavailable', 'unknown'] }}"
+      illuminance_float: "{{ illuminance | float(0) }}"
+      threshold: "{{ states('input_number.office_light_level_threshold') | float(0) }}"
+      timer_active: "{{ states('timer.office_lights_off') == 'active' }}"
+      is_bright: "{{ illuminance_available and illuminance_float > threshold }}"
+      is_dark: "{{ illuminance_available and illuminance_float < threshold }}"
+      is_before_sunset: "{{ now().replace(tzinfo=None) < (state_attr('sun.sun', 'next_setting') | as_datetime).replace(tzinfo=None) - timedelta(hours=1) }}"
     actions:
       - choose:
+          # Scenario 1: Light is on and bright - skip turning on
           - conditions:
-              - and:
-                  - condition: sun
-                    before: sunset
-                    before_offset: "-01:00:00"
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance
-                    above: input_number.office_light_level_threshold
-              - not:
-                  - condition: state
-                    entity_id: sensor.office_motion_2_illuminance
-                    state: "unavailable"
+              - condition: template
+                value_template: "{{ any_light_on and (is_bright or not illuminance_available) }}"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message: >-
                         🐾 💡 🔆 Motion detected in the office
-                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
-                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        but it's bright enough ({{ illuminance if illuminance_available else 'unavailable' }} >
+                        {{ threshold | round(1) }}).
                         Skipping turning light on.
                       title: ":office: Office"
                       log_level: "Debug"
@@ -55,20 +56,10 @@ automation:
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
+          # Scenario 2: Light is on and dark - turn up to full brightness
           - conditions:
-              - and:
-                  - condition: numeric_state
-                    entity_id: sensor.office_motion_2_illuminance
-                    below: input_number.office_light_level_threshold
-                  - or:
-                      - condition: numeric_state
-                        entity_id: light.office_2
-                        attribute: brightness
-                        below: 200
-                      - condition: numeric_state
-                        entity_id: light.office_3
-                        attribute: brightness
-                        below: 200
+              - condition: template
+                value_template: "{{ any_light_on and is_dark and lights_below_200 }}"
             sequence:
               - parallel:
                   - action: scene.turn_on
@@ -78,8 +69,8 @@ automation:
                     data:
                       message: >-
                         🐾 💡 🔆 Motion detected in the office
-                        and it's dark ({{ states('sensor.office_motion_2_illuminance') }} <
-                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        and it's dark ({{ illuminance }} <
+                        {{ threshold | round(1) }}).
                         Turning up 💡 🔆 lights.
                       title: ":office: Office"
                       log_level: "Debug"
@@ -87,24 +78,10 @@ automation:
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
+          # Scenario 3: Light is on but already bright - turn off
           - conditions:
-              - and:
-                  - or:
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance
-                        above: input_number.office_light_level_threshold
-                      - condition: state
-                        entity_id: sensor.office_motion_2_illuminance
-                        state: "unavailable"
-                  - or:
-                      - condition: numeric_state
-                        entity_id: light.office_2
-                        attribute: brightness
-                        below: 200
-                      - condition: numeric_state
-                        entity_id: light.office_3
-                        attribute: brightness
-                        below: 200
+              - condition: template
+                value_template: "{{ any_light_on and is_bright and lights_below_200 }}"
             sequence:
               - parallel:
                   - action: scene.turn_on
@@ -114,8 +91,8 @@ automation:
                     data:
                       message: >-
                         🐾 💡 🔆 Motion detected in the office
-                        and bright ({{ states('sensor.office_motion_2_illuminance') }} >
-                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        and bright ({{ illuminance }} >
+                        {{ threshold | round(1) }}).
                         Turning office lights off.
                       title: ":office: Office"
                       log_level: "Debug"
@@ -123,10 +100,10 @@ automation:
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
+          # Scenario 4: Light is on and timer active - cancel timer
           - conditions:
-              - condition: state
-                entity_id: timer.office_lights_off
-                state: "active"
+              - condition: template
+                value_template: "{{ any_light_on and timer_active }}"
             sequence:
               - parallel:
                   - action: scene.turn_on
@@ -143,56 +120,18 @@ automation:
                     data: {}
                     target:
                       entity_id: timer.office_lights_off
-        default: []
-    mode: queued
-    max: 10
-  - id: "1632064858461"
-    alias: "Office: Motion Detected And Light Is Off"
-    description:
-      "Split automation depending on light state due to dynamic attributes based on state.
-      See https://community.home-assistant.io/t/dynamic-attributes/93226/2?u=tuxinator94"
-    triggers:
-      - trigger: state
-        entity_id:
-          - binary_sensor.office_motion_2_presence
-        to: "on"
-      - trigger: numeric_state
-        entity_id:
-          - sensor.office_motion_2_target_distance
-        above: 0.1
-    conditions:
-      - condition: state
-        entity_id: input_boolean.enable_office_motion_triggers
-        state: "on"
-      - or:
-          - condition: state
-            entity_id: light.office_2
-            state: "off"
-          - condition: state
-            entity_id: light.office_3
-            state: "off"
-    actions:
-      - choose:
+          # Scenario 5: Light is off and bright - skip turning on
           - conditions:
-              - or:
-                  - and:
-                      - condition: sun
-                        before: sunset
-                        before_offset: "-01:00:00"
-                      - condition: numeric_state
-                        entity_id: sensor.office_motion_2_illuminance
-                        above: input_number.office_light_level_threshold
-                  - condition: state
-                    entity_id: sensor.office_motion_2_illuminance
-                    state: "unavailable"
+              - condition: template
+                value_template: "{{ not any_light_on and (is_bright or not illuminance_available) }}"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message: >-
                         🐾 💡 🔆 Motion detected in the office
-                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
-                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                        but it's bright enough ({{ illuminance if illuminance_available else 'unavailable' }} >
+                        {{ threshold | round(1) }}).
                         Skipping turning light on.
                       title: ":office: Office"
                       log_level: "Debug"
@@ -212,25 +151,31 @@ automation:
                           entity_id:
                             - light.office_4
                         data: {}
-        default:
-          - parallel:
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.office_main_light_on
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 💡 🔆 Motion detected in the office
-                    and it's dark ({{ states('sensor.office_motion_2_illuminance') }} <
-                    {{ states('input_number.office_light_level_threshold') }}).
-                    Turning 💡 🔆 lights on.
-                  title: ":office: Office"
-                  log_level: "Debug"
-              - action: timer.cancel
-                data: {}
-                target:
-                  entity_id: timer.office_lights_off
-    mode: single
+          # Scenario 6: Light is off and dark - turn on lights
+          - conditions:
+              - condition: template
+                value_template: "{{ not any_light_on and is_dark }}"
+            sequence:
+              - parallel:
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.office_main_light_on
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 💡 🔆 Motion detected in the office
+                        and it's dark ({{ illuminance }} <
+                        {{ threshold | round(1) }}).
+                        Turning 💡 🔆 lights on.
+                      title: ":office: Office"
+                      log_level: "Debug"
+                  - action: timer.cancel
+                    data: {}
+                    target:
+                      entity_id: timer.office_lights_off
+        default: []
+    mode: queued
+    max: 10
   - id: "1587044886896"
     alias: "Office: No Motion Detected"
     description: ""
