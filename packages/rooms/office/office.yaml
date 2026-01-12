@@ -311,14 +311,14 @@ automation:
         state: "off"
     actions:
       - choose:
+          # Priority 1: Auto-on during daytime if people home (26°C+)
           - conditions:
               - condition: state
                 entity_id: group.tracked_people
                 state: "home"
               - condition: time
-                before: "22:00:00"
-              - condition: time
                 after: "08:30:00"
+                before: "22:00:00"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
@@ -332,6 +332,24 @@ automation:
                   - action: switch.turn_on
                     target:
                       entity_id: switch.office_fan
+          # Priority 2: Emergency - always turn on at 31°C+
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.office_area_mean_temperature
+                above: 31
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🚨 :hotsprings: Emergency! Temperature is above 31c
+                        ({{ states('sensor.office_area_mean_temperature') }}c). Turning fan on.
+                      title: ":office: Office"
+                      log_level: "Normal"
+                  - action: switch.turn_on
+                    target:
+                      entity_id: switch.office_fan
+          # Priority 3: Warning - notify at 29°C+
           - conditions:
               - condition: numeric_state
                 entity_id: sensor.office_area_mean_temperature
@@ -356,22 +374,6 @@ automation:
                       action1_name: switch_on_office_fan
                       action2_title: "No"
                       action2_name: ignore
-          - conditions:
-              - condition: numeric_state
-                entity_id: sensor.office_area_mean_temperature
-                above: 31
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        ⚠️ :hotsprings: Temperature is above 31c. Turning
-                        fan on.
-                      title: ":office: Office"
-                      log_level: "Debug"
-                  - action: switch.turn_on
-                    target:
-                      entity_id: switch.office_fan
         default: []
     mode: single
   - id: "1728046359271"
