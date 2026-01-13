@@ -16,3 +16,55 @@ template:
               {%- endif -%}
             {%- endfor -%}
             {{ ns.leaks }}
+
+automation:
+  - id: "1736794523847"
+    alias: "Water: Critical Leak Alert"
+    description: "Sends critical notification that bypasses Do Not Disturb when water leak detected"
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.house_leak_detected
+        to: "on"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🚨 💧 Water leak detected at: {{ state_attr('binary_sensor.house_leak_detected', 'windows') | join(', ') }}
+              title: ":droplet: Water"
+              log_level: "Normal"
+          - action: script.send_direct_notification
+            data:
+              title: "🚨 WATER LEAK DETECTED!"
+              message: >-
+                Leak at: {{ state_attr('binary_sensor.house_leak_detected', 'windows') | join(', ') }}
+              data:
+                ttl: 0
+                priority: high
+                channel: critical_alerts
+                importance: max
+    mode: single
+
+  - id: "1736794523848"
+    alias: "Water: Leak Cleared"
+    description: "Notification when all water leaks have been resolved"
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.house_leak_detected
+        to: "off"
+        for:
+          minutes: 1
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: "✅ 💧 All water leaks resolved."
+              title: ":droplet: Water"
+              log_level: "Normal"
+          - action: script.send_direct_notification
+            data:
+              title: "✅ Water Leak Resolved"
+              message: "All leak sensors now report dry."
+    mode: single
