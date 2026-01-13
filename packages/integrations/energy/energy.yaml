@@ -306,6 +306,35 @@ automation:
               - person.danny
               - person.terina
     mode: single
+  - id: "1736798645231"
+    alias: "Energy: Battery Depleted"
+    description: "Notifies when battery runs out and switches to grid power"
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.growatt_sph_battery_state_of_charge
+        below: 11
+        for:
+          minutes: 1
+    conditions:
+      - condition: numeric_state
+        entity_id: sensor.grid_import_power
+        above: 0
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🔋⚠️ Battery depleted ({{ states('sensor.growatt_sph_battery_state_of_charge') }}%).
+                Now using grid power.
+              title: ":zap: Energy"
+              log_level: "Normal"
+          - action: script.send_direct_notification
+            data:
+              title: "🔋 Battery Depleted"
+              message: >-
+                Battery charge at {{ states('sensor.growatt_sph_battery_state_of_charge') }}%.
+                Now importing {{ states('sensor.grid_import_power') }}W from grid.
+    mode: single
   # region Octopus
   - id: "1719080490915"
     alias: "Energy: Saving Session Started"
