@@ -9,7 +9,7 @@ lounge_flash_lounge_lights_red:
           - light.living_room_lamp_right
     - action: scene.turn_on
       target:
-        entity_id: scene.living_room_lights_red
+        entity_id: scene.lounge_lights_red
       data:
         transition: 0
     - delay:
@@ -130,8 +130,8 @@ living_room_movie_mode:
   alias: Living Room Movie Mode
   description: ""
 get_clock_emoji:
-  alias: "Get Current Clock Emoji"
-  description: "Returns the appropriate clock emoji based on provided time"
+  alias: Get Current Clock Emoji
+  description: Returns the appropriate clock emoji based on provided time
   fields:
     hour:
       name: Hour
@@ -151,9 +151,10 @@ get_clock_emoji:
           max: 59
   sequence:
     - variables:
-        half: "{% if minute > 25 and minute < 35 %}30{% else %}{% endif %}"
-    - stop:
-        response_variable: clock_result
-        value:
+        half: "{% if minute > 15 and minute < 45 %}30{% else %}{% endif %}"
+    - variables:
+        emoji:
           emoji: ":clock{{ hour }}{{ half }}:"
+    - stop:
+      response_variable: emoji
   mode: parallel
