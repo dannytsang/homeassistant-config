@@ -196,6 +196,11 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - choose:
               - conditions:
@@ -206,8 +211,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        "⚠️ :clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌇 🪟 Leo's
+                        "⚠️ {{ clock_result.emoji }} 🌇 🪟 Leo's
                         window is open. Skipping closing blinds. ⚠️"
                       title: "Leo's 🛏️ bedroom"
                       log_level: "Debug"
@@ -215,8 +219,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message:
-                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
+                    "{{ clock_result.emoji }} 🪟 Closing
                     Leo's blinds"
                   title: "Leo's 🛏️ bedroom"
                   log_level: "Debug"

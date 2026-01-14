@@ -129,3 +129,31 @@ living_room_movie_mode:
         entity_id: input_boolean.enable_living_room_motion_triggers
   alias: Living Room Movie Mode
   description: ""
+get_clock_emoji:
+  alias: "Get Current Clock Emoji"
+  description: "Returns the appropriate clock emoji based on provided time"
+  fields:
+    hour:
+      name: Hour
+      description: Hour in 12-hour format (1-12)
+      required: true
+      selector:
+        number:
+          min: 1
+          max: 12
+    minute:
+      name: Minute
+      description: Minute (0-59)
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 59
+  sequence:
+    - variables:
+        half: "{% if minute > 25 and minute < 35 %}30{% else %}{% endif %}"
+    - stop:
+        response_variable: clock_result
+        value:
+          emoji: ":clock{{ hour }}{{ half }}:"
+  mode: parallel
