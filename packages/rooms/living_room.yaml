@@ -18,7 +18,8 @@ automation:
         state: "on"
     actions:
       - choose:
-          - conditions:
+          - alias: Motion detected - dark room, turn on lights
+            conditions:
               - or:
                   - condition: numeric_state
                     entity_id: sensor.apollo_r_pro_1_w_ef755c_ltr390_light
@@ -74,7 +75,8 @@ automation:
                               entity_id: scene.living_room_lamps_on
                             data:
                               transition: 1
-          - alias: Room too bright
+          - alias: Motion detected - bright room, flash signal
+            description: "Motion detected but room is bright enough already. Flash yellow lights as a signal."
             conditions:
               - or:
                   - condition: numeric_state
@@ -104,8 +106,7 @@ automation:
                         {{ states('sensor.living_room_motion_illuminance') }} <
                         {{ states('input_number.living_room_light_level_2_threshold') }} &
                         {{ states('input_number.living_room_light_level_4_threshold', with_unit=True) }})
-                        and Terina's work :computer: computer is on. Turning
-                        💡 🔆 lights on.
+                        and Terina's work :computer: computer is on. Flashing lights as signal (room bright enough).
                       title: "🛋️ Living Room"
                       log_level: "Debug"
                   - sequence:
