@@ -69,8 +69,13 @@ automation:
                         > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
-
-                  - action: cover.open_cover
+                  - action: retry.action
+                    data:
+                      action: cover.open_cover
+                      retries: 3
+                      backoff: "[[ 10 * 2 ** attempt ]]"
+                      expected_state: "open"
+                      state_grace: 5
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
           - alias: Check for booked activity
@@ -94,7 +99,13 @@ automation:
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
 
-                  - action: cover.open_cover
+                  - action: retry.action
+                    data:
+                      action: cover.open_cover
+                      retries: 3
+                      backoff: "[[ 10 * 2 ** attempt ]]"
+                      expected_state: "open"
+                      state_grace: 5
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
           - alias: Open if closed and not in no children mode
@@ -115,7 +126,13 @@ automation:
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
 
-                  - action: cover.open_cover
+                  - action: retry.action
+                    data:
+                      action: cover.open_cover
+                      retries: 3
+                      backoff: "[[ 10 * 2 ** attempt ]]"
+                      expected_state: "open"
+                      state_grace: 5
                     target:
                       entity_id: cover.ashlees_bedroom_blinds
         default: []
