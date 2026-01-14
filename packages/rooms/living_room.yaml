@@ -378,12 +378,15 @@ automation:
         entity_id: binary_sensor.living_room_windows
         state: "off"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                Opening blinds partially.
+              message: "{{ clock_result.emoji }} Opening blinds partially."
               title: "🛋️ Living Room"
               log_level: "Debug"
           - action: cover.set_cover_tilt_position
@@ -409,12 +412,15 @@ automation:
         entity_id: binary_sensor.living_room_windows
         state: "off"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
-                Opening blinds fully.
+              message: "{{ clock_result.emoji }} Opening blinds fully."
               title: "🛋️ Living Room"
               log_level: "Debug"
           - action: cover.set_cover_tilt_position
@@ -459,7 +465,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                {{ clock_result.emoji }}
                 Partially closing blinds.
               title: "🛋️ Living Room"
               log_level: "Debug"
@@ -493,7 +499,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                {{ clock_result.emoji }}
                 Closing blinds fully.
               title: "🛋️ Living Room"
               log_level: "Debug"
