@@ -211,41 +211,18 @@ automation:
                         window is open. Skipping closing blinds. ⚠️"
                       title: "Leo's 🛏️ bedroom"
                       log_level: "Debug"
-              - conditions:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-                  - condition: trigger
-                    id: no_children
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
-                        Leo's blinds"
-                      title: "Leo's 🛏️ bedroom"
-                      log_level: "Debug"
-                  - action: cover.close_cover
-                    target:
-                      entity_id: cover.leos_bedroom_blinds
-              - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.leos_bedroom_window_contact
-                    state: "off"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
-                        Leo's blinds"
-                      title: "Leo's 🛏️ bedroom"
-                      log_level: "Debug"
-                  - action: cover.close_cover
-                    target:
-                      entity_id: cover.leos_bedroom_blinds
-            default: []
+            default:
+              - action: script.send_to_home_log
+                data:
+                  message:
+                    ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
+                    > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
+                    Leo's blinds"
+                  title: "Leo's 🛏️ bedroom"
+                  log_level: "Debug"
+              - action: cover.close_cover
+                target:
+                  entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1617376203344"
     alias: "Leo's Room: Close Blinds Before Sun Rise"
