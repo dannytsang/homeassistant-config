@@ -42,6 +42,11 @@ automation:
             minutes: 0
             seconds: 0
         response_variable: calendars
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - choose:
           - alias: School day
             conditions:
@@ -65,8 +70,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
+                        "{{ clock_result.emoji }} 🌅 🪟 School day. Opening Ashlee's blinds"
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
                   - action: retry.action
@@ -94,8 +98,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
+                        "{{ clock_result.emoji }} 🌅 🪟 School day. Opening Ashlee's blinds"
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
 
@@ -121,8 +124,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌅 🪟 School day. Opening Ashlee's blinds"
+                        "{{ clock_result.emoji }} 🌅 🪟 School day. Opening Ashlee's blinds"
                       title: "Ashlee's 🛏️ bedroom"
                       log_level: "Debug"
 
@@ -531,7 +533,7 @@ script:
                       - alias: Check if window is open.
                         conditions:
                           - condition: state
-                            entity_id: binary_sensor.leos_bedroom_window_contact
+                            entity_id: binary_sensor.ashlees_bedroom_window_contact
                             state: "on"
                         sequence:
                           # TODO: replace with actionable notification

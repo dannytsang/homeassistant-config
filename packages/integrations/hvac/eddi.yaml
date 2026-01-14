@@ -57,12 +57,16 @@ automation:
         entity_id: input_boolean.enable_eddi_automations
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - action: script.send_to_home_log
             data:
               message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int >
-                25 and now().minute | int < 35 %}30{% else %}{% endif %}: Turning :fuelpump:
+                {{ clock_result.emoji }} Turning :fuelpump:
                 Eddi back on.
               title: myEnergi
               log_level: "Debug"

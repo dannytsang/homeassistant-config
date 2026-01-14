@@ -61,6 +61,11 @@ automation:
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - choose:
               - conditions:
@@ -71,7 +76,7 @@ automation:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        {{ clock_result.emoji }}
                         The following entrances are still open:
                         {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
                         %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
@@ -105,6 +110,11 @@ automation:
         entity_id: input_boolean.enable_alarm_automations
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - choose:
           - conditions:
               - condition: state
@@ -115,7 +125,7 @@ automation:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        {{ clock_result.emoji }}
                         Did not turned on because the following:
                         {% for opening in state_attr('binary_sensor.alarmed_doors_and_windows', 'entity_id') %}{% if states(opening) == 'on' %}
                         {{ '* ' ~ state_attr(opening, 'friendly_name') ~ '\n' }}{% endif %}{% endfor %}
@@ -567,7 +577,7 @@ script:
           - action: script.send_direct_notification
             data:
               message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                {{ clock_result.emoji }}
                 Did not turned on because the following people are not home:
 
                 {% for p in state_attr('group.all_tracked_people', 'entity_id') -%}

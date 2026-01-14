@@ -639,7 +639,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: Bedroom light turned off. Turning stairs lights off.
+              message: Fan has been on for 2 hours. Turning fan off.
               title: "🛏️ Bedroom"
               log_level: "Debug"
           - action: switch.turn_off
@@ -685,6 +685,11 @@ automation:
             minutes: 0
             seconds: 0
         response_variable: calendars
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - choose:
           - alias: Work day
             conditions:
@@ -714,7 +719,7 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                        {{ clock_result.emoji }}
                         Opening blinds because it's closed on a working weekday!"
                       title: "🛏️ bedroom"
                       log_level: "Debug"
@@ -741,7 +746,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    {{ clock_result.emoji }}
                     Opening blinds because it's closed and its 09:00 on a weekend!"
                   title: "🛏️ bedroom"
                   log_level: "Debug"
@@ -755,7 +760,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                    {{ clock_result.emoji }}
                     Opening blinds because it's closed and its 10:00!"
                   title: "🛏️ bedroom"
                   log_level: "Debug"
@@ -776,11 +781,16 @@ automation:
         attribute: current_position
         above: input_number.blind_closed_position_threshold
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - action: script.send_to_home_log
             data:
               message: >-
-                :clock{{ now().strftime('%I') | int }}{% if now().minute | int > 25 and now().minute | int < 35 %}30{% else %}{% endif %}:
+                {{ clock_result.emoji }}
                 It's after 🌇 sunset, closing bedroom's blinds.
               title: "🛏️ bedroom"
               log_level: "Debug"

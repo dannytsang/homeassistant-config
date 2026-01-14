@@ -155,7 +155,7 @@ automation:
     conditions:
       - condition: state
         entity_id: input_boolean.enable_leos_blind_automations
-        state: "off"
+        state: "on"
       - condition: numeric_state
         entity_id: cover.leos_bedroom_blinds
         attribute: current_position
@@ -164,7 +164,7 @@ automation:
         state: "No Children"
         entity_id: input_select.home_mode
       - condition: state
-        state: "on"
+        state: "off"
         entity_id: binary_sensor.workday_sensor
     actions:
       - parallel:
@@ -196,6 +196,11 @@ automation:
         entity_id: input_boolean.enable_leos_blind_automations
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - parallel:
           - choose:
               - conditions:
@@ -206,46 +211,21 @@ automation:
                   - action: script.send_to_home_log
                     data:
                       message:
-                        "⚠️ :clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🌇 🪟 Leo's
+                        "⚠️ {{ clock_result.emoji }} 🌇 🪟 Leo's
                         window is open. Skipping closing blinds. ⚠️"
                       title: "Leo's 🛏️ bedroom"
                       log_level: "Debug"
-              - conditions:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-                  - condition: trigger
-                    id: no_children
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
-                        Leo's blinds"
-                      title: "Leo's 🛏️ bedroom"
-                      log_level: "Debug"
-                  - action: cover.close_cover
-                    target:
-                      entity_id: cover.leos_bedroom_blinds
-              - conditions:
-                  - condition: state
-                    entity_id: binary_sensor.leos_bedroom_window_contact
-                    state: "off"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message:
-                        ":clock{{ now().strftime('%I') | int }}{% if now().minute | int
-                        > 25 and now().minute | int < 35 %}30{% else %}{% endif %}: 🪟 Closing
-                        Leo's blinds"
-                      title: "Leo's 🛏️ bedroom"
-                      log_level: "Debug"
-                  - action: cover.close_cover
-                    target:
-                      entity_id: cover.leos_bedroom_blinds
-            default: []
+            default:
+              - action: script.send_to_home_log
+                data:
+                  message:
+                    "{{ clock_result.emoji }} 🪟 Closing
+                    Leo's blinds"
+                  title: "Leo's 🛏️ bedroom"
+                  log_level: "Debug"
+              - action: cover.close_cover
+                target:
+                  entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1617376203344"
     alias: "Leo's Room: Close Blinds Before Sun Rise"
@@ -302,7 +282,7 @@ automation:
               entity_id: cover.leos_bedroom_blinds
     mode: single
   - id: "1617458869658"
-    alias: "Leo's Room: Open Blinds In The Morning When No One Is In Bed"
+    alias: "Leo's Room: Open Blinds When Leo Wakes Up"
     description: ""
     triggers:
       - trigger: state
@@ -331,7 +311,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: "🪟 🛏️ Someone is in Leo's bed. Closing blinds."
+              message: "🪟 🛏️ Leo woke up. Opening blinds."
               title: "Leo's 🛏️ bedroom"
               log_level: "Debug"
           - action: cover.open_cover
@@ -439,7 +419,7 @@ automation:
     actions:
       - action: cover.open_cover
         target:
-          entity_id: cover.bedroom_blinds
+          entity_id: cover.leos_bedroom_blinds
         data: {}
     mode: single
   - id: "1699308571384"
@@ -455,7 +435,7 @@ automation:
     actions:
       - action: cover.close_cover
         target:
-          entity_id: cover.bedroom_blinds
+          entity_id: cover.leos_bedroom_blinds
         data: {}
     mode: single
 

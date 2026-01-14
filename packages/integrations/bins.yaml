@@ -22,6 +22,37 @@ automation:
           people:
             entity_id: person.danny
     mode: single
+  - id: "1736801234567"
+    alias: "Bin: Emptied And Returned"
+    description: "Notifies when bin has been emptied and returned home after collection"
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.bin_estimated_distance
+        below: 7
+        for:
+          minutes: 30
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.bin_collection_due
+        state: "on"
+        for:
+          hours: 1
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🗑️✅ Bin emptied and returned home. Distance: {{ states('sensor.bin_estimated_distance') }}m.
+              title: ":wastebasket: Bin"
+              log_level: "Normal"
+          - action: script.send_direct_notification
+            data:
+              title: "Bin"
+              message: "Emptied and returned home."
+              people:
+                entity_id:
+                  - person.danny
+    mode: single
 
 sensor:
   - platform: statistics
