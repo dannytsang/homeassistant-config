@@ -1350,20 +1350,21 @@ script:
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive
     sequence:
-      - and:
+      - if:
           - condition: state
             entity_id: switch.external_hdd
             state: "on"
           - condition: state
             entity_id: group.jd_computer
             state: "not_home"
-      - action: script.send_to_home_log
-        data:
-          message: ":floppy_disk: Turning off external HDD"
-          log_level: "Debug"
-      - action: switch.turn_off
-        target:
-          entity_id: switch.external_hdd
+        then:
+          - action: script.send_to_home_log
+            data:
+              message: ":floppy_disk: Turning off external HDD"
+              log_level: "Debug"
+          - action: switch.turn_off
+            target:
+              entity_id: switch.external_hdd
     mode: single
   office_pc_turned_off_notification:
     alias: Office PC Turned Off Notification
