@@ -608,8 +608,7 @@ script:
             state: "on"
         then:
           - repeat:
-              # for_each: "{{ mobile|default([], true) }}"
-              for_each: "{{ people.entity_id|default([], true) }}"
+              for_each: "{{ mobile|default([], true) }}"
               sequence:
                 - choose:
                     - conditions:
@@ -654,6 +653,21 @@ script:
                                   action: "{{ action1_name }}"
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                      sequence:
+                        - action: notify.mobile_app_ipad_4
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                          continue_on_error: true
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
@@ -782,18 +796,23 @@ script:
                                   action: "{{ action2_name }}"
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
-          - action: script.send_actionable_notification_with_3_buttons
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-              people: "{{ people }}"
-              data:
-                action1_title: "{{ action1_title }}"
-                action1_name: "{{ action1_name }}"
-                action2_title: "{{ action2_title }}"
-                action2_name: "{{ action2_name }}"
-                action3_title: "{{ action3_title }}"
-                action3_name: "{{ action3_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                      sequence:
+                        - action: notify.mobile_app_ipad_4
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                                - title: "{{ action3_title }}"
+                                  action: "{{ action3_name }}"
+                          continue_on_error: true
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
