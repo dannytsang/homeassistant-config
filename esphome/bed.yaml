@@ -20,6 +20,18 @@ ads1115:
   - address: 0x48
     continuous_mode: true
 
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret bed_api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret bed_ota_password
+
 sensor:
   # ADS1115
   - platform: ads1115
@@ -60,14 +72,63 @@ sensor:
     unit_of_measurement: IAQ
     lambda: "return log(id(g_res).state) + 0.04 * id(hum).state;"
 
-# Enable logging
-logger:
+  - platform: wifi_signal
+    name: "WiFi Signal Strength"
+    id: wifi_signal_strength
+    update_interval: 10s
 
-# Enable Home Assistant API
-api:
-  encryption:
-    key: !secret bed_api_encryption_key
+  # Track how long the device has been connected
+  - platform: uptime
+    name: "Uptime"
+    id: device_uptime
+    update_interval: 60s
 
-ota:
-  platform: esphome
-  password: !secret bed_ota_password
+  # Count disconnections (resets on reboot)
+  - platform: template
+    name: "Disconnect Count"
+    id: disconnect_count
+    accuracy_decimals: 0
+    lambda: 'return id(disconnect_counter);'
+
+globals:
+  - id: disconnect_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+    
+  - id: was_connected
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - if:
+                condition:
+                  lambda: 'return id(was_connected);'
+                then:
+                  - lambda: 'id(disconnect_counter) += 1;'
+                  - globals.set:
+                      id: was_connected
+                      value: 'false'
+                  - logger.log:
+                      level: WARN
+                      format: "WiFi disconnected! Total disconnects: %d"
+                      args: ['id(disconnect_counter)']
+          else:
+            - if:
+                condition:
+                  lambda: 'return !id(was_connected);'
+                then:
+                  - globals.set:
+                      id: was_connected
+                      value: 'true'
+                  - logger.log:
+                      level: INFO
+                      format: "WiFi reconnected after disconnect"
