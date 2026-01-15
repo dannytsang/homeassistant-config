@@ -127,6 +127,20 @@ script:
                   - condition: template
                     value_template: "{{ not v_suppress_if_quiet }}"
 
+              - alias: "Quiet time is ON but message contains bypass keyword"
+                and:
+                  - condition: state
+                    entity_id: schedule.notification_quiet_time
+                    state: "on"
+                  - condition: template
+                    value_template: >
+                      {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
+                      {%- for keyword in keywords %}
+                        {%- if keyword.lower() in message.lower() %}
+                          true
+                        {%- endif %}
+                      {%- endfor %}
+
               - alias: "Quiet time is ON and priority is NOT 'normal'"
                 and:
                   - condition: state
@@ -285,8 +299,28 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title|default(none, true) }}"
-      # Check if notifications is turned on.
+      # Check if notifications should be sent based on quiet hours and message keywords
       - if:
+          - or:
+              - alias: "Quiet time is OFF"
+                condition: state
+                entity_id: schedule.notification_quiet_time
+                state: "off"
+
+              - alias: "Message contains bypass keyword"
+                condition: template
+                value_template: >
+                  {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
+                  {%- for keyword in keywords %}
+                    {%- if keyword.lower() in message.lower() %}
+                      true
+                    {%- endif %}
+                  {%- endfor %}
+
+              - alias: "Priority is NOT 'normal'"
+                condition: template
+                value_template: "{{ priority|default('normal', true) != 'normal' }}"
+
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
@@ -608,8 +642,7 @@ script:
             state: "on"
         then:
           - repeat:
-              # for_each: "{{ mobile|default([], true) }}"
-              for_each: "{{ people.entity_id|default([], true) }}"
+              for_each: "{{ mobile|default([], true) }}"
               sequence:
                 - choose:
                     - conditions:
@@ -654,6 +687,21 @@ script:
                                   action: "{{ action1_name }}"
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                      sequence:
+                        - action: notify.mobile_app_ipad_4
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                          continue_on_error: true
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
@@ -782,18 +830,23 @@ script:
                                   action: "{{ action2_name }}"
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
-          - action: script.send_actionable_notification_with_3_buttons
-            data:
-              message: "{{ message }}"
-              title: "{{ title|default(none, true) }}"
-              people: "{{ people }}"
-              data:
-                action1_title: "{{ action1_title }}"
-                action1_name: "{{ action1_name }}"
-                action2_title: "{{ action2_title }}"
-                action2_name: "{{ action2_name }}"
-                action3_title: "{{ action3_title }}"
-                action3_name: "{{ action3_name }}"
+                    - conditions:
+                      - condition: template
+                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                      sequence:
+                        - action: notify.mobile_app_ipad_4
+                          data:
+                            message: "{{ message }}"
+                            title: "{{ title|default('', true) }}"
+                            data:
+                              actions:
+                                - title: "{{ action1_title }}"
+                                  action: "{{ action1_name }}"
+                                - title: "{{ action2_title }}"
+                                  action: "{{ action2_name }}"
+                                - title: "{{ action3_title }}"
+                                  action: "{{ action3_name }}"
+                          continue_on_error: true
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
               sequence:
