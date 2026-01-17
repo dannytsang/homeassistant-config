@@ -114,24 +114,22 @@ script:
             {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
       - if:
           - or:
-              - alias: "Quiet time is OFF"
-                condition: state
-                entity_id: schedule.notification_quiet_time
-                state: "off"
-
+              - condition: time
+                after: input_datetime.childrens_bed_time
+                before: "07:30:00"
               - alias: "Quiet time is ON and suppress_if_quiet is FALSE"
                 and:
-                  - condition: state
-                    entity_id: schedule.notification_quiet_time
-                    state: "on"
+                  - condition: time
+                    after: input_datetime.childrens_bed_time
+                    before: "07:30:00"
                   - condition: template
                     value_template: "{{ not v_suppress_if_quiet }}"
 
               - alias: "Quiet time is ON and priority is NOT 'normal'"
                 and:
-                  - condition: state
-                    entity_id: schedule.notification_quiet_time
-                    state: "on"
+                  - condition: time
+                    after: input_datetime.childrens_bed_time
+                    before: "07:30:00"
                   - condition: template
                     value_template: "{{ v_priority != 'normal' }}"
         then:
