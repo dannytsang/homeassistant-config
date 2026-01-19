@@ -88,8 +88,6 @@ The following integrations are removed from `configuration.yaml` during CI valid
 | Integration | Reason | Channels Affected |
 |-------------|--------|-------------------|
 | `battery_notes` | Not in base HA image | All |
-| `a_file_logger` | Custom component, not in repo | All |
-| `openid` | Custom component, not in repo | All |
 | `sonoff` | Requires hardware/cloud API | All |
 | `powercalc` | Compatibility issues | Beta/Dev only |
 
@@ -100,6 +98,8 @@ The following integrations are removed from `configuration.yaml` during CI valid
 | Integration | Date Tested | Result |
 |-------------|-------------|--------|
 | `delete` | 2026-01-19 | ✅ Validates successfully - No external dependencies, only uses Python built-ins and HA core |
+| `a_file_logger` | 2026-01-19 | ⏳ Testing - No external dependencies, only uses Python built-ins and HA core logging |
+| `openid` | 2026-01-19 | ⏳ Testing - No external dependencies, only uses Python built-ins, HA core, and voluptuous |
 
 **Testing methodology:** Removed integration from strip list, ran full validation suite (stable + beta/dev). All tests passed without errors.
 

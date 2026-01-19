@@ -16,13 +16,9 @@ fi
 # Strip problematic integrations from configuration.yaml
 echo "Removing integrations that can't validate in CI..."
 echo "  - battery_notes (not in base HA image)"
-echo "  - a_file_logger (not in repo)"
-echo "  - openid (not in repo)"
 echo "  - sonoff (requires hardware/cloud API)"
 
 sed -i -e '/battery_notes\:/,+2d' \
-       -e '/a_file_logger\:/,+1d' \
-       -e '/openid\:/,+6d' \
        -e '/sonoff\:/,+3d' configuration.yaml
 
 # Additional removals for beta/dev channels
