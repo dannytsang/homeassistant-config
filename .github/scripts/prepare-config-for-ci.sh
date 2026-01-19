@@ -9,7 +9,6 @@ mkdir -p camera
 # Strip problematic integrations from configuration.yaml
 echo "Removing integrations that can't validate in CI..."
 sed -i -e '/battery_notes\:/,+2d' \
-       -e '/delete\:/,+1d' \
        -e '/a_file_logger\:/,+1d' \
        -e '/openid\:/,+6d' \
        -e '/sonoff\:/,+3d' configuration.yaml
