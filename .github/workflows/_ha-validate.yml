@@ -194,6 +194,11 @@ jobs:
           sed -i -e '/battery_notes\:/,+2d' \
                  -e '/delete\:/,+1d' \
                  -e '/sonoff\:/,+3d' configuration.yaml
+
+          # Replace device triggers with dummy time triggers to avoid device registry errors
+          echo "Replacing device triggers with dummy triggers for CI validation..."
+          find packages -name "*.yaml" -type f -exec sed -i \
+            -e '/trigger: device$/,/subtype:/c\      - trigger: time\n        at: "00:00:00"  # Dummy trigger for CI validation' {} \;
       - name: Validate (stable)
         if: ${{ inputs.run_ha_stable }}
         id: ha
@@ -260,6 +265,11 @@ jobs:
                  -e '/delete\:/,+1d' \
                  -e '/powercalc\:/,+2d' \
                  -e '/sonoff\:/,+3d' configuration.yaml
+
+          # Replace device triggers with dummy time triggers to avoid device registry errors
+          echo "Replacing device triggers with dummy triggers for CI validation..."
+          find packages -name "*.yaml" -type f -exec sed -i \
+            -e '/trigger: device$/,/subtype:/c\      - trigger: time\n        at: "00:00:00"  # Dummy trigger for CI validation' {} \;
       - name: Validate (${{ matrix.version }})
         id: ha
         uses: frenck/action-home-assistant@v1
