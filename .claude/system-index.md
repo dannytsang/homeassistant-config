@@ -1,11 +1,13 @@
 # Home Assistant System Knowledge Index
 
 **Last Updated:** 2026-01-19
-**Scanned:** Full codebase analysis
-**Total Automations:** 434
-**Total Scripts:** 43+
-**Total Scenes:** 75+
+**Scanned:** Standard Monthly Scan (Type B) - 2026-01-19
+**Total Automations:** 435
+**Total Scripts:** 157 (6 in scripts.yaml, 151 in packages)
+**Total Scenes:** 10 in scenes.yaml (11 files with inline scenes)
 **Total Entities:** 6,902
+
+> **Note:** Script count corrected from original estimate of 43+. The initial count only captured prominent root-level scripts. Actual count includes 151 inline scripts across 40 package files plus 6 root scripts.
 
 ---
 
@@ -355,6 +357,23 @@ Climate Package
 5. **Add missing script calls** (commit 8ccd8f4b)
    - Added `script.get_clock_emoji` calls to 28 instances across 9 files
    - Fixes undefined `clock_result.emoji` references
+
+### Monthly Scan Report (2026-01-19)
+
+**Type:** Standard Monthly Scan (Type B)
+**Report:** `.claude/scan-reports/scan-2026-01-19.md`
+
+**Key Findings:**
+- **Script count corrected:** 43+ → 157 (baseline underestimated)
+- **Automation growth:** +1 new automation (office game automation ID: 1768737131768)
+- **System health:** ✅ No critical issues, no deprecated syntax, no circular dependencies
+- **Deferred work:** 18 open issues (7 unsafe brightness checks confirmed in Issue #176)
+- **Recent activity:** 20 commits since last scan, primarily CI/CD and documentation
+
+**Actions Taken:**
+- Updated system-index.md with corrected counts
+- Created scan report in scan-reports/
+- Next scan: 2026-02-15
 
 ### Recent Commits (Office.yaml Review + CI Improvements, 2026-01-19)
 
