@@ -95,6 +95,14 @@ The following integrations are removed from `configuration.yaml` during CI valid
 
 **Implementation:** See `.github/scripts/prepare-config-for-ci.sh`
 
+#### Previously Stripped (Now Validates Successfully)
+
+| Integration | Date Tested | Result |
+|-------------|-------------|--------|
+| `delete` | 2026-01-19 | ✅ Validates successfully - No external dependencies, only uses Python built-ins and HA core |
+
+**Testing methodology:** Removed integration from strip list, ran full validation suite (stable + beta/dev). All tests passed without errors.
+
 ---
 
 ## CI Scripts
