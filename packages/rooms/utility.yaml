@@ -11,7 +11,10 @@ automation:
           - binary_sensor.utility_room_motion_occupancy
           - binary_sensor.utility_room_light_trigger
         to: "on"
-    conditions: []
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_utility_motion_trigger
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -36,7 +39,10 @@ automation:
         entity_id:
           - binary_sensor.utility_room_light_trigger
         to: "off"
-    conditions: []
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_utility_motion_trigger
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -57,7 +63,10 @@ automation:
         event_type: timer.finished
         event_data:
           entity_id: timer.utility_room_light_off
-    conditions: []
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_utility_motion_trigger
+        state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
