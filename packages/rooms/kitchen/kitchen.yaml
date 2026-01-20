@@ -11,6 +11,11 @@ automation:
         entity_id: light.kitchen_lights
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - action: script.send_to_home_log
         data:
           message: >-
@@ -463,6 +468,11 @@ automation:
                   - condition: trigger
                     id: weekday
                 sequence:
+                  - action: script.get_clock_emoji
+                    data:
+                      hour: "{{ now().strftime('%I') | int }}"
+                      minute: "{{ now().minute | int }}"
+                    response_variable: clock_result
                   - action: script.send_to_home_log
                     data:
                       message: >-
@@ -483,6 +493,11 @@ automation:
                   - condition: trigger
                     id: weekend
                 sequence:
+                  - action: script.get_clock_emoji
+                    data:
+                      hour: "{{ now().strftime('%I') | int }}"
+                      minute: "{{ now().minute | int }}"
+                    response_variable: clock_result
                   - action: script.send_to_home_log
                     data:
                       message: "{{ clock_result.emoji }} Turning ambient lights off."
@@ -879,7 +894,7 @@ automation:
               entity_id: input_boolean.dishwasher_cycle_in_progress
     mode: single
   - id: "1694521864038"
-    alias: "Kitchen: Reset Oven Preheated"
+    alias: "Kitchen: Reset Dishwasher Cycle In Progress"
     description: ""
     triggers:
       - trigger: state
@@ -1043,7 +1058,7 @@ automation:
                       entity_id:
                         - scene.kitchen_table_ambient_light_to_pink
                         - scene.kitchen_cooker_ambient_light_to_pink
-              - alias: Battery has charge left
+              - alias: Battery is depleted
                 conditions:
                   - or:
                       - condition: template

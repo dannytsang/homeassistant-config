@@ -19,7 +19,7 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: "🐾 Motion detected. Turning 💡 light off."
+              message: "🐾 Motion detected. Turning 💡 light on."
               title: "🧺 Utility Room"
               log_level: "Debug"
           - action: light.turn_on
@@ -97,7 +97,7 @@ automation:
     actions:
       - action: script.send_to_home_log
         data:
-          message: "🚪 :snowflake: Freezer door is open."
+          message: "🚪 ❄️ Freezer door is open."
           title: "🧺 Utility Room"
           log_level: "Debug"
     mode: single
@@ -113,7 +113,7 @@ automation:
     actions:
       - action: script.send_to_home_log
         data:
-          message: "🚪 :snowflake: Freezer door closed"
+          message: "🚪 ❄️ Freezer door closed"
           title: "🧺 Utility Room"
           log_level: "Debug"
     mode: single
@@ -144,7 +144,7 @@ automation:
           - action: script.send_direct_notification
             data:
               message: >-
-                ⚠️ 🚪 :snowflake: Freezer door has been open for more than
+                ⚠️ 🚪 ❄️ Freezer door has been open for more than
                 {{ relative_time(states.binary_sensor.utility_freezer_door_contact.last_changed) }}!
               title: "🧺 Utility Room"
           - action: script.alexa_announce
@@ -178,7 +178,6 @@ automation:
             data:
               message: Freezer plug is turned off. Turn on?
               title: "🧺 Utility Room"
-              log_level: "Normal"
               people:
                 entity_id:
                   - person.danny
@@ -189,7 +188,7 @@ automation:
     mode: single
   # region Fridge
   - id: "1595679010892"
-    alias: "Utility: Freezer Open For A Long Period Of Time"
+    alias: "Utility: Fridge Open For A Long Period Of Time"
     description: ""
     triggers:
       - trigger: state
@@ -215,13 +214,13 @@ automation:
           - action: script.send_direct_notification
             data:
               message: >-
-                ⚠️ 🚪 :snowflake: Fridge door has been open for more than
+                ⚠️ 🚪 ❄️ Fridge door has been open for more than
                 {{ relative_time(states.binary_sensor.utility_fridge_door_contact.last_changed) }}!
               title: "🧺 Utility Room"
           - action: script.alexa_announce
             data:
               message: >-
-                Utility Room ❄ Freezer door has been open for more than
+                Utility Room ❄ Fridge door has been open for more than
                 {{ relative_time(states.binary_sensor.utility_fridge_door_contact.last_changed) }}!
               suppress_if_quiet: false
     mode: single
@@ -249,7 +248,6 @@ automation:
             data:
               message: Fridge plug is turned off. Turn on?
               title: "🧺 Utility Room"
-              log_level: "Normal"
               people:
                 entity_id:
                   - person.danny
@@ -271,11 +269,11 @@ automation:
       - action: script.send_direct_notification
         metadata: {}
         data:
-          message: "{{ states(trigger.entity_id, 'friendly_name')}} temperature is above 5c ({{ states(trigger.entity_id, with_units=true) }})"
+          message: "{{ state_attr(trigger.entity_id, 'friendly_name') or trigger.entity_id }} temperature is above 7c ({{ states(trigger.entity_id, with_units=true) }})"
           title: >-
             {% if trigger.entity_id == 'sensor.fridge_interior_temperature' %}
             🧑‍🍳 Kitchen
-            {% elif trigger.entity_id == 'sensor.fridge_interior_temperature' %}
+            {% elif trigger.entity_id == 'sensor.utility_fridge_interior_temperature' %}
             Utility Room
             {% endif %}
           people:
