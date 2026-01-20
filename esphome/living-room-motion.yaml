@@ -15,11 +15,6 @@ wifi:
   password: !secret wifi_password
 
 sensor:
-  - platform: wifi_signal
-    name: "WiFi Signal Strength"
-    id: wifi_signal_strength
-    update_interval: 10s
-
   # Track how long the device has been connected
   - platform: uptime
     name: "Uptime"
@@ -32,6 +27,19 @@ sensor:
     id: disconnect_count
     accuracy_decimals: 0
     lambda: 'return id(disconnect_counter);'
+
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal"
+    id: wifi_signal_strength
+    update_interval: 60s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 5
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
 
 globals:
   - id: disconnect_counter
@@ -52,26 +60,15 @@ interval:
             not:
               wifi.connected:
           then:
-            - if:
-                condition:
-                  lambda: 'return id(was_connected);'
-                then:
-                  - lambda: 'id(disconnect_counter) += 1;'
-                  - globals.set:
-                      id: was_connected
-                      value: 'false'
-                  - logger.log:
-                      level: WARN
-                      format: "WiFi disconnected! Total disconnects: %d"
-                      args: ['id(disconnect_counter)']
+            - lambda: |-
+                if (id(was_connected)) {
+                  id(disconnect_counter) += 1;
+                  id(was_connected) = false;
+                  ESP_LOGW("wifi", "WiFi disconnected! Total: %d", id(disconnect_counter));
+                }
           else:
-            - if:
-                condition:
-                  lambda: 'return !id(was_connected);'
-                then:
-                  - globals.set:
-                      id: was_connected
-                      value: 'true'
-                  - logger.log:
-                      level: INFO
-                      format: "WiFi reconnected after disconnect"
+            - lambda: |-
+                if (!id(was_connected)) {
+                  id(was_connected) = true;
+                  ESP_LOGI("wifi", "WiFi reconnected");
+                }
