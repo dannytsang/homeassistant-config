@@ -295,25 +295,25 @@ script:
   3d_printer_left_unattended:
     alias: 3D Printer Left Unattended
     sequence:
-      - not:
+      - if:
+          - condition: template
+            value_template: "{{ states('sensor.octoprint_estimated_finish_time') != 'unknown' }}"
           - condition: state
-            entity_id: sensor.octoprint_estimated_finish_time
-            state: "unknown"
-      - condition: state
-        entity_id: binary_sensor.octoprint_printing
-        state: "on"
-      - action: script.send_direct_notification
-        data:
-          message:
-            "🖨️ 3D printer is printing and no one is :house_with_garden:
-            home."
-          title: "🖨️ 🔲 3D printer"
-          people:
-            entity_id:
-              - person.danny
-              - person.terina
-          priority: high
-          suppress_if_quiet: false
+            entity_id: binary_sensor.octoprint_printing
+            state: "on"
+        then:
+          - action: script.send_direct_notification
+            data:
+              message:
+                "🖨️ 3D printer is printing and no one is :house_with_garden:
+                home."
+              title: "🖨️ 🔲 3D printer"
+              people:
+                entity_id:
+                  - person.danny
+                  - person.terina
+              priority: high
+              suppress_if_quiet: false
     mode: single
     icon: mdi:printer-3d
   3d_printer_check_turn_on_light:
