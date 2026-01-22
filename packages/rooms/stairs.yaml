@@ -151,9 +151,10 @@ automation:
             - scene.stairs_light_on
     mode: single
   - id: "1587595659605"
-    alias: "Stairs: Upstairs Dark, After Bed Time, Light Off and Motion Detected Before Midnight"
-    description: "Deliberately default to dim light because it's safer than having the light go to full
-    brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
+    alias: "Stairs: Upstairs Dark, After Bed Time, Motion Detected Before Midnight"
+    description: "Consolidated automation for motion detection before midnight (light off or dimly lit).
+    Deliberately default to dim light because it's safer than having the light go to full brightness at night.
+    Bed time ends when the sun is up or after 7am which ever is first."
     triggers:
       - trigger: state
         entity_id: binary_sensor.upstairs_area_motion
@@ -173,9 +174,19 @@ automation:
         state: "on"
       - condition: time
         after: input_datetime.childrens_bed_time
-      - condition: state
-        entity_id: light.stairs
-        state: "off"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.stairs
+            state: "off"
+          - and:
+              - condition: state
+                entity_id: light.stairs
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.stairs
+                attribute: brightness
+                below: 5
     actions:
       - parallel:
         - choose:
@@ -304,168 +315,11 @@ automation:
           default: []
     mode: queued
     max: 10
-  - id: "1587595659608"
-    alias: "Stairs: Upstairs Dark, After Bed Time, Light On and Motion Detected Before Midnight"
-    description: "Deliberately default to dim light because it's safer than having the light go to full
-    brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.upstairs_area_motion
-        from: "off"
-        to: "on"
-      - alias: If Ring integration d/c then fall back to Zigbee specifically.
-        trigger: state
-        entity_id: binary_sensor.upstairs_motion_occupancy
-        from: "off"
-        to: "on"
-    conditions:
-      - below: input_number.stairs_light_level_threshold
-        condition: numeric_state
-        entity_id: sensor.stairs_motion_illuminance
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
-      - condition: time
-        after: input_datetime.childrens_bed_time
-      - condition: state
-        entity_id: light.stairs
-        state: "on"
-      - condition: numeric_state
-        entity_id: light.stairs
-        attribute: brightness
-        below: 5
-    actions:
-      - parallel:
-        - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "No Children"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
-                    {{ states('input_number.stairs_light_level_threshold', with_unit=True) }})
-                    and in No Children Mode. Turning up 💡 🔆 light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.childrens_bedroom_doors
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    :people_holding_hands: children's doors are shut.
-                    Turning up 💡 🔆 light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.childrens_bedroom_doors
-                state: "on"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    :people_holding_hands: children's doors are open.
-                    💡 🔅 Dimming light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_dim
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "off"
-              - condition: state
-                entity_id: binary_sensor.leos_bedroom_door_contact
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👦 Leo's door is shut. Turning up 💡 🔆 light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - conditions:
-              - not:
-                  - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.ashlees_bedroom_door_contact
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👧 Ashlee's door is shut. Turning up 💡 🔆 light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          default: []
-    mode: single
   - id: "1587595659606"
-    alias: "Stairs: Dark, After Bed Time, Light Off and Motion Detected After Midnight"
-    description: "Deliberately default to dim light because it's safer than having the light go to full
-    brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
+    alias: "Stairs: Dark, After Bed Time, Motion Detected After Midnight"
+    description: "Consolidated automation for motion detection after midnight (light off or dimly lit).
+    Deliberately default to dim light because it's safer than having the light go to full brightness at night.
+    Bed time ends when the sun is up or after 7am which ever is first."
     triggers:
       - trigger: state
         entity_id: binary_sensor.upstairs_area_motion
@@ -488,9 +342,19 @@ automation:
             before: sunrise
           - condition: time
             before: "07:00:00"
-      - condition: state
-        entity_id: light.stairs
-        state: "off"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.stairs
+            state: "off"
+          - and:
+              - condition: state
+                entity_id: light.stairs
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.stairs
+                attribute: brightness
+                below: 5
     actions:
       - parallel:
         - choose:
@@ -525,90 +389,6 @@ automation:
                     🐾 Motion and it's dark
                     ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
                     Turning night 💡 🔅 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_night_light
-          default:
-            - action: script.send_to_home_log
-              data:
-                message: >-
-                  🐾 Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
-                  Night mode is turned off so turning 💡 🔆 light on.
-                title: "Stairs"
-                log_level: "Debug"
-            - action: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
-    mode: single
-  - id: "1587595659607"
-    alias: "Stairs: Dark, After Bed Time, Light On and Motion Detected After Midnight"
-    description: "Deliberately default to dim light because it's safer than having the light go to full
-    brightness at night. Bed time ends when the sun is up or after 7am which ever is first."
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.upstairs_area_motion
-        from: "off"
-        to: "on"
-      - alias: If Ring integration d/c then fall back to Zigbee specifically.
-        trigger: state
-        entity_id: binary_sensor.upstairs_motion_occupancy
-        from: "off"
-        to: "on"
-    conditions:
-      - below: input_number.stairs_light_level_threshold
-        condition: numeric_state
-        entity_id: sensor.stairs_motion_illuminance
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
-      - or:
-          - condition: sun
-            before: sunrise
-          - condition: time
-            before: "07:00:00"
-      - condition: state
-        entity_id: light.stairs
-        state: "on"
-      - condition: numeric_state
-        entity_id: light.stairs
-        attribute: brightness
-        below: 5
-    actions:
-      - parallel:
-        - choose:
-          - alias: Bedroom light is on
-            conditions:
-              - condition: state
-                entity_id: light.bedroom_lamps
-                state: "on"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
-                    {{ states('input_number.stairs_light_level_threshold', with_unit=True) }})
-                    and it's :clock12: late but bedroom light(s) are on.
-                    Turning 💡 🔆 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - alias: Check if night light settings is turned on.
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_stairs_night_light
-                state: "on"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: "🐾 Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
-                  Turning stairs night 💡 🔅 light up."
                   title: "Stairs"
                   log_level: "Debug"
               - action: scene.turn_on
