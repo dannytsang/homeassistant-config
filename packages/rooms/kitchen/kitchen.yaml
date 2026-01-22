@@ -68,13 +68,7 @@ automation:
           - action: scene.turn_on
             target:
               entity_id: scene.kitchen_table_lights_on
-          - action: timer.cancel
-            target:
-              entity_id:
-                - timer.kitchen_cooker_light_dim
-                - timer.kitchen_cooker_light_off
-                - timer.kitchen_table_light_dim
-                - timer.kitchen_table_light_off
+          - action: script.kitchen_cancel_all_light_timers
     mode: queued
     max: 10
   - id: "1606158191306"
@@ -111,13 +105,7 @@ automation:
           - action: scene.turn_on
             target:
               entity_id: scene.kitchen_cooker_lights_on
-          - action: timer.cancel
-            target:
-              entity_id:
-                - timer.kitchen_cooker_light_dim
-                - timer.kitchen_cooker_light_off
-                - timer.kitchen_table_light_dim
-                - timer.kitchen_table_light_off
+          - action: script.kitchen_cancel_all_light_timers
     mode: queued
     max: 10
   - id: "1606158191309"
@@ -158,13 +146,7 @@ automation:
           - action: scene.turn_on
             target:
               entity_id: scene.kitchen_cooker_lights_on
-          - action: timer.cancel
-            target:
-              entity_id:
-                - timer.kitchen_cooker_light_dim
-                - timer.kitchen_cooker_light_off
-                - timer.kitchen_table_light_dim
-                - timer.kitchen_table_light_off
+          - action: script.kitchen_cancel_all_light_timers
     mode: queued
     max: 10
   - id: "1606158191304"
@@ -223,13 +205,7 @@ automation:
                     target:
                       entity_id: scene.kitchen_accent_lights_on
             default: []
-          - action: timer.cancel
-            target:
-              entity_id:
-                - timer.kitchen_cooker_light_dim
-                - timer.kitchen_cooker_light_off
-                - timer.kitchen_table_light_dim
-                - timer.kitchen_table_light_off
+          - action: script.kitchen_cancel_all_light_timers
     mode: queued
     max: 10
   - id: "1606158191305"
@@ -271,13 +247,7 @@ automation:
               transition: 1
             target:
               entity_id: scene.kitchen_dim_accent_lights
-          - action: timer.cancel
-            target:
-              entity_id:
-                - timer.kitchen_cooker_light_dim
-                - timer.kitchen_cooker_light_off
-                - timer.kitchen_table_light_dim
-                - timer.kitchen_table_light_off
+          - action: script.kitchen_cancel_all_light_timers
     mode: single
   - id: "1606652871368"
     alias: "Kitchen: No Motion"
@@ -1644,6 +1614,18 @@ scene:
         entity_only: true
 
 script:
+  kitchen_cancel_all_light_timers:
+    alias: Kitchen Cancel All Light Timers
+    description: Cancels all kitchen light-related timers (cooker and table lights)
+    sequence:
+      - action: timer.cancel
+        target:
+          entity_id:
+            - timer.kitchen_cooker_light_dim
+            - timer.kitchen_cooker_light_off
+            - timer.kitchen_table_light_dim
+            - timer.kitchen_table_light_off
+    mode: single
   kitchen_oven_preheated_notification:
     alias: Kitchen Oven Preheated Notification
     fields:

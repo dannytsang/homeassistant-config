@@ -1,0 +1,65 @@
+# Created by Danny Tsang <danny@tsang.uk>
+# Shared helper scripts and templates used across multiple room packages
+
+script:
+  log_with_clock:
+    alias: Send Log Message with Clock Emoji
+    description: Sends a log message with the current hour as a clock emoji
+    fields:
+      title:
+        description: Log message title
+        required: true
+        example: "🧑‍🍳 Kitchen"
+        selector:
+          text:
+      message:
+        description: Log message content
+        required: true
+        example: "Motion detected"
+        selector:
+          text:
+            multiline: true
+      log_level:
+        description: Log level for filtering
+        default: "Debug"
+        selector:
+          select:
+            options:
+              - "Debug"
+              - "Normal"
+              - "Important"
+    sequence:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
+      - action: script.send_to_home_log
+        data:
+          message: "{{ clock_result.emoji }} {{ message }}"
+          title: "{{ title }}"
+          log_level: "{{ log_level }}"
+    mode: single
+
+template:
+  - binary_sensor:
+      - name: "Kitchen Motion Dark"
+        unique_id: kitchen_motion_dark
+        icon: mdi:brightness-5
+        state: "{{ states('sensor.kitchen_motion_illuminance') | float(0) < states('input_number.kitchen_light_level_threshold') | float(500) }}"
+      - name: "Kitchen Motion 2 Dark"
+        unique_id: kitchen_motion_2_dark
+        icon: mdi:brightness-5
+        state: "{{ states('sensor.kitchen_motion_2_illuminance') | float(0) < states('input_number.kitchen_light_level_2_threshold') | float(500) }}"
+      - name: "Stairs Motion Dark"
+        unique_id: stairs_motion_dark
+        icon: mdi:brightness-5
+        state: "{{ states('sensor.stairs_motion_illuminance') | float(0) < states('input_number.stairs_light_level_threshold') | float(500) }}"
+      - name: "Back Garden Motion Dark"
+        unique_id: back_garden_motion_dark
+        icon: mdi:brightness-5
+        state: "{{ states('sensor.back_garden_motion_illuminance') | float(0) < states('input_number.back_garden_light_level_threshold') | float(500) }}"
+      - name: "Porch Motion Dark"
+        unique_id: porch_motion_dark
+        icon: mdi:brightness-5
+        state: "{{ states('sensor.porch_motion_illuminance') | float(0) < states('input_number.porch_light_level_threshold') | float(500) }}"
