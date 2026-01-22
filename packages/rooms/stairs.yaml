@@ -371,35 +371,75 @@ automation:
                 entity_id: scene.stairs_light_on
     mode: single
   - id: "1592062695452"
-    alias: "Stairs: Motion Detected And MagicMirror Is Off"
-    description: ""
+    alias: "Stairs: Magic Mirror Control (Motion/Night)"
+    description: "Consolidated automation for magic mirror control. Turns on when motion detected, turns off when no motion at night or at scheduled time."
     triggers:
       - trigger: state
         entity_id: binary_sensor.living_room_area_motion
         to: "on"
+        id: motion_on_living_room
       - trigger: state
         entity_id: binary_sensor.stairs_motion_occupancy
         to: "on"
+        id: motion_on_stairs
+      - trigger: state
+        entity_id: binary_sensor.stairs_motion_occupancy
+        to: "off"
+        for: "00:03:00"
+        id: motion_off_stairs
+      - trigger: time
+        at: "23:30:00"
+        id: night_shutdown
     conditions:
-      - condition: state
-        entity_id: switch.magic_mirror_plug
-        state: "off"
       - condition: state
         entity_id: input_boolean.enable_magic_mirror_automations
         state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
     actions:
-      - parallel:
-        - action: switch.turn_on
-          target:
-            entity_id: switch.magic_mirror_plug
-        - action: script.send_to_home_log
-          data:
-            message: "Turning on :mirror: Magic Mirror."
-            title: "🐾 Motion on the :ladder: stairs/lounge"
-            log_level: "Debug"
+      - choose:
+          - alias: "Motion Detected - Turn On Mirror"
+            conditions:
+              - condition: trigger
+                id:
+                  - motion_on_living_room
+                  - motion_on_stairs
+              - condition: state
+                entity_id: switch.magic_mirror_plug
+                state: "off"
+              - condition: state
+                entity_id: input_boolean.enable_stairs_motion_triggers
+                state: "on"
+            sequence:
+              - parallel:
+                - action: switch.turn_on
+                  target:
+                    entity_id: switch.magic_mirror_plug
+                - action: script.send_to_home_log
+                  data:
+                    message: "Turning on :mirror: Magic Mirror."
+                    title: "🐾 Motion on the :ladder: stairs/lounge"
+                    log_level: "Debug"
+          - alias: "No Motion At Night - Turn Off Mirror"
+            conditions:
+              - condition: trigger
+                id:
+                  - motion_off_stairs
+                  - night_shutdown
+              - condition: time
+                after: "23:00:00"
+                before: "05:00:00"
+              - condition: state
+                entity_id: switch.magic_mirror_plug
+                state: "on"
+            sequence:
+              - parallel:
+                - action: switch.turn_off
+                  target:
+                    entity_id: switch.magic_mirror_plug
+                - action: script.log_with_clock
+                  data:
+                    message: "🚷 Turning off :mirror: Magic Mirror because no motion was detected."
+                    title: "Stairs"
+                    log_level: "Debug"
     mode: queued
     max: 10
   - id: "1587595847618"
@@ -491,37 +531,6 @@ automation:
             entity_id: scene.stairs_light_2_off
           data:
             transition: 2
-    mode: single
-  - id: "1591553945554"
-    alias: "Stairs: No Motion At Night Turn Off Magic Mirror"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.stairs_motion_occupancy
-        for: 00:03:00
-        to: "off"
-      - trigger: time
-        at: "23:30:00"
-    conditions:
-      - after: "23:00:00"
-        before: "05:00:00"
-        condition: time
-      - condition: state
-        entity_id: switch.magic_mirror_plug
-        state: "on"
-      - condition: state
-        entity_id: input_boolean.enable_magic_mirror_automations
-        state: "on"
-    actions:
-      - parallel:
-        - action: switch.turn_off
-          target:
-            entity_id: switch.magic_mirror_plug
-        - action: script.log_with_clock
-          data:
-            message: "🚷 Turning off :mirror: Magic Mirror because no motion was detected."
-            title: "Stairs"
-            log_level: "Debug"
     mode: single
   # region Light Switch
   - id: "1714869692076"
