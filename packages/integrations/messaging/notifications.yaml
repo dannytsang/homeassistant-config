@@ -125,6 +125,20 @@ script:
                   - condition: template
                     value_template: "{{ not v_suppress_if_quiet }}"
 
+              - alias: "Quiet time is ON but message contains bypass keyword"
+                and:
+                  - condition: state
+                    entity_id: schedule.notification_quiet_time
+                    state: "on"
+                  - condition: template
+                    value_template: >
+                      {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
+                      {%- for keyword in keywords %}
+                        {%- if keyword.lower() in message.lower() %}
+                          true
+                        {%- endif %}
+                      {%- endfor %}
+
               - alias: "Quiet time is ON and priority is NOT 'normal'"
                 and:
                   - condition: time
@@ -283,8 +297,28 @@ script:
         data:
           message: "{{ message }}"
           title: "{{ title|default(none, true) }}"
-      # Check if notifications is turned on.
+      # Check if notifications should be sent based on quiet hours and message keywords
       - if:
+          - or:
+              - alias: "Quiet time is OFF"
+                condition: state
+                entity_id: schedule.notification_quiet_time
+                state: "off"
+
+              - alias: "Message contains bypass keyword"
+                condition: template
+                value_template: >
+                  {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
+                  {%- for keyword in keywords %}
+                    {%- if keyword.lower() in message.lower() %}
+                      true
+                    {%- endif %}
+                  {%- endfor %}
+
+              - alias: "Priority is NOT 'normal'"
+                condition: template
+                value_template: "{{ priority|default('normal', true) != 'normal' }}"
+
           - condition: state
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
