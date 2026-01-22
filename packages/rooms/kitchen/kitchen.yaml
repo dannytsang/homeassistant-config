@@ -540,43 +540,50 @@ automation:
           entity_id: light.kitchen_table_white
     mode: queued
     max: 10
-  # Fridge
-  - id: "1595678795895"
-    alias: "Kitchen: Fridge Door Open"
-    description: ""
+  # Appliance Door Monitoring (Consolidated fridge/freezer automations)
+  - id: "appliance_door_opened"
+    alias: "Kitchen: Appliance Door Opened"
+    description: Logs when fridge or freezer door opens
     triggers:
       - trigger: state
-        entity_id: binary_sensor.kitchen_fridge_door_contact
+        entity_id:
+          - binary_sensor.kitchen_fridge_door_contact
+          - binary_sensor.kitchen_freezer_door_contact
         from: "off"
         to: "on"
     conditions: []
     actions:
+      - variables:
+          appliance_name: "{{ 'Fridge' if 'fridge' in trigger.entity_id else 'Freezer' }}"
       - action: script.send_to_home_log
         data:
-          message: "🚪 ❄️ Fridge door opened."
+          message: "❄️ {{ appliance_name }} 🚪 door opened."
           title: "🧑‍🍳 Kitchen"
           log_level: "Debug"
-
     mode: single
-  - id: "1595678900778"
-    alias: "Kitchen: Fridge Door Closed"
-    description: ""
+  - id: "appliance_door_closed"
+    alias: "Kitchen: Appliance Door Closed"
+    description: Logs when fridge or freezer door closes
     triggers:
       - trigger: state
-        entity_id: binary_sensor.kitchen_fridge_door_contact
+        entity_id:
+          - binary_sensor.kitchen_fridge_door_contact
+          - binary_sensor.kitchen_freezer_door_contact
         from: "on"
         to: "off"
     conditions: []
     actions:
+      - variables:
+          appliance_name: "{{ 'Fridge' if 'fridge' in trigger.entity_id else 'Freezer' }}"
       - action: script.send_to_home_log
         data:
-          message: "❄️ Fridge 🚪 door closed."
+          message: "❄️ {{ appliance_name }} 🚪 door closed."
           title: "🧑‍🍳 Kitchen"
           log_level: "Debug"
     mode: single
-  - id: "1595679010793"
-    alias: "Kitchen: Fridge Open For A Long Period Of Time"
-    description: ""
+  - id: "appliance_door_open_long"
+    alias: "Kitchen: Appliance Door Open For Long Period"
+    description: Notifies when fridge or freezer door is open too long
     triggers:
       - trigger: state
         entity_id: binary_sensor.kitchen_fridge_door_contact
@@ -595,70 +602,24 @@ automation:
         entity_id: binary_sensor.kitchen_fridge_door_contact
         to: "on"
         for: 01:00:00
+      - trigger: state
+        entity_id: binary_sensor.kitchen_freezer_door_contact
+        from: "off"
+        to: "on"
+        for: 00:04:00
     conditions: []
     actions:
+      - variables:
+          appliance_name: "{{ 'Fridge' if 'fridge' in trigger.entity_id else 'Freezer' }}"
       - parallel:
           - action: script.send_direct_notification
             data:
-              message: >-
-                ❄️ Fridge 🚪 door is open has been open for more than
-                {{ relative_time(states.binary_sensor.kitchen_fridge_door_contact.last_changed) }}!
+              message: "❄️ {{ appliance_name }} 🚪 door has been open for more than {{ relative_time(states[trigger.entity_id].last_changed) }}!"
               title: "⚠️ 🧑‍🍳 Kitchen ⚠️"
           - action: script.alexa_announce
             data:
-              message: >-
-                Kitchen Freezer door has been open for more than
-                {{ relative_time(states.binary_sensor.kitchen_fridge_door_contact.last_changed) }}!
+              message: "Kitchen {{ appliance_name }} door has been open for more than {{ relative_time(states[trigger.entity_id].last_changed) }}!"
               suppress_if_quiet: false
-    mode: single
-  # region Freezer
-  - id: "1595678795896"
-    alias: "Kitchen: Freezer Door Open"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kitchen_freezer_door_contact
-        from: "off"
-        to: "on"
-    conditions: []
-    actions:
-      - action: script.send_to_home_log
-        data:
-          message: "❄️ Freezer 🚪 door opened."
-          title: "🧑‍🍳 Kitchen"
-          log_level: "Debug"
-    mode: single
-  - id: "1595678900779"
-    alias: "Kitchen: Freezer Door Closed"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kitchen_freezer_door_contact
-        from: "on"
-        to: "off"
-    conditions: []
-    actions:
-      - action: script.send_to_home_log
-        data:
-          message: "❄️ Freezer 🚪 door closed."
-          title: "🧑‍🍳 Kitchen"
-          log_level: "Debug"
-    mode: single
-  - id: "1595679010796"
-    alias: "Kitchen: Freezer Open For A Long Period Of Time"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.kitchen_freezer_door_contact
-        for: 00:04:00
-        from: "off"
-        to: "on"
-    conditions: []
-    actions:
-      - action: script.send_direct_notification
-        data:
-          message: "❄️ Freezer 🚪 door has been open for more than 4 minutes!"
-          title: "⚠️ 🧑‍🍳 Kitchen ⚠️"
     mode: single
   - id: "1657801925107"
     alias: "Kitchen: Fridge Freezer Plug Turned Off"
