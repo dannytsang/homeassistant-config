@@ -770,20 +770,13 @@ automation:
         entity_id: input_boolean.enable_magic_mirror_automations
         state: "on"
     actions:
-      - action: script.get_clock_emoji
-        data:
-          hour: "{{ now().strftime('%I') | int }}"
-          minute: "{{ now().minute | int }}"
-        response_variable: clock_result
       - parallel:
         - action: switch.turn_off
           target:
             entity_id: switch.magic_mirror_plug
-        - action: script.send_to_home_log
+        - action: script.log_with_clock
           data:
-            message: >-
-              {{ clock_result.emoji }}
-              🚷 Turning off :mirror: Magic Mirror because no motion was detected.
+            message: 🚷 Turning off :mirror: Magic Mirror because no motion was detected.
             title: "Stairs"
             log_level: "Debug"
     mode: single
