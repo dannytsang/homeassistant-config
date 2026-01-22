@@ -1912,6 +1912,18 @@ Test locally before pushing to main branch.
 - Use `triggers:` (not deprecated `trigger:`)
 - Use `conditions:` (not deprecated `condition:` at automation level)
 
+**Condition Aliases & Descriptions:**
+- Condition objects support `alias:` parameter for documentation
+- Condition objects do NOT support `description:` parameter (invalid syntax)
+- Use `alias:` for brevity, descriptive labels on complex conditions
+- Example:
+  ```yaml
+  - alias: "Quiet time is OFF"
+    condition: state
+    entity_id: schedule.notification_quiet_time
+    state: "off"
+  ```
+
 **Automation ID Format:**
 - Always use 13-digit random numbers for automation IDs
 - Example: `id: "1736794523847"`
