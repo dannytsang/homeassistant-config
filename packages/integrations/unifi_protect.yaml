@@ -83,9 +83,11 @@ automation:
     actions:
       - choose:
           - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "Holiday"
+              # testing purposes only
+              - not:
+                  - condition: state
+                    entity_id: input_select.home_mode
+                    state: "Holiday"
             sequence:
               - variables:
                   camera_name: "{{ trigger.json.camera_name | default('unknown') }}"
@@ -109,7 +111,12 @@ automation:
                   filePath: "{{ file_path }}"
                   priority: normal
                   suppress_if_quiet: false
-                # TODO: delete image from SFTPGO
+              # TODO: delete image from SFTPGO
+              # - action: shell_command.delete_unifi_image
+              #   data:
+              #     username:
+              #     password:
+              #     webhook_url: "{{ states('input_text.n8n_delete_sftpgo_unifi_share_file_webhook_url') }}"
         default: []
     mode: queued
     max: 10
