@@ -9,18 +9,16 @@ automation:
         entity_id:
           - binary_sensor.porch_motion_occupancy
         to: "on"
-    conditions:
-      - condition: state
-        entity_id: binary_sensor.porch_motion_occupancy
-        state: "off"
+        for: "00:02:00"
+    conditions: []
     actions:
       - parallel:
           - action: light.turn_on
             metadata: {}
-            data:
-              brightness_pct: 100
             target:
               entity_id: light.porch
+            data:
+              brightness_pct: 100
           - action: timer.cancel
             target:
               entity_id: timer.porch_light
@@ -160,7 +158,7 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                front 🚪 door is open and🧑‍🤝‍🧑 someone is home.
+                front 🚪 door is open and 🧑‍🤝‍🧑 someone is home.
                 Turning on notification 💡 🔆 light.
               title: "Porch"
               log_level: "Debug"
@@ -210,7 +208,7 @@ automation:
             data: {}
     mode: single
   - id: "1606157835544"
-    alias: "Porch: Front Door Closed"
+    alias: "Porch: Front Door Closed And Start Timer"
     description: ""
     triggers:
       - trigger: state
@@ -278,10 +276,10 @@ automation:
                 off."
           - action: light.turn_off
             metadata: {}
-            data:
-              transition: 2
             target:
               entity_id: light.porch
+            data:
+              transition: 2
     mode: single
   # region Light
   - id: "1700940016581"
@@ -560,7 +558,7 @@ script:
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message: ":no_bell: Turning off alarm."
+                  message: "🔕 Turning off alarm."
                   title: "🔔 Alarm"
                   log_level: "Debug"
               - action: script.set_alarm_to_disarmed_mode
@@ -568,7 +566,7 @@ script:
         default:
           - action: script.send_to_home_log
             data:
-              message: ":no_bell: Alarm is not on so nothing to do."
+              message: "🔕 Alarm is not on so nothing to do."
               title: "🔔 Alarm"
               log_level: "Debug"
           - action: script.living_room_flash_lounge_lights_red
@@ -635,7 +633,7 @@ template:
         unique_id: 97c1df2b-dcde-4aba-884c-acfc59c140aa
         icon: >-
           mdi:{% if states('binary_sensor.porch_motion_occupancy') == 'on' %}location-exit
-          {% elif states('binary_sensor.porch_motion_occupancy') == 'on' %}location-enter
+          {% elif states('binary_sensor.porch_motion_occupancy') == 'off' %}location-enter
           {% else %}alert-circle-outline{% endif %}
         state: >-
           {% if states('binary_sensor.porch_motion_occupancy') == 'on' %}leaving

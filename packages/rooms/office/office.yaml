@@ -146,9 +146,6 @@ automation:
       - condition: state
         entity_id: input_boolean.enable_office_motion_triggers
         state: "on"
-      - condition: numeric_state
-        entity_id: sensor.office_motion_2_target_distance
-        below: 0.01
       - condition: state
         entity_id: binary_sensor.office_motion_2_presence
         state: "off"
@@ -413,6 +410,31 @@ automation:
           - action: script.office_open_blinds
             data: {}
     mode: single
+  - id: "1768737131768"
+    alias: "Office: Playing Computer Games"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - sensor.steam_danny
+        attribute: game
+        to:
+          - ARC Raiders
+    conditions:
+      - condition: state
+        entity_id: group.jd_computer
+        state:
+          - home
+      - condition: numeric_state
+        entity_id: cover.office_blinds
+        above: 50
+    actions:
+      - parallel:
+          - action: cover.close_cover
+            metadata: {}
+            target: {}
+            data: {}
+    mode: single
   # region Blinds
   - id: "1622374444832"
     alias: "Office: Open Blinds In The Morning"
@@ -428,6 +450,11 @@ automation:
         data:
           type: hourly
         response_variable: weather
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - choose:
           - alias: "Really bright and blinds are closed already"
             conditions:
@@ -967,14 +994,6 @@ automation:
           hours: 0
           minutes: 3
           seconds: 0
-      - trigger: state
-        entity_id:
-          - light.office_light
-        to: "on"
-        for:
-          hours: 0
-          minutes: 5
-          seconds: 0
     conditions:
       - condition: state
         entity_id: binary_sensor.front_door
@@ -1350,20 +1369,21 @@ script:
   office_turn_off_backup_drive:
     alias: Office Turn Off Backup Drive
     sequence:
-      - and:
+      - if:
           - condition: state
             entity_id: switch.external_hdd
             state: "on"
           - condition: state
             entity_id: group.jd_computer
             state: "not_home"
-      - action: script.send_to_home_log
-        data:
-          message: ":floppy_disk: Turning off external HDD"
-          log_level: "Debug"
-      - action: switch.turn_off
-        target:
-          entity_id: switch.external_hdd
+        then:
+          - action: script.send_to_home_log
+            data:
+              message: ":floppy_disk: Turning off external HDD"
+              log_level: "Debug"
+          - action: switch.turn_off
+            target:
+              entity_id: switch.external_hdd
     mode: single
   office_pc_turned_off_notification:
     alias: Office PC Turned Off Notification

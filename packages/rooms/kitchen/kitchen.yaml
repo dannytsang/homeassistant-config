@@ -11,6 +11,11 @@ automation:
         entity_id: light.kitchen_lights
         state: "on"
     actions:
+      - action: script.get_clock_emoji
+        data:
+          hour: "{{ now().strftime('%I') | int }}"
+          minute: "{{ now().minute | int }}"
+        response_variable: clock_result
       - action: script.send_to_home_log
         data:
           message: >-
@@ -31,7 +36,8 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_ld2412_presence
+          - binary_sensor.kitchen_motion_ld2450_presence
           - binary_sensor.kitchen_motion_2_occupancy
         to: "on"
     conditions:
@@ -78,7 +84,8 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_ld2412_presence
+          - binary_sensor.kitchen_motion_ld2450_presence
           - binary_sensor.kitchen_motion_2_occupancy
         to: "on"
     conditions:
@@ -94,7 +101,7 @@ automation:
             data:
               message: >-
                 🐾 Motion detected and it's dark
-                ({{ states('sensor.kitchen_motion_illuminance') }} &
+                ({{ states('sensor.kitchen_motion_ltr390_light') }} &
                 {{ states('sensor.kitchen_motion_2_illuminance') }}
                 < {{ states('input_number.kitchen_light_level_threshold') }} &
                 {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
@@ -120,7 +127,8 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_ld2412_presence
+          - binary_sensor.kitchen_motion_ld2450_presence
           - binary_sensor.kitchen_motion_2_occupancy
         to: "on"
     conditions:
@@ -140,7 +148,7 @@ automation:
             data:
               message: >-
                 🐾 Motion detected and it's dark
-                ({{ states('sensor.kitchen_motion_illuminance') }} &
+                ({{ states('sensor.kitchen_motion_ltr390_light') }} &
                 {{ states('sensor.kitchen_motion_2_illuminance') }}
                 < {{ states('input_number.kitchen_light_level_threshold') }} &
                 {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
@@ -166,7 +174,8 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_ld2412_presence
+          - binary_sensor.kitchen_motion_ld2450_presence
           - binary_sensor.kitchen_motion_2_occupancy
         to: "on"
     conditions:
@@ -230,7 +239,8 @@ automation:
       - trigger: state
         entity_id:
           - binary_sensor.kitchen_area_motion
-          - binary_sensor.kitchen_motion_occupancy
+          - binary_sensor.kitchen_motion_ld2412_presence
+          - binary_sensor.kitchen_motion_ld2450_presence
           - binary_sensor.kitchen_motion_2_occupancy
         to: "on"
     conditions:
@@ -458,6 +468,11 @@ automation:
                   - condition: trigger
                     id: weekday
                 sequence:
+                  - action: script.get_clock_emoji
+                    data:
+                      hour: "{{ now().strftime('%I') | int }}"
+                      minute: "{{ now().minute | int }}"
+                    response_variable: clock_result
                   - action: script.send_to_home_log
                     data:
                       message: >-
@@ -478,6 +493,11 @@ automation:
                   - condition: trigger
                     id: weekend
                 sequence:
+                  - action: script.get_clock_emoji
+                    data:
+                      hour: "{{ now().strftime('%I') | int }}"
+                      minute: "{{ now().minute | int }}"
+                    response_variable: clock_result
                   - action: script.send_to_home_log
                     data:
                       message: "{{ clock_result.emoji }} Turning ambient lights off."
@@ -874,7 +894,7 @@ automation:
               entity_id: input_boolean.dishwasher_cycle_in_progress
     mode: single
   - id: "1694521864038"
-    alias: "Kitchen: Reset Oven Preheated"
+    alias: "Kitchen: Reset Dishwasher Cycle In Progress"
     description: ""
     triggers:
       - trigger: state
@@ -1038,7 +1058,7 @@ automation:
                       entity_id:
                         - scene.kitchen_table_ambient_light_to_pink
                         - scene.kitchen_cooker_ambient_light_to_pink
-              - alias: Battery has charge left
+              - alias: Battery is depleted
                 conditions:
                   - or:
                       - condition: template
@@ -1504,7 +1524,7 @@ scene:
     metadata:
       light.kitchen_table_rgb:
         entity_only: true
-  - id: "1721576220791"
+  - id: "1737107000002"
     name: Kitchen Cooker Light To Red
     entities:
       light.kitchen_cooker_rgb:
@@ -1534,7 +1554,7 @@ scene:
     metadata:
       light.kitchen_cooker_rgb:
         entity_only: true
-  - id: "1721576220791"
+  - id: "1737107000003"
     name: Kitchen Table Light To Red
     entities:
       light.kitchen_table_rgb:
@@ -1904,7 +1924,7 @@ template:
         unique_id: 41566148-cf56-468f-a714-974b6977cc85
         icon: "mdi:toaster-oven"
         device_class: running
-        state: "{{ states('sensor.oven_channel_1_power') | float(0) >= 10 }}"
+        state: "{{ states('sensor.oven_channel_1_power') | float(0) >= 16 }}"
   - trigger:
       - trigger: state
         entity_id:
@@ -1914,7 +1934,7 @@ template:
       - name: Low Water Softener Salt
         unique_id: f074e7cf-d53c-419b-8677-833f615f4483
         icon: "mdi:water-alert"
-        state: "{{ states('sensor.water_softener_salt_level_average') | float(100) >= states('input_number.low_water_softener_salt_level') | float(0) }}"
+        state: "{{ states('sensor.water_softener_salt_level_average') | float(100) <= states('input_number.low_water_softener_salt_level') | float(0) }}"
   - trigger:
       - trigger: state
         entity_id:
@@ -1924,4 +1944,4 @@ template:
       - name: No Water Softener Salt
         unique_id: c02df70f-1b4c-4cef-8032-35a235eb4479
         icon: "mdi:water-alert-outline"
-        state: "{{ states('sensor.water_softener_salt_level_average') | float(100) >= states('input_number.no_water_softener_salt_level') | float(0) }}"
+        state: "{{ states('sensor.water_softener_salt_level_average') | float(100) <= states('input_number.no_water_softener_salt_level') | float(0) }}"

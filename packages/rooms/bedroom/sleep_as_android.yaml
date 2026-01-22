@@ -18,45 +18,32 @@ automation:
             entity_id: input_text.sleep_as_android
             data:
               value: "{{ trigger.json.event }}"
-          - choose:
-              - conditions:
-                  - condition: state
-                    entity_id: input_select.sleep_as_android_notification_level
-                    state: "Start/Stop"
-                  - condition: template
-                    value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Changed to {{ trigger.json.event }}"
-                      title: ":zzz: Sleep as :robot_face: Android"
-                      log_level: "Debug"
-              - conditions:
-                  - condition: state
-                    entity_id: input_select.sleep_as_android_notification_level
-                    state: "Start/Stop/Alarms"
-                  - or:
-                    - condition: template
-                      value_template: "{{ 'alarm' in trigger.json.event }}"
-                    - condition: template
-                      value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Changed to {{ trigger.json.event }}"
-                      title: ":zzz: Sleep as :robot_face: Android"
-                      log_level: "Debug"
-              - conditions:
+          - if:
+              - or:
+                  - and:
+                      - condition: state
+                        entity_id: input_select.sleep_as_android_notification_level
+                        state: "Start/Stop"
+                      - condition: template
+                        value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
+                  - and:
+                      - condition: state
+                        entity_id: input_select.sleep_as_android_notification_level
+                        state: "Start/Stop/Alarms"
+                      - or:
+                          - condition: template
+                            value_template: "{{ 'alarm' in trigger.json.event }}"
+                          - condition: template
+                            value_template: "{{ trigger.json.event in ['sleep_tracking_started', 'sleep_tracking_stopped'] }}"
                   - condition: state
                     entity_id: input_select.sleep_as_android_notification_level
                     state: "All"
-                sequence:
-                  - action: script.send_to_home_log
-                    data:
-                      message: "Changed to {{ trigger.json.event }}"
-                      title: ":zzz: Sleep as :robot_face: Android"
-                      log_level: "Debug"
-            default: []
+            then:
+              - action: script.send_to_home_log
+                data:
+                  message: "Changed to {{ trigger.json.event }}"
+                  title: ":zzz: Sleep as :robot_face: Android"
+                  log_level: "Debug"
     mode: queued
     max: 10
   # region Sleep Timer
@@ -269,11 +256,10 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: >-
-                    Bedroom is warm ({{ states('sensor.bedroom_area_mean_temperature') }} > 21c).
-                    Turning on bedroom fan.
+                    Bedroom fan was on during sleep. Turning off bedroom fan.
                   title: ":zzz: Sleep as :robot_face: Android"
                   log_level: "Debug"
-              - action: switch.turn_on
+              - action: switch.turn_off
                 metadata: {}
                 data: {}
                 target:
@@ -306,7 +292,7 @@ automation:
                   data:
                     message: >-
                       :alarm_clock: Alarm triggered. Opening bedroom
-                      blinds in 1 minute.
+                      blinds in 5 minutes.
                     title: ":zzz: Sleep as :robot_face: Android"
                     log_level: "Normal"
                 - delay:
@@ -326,7 +312,7 @@ automation:
                 - action: script.send_to_home_log
                   data:
                     message:
-                      "🛏️ :alarm_clock: alarm triggered."
+                      "🛏️ ⏰ alarm triggered."
                     title: ":zzz: Sleep as :robot_face: Android"
                     log_level: "Normal"
           default: []

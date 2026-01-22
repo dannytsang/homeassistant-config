@@ -1,7 +1,7 @@
 # Danny's Home Assistant 🏡
 This repository contains my personal Home Assistant configuration for automating and monitoring my smart home environment. It covers lights, sensors, automations, integrations, and more.
 
-[![Home Assistant CI](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml/badge.svg)](https://github.com/dannytsang/homeassistant-config/actions/workflows/main.yml)
+[![Home Assistant CI](https://github.com/dannytsang/homeassistant-config/actions/workflows/push.yml/badge.svg)](https://github.com/dannytsang/homeassistant-config/actions/workflows/push.yml)
 <a href="https://twitter.com/DannyTsang" target="_blank"><img src="https://img.shields.io/twitter/follow/DannyTsang?color=blue&style=plastic"/></a>
 ![GitHub repo size](https://img.shields.io/github/repo-size/dannytsang/homeassistant-config)
 ![GitHub last commit](https://img.shields.io/github/last-commit/dannytsang/homeassistant-config)

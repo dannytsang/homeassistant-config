@@ -20,6 +20,18 @@ ads1115:
   - address: 0x48
     continuous_mode: true
 
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: !secret bed_api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret bed_ota_password
+
 sensor:
   # ADS1115
   - platform: ads1115
@@ -60,14 +72,60 @@ sensor:
     unit_of_measurement: IAQ
     lambda: "return log(id(g_res).state) + 0.04 * id(hum).state;"
 
-# Enable logging
-logger:
+  # Track how long the device has been connected
+  - platform: uptime
+    name: "Uptime"
+    id: device_uptime
+    update_interval: 60s
 
-# Enable Home Assistant API
-api:
-  encryption:
-    key: !secret bed_api_encryption_key
+  # Count disconnections (resets on reboot)
+  - platform: template
+    name: "Disconnect Count"
+    id: disconnect_count
+    accuracy_decimals: 0
+    lambda: 'return id(disconnect_counter);'
 
-ota:
-  platform: esphome
-  password: !secret bed_ota_password
+  - platform: wifi_signal
+    name: "${device_name} WiFi Signal"
+    id: wifi_signal_strength
+    update_interval: 60s
+    filters:
+      - sliding_window_moving_average:
+          window_size: 5
+          send_every: 5
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+globals:
+  - id: disconnect_counter
+    type: int
+    restore_value: yes
+    initial_value: '0'
+
+  - id: was_connected
+    type: bool
+    restore_value: no
+    initial_value: 'true'
+
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - lambda: |-
+                if (id(was_connected)) {
+                  id(disconnect_counter) += 1;
+                  id(was_connected) = false;
+                  ESP_LOGW("wifi", "WiFi disconnected! Total: %d", id(disconnect_counter));
+                }
+          else:
+            - lambda: |-
+                if (!id(was_connected)) {
+                  id(was_connected) = true;
+                  ESP_LOGI("wifi", "WiFi reconnected");
+                }

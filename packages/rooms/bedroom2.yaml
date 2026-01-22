@@ -23,6 +23,138 @@ automation:
         data: {}
     mode: queued
     max: 10
+  # region Circadian Lighting
+  - id: "1736794523847"
+    alias: "Leo's Bedroom: Apply Circadian Color Temperature"
+    description: "Automatically set color temperature based on sun position when lights turn on"
+    triggers:
+      - trigger: state
+        entity_id:
+          - light.leo_s_bedroom_main_light
+        to: "on"
+        from: "off"
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_leos_circadian_lighting
+        state: "on"
+    actions:
+      - choose:
+          # Daytime: Cool/Neutral (sunrise to 1h before sunset)
+          - conditions:
+              - condition: sun
+                after: sunrise
+              - condition: sun
+                before: sunset
+                before_offset: "-01:00:00"
+            sequence:
+              - action: light.turn_on
+                target:
+                  entity_id: light.leo_s_bedroom_main_light
+                data:
+                  color_temp_kelvin: 4500
+                  transition: 1
+
+          # Evening transition: Warm (1h before sunset to 1h after sunset)
+          - conditions:
+              - condition: sun
+                after: sunset
+                after_offset: "-01:00:00"
+              - condition: sun
+                before: sunset
+                before_offset: "01:00:00"
+            sequence:
+              - action: light.turn_on
+                target:
+                  entity_id: light.leo_s_bedroom_main_light
+                data:
+                  color_temp_kelvin: 3200
+                  transition: 1
+
+        # Default: Night/Bedtime - Very warm (1h after sunset to sunrise)
+        default:
+          - action: light.turn_on
+            target:
+              entity_id: light.leo_s_bedroom_main_light
+            data:
+              color_temp_kelvin: 2700
+              transition: 1
+    mode: queued
+    max: 5
+  - id: "1736794524951"
+    alias: "Leo's Bedroom: Scheduled Circadian Transitions"
+    description: "Gradually transition color temperature based on sun position if lights are on"
+    triggers:
+      - trigger: sun
+        event: sunrise
+        id: morning
+      - trigger: sun
+        event: sunset
+        offset: "-01:00:00"
+        id: evening
+      - trigger: sun
+        event: sunset
+        offset: "01:00:00"
+        id: night
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_leos_circadian_lighting
+        state: "on"
+      - condition: state
+        entity_id: light.leo_s_bedroom_main_light
+        state: "on"
+    actions:
+      - choose:
+          # Morning: Transition to cool white (4500K) at sunrise
+          - conditions:
+              - condition: trigger
+                id: morning
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "☀️ Sunrise - Transitioning to daytime color temperature (4500K)"
+                  title: "🛏️ Leo's Bedroom"
+                  log_level: "Debug"
+              - action: light.turn_on
+                target:
+                  entity_id: light.leo_s_bedroom_main_light
+                data:
+                  color_temp_kelvin: 4500
+                  transition: 300
+
+          # Evening: Transition to warm white (3200K) 1h before sunset
+          - conditions:
+              - condition: trigger
+                id: evening
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "🌆 Pre-sunset - Transitioning to evening color temperature (3200K)"
+                  title: "🛏️ Leo's Bedroom"
+                  log_level: "Debug"
+              - action: light.turn_on
+                target:
+                  entity_id: light.leo_s_bedroom_main_light
+                data:
+                  color_temp_kelvin: 3200
+                  transition: 300
+
+          # Night: Transition to very warm white (2700K) 1h after sunset
+          - conditions:
+              - condition: trigger
+                id: night
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "🌙 Post-sunset - Transitioning to nighttime color temperature (2700K)"
+                  title: "🛏️ Leo's Bedroom"
+                  log_level: "Debug"
+              - action: light.turn_on
+                target:
+                  entity_id: light.leo_s_bedroom_main_light
+                data:
+                  color_temp_kelvin: 2700
+                  transition: 600
+    mode: single
   # region Blinds
   - id: "1627285063813"
     alias: "Leo's Bedroom: Timed Open Blinds Weekday"
@@ -363,9 +495,7 @@ automation:
             sequence:
               - action: script.send_to_home_log
                 data:
-                  message:
-                    "🪟 🛏️ Leo's window closed and someone is in bed. Closing
-                    blinds."
+                  message: "🪟 Leo's window closed. Closing blinds."
                   title: "Leo's 🛏️ bedroom"
                   log_level: "Debug"
               - action: cover.close_cover

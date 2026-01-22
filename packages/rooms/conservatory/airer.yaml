@@ -63,7 +63,6 @@ script:
     sequence:
       - variables:
           current_import_rate: "{{ current_electricity_import_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
-          current_export_rate: "{{ current_electricity_export_rate|default(states('sensor.octopus_energy_electricity_current_rate'), true) }}"
       - choose:
           - alias: "Check schedule is on and below minimum temperature"
             conditions:
@@ -94,7 +93,7 @@ script:
             conditions:
               - condition: state
                 entity_id: input_boolean.enable_conservatory_airer_when_cost_nothing
-                state: "off"
+                state: "on"
               - condition: template
                 value_template: "{{ current_import_rate == 0 }}"
             sequence:
@@ -107,7 +106,7 @@ script:
                   - if:
                       - condition: state
                         entity_id: switch.airer
-                        state: "on"
+                        state: "off"
                     then:
                       - action: switch.turn_on
                         target:

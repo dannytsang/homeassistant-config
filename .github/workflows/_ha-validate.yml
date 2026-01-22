@@ -168,13 +168,13 @@ jobs:
             echo "- **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Install custom component dependencies
+        if: ${{ inputs.run_ha_stable }}
+        run: .github/scripts/install-custom-component-deps.sh
+
       - name: Prepare config for CI
         if: ${{ inputs.run_ha_stable }}
-        run: |
-          mkdir -p camera
-          sed -i -e '/battery_notes\:/,+2d' \
-                 -e '/delete\:/,+1d' \
-                 -e '/sonoff\:/,+3d' configuration.yaml
+        run: .github/scripts/prepare-config-for-ci.sh
       - name: Validate (stable)
         if: ${{ inputs.run_ha_stable }}
         id: ha
@@ -216,13 +216,13 @@ jobs:
         version: [beta, dev]
     steps:
       - uses: actions/checkout@v6
+      - name: Install custom component dependencies
+        run: .github/scripts/install-custom-component-deps.sh
+
       - name: Prepare config for CI
-        run: |
-          mkdir -p camera
-          sed -i -e '/battery_notes\:/,+2d' \
-                 -e '/delete\:/,+1d' \
-                 -e '/powercalc\:/,+2d' \
-                 -e '/sonoff\:/,+3d' configuration.yaml
+        env:
+          HA_CHANNEL: ${{ matrix.version }}
+        run: .github/scripts/prepare-config-for-ci.sh
       - name: Validate (${{ matrix.version }})
         id: ha
         uses: frenck/action-home-assistant@v1

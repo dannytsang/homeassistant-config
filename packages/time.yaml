@@ -18,12 +18,12 @@ automation:
         response_variable: clock_result
       - action: script.send_to_home_log
         data:
-          message:
-            "⚠️ {{ clock_result.emoji }} 🚪 🪟
+          message: >-
+            ⚠️ {{ clock_result.emoji }} 🚪 🪟
             The following entrances are still open:
             {% for entity in state_attr('binary_sensor.alarmed_doors_and_windows','entity_id')
             %}{% if states(entity) == 'on' %}{{ '\n* ' ~ state_attr(entity, 'friendly_name')
-            }} {% endif %}{% endfor %}"
+            }} {% endif %}{% endfor %}
           log_level: "Debug"
     mode: single
   - id: "1619466600288"
@@ -40,33 +40,33 @@ automation:
           minute: "{{ now().minute | int }}"
         response_variable: clock_result
       - parallel:
-        - action: script.send_to_home_log
-          data:
-            message:
-              "{{ clock_result.emoji }}
-              Deleting 📸 files"
-            log_level: "Debug"
-        - action: delete.files_in_folder
-          data:
-            folder: /config/camera/
-            scan_subfolders: true
-            remove_subfolders: false
-            time: 14400
-            except_files:
-              - .gitignore
-              - deepstack_object_conservatory_latest.png
-              - deepstack_object_conservatory_none.png
-              - deepstack_object_driveway_latest.png
-              - deepstack_object_driveway_none.png
-              - deepstack_object_front_door_latest.png
-              - deepstack_object_front_door_None.png
-              - deepstack_object_kitchen_latest.png
-              - deepstack_object_kitchen_none.png
-              - deepstack_object_lounge_latest.png
-              - deepstack_object_lounge_none.png
-              - deepstack_object_upstairs_latest.png
-              - deepstack_object_upstairs_none.png
-              - README.md
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                {{ clock_result.emoji }}
+                Deleting 📸 files
+              log_level: "Debug"
+          - action: delete.files_in_folder
+            data:
+              folder: /config/camera/
+              scan_subfolders: true
+              remove_subfolders: false
+              time: 14400
+              except_files:
+                - .gitignore
+                - deepstack_object_conservatory_latest.png
+                - deepstack_object_conservatory_none.png
+                - deepstack_object_driveway_latest.png
+                - deepstack_object_driveway_none.png
+                - deepstack_object_front_door_latest.png
+                - deepstack_object_front_door_None.png
+                - deepstack_object_kitchen_latest.png
+                - deepstack_object_kitchen_none.png
+                - deepstack_object_lounge_latest.png
+                - deepstack_object_lounge_none.png
+                - deepstack_object_upstairs_latest.png
+                - deepstack_object_upstairs_none.png
+                - README.md
     mode: single
   - id: "1588859384208"
     alias: "Time: Reset Morning Run"
