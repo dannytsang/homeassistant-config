@@ -1,52 +1,58 @@
 # Created by Danny Tsang <danny@tsang.uk>
 automation:
   # region Motion
-  - id: "1737283018707"
-    alias: "Porch: Motion Detected"
-    description: ""
+  - id: "porch_motion_handler"
+    alias: "Porch: Motion Detected (On/Off)"
+    description: "Consolidated motion handling - turns light on when motion detected, starts timer when motion stops"
     triggers:
       - trigger: state
-        entity_id:
-          - binary_sensor.porch_motion_occupancy
+        entity_id: binary_sensor.porch_motion_occupancy
         to: "on"
         for: "00:02:00"
-    conditions: []
-    actions:
-      - parallel:
-          - action: light.turn_on
-            metadata: {}
-            target:
-              entity_id: light.porch
-            data:
-              brightness_pct: 100
-          - action: timer.cancel
-            target:
-              entity_id: timer.porch_light
-            data: {}
-    mode: single
-  - id: "1737283018708"
-    alias: "Porch: No Motion Detected"
-    description: ""
-    triggers:
+        id: motion_on
       - trigger: state
-        entity_id:
-          - binary_sensor.porch_motion_occupancy
+        entity_id: binary_sensor.porch_motion_occupancy
         to: "off"
         for: "00:01:00"
+        id: motion_off
     conditions: []
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                No motion. Starting 💡 light timer.
-              title: "Porch"
-              log_level: "Debug"
-          - action: timer.start
-            data:
-              duration: 00:01:00
-            target:
-              entity_id: timer.porch_light
+      - choose:
+          # Branch 1: Motion Detected (to "on")
+          - alias: "Motion Detected - Turn On Light"
+            conditions:
+              - condition: trigger
+                id: motion_on
+            sequence:
+              - parallel:
+                  - action: light.turn_on
+                    target:
+                      entity_id: light.porch
+                    data:
+                      brightness_pct: 100
+                  - action: timer.cancel
+                    target:
+                      entity_id: timer.porch_light
+
+          # Branch 2: No Motion (to "off")
+          - alias: "No Motion - Start Timer"
+            conditions:
+              - condition: trigger
+                id: motion_off
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "No motion. Starting 💡 light timer."
+                      title: "🚪 Porch"
+                      log_level: "Debug"
+                  - action: timer.start
+                    target:
+                      entity_id: timer.porch_light
+                    data:
+                      duration: "00:01:00"
+
+        default: []
     mode: single
   - id: "1737283018709"
     alias: "Porch: Light Timer Finished"
@@ -61,9 +67,8 @@ automation:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: >-
-                Timer finished. Turning light off.
-              title: "Porch"
+              message: "Timer finished. Turning light off."
+              title: "🚪 Porch"
               log_level: "Debug"
           - action: light.turn_off
             target:
