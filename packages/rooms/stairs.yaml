@@ -61,8 +61,8 @@ automation:
           default: []
     mode: single
   - id: "1598726353326"
-    alias: "Stairs: Upstairs Dark, Before Kids Bed Time, Light Off And Motion Detected"
-    description: ""
+    alias: "Stairs: Motion Detected Before Kids Bed Time (Dark, Upstairs)"
+    description: "Consolidated motion detection for before-bedtime hours. Triggers full brightness light when motion detected in dark conditions, regardless of current light state."
     triggers:
       - trigger: state
         entity_id: binary_sensor.upstairs_area_motion
@@ -83,9 +83,19 @@ automation:
       - condition: time
         after: "07:00:00"
         before: input_datetime.childrens_bed_time
-      - condition: state
-        entity_id: light.stairs
-        state: "off"
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.stairs
+            state: "off"
+          - and:
+              - condition: state
+                entity_id: light.stairs
+                state: "on"
+              - condition: numeric_state
+                entity_id: light.stairs
+                attribute: brightness
+                below: 5
     actions:
       - parallel:
         - action: script.send_to_home_log
@@ -100,56 +110,9 @@ automation:
             log_level: "Debug"
         - action: scene.turn_on
           target:
-            entity_id:
-              - scene.stairs_light_on
+            entity_id: scene.stairs_light_on
     mode: queued
     max: 10
-  - id: "1598726353327"
-    alias: "Stairs: Upstairs Dark, Before Kids Bed Time, Light On And Motion Detected"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.upstairs_area_motion
-        from: "off"
-        to: "on"
-      - alias: If Ring integration d/c then fall back to Zigbee specifically.
-        trigger: state
-        entity_id: binary_sensor.upstairs_motion_occupancy
-        from: "off"
-        to: "on"
-    conditions:
-      - below: input_number.stairs_light_level_threshold
-        condition: numeric_state
-        entity_id: sensor.stairs_motion_illuminance
-      - condition: state
-        entity_id: input_boolean.enable_stairs_motion_triggers
-        state: "on"
-      - condition: time
-        after: "07:00:00"
-        before: input_datetime.childrens_bed_time
-      - condition: state
-        entity_id: light.stairs
-        state: "on"
-      - condition: numeric_state
-        entity_id: light.stairs
-        attribute: brightness
-        below: 5
-    actions:
-      - action: script.send_to_home_log
-        data:
-          message: >-
-            🐾 Motion on upstairs, before bed time, 💡 light is on
-            and it's dark
-            ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
-            {{ states('input_number.stairs_light_level_threshold', with_unit=True) }}).
-            Turning 💡 🔆 light on.
-          title: "Stairs"
-          log_level: "Debug"
-      - action: scene.turn_on
-        target:
-          entity_id:
-            - scene.stairs_light_on
-    mode: single
   - id: "1587595659605"
     alias: "Stairs: Upstairs Dark, After Bed Time, Motion Detected Before Midnight"
     description: "Consolidated automation for motion detection before midnight (light off or dimly lit).
