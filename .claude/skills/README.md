@@ -112,6 +112,40 @@ Systematically reviews recent git commits to identify patterns in user correctio
 
 ---
 
+### 5. **HA Room Documentation Generator**
+**File:** `ha-room-documentation-generator.md`
+
+Generates comprehensive room setup documentation by analyzing automation YAML files and creating structured markdown guides.
+
+**Use When:**
+- Creating documentation for a new room package
+- Onboarding team members or future self
+- Documenting room automation capabilities
+- Building automation portfolio
+- Planning room expansion
+
+**Process:**
+- Analyze room YAML files
+- Extract device inventory
+- Categorize automations by function
+- Create ASCII room layout diagrams
+- Document automation workflows
+- Map configuration parameters
+- Generate standardized markdown
+
+**Typical Results:**
+- 1000-2000 line comprehensive guide
+- Device inventory table
+- Automation function breakdown
+- Room layout ASCII diagram
+- Workflow sequences
+- Configuration reference
+- Complete setup documentation
+
+**Example:** Office setup documentation with 18 devices, 24 automations, complete workflows
+
+---
+
 ## Skill Workflow
 
 ### Standard Optimization Flow
@@ -125,11 +159,24 @@ Systematically reviews recent git commits to identify patterns in user correctio
 3. REVIEW (YAML Quality Reviewer)
    └─ Validate syntax, find issues, fix
 
-4. COMMIT & TEST
+4. DOCUMENT (Room Documentation Generator)
+   └─ Generate comprehensive setup guide [Optional but recommended]
+
+5. COMMIT & TEST
    └─ Final validation before deployment
 
-5. MONTHLY REFLECTION (Reflection Reviewer)
+6. MONTHLY REFLECTION (Reflection Reviewer)
    └─ Review accumulated changes, learn from corrections, update skills
+```
+
+### Enhanced Workflow with Documentation
+```
+NEW PACKAGE → ANALYZE → CONSOLIDATE → REVIEW → DOCUMENT → COMMIT
+                                                     ↓
+                                             Room Setup Guide
+                                             (ROOM-SETUP.md)
+                                                     ↓
+                    MONTHLY REFLECTION ← ACCUMULATED CHANGES ← COMMIT & TEST
 ```
 
 ### Monthly Maintenance
