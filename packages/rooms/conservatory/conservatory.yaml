@@ -197,6 +197,94 @@ automation:
                           - person.terina
             default: []
     mode: single
+  # region System Recovery
+  - id: "1769277054491"
+    alias: "Conservatory: Motion Sensor Goes Offline"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.conservatory_motion_occupancy
+        to:
+          - unavailable
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Motion sensor offline. Starting Timer
+              title: Conservatory
+          - action: timer.start
+            metadata: {}
+            target:
+              entity_id: timer.restart_conservatory_motion_sensor
+            data:
+              duration: 00:30:00
+    mode: single
+  - id: "1769277054492"
+    alias: "Conservatory: Motion Sensor Comes Online"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - binary_sensor.conservatory_motion_occupancy
+        from:
+          - unavailable
+    conditions:
+      - condition: state
+        entity_id: timer.sleep
+        state:
+          - active
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Motion sensor is online. Stopping Timer
+              title: Conservatory
+          - action: timer.cancel
+            metadata: {}
+            target:
+              entity_id: timer.restart_conservatory_motion_sensor
+    mode: single
+  - id: "1769277280840"
+    alias: "Conservatory: Restart Motion Sensor Finished"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.restart_conservatory_motion_sensor
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              title: Conservatory
+              message: Restart Conservatory motion sensor finished. Restarting.
+          # TODO: Check it comes back online and maybe perform retries if it does not.
+          - sequence:
+              - action: switch.turn_off
+                metadata: {}
+                target:
+                  entity_id: switch.conservatory_extension_2
+                data: {}
+              - delay:
+                  hours: 0
+                  minutes: 0
+                  seconds: 5
+                  milliseconds: 0
+              - action: switch.turn_on
+                metadata: {}
+                target:
+                  entity_id: switch.conservatory_extension_2
+                data: {}
+    mode: single
 
 scene:
   - id: "1610234583738"
