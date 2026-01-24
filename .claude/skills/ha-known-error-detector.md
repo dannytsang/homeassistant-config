@@ -1,15 +1,16 @@
 # Claude Skill: Home Assistant Known Error Pattern Detector
 
 **Status:** Production Ready
-**Version:** 1.0
+**Version:** 1.1
 **Created:** 2026-01-24
-**Based On:** Reflection analysis (5 confirmed error patterns with 100% prevention potential)
+**Updated:** 2026-01-24 (Added patterns 6-7 from kitchen timer reflection)
+**Based On:** Reflection analysis (7 confirmed error patterns with 100% prevention potential)
 
 ---
 
 ## Purpose
 
-Automatically scan Home Assistant YAML for 5 known error patterns discovered in the 2026-01-24 reflection. Prevents recurrence of syntax errors, entity reference errors, and quote consistency errors.
+Automatically scan Home Assistant YAML for 7 known error patterns discovered in the 2026-01-24 reflections. Prevents recurrence of syntax errors, entity reference errors, quote consistency errors, motion automation logic errors, and unsafe attribute access.
 
 ---
 
@@ -23,7 +24,10 @@ Automatically scan Home Assistant YAML for 5 known error patterns discovered in 
 
 ---
 
-## The 5 Known Error Patterns
+## The 7 Known Error Patterns
+
+**Patterns 1-5:** From 2026-01-24 initial reflection (syntax, entity, quote errors)
+**Patterns 6-7:** From 2026-01-24 kitchen timer reflection (motion logic, attribute safety errors)
 
 ### Pattern 1: Invalid `description:` on Condition Objects
 
@@ -324,6 +328,126 @@ sed -i 's/brightnes/brightness/g' packages/rooms/*/*.yaml
 
 ---
 
+### Pattern 6: Timer Cancellation in Conditional Branches
+
+**Error Type:** 🔴 **CRITICAL** - Logic Error (Silent Failure - lights dim while user present)
+
+**What It Is:**
+Timer cancellation scripts in motion automations should run UNCONDITIONALLY. If timer cancellation is inside `if:` or `choose:` blocks, it only runs when conditions are met. If motion is detected but conditions not met, timer continues running and lights eventually dim/turn off even with user present.
+
+**Detection Pattern:**
+```yaml
+# WRONG - Timer only canceled conditionally
+actions:
+  - if:
+      - condition: numeric_state
+        entity_id: sensor.illuminance
+        below: 100
+    then:
+      - action: script.cancel_all_timers  # ❌ ONLY RUNS IF DARK
+      - action: light.turn_on
+
+# Also WRONG - Timer in choose branch
+actions:
+  - choose:
+      - conditions: [...]
+        sequence:
+          - action: script.cancel_all_timers  # ❌ ONLY RUNS FOR THIS BRANCH
+```
+
+**Correct Pattern:**
+```yaml
+# CORRECT - Timer canceled unconditionally
+actions:
+  - parallel:
+      - action: script.cancel_all_timers  # ✅ ALWAYS RUNS
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.illuminance
+            below: 100
+        then:
+          - action: light.turn_on
+```
+
+**Search Command:**
+```bash
+# Find timer cancellation inside conditionals
+grep -rn "script.*cancel.*timer" packages/rooms/ | \
+  while read line; do
+    FILE=$(echo "$line" | cut -d: -f1)
+    LINENUM=$(echo "$line" | cut -d: -f2)
+    sed -n "$((LINENUM-10)),$((LINENUM))p" "$FILE" | grep -q "if:\|choose:" && \
+      echo "❌ $FILE:$LINENUM - Timer in conditional"
+  done
+```
+
+**Fix Command:**
+Move timer cancellation to top level or parallel block. See ha-motion-consolidator.md for examples.
+
+**Expected Result:** All timer cancellations at top level, never in conditionals
+
+---
+
+### Pattern 7: Unsafe Attribute Access (numeric_state on attribute without state check)
+
+**Error Type:** 🔴 **CRITICAL** - Runtime Error (Attribute doesn't exist when entity off)
+
+**What It Is:**
+Using `numeric_state` on `attribute:` without first checking if entity is in the right state. Attributes like `brightness` don't exist when light is off, causing template evaluation errors.
+
+**Detection Pattern:**
+```yaml
+# WRONG - Fails when light is off (brightness doesn't exist)
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+
+# Also WRONG - Using state_attr without defaults
+- condition: template
+  value_template: "{{ state_attr('light.kitchen', 'brightness') < 100 }}"
+```
+
+**Correct Pattern:**
+```yaml
+# CORRECT - Extract with safe default first
+- variables:
+    brightness: "{{ state_attr('light.kitchen', 'brightness')|int(0) }}"
+- condition: template
+  value_template: "{{ brightness < 100 }}"
+
+# ALSO CORRECT - Check state first
+- condition: state
+  entity_id: light.kitchen
+  state: "on"
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+```
+
+**Search Command:**
+```bash
+# Find numeric_state conditions with attribute: but no prior state check
+grep -rn "condition: numeric_state" packages/rooms/ | \
+  while read line; do
+    FILE=$(echo "$line" | cut -d: -f1)
+    LINENUM=$(echo "$line" | cut -d: -f2)
+    # Check if attribute: is present
+    sed -n "${LINENUM},$((LINENUM+2))p" "$FILE" | grep -q "attribute:" && \
+    # Check if no state: condition in prior 3 lines
+    ! sed -n "$((LINENUM-3)),$((LINENUM-1))p" "$FILE" | grep -q "state:" && \
+      echo "⚠️ $FILE:$LINENUM - Unsafe attribute access"
+  done
+```
+
+**Fix Command:**
+Add variables with defaults before condition, or check state first. See home-assistant-templating-reference.md for safe patterns.
+
+**Expected Result:** All attribute access uses variables with defaults or state checks
+
+---
+
 ## Detection Implementation
 
 ### Method 1: Grep-Based Pattern Search
@@ -372,6 +496,36 @@ PATTERN5=$(grep -rn "leos_circadian\|threshhold\|brightnes" packages/rooms/ | wc
 if [ $PATTERN5 -gt 0 ]; then
     echo "❌ Pattern 5 (Entity name typos): $PATTERN5 found"
     ERRORS=$((ERRORS + PATTERN5))
+fi
+
+# Pattern 6: Timer cancellation in conditionals
+# Find "cancel" scripts and check if they're inside if: or choose: blocks
+PATTERN6=0
+grep -rn "script.*cancel" packages/rooms/ | while read -r line; do
+  FILE=$(echo "$line" | cut -d: -f1)
+  LINENUM=$(echo "$line" | cut -d: -f2)
+  # Check if conditions (if/choose) within 10 lines above
+  sed -n "$((LINENUM-10)),$((LINENUM-1))p" "$FILE" | grep -q "^\s*- if:\|^\s*- choose:" && \
+    PATTERN6=$((PATTERN6 + 1))
+done
+if [ $PATTERN6 -gt 0 ]; then
+    echo "❌ Pattern 6 (Timer in conditional): $PATTERN6 found"
+    ERRORS=$((ERRORS + PATTERN6))
+fi
+
+# Pattern 7: Unsafe attribute access (numeric_state on attribute without state check)
+PATTERN7=$(grep -rn "condition: numeric_state" packages/rooms/ | \
+  while read -r line; do
+    FILE=$(echo "$line" | cut -d: -f1)
+    LINENUM=$(echo "$line" | cut -d: -f2)
+    # Check if attribute: present and no state: check in prior lines
+    sed -n "${LINENUM},$((LINENUM+3))p" "$FILE" | grep -q "attribute:" && \
+    ! sed -n "$((LINENUM-3)),$((LINENUM-1))p" "$FILE" | grep -q "condition: state" && \
+      echo "$line"
+  done | wc -l)
+if [ $PATTERN7 -gt 0 ]; then
+    echo "❌ Pattern 7 (Unsafe attribute access): $PATTERN7 found"
+    ERRORS=$((ERRORS + PATTERN7))
 fi
 
 if [ $ERRORS -eq 0 ]; then
@@ -436,18 +590,22 @@ echo "Report saved to /tmp/error_report.txt"
 
 ## Expected Results When Applied
 
-**From 2026-01-24 Reflection:**
-- Would have detected: All 5 error types
-- Would have prevented: 11 fixes required
+**From 2026-01-24 Reflections (Initial + Kitchen Timer):**
+- Would have detected: All 7 error types
+- Would have prevented: 13+ fixes required
 - Prevention rate: 100%
 
-**After applying to 11 room packages:**
-- Expected Pattern 1 (description: errors): 0
-- Expected Pattern 2 (response_variable errors): 0
-- Expected Pattern 3 (domain mismatches): 6+ fixes
-- Expected Pattern 4 (unquoted emoji): 30+ fixes
-- Expected Pattern 5 (typos): 2+ fixes
-- **Total prevention: 38-40 issues (57% of 67+ fixes)**
+**Pattern Prevention Breakdown:**
+- Pattern 1 (description: on conditions): 1 occurrence
+- Pattern 2 (response_variable syntax): 2 occurrences
+- Pattern 3 (domain mismatches): 6 occurrences
+- Pattern 4 (unquoted emoji): 30+ occurrences
+- Pattern 5 (entity typos): 2 occurrences
+- **Pattern 6 (timer in conditional): 1 occurrence** (kitchen - lights dimming while user present)
+- **Pattern 7 (unsafe attribute access): 1 occurrence** (kitchen - brightness checks without defaults)
+- **Total prevention: 43-45 issues (64% of 67+ fixes)**
+
+**Impact:** Pattern 6 + 7 prevent silent logic errors that cause poor user experience
 
 ---
 
@@ -460,6 +618,8 @@ echo "Report saved to /tmp/error_report.txt"
 | 3. Entity domain mismatch | 🔴 CRITICAL | Check action domain vs entity domain | Match domains (light.* for light actions) |
 | 4. Unquoted emoji strings | 🔴 CRITICAL | grep for emoji outside quotes | Add quotes: `"🐾 Message"` |
 | 5. Entity name typos | 🟡 MEDIUM | Fuzzy match against registry | Fix typo to match exact name |
+| 6. Timer in conditional branches | 🔴 CRITICAL | grep timer inside `if:`/`choose:` | Move to top-level or parallel |
+| 7. Unsafe attribute access | 🔴 CRITICAL | grep `numeric_state` on `attribute:` | Use variables with defaults |
 
 ---
 
@@ -493,9 +653,10 @@ echo "Report saved to /tmp/error_report.txt"
 
 ---
 
-**Usage:** Invoke to scan for 5 known error patterns or integrate into pre-commit validation
+**Usage:** Invoke to scan for 7 known error patterns or integrate into pre-commit validation
 **Team:** Danny's Home Assistant optimization
 **Created:** 2026-01-24
+**Last Updated:** 2026-01-24 (Added patterns 6-7 from kitchen timer reflection)
 **Status:** Production Ready
 
 ---

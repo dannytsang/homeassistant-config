@@ -160,13 +160,83 @@ actions:
 - ⚠️ Large choose blocks (10+ branches) should be split
 - ⚠️ Safety-critical automations should be consolidated with caution
 
+## Timer Cancellation Semantics
+
+**Critical Pattern:** When consolidating motion automations with timers, timer cancellation must be **unconditional** (top-level), not inside conditional branches.
+
+### Why This Matters
+
+Motion detection = "I am present" → Cancel all shutdown timers, regardless of light adjustments.
+
+### ❌ WRONG: Conditional Timer Cancellation
+
+```yaml
+automation:
+  - alias: "Motion Detected"
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.motion
+        to: "on"
+        id: motion_on
+    actions:
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.illuminance
+            below: 100
+        then:
+          - action: script.cancel_all_timers  # Only if dark!
+          - action: light.turn_on
+            target:
+              entity_id: light.room
+```
+
+**Problem:** If motion detected when it's bright, timer continues. Lights dim while user present.
+
+### ✅ CORRECT: Unconditional Timer Cancellation
+
+```yaml
+automation:
+  - alias: "Motion Detected - Lights"
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.motion
+        to: "on"
+        id: motion_on
+    actions:
+      - parallel:
+          # Timer cancellation ALWAYS runs (unconditional)
+          - action: script.cancel_all_timers
+
+          # Light control runs conditionally
+          - if:
+              - condition: numeric_state
+                entity_id: sensor.illuminance
+                below: 100
+            then:
+              - action: light.turn_on
+                target:
+                  entity_id: light.room
+```
+
+### Implementation Checklist
+
+When consolidating motion automations with timers:
+- [ ] Timer cancellation at top level OR in parallel
+- [ ] Timer cancellation NOT inside if/choose blocks
+- [ ] Timer cancellation has no conditions
+- [ ] Light adjustments can be conditional
+- [ ] Test: Motion on (even if not dark) → timer cancels
+
+---
+
 ## Configuration Tips
 
 - Use descriptive trigger ID names (motion_on, motion_off, morning, evening)
 - Keep branch aliases short but clear
-- Use `parallel:` for independent actions
+- Use `parallel:` for independent actions (especially timer + lights)
 - Maintain consistent `mode:` across consolidated automation
 - Add comprehensive descriptions for complex consolidations
+- **CRITICAL:** Place timer cancellation at top level, not in conditional branches
 
 ## Next Steps
 

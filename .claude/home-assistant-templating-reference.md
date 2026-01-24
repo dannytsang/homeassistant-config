@@ -662,6 +662,121 @@ Some contexts use a **restricted template subset** with fewer functions availabl
 
 ---
 
+## Safe Attribute Access Pattern
+
+Attributes don't always exist on entities. They may be missing when:
+- Entity is in `off`, `unavailable`, or `unknown` state
+- Attribute requires entity to be in specific state (e.g., `brightness` only when light is `on`)
+- Device doesn't report that attribute
+- Integration hasn't provided the attribute yet
+
+### ❌ WRONG: Direct Attribute Access
+
+```yaml
+# WRONG: Fails when light is off (brightness doesn't exist)
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+
+# WRONG: Same issue, crashes when processing
+- condition: template
+  value_template: "{{ state_attr('light.kitchen', 'brightness') < 100 }}"
+```
+
+**Problem:** `KeyError` at runtime when attribute doesn't exist.
+
+### ✅ CORRECT: Variables with Defaults
+
+```yaml
+# CORRECT: Extract with safe default in variables
+actions:
+  - variables:
+      # Extract attribute, default to 0 if missing
+      brightness: "{{ state_attr('light.kitchen', 'brightness')|int(0) }}"
+      color_temp: "{{ state_attr('light.kitchen', 'color_temp')|int(370) }}"
+      rgb_color: "{{ state_attr('light.kitchen', 'rgb_color')|default([255,255,255]) }}"
+
+  # Now use safely in conditions/templates
+  - condition: template
+    value_template: "{{ brightness < 100 }}"
+
+  - if:
+      - condition: template
+        value_template: "{{ color_temp > 300 }}"
+    then:
+      - action: light.turn_on
+        target:
+          entity_id: light.kitchen
+```
+
+### ✅ ALSO CORRECT: State Check Before Attribute
+
+```yaml
+# Check state first, THEN attribute
+- condition: state
+  entity_id: light.kitchen
+  state: "on"
+
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+```
+
+**Why this works:** If light is `on`, brightness attribute definitely exists.
+
+### Common Safe Defaults
+
+```jinja
+# Numeric attributes
+brightness: "{{ state_attr('light.kitchen', 'brightness')|int(0) }}"
+temperature: "{{ state_attr('climate.room', 'current_temperature')|float(20) }}"
+battery: "{{ state_attr('sensor.motion', 'battery')|int(100) }}"
+
+# List attributes
+rgb_color: "{{ state_attr('light.kitchen', 'rgb_color')|default([255,255,255]) }}"
+color_xy: "{{ state_attr('light.kitchen', 'xy_color')|default([0.3, 0.3]) }}"
+
+# String attributes
+friendly_name: "{{ state_attr('entity', 'friendly_name')|default('Unknown') }}"
+icon: "{{ state_attr('entity', 'icon')|default('mdi:help') }}"
+```
+
+### Real-world Example: Light Brightness Check
+
+```yaml
+# ❌ BAD: Fails when light is off
+actions:
+  - if:
+      - condition: numeric_state
+        entity_id: light.kitchen
+        attribute: brightness
+        below: 100
+    then:
+      - action: light.turn_on
+        target:
+          entity_id: light.kitchen
+
+# ✅ GOOD: Safe attribute access
+actions:
+  - variables:
+      brightness: "{{ state_attr('light.kitchen', 'brightness')|int(0) }}"
+  - if:
+      - condition: state
+        entity_id: light.kitchen
+        state: "off"
+      - or:
+          - condition: template
+            value_template: "{{ brightness < 100 }}"
+    then:
+      - action: light.turn_on
+        target:
+          entity_id: light.kitchen
+```
+
+---
+
 ## Best Practices Summary
 
 1. **Always use `| default()` for safety** - Prevents undefined variable errors

@@ -1227,6 +1227,94 @@ automation:
 
 ---
 
+## Motion Detection Semantics
+
+### Critical Rule: Timer Cancellation is Unconditional
+
+Motion detection automation represents **"I am present"** — this semantic meaning has implications for timer/shutdown logic.
+
+**Principle:** Any timer set to eventually turn off/dim/shutdown must be canceled unconditionally whenever motion is detected, regardless of whether the lighting conditions warrant adjustment.
+
+### Correct Pattern: Unconditional Timer Cancellation
+
+```yaml
+automation:
+  - id: "1234567890001"
+    alias: "Motion Detected - Lights"
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.motion
+        to: "on"
+        id: motion_on
+    actions:
+      - parallel:
+          # Timer cancellation ALWAYS runs (unconditional)
+          - action: script.cancel_room_timers
+
+          # Light control runs conditionally
+          - if:
+              - condition: numeric_state
+                entity_id: sensor.illuminance
+                below: 100
+            then:
+              - action: light.turn_on
+                target:
+                  entity_id: light.room
+              - action: script.send_to_home_log
+                data:
+                  title: "Room"
+                  message: "Motion detected and dark"
+                  log_level: "Debug"
+```
+
+**Why this matters:**
+- User present → Don't turn off/dim lights
+- User present → Cancel ALL pending shutdown operations
+- Timer cancellation must happen ALWAYS, not conditionally
+- Light adjustment can be conditional, timer cancellation cannot
+
+### Wrong Pattern: Conditional Timer Cancellation
+
+```yaml
+# ❌ WRONG: Timer only canceled if conditions met
+actions:
+  - if:
+      - condition: numeric_state
+        entity_id: sensor.illuminance
+        below: 100
+    then:
+      - action: script.cancel_room_timers  # Only runs if dark!
+      - action: light.turn_on
+        target:
+          entity_id: light.room
+```
+
+**Problem:** If motion detected when it's bright, timer continues running. Pending shutdown timer will fire, dimming/turning off lights while user is still present.
+
+### Implementation Pattern
+
+```yaml
+# Semantic separation of concerns:
+actions:
+  - parallel:
+      # Layer 1: Presence indication (unconditional)
+      - action: script.cancel_all_room_timers
+
+      # Layer 2: Presence-based adjustments (conditional)
+      - if: [conditions]
+        then:
+          - action: light.turn_on
+            target:
+              entity_id: light.room
+
+      # Layer 3: Notifications (optional)
+      - action: script.send_to_home_log
+        data:
+          message: "Motion detected"
+```
+
+---
+
 ## Best Practices
 
 ### DO:

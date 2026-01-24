@@ -59,6 +59,8 @@ Systematically review Home Assistant YAML packages for syntax errors, logic issu
 - [ ] **`response_variable:` (singular) syntax correct** - template string, NOT mapping
 - [ ] **Action domain matches target entity domain** (light.turn_on → light.*, not input_boolean.*)
 - [ ] **Strings starting with emoji/special chars are quoted**
+- [ ] **Timer cancellation in motion automations is UNCONDITIONAL** (top-level or parallel, never inside if/choose)
+- [ ] **Attribute access is SAFE** (never `numeric_state` on `attribute:` without state check or variable)
 - [ ] All script calls have required `title:` field
 - [ ] All template sensors/input helpers defined
 - [ ] All entity IDs exist in system and match expected domain
@@ -184,6 +186,60 @@ message: 🚷 Turning off Magic Mirror
 message: "🚷 Turning off Magic Mirror"
 ```
 
+**Issue:** Timer cancellation only running conditionally
+```yaml
+# WRONG: Timer only canceled if conditions met (motion continues to dim lights)
+- if:
+    - condition: numeric_state
+      entity_id: sensor.illuminance
+      below: 100
+  then:
+    - action: script.cancel_all_timers  # Only runs if dark!
+    - action: light.turn_on
+      target:
+        entity_id: light.kitchen
+
+# CORRECT: Timer canceled unconditionally on motion
+- parallel:
+    - action: script.cancel_all_timers  # ALWAYS runs
+    - if:
+        - condition: numeric_state
+          entity_id: sensor.illuminance
+          below: 100
+      then:
+        - action: light.turn_on
+          target:
+            entity_id: light.kitchen
+```
+
+**Rule:** Motion detection = presence = ALWAYS cancel pending shutdowns
+
+**Issue:** Unsafe attribute access without existence check
+```yaml
+# WRONG: Fails when light is off (no brightness attribute)
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+
+# CORRECT: Extract with safe default, then use in template
+- variables:
+    brightness: "{{ state_attr('light.kitchen', 'brightness')|int(0) }}"
+- condition: template
+  value_template: "{{ brightness < 100 }}"
+
+# ALSO CORRECT: Check state first, then attribute
+- condition: state
+  entity_id: light.kitchen
+  state: "on"
+- condition: numeric_state
+  entity_id: light.kitchen
+  attribute: brightness
+  below: 100
+```
+
+**Rule:** Attributes don't exist when entities are off/unavailable. Always use variables with defaults or state checks.
+
 ### Emoji Code Errors
 | Invalid | Correct | Reason |
 |---------|---------|--------|
@@ -242,6 +298,8 @@ Patterns to detect programmatically:
 8. Entity domain mismatch (light.turn_on → input_boolean.*)
 9. Unquoted strings starting with emoji/special chars
 10. Entity name inconsistencies (typos, wrong entity names)
+11. Timer cancellation inside if/choose blocks (should be top-level or parallel)
+12. numeric_state on attribute: without state check (use variables with defaults)
 ```
 
 ### Suggested Tools
