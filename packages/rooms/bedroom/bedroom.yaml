@@ -456,18 +456,16 @@ automation:
         entity_id: input_boolean.enable_bedroom_motion_trigger
         state: "on"
       - or:
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_left','brightness') == none }}"
-          - condition: template
-            value_template: "{{ state_attr('light.under_bed_right','brightness') == none }}"
-          - condition: numeric_state
+          - condition: state
             entity_id: light.under_bed_left
-            below: 100
-            attribute: brightness
-          - condition: numeric_state
+            state: "off"
+          - condition: state
             entity_id: light.under_bed_right
-            below: 100
-            attribute: brightness
+            state: "off"
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_left','brightness')|int(0) < 100 }}"
+          - condition: template
+            value_template: "{{ state_attr('light.under_bed_right','brightness')|int(0) < 100 }}"
     actions:
       - parallel:
           - choose:
