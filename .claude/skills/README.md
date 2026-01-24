@@ -83,6 +83,35 @@ Identifies consolidation opportunities by analyzing trigger/condition/action pat
 
 ---
 
+### 4. **HA Reflection Reviewer**
+**File:** `ha-reflection-reviewer.md`
+
+Systematically reviews recent git commits to identify patterns in user corrections and learn from implementation errors.
+
+**Use When:**
+- After completing major implementation phases
+- Weekly/monthly quality audits
+- When user reports repeated error patterns
+- Before starting similar implementation work
+- Quarterly continuous improvement reviews
+
+**Review Process:**
+- Analyzes user fix commits vs Claude implementation commits
+- Categorizes error types (syntax, entity reference, logic, quote)
+- Documents root causes and prevention strategies
+- Updates skills and reference docs with learnings
+- Tracks metrics and improvement trends
+
+**Typical Results:**
+- 5-10 error patterns identified per review
+- 100% of errors documented and prevented
+- Skill updates with new validation rules
+- Continuous improvement cycle established
+
+**Example:** 2026-01-24 reflection found 5 critical error types, updated 3 skills with new validation rules
+
+---
+
 ## Skill Workflow
 
 ### Standard Optimization Flow
@@ -234,6 +263,14 @@ Result: 6 automations → 3, 85 lines saved, 0 critical issues
 - ✅ Quarterly code quality audits
 - ✅ After consolidation to re-validate
 - ✅ Tracking consistency improvements
+
+### Reflection Reviewer → When to Use
+- ✅ After completing major implementation phases
+- ✅ Weekly/monthly review of user corrections
+- ✅ When repeated error patterns are observed
+- ✅ Before starting similar implementation work
+- ✅ Quarterly continuous improvement audits
+- ✅ To track error rate trends over time
 
 ---
 

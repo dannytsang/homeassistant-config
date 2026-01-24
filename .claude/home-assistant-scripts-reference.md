@@ -74,7 +74,7 @@ sequence:
 
 ### Response Variables
 
-**Critical:** Use `response_variables:` (plural) with mapping syntax to capture script outputs:
+**⚠️ CRITICAL:** Use `response_variable:` (SINGULAR) with template string syntax to capture script outputs:
 
 ```yaml
 sequence:
@@ -82,18 +82,24 @@ sequence:
     data:
       hour: "{{ now().strftime('%I') | int }}"
       minute: "{{ now().minute | int }}"
-    response_variables:
-      clock_result: "{{ response.emoji }}"
+    response_variable: "{{ response.emoji }}"  # Direct template string, NOT mapping
   - action: script.send_to_home_log
     data:
-      message: "{{ clock_result }} Log message"
+      message: "{{ result }} Log message"  # Use 'result' variable (default name)
 ```
 
-**CRITICAL ERRORS TO AVOID:**
-1. ❌ `response_variable:` (singular) - WRONG
-2. ✅ `response_variables:` (plural) - CORRECT
-3. ❌ Accessing `response.emoji` directly without `response_variables` mapping
-4. ✅ Map with `response_variables: var_name: "{{ response.emoji }}"`
+**CRITICAL SYNTAX RULES:**
+1. ✅ `response_variable:` (SINGULAR) - CORRECT
+2. ❌ `response_variable:` (PLURAL) - WRONG (will cause script failure)
+3. ✅ Direct template string: `response_variable: "{{ response.field }}"`
+4. ❌ Mapping syntax: `response_variable: var: "{{ ... }}"` - WRONG
+
+**Default variable name:**
+- When using `response_variable:` the result is stored in a variable named based on context
+- Check script documentation for exact variable name
+- Often accessible directly in template: `"{{ response.field }}"`
+
+**⚠️ WARNING:** Some documentation may incorrectly show `response_variable:` (plural). Always use `response_variable:` (singular) with template string.
 
 ### Returning Values from Scripts
 
@@ -398,7 +404,7 @@ script:
         data:
           hour: "{{ now().strftime('%I') | int }}"
           minute: "{{ now().minute | int }}"
-        response_variables:
+        response_variable:
           clock_result: "{{ response.emoji }}"
       - action: script.send_to_home_log
         data:
@@ -509,8 +515,8 @@ script:
 
 | Mistake | Problem | Solution |
 |---------|---------|----------|
-| `response_variable:` (singular) | Wrong syntax, script fails | Use `response_variables:` (plural) |
-| Using `response.field` without mapping | Undefined variable | Map with `response_variables: var: "{{ response.field }}"` |
+| `response_variables:` (plural) | Wrong syntax, script fails | Use `response_variable:` (singular) |
+| Using mapping syntax | Wrong format | Use `response_variable: "{{ response.field }}"` (direct template) |
 | Nested choose in parallel | Invalid structure | Move choose to sequential level |
 | Variable scope confusion | Variables inaccessible | Define at appropriate nesting level |
 | Accessing undefined entity in template | Runtime error | Use `\| default()` filter for safety |
@@ -548,7 +554,7 @@ automation:
         minutes: 0
     actions:
       - action: script.check_temperature
-        response_variables:
+        response_variable:
           temp_result: "{{ response.is_high }}"
       - if:
           - condition: template
@@ -564,7 +570,7 @@ automation:
 ## Best Practices Summary
 
 1. **Use `queued` mode** for scripts called frequently (motion detection, timers)
-2. **Use `response_variables:` (plural)** to return data from scripts
+2. **Use `response_variable:` (SINGULAR)** with template string to return data from scripts
 3. **Order choose branches by priority** - first match wins
 4. **Test templates before using** - use Developer Tools
 5. **Use parallel for independent tasks** - logging + light on together

@@ -55,9 +55,13 @@ Systematically review Home Assistant YAML packages for syntax errors, logic issu
 
 ### CRITICAL Checks
 - [ ] All YAML syntax valid (proper indentation, colons, quotes)
+- [ ] **Condition objects use `alias:` ONLY** (never `description:` - unsupported syntax)
+- [ ] **`response_variable:` (singular) syntax correct** - template string, NOT mapping
+- [ ] **Action domain matches target entity domain** (light.turn_on → light.*, not input_boolean.*)
+- [ ] **Strings starting with emoji/special chars are quoted**
 - [ ] All script calls have required `title:` field
 - [ ] All template sensors/input helpers defined
-- [ ] All entity IDs exist in system
+- [ ] All entity IDs exist in system and match expected domain
 - [ ] Emoji codes are valid (not `:invalid_code:`)
 - [ ] log_level values quoted ("Debug", "Normal")
 - [ ] String values properly quoted when needed
@@ -129,6 +133,57 @@ Commit structure:
 
 ## Common Issues Reference
 
+### Syntax Constraint Errors
+**Issue:** Invalid `description:` on condition alias
+```yaml
+# WRONG: Condition objects don't support description parameter
+- alias: "Motion detected"
+  description: "This condition checks motion"  # INVALID
+  conditions:
+    - condition: state
+
+# CORRECT: Use alias only
+- alias: "Motion detected - bright room"
+  conditions:
+    - condition: state
+```
+
+**Issue:** Wrong `response_variable` syntax in scripts
+```yaml
+# WRONG: Plural with mapping
+response_variables:
+  clock_result: "{{ response.emoji }}"
+
+# WRONG: Singular with mapping
+response_variable:
+  clock_result: "{{ response.emoji }}"
+
+# CORRECT: Singular with template string
+response_variable: "{{ response.emoji }}"
+```
+
+**Issue:** Entity domain mismatch
+```yaml
+# WRONG: light.turn_on targeting input_boolean
+- action: light.turn_on
+  target:
+    entity_id: input_boolean.some_bool
+
+# CORRECT: Match action domain with entity domain
+- action: light.turn_on
+  target:
+    entity_id: light.some_light
+```
+
+**Issue:** Unquoted string starting with emoji
+```yaml
+# WRONG: Unquoted emoji string
+message: 🚷 Turning off Magic Mirror
+
+# CORRECT: Quoted emoji string
+message: "🚷 Turning off Magic Mirror"
+```
+
 ### Emoji Code Errors
 | Invalid | Correct | Reason |
 |---------|---------|--------|
@@ -182,6 +237,11 @@ Patterns to detect programmatically:
 3. Unquoted Debug/Normal log levels
 4. Undefined entity_id references
 5. Duplicate automation aliases
+6. description: on condition objects (INVALID - use alias: instead)
+7. response_variables: (plural) in scripts (should be response_variable: singular)
+8. Entity domain mismatch (light.turn_on → input_boolean.*)
+9. Unquoted strings starting with emoji/special chars
+10. Entity name inconsistencies (typos, wrong entity names)
 ```
 
 ### Suggested Tools
@@ -189,6 +249,10 @@ Patterns to detect programmatically:
 - AST parsing for YAML structure validation
 - Entity reference cross-checking
 - Automation alias uniqueness validation
+- **NEW:** Condition object parameter validation (alias vs description)
+- **NEW:** Script response_variable syntax checker
+- **NEW:** Action/entity domain matcher (validates light.turn_on targets light.*)
+- **NEW:** Emoji string quote checker
 
 ## Output Format
 

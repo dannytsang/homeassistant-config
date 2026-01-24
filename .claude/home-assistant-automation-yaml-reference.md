@@ -343,6 +343,35 @@ actions:
 
 Conditions are requirements that must be true to execute actions. If trigger fires but conditions fail, automation stops (no actions run).
 
+### ⚠️ CRITICAL: Condition Syntax Constraints
+
+**Condition objects support `alias:` parameter ONLY**
+
+Condition objects do NOT support `description:` parameter. Using `description:` will cause syntax errors.
+
+```yaml
+# ❌ WRONG: description not supported on conditions
+conditions:
+  - alias: "Motion detected"
+    description: "This checks for motion"  # INVALID SYNTAX
+    condition: state
+    entity_id: binary_sensor.motion
+    state: "on"
+
+# ✅ CORRECT: Use alias only
+conditions:
+  - alias: "Motion detected - bright room"
+    condition: state
+    entity_id: binary_sensor.motion
+    state: "on"
+```
+
+**Supported Condition Parameters:**
+- `alias:` - Brief label for documentation (SUPPORTED)
+- `condition:` - Condition type (REQUIRED)
+- `entity_id:`, `state:`, etc. - Condition-specific parameters
+- `description:` - NOT SUPPORTED (will cause syntax error)
+
 ### State Condition
 
 ```yaml
@@ -520,6 +549,46 @@ conditions:
 ## Actions
 
 Actions are the sequence of operations performed when trigger + conditions are met.
+
+### ⚠️ CRITICAL: Entity Domain Validation
+
+**Action domain MUST match target entity domain**
+
+When calling actions on entities, the action domain (first part before `.`) MUST match the target entity domain. Mismatches will cause logic errors or silent failures.
+
+```yaml
+# ❌ WRONG: Action domain doesn't match entity domain
+actions:
+  - action: light.turn_on
+    target:
+      entity_id: input_boolean.some_bool  # Wrong: boolean, not light
+
+  - action: switch.turn_off
+    target:
+      entity_id: light.some_light  # Wrong: light, not switch
+
+# ✅ CORRECT: Action domain matches entity domain
+actions:
+  - action: light.turn_on
+    target:
+      entity_id: light.some_light  # Correct: light matches light
+
+  - action: input_boolean.turn_on
+    target:
+      entity_id: input_boolean.some_bool  # Correct: boolean matches boolean
+```
+
+**Domain Matching Rules:**
+- `light.turn_on` → requires `light.*` entity_id
+- `switch.turn_on` → requires `switch.*` entity_id
+- `input_boolean.turn_on` → requires `input_boolean.*` entity_id
+- `climate.set_temperature` → requires `climate.*` entity_id
+- etc.
+
+**Always verify:**
+1. Entity exists in Home Assistant
+2. Entity domain matches action domain
+3. Entity supports the action being called
 
 ### Service Call Action
 
