@@ -107,18 +107,12 @@ automation:
                   - choose:
                       - conditions:
                           - or:
-                              - condition: numeric_state
-                                entity_id: light.kitchen_cabinets
-                                attribute: brightness
-                                below: 100
-                              - condition: numeric_state
-                                entity_id: light.kitchen_down_lights
-                                attribute: brightness
-                                below: 100
-                              - condition: numeric_state
-                                entity_id: light.kitchen_draws
-                                attribute: brightness
-                                below: 100
+                              - condition: template
+                                value_template: "{{ state_attr('light.kitchen_cabinets', 'brightness')|int(0) < 100 }}"
+                              - condition: template
+                                value_template: "{{ state_attr('light.kitchen_down_lights', 'brightness')|int(0) < 100 }}"
+                              - condition: template
+                                value_template: "{{ state_attr('light.kitchen_draws', 'brightness')|int(0) < 100 }}"
                         sequence:
                           - parallel:
                               - action: script.send_to_home_log
