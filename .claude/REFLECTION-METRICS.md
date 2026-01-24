@@ -46,6 +46,35 @@
 
 ---
 
+**2026-01-24 Follow-up: Kitchen Consolidation Correction**
+- **Commit:** 71982199 - "Ensure both kitchen lights are turned on when motion is detected."
+- **Issue Found:** Automation ID format error in consolidated automation
+- **Error Type:** Automation ID Format (NEW ERROR CATEGORY)
+- **Severity:** 🔴 CRITICAL
+- **Root Cause:** Consolidation process created semantic ID names instead of 13-digit numeric IDs
+
+**What Happened:**
+- Claude consolidated 5 motion automations into 1
+- Used semantic ID: `id: "kitchen_motion_lights_on"`
+- Should have been numeric: `id: "1606158191303"`
+- Violates Home Assistant requirement: all automation IDs must be 13-digit numbers
+
+**Key Learning:**
+- Motion consolidator skill needs validation step for ID assignment
+- Post-consolidation automations require numeric ID verification
+- New validation rule needed for motion consolidator workflow
+
+**Skills to Update:**
+- ✅ ha-motion-consolidator.md - Add "Step 6: Assign Automation ID" with validation
+- ✅ claude.md - Add ID format check to pre-commit validation checklist
+
+**Updated Validation:**
+- ✅ All automation IDs must be 13-digit numeric strings
+- ✅ No alphabetic characters in automation IDs
+- ✅ ID uniqueness verified with grep before commit
+
+---
+
 ### February 2026
 
 _Pending - First reflection: 2026-02-01_
