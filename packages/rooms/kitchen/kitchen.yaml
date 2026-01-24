@@ -22,14 +22,7 @@ automation:
         data:
           transition: 2
     mode: single
-  # CONSOLIDATED MOTION-ON AUTOMATIONS (Phase 4)
-  # Replaces 5 separate automations:
-  # - Kitchen: Motion Detected Table Lights Off
-  # - Kitchen: Motion Detected Cooker Lights Off
-  # - Kitchen: Motion Detected Cooker Lights On
-  # - Kitchen: Motion Detected Ambient Lights On
-  # - Kitchen: Motion Detected Ambient Lights Off
-  - id: "kitchen_motion_lights_on"
+  - id: "1606158191303"
     alias: "Kitchen: Motion Detected - Lights"
     description: "Consolidated motion detection for all kitchen light zones"
     triggers:
@@ -45,70 +38,67 @@ automation:
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
     actions:
-      - choose:
-          # Branch 1: Table lights - Turn on if off or dim
-          - alias: "Table Lights - Off or Dim"
-            conditions:
-              - or:
+      # Table lights - Turn on if off or dim
+      - if:
+          - or:
+              - condition: state
+                entity_id: light.kitchen_table_white
+                state: "off"
+              - and:
                   - condition: state
                     entity_id: light.kitchen_table_white
-                    state: "off"
-                  - and:
-                      - condition: state
-                        entity_id: light.kitchen_table_white
-                        state: "on"
-                      - condition: numeric_state
-                        entity_id: light.kitchen_table_white
-                        attribute: brightness
-                        below: 100
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        🐾 Motion detected.
-                        Turning table 💡 🔆 lights on.
-                      title: "🧑‍🍳 Kitchen"
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_table_lights_on
-                  - action: script.kitchen_cancel_all_light_timers
+                    state: "on"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_table_white
+                    attribute: brightness
+                    below: 100
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    🐾 Motion detected.
+                    Turning table 💡 🔆 lights on.
+                  title: "🧑‍🍳 Kitchen"
+                  log_level: "Debug"
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_table_lights_on
+              - action: script.kitchen_cancel_all_light_timers
 
-          # Branch 2: Cooker lights - Turn on if off or dim
-          - alias: "Cooker Lights - Off or Dim"
-            conditions:
-              - or:
+      # Cooker lights - Turn on if off or dim
+      - if:
+          - or:
+              - condition: state
+                entity_id: light.kitchen_cooker_white
+                state: "off"
+              - and:
                   - condition: state
                     entity_id: light.kitchen_cooker_white
-                    state: "off"
-                  - and:
-                      - condition: state
-                        entity_id: light.kitchen_cooker_white
-                        state: "on"
-                      - condition: numeric_state
-                        entity_id: light.kitchen_cooker_white
-                        attribute: brightness
-                        below: 100
-            sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        🐾 Motion detected and it's dark
-                        ({{ states('sensor.kitchen_motion_ltr390_light') }} &
-                        {{ states('sensor.kitchen_motion_2_illuminance') }}
-                        < {{ states('input_number.kitchen_light_level_threshold') }} &
-                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                        Turning cooker 💡 🔆 lights on.
-                      title: "🧑‍🍳 Kitchen"
-                      log_level: "Debug"
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.kitchen_cooker_lights_on
-                  - action: script.kitchen_cancel_all_light_timers
-
-          # Branch 3: Ambient lights - Complex conditions for bright vs dim
+                    state: "on"
+                  - condition: numeric_state
+                    entity_id: light.kitchen_cooker_white
+                    attribute: brightness
+                    below: 100
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    🐾 Motion detected and it's dark
+                    ({{ states('sensor.kitchen_motion_ltr390_light') }} &
+                    {{ states('sensor.kitchen_motion_2_illuminance') }}
+                    < {{ states('input_number.kitchen_light_level_threshold') }} &
+                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                    Turning cooker 💡 🔆 lights on.
+                  title: "🧑‍🍳 Kitchen"
+                  log_level: "Debug"
+              - action: scene.turn_on
+                target:
+                  entity_id: scene.kitchen_cooker_lights_on
+              - action: script.kitchen_cancel_all_light_timers
+      - choose:
+          # Branch 1: Ambient lights - Complex conditions for bright vs dim
           - alias: "Ambient Lights - On (Check Brightness)"
             conditions:
               - or:
@@ -154,7 +144,7 @@ automation:
                           - action: script.kitchen_cancel_all_light_timers
                 default: []
 
-          # Branch 4: Ambient lights - Turn on dim if any are off
+          # Branch 2: Ambient lights - Turn on dim if any are off
           - alias: "Ambient Lights - Off"
             conditions:
               - or:
@@ -182,7 +172,6 @@ automation:
                     target:
                       entity_id: scene.kitchen_dim_accent_lights
                   - action: script.kitchen_cancel_all_light_timers
-
         default: []
     mode: queued
     max: 10
