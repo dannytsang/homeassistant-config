@@ -38,141 +38,132 @@ automation:
         entity_id: input_boolean.enable_kitchen_motion_triggers
         state: "on"
     actions:
-      # Table lights - Turn on if off or dim
-      - if:
-          - or:
-              - condition: state
-                entity_id: light.kitchen_table_white
-                state: "off"
-              - and:
-                  - condition: state
-                    entity_id: light.kitchen_table_white
-                    state: "on"
-                  - condition: numeric_state
-                    entity_id: light.kitchen_table_white
-                    attribute: brightness
-                    below: 100
-        then:
-          - parallel:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion detected.
-                    Turning table 💡 🔆 lights on.
-                  title: "🧑‍🍳 Kitchen"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.kitchen_table_lights_on
-              - action: script.kitchen_cancel_all_light_timers
-
-      # Cooker lights - Turn on if off or dim
-      - if:
-          - or:
-              - condition: state
-                entity_id: light.kitchen_cooker_white
-                state: "off"
-              - and:
-                  - condition: state
-                    entity_id: light.kitchen_cooker_white
-                    state: "on"
-                  - condition: numeric_state
-                    entity_id: light.kitchen_cooker_white
-                    attribute: brightness
-                    below: 100
-        then:
-          - parallel:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion detected and it's dark
-                    ({{ states('sensor.kitchen_motion_ltr390_light') }} &
-                    {{ states('sensor.kitchen_motion_2_illuminance') }}
-                    < {{ states('input_number.kitchen_light_level_threshold') }} &
-                    {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
-                    Turning cooker 💡 🔆 lights on.
-                  title: "Kitchen: Motion Detected - Lights"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.kitchen_cooker_lights_on
-              - action: script.kitchen_cancel_all_light_timers
-      - choose:
-          # Branch 1: Ambient lights - Complex conditions for bright vs dim
-          - alias: "Ambient Lights - On (Check Brightness)"
-            conditions:
+      - variables:
+          kitchen_table_brightness: "{{ state_attr('light.kitchen_table_white', 'brightness')|int(0) }}"
+          kitchen_cooker_brightness: "{{ state_attr('light.kitchen_cooker_white', 'brightness')|int(0) }}"
+      - parallel:
+          - action: script.kitchen_cancel_all_light_timers
+      
+          # Table lights - Turn on if off or dim
+          - if:
               - or:
                   - condition: state
-                    entity_id: light.kitchen_cabinets
-                    state: "on"
-                  - condition: state
-                    entity_id: light.kitchen_down_lights
-                    state: "on"
-                  - condition: state
-                    entity_id: light.kitchen_draws
-                    state: "on"
-            sequence:
-              - choose:
-                  - conditions:
-                      - or:
-                          - condition: numeric_state
-                            entity_id: light.kitchen_cabinets
-                            attribute: brightness
-                            below: 100
-                          - condition: numeric_state
-                            entity_id: light.kitchen_down_lights
-                            attribute: brightness
-                            below: 100
-                          - condition: numeric_state
-                            entity_id: light.kitchen_draws
-                            attribute: brightness
-                            below: 100
-                    sequence:
-                      - parallel:
-                          - action: script.send_to_home_log
-                            data:
-                              message: >-
-                                🐾 Motion detected.
-                                Turning up accent 💡 🔆 lights.
-                              title: "🧑‍🍳 Kitchen"
-                              log_level: "Debug"
-                          - action: scene.turn_on
-                            data:
-                              transition: 1
-                            target:
-                              entity_id: scene.kitchen_accent_lights_on
-                          - action: script.kitchen_cancel_all_light_timers
-                default: []
-
-          # Branch 2: Ambient lights - Turn on dim if any are off
-          - alias: "Ambient Lights - Off"
-            conditions:
-              - or:
-                  - condition: state
-                    entity_id: light.kitchen_cabinets
+                    entity_id: light.kitchen_table_white
                     state: "off"
-                  - condition: state
-                    entity_id: light.kitchen_down_lights
-                    state: "off"
-                  - condition: state
-                    entity_id: light.kitchen_draws
-                    state: "off"
-            sequence:
+                  - condition: template
+                    value_template: "{{ kitchen_table_brightness < 100 }}"
+            then:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message: >-
                         🐾 Motion detected.
-                        Turning accent 💡 🔆 lights on.
+                        Turning table 💡 🔆 lights on.
                       title: "🧑‍🍳 Kitchen"
                       log_level: "Debug"
                   - action: scene.turn_on
-                    data:
-                      transition: 1
                     target:
-                      entity_id: scene.kitchen_dim_accent_lights
-                  - action: script.kitchen_cancel_all_light_timers
-        default: []
+                      entity_id: scene.kitchen_table_lights_on
+
+          # Cooker lights - Turn on if off or dim
+          - if:
+              - or:
+                  - condition: state
+                    entity_id: light.kitchen_cooker_white
+                    state: "off"
+                  - condition: template
+                    value_template: "{{ kitchen_cooker_brightness < 100 }}"
+            then:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion detected and it's dark
+                        ({{ states('sensor.kitchen_motion_ltr390_light') }} &
+                        {{ states('sensor.kitchen_motion_2_illuminance') }}
+                        < {{ states('input_number.kitchen_light_level_threshold') }} &
+                        {{ states('input_number.kitchen_light_level_2_threshold', with_unit=True) }}).
+                        Turning cooker 💡 🔆 lights on.
+                      title: "Kitchen: Motion Detected - Lights"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.kitchen_cooker_lights_on
+          - choose:
+              # Branch 1: Ambient lights - Complex conditions for bright vs dim
+              - alias: "Ambient Lights - On (Check Brightness)"
+                conditions:
+                  - or:
+                      - condition: state
+                        entity_id: light.kitchen_cabinets
+                        state: "on"
+                      - condition: state
+                        entity_id: light.kitchen_down_lights
+                        state: "on"
+                      - condition: state
+                        entity_id: light.kitchen_draws
+                        state: "on"
+                sequence:
+                  - choose:
+                      - conditions:
+                          - or:
+                              - condition: numeric_state
+                                entity_id: light.kitchen_cabinets
+                                attribute: brightness
+                                below: 100
+                              - condition: numeric_state
+                                entity_id: light.kitchen_down_lights
+                                attribute: brightness
+                                below: 100
+                              - condition: numeric_state
+                                entity_id: light.kitchen_draws
+                                attribute: brightness
+                                below: 100
+                        sequence:
+                          - parallel:
+                              - action: script.send_to_home_log
+                                data:
+                                  message: >-
+                                    🐾 Motion detected.
+                                    Turning up accent 💡 🔆 lights.
+                                  title: "🧑‍🍳 Kitchen"
+                                  log_level: "Debug"
+                              - action: scene.turn_on
+                                data:
+                                  transition: 1
+                                target:
+                                  entity_id: scene.kitchen_accent_lights_on
+                    default: []
+
+              # Branch 2: Ambient lights - Turn on dim if any are off
+              - alias: "Ambient Lights - Off"
+                conditions:
+                  - or:
+                      - condition: state
+                        entity_id: light.kitchen_cabinets
+                        state: "off"
+                      - condition: state
+                        entity_id: light.kitchen_down_lights
+                        state: "off"
+                      - condition: state
+                        entity_id: light.kitchen_draws
+                        state: "off"
+                sequence:
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            🐾 Motion detected.
+                            Turning accent 💡 🔆 lights on.
+                          title: "🧑‍🍳 Kitchen"
+                          log_level: "Debug"
+                      - action: scene.turn_on
+                        data:
+                          transition: 1
+                        target:
+                          entity_id: scene.kitchen_dim_accent_lights
+                      - action: script.kitchen_cancel_all_light_timers
+            default: []
     mode: queued
     max: 10
   # CONSOLIDATED NO-MOTION AUTOMATIONS (Phase 4)
