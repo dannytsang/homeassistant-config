@@ -127,7 +127,13 @@ Systematically reviews recent git commits to identify patterns in user correctio
 
 4. COMMIT & TEST
    └─ Final validation before deployment
+
+5. MONTHLY REFLECTION (Reflection Reviewer)
+   └─ Review accumulated changes, learn from corrections, update skills
 ```
+
+### Monthly Maintenance
+**First of every month:** Run Reflection Reviewer to analyze all changes from previous month, identify patterns, and update validation rules based on learnings.
 
 ### Example: Phase 4 Session
 ```
