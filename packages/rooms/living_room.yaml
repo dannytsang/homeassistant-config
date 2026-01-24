@@ -17,6 +17,9 @@ automation:
         entity_id: input_boolean.enable_living_room_motion_triggers
         state: "on"
     actions:
+      - variables:
+          lamp_left_brightness: "{{ state_attr('light.living_room_lamp_left', 'brightness')|int(0) }}"
+          lamp_right_brightness: "{{ state_attr('light.living_room_lamp_right', 'brightness')|int(0) }}"
       - choose:
           - alias: Motion detected - dark room, turn on lights
             conditions:
@@ -31,18 +34,16 @@ automation:
                     entity_id: sensor.living_room_motion_illuminance
                     state: "unavailable"
               - or:
-                  - condition: numeric_state
+                  - condition: state
                     entity_id: light.living_room_lamp_left
-                    attribute: brightness
-                    below: 190
-                  - condition: numeric_state
+                    state: "off"
+                  - condition: state
                     entity_id: light.living_room_lamp_right
-                    attribute: brightness
-                    below: 190
+                    state: "off"
                   - condition: template
-                    value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
+                    value_template: "{{ lamp_left_brightness < 190 }}"
                   - condition: template
-                    value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
+                    value_template: "{{ lamp_right_brightness < 190 }}"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
@@ -92,9 +93,9 @@ automation:
                     entity_id: light.living_room_lamp_right
                     state: "off"
                   - condition: template
-                    value_template: "{{ state_attr('light.living_room_lamp_left', 'brightness') == none }}"
+                    value_template: "{{ lamp_left_brightness == 0 }}"
                   - condition: template
-                    value_template: "{{ state_attr('light.living_room_lamp_right', 'brightness') == none }}"
+                    value_template: "{{ lamp_right_brightness == 0 }}"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
