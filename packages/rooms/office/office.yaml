@@ -23,7 +23,11 @@ automation:
       - variables:
           light_2: "{{ state_attr('light.office_2', 'brightness') | int(0) }}"
           light_3: "{{ state_attr('light.office_3', 'brightness') | int(0) }}"
-      - choose:
+      - parallel:
+          - action: timer.cancel
+            target:
+              entity_id: timer.office_lights_off
+          - choose:
           - conditions:
               - or:
                   - and:
@@ -37,20 +41,15 @@ automation:
                     entity_id: sensor.office_motion_2_illuminance
                     state: "unavailable"
             sequence:
-              - parallel:
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        🐾 💡 🔆 Motion detected in the office
-                        but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
-                        {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
-                        Skipping turning light on.
-                      title: ":office: Office"
-                      log_level: "Debug"
-                  - action: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.office_lights_off
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    🐾 💡 🔆 Motion detected in the office
+                    but it's bright enough ({{ states('sensor.office_motion_2_illuminance') }} >
+                    {{ states('input_number.office_light_level_threshold', with_unit=True) }}).
+                    Skipping turning light on.
+                  title: ":office: Office"
+                  log_level: "Debug"
           - conditions:
               - and:
                   - condition: numeric_state
@@ -75,10 +74,6 @@ automation:
                         Turning up 💡 🔆 lights.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - action: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.office_lights_off
           - conditions:
               - and:
                   - or:
@@ -107,30 +102,18 @@ automation:
                         Turning office lights off.
                       title: ":office: Office"
                       log_level: "Debug"
-                  - action: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.office_lights_off
           - conditions:
               - condition: state
                 entity_id: timer.office_lights_off
                 state: "active"
             sequence:
-              - parallel:
-                  - action: scene.turn_on
-                    target:
-                      entity_id: scene.office_main_light_off
-                  - action: script.send_to_home_log
-                    data:
-                      message: >-
-                        🐾 💡 🔆 Motion detected in the office
-                        Cancelling Timer.
-                      title: ":office: Office"
-                      log_level: "Debug"
-                  - action: timer.cancel
-                    data: {}
-                    target:
-                      entity_id: timer.office_lights_off
+              - action: script.send_to_home_log
+                data:
+                  message: >-
+                    🐾 💡 🔆 Motion detected in the office
+                    Cancelling Timer.
+                  title: ":office: Office"
+                  log_level: "Debug"
         default: []
     mode: queued
     max: 10
