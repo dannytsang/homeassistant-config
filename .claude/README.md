@@ -1,6 +1,6 @@
 # .claude Directory - Context Refresh Guide
 
-**Last Updated:** 2026-01-25 (Updated skill count and integration workflows)
+**Last Updated:** 2026-01-25 (Added GitHub Issue Creator skill #12, updated skill count and integration workflows)
 **Purpose:** Enable Claude to quickly rebuild effective context after conversation compaction
 **Version:** 1.0
 
@@ -16,7 +16,7 @@ Read .claude/skills/README.md and .claude/skills/ha-known-error-detector.md
 ```
 
 **What you get:**
-- Complete index of all 11 skills and when to use them
+- Complete index of all 12 skills and when to use them
 - 7 critical error patterns (prevents 30%+ of historical errors)
 - Complete workflow integration patterns
 - Ready to work on most tasks
@@ -74,8 +74,8 @@ Load doc system context: Read .claude/skills/ha-documentation-updater.md, .claud
 ### Always Current (Never Archive)
 
 #### Skills Directory (`skills/`)
-All 11 specialized skills and methodologies (6 optimization + 5 validation). Load by topic as needed:
-- `README.md` - Master skill index (LOAD FIRST - v1.1)
+All 12 specialized skills and methodologies (6 optimization + 5 validation + 1 issue management). Load by topic as needed:
+- `README.md` - Master skill index (LOAD FIRST - v1.2)
 - `ha-known-error-detector.md` - 7 critical error patterns (LOAD FIRST)
 - `ha-yaml-quality-reviewer.md` - Comprehensive YAML validation
 - `ha-consolidation-analyzer.md` - Consolidation opportunity scoring
@@ -87,6 +87,7 @@ All 11 specialized skills and methodologies (6 optimization + 5 validation). Loa
 - `ha-entity-reference-validator.md` - Entity reference cross-validation
 - `ha-package-review.md` - Package quality assessment
 - `ha-repo-status.md` - Repository state analysis
+- `ha-github-issue-creator.md` - GitHub enhancement issue creation
 
 #### Agents Directory (`agents/`)
 Agent specifications for specialized work:
@@ -184,7 +185,7 @@ Load HA documentation when validating syntax or complex patterns
 When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### From skills/README.md:
-- All 11 skill names and purposes (6 optimization + 5 validation)
+- All 12 skill names and purposes (6 optimization + 5 validation + 1 issue management)
 - When to use each skill
 - Complete workflows (Quick/Full/Critical paths)
 - Phase integration (Phases 4-6)
@@ -245,7 +246,7 @@ When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### Test 1: Can I list all skills?
 After minimal context load, ask: "What skills are available?"
-Expected: Claude lists all 11 skills with brief descriptions.
+Expected: Claude lists all 12 skills with brief descriptions.
 
 ### Test 2: Can I identify error patterns?
 After minimal context load, ask: "What error patterns should I avoid?"
@@ -271,7 +272,7 @@ User: "I'm back. Get up to speed on what we're working on."
 Claude: "Let me load my core context."
 [Reads skills/README.md and ha-known-error-detector.md]
 "Context refreshed. I have:
-- Index of all 11 skills (6 optimization + 5 validation)
+- Index of all 12 skills (6 optimization + 5 validation + 1 issue management)
 - 7 critical error patterns
 - Understanding of complete workflows
 
@@ -296,7 +297,7 @@ User: "Full context refresh - I haven't worked on this in a week."
 Claude: "Loading full context..."
 [Reads 4-5 core files covering skills, errors, metrics, and project status]
 "Context restored. Here's the status:
-- Skills: All 11 available (6 optimization + 5 validation)
+- Skills: All 12 available (6 optimization + 5 validation + 1 issue management)
 - Project: 6/11 rooms documented (bathroom next)
 - Error rate: 30% (from January reflection)
 
@@ -331,7 +332,7 @@ When confused about context:
 ## Next Steps When You Load Context
 
 ### After minimal context (skills README + error detector):
-1. Confirm you can list all 11 skills
+1. Confirm you can list all 12 skills
 2. Confirm you understand the 7 error patterns
 3. Ask: "What would you like me to work on?"
 
@@ -363,7 +364,7 @@ When confused about context:
 
 **Success metric:**
 - Can rebuild effective context in under 2 minutes
-- Know all 11 skills and 7 error patterns
+- Know all 12 skills and 7 error patterns
 - Ready to work on any task
 
 ---

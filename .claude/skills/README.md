@@ -1,10 +1,10 @@
 # Claude Skills for Home Assistant Configuration
 
-**Version:** 1.1
+**Version:** 1.2
 **Created:** 2026-01-23
 **Last Updated:** 2026-01-25
 **Status:** Production
-**Total Skills:** 11 (6 optimization + 5 validation/error prevention)
+**Total Skills:** 12 (6 optimization + 5 validation/error prevention + 1 issue management)
 
 ---
 
@@ -377,6 +377,45 @@ Comprehensive review of repository state including commits, branches, file chang
 
 ---
 
+### 12. **HA GitHub Issue Creator**
+**File:** `ha-github-issue-creator.md`
+
+Creates GitHub enhancement issues with automated label detection, validation, and assignment to the repository owner.
+
+**Use When:**
+- Planning enhancement discussions (turn plans into trackable issues)
+- Feature requests identified during review (capture ideas as issues)
+- After smoke testing or validation (document findings that need work)
+- Consolidation opportunities (track improvements to implement)
+- Documentation improvements (turn gaps into action items)
+- Refactoring/optimization work (track technical improvements)
+
+**Key Features:**
+- ✅ Checks available labels before creating (prevents errors)
+- ✅ Always applies 'enhancement' label
+- ✅ Matches other applicable labels from available list
+- ✅ Always assigns to dannytsang
+- ✅ Structured issue body with all relevant sections
+- ✅ User approval before creation
+
+**Label Matching:**
+- Room-specific labels (kitchen, office, stairs, etc.)
+- Integration labels (integration: nest protect, etc.)
+- Feature type labels (automations, scripts, documentation)
+- Domain labels (testing, configuration, performance)
+- Only applies labels that exist in repository
+
+**Typical Results:**
+- Well-structured enhancement issues
+- Proper labeling with no "label not found" errors
+- Assigned and ready for action
+- Clear title and comprehensive body
+- Related issues linked where applicable
+
+**Example:** Creates issue for "Consolidate stairs motion automations" with labels: enhancement, automations, stairs
+
+---
+
 ## Skill Workflow
 
 ### Standard Optimization Flow
@@ -411,10 +450,13 @@ Comprehensive review of repository state including commits, branches, file chang
 8. DOCUMENT (Room Documentation Generator)
    └─ Generate comprehensive setup guide [Optional but recommended]
 
-9. COMMIT & TEST
-   └─ Final validation before deployment
+9. CREATE ISSUES (GitHub Issue Creator)
+   └─ Create enhancement issues for identified improvements [Optional]
 
-10. MONTHLY REFLECTION (Reflection Reviewer)
+10. COMMIT & TEST
+    └─ Final validation before deployment
+
+11. MONTHLY REFLECTION (Reflection Reviewer)
     └─ Review accumulated changes, learn from corrections, update skills
 ```
 
@@ -672,6 +714,15 @@ MONTHLY:
 - ✅ Handoff or onboarding scenarios
 - ✅ Before major PR or release planning
 
+### GitHub Issue Creator → When to Use
+- ✅ After planning enhancement discussions (turn plans into issues)
+- ✅ When feature requests are identified (capture as trackable issues)
+- ✅ After validation/smoke testing (document findings that need work)
+- ✅ When consolidation opportunities are found (track improvements)
+- ✅ When documentation gaps are identified (turn gaps into action items)
+- ✅ When refactoring opportunities are discovered (track technical work)
+- ✅ Before committing large changes (create issue to track)
+
 ---
 
 ## Future Enhancements
@@ -792,10 +843,10 @@ Score 0-39: Safety-critical → SKIP
 
 **Skills Created:** 2026-01-23
 **Last Updated:** 2026-01-25
-**Total Skills:** 11 (6 optimization + 5 validation/error prevention)
-**Maintained By:** Claude (HA Config Optimization Team)
+**Total Skills:** 12 (6 optimization + 5 validation/error prevention + 1 issue management)
+**Maintained By:** User
 **Status:** Production Ready
-**Version:** 1.1
+**Version:** 1.2
 
 ---
 
