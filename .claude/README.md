@@ -1,8 +1,8 @@
 # .claude Directory - Context Refresh Guide
 
-**Last Updated:** 2026-01-25 (Added GitHub Issue Creator skill #12, updated skill count and integration workflows)
+**Last Updated:** 2026-01-25 (Added ha-documentation-updater skill #13, 6/11 rooms documented, archive structure operational)
 **Purpose:** Enable Claude to quickly rebuild effective context after conversation compaction
-**Version:** 1.0
+**Version:** 1.1
 
 ---
 
@@ -16,7 +16,7 @@ Read .claude/skills/README.md and .claude/skills/ha-known-error-detector.md
 ```
 
 **What you get:**
-- Complete index of all 12 skills and when to use them
+- Complete index of all 13 skills and when to use them
 - 7 critical error patterns (prevents 30%+ of historical errors)
 - Complete workflow integration patterns
 - Ready to work on most tasks
@@ -31,7 +31,7 @@ Read .claude/skills/README.md, .claude/skills/ha-known-error-detector.md, .claud
 **What you get:**
 - Complete skill index
 - Critical error patterns
-- Current project status (rooms 4/11 documented)
+- Current project status (rooms 6/11 documented)
 - Monthly improvement metrics
 
 **Token cost:** ~30,000 tokens (~100KB)
@@ -74,7 +74,7 @@ Load doc system context: Read .claude/skills/ha-documentation-updater.md, .claud
 ### Always Current (Never Archive)
 
 #### Skills Directory (`skills/`)
-All 12 specialized skills and methodologies (6 optimization + 5 validation + 1 issue management). Load by topic as needed:
+All 13 specialized skills and methodologies (6 optimization + 5 validation + 1 documentation + 1 issue management). Load by topic as needed:
 - `README.md` - Master skill index (LOAD FIRST - v1.2)
 - `ha-known-error-detector.md` - 7 critical error patterns (LOAD FIRST)
 - `ha-yaml-quality-reviewer.md` - Comprehensive YAML validation
@@ -88,6 +88,7 @@ All 12 specialized skills and methodologies (6 optimization + 5 validation + 1 i
 - `ha-package-review.md` - Package quality assessment
 - `ha-repo-status.md` - Repository state analysis
 - `ha-github-issue-creator.md` - GitHub enhancement issue creation
+- `ha-documentation-updater.md` - Refresh HA documentation cache
 
 #### Agents Directory (`agents/`)
 Agent specifications for specialized work:
@@ -185,7 +186,7 @@ Load HA documentation when validating syntax or complex patterns
 When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### From skills/README.md:
-- All 12 skill names and purposes (6 optimization + 5 validation + 1 issue management)
+- All 13 skill names and purposes (6 optimization + 5 validation + 1 documentation + 1 issue management)
 - When to use each skill
 - Complete workflows (Quick/Full/Critical paths)
 - Phase integration (Phases 4-6)
@@ -246,7 +247,7 @@ When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### Test 1: Can I list all skills?
 After minimal context load, ask: "What skills are available?"
-Expected: Claude lists all 12 skills with brief descriptions.
+Expected: Claude lists all 13 skills with brief descriptions.
 
 ### Test 2: Can I identify error patterns?
 After minimal context load, ask: "What error patterns should I avoid?"
@@ -272,7 +273,7 @@ User: "I'm back. Get up to speed on what we're working on."
 Claude: "Let me load my core context."
 [Reads skills/README.md and ha-known-error-detector.md]
 "Context refreshed. I have:
-- Index of all 12 skills (6 optimization + 5 validation + 1 issue management)
+- Index of all 13 skills (6 optimization + 5 validation + 1 documentation + 1 issue management)
 - 7 critical error patterns
 - Understanding of complete workflows
 
@@ -297,8 +298,8 @@ User: "Full context refresh - I haven't worked on this in a week."
 Claude: "Loading full context..."
 [Reads 4-5 core files covering skills, errors, metrics, and project status]
 "Context restored. Here's the status:
-- Skills: All 12 available (6 optimization + 5 validation + 1 issue management)
-- Project: 6/11 rooms documented (bathroom next)
+- Skills: All 13 available (6 optimization + 5 validation + 1 documentation + 1 issue management)
+- Project: 6/11 rooms documented (Bathroom next)
 - Error rate: 30% (from January reflection)
 
 What would you like to continue?"
@@ -364,7 +365,7 @@ When confused about context:
 
 **Success metric:**
 - Can rebuild effective context in under 2 minutes
-- Know all 12 skills and 7 error patterns
+- Know all 13 skills and 7 error patterns
 - Ready to work on any task
 
 ---
