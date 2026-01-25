@@ -1,10 +1,10 @@
 # Claude Skills for Home Assistant Configuration
 
-**Version:** 1.2
+**Version:** 1.3
 **Created:** 2026-01-23
 **Last Updated:** 2026-01-25
 **Status:** Production
-**Total Skills:** 13 (6 optimization + 5 validation/error prevention + 1 documentation + 1 issue management)
+**Total Skills:** 14 (6 optimization + 6 validation/safety + 1 documentation + 1 issue management)
 
 ---
 
@@ -16,7 +16,11 @@ This directory contains specialized Claude skills designed to optimize Home Assi
 
 ## 🚨 Critical Collaboration Rule
 
-**No Claude attribution in commits.** This is an iron clad law. Never include "Co-Authored-By: Claude" or similar. All commits are authored by the user. See `.claude/COMMIT-CONVENTIONS.md` for details.
+**No Claude attribution in commits.** This is an iron clad law. Never include "Co-Authored-By: Claude" or similar. All commits are authored by the user.
+
+**Enforcement:** The `/commit` skill (ha-git-commit-safety.md) automatically rejects any commit message containing Claude attribution, ensuring 100% compliance.
+
+See `.claude/COMMIT-CONVENTIONS.md` for details.
 
 ---
 
@@ -100,6 +104,42 @@ Validates that reference documentation is current before running validation chec
 - Confidence that recommendations are based on current HA version
 
 **Example:** Validator reports "Documentation is 3 days old ✅ Current. Proceeding with validation..."
+
+---
+
+### 0.2 **HA Git Commit Safety** (Utility)
+**File:** `ha-git-commit-safety.md`
+
+Safely commit changes with security validation, repository visibility checks, and enforcement of commit conventions. Prevents accidental exposure of credentials and enforces no-Claude-attribution policy (iron clad law).
+
+**Use When:**
+- Before every commit (recommended default workflow)
+- Working with sensitive files (credentials, API keys)
+- Committing to public repository
+- Unsure if staged changes contain secrets
+- When reinforcing commit message conventions
+
+**What It Does:**
+1. **Security Scan** - Detects staged `.env` files, hardcoded credentials, API keys
+2. **Visibility Check** - Verifies repository privacy status and warns if public
+3. **Message Validation** - Rejects Claude attribution (iron clad law), validates format
+4. **Error Pattern Scan** - Optional scan for 7 known automation errors
+5. **Change Preview** - Shows files, sizes, and line changes
+6. **Confirmation** - Requires explicit approval before committing
+
+**Critical Rules:**
+- 🚨 **NO CLAUDE ATTRIBUTION** - Iron clad law, never include "Co-Authored-By: Claude"
+- Never commit `.env` files with credentials
+- Always verify public repos before committing
+- Use environment variables, never hardcode secrets
+
+**Typical Results:**
+- 100% credential safety before commit
+- Zero accidental public exposure
+- Proper commit message compliance
+- Clear audit trail of all changes
+
+**Example:** User attempts to commit with Claude attribution → Skill rejects → User corrects → Commit succeeds with full security validation
 
 ---
 
@@ -886,10 +926,11 @@ Score 0-39: Safety-critical → SKIP
 ## Next Steps
 
 ### Immediate (This Week)
-1. Test all 11 skills on living_room, bedroom, office packages
-2. Run Known Error Detector baseline on all existing packages
-3. Execute Repository Status skill to assess current state
-4. Plan first Reflection Reviewer session
+1. Test all 14 skills on living_room, bedroom, office packages
+2. Run Git Commit Safety on all commits (new workflow integration)
+3. Run Known Error Detector baseline on all existing packages
+4. Execute Repository Status skill to assess current state
+5. Plan first Reflection Reviewer session
 
 ### Short-term (This Month)
 1. Integrate Known Error Detector into pre-commit workflow

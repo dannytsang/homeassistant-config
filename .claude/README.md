@@ -16,7 +16,7 @@ Read .claude/skills/README.md and .claude/skills/ha-known-error-detector.md
 ```
 
 **What you get:**
-- Complete index of all 13 skills and when to use them
+- Complete index of all 14 skills and when to use them
 - 7 critical error patterns (prevents 30%+ of historical errors)
 - Complete workflow integration patterns
 - Ready to work on most tasks
@@ -186,7 +186,7 @@ Load HA documentation when validating syntax or complex patterns
 When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### From skills/README.md:
-- All 13 skill names and purposes (6 optimization + 5 validation + 1 documentation + 1 issue management)
+- All 14 skill names and purposes (6 optimization + 6 validation/safety + 1 documentation + 1 issue management)
 - When to use each skill
 - Complete workflows (Quick/Full/Critical paths)
 - Phase integration (Phases 4-6)
@@ -247,7 +247,7 @@ When you load `skills/README.md` and `ha-known-error-detector.md`, Claude has:
 
 ### Test 1: Can I list all skills?
 After minimal context load, ask: "What skills are available?"
-Expected: Claude lists all 13 skills with brief descriptions.
+Expected: Claude lists all 14 skills with brief descriptions.
 
 ### Test 2: Can I identify error patterns?
 After minimal context load, ask: "What error patterns should I avoid?"
@@ -273,7 +273,7 @@ User: "I'm back. Get up to speed on what we're working on."
 Claude: "Let me load my core context."
 [Reads skills/README.md and ha-known-error-detector.md]
 "Context refreshed. I have:
-- Index of all 13 skills (6 optimization + 5 validation + 1 documentation + 1 issue management)
+- Index of all 14 skills (6 optimization + 6 validation/safety + 1 documentation + 1 issue management)
 - 7 critical error patterns
 - Understanding of complete workflows
 
@@ -333,7 +333,7 @@ When confused about context:
 ## Next Steps When You Load Context
 
 ### After minimal context (skills README + error detector):
-1. Confirm you can list all 13 skills
+1. Confirm you can list all 14 skills
 2. Confirm you understand the 7 error patterns
 3. Ask: "What would you like me to work on?"
 
@@ -365,7 +365,7 @@ When confused about context:
 
 **Success metric:**
 - Can rebuild effective context in under 2 minutes
-- Know all 13 skills and 7 error patterns
+- Know all 14 skills and 7 error patterns
 - Ready to work on any task
 
 ---
