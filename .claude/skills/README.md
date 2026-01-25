@@ -70,6 +70,39 @@ Fetches the latest Home Assistant documentation from official sources and update
 
 ---
 
+### 0.1 **HA Doc Currency Checker** (Utility)
+**File:** `ha-doc-currency-checker.md`
+
+Validates that reference documentation is current before running validation checks. Prevents stale documentation from invalidating validation results.
+
+**Use When:**
+- Running any validator (ha-yaml-quality-reviewer, ha-entity-reference-validator, etc.)
+- Before committing changes that depend on documentation accuracy
+- When you haven't refreshed docs in 30+ days
+- As a pre-flight check before major work
+
+**What It Does:**
+1. **Reads metadata** from reference files (Date field)
+2. **Calculates age** (days since last update)
+3. **Compares against threshold** (30-45 days depending on validator)
+4. **Reports status** and recommends refresh if stale
+
+**Integrated Into:**
+- ha-yaml-quality-reviewer.md (30 day threshold)
+- ha-entity-reference-validator.md (45 day threshold)
+- ha-consolidation-analyzer.md (30 day threshold)
+- ha-package-review.md (30 day threshold)
+
+**Typical Results:**
+- Clear doc currency status at start of validation
+- Alert if docs need refresh
+- Prevention of validation based on stale information
+- Confidence that recommendations are based on current HA version
+
+**Example:** Validator reports "Documentation is 3 days old ✅ Current. Proceeding with validation..."
+
+---
+
 ### 1. **HA Motion Consolidator**
 **File:** `ha-motion-consolidator.md`
 

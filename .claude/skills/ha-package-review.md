@@ -14,6 +14,40 @@ or
 review the <room> package
 ```
 
+---
+
+## ⚠️ Documentation Currency Check
+
+**Before running this review, confirm reference documentation is current:**
+
+**Required Reference Files:**
+- `home-assistant-automation-yaml-reference.md` - Automation syntax
+- `home-assistant-scripts-reference.md` - Script patterns
+- `home-assistant-templating-reference.md` - Template syntax
+- `home-assistant-splitting-configuration-reference.md` - Package organization
+
+**Threshold:** 30 days
+
+**How to Check:**
+1. Read `.claude/documentation-update-log.md` for current ages
+2. If any file is >30 days old, run `/ha-docs` to refresh
+3. Then proceed with this package review
+
+**If Documentation is Stale:**
+```
+⚠️ WARNING: Reference documentation is X days old
+→ Recommendation: Run /ha-docs before proceeding
+→ Reason: New syntax, features, or patterns may have been introduced
+```
+
+**Why This Matters:**
+- Package reviews depend on knowledge of current HA syntax
+- New features may enable better package organization
+- Deprecated patterns need to be caught and updated
+- Best practices evolve with each HA release
+
+---
+
 ## Instructions
 
 You are a Home Assistant configuration expert reviewing YAML packages for issues and improvements.

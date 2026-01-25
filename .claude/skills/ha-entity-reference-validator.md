@@ -23,6 +23,39 @@ Cross-reference all entity_id mentions across Home Assistant packages, validate 
 
 ---
 
+## ⚠️ Documentation Currency Check
+
+**Before running this validator, confirm reference documentation is current:**
+
+**Required Reference Files:**
+- `home-assistant-automation-yaml-reference.md` - Service actions and domains
+- `home-assistant-template-sensors-reference.md` - Entity types and device classes
+- `home-assistant-splitting-configuration-reference.md` - Package entity organization
+
+**Threshold:** 45 days (Entity types are more stable than automation syntax)
+
+**How to Check:**
+1. Read `.claude/documentation-update-log.md` for current ages
+2. If any file is >45 days old, run `/ha-docs` to refresh
+3. Then proceed with this validation
+
+**If Documentation is Stale:**
+```
+⚠️ WARNING: Reference documentation is X days old
+→ Recommendation: Run /ha-docs before proceeding
+→ Reason: New entity types, integrations, or domain changes may be missing
+```
+
+**Why This Matters:**
+- Entity domains can change between HA versions
+- New integrations introduce new entity types
+- Action domains may be updated or deprecated
+- Service parameters may change
+
+**Note:** This validator ensures entity_id references match valid domains. Outdated docs means missing new entity types and services.
+
+---
+
 ## Critical Rules
 
 ### Rule 1: Action Domain Must Match Entity Domain
