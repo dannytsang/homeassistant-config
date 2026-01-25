@@ -14,6 +14,12 @@ This directory contains specialized Claude skills designed to optimize Home Assi
 
 ---
 
+## 🚨 Critical Collaboration Rule
+
+**No Claude attribution in commits.** This is an iron clad law. Never include "Co-Authored-By: Claude" or similar. All commits are authored by the user. See `.claude/COMMIT-CONVENTIONS.md` for details.
+
+---
+
 ## After Conversation Compaction
 
 When Claude's context is compacted and loses previous conversation history, rebuild context with this strategy:
