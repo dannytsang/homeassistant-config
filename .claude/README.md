@@ -333,7 +333,7 @@ When confused about context:
 ## Next Steps When You Load Context
 
 ### After minimal context (skills README + error detector):
-1. Confirm you can list all 12 skills
+1. Confirm you can list all 13 skills
 2. Confirm you understand the 7 error patterns
 3. Ask: "What would you like me to work on?"
 
@@ -370,7 +370,8 @@ When confused about context:
 
 ---
 
-**Version:** 1.0
+**Version:** 1.2
 **Created:** 2026-01-25
 **Status:** Ready for Use
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-25 (Updated to match skills/README.md v1.2)
+**Verification:** All 10 test scenarios passing (see CONTEXT-REFRESH-TEST-PLAN.md)
