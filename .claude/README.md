@@ -1,8 +1,8 @@
 # .claude Directory - Context Refresh Guide
 
-**Last Updated:** 2026-01-25 (Added ha-documentation-updater skill #13, 6/11 rooms documented, archive structure operational)
+**Last Updated:** 2026-01-25 (14 skills operational, 6/11 rooms documented, git-commit-safety skill added, archive operational)
 **Purpose:** Enable Claude to quickly rebuild effective context after conversation compaction
-**Version:** 1.1
+**Version:** 1.2
 
 ---
 
