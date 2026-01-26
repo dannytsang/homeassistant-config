@@ -17,6 +17,42 @@ Systematically review Home Assistant YAML packages for syntax errors, logic issu
 - Regular quality audits of existing packages
 - After major refactoring or consolidation
 
+---
+
+## ⚠️ Documentation Currency Check
+
+**Before running this validator, confirm reference documentation is current:**
+
+**Required Reference Files:**
+- `home-assistant-automation-yaml-reference.md` - Automation YAML syntax
+- `home-assistant-scripts-reference.md` - Script syntax and patterns
+- `home-assistant-templating-reference.md` - Jinja2 template syntax
+
+**Threshold:** 30 days (HA releases monthly, typically 1st Wed/Thu)
+
+**How to Check:**
+1. Read `.claude/documentation-update-log.md` for current ages
+2. If any file is >30 days old, run `/ha-docs` to refresh
+3. Then proceed with this review
+
+**If Documentation is Stale:**
+```
+⚠️ WARNING: Reference documentation is X days old
+→ Recommendation: Run /ha-docs before proceeding
+→ Reason: May have missed new features, syntax changes, or deprecations
+```
+
+**Current Status Example:**
+| File | Age | Status |
+|------|-----|--------|
+| home-assistant-automation-yaml-reference.md | 3 days | ✅ Current |
+| home-assistant-scripts-reference.md | 3 days | ✅ Current |
+| home-assistant-templating-reference.md | 3 days | ✅ Current |
+
+**Note:** This validator relies on reference docs being accurate. Stale docs = less reliable validation results.
+
+---
+
 ## Issue Classification Framework
 
 ### 🔴 CRITICAL (Blocking)

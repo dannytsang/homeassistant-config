@@ -1,6 +1,8 @@
 # Reflection Metrics Tracking
 **Purpose:** Track error patterns, improvement metrics, and trends across monthly reflection reviews
 
+**Note for Post-Compaction Context:** This file is part of the "Full Context Refresh" strategy. Not needed for minimal refresh, but useful for understanding improvement trends and monthly status checks.
+
 ---
 
 ## 2026 Monthly Reflections
@@ -104,18 +106,18 @@
 - Attributes don't exist when entities are off/unavailable
 - Use variables with defaults for safe attribute access
 
-**Skills to Update:**
-- ⏳ ha-yaml-quality-reviewer.md - Add CRITICAL checks for timer placement + attribute safety
-- ⏳ home-assistant-automation-yaml-reference.md - Add motion semantics section
-- ⏳ home-assistant-templating-reference.md - Add safe attribute access patterns
-- ⏳ ha-motion-consolidator.md - Document timer cancellation pattern
-- ⏳ ha-known-error-detector.md - Add unsafe attribute detection
+**Skills Updated:**
+- ✅ ha-yaml-quality-reviewer.md - Added CRITICAL checks for timer placement + attribute safety
+- ✅ home-assistant-automation-yaml-reference.md - Added Motion Detection Semantics section
+- ✅ home-assistant-templating-reference.md - Added Safe Attribute Access patterns
+- ✅ ha-motion-consolidator.md - Documented Timer Cancellation Semantics
+- ✅ ha-known-error-detector.md - Added Pattern 6 & 7 (timer placement + attribute safety)
 
-**New Validation Rules:**
-- ⏳ Timer cancellation in motion automations must be unconditional (top-level)
-- ⏳ Never use `numeric_state` on `attribute:` without state check or variable
-- ⏳ Always use `|int(default)` or `|default(value)` for attribute access
-- ⏳ Scan for timer cancellation inside `if:` or `choose:` blocks
+**Validation Rules Implemented:**
+- ✅ Timer cancellation in motion automations must be unconditional (top-level)
+- ✅ Never use `numeric_state` on `attribute:` without state check or variable
+- ✅ Always use `|int(default)` or `|default(value)` for attribute access
+- ✅ Detection: Scan for timer cancellation inside `if:` or `choose:` blocks
 
 **Error Impact:**
 - User experienced lights dimming while present
@@ -260,6 +262,6 @@ April (Q1)     --            [TBD]
 
 ---
 
-**Last Updated:** 2026-01-24
+**Last Updated:** 2026-01-25
 **Next Review:** 2026-02-01
 **Reviewer:** Claude (Reflection Skill)

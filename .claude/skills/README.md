@@ -1,8 +1,10 @@
 # Claude Skills for Home Assistant Configuration
 
-**Version:** 1.0
+**Version:** 1.3
 **Created:** 2026-01-23
+**Last Updated:** 2026-01-25
 **Status:** Production
+**Total Skills:** 14 (6 optimization + 6 validation/safety + 1 documentation + 1 issue management)
 
 ---
 
@@ -10,7 +12,136 @@
 
 This directory contains specialized Claude skills designed to optimize Home Assistant configuration management. Each skill is a reusable methodology documented for systematic application.
 
+---
+
+## 🚨 Critical Collaboration Rule
+
+**No Claude attribution in commits.** This is an iron clad law. Never include "Co-Authored-By: Claude" or similar. All commits are authored by the user.
+
+**Enforcement:** The `/commit` skill (ha-git-commit-safety.md) automatically rejects any commit message containing Claude attribution, ensuring 100% compliance.
+
+See `.claude/COMMIT-CONVENTIONS.md` for details.
+
+---
+
+## After Conversation Compaction
+
+When Claude's context is compacted and loses previous conversation history, rebuild context with this strategy:
+
+### Minimal Context Refresh (Recommended)
+```
+Read .claude/skills/README.md and .claude/skills/ha-known-error-detector.md
+```
+- Fast load (~2 minutes)
+- Contains complete skill index
+- Includes 7 critical error patterns to prevent
+- Enough to understand scope and ask intelligent questions
+
+### Full Context Refresh (After long break)
+```
+Read .claude/skills/README.md, .claude/skills/ha-known-error-detector.md,
+.claude/REFLECTION-METRICS.md, and .claude/ROOM-DOCUMENTATION-PROGRESS.md
+```
+- Restores skill index and error patterns
+- Updates current project status
+- Includes improvement metrics and trends
+
+**Complete Guide:** See `.claude/README.md` for full context refresh strategy, task-specific loading, and automatic detection.
+
+---
+
 ## Available Skills
+
+### 0. **HA Documentation Updater**
+**File:** `ha-documentation-updater.md`
+
+Fetches the latest Home Assistant documentation from official sources and updates local reference cache. Maintains audit trail of changes and reports what's new or deprecated.
+
+**Use When:**
+- Manual refresh: `/ha-docs` command
+- Quarterly documentation reviews
+- Before major automation work
+- When HA version is updated
+- Team documentation maintenance
+
+**Typical Results:**
+- Up-to-date local reference files
+- Audit trail of all changes
+- New features and deprecations identified
+- Clear what changed and why
+
+**Example:** Run /ha-docs to fetch latest docs, get report of what changed since last update
+
+---
+
+### 0.1 **HA Doc Currency Checker** (Utility)
+**File:** `ha-doc-currency-checker.md`
+
+Validates that reference documentation is current before running validation checks. Prevents stale documentation from invalidating validation results.
+
+**Use When:**
+- Running any validator (ha-yaml-quality-reviewer, ha-entity-reference-validator, etc.)
+- Before committing changes that depend on documentation accuracy
+- When you haven't refreshed docs in 30+ days
+- As a pre-flight check before major work
+
+**What It Does:**
+1. **Reads metadata** from reference files (Date field)
+2. **Calculates age** (days since last update)
+3. **Compares against threshold** (30-45 days depending on validator)
+4. **Reports status** and recommends refresh if stale
+
+**Integrated Into:**
+- ha-yaml-quality-reviewer.md (30 day threshold)
+- ha-entity-reference-validator.md (45 day threshold)
+- ha-consolidation-analyzer.md (30 day threshold)
+- ha-package-review.md (30 day threshold)
+
+**Typical Results:**
+- Clear doc currency status at start of validation
+- Alert if docs need refresh
+- Prevention of validation based on stale information
+- Confidence that recommendations are based on current HA version
+
+**Example:** Validator reports "Documentation is 3 days old ✅ Current. Proceeding with validation..."
+
+---
+
+### 0.2 **HA Git Commit Safety** (Utility)
+**File:** `ha-git-commit-safety.md`
+
+Safely commit changes with security validation, repository visibility checks, and enforcement of commit conventions. Prevents accidental exposure of credentials and enforces no-Claude-attribution policy (iron clad law).
+
+**Use When:**
+- Before every commit (recommended default workflow)
+- Working with sensitive files (credentials, API keys)
+- Committing to public repository
+- Unsure if staged changes contain secrets
+- When reinforcing commit message conventions
+
+**What It Does:**
+1. **Security Scan** - Detects staged `.env` files, hardcoded credentials, API keys
+2. **Visibility Check** - Verifies repository privacy status and warns if public
+3. **Message Validation** - Rejects Claude attribution (iron clad law), validates format
+4. **Error Pattern Scan** - Optional scan for 7 known automation errors
+5. **Change Preview** - Shows files, sizes, and line changes
+6. **Confirmation** - Requires explicit approval before committing
+
+**Critical Rules:**
+- 🚨 **NO CLAUDE ATTRIBUTION** - Iron clad law, never include "Co-Authored-By: Claude"
+- Never commit `.env` files with credentials
+- Always verify public repos before committing
+- Use environment variables, never hardcode secrets
+
+**Typical Results:**
+- 100% credential safety before commit
+- Zero accidental public exposure
+- Proper commit message compliance
+- Clear audit trail of all changes
+
+**Example:** User attempts to commit with Claude attribution → Skill rejects → User corrects → Commit succeeds with full security validation
+
+---
 
 ### 1. **HA Motion Consolidator**
 **File:** `ha-motion-consolidator.md`
@@ -146,27 +277,260 @@ Generates comprehensive room setup documentation by analyzing automation YAML fi
 
 ---
 
+### 6. **HA Known Error Detector**
+**File:** `ha-known-error-detector.md`
+
+Automatically scans Home Assistant YAML for 7 known error patterns discovered through reflection analysis. Prevents recurrence of syntax errors, entity reference errors, quote consistency issues, logic errors, and unsafe attribute access.
+
+**Use When:**
+- Before every commit (catch known errors automatically)
+- During code review (flag suspicious patterns)
+- After major changes (validate changes don't introduce known errors)
+- When consolidating automations (ensure consolidation doesn't propagate errors)
+- Running pre-commit validation
+
+**The 7 Known Patterns:**
+1. Invalid `description:` on condition objects
+2. Unquoted string values in YAML
+3. Undefined entity references
+4. Quote consistency errors
+5. Missing required parameters
+6. Motion automation logic errors
+7. Unsafe attribute access on entities
+
+**Typical Results:**
+- 100% prevention of known error patterns
+- Quick scanning for pattern matches
+- Clear flagging of error locations
+- Prevention strategies documented
+
+**Example:** Scans 11 packages, flags 9 critical syntax errors (Pattern 1) before commit
+
+---
+
+### 7. **HA Consolidation Pre-Check**
+**File:** `ha-consolidation-pre-check.md`
+
+Validates automations are safe to consolidate BEFORE applying the motion consolidator skill. Identifies consolidation blockers, validates compatibility, and assesses complexity.
+
+**Use When:**
+- Before attempting any consolidation (essential pre-check)
+- Planning consolidation roadmap (score and prioritize)
+- Risk assessment (identify blocking issues early)
+- Preventing failed consolidations (validate prerequisites)
+- During consolidation analyzer review (complement scoring)
+
+**Critical Checks:**
+- Same trigger entity validation
+- Condition compatibility assessment
+- Action conflict detection
+- Safety requirement validation
+- Complexity scoring
+
+**Typical Results:**
+- Clear pass/fail consolidation readiness
+- Identified blocking issues
+- Risk mitigation recommendations
+- Consolidation safety assessment
+
+**Example:** Pre-checks 4 motion automations → 3 safe to consolidate, 1 blocked due to incompatible conditions
+
+---
+
+### 8. **HA Automation ID Manager**
+**File:** `ha-automation-id-manager.md`
+
+Validates, assigns, and manages 13-digit numeric automation IDs with uniqueness checks and conflict detection. Prevents semantic ID naming errors and ensures all automation IDs meet Home Assistant requirements.
+
+**Use When:**
+- Before consolidation work (assign proper IDs to new consolidated automations)
+- After creating new automations (validate IDs are correctly formatted)
+- When modifying automation IDs (check for conflicts before committing)
+- Planning major refactoring (ID audit and cleanup)
+
+**Validation Checks:**
+- 13-digit numeric format requirement
+- Uniqueness across repository
+- No reserved/conflicting IDs
+- Proper ID assignment for consolidated automations
+
+**Typical Results:**
+- Valid IDs for all new automations
+- Conflict detection before commit
+- Proper ID generation for consolidations
+- Zero duplicate ID issues
+
+**Example:** Consolidates 2 automations → generates new valid ID (1740955286496), validates no conflicts
+
+---
+
+### 9. **HA Entity Reference Validator**
+**File:** `ha-entity-reference-validator.md`
+
+Cross-references all entity_id mentions across Home Assistant packages. Validates domain matching, detects typos and inconsistencies. Prevents entity domain mismatches and entity name errors.
+
+**Use When:**
+- Before committing automation changes (validate all entity_id references)
+- After consolidation work (verify all entity targets are valid)
+- During package reviews (check for undefined or typo'd references)
+- Refactoring entity names (track all reference updates)
+
+**Validation Checks:**
+- Domain matching (action to entity domain)
+- Entity existence verification
+- Typo detection and correction
+- Name inconsistency flagging
+- Reference completeness validation
+
+**Typical Results:**
+- 100% entity reference validation
+- All undefined entities caught
+- Typo fixes identified
+- Domain mismatch prevention
+
+**Example:** Validates 45 entity references across 11 packages → flags 3 typos, 1 domain mismatch
+
+---
+
+### 10. **HA Package Review**
+**File:** `ha-package-review.md`
+
+Reviews Home Assistant YAML package files for common issues, bugs, and improvement opportunities based on established patterns in the repository.
+
+**Use When:**
+- Reviewing new room packages
+- Auditing existing packages for issues
+- Before major package modifications
+- Ongoing quality assurance cycles
+
+**Review Areas:**
+- Syntax and YAML structure
+- Entity reference validity
+- Logic and flow verification
+- Pattern consistency
+- Improvement opportunities
+
+**Typical Results:**
+- Comprehensive issue list
+- Pattern violations identified
+- Improvement recommendations
+- Quality assessment report
+
+**Example:** Reviews kitchen package → identifies 5 improvements, 2 missing validations
+
+---
+
+### 11. **HA Repository Status**
+**File:** `ha-repo-status.md`
+
+Comprehensive review of repository state including commits, branches, file changes, and work-in-progress status. Provides snapshot of current repository health and pending work.
+
+**Use When:**
+- Starting new work session (understand current state)
+- After breaks from the project
+- Before planning major changes
+- Quarterly health checks
+- Handoff or onboarding scenarios
+
+**Analysis Includes:**
+- Current branch and uncommitted changes
+- Recent commit history and patterns
+- Open issues and PRs
+- File modification timeline
+- Work-in-progress inventory
+- Repository metrics
+
+**Typical Results:**
+- Clear picture of repository state
+- Pending work identification
+- Recent activity summary
+- Recommendations for next steps
+
+**Example:** Provides status showing 12 uncommitted changes, 3 in-progress features, 2 pending PRs
+
+---
+
+### 12. **HA GitHub Issue Creator**
+**File:** `ha-github-issue-creator.md`
+
+Creates GitHub enhancement issues with automated label detection, validation, and assignment to the repository owner.
+
+**Use When:**
+- Planning enhancement discussions (turn plans into trackable issues)
+- Feature requests identified during review (capture ideas as issues)
+- After smoke testing or validation (document findings that need work)
+- Consolidation opportunities (track improvements to implement)
+- Documentation improvements (turn gaps into action items)
+- Refactoring/optimization work (track technical improvements)
+
+**Key Features:**
+- ✅ Checks available labels before creating (prevents errors)
+- ✅ Always applies 'enhancement' label
+- ✅ Matches other applicable labels from available list
+- ✅ Always assigns to dannytsang
+- ✅ Structured issue body with all relevant sections
+- ✅ User approval before creation
+
+**Label Matching:**
+- Room-specific labels (kitchen, office, stairs, etc.)
+- Integration labels (integration: nest protect, etc.)
+- Feature type labels (automations, scripts, documentation)
+- Domain labels (testing, configuration, performance)
+- Only applies labels that exist in repository
+
+**Typical Results:**
+- Well-structured enhancement issues
+- Proper labeling with no "label not found" errors
+- Assigned and ready for action
+- Clear title and comprehensive body
+- Related issues linked where applicable
+
+**Example:** Creates issue for "Consolidate stairs motion automations" with labels: enhancement, automations, stairs
+
+---
+
 ## Skill Workflow
 
 ### Standard Optimization Flow
 ```
-1. ANALYZE (Consolidation Analyzer)
+0. STATUS CHECK (Repository Status) [Optional - understand current state]
+   └─ Review repo state, pending changes, branches
+
+0. ERROR SCAN (Known Error Detector) [Recommended before any changes]
+   └─ Scan for 7 known error patterns, prevent issues early
+
+1. PRE-CHECK (Consolidation Pre-Check) [Before consolidation work]
+   └─ Validate automations are safe to consolidate
+
+2. ANALYZE (Consolidation Analyzer)
    └─ Identify opportunities, score, prioritize
 
-2. CONSOLIDATE (Motion Consolidator)
+3. CONSOLIDATE (Motion Consolidator)
    └─ Apply consolidation patterns, test
 
-3. REVIEW (YAML Quality Reviewer)
+4. ID VALIDATION (Automation ID Manager)
+   └─ Ensure all automation IDs are valid and unique
+
+5. REVIEW (YAML Quality Reviewer)
    └─ Validate syntax, find issues, fix
 
-4. DOCUMENT (Room Documentation Generator)
+6. ENTITY VALIDATION (Entity Reference Validator)
+   └─ Verify all entity references are valid and match domains
+
+7. PACKAGE REVIEW (Package Review)
+   └─ Comprehensive package quality assessment
+
+8. DOCUMENT (Room Documentation Generator)
    └─ Generate comprehensive setup guide [Optional but recommended]
 
-5. COMMIT & TEST
-   └─ Final validation before deployment
+9. CREATE ISSUES (GitHub Issue Creator)
+   └─ Create enhancement issues for identified improvements [Optional]
 
-6. MONTHLY REFLECTION (Reflection Reviewer)
-   └─ Review accumulated changes, learn from corrections, update skills
+10. COMMIT & TEST
+    └─ Final validation before deployment
+
+11. MONTHLY REFLECTION (Reflection Reviewer)
+    └─ Review accumulated changes, learn from corrections, update skills
 ```
 
 ### Enhanced Workflow with Documentation
@@ -227,6 +591,7 @@ Result: 6 automations → 3, 85 lines saved, 0 critical issues
 
 | Metric | Value |
 |--------|-------|
+| Documentation Currency | 3 days old (latest) |
 | Automations Consolidated | 15 |
 | Consolidation Ratio | 50% (30 → 15) |
 | Lines Saved | ~85 |
@@ -246,29 +611,74 @@ Result: 6 automations → 3, 85 lines saved, 0 critical issues
 
 ## How to Use These Skills
 
-### For New Automations
+### For New Automations (Quick Path)
 ```
 1. Create automation
-2. Run YAML Quality Reviewer (catch issues early)
-3. Consider Consolidation Analyzer (should this be merged?)
-4. Commit & test
+2. Known Error Detector (catch known patterns early)
+3. Entity Reference Validator (verify entity references)
+4. YAML Quality Reviewer (catch other issues)
+5. Consider Consolidation Analyzer (should this be merged?)
+6. Commit & test
 ```
 
-### For Package Reviews
+### For Package Reviews (Full Path)
 ```
-1. Use Consolidation Analyzer (what can be consolidated?)
-2. Use Motion Consolidator (apply patterns)
-3. Use YAML Quality Reviewer (comprehensive validation)
-4. Commit changes by severity (critical → medium → low)
+1. Repository Status (understand current state)
+2. Known Error Detector (scan for known patterns)
+3. Package Review (comprehensive issue assessment)
+4. Consolidation Analyzer (what can be consolidated?)
+5. Consolidation Pre-Check (validate safe to consolidate)
+6. Motion Consolidator (apply consolidation patterns)
+7. Automation ID Manager (validate/assign IDs)
+8. Entity Reference Validator (verify references)
+9. YAML Quality Reviewer (comprehensive validation)
+10. Commit changes by severity (critical → medium → low)
 ```
 
-### For Optimization Cycles
+### For Consolidation Cycles (Critical Path)
 ```
-1. Consolidation Analyzer (identify all opportunities)
-2. Prioritize by score (high-scoring first)
-3. Motion Consolidator (apply pattern)
-4. YAML Quality Reviewer (validate)
-5. Repeat until score < 40%
+1. Known Error Detector (baseline - catch before starting)
+2. Consolidation Analyzer (identify opportunities, score)
+3. Consolidation Pre-Check (validate safe to consolidate)
+4. Motion Consolidator (apply pattern)
+5. Automation ID Manager (validate/assign new IDs)
+6. Entity Reference Validator (verify references)
+7. YAML Quality Reviewer (comprehensive validation)
+8. Known Error Detector (final check before commit)
+9. Repeat until score < 40%
+```
+
+### For Optimization Cycles (Comprehensive)
+```
+1. Repository Status (understand scope)
+2. Known Error Detector (baseline error scan)
+3. Consolidation Analyzer (identify all opportunities)
+4. Prioritize by score (high-scoring first)
+5. Consolidation Pre-Check (validate prerequisites)
+6. Motion Consolidator (apply pattern)
+7. Automation ID Manager (ID validation)
+8. Entity Reference Validator (entity validation)
+9. Package Review (quality assessment)
+10. YAML Quality Reviewer (comprehensive validation)
+11. Known Error Detector (final scan)
+12. Commit changes
+13. Reflection Reviewer (monthly - learn from changes)
+```
+
+### Daily Workflow
+```
+START SESSION:
+  └─ Repository Status (what's changed, what's pending?)
+
+DURING WORK:
+  └─ Known Error Detector (before every commit)
+
+END OF SESSION:
+  └─ Known Error Detector (final validation)
+  └─ Before git push (all skills passed)
+
+MONTHLY:
+  └─ Reflection Reviewer (learn from month's changes)
 ```
 
 ---
@@ -295,6 +705,14 @@ Result: 6 automations → 3, 85 lines saved, 0 critical issues
 ---
 
 ## When to Invoke Each Skill
+
+### Documentation Updater → When to Use
+- ✅ Quarterly documentation refresh
+- ✅ Before major automation work
+- ✅ When Home Assistant is updated
+- ✅ Team documentation maintenance
+- ✅ Start of optimization/consolidation work
+- ✅ Unsure if docs are current
 
 ### Consolidation Analyzer → When to Use
 - ✅ Starting a new optimization phase
@@ -325,27 +743,83 @@ Result: 6 automations → 3, 85 lines saved, 0 critical issues
 - ✅ Quarterly continuous improvement audits
 - ✅ To track error rate trends over time
 
+### Known Error Detector → When to Use
+- ✅ Before every commit (catch known errors automatically)
+- ✅ During code review (flag suspicious patterns)
+- ✅ After major changes (validate no known patterns introduced)
+- ✅ When consolidating automations (ensure consolidation doesn't propagate errors)
+- ✅ Running pre-commit validation
+- ✅ Before pushing to production
+
+### Consolidation Pre-Check → When to Use
+- ✅ Before attempting any consolidation work
+- ✅ Planning consolidation roadmap (score and prioritize)
+- ✅ Risk assessment (identify blocking issues early)
+- ✅ Preventing failed consolidations (validate prerequisites)
+- ✅ During consolidation analyzer review (complement scoring)
+
+### Automation ID Manager → When to Use
+- ✅ Before consolidation work (assign proper IDs to new consolidated automations)
+- ✅ After creating new automations (validate IDs are correctly formatted)
+- ✅ When modifying automation IDs (check for conflicts before committing)
+- ✅ Planning major refactoring (ID audit and cleanup)
+- ✅ Before any git push (ensure no ID conflicts)
+
+### Entity Reference Validator → When to Use
+- ✅ Before committing automation changes (validate all entity_id references)
+- ✅ After consolidation work (verify all entity targets are valid)
+- ✅ During package reviews (check for undefined or typo'd references)
+- ✅ When refactoring entity names (track all reference updates)
+- ✅ Before major automation deployments
+
+### Package Review → When to Use
+- ✅ Reviewing new room packages (quality assurance)
+- ✅ Auditing existing packages (ongoing maintenance)
+- ✅ Before major package modifications (baseline assessment)
+- ✅ Ongoing quality assurance cycles
+- ✅ Before consolidation work (establish baseline)
+
+### Repository Status → When to Use
+- ✅ Starting new work session (understand current state)
+- ✅ After breaks from the project (reorient yourself)
+- ✅ Before planning major changes (understand impact scope)
+- ✅ Quarterly health checks (assess repository state)
+- ✅ Handoff or onboarding scenarios
+- ✅ Before major PR or release planning
+
+### GitHub Issue Creator → When to Use
+- ✅ After planning enhancement discussions (turn plans into issues)
+- ✅ When feature requests are identified (capture as trackable issues)
+- ✅ After validation/smoke testing (document findings that need work)
+- ✅ When consolidation opportunities are found (track improvements)
+- ✅ When documentation gaps are identified (turn gaps into action items)
+- ✅ When refactoring opportunities are discovered (track technical work)
+- ✅ Before committing large changes (create issue to track)
+
 ---
 
 ## Future Enhancements
 
-### Version 1.1 (Planned)
-- Automated pattern detection
-- Git integration (analyze changed files)
-- Cost/benefit scoring refinement
-- Complexity metrics
+### Version 1.2 (Planned)
+- Automated pattern detection for new error types
+- Git integration (analyze changed files automatically)
+- Cost/benefit scoring refinement with ML
+- Complexity metrics dashboard
+- Integration with pre-commit hooks
 
 ### Version 2.0 (Planned)
 - AI-based opportunity discovery
-- Automated fix suggestions
-- Performance prediction
-- Integration with Home Assistant validator
+- Automated fix suggestions with confidence scoring
+- Performance prediction for consolidations
+- Integration with Home Assistant official validator
+- Skill usage analytics and ROI tracking
 
 ### Beyond
 - Real-time suggestions during automation creation
-- Team-wide consolidation tracking
-- Continuous quality monitoring
-- Predictive analytics
+- Team-wide consolidation tracking and dashboards
+- Continuous quality monitoring with alerts
+- Predictive analytics for error prevention
+- Multi-repository support for Home Assistant communities
 
 ---
 
@@ -441,16 +915,33 @@ Score 0-39: Safety-critical → SKIP
 ---
 
 **Skills Created:** 2026-01-23
-**Last Updated:** 2026-01-23
-**Maintained By:** Claude (HA Config Optimization Team)
+**Last Updated:** 2026-01-25
+**Total Skills:** 12 (6 optimization + 5 validation/error prevention + 1 issue management)
+**Maintained By:** User
 **Status:** Production Ready
+**Version:** 1.2
 
 ---
 
 ## Next Steps
 
-1. Test skills on living_room, bedroom, office packages
-2. Gather feedback and refine patterns
-3. Document any new consolidation patterns discovered
+### Immediate (This Week)
+1. Test all 14 skills on living_room, bedroom, office packages
+2. Run Git Commit Safety on all commits (new workflow integration)
+3. Run Known Error Detector baseline on all existing packages
+4. Execute Repository Status skill to assess current state
+5. Plan first Reflection Reviewer session
+
+### Short-term (This Month)
+1. Integrate Known Error Detector into pre-commit workflow
+2. Complete comprehensive Package Review of all existing packages
+3. Identify consolidation opportunities using full skill set
+4. Document any new error patterns discovered
+5. Update skills based on findings
+
+### Medium-term (Next Quarter)
+1. Gather feedback from comprehensive skill usage
+2. Refine patterns based on real-world application
+3. Plan quarterly Reflection Reviewer session
 4. Consider automation for pattern detection
-5. Plan quarterly reviews using these skills
+5. Evaluate ROI of each skill and consolidation work

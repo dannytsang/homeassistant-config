@@ -214,6 +214,41 @@ Generate comprehensive report with:
 - Review all instances of copied code
 - Use find/replace with verification step
 
+### Pattern 5: False Positive Parameter Validation
+**Indicators:**
+- Flagging script parameters as unsupported without checking script definition
+- Assuming parameters are invalid based on parameter name alone
+- Not verifying against actual script field definitions
+
+**Examples:**
+- 2026-01-25: Incorrectly flagged `log_level` parameter in `send_to_home_log` calls as "invalid"
+- Actual status: `log_level` is a VALID optional parameter with options ["Normal", "Debug"]
+- Caused scan to report 16+ false positive issues across 8 files
+
+**Script Reference - send_to_home_log Supported Parameters:**
+```yaml
+script.send_to_home_log:
+  fields:
+    message:          # required, string
+    title:            # optional, string
+    log_level:        # optional, default: "Debug"
+                      # values: ["Normal", "Debug"]
+                      # Controls log platform routing based on input_select.home_log_level
+```
+
+**Prevention:**
+- Always verify script definition before flagging parameters as invalid
+- Reference: `/packages/integrations/messaging/notifications.yaml`
+- Check Home Assistant script fields BEFORE running validation
+- Build parameter whitelist from actual script definitions, not assumptions
+- Document all verified parameters in validation rules
+
+**Lesson Learned:**
+- Parameter validation requires actual script inspection
+- Don't assume parameter names indicate support/lack thereof
+- Maintain updated reference docs of all custom scripts and their fields
+- False positives in scans reduce reliability of validation rules
+
 ---
 
 ## Integration with Existing Skills

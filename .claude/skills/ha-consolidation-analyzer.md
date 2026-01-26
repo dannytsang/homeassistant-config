@@ -18,6 +18,41 @@ Identify consolidation opportunities in Home Assistant automations by analyzing 
 - Before refactoring motion automations
 - When consolidating similar patterns
 
+---
+
+## ⚠️ Documentation Currency Check
+
+**Before running this analyzer, confirm reference documentation is current:**
+
+**Required Reference Files:**
+- `home-assistant-automation-yaml-reference.md` - Automation trigger/condition/action syntax
+- `home-assistant-scripts-reference.md` - Script patterns and best practices
+- `home-assistant-templating-reference.md` - Template syntax for consolidation logic
+
+**Threshold:** 30 days (Consolidation relies on current automation patterns)
+
+**How to Check:**
+1. Read `.claude/documentation-update-log.md` for current ages
+2. If any file is >30 days old, run `/ha-docs` to refresh
+3. Then proceed with this analysis
+
+**If Documentation is Stale:**
+```
+⚠️ WARNING: Reference documentation is X days old
+→ Recommendation: Run /ha-docs before proceeding
+→ Reason: Consolidation patterns may have changed with HA syntax updates
+```
+
+**Why This Matters:**
+- Consolidation recommendations depend on current HA trigger/condition syntax
+- New features may enable better consolidation patterns
+- Deprecated syntax affects refactoring recommendations
+- New template functions may simplify complex conditions
+
+**Note:** This analyzer recommends consolidation based on current HA capabilities. Stale docs = potentially outdated or suboptimal recommendations.
+
+---
+
 ## Consolidation Opportunity Detection
 
 ### Type 1: Identical Triggers, Different Conditions
