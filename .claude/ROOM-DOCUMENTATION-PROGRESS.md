@@ -1,9 +1,9 @@
 # Room Documentation Generation Progress
 
 **Session Started:** 2026-01-24
-**Last Updated:** 2026-01-24
-**Status:** 4 of 11 rooms completed (36%)
-**Commit:** 78a34b08 - "Add comprehensive setup documentation for 4 major rooms"
+**Last Updated:** 2026-01-25
+**Status:** 6 of 11 rooms completed (55%)
+**Commit:** 98839684 - "Create comprehensive bedroom setup documentation"
 
 ---
 
@@ -36,7 +36,7 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 
 ---
 
-## Completed Rooms ✅ (4/11)
+## Completed Rooms ✅ (6/11)
 
 ### 1. Kitchen ✅
 **File:** `packages/rooms/kitchen/KITCHEN-SETUP.md`
@@ -107,7 +107,7 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 
 ---
 
-## Remaining Rooms 📋 (7/11)
+## Remaining Rooms 📋 (5/11)
 
 ### Priority 2: Conservatory
 
@@ -464,8 +464,8 @@ Before committing each room's documentation, verify:
 ## Progress Statistics
 
 **Total Rooms:** 11
-**Completed:** 4 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch) = 6/11 = 55%
-**Remaining:** 7 = 45%
+**Completed:** 6 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch) = 6/11 = 55%
+**Remaining:** 5 = 45%
 
 **Lines Generated:** 5,881+ (Living Room + Bedroom + Stairs + Porch)
 **Estimated Remaining:** ~6,000 lines
@@ -526,7 +526,8 @@ When resuming this work:
 
 ---
 
-**Last Updated:** 2026-01-24 15:30
+**Last Updated:** 2026-01-25
+**Status:** 6 of 11 rooms completed (55%)
 **Next Room:** Conservatory
 **Priority:** 2
-**Session End Reason:** Token conservation (46K used, 154K remaining, saved for next session)
+**Note:** Bedroom documentation added 2026-01-24, progress file updated 2026-01-25
