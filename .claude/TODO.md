@@ -2,8 +2,8 @@
 
 **Last Updated:** 2026-01-26
 **Total Tasks:** 14
-**Completed:** 11
-**Pending:** 3
+**Completed:** 13
+**Pending:** 1
 
 ---
 
@@ -37,20 +37,24 @@
 ### Priority: LOW
 
 #### Task #12: Archive CONTEXT-REFRESH-TEST-PLAN.md to completed-tasks
-**Status:** Pending
+**Status:** ✅ Completed (2026-01-26)
 **Description:** Move CONTEXT-REFRESH-TEST-PLAN.md from `.claude/` root to `.claude/archive/completed-tasks/`. Historical test documentation (10/10 tests passing), not needed in active directory.
-**File Movement:** `.claude/CONTEXT-REFRESH-TEST-PLAN.md` → `.claude/archive/completed-tasks/`
-**Effort:** 2 minutes
-**Impact:** Reduces main directory clutter, improves organization
-**Note:** Optional cleanup, can be deferred
+**File Movement:** `.claude/CONTEXT-REFRESH-TEST-PLAN.md` → `.claude/archive/completed-tasks/CONTEXT-REFRESH-TEST-PLAN.md` ✅
+**Effort:** 2 minutes (COMPLETE)
+**Impact:** Main directory cleaned up, improves organization
+**Note:** Archived as historical reference documentation
 
 #### Task #13: Verify BEDROOM-SETUP.md location and ownership
-**Status:** Pending
+**Status:** ✅ Completed (2026-01-26)
 **Description:** Determine if BEDROOM-SETUP.md (currently in `.claude/`) belongs in `packages/rooms/bedroom/` or is a reference template. Verify if actively used or historical.
-**File:** `.claude/BEDROOM-SETUP.md`
-**Effort:** 10 minutes
-**Impact:** Clarifies file location and purpose
-**Note:** Investigation task, doesn't affect functionality
+**Finding:**
+- **Authoritative version** exists at `packages/rooms/bedroom/BEDROOM-SETUP.md` (Created: 2026-01-24, comprehensive with tables)
+- **Archived version** was at `.claude/BEDROOM-SETUP.md` (Last Updated: 2026-01-24, older format)
+- Decision: Archive `.claude/` version as it's superseded by package version
+**File Archival:** `.claude/BEDROOM-SETUP.md` → `.claude/archive/completed-tasks/BEDROOM-SETUP-archived.md` ✅
+**Effort:** 10 minutes (COMPLETE)
+**Impact:** Clarified ownership - BEDROOM-SETUP.md belongs in package, not root .claude/
+**Note:** Authoritative version is in packages/rooms/bedroom/ (use that version)
 
 ---
 
@@ -141,6 +145,14 @@
 **Completed:** 2026-01-25
 **Commits:** ece79966, 7a7f8351, 2763e6c5
 **Details:** Updated progress tracking from outdated 4/11 (36%) to 6/11 (55%), then completed full project at 11/11 (100%). Generated comprehensive documentation for 5 additional rooms in this session.
+
+#### Task #12: ✅ Archive CONTEXT-REFRESH-TEST-PLAN.md
+**Completed:** 2026-01-26
+**Details:** Historical test plan from Task #8 (post-compaction context refresh workflows) archived to `.claude/archive/completed-tasks/`. All 10 tests passed, comprehensive documentation of context refresh strategies. File movement complete, reduced `.claude/` directory clutter.
+
+#### Task #13: ✅ Verify BEDROOM-SETUP.md location and ownership
+**Completed:** 2026-01-26
+**Details:** Investigated and resolved: `.claude/BEDROOM-SETUP.md` (older format) was superseded by `packages/rooms/bedroom/BEDROOM-SETUP.md` (newer, comprehensive). Archived `.claude/` version to completed-tasks. Authoritative version confirmed at packages/rooms/bedroom/.
 
 #### Task #14: ✅ Fix medium/low priority room package issues - 13 issues
 **Completed:** 2026-01-25
@@ -233,19 +245,19 @@
 
 ## Recommended Next Steps
 
-### This Week (High Priority)
+### This Week (High Priority) - ALL COMPLETE ✅
 1. ✅ Task #1: Test ha-documentation-updater skill (COMPLETED)
 2. ✅ Task #2: Create documentation reference agent Phase 2 (COMPLETED)
 3. ✅ Task #11: Fix ROOM-DOCUMENTATION-PROGRESS.md status (COMPLETED)
 4. ✅ Task #14: Fix medium/low priority room package issues (COMPLETED)
+5. ✅ Task #12: Archive CONTEXT-REFRESH-TEST-PLAN.md (COMPLETED)
+6. ✅ Task #13: Verify bedroom setup location (COMPLETED)
 
-### This Month (Medium Priority)
+### This Month (Medium Priority) - 1 REMAINING
 1. ⏭️ Task #3: Establish monthly doc refresh schedule
-2. Task #12: Archive CONTEXT-REFRESH-TEST-PLAN.md (optional cleanup)
-3. Task #13: Verify bedroom setup location (optional investigation)
 
 ### Future (Low Priority)
-- Deploy Task #2 agent: Integrate ha-documentation-reference-agent into Home Assistant automation
+- Deploy Task #2 agent: Integrate ha-documentation-reference-agent into Home Assistant automation (~April)
 
 ### Major Projects Completed This Session
 - ✅ Room documentation project: 11/11 (100%)
@@ -256,19 +268,19 @@
 
 ## Notes
 
-- **Repository Status:** Main branch, ~20 commits ahead of origin/main (extended session + Task #2)
-- **Working Tree:** About to be updated with Task #2 completion
+- **Repository Status:** Main branch, ~21 commits ahead of origin/main (extended session + Tasks #2, #12, #13)
+- **Working Tree:** Updated with Task #12 & #13 archiving
 - **Skill System:** 15 production skills (updated v1.4), all current
   - New: ha-documentation-reference-agent.md (Skill #0.3 - Phase 2 automated checks)
+- **Archive:** Cleaned up with CONTEXT-REFRESH-TEST-PLAN.md and BEDROOM-SETUP.md archived. Operational with 9 subdirectories, 7+ files documented
 - **Documentation:** 100% completion on room documentation (11/11 rooms)
 - **Code Quality:** 13 medium/low issues + 1 critical issue fixed across room packages
-- **Archive:** Operational, properly structured with 9 subdirectories
 - **Credentials:** Properly protected in .env (in .gitignore)
 - **Reflection Skill:** Enhanced with Pattern 5 (false positive parameter validation learning)
 
 ---
 
-**Task List Version:** 1.2 (Updated 2026-01-26)
+**Task List Version:** 1.3 (Updated 2026-01-26)
 **Created:** 2026-01-25
 **Maintained By:** User + Claude workflow
-**Session Status:** Extended session - Task #2 (Phase 2 agent) completed
+**Session Status:** Extended session - Tasks #2, #12, #13 completed. Only Task #3 (doc refresh schedule) remains.
