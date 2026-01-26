@@ -36,7 +36,7 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 
 ---
 
-## Completed Rooms ✅ (6/11)
+## Completed Rooms ✅ (7/11)
 
 ### 1. Kitchen ✅
 **File:** `packages/rooms/kitchen/KITCHEN-SETUP.md`
@@ -105,31 +105,27 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 - Multi-room notification system
 - Counter-based pattern detection
 
----
-
-## Remaining Rooms 📋 (5/11)
-
-### Priority 2: Conservatory
-
-**Files to Process:**
-- `packages/rooms/conservatory/conservatory.yaml` (13KB)
-- `packages/rooms/conservatory/airer.yaml` (6KB)
-- `packages/rooms/conservatory/octoprint.yaml` (12KB)
-
-**Output File:** `packages/rooms/conservatory/CONSERVATORY-SETUP.md`
-
-**Special Features to Document:**
-- Clothes airer automation (raise/lower based on conditions)
-- OctoPrint 3D printer monitoring and control
-- Climate/heating control for conservatory
-- Motion detection and lighting
-- Window sensors and environment monitoring
-- Temperature-based automations
-- 3D print completion notifications and camera snapshots
-
-**Estimated Size:** 1,200+ lines (3 files)
+### 7. Conservatory ✅
+**File:** `.claude/CONSERVATORY-SETUP.md`
+**Status:** Generated (2,200+ lines)
+**Sources:** 3 files
+  - `packages/rooms/conservatory/conservatory.yaml` (443 lines)
+  - `packages/rooms/conservatory/airer.yaml` (160 lines)
+  - `packages/rooms/conservatory/octoprint.yaml` (385 lines)
+**Commit:** e7da203d
+**Details:**
+- 21 automations documented across 3 files
+- Motion-triggered lighting with multi-sensor fusion
+- 3D printer (OctoPrint) lifecycle monitoring
+- Motorized clothes airer cost-optimization
+- Climate control with underfloor heating
+- Sensor offline/recovery automation patterns
+- 25+ devices across 9 categories
+- Multi-state printer workflow documentation
 
 ---
+
+## Remaining Rooms 📋 (4/11)
 
 ### Priority 3: Gardens
 
@@ -464,11 +460,16 @@ Before committing each room's documentation, verify:
 ## Progress Statistics
 
 **Total Rooms:** 11
-**Completed:** 6 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch) = 6/11 = 55%
-**Remaining:** 5 = 45%
+**Completed:** 7 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch, Conservatory) = 7/11 = 64%
+**Remaining:** 4 = 36%
 
-**Lines Generated:** 5,881+ (Living Room + Bedroom + Stairs + Porch)
-**Estimated Remaining:** ~6,000 lines
+**Lines Generated:** 8,081+ (Living Room + Bedroom + Stairs + Porch + Conservatory)
+  - Living Room: 855 lines
+  - Bedroom: 1,400+ lines
+  - Stairs: 1,700+ lines
+  - Porch: 1,400+ lines
+  - Conservatory: 2,200+ lines
+**Estimated Remaining:** ~4,000 lines (4 rooms)
 
 **Token Usage (Session 2026-01-24):**
 - Living Room: ~2,500 tokens
@@ -527,7 +528,7 @@ When resuming this work:
 ---
 
 **Last Updated:** 2026-01-25
-**Status:** 6 of 11 rooms completed (55%)
-**Next Room:** Conservatory
-**Priority:** 2
-**Note:** Bedroom documentation added 2026-01-24, progress file updated 2026-01-25
+**Status:** 7 of 11 rooms completed (64%)
+**Next Room:** Front Garden (Priority 3) or Bedroom2 (Additional)
+**Priority:** 2 → Conservatory ✅ COMPLETED
+**Note:** Conservatory documentation generated 2026-01-25 (3-file multi-package)
