@@ -1,10 +1,10 @@
 # Claude Skills for Home Assistant Configuration
 
-**Version:** 1.3
+**Version:** 1.4
 **Created:** 2026-01-23
-**Last Updated:** 2026-01-25
+**Last Updated:** 2026-01-26
 **Status:** Production
-**Total Skills:** 14 (6 optimization + 6 validation/safety + 1 documentation + 1 issue management)
+**Total Skills:** 15 (6 optimization + 6 validation/safety + 2 documentation + 1 issue management)
 
 ---
 
@@ -140,6 +140,44 @@ Safely commit changes with security validation, repository visibility checks, an
 - Clear audit trail of all changes
 
 **Example:** User attempts to commit with Claude attribution → Skill rejects → User corrects → Commit succeeds with full security validation
+
+---
+
+### 0.3 **HA Documentation Reference Agent** (Automated - Phase 2)
+**File:** `ha-documentation-reference-agent.md`
+
+Automated scheduled checking of documentation currency with alerts and optional auto-refresh. Monitors documentation freshness and alerts when reference docs become stale (>30 days).
+
+**Use When:**
+- Set up weekly documentation monitoring (recommended deployment)
+- Want proactive alerts for stale documentation
+- Planning to integrate documentation checks into Home Assistant automation
+- Implementing continuous documentation compliance
+- Setting up audit trail for documentation freshness
+
+**What It Does:**
+1. **Scheduled Checks** - Runs weekly (configurable) to monitor doc age
+2. **Status Reporting** - Color-coded results (✅ Fresh / 🟡 Aging / 🔴 Stale)
+3. **Alert Generation** - Creates alerts when docs exceed 30-day threshold
+4. **Optional Auto-Refresh** - Can automatically trigger `/ha-docs` refresh
+5. **Audit Logging** - Automatically logs all checks to documentation-update-log.md
+6. **Metrics Tracking** - Maintains check history and trends
+
+**Typical Workflow:**
+1. Set up Home Assistant automation for weekly trigger
+2. Agent checks all `home-assistant-*.md` files in `.claude/`
+3. Generates status report (all files + ages + status)
+4. If any docs stale: either alert for manual refresh OR auto-trigger `/ha-docs`
+5. Results logged to documentation-update-log.md
+
+**Typical Results:**
+- Never forget documentation updates
+- Proactive stale documentation alerts
+- Automatic audit trail of documentation freshness
+- 100% documentation compliance tracking
+- Optional automatic refresh for continuous currency
+
+**Example:** Weekly Sunday 9 AM → Agent checks docs → Finds all fresh → Logs "All docs current ✅" → Next check scheduled for next Sunday
 
 ---
 
@@ -915,11 +953,11 @@ Score 0-39: Safety-critical → SKIP
 ---
 
 **Skills Created:** 2026-01-23
-**Last Updated:** 2026-01-25
-**Total Skills:** 12 (6 optimization + 5 validation/error prevention + 1 issue management)
+**Last Updated:** 2026-01-26
+**Total Skills:** 15 (6 optimization + 6 validation/safety + 2 documentation + 1 issue management)
 **Maintained By:** User
 **Status:** Production Ready
-**Version:** 1.2
+**Version:** 1.4
 
 ---
 
