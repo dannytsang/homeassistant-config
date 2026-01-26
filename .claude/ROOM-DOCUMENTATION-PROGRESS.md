@@ -36,7 +36,7 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 
 ---
 
-## Completed Rooms ✅ (7/11)
+## Completed Rooms ✅ (9/11)
 
 ### 1. Kitchen ✅
 **File:** `packages/rooms/kitchen/KITCHEN-SETUP.md`
@@ -123,13 +123,40 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 - 25+ devices across 9 categories
 - Multi-state printer workflow documentation
 
+### 8. Front Garden ✅
+**File:** `.claude/FRONT-GARDEN-SETUP.md`
+**Status:** Generated (2,200+ lines)
+**Source:** `packages/rooms/front_garden.yaml` (10KB)
+**Commit:** 613e12df
+**Details:**
+- 7 automations documented
+- Complete Ring doorbell integration
+- Vehicle detection on driveway (AI)
+- NFC lock box access control
+- Electricity meter monitoring
+- Multi-room blind control
+- Comprehensive doorbell workflow (press → alerts → camera → video)
+
+### 9. Back Garden ✅
+**File:** `.claude/BACK-GARDEN-SETUP.md`
+**Status:** Generated (1,600+ lines)
+**Source:** `packages/rooms/back_garden.yaml` (5KB)
+**Commit:** 613e12df
+**Details:**
+- 3 automations documented
+- Shed door access monitoring
+- Motion detection when locked (security)
+- Automated lighting based on illuminance
+- Perimeter gate monitoring
+- Access logging & audit trail
+
 ---
 
-## Remaining Rooms 📋 (4/11)
+## Remaining Rooms 📋 (2/11)
 
-### Priority 3: Gardens
+### Additional Rooms (Final 2)
 
-#### Front Garden
+#### Bedroom 2
 
 **File to Process:**
 - `packages/rooms/front_garden.yaml` (10KB)
@@ -460,16 +487,18 @@ Before committing each room's documentation, verify:
 ## Progress Statistics
 
 **Total Rooms:** 11
-**Completed:** 7 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch, Conservatory) = 7/11 = 64%
-**Remaining:** 4 = 36%
+**Completed:** 9 (Kitchen, Office, Living Room, Bedroom, Stairs, Porch, Conservatory, Front Garden, Back Garden) = 9/11 = 82%
+**Remaining:** 2 = 18%
 
-**Lines Generated:** 8,081+ (Living Room + Bedroom + Stairs + Porch + Conservatory)
+**Lines Generated:** 11,881+ (All Priority 1-3 rooms)
   - Living Room: 855 lines
   - Bedroom: 1,400+ lines
   - Stairs: 1,700+ lines
   - Porch: 1,400+ lines
   - Conservatory: 2,200+ lines
-**Estimated Remaining:** ~4,000 lines (4 rooms)
+  - Front Garden: 2,200+ lines
+  - Back Garden: 1,600+ lines
+**Estimated Remaining:** ~1,200 lines (2 additional rooms)
 
 **Token Usage (Session 2026-01-24):**
 - Living Room: ~2,500 tokens
@@ -528,7 +557,7 @@ When resuming this work:
 ---
 
 **Last Updated:** 2026-01-25
-**Status:** 7 of 11 rooms completed (64%)
-**Next Room:** Front Garden (Priority 3) or Bedroom2 (Additional)
-**Priority:** 2 → Conservatory ✅ COMPLETED
-**Note:** Conservatory documentation generated 2026-01-25 (3-file multi-package)
+**Status:** 9 of 11 rooms completed (82%)
+**Next Room:** Bedroom2 or Bathroom (Final 2 rooms)
+**Priority:** 3 → Front Garden & Back Garden ✅ COMPLETED
+**Note:** Front Garden + Back Garden documentation generated 2026-01-25 (Priority 3 gardens)
