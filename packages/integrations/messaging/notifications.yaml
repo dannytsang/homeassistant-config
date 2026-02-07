@@ -42,8 +42,8 @@ script:
             value_template: "{{ log_level|default(none, true) is none or log_level == states('input_select.home_log_level') }}"
         then:
           - if:
-            - condition: template
-              value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
+              - condition: template
+                value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
             then:
               - action: script.post_slack_notification
                 data:
@@ -52,8 +52,8 @@ script:
                   target: "{{ states('input_text.slack_home_log_channel_id') }}"
                 continue_on_error: true
           - if:
-            - condition: template
-              value_template: "{{ 'Discord' in states('input_text.home_log_platforms') }}"
+              - condition: template
+                value_template: "{{ 'Discord' in states('input_text.home_log_platforms') }}"
             then:
               - action: script.post_discord_notification
                 data:
@@ -351,7 +351,8 @@ script:
                     {{ url }}
                   title: "{{ title|default(none, true) }}"
                   target: "{{ states('input_text.discord_direct_notification_channel_id') }}"
-                  people: "{{ discord|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
+                  people:
+                    "{{ discord|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_discord_chat_id')~'>')
                     |replace('person.terina', '<@'~states('input_text.terinas_discord_chat_id')~'>')
                     |replace('person.leo', '<@'~states('input_text.leos_discord_chat_id')~'>') }}"
                 continue_on_error: true
@@ -644,8 +645,8 @@ script:
               sequence:
                 - choose:
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.danny' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.danny' }}"
                       sequence:
                         - action: notify.mobile_app_top_dog
                           data:
@@ -658,8 +659,8 @@ script:
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.terina' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.terina' }}"
                       sequence:
                         - action: notify.mobile_app_oneplus_10
                           data:
@@ -672,8 +673,8 @@ script:
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.leo' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.leo' }}"
                       sequence:
                         - action: notify.mobile_app_ipad_air_4th_generation_6730
                           data:
@@ -686,8 +687,8 @@ script:
                                 - title: "{{ action2_title }}"
                                   action: "{{ action2_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.ashlee' }}"
                       sequence:
                         - action: notify.mobile_app_ipad_4
                           data:
@@ -781,8 +782,8 @@ script:
               sequence:
                 - choose:
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.danny' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.danny' }}"
                       sequence:
                         - action: notify.mobile_app_top_dog
                           data:
@@ -797,8 +798,8 @@ script:
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.terina' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.terina' }}"
                       sequence:
                         - action: notify.mobile_app_oneplus_10
                           data:
@@ -813,8 +814,8 @@ script:
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.leo' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.leo' }}"
                       sequence:
                         - action: notify.mobile_app_ipad_air_4th_generation_6730
                           data:
@@ -829,8 +830,8 @@ script:
                                 - title: "{{ action3_title }}"
                                   action: "{{ action3_name }}"
                     - conditions:
-                      - condition: template
-                        value_template: "{{ repeat.item == 'person.ashlee' }}"
+                        - condition: template
+                          value_template: "{{ repeat.item == 'person.ashlee' }}"
                       sequence:
                         - action: notify.mobile_app_ipad_4
                           data:
@@ -896,8 +897,8 @@ script:
             unit_of_measurement: "sec"
             mode: "box"
     sequence:
-        - choose:
-        # Check a title was set
+      - choose:
+          # Check a title was set
           - conditions:
               - condition: template
                 value_template: "{{ filePath is not none }}"
@@ -933,12 +934,12 @@ script:
                   data:
                     image: "{{ filePath }}"
                     duration: "{{ duration|default(10, true) }}"
-          default:
-            - action: "{{ device }}"
+        default:
+          - action: "{{ device }}"
+            data:
+              message: "{{ message }}"
               data:
-                message: "{{ message }}"
-                data:
-                  duration: "{{ duration|default(10, true) }}"
+                duration: "{{ duration|default(10, true) }}"
   # region Speakers
   announce_delayed_notifications:
     alias: "Announce Delayed Notifications"
@@ -959,8 +960,8 @@ script:
       - action: todo.get_items
         target:
           entity_id:
+            - todo.danny_s_notifications
             - todo.shared_notifications
-            - todo.dannys_notifications
         data:
           status: needs_action
         response_variable: todo_list
@@ -972,49 +973,49 @@ script:
 
             {%- endfor %}
       - choose:
-        - alias: Danny
-          conditions:
-            - condition: template
-              value_template: "{{ people.entity_id|default('', true) in 'person.danny' }}"
-            - or:
-                - condition: template
-                  value_template: "{{ todo_list['todo.dannys_notifications']['items']|default([], true)|count > 0 }}"
-                - condition: template
-                  value_template: "{{ todo_list['todo.shared_notifications']['items']|default([], true)|count > 0 }}"
-          sequence:
-            - alias: Deliver announcement
-              action: script.send_direct_notification
-              data:
-                message: >-
-                  Please be aware of the follow:
-                  {%- for item in todo_list['todo.dannys_notifications']['items'] %}
-                  * {{ item.summary }}
+          - alias: Danny
+            conditions:
+              - condition: template
+                value_template: "{{ people.entity_id|default('', true) in 'person.danny' }}"
+              - or:
+                  - condition: template
+                    value_template: "{{ todo_list['todo.danny_s_notifications']['items']|default([], true)|count > 0 }}"
+                  - condition: template
+                    value_template: "{{ todo_list['todo.shared_notifications']['items']|default([], true)|count > 0 }}"
+            sequence:
+              - alias: Deliver announcement
+                action: script.send_direct_notification
+                data:
+                  message: >-
+                    Please be aware of the follow:
+                    {%- for item in todo_list['todo.danny_s_notifications']['items'] %}
+                    * {{ item.summary }}
 
 
-                  {% endfor %}
+                    {% endfor %}
 
-                  Shared:
+                    Shared:
 
-                  {{ shared }}
-                title: "Delayed Announcements"
-                people:
-                  entity_id:
-                    - person.danny
-            - if:
-                - condition: template
-                  value_template: "{{ test|default(false, true) == false }}"
-              then:
-                - alias: Mark stored announcements as complete
-                  repeat:
-                    for_each: "{{ todo_list['todo.dannys_notifications']['items'] }}"
-                    sequence:
-                      - action: todo.update_item
-                        target:
-                          entity_id:
-                            - todo.dannys_notifications
-                        data:
-                          item: "{{ repeat.item.summary }}"
-                          status: completed
+                    {{ shared }}
+                  title: "Delayed Announcements"
+                  people:
+                    entity_id:
+                      - person.danny
+              - if:
+                  - condition: template
+                    value_template: "{{ test|default(false, true) == false }}"
+                then:
+                  - alias: Mark stored announcements as complete
+                    repeat:
+                      for_each: "{{ todo_list['todo.danny_s_notifications']['items'] }}"
+                      sequence:
+                        - action: todo.update_item
+                          target:
+                            entity_id:
+                              - todo.danny_s_notifications
+                          data:
+                            item: "{{ repeat.item.summary }}"
+                            status: completed
         default: []
       - if:
           - condition: template
@@ -1036,16 +1037,14 @@ script:
     description: "Manage notifications which stay on until a certain condition is met"
     fields:
       add_notification:
-        description:
-          New notification.
+        description: New notification.
         example: "FRONT DOOR"
         selector:
           select:
             options:
               - FRONT_DOOR_OPEN
       remove_notification:
-        description:
-          Notification that is no longer applicable.
+        description: Notification that is no longer applicable.
         example: "FRONT DOOR"
         selector:
           select:
