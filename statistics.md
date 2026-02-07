@@ -30,9 +30,6 @@ By domain these are:
 - 350 number 📈59
 - 4 person
 - 104 predbat
-
-
-
 - 3 remote
 - 77 scene 📈2
 - 4 schedule
