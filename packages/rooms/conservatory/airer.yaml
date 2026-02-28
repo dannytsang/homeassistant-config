@@ -8,9 +8,13 @@ automation:
         entity_id:
           - binary_sensor.conservatory_airer_schedule_1
     conditions:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_airer_schedule
-        state: "on"
+      - or:
+          - condition: state
+            entity_id: input_boolean.enable_conservatory_airer_schedule
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.enable_conservatory_airer_schedule_weather_compensation
+            state: "on"
     actions:
       - action: script.check_conservatory_airer
         data: {}
@@ -24,9 +28,13 @@ automation:
           - binary_sensor.conservatory_airer_schedule_1
         to: "off"
     conditions:
-      - condition: state
-        entity_id: input_boolean.enable_conservatory_airer_schedule
-        state: "on"
+      - or:
+          - condition: state
+            entity_id: input_boolean.enable_conservatory_airer_schedule
+            state: "on"
+          - condition: state
+            entity_id: input_boolean.enable_conservatory_airer_schedule_weather_compensation
+            state: "on"
     actions:
       - parallel:
           - action: script.send_to_home_log
