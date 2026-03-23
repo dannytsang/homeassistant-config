@@ -113,39 +113,49 @@ script:
           persons: >-
             {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
       - if:
+          - condition: time
+            after: input_datetime.childrens_bed_time
+            before: "07:30:00"
           - or:
-              - condition: time
-                after: input_datetime.childrens_bed_time
-                before: "07:30:00"
-              - alias: "Quiet time is ON and suppress_if_quiet is FALSE"
-                and:
+              - and:
                   - condition: time
                     after: input_datetime.childrens_bed_time
                     before: "07:30:00"
-                  - condition: template
-                    value_template: "{{ not v_suppress_if_quiet }}"
-
-              - alias: "Quiet time is ON but message contains bypass keyword"
-                and:
-                  - condition: state
-                    entity_id: schedule.notification_quiet_time
-                    state: "on"
-                  - condition: template
-                    value_template: >
-                      {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
-                      {%- for keyword in keywords %}
-                        {%- if keyword.lower() in message.lower() %}
-                          true
-                        {%- endif %}
-                      {%- endfor %}
-
-              - alias: "Quiet time is ON and priority is NOT 'normal'"
-                and:
+                  - alias: "Quiet time is ON and suppress_if_quiet is FALSE"
+                    and:
+                      - condition: time
+                        after: input_datetime.childrens_bed_time
+                        before: "07:30:00"
+                      - condition: template
+                        value_template: "{{ not v_suppress_if_quiet }}"
+              - and:
                   - condition: time
                     after: input_datetime.childrens_bed_time
                     before: "07:30:00"
-                  - condition: template
-                    value_template: "{{ v_priority != 'normal' }}"
+                  - alias: "Quiet time is ON but message contains bypass keyword"
+                    and:
+                      - condition: state
+                        entity_id: schedule.notification_quiet_time
+                        state: "on"
+                      - condition: template
+                        value_template: >
+                          {%- set keywords = ['emergency', 'fire', 'gas', 'water', 'leak', 'intruder', 'alarm', 'breach', 'danger', 'alert', 'critical', 'urgent'] %}
+                          {%- for keyword in keywords %}
+                            {%- if keyword.lower() in message.lower() %}
+                              true
+                            {%- endif %}
+                          {%- endfor %}
+              - and:
+                  - condition: time
+                    after: input_datetime.childrens_bed_time
+                    before: "07:30:00"
+                  - alias: "Quiet time is ON and priority is NOT 'normal'"
+                    and:
+                      - condition: time
+                        after: input_datetime.childrens_bed_time
+                        before: "07:30:00"
+                      - condition: template
+                        value_template: "{{ v_priority != 'normal' }}"
         then:
           - variables:
               # Get people's preferred messaging platform
