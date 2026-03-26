@@ -722,6 +722,9 @@ script:
                   - condition: numeric_state
                     entity_id: sensor.ecoflow_kitchen_battery_level
                     below: 100
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                    state: "on"
                   - or:
                       - condition: template
                         value_template: >-
@@ -830,6 +833,9 @@ script:
                   - condition: numeric_state
                     entity_id: sensor.ecoflow_office_battery_level
                     below: 100
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_office_charge_below_export
+                    state: "on"
                   - or:
                       - condition: template
                         value_template: >-
@@ -1107,85 +1113,99 @@ script:
               - condition: state
                 entity_id: switch.ecoflow_backup_reserve_enabled
                 state: "on"
-              - condition: state
-                entity_id: input_boolean.ecoflow_kitchen_charge_below_export
-                state: "on"
+              - or:
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_office_charge_below_export
+                    state: "on"
               - condition: template
                 value_template: "{{ current_import_rate == 0}}"
             sequence:
               - parallel:
                   - sequence:
-                      - alias: Check if fridge freezer plug has been switched off
-                        if:
+                      - if:
                           - condition: state
-                            entity_id: switch.ecoflow_kitchen_plug
-                            state: "off"
+                            entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                            state: "on"
                         then:
-                          - parallel:
+                          - alias: Check if fridge freezer plug has been switched off
+                            if:
+                              - condition: state
+                                entity_id: switch.ecoflow_kitchen_plug
+                                state: "off"
+                            then:
+                              - parallel:
+                                  - action: script.send_to_home_log
+                                    data:
+                                      message: >-
+                                        Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
+                                        Setting backup reserve to 100% and maximum charge rate (1200w).
+
+                                        Turning Fridge Freezer plug.
+                                      title: EcoFlow
+                                      log_level: "Debug"
+                                  - action: switch.turn_on
+                                    target:
+                                      entity_id: switch.ecoflow_kitchen_plug
+                            else:
                               - action: script.send_to_home_log
                                 data:
                                   message: >-
                                     Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
-                                    Setting backup reserve to 100% and maximum charge rate (1200w).
-
-                                    Turning Fridge Freezer plug.
+                                    Setting kitchen backup reserve to 100% and maximum charge rate (1200w).
                                   title: EcoFlow
                                   log_level: "Debug"
-                              - action: switch.turn_on
-                                target:
-                                  entity_id: switch.ecoflow_kitchen_plug
-                        else:
-                          - action: script.send_to_home_log
+                          - action: script.ecoflow_set_backup_reserve
                             data:
-                              message: >-
-                                Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
-                                Setting kitchen backup reserve to 100% and maximum charge rate (1200w).
-                              title: EcoFlow
-                              log_level: "Debug"
-                      - action: script.ecoflow_set_backup_reserve
-                        data:
-                          entity_id: number.ecoflow_kitchen_backup_reserve_level
-                          target_reserve_amount: 100
-                      - action: script.ecoflow_set_charge_rate
-                        data:
-                          entity_id: number.ecoflow_kitchen_ac_charging_power
-                          target_charge_rate: 1200
+                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              target_reserve_amount: 100
+                          - action: script.ecoflow_set_charge_rate
+                            data:
+                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              target_charge_rate: 1200
                   - sequence:
-                      - alias: Check if office Ecoflow plug has been switched off
-                        if:
+                      - if:
                           - condition: state
-                            entity_id: switch.ecoflow_office_plug
-                            state: "off"
+                            entity_id: input_boolean.ecoflow_office_charge_below_export
+                            state: "on"
                         then:
-                          - parallel:
+                          - alias: Check if office Ecoflow plug has been switched off
+                            if:
+                              - condition: state
+                                entity_id: switch.ecoflow_office_plug
+                                state: "off"
+                            then:
+                              - parallel:
+                                  - action: script.send_to_home_log
+                                    data:
+                                      message: >-
+                                        Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
+                                        Setting backup reserve to 100% and maximum charge rate (1200w).
+
+                                        Turning office battery plug.
+                                      title: EcoFlow
+                                      log_level: "Debug"
+                                  - action: switch.turn_on
+                                    target:
+                                      entity_id: switch.ecoflow_office_plug
+                            else:
                               - action: script.send_to_home_log
                                 data:
                                   message: >-
                                     Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
-                                    Setting backup reserve to 100% and maximum charge rate (1200w).
-
-                                    Turning office battery plug.
+                                    Setting office backup reserve to 100% and maximum charge rate (1200w).
                                   title: EcoFlow
                                   log_level: "Debug"
-                              - action: switch.turn_on
-                                target:
-                                  entity_id: switch.ecoflow_office_plug
-                        else:
-                          - action: script.send_to_home_log
+                          - action: script.ecoflow_set_backup_reserve
                             data:
-                              message: >-
-                                Electricity rate is 0p/kw ({{ current_import_rate ~ ' ' ~ current_electricity_import_rate_unit }}).
-                                Setting office backup reserve to 100% and maximum charge rate (1200w).
-                              title: EcoFlow
-                              log_level: "Debug"
-                      - action: script.ecoflow_set_backup_reserve
-                        data:
-                          entity_id: number.ecoflow_office_backup_reserve_level
-                          target_reserve_amount: 100
-                      - action: script.ecoflow_set_charge_rate
-                        data:
-                          entity_id: number.ecoflow_office_ac_charging_power
-                          target_charge_rate: 1200
+                              entity_id: number.ecoflow_office_backup_reserve_level
+                              target_reserve_amount: 100
+                          - action: script.ecoflow_set_charge_rate
+                            data:
+                              entity_id: number.ecoflow_office_ac_charging_power
+                              target_charge_rate: 1200
           - alias: Excess solar detected
             conditions:
               - condition: state
@@ -1194,6 +1214,13 @@ script:
               - condition: numeric_state
                 entity_id: sensor.ecoflow_solar_excess
                 above: input_number.ecoflow_charge_solar_threshold
+              - or:
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_kitchen_charge_below_export
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.ecoflow_office_charge_below_export
+                    state: "on"
             sequence:
               - action: script.ecoflow_excess_solar_detected
                 data: {}
