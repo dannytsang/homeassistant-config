@@ -243,3 +243,41 @@ Default guidance:
 - keep it as-is unless CI time/noise becomes a real problem
 - if changed, document the trade-off explicitly
 
+## Troubleshooting notes
+
+### Fork PR labeler failures
+- Symptom: `Resource not accessible by integration`
+- Cause: fork PRs need base-repository permissions for metadata writes
+- Current design: use `pull_request_target` for metadata-only labelling
+- Guardrail: do not add PR-head checkout or PR-code execution to that workflow
+
+### CI prep script effects
+- Validation results may reflect CI preparation, not raw repo state
+- Check `.github/scripts/prepare-config-for-ci.sh` when integrations or triggers appear to behave differently in CI
+
+### Custom component dependency failures
+- Check `.github/scripts/install-custom-component-deps.sh`
+- Review which manifests produced requirements and which installs failed
+
+### Healthy skipped checks
+- Some jobs are designed to succeed with a clear "Skipped" result when work is not relevant
+- Prefer present-and-skipped required checks over missing checks
+
+## Summary style guide
+
+When adding or editing workflow summaries:
+- use a clear section heading
+- state whether the result was Passed, Failed, or Skipped
+- explain skipped paths plainly when they are healthy
+- prefer operator-facing language over implementation detail
+- include a log/run link where helpful
+
+## Dependency pinning strategy
+
+The workflow currently mixes explicit action versions with dynamically installed Python dependencies.
+
+Guidance:
+- pin GitHub Actions to known versions and update them deliberately
+- treat dynamically installed Python dependencies as a conscious trade-off between freshness and reproducibility
+- if a dependency becomes flaky or repeatedly breaks CI, prefer a more explicit/pinned approach for that path
+- document the reason when intentionally avoiding caching or pinning changes
