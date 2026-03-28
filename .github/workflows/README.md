@@ -203,3 +203,28 @@ Both scripts (`.github/scripts/*.sh`) are called by multiple workflow jobs. Chan
 - Verify Tailscale connection succeeded
 - Check `DEPLOYMENT_URL` and `PULL_KEY` secrets are correct
 - Review Home Assistant automation logs for webhook reception
+
+## Operating model
+
+### Pull Request workflow
+- `pull.yml` runs validation for pull requests.
+- It detects relevant changes first, then calls the reusable validation workflow.
+- Home Assistant stable validation is the main blocking configuration check.
+- Future channel checks (`beta`, `dev`) are informational only.
+
+### Push workflow
+- `push.yml` runs on pushes to `main`, weekly schedule, and manual dispatch.
+- Pushes to `main` validate first and then may deploy if validation succeeds.
+- Scheduled runs are intended as future-compatibility heads-up checks.
+- Manual runs allow explicit selection of HA stable validation, ESPHome validation, and deploy.
+
+### Labeler workflow
+- `labeler.yml` uses `pull_request_target` intentionally.
+- Reason: fork-based PRs need base-repository permissions to apply labels.
+- Constraint: this workflow must remain metadata-only.
+- Do not add PR-head checkout or execution of PR code to this workflow.
+
+### Branch protection / check naming
+- Stable required check names should remain unchanged unless branch protection is updated deliberately.
+- Prefer present-and-skipped jobs over conditionally absent required checks.
+
