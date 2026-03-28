@@ -41,6 +41,26 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  dispatch-summary:
+    name: Manual run summary
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions:
+      contents: read
+    steps:
+      - name: Summarise selected inputs
+        run: |
+          {
+            echo "## 🚀 Manual Run Summary"
+            echo ""
+            echo "- **Run HA stable validation:** ${{ inputs.run_ha_stable }}"
+            echo "- **Run ESPHome validation:** ${{ inputs.run_esphome }}"
+            echo "- **Deploy after validation:** ${{ inputs.deploy }}"
+            echo ""
+            echo "> This run was started manually from workflow_dispatch inputs."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   changes:
     name: Detect file changes
     runs-on: ubuntu-latest
