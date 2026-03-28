@@ -228,3 +228,18 @@ Both scripts (`.github/scripts/*.sh`) are called by multiple workflow jobs. Chan
 - Stable required check names should remain unchanged unless branch protection is updated deliberately.
 - Prefer present-and-skipped jobs over conditionally absent required checks.
 
+## Future channel validation strategy
+
+Current behaviour:
+- `ha-future` runs on PR validation and push validation.
+- Its results are informational only and do not block merges.
+
+Review questions for future changes:
+- Should future-channel validation stay on every PR?
+- Should it become schedule-only or manual for some change classes?
+- Is the compatibility signal worth the runtime cost on routine PRs?
+
+Default guidance:
+- keep it as-is unless CI time/noise becomes a real problem
+- if changed, document the trade-off explicitly
+
