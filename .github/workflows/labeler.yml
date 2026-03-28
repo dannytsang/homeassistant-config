@@ -24,14 +24,18 @@ jobs:
           sync-labels: true
       - name: Summarise labeling
         if: always()
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BRANCH: ${{ github.head_ref }}
         run: |
           {
             echo "## 🏷️ PR Labeler Summary"
             echo ""
-            echo "✅ Auto-labeling completed for PR #${{ github.event.pull_request.number }}"
+            echo "✅ Auto-labeling completed for PR #${PR_NUMBER}"
             echo ""
-            echo "- **PR Title:** ${{ github.event.pull_request.title }}"
-            echo "- **Branch:** \`${{ github.head_ref }}\`"
+            echo "- **PR Title:** ${PR_TITLE}"
+            echo "- **Branch:** \`${PR_BRANCH}\`"
             echo "- **Labels applied:** Check the PR labels above"
             echo ""
             echo "Labels are automatically applied based on file changes:"
