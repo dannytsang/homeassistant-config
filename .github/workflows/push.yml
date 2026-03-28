@@ -125,6 +125,8 @@ jobs:
           attempt_limit: 5
           attempt_delay: 3000
       - name: Post run summary
+        env:
+          MANUAL_DEPLOY: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy || false }}
         run: |
           {
             echo "### Deploy Summary"
@@ -133,4 +135,14 @@ jobs:
             echo "* Ref: \`${{ github.ref }}\`"
             echo "* SHA: \`${{ github.sha }}\`"
             echo "* Timestamp: \`$(date -u +"%Y-%m-%dT%H:%M:%SZ")\`"
+            echo ""
+            if [[ "${{ steps.ts.outcome }}" == "success" ]]; then
+              echo "✅ Deploy webhook was triggered successfully."
+            elif [[ "${{ github.event_name }}" == "workflow_dispatch" && "${MANUAL_DEPLOY}" != "true" ]]; then
+              echo "ℹ️ Deploy was skipped because manual dispatch did not request deployment."
+            elif [[ "${{ github.event_name }}" == "schedule" ]]; then
+              echo "ℹ️ Deploy was skipped because scheduled runs are validation-only."
+            else
+              echo "ℹ️ Deploy did not run. Check validation and gating conditions above."
+            fi
           } >> "$GITHUB_STEP_SUMMARY"
