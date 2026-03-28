@@ -32,6 +32,7 @@ jobs:
     permissions:
       contents: read
     outputs:
+      config: ${{ steps.filter.outputs.config }}
       esphome: ${{ steps.filter.outputs.esphome }}
     steps:
       - uses: actions/checkout@v6
@@ -40,6 +41,10 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           filters: |
+            config:
+              - '**/*.yaml'
+              - '**/*.yml'
+              - 'esphome/**'
             esphome:
               - 'esphome/**'
 
@@ -52,6 +57,8 @@ jobs:
     with:
       # Run ESPHome if esphome/** changed, OR on the weekly schedule
       run_esphome: ${{ needs.changes.outputs.esphome == 'true' || github.event_name == 'schedule' }}
+      # Match PR logic for stable validation when relevant config changed; always run on schedule/manual
+      run_ha_stable: ${{ needs.changes.outputs.config == 'true' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' }}
 
   deploy:
     name: Deploy changes
