@@ -281,3 +281,25 @@ Guidance:
 - treat dynamically installed Python dependencies as a conscious trade-off between freshness and reproducibility
 - if a dependency becomes flaky or repeatedly breaks CI, prefer a more explicit/pinned approach for that path
 - document the reason when intentionally avoiding caching or pinning changes
+
+## README maintenance
+
+This document has grown through iterative additions. When adding new sections:
+- prefer extending existing sections over creating micro-sections
+- keep related guidance together (e.g., all troubleshooting in one place)
+
+## Required checks and branch protection
+
+Current required checks (stable):
+- Home Assistant Core Stable Configuration Check
+- YAML lint
+- Markdown lint (remark)
+- actionlint (validate workflows)
+
+Advisory checks (informational only):
+- Home Assistant future channels (beta/dev)
+- ESPHome validate (skipped when not relevant)
+
+Guidance:
+- do not rename required checks without updating branch protection
+- prefer present-and-skipped jobs over conditionally absent checks
