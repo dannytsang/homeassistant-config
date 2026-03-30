@@ -1044,28 +1044,251 @@ script:
                     status: completed
   notification_persistent_indicator_manager:
     alias: "Notification Persistent Indicator Manager"
-    description: "Manage notifications which stay on until a certain condition is met"
+    description: "Manage priority-based persistent notifications with RGB light indicators"
     fields:
-      add_notification:
-        description: New notification.
-        example: "FRONT DOOR"
+      action:
+        description: "add | remove | clear_all"
+        required: true
         selector:
           select:
             options:
-              - FRONT_DOOR_OPEN
-      remove_notification:
-        description: Notification that is no longer applicable.
-        example: "FRONT DOOR"
+              - add
+              - remove
+              - clear_all
+      notification_id:
+        description: "Unique notification identifier (e.g., FRONT_DOOR_OPEN, SMOKE_ALARM, WATER_LEAK)"
+        example: "FRONT_DOOR_OPEN"
+        selector:
+          text:
+      priority:
+        description: "info | warning | critical"
+        example: "warning"
+        default: "info"
         selector:
           select:
             options:
-              - FRONT_DOOR_OPEN
+              - info
+              - warning
+              - critical
+      lights:
+        description: "List of lights to use as indicators (defaults to kitchen RGB)"
+        example: "['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb']"
+        default: "['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb']"
+        selector:
+          object:
+    variables:
+      v_action: "{{ action }}"
+      v_notification_id: "{{ notification_id | default('', true) }}"
+      v_priority: "{{ priority | default('info') }}"
+      v_lights: "{{ lights | default(['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb'], true) }}"
+      # Priority levels for comparison
+      priority_levels:
+        info: 1
+        warning: 2
+        critical: 3
+      # Color scenes for each priority (reusing existing kitchen scenes)
+      priority_scenes:
+        info:
+          - scene.kitchen_cooker_ambient_light_to_blue
+          - scene.kitchen_table_ambient_light_to_blue
+        warning:
+          - scene.kitchen_cooker_ambient_light_to_pink
+          - scene.kitchen_table_ambient_light_to_pink
+        critical:
+          - scene.kitchen_cooker_light_to_red
+          - scene.kitchen_table_light_to_red
     sequence:
+      # Get current active notifications from input_text helper
+      - variables:
+          current_notifications: "{{ states('input_text.active_persistent_notifications') | default('[]', true) }}"
+          notifications_list: "{{ current_notifications | from_json | default([], true) }}"
+
+      # Process based on action
       - choose:
+          # ADD: Register new notification
           - conditions:
               - condition: template
-                value_template: "{{ add_notification in 'FRONT_DOOR_OPEN' }}"
+                value_template: "{{ v_action == 'add' and v_notification_id | length > 0 }}"
             sequence:
-              - action: script.front_door_open_notification
-                data: {}
-        default: []
+              - variables:
+                  # Remove existing entry for this notification_id if present
+                  filtered_list: "{{ notifications_list | rejectattr('id', 'eq', v_notification_id) | list }}"
+                  # Add new notification
+                  new_entry:
+                    id: "{{ v_notification_id }}"
+                    priority: "{{ v_priority }}"
+                    timestamp: "{{ now().isoformat() }}"
+                  updated_list: "{{ filtered_list + [new_entry] }}"
+                  # Find highest priority
+                  highest_priority: "{{ updated_list | map(attribute='priority') | map('extract', priority_levels) | max | default(1) }}"
+                  highest_priority_name: "{{ priority_levels.items() | selectattr('1', 'eq', highest_priority | int) | map(attribute='0') | first | default('info') }}"
+              # Update the registry
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "{{ updated_list | to_json }}"
+              # Apply light indicator for highest priority
+              - action: scene.turn_on
+                target:
+                  entity_id: "{{ priority_scenes[highest_priority_name] | default(priority_scenes.info, true) }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "Persistent notification added: {{ v_notification_id }} ({{ v_priority }}). Active: {{ updated_list | map(attribute='id') | join(', ') }}"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+          # REMOVE: Unregister notification
+          - conditions:
+              - condition: template
+                value_template: "{{ v_action == 'remove' and v_notification_id | length > 0 }}"
+            sequence:
+              - variables:
+                  updated_list: "{{ notifications_list | rejectattr('id', 'eq', v_notification_id) | list }}"
+                  highest_priority: "{{ updated_list | map(attribute='priority') | map('extract', priority_levels) | max | default(0) }}"
+                  highest_priority_name: "{{ priority_levels.items() | selectattr('1', 'eq', highest_priority | int) | map(attribute='0') | first | default('none') }}"
+              # Update the registry
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "{{ updated_list | to_json }}"
+              # Update lights based on remaining notifications
+              - choose:
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ updated_list | length == 0 }}"
+                    sequence:
+                      # No active notifications - turn off indicator lights
+                      - action: light.turn_off
+                        target:
+                          entity_id: "{{ v_lights }}"
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ updated_list | length > 0 }}"
+                    sequence:
+                      # Show highest priority color
+                      - action: scene.turn_on
+                        target:
+                          entity_id: "{{ priority_scenes[highest_priority_name] | default(priority_scenes.info, true) }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "Persistent notification removed: {{ v_notification_id }}. Remaining: {{ updated_list | map(attribute='id') | join(', ') | default('none', true) }}"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+          # CLEAR_ALL: Remove all notifications
+          - conditions:
+              - condition: template
+                value_template: "{{ v_action == 'clear_all' }}"
+            sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "[]"
+              - action: light.turn_off
+                target:
+                  entity_id: "{{ v_lights }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "All persistent notifications cleared"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+    mode: queued
+    max: 10
+
+input_text:
+  active_persistent_notifications:
+    name: Active Persistent Notifications
+    initial: "[]"
+    max: 1000
+
+# ============================================
+# USAGE EXAMPLES
+# ============================================
+#
+# Replace direct light control in automations with calls to the manager.
+# The manager handles priority and ensures highest priority is always shown.
+#
+# PRIORITY LEVELS:
+#   info     = Blue  (lowest)
+#   warning  = Pink  (medium)
+#   critical = Red   (highest)
+#
+# EXAMPLE 1: Front Door Open (info priority)
+# ------------------------------------------
+# automation:
+#   - alias: "Front Door Opened - Add Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.front_door
+#         to: "on"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: add
+#           notification_id: FRONT_DOOR_OPEN
+#           priority: info
+#
+#   - alias: "Front Door Closed - Remove Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.front_door
+#         to: "off"
+#         for: "00:00:20"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: remove
+#           notification_id: FRONT_DOOR_OPEN
+#
+# EXAMPLE 2: Smoke Alarm (critical priority)
+# ------------------------------------------
+# automation:
+#   - alias: "Smoke Alarm - Add Critical Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.kitchen_smoke_alarm_smoke
+#         to: "on"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: add
+#           notification_id: SMOKE_ALARM_KITCHEN
+#           priority: critical
+#
+#   - alias: "Smoke Alarm Cleared - Remove Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.kitchen_smoke_alarm_smoke
+#         to: "off"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: remove
+#           notification_id: SMOKE_ALARM_KITCHEN
+#
+# EXAMPLE 3: Grid Power Usage (warning priority)
+# ----------------------------------------------
+# Replace existing grid power automation with:
+#
+#   - action: script.notification_persistent_indicator_manager
+#     data:
+#       action: add
+#       notification_id: GRID_POWER_HIGH
+#       priority: warning
+#
+# And remove when grid power drops:
+#
+#   - action: script.notification_persistent_indicator_manager
+#     data:
+#       action: remove
+#       notification_id: GRID_POWER_HIGH
+#
+# BEHAVIOR:
+# - If FRONT_DOOR_OPEN (info/blue) is active and SMOKE_ALARM (critical/red) fires,
+#   lights immediately switch to RED.
+# - When SMOKE_ALARM clears, if FRONT_DOOR_OPEN is still active, lights return to BLUE.
+# - When all notifications are removed, lights turn off automatically.
