@@ -964,6 +964,31 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [BEDROOM-SETUP.md](BEDROOM-SETUP.md) | Hardware setup and device configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Sleep As Android Docs](https://docs.sleep.urbandroid.org/services/automation.html) | Webhook events and automation reference |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Stairs](../stairs/README.md) | Children's door states affect stairs lighting brightness |
+| [Porch](../porch/README.md) | Bedroom door closes triggers stairs lights off |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Energy](../../integrations/energy/README.md) | AWTRIX clock displays energy notifications |
+| [HVAC](../../integrations/hvac/README.md) | Underfloor heating and climate control |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
@@ -980,13 +1005,6 @@ flowchart TB
 
 - **Summer:** Consider adjusting `input_number.forecast_high_temperature` for blind behavior
 - **Winter:** May want earlier evening blind closure
-
-### Sleep As Android Setup
-
-The integration requires:
-1. Webhook URL configured in Sleep As Android app
-2. Webhook ID: `sleep_as_android`
-3. Events documented at: https://docs.sleep.urbandroid.org/services/automation.html
 
 ---
 

@@ -495,6 +495,28 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Integrations Overview](../README.md) | Overview of all integration packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Energy](../energy/README.md) | Octopus Agile rate-based charging notifications |
+| [Messaging](../messaging/README.md) | Notification delivery via multiple platforms |
+
+### External Documentation
+
+- [TeslaMate Documentation](https://docs.teslamate.org/)
+- [Tesla Custom Integration](https://github.com/alandtse/tesla)
+- [TeslaUSB Project](https://github.com/marcone/teslausb)
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
@@ -512,12 +534,6 @@ flowchart TB
 - Configuration URL: Set via `teslamate_url` secret
 - MQTT broker must be accessible to both TeslaMate and Home Assistant
 - Vehicle data updates depend on Tesla API polling (can be rate-limited)
-
-### Related Documentation
-
-- [TeslaMate Documentation](https://docs.teslamate.org/)
-- [Tesla Custom Integration](https://github.com/alandtse/tesla)
-- [TeslaUSB Project](https://github.com/marcone/teslausb)
 
 ---
 

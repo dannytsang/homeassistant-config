@@ -657,6 +657,27 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Energy](../../integrations/energy/README.md) | Octopus Agile rate-based UFH and airer control |
+| [HVAC](../../integrations/hvac/README.md) | Central heating and Hive integration |
+| OctoPrint | 3D printer monitoring and control |
+
+### External References
+
+- [Can you dry laundry outside in winter?](https://www.homesandgardens.com/solved/can-you-dry-laundry-outside-in-winter) - Airer weather compensation logic
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting

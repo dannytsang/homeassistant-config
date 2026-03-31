@@ -473,6 +473,28 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Kitchen](../kitchen/README.md) | Shared appliance monitoring patterns |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Water](../../water.yaml) | Leak detection system integration |
+| [Energy](../../integrations/energy/README.md) | Smart plug power monitoring |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting

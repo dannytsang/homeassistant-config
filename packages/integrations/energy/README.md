@@ -700,6 +700,31 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Integrations Overview](../README.md) | Overview of all integration packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Solar Assistant README](solar_assistant_README.md) | Solar inverter monitoring details |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [HVAC](../hvac/README.md) | Eddi solar diverter for hot water |
+| [Transport](../transport/README.md) | Zappi EV charger integration |
+| [Conservatory](../../rooms/conservatory/README.md) | Rate-based underfloor heating and airer |
+
+### External Dependencies
+
+- **Octopus Energy:** Rate sensors for time-of-use optimization
+- **Growatt/Solar Assistant:** Solar production data
+- **MyEnergi:** Eddi and Zappi power for excess calculation
+- **retry.action:** Custom integration for reliable entity updates
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
@@ -716,13 +741,6 @@ flowchart TB
 - **Summer:** Higher solar thresholds may be appropriate
 - **Winter:** Lower minimum reserves for shorter days
 - **DST changes:** Sunset automation adjusts automatically
-
-### External Dependencies
-
-- **Octopus Energy:** Rate sensors for time-of-use optimization
-- **Growatt/Solar Assistant:** Solar production data
-- **MyEnergi:** Eddi and Zappi power for excess calculation
-- **retry.action:** Custom integration for reliable entity updates
 
 ---
 
@@ -1571,6 +1589,33 @@ flowchart TB
 - Battery control via Growatt integration
 - Solar forecasting via Solcast and Forecast.io
 - Octopus Energy Agile tariff integration
+
+---
+
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Integrations Overview](../README.md) | Overview of all integration packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Solar Assistant README](solar_assistant_README.md) | Solar inverter monitoring details |
+| [EcoFlow Package Docs](#ecoflow-package-documentation) | EcoFlow power station management |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [HVAC](../hvac/README.md) | Eddi solar diverter for hot water |
+| [Transport](../transport/README.md) | Zappi EV charger integration |
+| [Rooms](../../rooms/conservatory/README.md) | Rate-based underfloor heating and airer |
+| [Rooms](../../rooms/office/README.md) | EcoFlow office plug management |
+| [Rooms](../../rooms/kitchen/README.md) | Grid power RGB notifications |
+
+### External Documentation
+
+- [Solcast API](https://solcast.com/) - Solar forecasting service
+- [Octopus Energy Agile](https://octopus.energy/agile/) - Dynamic pricing tariff
+- [Growatt Integration](https://www.home-assistant.io/integrations/growatt_server/) - Inverter monitoring
 
 ---
 
