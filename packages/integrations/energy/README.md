@@ -1,3 +1,20 @@
+# Energy ⚡
+All electrical related integrations from solar to EV charging.
+
+## EcoFlow
+Battery system that provides a convenient EPS system and some energy monitoring capabilities.
+
+## MyEnergi
+[Eddi](https://github.com/CJNE/ha-myenergi) for the solar diverter and EV charger.
+
+## Solcast
+Used for solar forecasting. The data it provides is better than forecast.io but unfortunately there is no homelab friendly subscription.
+
+## Solar Assistant
+Replaces the Growatt integration that does not work. It has a faster refresh on data as well.
+
+---
+
 # EcoFlow Package Documentation
 
 This package manages EcoFlow power stations for intelligent energy storage, solar charging, and backup power management.
@@ -706,6 +723,854 @@ flowchart TB
 - **Growatt/Solar Assistant:** Solar production data
 - **MyEnergi:** Eddi and Zappi power for excess calculation
 - **retry.action:** Custom integration for reliable entity updates
+
+---
+
+This package manages the home energy system including solar generation forecasting, battery management, grid power monitoring, and energy-related notifications. It integrates with Growatt inverter, Octopus Energy Agile tariff, and Solcast solar forecasting.
+
+---
+
+## Table of Contents
+
+- [Overview](#overview)
+- [Architecture](#architecture)
+- [Automations](#automations)
+  - [Battery Management](#battery-management)
+  - [Solar Forecasting](#solar-forecasting)
+  - [Grid Monitoring](#grid-monitoring)
+  - [Notifications](#notifications)
+  - [Octopus Energy Integration](#octopus-energy-integration)
+- [Groups](#groups)
+- [Scripts](#scripts)
+  - [Forecast Data Scripts](#forecast-data-scripts)
+  - [Calculation Scripts](#calculation-scripts)
+  - [Notification Scripts](#notification-scripts)
+  - [Utility Scripts](#utility-scripts)
+- [Sensors](#sensors)
+- [Configuration](#configuration)
+- [Entity Reference](#entity-reference)
+
+---
+
+## Overview
+
+The energy management system provides intelligent solar forecasting, battery charge optimization, grid power monitoring, and proactive notifications for energy-related events. It integrates multiple data sources to make informed decisions about battery charging and energy usage.
+
+```mermaid
+flowchart TB
+    subgraph Inputs["📥 Data Sources"]
+        Growatt["🔋 Growatt Inverter<br/>(Battery SoC, Power, Mode)"]
+        Solcast["☀️ Solcast API<br/>(Solar Forecast)"]
+        ForecastIO["📊 Forecast.io<br/>(Weather & Solar)"]
+        Octopus["⚡ Octopus Energy<br/>(Agile Tariff, Saving Sessions)"]
+        SmartMeter["📟 Smart Meter<br/>(Grid Import/Export)"]
+        Weather["🌤️ Weather Service<br/>(Conditions, Temperature)"]
+    end
+
+    subgraph Logic["🧠 Energy Logic"]
+        Forecast["📈 Forecast Processor"]
+        BatteryCalc["🔋 Battery Calculator"]
+        ChargePlanner["⚡ Charge Planner"]
+        GridMonitor["📊 Grid Monitor"]
+        Notify["🔔 Notification Manager"]
+    end
+
+    subgraph Outputs["📤 Actions & Alerts"]
+        Notifications["📱 Push Notifications"]
+        HomeLog["📝 Home Log"]
+        BatteryControl["🔋 Battery Control"]
+        Alerts["⚠️ Alerts & Warnings"]
+    end
+
+    Growatt --> BatteryCalc
+    Solcast --> Forecast
+    ForecastIO --> Forecast
+    Octopus --> ChargePlanner
+    SmartMeter --> GridMonitor
+    Weather --> Forecast
+
+    Forecast --> BatteryCalc
+    BatteryCalc --> ChargePlanner
+    ChargePlanner --> Notifications
+    GridMonitor --> Alerts
+    BatteryCalc --> Notify
+    Forecast --> Notify
+
+    Notify --> Notifications
+    Notify --> HomeLog
+    Alerts --> Notifications
+```
+
+---
+
+## Architecture
+
+### File Structure
+
+```
+packages/integrations/energy/
+├── energy.yaml      # Main energy package file
+└── README.md        # This documentation
+```
+
+### Key Components
+
+| Component | Purpose |
+|-----------|---------|
+| `sensor.growatt_sph_battery_state_of_charge` | Battery charge percentage |
+| `sensor.growatt_sph_inverter_mode` | Current inverter operating mode |
+| `sensor.growatt_sph_pv_energy` | Solar energy generated today |
+| `sensor.total_solar_forecast_estimated_energy_production_*` | Solar forecast from Forecast.io |
+| `sensor.solcast_pv_forecast_forecast_*` | Solar forecast from Solcast |
+| `sensor.octopus_energy_electricity_current_rate` | Current electricity price |
+| `binary_sensor.octopus_energy_octoplus_saving_sessions` | Octopus saving session status |
+| `sensor.house_power` / `sensor.smart_meter_electricity_power` | Grid power readings |
+
+---
+
+## Automations
+
+### Battery Management
+
+#### Energy: Battery Charged And Forecasted Excess Solar
+**ID:** `1661076689668`
+
+Notifies when battery is charged and excess solar is forecasted.
+
+```mermaid
+flowchart TD
+    A["🔋 Battery SoC > Threshold"] --> B{"Solar forecast > 0<br/>this hour or next?"}
+    B -->|No| Z["⛔ Skip"]
+    B -->|Yes| C{"Inverter mode ≠<br/>Battery first?"}
+    C -->|No| Z
+    C -->|Yes| D["📢 Notify Excess Solar"]
+```
+
+**Triggers:**
+- Battery SoC rises above `input_number.battery_charged_notification`
+
+**Conditions:**
+- Solar forecast for this hour OR next hour is above 0
+- Inverter is NOT in "Battery first" mode
+- Previous state was not "unknown"
+
+**Actions:**
+- Calls `script.energy_notify_excess_solar`
+
+---
+
+#### Energy: Battery Charged Today
+**ID:** `1664743590782`
+
+Tracks when battery reaches full charge and resets counters.
+
+**Triggers:**
+- Battery SoC rises above `input_number.growatt_battery_charged_threshold`
+
+**Conditions:**
+- `input_boolean.battery_charged_today` is `off`
+
+**Actions:**
+- Logs to home log
+- Sets `input_boolean.battery_charged_today` to `on`
+- Resets `input_number.consecutive_days_battery_not_charged` to 0
+
+---
+
+#### Energy: Reset Battery Charged Today
+**ID:** `1664743700827`
+
+Daily reset of battery charge tracking at midnight.
+
+**Triggers:**
+- Time: 00:00:00
+
+**Logic:**
+```
+IF battery_charged_today == on:
+    → Reset to off
+    → Log "Resetting battery charged today"
+ELSE:
+    → Log "Battery did not fully charge today"
+    → Increment consecutive_days_battery_not_charged
+```
+
+---
+
+#### Energy: Consecutive Days Battery Not Charged
+**ID:** `1664744505278`
+
+Alerts when battery hasn't fully charged for 7+ consecutive days.
+
+**Triggers:**
+- `input_number.consecutive_days_battery_not_charged` rises above 6
+
+**Actions:**
+- Sends direct notification to person.danny
+
+---
+
+#### Energy: Battery Charge Notification
+**ID:** `1674508693884`
+
+Daily battery status notification (used for Demand Flexibility Service).
+
+**Triggers:**
+- Time: 15:55:00
+
+**Conditions:**
+- Battery SoC > (load_first_stop_discharge + 1%)
+
+**Actions:**
+- Sends notification with current SoC and remaining runtime
+
+---
+
+#### Energy: Low Battery Before Peak Time
+**ID:** `1704121569476`
+
+Warns when battery won't last until end of peak pricing period.
+
+**Triggers:**
+- Time: 14:00:00 OR 15:00:00
+
+**Conditions:**
+- Battery runtime < 19:00 (end of peak time)
+- Inverter NOT in "Battery first" mode
+- Tariff is Octopus Agile
+
+**Actions:**
+- Sends notification suggesting battery charging
+
+---
+
+#### Energy: Battery Depleted
+**ID:** `1736798645231`
+
+Notifies when battery runs out and switches to grid power.
+
+**Triggers:**
+- Battery SoC drops below 11% for 1 minute
+
+**Conditions:**
+- Grid import power > 0
+
+**Actions:**
+- Logs to home log
+- Sends direct notification with current SoC and grid import power
+
+---
+
+### Solar Forecasting
+
+#### Energy: Solar Forecast Tomorrow
+**ID:** `1660858653319`
+
+Daily evening forecast update and notification.
+
+```mermaid
+flowchart TD
+    A["🕘 21:00 Daily"] --> B{"Tariff is Agile?"}
+    B -->|No| Z["⛔ Skip"]
+    B -->|Yes| C["🔄 Update Solcast"]
+    C --> D["📊 Check Forecast"]
+    D --> E{"Forecast < Threshold?"}
+    E -->|Yes| F["⚠️ Increment Low Generation Counter"]
+    E -->|No| G["✅ Reset Counter to 0"]
+    D --> H["📢 Send Tomorrow's Forecast"]
+```
+
+**Triggers:**
+- Time: 21:00:00
+
+**Conditions:**
+- Tariff code contains "AGILE"
+
+**Actions:**
+- Updates Solcast forecast via `script.update_solcast`
+- Checks if tomorrow's forecast is below threshold
+- Increments or resets `input_number.consecutive_forecast_days_below_solar_generation`
+- Sends tomorrow's solar forecast notification
+
+---
+
+#### Energy: Solar Production Exceed Threshold
+**ID:** `1663589154517`
+
+Resets forecast tracking when production is above threshold.
+
+**Triggers:**
+- Today's solar forecast rises above `input_number.solar_generation_minimum_threshold`
+
+**Actions:**
+- Logs "Production above threshold. Resetting Forecast"
+
+---
+
+#### Energy: Consecutive Low Solar Generation
+**ID:** `1663588514009`
+
+Alerts when solar generation has been low for 7+ consecutive days.
+
+**Triggers:**
+- `input_number.consecutive_forecast_days_below_solar_generation` rises above 6
+
+**Actions:**
+- Sends direct notification to person.danny
+
+---
+
+### Grid Monitoring
+
+#### Energy: Power Cut Notification
+**ID:** `1680444237958`
+
+Detects potential power cuts when no electricity consumption is detected.
+
+**Triggers:**
+- Load power drops to 0 for 1 minute
+
+**Actions:**
+- Sends direct notification alerting about possible power cut
+
+---
+
+#### Energy: High Grid Power Draw
+**ID:** `1712404842177`
+
+Warns when household power draw approaches fuse limit.
+
+**Triggers:**
+- House current rises above `sensor.grid_max_import_power_warning`
+
+**Actions:**
+- Sends notification warning about approaching cut-out fuse limit
+- Includes current draw vs fuse size
+
+---
+
+### Notifications
+
+#### Energy: Battery Charged And Forecasted Excess Solar
+See [Battery Management](#battery-management) section above.
+
+#### Energy: Battery Charge Notification
+See [Battery Management](#battery-management) section above.
+
+#### Energy: Low Battery Before Peak Time
+See [Battery Management](#battery-management) section above.
+
+#### Energy: Power Cut Notification
+See [Grid Monitoring](#grid-monitoring) section above.
+
+#### Energy: High Grid Power Draw
+See [Grid Monitoring](#grid-monitoring) section above.
+
+#### Energy: Battery Depleted
+See [Battery Management](#battery-management) section above.
+
+---
+
+### Octopus Energy Integration
+
+#### Energy: Saving Session Started
+**ID:** `1719080490915`
+
+Notifies when an Octopus Energy saving session begins.
+
+**Triggers:**
+- `binary_sensor.octopus_energy_octoplus_saving_sessions` changes to `on`
+
+**Conditions:**
+- Not transitioning from "unavailable"
+
+**Actions:**
+- Sends direct notification to person.danny and person.terina
+
+---
+
+#### Energy: Saving Session Finished
+**ID:** `1719080490916`
+
+Notifies when an Octopus Energy saving session ends.
+
+**Triggers:**
+- `binary_sensor.octopus_energy_octoplus_saving_sessions` changes to `off`
+
+**Conditions:**
+- Not transitioning from "unavailable"
+
+**Actions:**
+- Sends direct notification to person.danny and person.terina
+
+---
+
+## Groups
+
+### Battery First Charging Schedules
+**Name:** `group.battery_first_charging_schedules`
+
+Entities:
+- `input_boolean.enable_battery_first_schedule_1`
+- `input_boolean.enable_battery_first_schedule_2`
+
+### Below Export Charging Schedules
+**Name:** `group.below_export_charging_schedules`
+
+Entities:
+- `input_boolean.enable_charge_below_export_schedule_1`
+- `input_boolean.enable_charge_below_export_schedule_2`
+- `input_boolean.enable_charge_below_export_schedule_3`
+
+### Grid First Charging Schedules
+**Name:** `group.grid_first_charging_schedules`
+
+Entities:
+- `input_boolean.enable_grid_first_schedule_1`
+
+### Maintain Battery First Charging Schedules
+**Name:** `group.maintain_battery_first_charging_schedules`
+
+Entities:
+- `binary_sensor.maintain_charge_first_schedule_1`
+- `binary_sensor.maintain_charge_first_schedule_2`
+
+---
+
+## Scripts
+
+### Forecast Data Scripts
+
+#### Today's Solar Forecast Data
+**Alias:** `todays_solar_forecast_data`
+
+Retrieves and processes today's solar forecast data with weather compensation.
+
+**Sequence:**
+1. Get weather forecast from `weather.home`
+2. Calculate weather compensation ratio via `script.battery_charge_compensation_ratio`
+3. Get solar forecast (Solcast → Forecast.io fallback)
+4. Calculate target battery SoC via `script.calculate_charge_battery_amount`
+5. Compute charge estimates (kWh, hours)
+
+**Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `estimate_charge_percentage` | Target battery SoC % |
+| `estimate_charge_kwh` | Estimated charge amount in kWh |
+| `charge_hours` | Hours needed to charge |
+| `charge_hours_rounded` | Rounded to nearest 0.5h |
+| `weather_condition` | Weather condition text |
+| `weather_temperature` | Temperature |
+| `weather_compensation_ratio` | Applied compensation ratio |
+| `last_changed` | Forecast last updated |
+
+---
+
+#### Tomorrow's Solar Forecast Data
+**Alias:** `tomorrows_solar_forecast_data`
+
+Same as today's forecast but for tomorrow's generation.
+
+**Additional Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `generation_forecast` | Total forecasted generation |
+| `generation_forecast_unit_of_measurement` | Unit (kWh) |
+| `generation_forecast_source` | Source (Solcast/Forecast.io) |
+
+---
+
+### Calculation Scripts
+
+#### Battery Charge Compensation Ratio
+**Alias:** `battery_charge_compensation_ratio`
+
+Returns a compensation multiplier based on weather conditions.
+
+**Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `weather_condition` | select | Weather condition (rainy, cloudy, sunny, etc.) |
+
+**Compensation Ratios:**
+| Weather | Ratio |
+|---------|-------|
+| rainy, pouring, cloudy, fog | 1.5 |
+| partlycloudy, lightning, lightning-rainy, snowy | 1.25 |
+| sunny, windy, windy-variant, exceptional | 1.0 |
+
+**Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `weather_condition` | Input condition |
+| `weather_compensation_ratio` | Calculated ratio |
+
+---
+
+#### Calculate Charge Battery Amount
+**Alias:** `calculate_charge_battery_amount`
+
+Calculates target battery SoC based on forecasted solar generation.
+
+**Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `forecast_kwh` | number | Forecast solar generation in kWh (0-50) |
+
+**Target SoC Logic:**
+| Forecast Range | Target SoC |
+|----------------|------------|
+| < 5 kWh | 100% |
+| 5 - 8.25 kWh | 85% |
+| 8.25 - 11.5 kWh | 70% |
+| 11.5 - 13 kWh | 65% |
+| 13 - 15 kWh | 50% |
+| 15 - 17 kWh | 45% |
+| 17 - 18 kWh | 40% |
+| ≥ 18 kWh | 23% |
+
+**Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `forecast` | Input forecast value |
+| `target_soc` | Calculated target SoC % |
+
+---
+
+### Notification Scripts
+
+#### Energy Notify Tomorrow's Solar Forecast
+**Alias:** `energy_notify_tomorrows_solar_forecast`
+
+Comprehensive daily forecast notification with battery recommendations.
+
+**Variables:**
+- `avg_hourly_energy_usage`: Daily average if holiday mode, else weekly average
+
+**Sequence:**
+1. Get tomorrow's solar forecast data
+2. Calculate first/last solar generation times
+3. Calculate self-sustaining generation periods
+4. Build detailed forecast text with weather emoji
+5. Send notification with:
+   - Weather and generation forecast
+   - Current battery SoC and load
+   - Battery charge recommendation
+   - Charge time estimate
+
+---
+
+#### Energy Notify Excess Solar
+**Alias:** `energy_notify_excess_solar`
+
+Notifies about available excess solar energy.
+
+**Variables:**
+- `people_home`: List of people currently at home
+- `message`: Formatted message with battery status and solar info
+
+**Sequence:**
+1. Check who is home
+2. Build message with:
+   - Current battery SoC
+   - Time to full charge (if charging)
+   - Next hour solar forecast
+   - Remaining solar for today
+3. If people are home: send direct notification
+4. Else: log to home log
+
+---
+
+### Utility Scripts
+
+#### Remaining Solar Forecast Today
+**Alias:** `remaining_solar_forecast_today`
+
+Calculates remaining solar generation expected today.
+
+**Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `value` | Forecast minus actual generation |
+| `unit_of_measurement` | kWh |
+
+---
+
+#### Get First Solar Generation
+**Alias:** `get_first_solar_generation`
+
+Finds the first period with solar generation above a threshold.
+
+**Fields:**
+| Field | Type | Description |
+|-------|------|-------------|
+| `forecast_entity` | text | Entity ID with forecast attribute |
+| `attribute_name` | text | Attribute containing forecast list |
+| `get_attribute` | text | Attribute to return (e.g., period_start) |
+| `generation_attribute_name` | text | Attribute with kWh generation |
+| `min_generation` | number | Minimum generation threshold |
+
+**Response Variables:**
+| Variable | Description |
+|----------|-------------|
+| `forecast` | First matching value or none |
+
+---
+
+#### Get Last Solar Generation
+**Alias:** `get_last_solar_generation`
+
+Finds the last period with solar generation above a threshold.
+
+Same fields and response as `get_first_solar_generation`.
+
+---
+
+## Sensors
+
+### Grid Power Sensors
+
+#### Grid Power
+**Entity:** `sensor.grid_power`
+**Unique ID:** `e697ba51-edd8-40cd-b797-ee79786c0415`
+
+Unified grid power reading from multiple sources.
+
+**State Logic:**
+```yaml
+if house_power is number: use house_power
+elif smart_meter_power is number: use smart_meter_power * 1000
+else: 0
+```
+
+**Attributes:**
+| Attribute | Value |
+|-----------|-------|
+| device_class | power |
+| unit_of_measurement | W |
+
+---
+
+#### Grid Import Power
+**Entity:** `sensor.grid_import_power`
+**Unique ID:** `09f48f73-ea68-421f-868c-ffd20cd8eab8`
+
+Positive power values only (importing from grid).
+
+**State Logic:**
+```yaml
+if house_power > 0: use house_power
+elif smart_meter_power > 0: use smart_meter_power
+else: 0
+```
+
+**Attributes:**
+| Attribute | Value |
+|-----------|-------|
+| device_class | power |
+| unit_of_measurement | W |
+| state_class | measurement |
+
+---
+
+#### Grid Export Power
+**Entity:** `sensor.grid_export_power`
+**Unique ID:** `ed52b9f5-fddd-4797-85a1-b4fb6df8cd0e`
+
+Negative power values converted to positive (exporting to grid).
+
+**State Logic:**
+```yaml
+if house_power < 0: use abs(house_power)
+elif smart_meter_power < 0: use abs(smart_meter_power)
+else: 0
+```
+
+**Attributes:**
+| Attribute | Value |
+|-----------|-------|
+| device_class | power |
+| unit_of_measurement | W |
+| state_class | measurement |
+
+---
+
+#### Grid Amp Import Warning
+**Entity:** `sensor.grid_amp_import_warning`
+**Unique ID:** `02d4ee4e-967f-4b1a-80c1-a2b9dca61d01`
+
+Calculates 90% of fuse capacity for warning threshold.
+
+**State:** `input_number.cut_out_fuse_size * 0.9`
+
+**Attributes:**
+| Attribute | Value |
+|-----------|-------|
+| icon | mdi:fuse-alert |
+| unit_of_measurement | A |
+
+---
+
+## Configuration
+
+### Input Booleans
+
+| Entity | Purpose |
+|--------|---------|
+| `input_boolean.battery_charged_today` | Tracks if battery reached full charge today |
+| `input_boolean.enable_battery_first_schedule_1/2` | Enable battery-first charging schedules |
+| `input_boolean.enable_charge_below_export_schedule_1/2/3` | Enable below-export charging schedules |
+| `input_boolean.enable_grid_first_schedule_1` | Enable grid-first charging schedule |
+
+### Input Numbers
+
+| Entity | Purpose |
+|--------|---------|
+| `input_number.battery_charged_notification` | SoC threshold for excess solar notification |
+| `input_number.growatt_battery_charged_threshold` | SoC threshold for "fully charged" status |
+| `input_number.consecutive_days_battery_not_charged` | Counter for days without full charge |
+| `input_number.consecutive_forecast_days_below_solar_generation` | Counter for low generation days |
+| `input_number.solar_generation_minimum_threshold` | Minimum expected generation threshold |
+| `input_number.solar_battery_size` | Battery capacity in kWh |
+| `input_number.solar_battery_max_charge_rate` | Maximum battery charge rate |
+| `input_number.cut_out_fuse_size` | Main fuse rating in amps |
+
+### Binary Sensors (External)
+
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.maintain_charge_first_schedule_1/2` | Maintain battery-first schedule status |
+| `binary_sensor.octopus_energy_octoplus_saving_sessions` | Octopus saving session active |
+
+---
+
+## Entity Reference
+
+### Sensors
+
+| Entity | Source | Purpose |
+|--------|--------|---------|
+| `sensor.grid_power` | Template | Unified grid power reading |
+| `sensor.grid_import_power` | Template | Grid import only (W) |
+| `sensor.grid_export_power` | Template | Grid export only (W) |
+| `sensor.grid_amp_import_warning` | Template | 90% fuse capacity warning |
+| `sensor.growatt_sph_battery_state_of_charge` | Growatt | Battery charge % |
+| `sensor.growatt_sph_inverter_mode` | Growatt | Current inverter mode |
+| `sensor.growatt_sph_pv_energy` | Growatt | Today's solar generation |
+| `sensor.growatt_sph_load_power` | Growatt | Current load power |
+| `sensor.growatt_battery_charge_power` | Growatt | Battery charge power |
+| `sensor.house_power` | External | House power consumption |
+| `sensor.smart_meter_electricity_power` | External | Smart meter reading |
+| `sensor.total_solar_forecast_estimated_energy_production_today` | Forecast.io | Today's solar forecast |
+| `sensor.total_solar_forecast_estimated_energy_production_tomorrow` | Forecast.io | Tomorrow's solar forecast |
+| `sensor.total_solar_forecast_estimated_energy_production_this_hour` | Forecast.io | This hour forecast |
+| `sensor.total_solar_forecast_estimated_energy_production_next_hour` | Forecast.io | Next hour forecast |
+| `sensor.solcast_pv_forecast_forecast_today` | Solcast | Today's Solcast forecast |
+| `sensor.solcast_pv_forecast_forecast_tomorrow` | Solcast | Tomorrow's Solcast forecast |
+| `sensor.solcast_pv_forecast_forecast_remaining_today` | Solcast | Remaining today forecast |
+| `sensor.octopus_energy_electricity_current_rate` | Octopus | Current electricity rate |
+| `sensor.electricity_next_rate` | Octopus | Next period rate |
+| `sensor.electricity_previous_rate` | Octopus | Previous period rate |
+| `sensor.battery_charge_remaining_hours` | External | Estimated battery runtime |
+| `sensor.time_to_charge_battery` | External | Time to full charge |
+| `sensor.home_electricity_power_daily_average_over_a_day` | External | Daily average usage |
+| `sensor.home_electricity_power_daily_average_over_a_week` | External | Weekly average usage |
+| `sensor.house_current` | External | House current draw |
+| `sensor.grid_max_import_power_warning` | External | Warning threshold |
+
+### Groups
+
+| Entity | Purpose |
+|--------|---------|
+| `group.battery_first_charging_schedules` | Battery-first schedule controls |
+| `group.below_export_charging_schedules` | Below-export schedule controls |
+| `group.grid_first_charging_schedules` | Grid-first schedule controls |
+| `group.maintain_battery_first_charging_schedules` | Maintain charge schedules |
+| `group.adult_people` | People to notify |
+
+### Scripts
+
+| Entity | Purpose |
+|--------|---------|
+| `script.todays_solar_forecast_data` | Get today's forecast data |
+| `script.tomorrows_solar_forecast_data` | Get tomorrow's forecast data |
+| `script.battery_charge_compensation_ratio` | Weather compensation calculation |
+| `script.calculate_charge_battery_amount` | Target SoC calculation |
+| `script.energy_notify_tomorrows_solar_forecast` | Send forecast notification |
+| `script.energy_notify_excess_solar` | Send excess solar notification |
+| `script.remaining_solar_forecast_today` | Calculate remaining forecast |
+| `script.get_first_solar_generation` | Find first generation period |
+| `script.get_last_solar_generation` | Find last generation period |
+| `script.update_solcast` | External: Update Solcast data |
+| `script.send_to_home_log` | External: Log to home log |
+| `script.send_direct_notification` | External: Send notification |
+
+---
+
+## Automation Flow Summary
+
+```mermaid
+flowchart TB
+    subgraph BatteryFlow["🔋 Battery Management"]
+        B1["Battery SoC > Threshold"] --> B2["Notify Excess Solar"]
+        B3["Daily 21:00"] --> B4["Update Forecast"]
+        B5["Battery Charged"] --> B6["Reset Counters"]
+        B7["Midnight"] --> B8{"Charged Today?"}
+        B8 -->|Yes| B9["Reset Flag"]
+        B8 -->|No| B10["Increment Counter"]
+        B11["Counter > 6"] --> B12["Alert: Low Charge Days"]
+        B13["15:55 Daily"] --> B14["Battery Status Notification"]
+        B15["14:00/15:00"] --> B16{"Battery Lasts to 19:00?"}
+        B16 -->|No| B17["Alert: Charge Battery"]
+        B18["SoC < 11%"] --> B19["Alert: Battery Depleted"]
+    end
+
+    subgraph SolarFlow["☀️ Solar Forecasting"]
+        S1["21:00 Daily"] --> S2["Get Forecast"]
+        S2 --> S3{"Forecast < Threshold?"}
+        S3 -->|Yes| S4["Increment Low Gen Counter"]
+        S3 -->|No| S5["Reset Counter"]
+        S6["Counter > 6"] --> S7["Alert: Low Generation"]
+    end
+
+    subgraph GridFlow["⚡ Grid Monitoring"]
+        G1["Load = 0 for 1min"] --> G2["Alert: Power Cut?"]
+        G3["Current > Warning"] --> G4["Alert: High Draw"]
+    end
+
+    subgraph OctopusFlow["🐙 Octopus Integration"]
+        O1["Saving Session On"] --> O2["Notify: Session Started"]
+        O3["Saving Session Off"] --> O4["Notify: Session Finished"]
+    end
+```
+
+---
+
+## Maintenance Notes
+
+### Troubleshooting
+
+| Issue | Check |
+|-------|-------|
+| No solar forecast notifications | Solcast/Forecast.io entity availability |
+| Battery notifications not firing | `input_number.battery_charged_notification` value |
+| Grid sensors showing 0 | Source sensors: `sensor.house_power`, `sensor.smart_meter_electricity_power` |
+| Incorrect charge recommendations | `input_number.solar_battery_size` and `input_number.solar_battery_max_charge_rate` |
+| Missing weather compensation | `weather.home` entity availability |
+
+### Seasonal Adjustments
+
+- **Summer:** Higher generation forecasts may reduce target SoC to 23%
+- **Winter:** Lower generation forecasts will target 100% SoC
+- **Weather compensation:** Adjust ratios in `script.battery_charge_compensation_ratio` if needed
+
+### Related Documentation
+
+- See TOOLS.md for energy subsystem canonical entities
+- Battery control via Growatt integration
+- Solar forecasting via Solcast and Forecast.io
+- Octopus Energy Agile tariff integration
 
 ---
 
