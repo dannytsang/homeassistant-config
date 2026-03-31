@@ -726,11 +726,6 @@ flowchart TB
 
 ---
 
-*Last updated: March 2026*
-
----
-
-
 This package manages the home energy system including solar generation forecasting, battery management, grid power monitoring, and energy-related notifications. It integrates with Growatt inverter, Octopus Energy Agile tariff, and Solcast solar forecasting.
 
 ---
