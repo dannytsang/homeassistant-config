@@ -809,6 +809,30 @@ flowchart LR
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [OFFICE-SETUP.md](OFFICE-SETUP.md) | Hardware setup and device configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Living Room](../living_room/README.md) | Shares computer presence groups for blind control |
+| [Porch](../porch/README.md) | Front door notifications trigger office lights |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Energy](../../integrations/energy/README.md) | EcoFlow office plug management |
+| [ESPHome](../../README.md) | Office ESP32 device configuration |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting

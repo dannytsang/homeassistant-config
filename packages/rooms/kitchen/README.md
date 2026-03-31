@@ -610,6 +610,39 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [KITCHEN-SETUP.md](KITCHEN-SETUP.md) | Hardware setup and device configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Porch](../porch/README.md) | Front door notifications trigger kitchen RGB lights |
+| [Utility](../utility/README.md) | Shared appliance monitoring patterns |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Energy](../../integrations/energy/README.md) | Grid power monitoring for RGB notifications |
+| [HVAC](../../integrations/hvac/README.md) | Smoke alarm integration |
+
+### REST Commands
+
+The dishwasher tablet consumption relies on:
+```yaml
+rest_command.consume_finish_lemon_dishwasher_tablet
+```
+
+Ensure this is configured in your REST package.
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
@@ -625,15 +658,6 @@ flowchart TB
 
 - **Summer:** May want to adjust morning light turn-off times
 - **Winter:** Consider earlier sunset trigger for ambient lights
-
-### REST Commands
-
-The dishwasher tablet consumption relies on:
-```yaml
-rest_command.consume_finish_lemon_dishwasher_tablet
-```
-
-Ensure this is configured in your REST package.
 
 ---
 

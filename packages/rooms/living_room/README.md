@@ -743,6 +743,28 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [LIVING-ROOM-SETUP.md](LIVING-ROOM-SETUP.md) | Legacy setup details and hardware configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Shared Configuration
+
+- Blind thresholds are shared with other rooms via `input_number.blind_*` entities (defined in office package)
+- RGB notification scenes may be triggered by other room automations
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Office](../office/README.md) | Shares computer presence groups for blind control |
+| [Stairs](../stairs/README.md) | Motion triggers morning routine when alarm armed_home |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
@@ -759,11 +781,6 @@ flowchart TB
 
 - **Summer:** May need to adjust sun azimuth thresholds for earlier/later sun angles
 - **Winter:** Consider if blind opening times need adjustment for shorter days
-
-### Related Documentation
-
-- See `LIVING-ROOM-SETUP.md` for legacy setup details
-- Blind thresholds are shared with other rooms via `input_number.blind_*` entities
 
 ---
 

@@ -525,6 +525,31 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [STAIRS-SETUP.md](STAIRS-SETUP.md) | Hardware setup and device configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Bedroom](../bedroom/README.md) | Children's door states affect stairs lighting brightness |
+| [Living Room](../living_room/README.md) | Living room motion triggers Magic Mirror |
+| [Porch](../porch/README.md) | Front door status affects stairs ambient light |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Alarm](../../alarm.yaml) | Person detection when alarm armed_away |
+| [HVAC](../../integrations/hvac/README.md) | Central heating control via door open/close |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting

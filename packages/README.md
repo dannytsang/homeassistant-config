@@ -28,28 +28,32 @@ A new light in the lounge would go into `/packages/rooms/living_room/` rather th
 
 Configuration organized by physical rooms in the house. Each room package contains automations, scenes, scripts, and sensors specific to that area.
 
-| Room | Description | Documentation |
-|------|-------------|---------------|
-| `office/` | Office automation with motion lighting, blind control, computer presence | [README](rooms/office/README.md) |
-| `kitchen/` | Kitchen with appliance monitoring, oven, dishwasher, smoke alarm | [README](rooms/kitchen/README.md) |
-| `porch/` | Front door, motion lighting, lock status, NFC entry | [README](rooms/porch/README.md) |
-| `stairs/` | Motion lighting with children's door integration, Magic Mirror | [README](rooms/stairs/README.md) |
-| `living_room/` | RGB lighting, TV/media control, blind automation | [README](rooms/living_room/README.md) |
-| `bedroom/` | Sleep As Android, AWTRIX, blind control | [README](rooms/bedroom/README.md) |
-| `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility/README.md) |
-| `conservatory/` | Airer, OctoPrint 3D printer, climate | [README](rooms/conservatory/README.md) |
-| `bathroom.yaml` | Bathroom automation | - |
-| `bedroom2.yaml` | Bedroom 2 | - |
-| `bedroom3.yaml` | Bedroom 3 | - |
-| `attic.yaml` | Attic | - |
-| `front_garden.yaml` | Front garden | - |
-| `back_garden.yaml` | Back garden | - |
+See [Rooms Overview](rooms/README.md) for detailed room documentation.
+
+| Room | Description | Documentation | Setup Guide |
+|------|-------------|---------------|-------------|
+| `office/` | Office automation with motion lighting, blind control, computer presence | [README](rooms/office/README.md) | [SETUP](rooms/office/OFFICE-SETUP.md) |
+| `kitchen/` | Kitchen with appliance monitoring, oven, dishwasher, smoke alarm | [README](rooms/kitchen/README.md) | [SETUP](rooms/kitchen/KITCHEN-SETUP.md) |
+| `porch/` | Front door, motion lighting, lock status, NFC entry | [README](rooms/porch/README.md) | [SETUP](rooms/porch/PORCH-SETUP.md) |
+| `stairs/` | Motion lighting with children's door integration, Magic Mirror | [README](rooms/stairs/README.md) | [SETUP](rooms/stairs/STAIRS-SETUP.md) |
+| `living_room/` | RGB lighting, TV/media control, blind automation | [README](rooms/living_room/README.md) | [SETUP](rooms/living_room/LIVING-ROOM-SETUP.md) |
+| `bedroom/` | Sleep As Android, AWTRIX, blind control | [README](rooms/bedroom/README.md) | [SETUP](rooms/bedroom/BEDROOM-SETUP.md) |
+| `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility/README.md) | - |
+| `conservatory/` | Airer, OctoPrint 3D printer, climate | [README](rooms/conservatory/README.md) | - |
+| `bathroom.yaml` | Bathroom automation | - | - |
+| `bedroom2.yaml` | Bedroom 2 | - | - |
+| `bedroom3.yaml` | Bedroom 3 | - | - |
+| `attic.yaml` | Attic | - | - |
+| `front_garden.yaml` | Front garden | - | - |
+| `back_garden.yaml` | Back garden | - | - |
 
 ---
 
 ## Integrations
 
 Configuration organized by integration. Each integration package is self-contained — removing the integration only requires deleting its package file.
+
+See [Integrations Overview](integrations/README.md) for detailed integration documentation.
 
 ### Energy & Power
 
@@ -68,26 +72,26 @@ Configuration organized by integration. Each integration package is self-contain
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `transport/tesla.yaml` | Tesla vehicle integration | [README](integrations/transport/README.md) |
+| `transport/tesla.yaml` | Tesla vehicle integration (TeslaMate) | [README](integrations/transport/README.md) |
 | `transport/google_travel.yaml` | Google Travel time | - |
 
 ### Messaging & Notifications
 
-| Integration | Description |
-|-------------|-------------|
-| `messaging/notifications.yaml` | Core notification system |
-| `messaging/slack.yaml` | Slack integration |
-| `messaging/discord.yaml` | Discord integration |
-| `messaging/telegram.yaml` | Telegram integration |
-| `messaging/home_assistant_mobile.yaml` | Mobile app notifications |
+| Integration | Description | Documentation |
+|-------------|-------------|---------------|
+| `messaging/notifications.yaml` | Core notification system | [README](integrations/messaging/README.md) |
+| `messaging/slack.yaml` | Slack integration | [README](integrations/messaging/README.md) |
+| `messaging/discord.yaml` | Discord integration | [README](integrations/messaging/README.md) |
+| `messaging/telegram.yaml` | Telegram integration | [README](integrations/messaging/README.md) |
+| `messaging/home_assistant_mobile.yaml` | Mobile app notifications | [README](integrations/messaging/README.md) |
 
 ### Climate & HVAC
 
-| Integration | Description |
-|-------------|-------------|
-| `hvac/hive.yaml` | Hive heating control |
-| `hvac/hvac.yaml` | General HVAC automation |
-| `hvac/eddi.yaml` | Eddi solar diverter |
+| Integration | Description | Documentation |
+|-------------|-------------|---------------|
+| `hvac/hive.yaml` | Hive heating control | [README](integrations/hvac/README.md) |
+| `hvac/hvac.yaml` | General HVAC automation | [README](integrations/hvac/README.md) |
+| `hvac/eddi.yaml` | Eddi solar diverter | [README](integrations/hvac/README.md) |
 
 ### Other Integrations
 
@@ -138,6 +142,14 @@ Files that don't fit into the room or integration categories:
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [Rooms Overview](rooms/README.md) | Detailed documentation for all room packages |
+| [Integrations Overview](integrations/README.md) | Detailed documentation for all integration packages |
+| [Project TOOLS.md](../../TOOLS.md) | Local environment notes and canonical entity references |
+
 ## Adding New Packages
 
 When adding new configuration:
@@ -154,3 +166,4 @@ When creating significant new packages, consider adding a README.md in the same 
 - Important sensors and their purposes
 - Configuration options (input booleans, numbers, etc.)
 - Entity reference
+- Links to related setup guides or external documentation

@@ -442,6 +442,33 @@ flowchart TB
 
 ---
 
+## Related Documentation
+
+| Document | Purpose |
+|----------|---------|
+| [PORCH-SETUP.md](PORCH-SETUP.md) | Hardware setup and device configuration |
+| [Rooms Overview](../README.md) | Overview of all room packages |
+| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+
+### Related Rooms
+
+| Room | Connection |
+|------|------------|
+| [Office](../office/README.md) | Front door open triggers office light notification |
+| [Stairs](../stairs/README.md) | Front door status affects stairs ambient light |
+| [Kitchen](../kitchen/README.md) | Front door notifications trigger kitchen RGB lights |
+| [Living Room](../living_room/README.md) | NFC tag handler flashes lounge lights |
+| [Bedroom](../bedroom/README.md) | Bedroom door close triggers stairs lights off |
+
+### Related Integrations
+
+| Integration | Connection |
+|-------------|------------|
+| [Alarm](../../alarm.yaml) | NFC tag disarms house alarm |
+| [Energy](../../integrations/energy/README.md) | EcoFlow kitchen plug notifications |
+
+---
+
 ## Maintenance Notes
 
 ### Troubleshooting
