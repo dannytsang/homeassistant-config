@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Bedroom Package Documentation
 
 This package manages the master bedroom automation including Sleep As Android integration, AWTRIX light notifications, motion-based ambient lighting, blind control, and children's bedroom door monitoring.

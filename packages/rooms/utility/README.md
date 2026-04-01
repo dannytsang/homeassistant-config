@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Utility Room Package Documentation
 
 This package manages the utility room automation including lighting control, washing machine monitoring, appliance safety (fridge/freezer), and leak detection.

@@ -1,3 +1,5 @@
+[<- Back to Integrations README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Energy ⚡
 All electrical related integrations from solar to EV charging.
 

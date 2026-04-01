@@ -1,4 +1,6 @@
 [<- Back](README.md)
+[<- Back to README](README.md)
+
 # Statistics 📊
 I have 7,191 states (📈53) in Home Assistant.
 By domain these are:

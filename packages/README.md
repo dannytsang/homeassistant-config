@@ -1,3 +1,5 @@
+[<- Back to README](../../README.md)
+
 # /packages Folder
 
 This directory contains Home Assistant configuration organized as [packages](https://www.home-assistant.io/docs/configuration/packages/#create-a-packages-folder). Packages allow related configuration (automations, sensors, scripts) to be grouped together in a single YAML file.
@@ -9,6 +11,14 @@ The main reason for using packages is to better manage configurations in a way t
 ### Automation Naming Convention
 
 Automations stored in packages use a caret (`^`) prefix to denote they cannot be edited from the UI. For example: `^Kitchen: Motion Detected`.
+
+## Documentation Index
+
+| Category | Document | Description |
+|----------|----------|-------------|
+| **Rooms Overview** | [rooms/README.md](rooms/README.md) | All room packages with quick links |
+| **Integrations Overview** | [integrations/README.md](integrations/README.md) | All integration packages |
+| **This File** | [packages/README.md](README.md) | Package architecture guide |
 
 ## Folder Structure
 
