@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Kitchen Package Documentation
 
 This package manages the kitchen automation including lighting control, appliance monitoring, and safety notifications.

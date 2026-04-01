@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Living Room Package Documentation
 
 This package manages the living room automation including motion-based lighting, RGB color scenes for notifications, TV/computer presence detection, and automated blind control.

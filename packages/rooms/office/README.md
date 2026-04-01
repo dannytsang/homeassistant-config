@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Office Package Documentation
 
 This package manages the office room automation in the Home Assistant configuration. It includes motion-based lighting, climate control, computer presence detection, automated blinds based on sun position, and various utility automations.

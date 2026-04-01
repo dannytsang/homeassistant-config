@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Conservatory Package Documentation
 
 This package manages conservatory automation including motion-activated lighting, door monitoring, climate control with underfloor heating, clothes airer scheduling, and 3D printer integration via OctoPrint.

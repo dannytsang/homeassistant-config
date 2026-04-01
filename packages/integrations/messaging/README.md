@@ -1,4 +1,6 @@
-# Messaging platforms
+[<- Back to Integrations README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
+# Messaging Platforms
 
 Package for messaging and notification platform integrations.
 

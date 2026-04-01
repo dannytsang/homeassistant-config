@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Stairs Package Documentation
 
 This package manages the stairs and landing automation including motion-based lighting with time-aware brightness, children's bedroom door integration, Magic Mirror control, and blind automation.
