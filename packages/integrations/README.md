@@ -1,16 +1,35 @@
-[<- Back](../README.md)
+[<- Back to Packages README](../README.md) · [Main README](../../README.md)
+
 # Integrations 🖧
 
 Integration-specific configuration organized by functional domain. Each package is self-contained — removing an integration only requires deleting its package file.
 
-## Quick Links
+## Integration Categories
 
-| Category | Description | Documentation |
-|----------|-------------|---------------|
-| [Energy](energy/README.md) | Solar, battery, grid monitoring, EV charging, Octopus Agile | [README](energy/README.md) · [Solar Assistant](energy/solar_assistant_README.md) |
-| [HVAC](hvac/README.md) | Heating, ventilation, air conditioning (Hive, Eddi) | [README](hvac/README.md) |
-| [Messaging](messaging/README.md) | Notifications (Slack, Discord, Telegram, Mobile) | [README](messaging/README.md) |
-| [Transport](transport/README.md) | Tesla vehicles (TeslaMate integration) | [README](transport/README.md) |
+| Category | Description | Documentation | Last Updated |
+|----------|-------------|---------------|--------------|
+| **Energy** | Solar, battery, grid monitoring, EV charging, Octopus Agile | [README](energy/README.md) | 2026-04-01 |
+| **HVAC** | Heating, ventilation, air conditioning (Hive, Eddi) | [README](hvac/README.md) | 2026-04-01 |
+| **Messaging** | Notifications (Slack, Discord, Telegram, Mobile) | [README](messaging/README.md) | 2026-04-01 |
+| **Transport** | Tesla vehicles (TeslaMate integration) | [README](transport/README.md) | 2026-04-01 |
+
+## Detailed Energy Documentation
+
+| Topic | Description | Document | Last Updated |
+|-------|-------------|----------|--------------|
+| **Energy Core** | Solar forecasting, battery management, grid monitoring | [README](energy/README.md) | 2026-04-01 |
+| **Octopus Energy** | Agile tariff integration | [README](energy/octopus_energy_README.md) | 2026-04-01 |
+| **Predbat** | Battery optimization | [README](energy/predbat_README.md) | 2026-04-01 |
+| **Solcast** | Solar forecasting service | [README](energy/solcast_README.md) | 2026-04-01 |
+| **Solar Assistant** | Growatt inverter monitoring | [README](energy/solar_assistant_README.md) | 2026-04-01 |
+| **Zappi** | MyEnergi EV charger | [README](energy/zappi_README.md) | 2026-04-01 |
+
+## Transport Sub-Integrations
+
+| Topic | Description | Document | Last Updated |
+|-------|-------------|----------|--------------|
+| **TeslaMate** | Tesla vehicle telemetry | [README](transport/README.md) | 2026-04-01 |
+| **Google Travel** | Travel time estimates | [README](transport/google_travel_README.md) | 2026-04-01 |
 
 ## HACS Integrations
 

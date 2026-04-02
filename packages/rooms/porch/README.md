@@ -1,3 +1,5 @@
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Porch Package Documentation
 
 This package manages the porch automation including motion-based lighting, front door monitoring, lock status indication, and NFC entry.

@@ -10,11 +10,72 @@ This repository contains my personal Home Assistant configuration for automating
 ## Table of Contents
 
 - [Introduction](#introduction-)
+- [Documentation Index](#documentation-index-)
 - [Hardware](#hardware-)
 - [Addons](#addons-)
 - [Integrations](#integrations-)
-- [Github](#github-)
+- [GitHub](#github-)
 - [Miscellaneous](#miscellaneous-)
+
+---
+
+## Documentation Index 📚
+
+Quick reference to all documentation in this repository, sorted by category.
+
+### Core Documentation
+
+| Document | Description | Last Updated |
+|----------|-------------|--------------|
+| [README.md](README.md) | This file — project overview and navigation | 2026-04-01 |
+| [INSTALL.md](INSTALL.md) | Installation and setup instructions | 2026-04-01 |
+| [hardware.md](hardware.md) | Complete hardware inventory by manufacturer | 2026-04-01 |
+| [statistics.md](statistics.md) | Entity counts and system statistics | 2026-04-01 |
+
+### Package Documentation
+
+| Category | Document | Description | Last Updated |
+|----------|----------|-------------|--------------|
+| **Packages** | [packages/README.md](packages/README.md) | Package architecture and organization | 2026-04-01 |
+| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview | 2026-04-01 |
+| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview | 2026-04-01 |
+
+### Room Documentation
+
+| Room | README | Setup Guide | YAML File | Last Updated |
+|------|--------|-------------|-----------|--------------|
+| Attic | [README](packages/rooms/attic_README.md) | — | [attic.yaml](packages/rooms/attic.yaml) | 2026-03-29 |
+| Back Garden | [README](packages/rooms/back_garden_README.md) | — | [back_garden.yaml](packages/rooms/back_garden.yaml) | 2026-03-29 |
+| Bathroom | [README](packages/rooms/bathroom_README.md) | — | [bathroom.yaml](packages/rooms/bathroom.yaml) | 2026-03-29 |
+| Bedroom | [README](packages/rooms/bedroom/README.md) | [SETUP](packages/rooms/bedroom/BEDROOM-SETUP.md) | — | 2026-04-01 |
+| Bedroom 2 | [README](packages/rooms/bedroom2_README.md) | — | [bedroom2.yaml](packages/rooms/bedroom2.yaml) | 2026-03-29 |
+| Bedroom 3 | [README](packages/rooms/bedroom3_README.md) | — | [bedroom3.yaml](packages/rooms/bedroom3.yaml) | 2026-03-29 |
+| Conservatory | [README](packages/rooms/conservatory/README.md) | — | — | 2026-04-01 |
+| Front Garden | [README](packages/rooms/front_garden_README.md) | — | [front_garden.yaml](packages/rooms/front_garden.yaml) | 2026-03-29 |
+| Kitchen | [README](packages/rooms/kitchen/README.md) | [SETUP](packages/rooms/kitchen/KITCHEN-SETUP.md) | — | 2026-04-01 |
+| Living Room | [README](packages/rooms/living_room/README.md) | [SETUP](packages/rooms/living_room/LIVING-ROOM-SETUP.md) | — | 2026-04-01 |
+| Office | [README](packages/rooms/office/README.md) | [SETUP](packages/rooms/office/OFFICE-SETUP.md) | — | 2026-04-01 |
+| Porch | [README](packages/rooms/porch/README.md) | [SETUP](packages/rooms/porch/PORCH-SETUP.md) | — | 2026-04-01 |
+| Stairs | [README](packages/rooms/stairs/README.md) | [SETUP](packages/rooms/stairs/STAIRS-SETUP.md) | — | 2026-04-01 |
+| Utility | [README](packages/rooms/utility/README.md) | — | [utility.yaml](packages/rooms/utility.yaml) | 2026-03-31 |
+
+### Integration Documentation
+
+| Integration | Document | Description | Last Updated |
+|-------------|----------|-------------|--------------|
+| **Energy (Core)** | [README](packages/integrations/energy/README.md) | Solar, battery, grid monitoring | 2026-04-01 |
+| **Octopus Energy** | [README](packages/integrations/energy/octopus_energy_README.md) | Agile tariff integration | 2026-04-01 |
+| **Predbat** | [README](packages/integrations/energy/predbat_README.md) | Battery optimization | 2026-04-01 |
+| **Solcast** | [README](packages/integrations/energy/solcast_README.md) | Solar forecasting | 2026-04-01 |
+| **Solar Assistant** | [README](packages/integrations/energy/solar_assistant_README.md) | Inverter monitoring | 2026-04-01 |
+| **Zappi** | [README](packages/integrations/energy/zappi_README.md) | EV charger integration | 2026-04-01 |
+| **Alarm** | [README](packages/integrations/alarm_README.md) | House alarm system | 2026-04-01 |
+| **HVAC** | [README](packages/integrations/hvac/README.md) | Heating and climate control | 2026-04-01 |
+| **Messaging** | [README](packages/integrations/messaging/README.md) | Notifications (Slack, Discord, Telegram) | 2026-04-01 |
+| **Transport** | [README](packages/integrations/transport/README.md) | Tesla/TeslaMate integration | 2026-04-01 |
+| **Google Travel** | [README](packages/integrations/transport/google_travel_README.md) | Travel time estimates | 2026-04-01 |
+
+---
 
 ## Introduction 📢
 My ⚽goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a 💡light through to household chores such as 👕washing clothes. Currently, my journey continues.

@@ -1,3 +1,5 @@
+[<- Back to Integrations README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
 # Tesla Integration Package Documentation
 
 This package provides comprehensive Tesla vehicle integration for two vehicles (Model Y and Model 3), including real-time status monitoring, charging automation, location tracking, climate control, and utility rate-based notifications.

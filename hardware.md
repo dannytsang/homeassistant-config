@@ -1,3 +1,5 @@
+[<- Back to README](README.md)
+
 # Hardware 🔩
 I have gradually built up a lot of hardware overtime to from sensors to switches which allow automations to come to life. As part of this journey, I learnt a lot and amassed a lot of different devices with varying compatibilities. This is the beauty of [Home Assistant](https://home-assistant.io) to bring multiple eco systems together.
 
