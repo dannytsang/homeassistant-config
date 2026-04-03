@@ -73,8 +73,10 @@ flowchart TB
 
 ```
 packages/rooms/kitchen/
-├── kitchen.yaml          # Main package file
-└── meater.yaml           # MEATER probe integration (separate)
+├── kitchen.yaml          # Main package file (lighting, appliances, safety)
+├── meater.yaml           # MEATER probe integration
+├── KITCHEN-SETUP.md     # Hardware setup documentation
+└── README.md            # This documentation
 ```
 
 ### Key Components
@@ -505,6 +507,8 @@ Uses indoor temperature/humidity vs outdoor temperature to calculate mold risk.
 |--------|---------|
 | `input_number.kitchen_light_level_threshold` | Motion light threshold (sensor 1) |
 | `input_number.kitchen_light_level_2_threshold` | Motion light threshold (sensor 2) |
+| `input_number.kitchen_light_dim_delay_minutes` | Delay before dimming lights (default: 5 min) |
+| `input_number.kitchen_light_off_delay_minutes` | Delay before turning off lights (default: 5 min) |
 | `input_number.low_water_softener_salt_level` | Low salt warning threshold |
 | `input_number.no_water_softener_salt_level` | Empty salt threshold |
 
@@ -609,6 +613,27 @@ flowchart TB
         E5["Grid <100W"] --> E6["Lights Off"]
     end
 ```
+
+---
+
+## MEATER Probe Integration
+
+The `meater.yaml` file contains automations for the MEATER wireless meat thermometer integration.
+
+### Automations
+
+| Automation | ID | Trigger | Purpose |
+|------------|-----|---------|---------|
+| Temperature Reaches Target | `1652029607668` | Internal temp exceeds target | Notification when food is ready |
+| Cooking Has Started | `1652029734731` | Cook state changes to `started` | Log when cooking begins |
+
+### Dependencies
+
+- MEATER probe paired and connected
+- `sensor.meater_probe_internal` — Current internal temperature
+- `sensor.meater_probe_target` — Target temperature
+- `sensor.meater_probe_cooking` — Name of the dish being cooked
+- `sensor.meater_probe_cook_state` — Current cook state
 
 ---
 

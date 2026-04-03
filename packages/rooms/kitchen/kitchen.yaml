@@ -1,4 +1,24 @@
 # Created by Danny Tsang <danny@tsang.uk>
+
+input_number:
+  kitchen_light_dim_delay_minutes:
+    name: Kitchen Light Dim Delay
+    min: 1
+    max: 30
+    step: 1
+    unit_of_measurement: min
+    icon: mdi:timer-outline
+    initial: 5
+
+  kitchen_light_off_delay_minutes:
+    name: Kitchen Light Off Delay
+    min: 1
+    max: 30
+    step: 1
+    unit_of_measurement: min
+    icon: mdi:timer-off-outline
+    initial: 5
+
 automation:
   - id: "1583797341647"
     alias: "Kitchen: Turn Off Lights At Night"
@@ -187,7 +207,8 @@ automation:
               entity_id:
                 - timer.kitchen_cooker_light_dim
             data:
-              duration: "00:05:00"
+              duration:
+                minutes: "{{ states('input_number.kitchen_light_dim_delay_minutes') | int(5) }}"
     mode: single
 
   # Timer-finished consolidation (replaces 2 automations):
@@ -246,7 +267,8 @@ automation:
                       entity_id:
                         - timer.kitchen_cooker_light_off
                     data:
-                      duration: "00:05:00"
+                      duration:
+                        minutes: "{{ states('input_number.kitchen_light_off_delay_minutes') | int(5) }}"
               - if:
                   - condition: sun
                     before: sunset
