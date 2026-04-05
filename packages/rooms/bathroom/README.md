@@ -249,3 +249,5 @@ Calculates mold risk based on:
 ## Author
 
 Created by Danny Tsang <danny@tsang.uk>
+
+*Last updated: 2026-04-05*
