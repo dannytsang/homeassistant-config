@@ -1,4 +1,3 @@
-[<- Back](README.md)
 [<- Back to README](README.md)
 
 # Statistics 📊

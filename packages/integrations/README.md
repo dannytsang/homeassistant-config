@@ -18,18 +18,18 @@ Integration-specific configuration organized by functional domain. Each package 
 | Topic | Description | Document | Last Updated |
 |-------|-------------|----------|--------------|
 | **Energy Core** | Solar forecasting, battery management, grid monitoring | [README](energy/README.md) | 2026-04-01 |
-| **Octopus Energy** | Agile tariff integration | [README](energy/octopus_energy_README.md) | 2026-04-01 |
-| **Predbat** | Battery optimization | [README](energy/predbat_README.md) | 2026-04-01 |
-| **Solcast** | Solar forecasting service | [README](energy/solcast_README.md) | 2026-04-01 |
+| **Octopus Energy** | Agile tariff integration | [README](energy/octopus_energy/README.md) | 2026-04-01 |
+| **Predbat** | Battery optimization | [README](energy/predbat/README.md) | 2026-04-01 |
+| **Solcast** | Solar forecasting service | [README](energy/solcast/README.md) | 2026-04-01 |
 | **Solar Assistant** | Growatt inverter monitoring | [README](energy/solar_assistant_README.md) | 2026-04-01 |
-| **Zappi** | MyEnergi EV charger | [README](energy/zappi_README.md) | 2026-04-01 |
+| **Zappi** | MyEnergi EV charger | [README](energy/zappi/README.md) | 2026-04-01 |
 
 ## Transport Sub-Integrations
 
 | Topic | Description | Document | Last Updated |
 |-------|-------------|----------|--------------|
 | **TeslaMate** | Tesla vehicle telemetry | [README](transport/README.md) | 2026-04-01 |
-| **Google Travel** | Travel time estimates | [README](transport/google_travel_README.md) | 2026-04-01 |
+| **Google Travel** | Travel time estimates | [README](transport/google_travel/README.md) | 2026-04-01 |
 
 ## HACS Integrations
 

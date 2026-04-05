@@ -44,14 +44,14 @@ Quick reference to all documentation in this repository, sorted by category.
 
 | Room | README | Setup Guide | YAML File | Last Updated |
 |------|--------|-------------|-----------|--------------|
-| Attic | [README](packages/rooms/attic_README.md) | — | [attic.yaml](packages/rooms/attic.yaml) | 2026-03-29 |
-| Back Garden | [README](packages/rooms/back_garden_README.md) | — | [back_garden.yaml](packages/rooms/back_garden.yaml) | 2026-03-29 |
-| Bathroom | [README](packages/rooms/bathroom_README.md) | — | [bathroom.yaml](packages/rooms/bathroom.yaml) | 2026-03-29 |
+| Attic | [README](packages/rooms/attic/README.md) | — | [attic.yaml](packages/rooms/attic.yaml) | 2026-03-29 |
+| Back Garden | [README](packages/rooms/back_garden/README.md) | — | [back_garden.yaml](packages/rooms/back_garden.yaml) | 2026-03-29 |
+| Bathroom | [README](packages/rooms/bathroom/README.md) | — | [bathroom.yaml](packages/rooms/bathroom.yaml) | 2026-03-29 |
 | Bedroom | [README](packages/rooms/bedroom/README.md) | [SETUP](packages/rooms/bedroom/BEDROOM-SETUP.md) | — | 2026-04-01 |
-| Bedroom 2 | [README](packages/rooms/bedroom2_README.md) | — | [bedroom2.yaml](packages/rooms/bedroom2.yaml) | 2026-03-29 |
-| Bedroom 3 | [README](packages/rooms/bedroom3_README.md) | — | [bedroom3.yaml](packages/rooms/bedroom3.yaml) | 2026-03-29 |
+| Bedroom 2 | [README](packages/rooms/bedroom2/README.md) | — | [bedroom2.yaml](packages/rooms/bedroom2.yaml) | 2026-03-29 |
+| Bedroom 3 | [README](packages/rooms/bedroom3/README.md) | — | [bedroom3.yaml](packages/rooms/bedroom3.yaml) | 2026-03-29 |
 | Conservatory | [README](packages/rooms/conservatory/README.md) | — | — | 2026-04-01 |
-| Front Garden | [README](packages/rooms/front_garden_README.md) | — | [front_garden.yaml](packages/rooms/front_garden.yaml) | 2026-03-29 |
+| Front Garden | [README](packages/rooms/front_garden/README.md) | — | [front_garden.yaml](packages/rooms/front_garden.yaml) | 2026-03-29 |
 | Kitchen | [README](packages/rooms/kitchen/README.md) | [SETUP](packages/rooms/kitchen/KITCHEN-SETUP.md) | — | 2026-04-01 |
 | Living Room | [README](packages/rooms/living_room/README.md) | [SETUP](packages/rooms/living_room/LIVING-ROOM-SETUP.md) | — | 2026-04-01 |
 | Office | [README](packages/rooms/office/README.md) | [SETUP](packages/rooms/office/OFFICE-SETUP.md) | — | 2026-04-01 |
@@ -64,23 +64,23 @@ Quick reference to all documentation in this repository, sorted by category.
 | Integration | Document | Description | Last Updated |
 |-------------|----------|-------------|--------------|
 | **Energy (Core)** | [README](packages/integrations/energy/README.md) | Solar, battery, grid monitoring | 2026-04-01 |
-| **Octopus Energy** | [README](packages/integrations/energy/octopus_energy_README.md) | Agile tariff integration | 2026-04-01 |
-| **Predbat** | [README](packages/integrations/energy/predbat_README.md) | Battery optimization | 2026-04-01 |
-| **Solcast** | [README](packages/integrations/energy/solcast_README.md) | Solar forecasting | 2026-04-01 |
+| **Octopus Energy** | [README](packages/integrations/energy/octopus_energy/README.md) | Agile tariff integration | 2026-04-01 |
+| **Predbat** | [README](packages/integrations/energy/predbat/README.md) | Battery optimization | 2026-04-01 |
+| **Solcast** | [README](packages/integrations/energy/solcast/README.md) | Solar forecasting | 2026-04-01 |
 | **Solar Assistant** | [README](packages/integrations/energy/solar_assistant_README.md) | Inverter monitoring | 2026-04-01 |
-| **Zappi** | [README](packages/integrations/energy/zappi_README.md) | EV charger integration | 2026-04-01 |
-| **Alarm** | [README](packages/integrations/alarm_README.md) | House alarm system | 2026-04-01 |
+| **Zappi** | [README](packages/integrations/energy/zappi/README.md) | EV charger integration | 2026-04-01 |
+| **Alarm** | [README](packages/integrations/alarm/README.md) | House alarm system | 2026-04-01 |
 | **HVAC** | [README](packages/integrations/hvac/README.md) | Heating and climate control | 2026-04-01 |
 | **Messaging** | [README](packages/integrations/messaging/README.md) | Notifications (Slack, Discord, Telegram) | 2026-04-01 |
 | **Transport** | [README](packages/integrations/transport/README.md) | Tesla/TeslaMate integration | 2026-04-01 |
-| **Google Travel** | [README](packages/integrations/transport/google_travel_README.md) | Travel time estimates | 2026-04-01 |
+| **Google Travel** | [README](packages/integrations/transport/google_travel/README.md) | Travel time estimates | 2026-04-01 |
 
 ---
 
 ## Introduction 📢
 My ⚽goal with home automation is to never have to think about doing something mentally or physically. This can be turning on a 💡light through to household chores such as 👕washing clothes. Currently, my journey continues.
 
-I have always been interested in technology starting from the x10 days. At the time, I was did not have the money or 🧬life experience to use the 💻technology at the time. Fast forward a few 📅decades, I'm fortunate enough to have the means and place to splurge on home automtion and [Home Assistant](https://home-assistant.io) is the key to all of this.
+I have always been interested in technology starting from the x10 days. At the time, I did not have the money or 🧬life experience to use the 💻technology at the time. Fast forward a few 📅decades, I'm fortunate enough to have the means and place to splurge on home automation and [Home Assistant](https://home-assistant.io) is the key to all of this.
 
 This project contains configuration files for [Home Assistant](https://home-assistant.io) used in the House of Tsang 曾)
 
@@ -89,7 +89,7 @@ More details on my 📜[website](https://dannytsang.com).
 > ⚠️ **Note:** This configuration is highly specific to my environment. Some parts may not work without adaptation.
 
 ### Statistics 📊
-I have 7,191 states in Home Assistant. in Home Assistant. More details [here](statistics.md).
+I have 7,191 states in Home Assistant. More details [here](statistics.md).
 
 ## Hardware 🔩
 More details [here](hardware.md).
@@ -121,7 +121,7 @@ The goal is to use the web front end as much as possible and there has been a gr
 ### Setup ⚙️
 All changes are performed in the UI where possible and if they are held in configuration files then it will end up in Git where possible.
 
-I use the Visual Studio Code add-on to edit files in [Home Assistant](https://home-assistant.io) or if I really have to the File Editor add-on on my mobile deives.
+I use the Visual Studio Code add-on to edit files in [Home Assistant](https://home-assistant.io) or if I really have to the File Editor add-on on my mobile devices.
 
 Visual Studio Code addon includes a Git client so all changes are managed through the text editor.
 
@@ -140,7 +140,7 @@ I use some of the "advance" configuration options such as [split configuration](
 
 ```
 packages/               # See README.md in folder
-  └── integrations/     # Intgration based YAML files
+  └── integrations/     # Integration based YAML files
   └── rooms/            # Room based YAML files
 blueprints/             # Blueprints for automations
 camera/                 # Private directory to hold camera images

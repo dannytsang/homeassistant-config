@@ -158,7 +158,6 @@ Files that don't fit into the room or integration categories:
 |----------|---------|
 | [Rooms Overview](rooms/README.md) | Detailed documentation for all room packages |
 | [Integrations Overview](integrations/README.md) | Detailed documentation for all integration packages |
-| [Project TOOLS.md](../../TOOLS.md) | Local environment notes and canonical entity references |
 
 ## Adding New Packages
 

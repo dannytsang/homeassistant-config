@@ -860,4 +860,4 @@ Most automations use "Debug" log level. Set to "Normal" or "Warning" in producti
 
 ---
 
-*Last updated: March 2026*
+*Last updated: 2026-03-01*

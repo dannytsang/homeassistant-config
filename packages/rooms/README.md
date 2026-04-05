@@ -23,12 +23,12 @@ Room specific automations, scripts, templates, sensors, and configuration organi
 
 | Room | Description | README | YAML File | Last Updated |
 |------|-------------|--------|-----------|--------------|
-| **Attic** | Attic hatch lighting | [README](attic_README.md) | [attic.yaml](attic.yaml) | 2026-03-29 |
-| **Back Garden** | Shed monitoring, smart lighting | [README](back_garden_README.md) | [back_garden.yaml](back_garden.yaml) | 2026-03-29 |
-| **Bathroom** | Bathroom automation | [README](bathroom_README.md) | [bathroom.yaml](bathroom.yaml) | 2026-03-29 |
-| **Bedroom 2** | Leo's bedroom | [README](bedroom2_README.md) | [bedroom2.yaml](bedroom2.yaml) | 2026-03-29 |
-| **Bedroom 3** | Ashlee's bedroom | [README](bedroom3_README.md) | [bedroom3.yaml](bedroom3.yaml) | 2026-03-29 |
-| **Front Garden** | Doorbell, vehicle detection, lockbox | [README](front_garden_README.md) | [front_garden.yaml](front_garden.yaml) | 2026-03-29 |
+| **Attic** | Attic hatch lighting | [README](attic/README.md) | [attic.yaml](attic.yaml) | 2026-03-29 |
+| **Back Garden** | Shed monitoring, smart lighting | [README](back_garden/README.md) | [back_garden.yaml](back_garden.yaml) | 2026-03-29 |
+| **Bathroom** | Bathroom automation | [README](bathroom/README.md) | [bathroom.yaml](bathroom.yaml) | 2026-03-29 |
+| **Bedroom 2** | Leo's bedroom | [README](bedroom2/README.md) | [bedroom2.yaml](bedroom2.yaml) | 2026-03-29 |
+| **Bedroom 3** | Ashlee's bedroom | [README](bedroom3/README.md) | [bedroom3.yaml](bedroom3.yaml) | 2026-03-29 |
+| **Front Garden** | Doorbell, vehicle detection, lockbox | [README](front_garden/README.md) | [front_garden.yaml](front_garden.yaml) | 2026-03-29 |
 
 ## Related Documentation
 
