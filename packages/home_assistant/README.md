@@ -117,13 +117,15 @@ Calls `recorder.purge` with `repack: true` and `keep_days: 7` targeting the enti
 
 Determines the type of version change by comparing `installed_version` and `latest_version` from `update.home_assistant_core_update`, then sends an interactive 2-button notification to `person.danny` requesting approval.
 
-| `input_select.home_assistant_automatic_upgrade` | Version change detected | Notification sent |
-|---|---|---|
-| Any value except `Disabled` | Patch only (major and minor unchanged) | "Patch update from X to Y?" |
-| `Minor Versions` | Minor version changed (major unchanged) | "Minor update from X to Y?" |
-| `Major Versions` | Major version changed | "Major update from X to Y?" (titled "Home Assistant Supervisor") |
+| `input_select.home_assistant_automatic_upgrade` | Version change detected | Notification sent | Yes action |
+|---|---|---|---|
+| Any value except `Disabled` | Patch only (major and minor unchanged) | "Patch update from X to Y?" | `update_home_assistant` |
+| `Minor Versions` | Minor version changed (major unchanged) | "Minor update from X to Y?" | `update_home_assistant` |
+| `Major Versions` | Major version changed | "Major update from X to Y?" (titled "Home Assistant Supervisor") | `update_home_assistant_supervisor` |
 
-Buttons: **Yes** (`update_home_assistant`) / **No** (`ignore`). No automatic action is taken — the upgrade only proceeds if Danny approves via the notification.
+**No** action: `ignore`. No automatic action is taken — the upgrade only proceeds if Danny approves via the notification.
+
+> **Note:** The major version branch notification is titled "Home Assistant Supervisor" and fires the `update_home_assistant_supervisor` callback rather than `update_home_assistant`. This appears to be a copy-paste error in the YAML — a major Core update currently triggers the Supervisor upgrade path.
 
 ---
 
