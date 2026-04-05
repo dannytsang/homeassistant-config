@@ -456,3 +456,5 @@ All automations check `input_boolean.enable_alarm_automations` before executing.
 - The 30-second delay on door/window close trigger prevents false triggers from brief openings
 - Final check at 02:05 is a safety net for residents who may be out late
 - Ring MQTT add-on restart is attempted automatically after 5 minutes of disconnection
+
+*Last updated: 2026-04-05*
