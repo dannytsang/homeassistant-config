@@ -594,14 +594,6 @@ flowchart TB
 | Blinds won't close at bedtime | Window contact state (must be closed) |
 | Remote not responding | MQTT device connectivity |
 
-### Known Issues
-
-**Circadian Lighting Target Entity Bug (IDs: 1736794523847, 1736794524951)**
-
-The evening and night color temperature actions in both circadian lighting automations incorrectly target `input_boolean.enable_leo_s_circadian_lighting` instead of `light.leo_s_bedroom_lights`. As a result, only the daytime (4500K) temperature is applied to the actual lights; the evening (3200K) and night (2700K) transitions do not take effect.
-
----
-
 ### Seasonal Adjustments
 
 - **Summer:** Consider adjusting weather-based blind closing thresholds
