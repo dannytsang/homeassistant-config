@@ -8,7 +8,7 @@ template:
         state: >-
           {{ states | selectattr('attributes.device_class', 'eq', 'moisture') | map(attribute='state') | select('eq', 'on') | list | count > 0 }}
         attributes:
-          windows: >-
+          locations: >-
             {% set ns = namespace(leaks = []) %}
             {%- for item in states | selectattr('attributes.device_class', 'eq', 'moisture') -%}
               {%- if item.state == 'on' -%}
@@ -31,14 +31,14 @@ automation:
           - action: script.send_to_home_log
             data:
               message: >-
-                🚨 💧 Water leak detected at: {{ state_attr('binary_sensor.house_leak_detected', 'windows') | join(', ') }}
+                🚨 💧 Water leak detected at: {{ state_attr('binary_sensor.house_leak_detected', 'locations') | join(', ') }}
               title: ":droplet: Water"
               log_level: "Normal"
           - action: script.send_direct_notification
             data:
               title: "🚨 WATER LEAK DETECTED!"
               message: >-
-                Leak at: {{ state_attr('binary_sensor.house_leak_detected', 'windows') | join(', ') }}
+                Leak at: {{ state_attr('binary_sensor.house_leak_detected', 'locations') | join(', ') }}
               data:
                 ttl: 0
                 priority: high
