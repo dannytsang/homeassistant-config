@@ -276,7 +276,7 @@ flowchart TB
 
 | Integration | Connection |
 |-------------|------------|
-| [Security](../../integrations/security/README.md) | Alarm system integration |
+| [Alarm](../../integrations/alarm/README.md) | House alarm system integration |
 
 ---
 

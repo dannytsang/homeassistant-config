@@ -121,6 +121,19 @@ Lower stairs ambient lighting with day/night awareness.
 
 Pre-bedtime full brightness motion lighting.
 
+```mermaid
+flowchart TD
+    A["🚶 Upstairs Motion"] --> B{"Motion triggers\nenabled?"}
+    B -->|No| Z["⛔ Ignore"]
+    B -->|Yes| C{"Dark?"}
+    C -->|No| Z
+    C -->|Yes| D{"07:00 → bedtime?"}
+    D -->|No| Z
+    D -->|Yes| E{"Light off or\nvery dim?"}
+    E -->|No| Z
+    E -->|Yes| F["💡 Full brightness"]
+```
+
 **Triggers:**
 - Upstairs motion detected
 
@@ -169,6 +182,17 @@ flowchart TD
 
 Late night motion with bedroom awareness and night light option.
 
+```mermaid
+flowchart TD
+    A["🚶 Motion after midnight"] --> B{"Dark + triggers\nenabled?"}
+    B -->|No| Z["⛔ Ignore"]
+    B -->|Yes| C{"Bedroom lamps on?"}
+    C -->|Yes| D["💡 Full brightness\n(someone's awake)"]
+    C -->|No| E{"Night light\nenabled?"}
+    E -->|Yes| F["🔴 Red night light\n(5 brightness)"]
+    E -->|No| G["💡 Full brightness"]
+```
+
 **Triggers:**
 - Upstairs motion detected
 
@@ -207,6 +231,21 @@ Consolidated no-motion handler for both stair sections.
 ---
 
 ### Children's Door Integration
+
+Between bedtime and midnight, the stairs light brightness adapts in real time based on which children's doors are open or closed — open means the child is awake, so the assumption is bright light is acceptable; closed means the child is sleeping, so lights dim to avoid disturbing them.
+
+```mermaid
+flowchart TD
+    A["🚪 Child door opens\n(bedtime → midnight)"] --> B{"Stairs light on?\n+ Normal mode?"}
+    B -->|No| Z["⛔ Ignore"]
+    B -->|Yes| C["🔅 Dim lights"]
+
+    D["🚪 Child door closes\n(bedtime → midnight)"] --> E{"Stairs light on?\n+ Normal mode?"}
+    E -->|No| Z2["⛔ Ignore"]
+    E -->|Yes| F{"Both doors\nnow closed?"}
+    F -->|Yes| G["💡 Full brightness\n(both children sleeping)"]
+    F -->|No| H["🔅 Keep dim\n(one child still awake)"]
+```
 
 #### Stairs: Light On And Children's Door Open After Bedtime And Before Midnight
 **ID:** `1615849889104`
@@ -578,4 +617,4 @@ This can be customized per child via their respective `enable_*_door_automations
 
 ---
 
-*Last updated: March 2026*
+*Last updated: 2026-03-01*

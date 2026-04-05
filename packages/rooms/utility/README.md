@@ -520,4 +520,4 @@ Fridge high temperature alert triggers at 7°C. This is a food safety threshold.
 
 ---
 
-*Last updated: March 2026*
+*Last updated: 2026-03-01*

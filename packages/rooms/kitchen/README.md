@@ -150,16 +150,16 @@ Starts countdown when motion stops.
 Handles dim and off timer completions with smart ambient management.
 
 **Timer Flow:**
-```
-Motion Stops
-    ↓
-[5 min] Dim Timer
-    ↓
-Dim main lights + Start off timer
-    ↓
-[5 min] Off Timer
-    ↓
-Turn off main lights
+
+```mermaid
+flowchart TD
+    A["🚶 Motion Stops"] --> B["⏱️ Start 5min dim timer"]
+    B --> C["🔅 Dim main lights"]
+    C --> D{"After sunset?"}
+    D -->|Yes| E["🔅 Dim ambient lights"]
+    D -->|No| F["⬛ Turn off ambient lights"]
+    C --> G["⏱️ Start 5min off timer"]
+    G --> H["⬛ Turn off main lights"]
 ```
 
 **Ambient Light Behavior:**
@@ -204,6 +204,19 @@ Three automations handle fridge/freezer door states:
 | Appliance Door Closed | `1737283018714` | Log door close |
 | Appliance Door Open For Long Period | `1737283018715` | Alert if open too long |
 
+```mermaid
+flowchart TD
+    A["🚪 Door Opens"] --> B["📝 Log door open"]
+    B --> C{"Still open 4 min?"}
+    C -->|Yes| D["📱 Alert + 🔊 Alexa"]
+    D --> E{"Still open 30 min?<br/>(Fridge only)"}
+    E -->|Yes| F["📱 Alert + 🔊 Alexa"]
+    F --> G{"Still open 45 min?<br/>(Fridge only)"}
+    G -->|Yes| H["📱 Alert + 🔊 Alexa"]
+    H --> I{"Still open 60 min?<br/>(Fridge only)"}
+    I -->|Yes| J["📱 Alert + 🔊 Alexa"]
+```
+
 **Alert Thresholds (Fridge):**
 - 4 minutes
 - 30 minutes
@@ -216,6 +229,25 @@ Three automations handle fridge/freezer door states:
 **Actions on Alert:**
 - Send direct notification
 - Alexa announcement (non-quiet hours)
+
+---
+
+#### Oven Lifecycle
+
+```mermaid
+flowchart TD
+    A["⚡ Oven Power > 15W"] --> B["🍳 Oven On"]
+    B --> C{"Power drops < 100W?"}
+    C -->|Yes| D{"Already preheated flag set?"}
+    D -->|No| E["🔔 Set preheated flag\n+ Notify + Alexa"]
+    D -->|Yes| F["⛔ Skip"]
+    E --> G{"Preheated for 1h 10min?"}
+    G -->|Yes| H["⚠️ Long on alert + 🔊 Alexa"]
+    B --> I{"Power off for 7 min?"}
+    I -->|Yes| J{"Preheated flag on?"}
+    J -->|Yes| K["✅ Reset preheated flag"]
+    J -->|No| L["⛔ Skip"]
+```
 
 ---
 
@@ -254,6 +286,22 @@ Safety alert for oven left on.
 ---
 
 #### Kitchen: Dishwasher Cycle Management
+
+```mermaid
+flowchart TD
+    A["⚡ Dishwasher Powered On"] --> B{"Cycle already\nin progress?"}
+    B -->|Yes| Z["⛔ Skip"]
+    B -->|No| C["▶️ Set cycle flag on"]
+    C --> D["📊 Consume tablet via REST"]
+    D --> E{"Tablets < 9?"}
+    E -->|Yes| F["⚠️ Low stock alert"]
+    E -->|No| G["✅ Stock ok"]
+    C --> H{"Powered off\nfor 31 min?"}
+    H -->|Yes| I["✅ Reset cycle flag"]
+    I --> J{"Someone home?"}
+    J -->|Yes| K["📱 Notify + 🔊 Alexa"]
+    J -->|No| L["📝 Log + 📋 Todo item"]
+```
 
 | Automation | ID | Purpose |
 |------------|-----|---------|
@@ -663,4 +711,4 @@ Ensure this is configured in your REST package.
 
 ---
 
-*Last updated: March 2026*
+*Last updated: 2026-03-01*

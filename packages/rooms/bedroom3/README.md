@@ -536,7 +536,7 @@ flowchart TB
 
 | Room | Connection |
 |------|------------|
-| [Bedroom1](../bedroom1/README.md) | Shares children's calendar logic |
+| [Bedroom](../bedroom/README.md) | Shares children's door monitoring patterns |
 | [Bedroom2](../bedroom2/README.md) | Shares children's calendar logic |
 | [Office](../office/README.md) | Shares workday sensor |
 

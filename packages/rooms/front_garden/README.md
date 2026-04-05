@@ -479,7 +479,6 @@ flowchart TB
 
 | Room | Connection |
 |------|------------|
-| [Garden](../garden/README.md) | Shared outdoor automation patterns |
 | [Office](../office/README.md) | Blind control integration |
 | [Bedroom](../bedroom/README.md) | Blind control integration |
 
@@ -488,7 +487,6 @@ flowchart TB
 | Integration | Connection |
 |-------------|------------|
 | [Energy](../../integrations/energy/README.md) | Electricity meter monitoring |
-| [Security](../../integrations/security/README.md) | Camera and lockbox security |
 
 ---
 
