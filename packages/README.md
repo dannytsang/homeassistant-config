@@ -50,12 +50,12 @@ See [Rooms Overview](rooms/README.md) for detailed room documentation.
 | `bedroom/` | Sleep As Android, AWTRIX, blind control | [README](rooms/bedroom/README.md) | [SETUP](rooms/bedroom/BEDROOM-SETUP.md) |
 | `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility/README.md) | - |
 | `conservatory/` | Airer, OctoPrint 3D printer, climate | [README](rooms/conservatory/README.md) | - |
-| `bathroom.yaml` | Bathroom automation | - | - |
-| `bedroom2.yaml` | Bedroom 2 | - | - |
-| `bedroom3.yaml` | Bedroom 3 | - | - |
-| `attic.yaml` | Attic | - | - |
-| `front_garden.yaml` | Front garden | - | - |
-| `back_garden.yaml` | Back garden | - | - |
+| `bathroom.yaml` | Bathroom automation | [README](rooms/bathroom/README.md) | - |
+| `bedroom2.yaml` | Bedroom 2 (Leo's room) | [README](rooms/bedroom2/README.md) | - |
+| `bedroom3.yaml` | Bedroom 3 (Ashlee's room) | [README](rooms/bedroom3/README.md) | - |
+| `attic.yaml` | Attic | [README](rooms/attic/README.md) | - |
+| `front_garden.yaml` | Front garden | [README](rooms/front_garden/README.md) | - |
+| `back_garden.yaml` | Back garden and shed | [README](rooms/back_garden/README.md) | - |
 
 ---
 
@@ -72,18 +72,18 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | `energy/` | Core energy management, solar forecasting, battery control | [README](integrations/energy/README.md) |
 | `energy/ecoflow.yaml` | EcoFlow power stations | [README](integrations/energy/README.md) |
 | `energy/solar_assistant.yaml` | Solar inverter monitoring | [README](integrations/energy/solar_assistant_README.md) |
-| `energy/zappi.yaml` | MyEnergi Zappi EV charger | - |
-| `energy/eddi.yaml` | MyEnergi Eddi solar diverter | - |
-| `energy/predbat.yaml` | Predbat battery optimization | - |
-| `energy/solcast.yaml` | Solar forecasting | - |
-| `energy/octopus_energy.yaml` | Octopus Agile tariff | - |
+| `energy/zappi.yaml` | MyEnergi Zappi EV charger | [README](integrations/energy/zappi/README.md) |
+| `energy/eddi.yaml` | MyEnergi Eddi solar diverter | [README](integrations/hvac/README.md) |
+| `energy/predbat.yaml` | Predbat battery optimization | [README](integrations/energy/predbat/README.md) |
+| `energy/solcast.yaml` | Solar forecasting | [README](integrations/energy/solcast/README.md) |
+| `energy/octopus_energy.yaml` | Octopus Agile tariff | [README](integrations/energy/octopus_energy/README.md) |
 
 ### Transport & Vehicles
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | `transport/tesla.yaml` | Tesla vehicle integration (TeslaMate) | [README](integrations/transport/README.md) |
-| `transport/google_travel.yaml` | Google Travel time | - |
+| `transport/google_travel.yaml` | Google Travel time | [README](integrations/transport/google_travel/README.md) |
 
 ### Messaging & Notifications
 
@@ -94,6 +94,7 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | `messaging/discord.yaml` | Discord integration | [README](integrations/messaging/README.md) |
 | `messaging/telegram.yaml` | Telegram integration | [README](integrations/messaging/README.md) |
 | `messaging/home_assistant_mobile.yaml` | Mobile app notifications | [README](integrations/messaging/README.md) |
+| `messaging/callmebot.yaml` | WhatsApp via CallMeBot | [README](integrations/messaging/README.md) |
 
 ### Climate & HVAC
 
@@ -105,26 +106,26 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 
 ### Other Integrations
 
-| Integration | Description |
-|-------------|-------------|
-| `alarm.yaml` | House alarm system |
-| `alexa.yaml` | Amazon Alexa integration |
-| `chromecast.yaml` | Chromecast devices |
-| `esphome.yaml` | ESPHome devices |
-| `grocy.yaml` | Grocy inventory management |
-| `lg.yaml` | LG appliances |
-| `owntracks.yaml` | Location tracking |
-| `paperless.yaml` | Paperless-ngx document management |
-| `pihole.yaml` | Pi-hole DNS management |
-| `smoke_alarm.yaml` | Smoke alarm integration |
-| `spotify.yaml` | Spotify control |
-| `supervisor.yaml` | Home Assistant Supervisor |
-| `ups.yaml` | UPS monitoring |
-| `water.yaml` | Leak detection |
-| `zigbee.yaml` | Zigbee2MQTT configuration |
-| `git.yaml` | Git integration |
-| `calendar.yaml` | Calendar integration |
-| `cleaning.yaml` | Cleaning schedules |
+| Integration | Description | Documentation |
+|-------------|-------------|---------------|
+| `alarm.yaml` | House alarm system | [README](integrations/alarm/README.md) |
+| `alexa.yaml` | Amazon Alexa integration | - |
+| `chromecast.yaml` | Chromecast devices | - |
+| `esphome.yaml` | ESPHome devices | - |
+| `grocy.yaml` | Grocy inventory management | - |
+| `lg.yaml` | LG appliances | - |
+| `owntracks.yaml` | Location tracking | - |
+| `paperless.yaml` | Paperless-ngx document management | - |
+| `pihole.yaml` | Pi-hole DNS management | - |
+| `smoke_alarm.yaml` | Smoke alarm integration | - |
+| `spotify.yaml` | Spotify control | - |
+| `supervisor.yaml` | Home Assistant Supervisor | - |
+| `ups.yaml` | UPS monitoring | - |
+| `water.yaml` | Leak detection | - |
+| `zigbee.yaml` | Zigbee2MQTT configuration | - |
+| `git.yaml` | Git integration | - |
+| `calendar.yaml` | Calendar integration | - |
+| `cleaning.yaml` | Cleaning schedules | - |
 
 ---
 
