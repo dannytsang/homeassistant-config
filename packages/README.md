@@ -109,23 +109,29 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | `alarm.yaml` | House alarm system | [README](integrations/alarm/README.md) |
-| `alexa.yaml` | Amazon Alexa integration | - |
-| `chromecast.yaml` | Chromecast devices | - |
-| `esphome.yaml` | ESPHome devices | - |
-| `grocy.yaml` | Grocy inventory management | - |
-| `lg.yaml` | LG appliances | - |
-| `owntracks.yaml` | Location tracking | - |
-| `paperless.yaml` | Paperless-ngx document management | - |
-| `pihole.yaml` | Pi-hole DNS management | - |
-| `smoke_alarm.yaml` | Smoke alarm integration | - |
-| `spotify.yaml` | Spotify control | - |
-| `supervisor.yaml` | Home Assistant Supervisor | - |
-| `ups.yaml` | UPS monitoring | - |
-| `water.yaml` | Leak detection | - |
-| `zigbee.yaml` | Zigbee2MQTT configuration | - |
-| `git.yaml` | Git integration | - |
-| `calendar.yaml` | Calendar integration | - |
-| `cleaning.yaml` | Cleaning schedules | - |
+| `alexa.yaml` | Amazon Echo TTS announcements | [README](integrations/alexa/README.md) |
+| `bins.yaml` | Bin collection tracking | [README](integrations/bins/README.md) |
+| `calendar.yaml` | Google Calendar event notifications with travel time | [README](integrations/calendar/README.md) |
+| `chromecast.yaml` | Chromecast / Magic Mirror / Google TV | [README](integrations/chromecast/README.md) |
+| `cleaning.yaml` | Deebot robot vacuum | [README](integrations/cleaning/README.md) |
+| `esphome.yaml` | ESPHome firmware updates and recovery | [README](integrations/esphome/README.md) |
+| `git.yaml` | GitHub CI/CD config auto-deploy | [README](integrations/git/README.md) |
+| `grocy.yaml` | Grocy inventory management | [README](integrations/grocy/README.md) |
+| `lg.yaml` | LG WebOS TV monitoring | [README](integrations/lg/README.md) |
+| `n8n.yaml` | N8N workflow integration | [README](integrations/n8n/README.md) |
+| `nuki.yaml` | Nuki smart door lock | [README](integrations/nuki/README.md) |
+| `owntracks.yaml` | OwnTracks location publishing | [README](integrations/owntracks/README.md) |
+| `paperless.yaml` | Paperless-NGX document notifications | [README](integrations/paperless/README.md) |
+| `pihole.yaml` | Pi-hole DNS ad filtering | [README](integrations/pihole/README.md) |
+| `sftpgo.yaml` | SFTPGo file server commands | [README](integrations/sftpgo/README.md) |
+| `smoke_alarm.yaml` | Nest Protect smoke / CO detection | [README](integrations/smoke_alarm/README.md) |
+| `spotify.yaml` | Spotify playback logging | [README](integrations/spotify/README.md) |
+| `supervisor.yaml` | Add-on lifecycle and auto-disable | [README](integrations/supervisor/README.md) |
+| `unifi_protect.yaml` | UniFi Protect camera events | [README](integrations/unifi_protect/README.md) |
+| `ups.yaml` | UPS monitoring via NUT | [README](integrations/ups/README.md) |
+| `water.yaml` | Leak detection and alerts | [README](integrations/water/README.md) |
+| `zigbee.yaml` | Zigbee2MQTT coordinator monitoring | [README](integrations/zigbee/README.md) |
+| `weather/` | Forecasts, warnings, carbon intensity, Ecowitt | [README](integrations/weather/README.md) |
 
 ---
 
@@ -133,23 +139,27 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 
 Files that don't fit into the room or integration categories:
 
-| File | Description |
-|------|-------------|
-| `tracker.yaml` | Device and person tracking |
-| `homeassistant.yaml` | Core Home Assistant configuration |
-| `recorder.yaml` | Database and history configuration |
-| `logger.yaml` | Logging configuration |
-| `rest.yaml` | REST command definitions |
-| `shell.yaml` | Shell command definitions |
-| `template.yaml` | Global template sensors |
-| `command_line.yaml` | Command line sensors |
-| `mqtt.yaml` | MQTT configuration |
-| `notify.yaml` | Notification services |
-| `group.yaml` | Group definitions |
-| `zone.yaml` | Zone definitions |
-| `timer.yaml` | Global timers |
-| `counter.yaml` | Global counters |
-| `input_*.yaml` | Input helpers (booleans, numbers, selects, etc.) |
+| File | Description | Documentation |
+|------|-------------|---------------|
+| `home.yaml` | Home modes, global device control, lock/alarm scripts | [README](home/README.md) |
+| `tracker.yaml` | Presence detection, arrival/departure, music follow | [README](tracker/README.md) |
+| `home_assistant.yaml` | HA lifecycle, backups, upgrades, purge | [README](home_assistant/README.md) |
+| `time.yaml` | Scheduled automations, bedtime announcements | [README](time/README.md) |
+| `smoke_alarms.yaml` | Smoke alarm coordination, camera snapshots | [README](smoke_alarms/README.md) |
+| `shared_helpers.yaml` | Shared template sensors (motion+dark helpers) | [README](shared_helpers/README.md) |
+| `recorder.yaml` | Database and history configuration | - |
+| `logger.yaml` | Logging configuration | - |
+| `rest.yaml` | REST command definitions | - |
+| `shell.yaml` | Shell command definitions | - |
+| `template.yaml` | Global template sensors | - |
+| `command_line.yaml` | Command line sensors | - |
+| `mqtt.yaml` | MQTT configuration | - |
+| `notify.yaml` | Notification services | - |
+| `group.yaml` | Group definitions | - |
+| `zone.yaml` | Zone definitions | - |
+| `timer.yaml` | Global timers | - |
+| `counter.yaml` | Global counters | - |
+| `input_*.yaml` | Input helpers (booleans, numbers, selects, etc.) | - |
 
 ---
 
