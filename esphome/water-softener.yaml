@@ -11,11 +11,82 @@ esp32:
   framework:
     type: esp-idf
 
+# https://community.home-assistant.io/t/using-esphome-to-build-a-water-flow-rate-meter/119380/386?u=tuxinator94
+globals:
+  - id: water_offset
+    type: float
+    restore_value: yes
+    initial_value: '0'
+  - id: k_factor
+    type: float
+    restore_value: yes
+    initial_value: '0.0'
+
+button:
+  - platform: template
+    name: "Reset Water Meter"
+    icon: "mdi:water-remove"
+    on_press:
+      - lambda: |-
+          id(water_offset) = id(total_water_raw).state;
+          id(total_water_l).publish_state(0);
+          id(total_water_m3).publish_state(0);
+
+number:
+  - platform: template
+    name: "Water Sensor K-Factor"
+    id: k_factor_input
+    icon: "mdi:calculator"
+    unit_of_measurement: "imp/L"
+    min_value: 30.0
+    max_value: 500.0
+    step: 0.1
+    initial_value: 0.0
+    optimistic: true
+    restore_value: true
+    on_value:
+      then:
+        - lambda: 'id(k_factor) = x;'
+
 sensor:
   - platform: ultrasonic
     trigger_pin: GPIO13
     echo_pin: GPIO12
     name: "Salt Level"
+
+  - platform: pulse_counter
+    pin: GPIO34
+    unit_of_measurement: 'L/min'
+    id: water_usage
+    name: 'Current water usage'
+    update_interval: 5s
+    filters:
+      - lambda: |-
+          if (id(k_factor) > 0) return (x / id(k_factor));
+          else return 0;
+  - platform: integration
+    id: total_water_raw
+    sensor: water_usage
+    time_unit: min
+    internal: true 
+
+  - platform: template
+    name: "Total Water Usage"
+    id: total_water_l
+    unit_of_measurement: 'L'
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 1
+    lambda: return id(total_water_raw).state - id(water_offset);
+
+  - platform: template
+    name: "Total Water MC"
+    id: total_water_m3
+    unit_of_measurement: 'm³'
+    device_class: water
+    state_class: total_increasing
+    accuracy_decimals: 3
+    lambda: return (id(total_water_raw).state - id(water_offset)) / 1000.0;
 
 # Enable logging
 logger:
