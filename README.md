@@ -42,22 +42,22 @@ Quick reference to all documentation in this repository, sorted by category.
 
 ### Room Documentation
 
-| Room | README | Setup Guide | YAML File | Last Updated |
-|------|--------|-------------|-----------|--------------|
-| Attic | [README](packages/rooms/attic_README.md) | — | [attic.yaml](packages/rooms/attic.yaml) | 2026-03-29 |
-| Back Garden | [README](packages/rooms/back_garden_README.md) | — | [back_garden.yaml](packages/rooms/back_garden.yaml) | 2026-03-29 |
-| Bathroom | [README](packages/rooms/bathroom_README.md) | — | [bathroom.yaml](packages/rooms/bathroom.yaml) | 2026-03-29 |
-| Bedroom | [README](packages/rooms/bedroom/README.md) | [SETUP](packages/rooms/bedroom/BEDROOM-SETUP.md) | — | 2026-04-01 |
-| Bedroom 2 | [README](packages/rooms/bedroom2_README.md) | — | [bedroom2.yaml](packages/rooms/bedroom2.yaml) | 2026-03-29 |
-| Bedroom 3 | [README](packages/rooms/bedroom3_README.md) | — | [bedroom3.yaml](packages/rooms/bedroom3.yaml) | 2026-03-29 |
-| Conservatory | [README](packages/rooms/conservatory/README.md) | — | — | 2026-04-01 |
-| Front Garden | [README](packages/rooms/front_garden_README.md) | — | [front_garden.yaml](packages/rooms/front_garden.yaml) | 2026-03-29 |
-| Kitchen | [README](packages/rooms/kitchen/README.md) | [SETUP](packages/rooms/kitchen/KITCHEN-SETUP.md) | — | 2026-04-01 |
-| Living Room | [README](packages/rooms/living_room/README.md) | [SETUP](packages/rooms/living_room/LIVING-ROOM-SETUP.md) | — | 2026-04-01 |
-| Office | [README](packages/rooms/office/README.md) | [SETUP](packages/rooms/office/OFFICE-SETUP.md) | — | 2026-04-01 |
-| Porch | [README](packages/rooms/porch/README.md) | [SETUP](packages/rooms/porch/PORCH-SETUP.md) | — | 2026-04-01 |
-| Stairs | [README](packages/rooms/stairs/README.md) | [SETUP](packages/rooms/stairs/STAIRS-SETUP.md) | — | 2026-04-01 |
-| Utility | [README](packages/rooms/utility_README.md) | — | [utility.yaml](packages/rooms/utility.yaml) | 2026-03-31 |
+| Room | README | Setup Guide | Last Updated |
+|------|--------|-------------|--------------|
+| Attic | [README](packages/rooms/attic_README.md) | — | 2026-03-29 |
+| Back Garden | [README](packages/rooms/back_garden_README.md) | — | 2026-03-29 |
+| Bathroom | [README](packages/rooms/bathroom_README.md) | — | 2026-03-29 |
+| Bedroom | [README](packages/rooms/bedroom/README.md) | [SETUP](packages/rooms/bedroom/BEDROOM-SETUP.md) | 2026-04-01 |
+| Bedroom 2 | [README](packages/rooms/bedroom2_README.md) | — | 2026-03-29 |
+| Bedroom 3 | [README](packages/rooms/bedroom3_README.md) | — | 2026-03-29 |
+| Conservatory | [README](packages/rooms/conservatory/README.md) | — | 2026-04-01 |
+| Front Garden | [README](packages/rooms/front_garden_README.md) | — | 2026-03-29 |
+| Kitchen | [README](packages/rooms/kitchen/README.md) | [SETUP](packages/rooms/kitchen/KITCHEN-SETUP.md) | 2026-04-01 |
+| Living Room | [README](packages/rooms/living_room/README.md) | [SETUP](packages/rooms/living_room/LIVING-ROOM-SETUP.md) | 2026-04-01 |
+| Office | [README](packages/rooms/office/README.md) | [SETUP](packages/rooms/office/OFFICE-SETUP.md) | 2026-04-01 |
+| Porch | [README](packages/rooms/porch/README.md) | [SETUP](packages/rooms/porch/PORCH-SETUP.md) | 2026-04-01 |
+| Stairs | [README](packages/rooms/stairs/README.md) | [SETUP](packages/rooms/stairs/STAIRS-SETUP.md) | 2026-04-01 |
+| Utility | [README](packages/rooms/utility_README.md) | — | 2026-03-31 |
 
 ### Integration Documentation
 
