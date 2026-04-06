@@ -221,9 +221,9 @@ flowchart LR
 
 | Document | Purpose |
 |----------|---------|
-| [Zappi](../zappi/README.md) | EV charging coordination |
-| [Google Travel](../google_travel/README.md) | Departure time estimation |
-| [Octopus Energy](../octopus_energy/README.md) | Rate-based charging decisions |
+| [Zappi](../energy/zappi_README.md) | EV charging coordination |
+| [Google Travel](google_travel_README.md) | Departure time estimation |
+| [Octopus Energy](../energy/octopus_energy_README.md) | Rate-based charging decisions |
 
 ---
 

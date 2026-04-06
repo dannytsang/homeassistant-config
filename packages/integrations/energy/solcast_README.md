@@ -291,8 +291,8 @@ If consistently hitting limits:
 
 | Document | Purpose |
 |----------|---------|
-| [Integrations Overview](../README.md) | Overview of all integration packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Integrations Overview](README.md) | Overview of all integration packages |
+| [Main Packages README](../README.md) | Architecture and organization guidelines |
 | [Energy Package README](energy.yaml) | Main energy management system |
 
 ### Related Integrations

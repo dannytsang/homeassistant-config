@@ -293,11 +293,11 @@ energy:
 
 | Document | Purpose |
 |----------|---------|
-| [Solar Assistant](solar_assistant/README.md) | Inverter control and monitoring |
-| [Octopus Energy](octopus_energy/README.md) | Rate-based automation triggers |
-| [Predbat](predbat/README.md) | Battery optimization planning |
-| [EcoFlow](ecoflow/README.md) | Portable battery coordination |
-| [Zappi](zappi/README.md) | EV charging energy flow |
+| [Solar Assistant](solar_assistant_README.md) | Inverter control and monitoring |
+| [Octopus Energy](octopus_energy_README.md) | Rate-based automation triggers |
+| [Predbat](predbat_README.md) | Battery optimization planning |
+| [EcoFlow](ecoflow_README.md) | Portable battery coordination |
+| [Zappi](zappi_README.md) | EV charging energy flow |
 
 ---
 

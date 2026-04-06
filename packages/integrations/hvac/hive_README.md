@@ -219,8 +219,8 @@ flowchart LR
 
 | Document | Purpose |
 |----------|---------|
-| [HVAC](hvac/README.md) | Central heating coordination |
-| [Eddi](eddi/README.md) | Hot water heating |
+| [HVAC](hvac_README.md) | Central heating coordination |
+| [Eddi](eddi_README.md) | Hot water heating |
 
 ---
 

@@ -252,9 +252,9 @@ Both devices are managed together but can have independent reserve levels based 
 
 | Document | Purpose |
 |----------|---------|
-| [Octopus Energy](octopus_energy/README.md) | Rate-based trigger source |
-| [Solar Assistant](solar_assistant/README.md) | Main inverter coordination |
-| [Zappi](zappi/README.md) | EV charging (competes for solar excess) |
+| [Octopus Energy](octopus_energy_README.md) | Rate-based trigger source |
+| [Solar Assistant](solar_assistant_README.md) | Main inverter coordination |
+| [Zappi](zappi_README.md) | EV charging (competes for solar excess) |
 
 ---
 

@@ -93,7 +93,7 @@ flowchart TB
 
 Propagates thermostat changes to all radiator TRVs.
 
-See [Hive documentation](hive/README.md) for details.
+See [Hive documentation](hive_README.md) for details.
 
 ---
 
@@ -188,8 +188,8 @@ sequenceDiagram
 
 | Package | Purpose |
 |---------|---------|
-| [Hive](hive/README.md) | Thermostat and TRV control |
-| [Eddi](eddi/README.md) | Hot water solar diversion |
+| [Hive](hive_README.md) | Thermostat and TRV control |
+| [Eddi](eddi_README.md) | Hot water solar diversion |
 
 ### Cross-Package Dependencies
 
@@ -215,8 +215,8 @@ sequenceDiagram
 
 | Document | Purpose |
 |----------|---------|
-| [Hive](hive/README.md) | TRV and thermostat details |
-| [Eddi](eddi/README.md) | Hot water heating |
+| [Hive](hive_README.md) | TRV and thermostat details |
+| [Eddi](eddi_README.md) | Hot water heating |
 | [Energy](../energy/README.md) | Energy dashboard integration |
 
 ---

@@ -1,4 +1,4 @@
-[<- Back to Integrations README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+[<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
 # Chromecast — Cast and Google TV Management
 

@@ -1,10 +1,10 @@
-[<- Back to Integrations README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+[<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
 # Energy Conversations
 
 Voice and LLM conversation intent handlers for querying the home energy system. Defined in `../energy_conversations.yaml`.
 
-Integrations used: [Growatt / Solar Assistant](../solar_assistant_README.md), [Octopus Energy](../octopus_energy/README.md), and [Solcast](../solcast/README.md).
+Integrations used: [Growatt / Solar Assistant](solar_assistant_README.md), [Octopus Energy](octopus_energy_README.md), and [Solcast](solcast_README.md).
 
 ---
 
@@ -199,10 +199,10 @@ For each group that is `on`, the response iterates over enabled schedules and re
 
 | Document | Purpose |
 |----------|---------|
-| [Energy README](../README.md) | Energy package overview |
-| [Solar Assistant README](../solar_assistant_README.md) | Growatt inverter details |
-| [Octopus Energy README](../octopus_energy/README.md) | Rate sensor details |
-| [Solcast README](../solcast/README.md) | Solar forecast details |
+| [Energy README](README.md) | Energy package overview |
+| [Solar Assistant README](solar_assistant_README.md) | Growatt inverter details |
+| [Octopus Energy README](octopus_energy_README.md) | Rate sensor details |
+| [Solcast README](solcast_README.md) | Solar forecast details |
 
 ---
 

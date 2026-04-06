@@ -618,18 +618,18 @@ flowchart TB
 
 | Document | Purpose |
 |----------|---------|
-| [Integrations Overview](../README.md) | Overview of all integration packages |
+| [Integrations Overview](README.md) | Overview of all integration packages |
 | [Energy README](README.md) | Main energy package documentation |
-| [Predbat Documentation](predbat/README.md) | Battery management integration |
+| [Predbat Documentation](predbat_README.md) | Battery management integration |
 | [Transport README](../transport/README.md) | Tesla vehicle integrations |
 
 ### Related Integrations
 
 | Integration | Connection |
 |-------------|------------|
-| [Octopus Energy](../README.md) | Rate sensors for charging decisions |
+| [Octopus Energy](README.md) | Rate sensors for charging decisions |
 | [Growatt/Solar Assistant](README.md) | Inverter mode for Predbat coordination |
-| [Predbat](predbat/README.md) | Battery management coordination |
+| [Predbat](predbat_README.md) | Battery management coordination |
 | [Transport](../transport/README.md) | Vehicle detection via TeslaMate |
 
 ---

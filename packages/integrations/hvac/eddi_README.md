@@ -223,10 +223,10 @@ flowchart LR
 
 | Document | Purpose |
 |----------|---------|
-| [HVAC](hvac/README.md) | Central heating coordination |
-| [Hive](hive/README.md) | Main thermostat control |
-| [Solar Assistant](../solar_assistant/README.md) | Solar generation monitoring |
-| [Octopus Energy](../octopus_energy/README.md) | Rate-based decisions |
+| [HVAC](hvac_README.md) | Central heating coordination |
+| [Hive](hive_README.md) | Main thermostat control |
+| [Solar Assistant](../energy/solar_assistant_README.md) | Solar generation monitoring |
+| [Octopus Energy](../energy/octopus_energy_README.md) | Rate-based decisions |
 
 ---
 
