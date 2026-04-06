@@ -255,7 +255,7 @@ Monitors for Ring Alarm disconnections.
 - Alarm panel becomes `unavailable` for 1 minute
 
 **Actions:**
-- Sends direct notification to Danny
+- Sends direct notification to Danny and Terina
 
 ---
 
@@ -457,4 +457,4 @@ All automations check `input_boolean.enable_alarm_automations` before executing.
 - Final check at 02:05 is a safety net for residents who may be out late
 - Ring MQTT add-on restart is attempted automatically after 5 minutes of disconnection
 
-*Last updated: 2026-04-05*
+*Last updated: 2026-04-06*

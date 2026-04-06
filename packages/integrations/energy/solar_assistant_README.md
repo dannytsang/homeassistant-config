@@ -287,10 +287,10 @@ flowchart TD
 5. **Negative Rate Charging** - When rate < 0p and `input_boolean.solar_assistant_charge_electricity_cost_below_nothing` enabled
 6. **Below Export Charging** - When import < export and charge below export enabled (permanent or scheduled)
 7. **Target Rate Charging** - When import < target rate and `input_boolean.enable_target_electricity_unit_rate` enabled
-8. **Predbat Modes** - Sync with Predbat planning:
-   - Demand → Load First
-   - Exporting → Grid First
-   - Hold Charging → Load First or Maintain
+8. **Predbat Modes** - Sync with Predbat planning (auto-corrects inverter if mismatched):
+   - Demand → switches inverter to Load First if not already
+   - Exporting → switches inverter to Grid First if not already
+   - Hold Charging → warns if inverter is not in Load First or Maintain
 9. **Default** → Load First
 
 ---
@@ -625,4 +625,4 @@ flowchart TB
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-06*

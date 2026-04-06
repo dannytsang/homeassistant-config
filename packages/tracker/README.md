@@ -2,7 +2,7 @@
 
 # Tracker
 
-*Last updated: 2026-04-05*
+*Last updated: 2026-04-06*
 
 Presence detection, arrival and departure automation, adaptive music following, and device-tracking groups for every household member. This package coordinates everything that happens when people come and go — alarm management, lighting, holiday mode transitions, and per-person personalisation.
 
@@ -175,7 +175,7 @@ Turns on `scene.turn_off_downstairs_lights` and `scene.office_all_lights_off` in
 |---|---|
 | ID | `1674735382446` |
 | Trigger | Terina's nearest distance drops below `input_number.arriving_home_threshold` |
-| Conditions | Alarm automations enabled; alarm is `armed_home`; `sensor.danny_home_nearest_direction_of_travel` is `towards` |
+| Conditions | Alarm automations enabled; alarm is `armed_home`; `sensor.terina_home_nearest_direction_of_travel` is `towards` |
 | Mode | Single |
 
 Disarms the alarm in parallel with a log entry.
@@ -211,6 +211,19 @@ Activates `scene.turn_off_downstairs_lights` and `scene.office_all_lights_off`, 
 
 ### Per-Person: Leo and Children
 
+#### `People: Leo Arrives Home`
+
+| Property | Value |
+|---|---|
+| ID | `1674735382447` |
+| Trigger | `person.leo` changes from `not_home` to `home` |
+| Conditions | Alarm automations enabled; alarm is `armed_home` |
+| Mode | Single |
+
+Disarms the alarm in parallel with a log entry. Covers the scenario where Leo arrives while the alarm is in overnight/home mode.
+
+---
+
 #### `People: Leo Leaves Home`
 
 | Property | Value |
@@ -220,6 +233,18 @@ Activates `scene.turn_off_downstairs_lights` and `scene.office_all_lights_off`, 
 | Condition | `group.tracked_people` is `not_home` (Leo is last to leave) |
 
 Activates `scene.turn_off_downstairs_lights` and `scene.office_all_lights_off`, logs departure.
+
+---
+
+#### `People: Ashlee Leaves Home`
+
+| Property | Value |
+|---|---|
+| ID | `1674735382448` |
+| Trigger | `person.ashlee` changes from `home` to `not_home` |
+| Condition | `group.tracked_people` is `not_home` (adults already away) |
+
+Logs Ashlee's departure when no tracked adults remain at home.
 
 ---
 

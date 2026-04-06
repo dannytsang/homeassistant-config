@@ -434,7 +434,8 @@ Each room also has a corresponding `*_target_temperature` sensor and a `*_minimu
 | `input_boolean.enable_permanent_hot_water_below_export` | Permanently boost when exporting |
 | `input_boolean.enable_boost_hot_water_schedule_1` | Enable scheduled Eddi boost window 1 |
 | `input_number.hot_water_solar_diverter_boiler_cut_off` | Eddi energy threshold to skip boiler hot water |
+| `input_number.eddi_boost_duration_minutes` | Duration (minutes) for Eddi boost when rate ≤ 0p/kWh or scheduled — range 5–60, default 20 |
 
 ---
 
-*Last updated: 2026-04-05*
+*Last updated: 2026-04-06*

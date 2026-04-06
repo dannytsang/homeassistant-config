@@ -110,6 +110,8 @@ flowchart TD
 - Motion `on` for 2 minutes
 - Motion `off` for 1 minute
 
+**Condition:** `input_boolean.enable_porch_motion_triggers` must be `on`
+
 **Actions:**
 - **Motion on:** Turn light to 100%, cancel timer
 - **Motion off:** Start 1-minute off timer
@@ -492,4 +494,4 @@ This assumes motion sensor covers the porch area effectively.
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-06*
