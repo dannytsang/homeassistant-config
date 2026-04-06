@@ -2,7 +2,7 @@
 
 # Home
 
-*Last updated: 2026-04-05*
+*Last updated: 2026-04-06*
 
 Global home mode management, whole-house device control, privacy and naughty-step modes, and appliance temperature monitoring. This package is the central coordinator for high-level "state of the house" changes.
 
@@ -137,7 +137,7 @@ Powers down devices sequentially, logging each room:
 
 | Room | Devices turned off |
 |---|---|
-| Kitchen | `switch.kitchen_echo_plug`, `switch.toaster` |
+| Kitchen | `switch.toaster` |
 | Living Room | `switch.harmony_hub_plug`, `switch.playstation_plug`, `switch.tv_plug` |
 | Bedroom | `switch.bedroom_tv_plug`, `switch.bedroom_fan` |
 | Conservatory | `switch.printer_plug`, `switch.conservatory_extension_1` |
@@ -155,7 +155,7 @@ Powers up devices sequentially, logging each room:
 
 | Room | Devices turned on |
 |---|---|
-| Kitchen | `switch.kitchen_echo_plug`, `switch.toaster`, `switch.ecoflow_kitchen_usb_enabled` |
+| Kitchen | `switch.toaster`, `switch.ecoflow_kitchen_usb_enabled` |
 | Living Room | `switch.harmony_hub_plug`, `switch.playstation_plug`, `switch.tv_plug` |
 | Bedroom | `switch.bedroom_tv_plug` |
 | Conservatory | `switch.printer_plug`, `switch.conservatory_extension_1` |
@@ -199,7 +199,7 @@ Sequential shutdown of all major devices and lights. Each step runs in parallel 
 | Magic Mirror | `switch.magic_mirror_plug` off |
 | Office lights | `scene.office_all_lights_off` |
 | Bedroom fan | `switch.bedroom_fan` off |
-| Office air conditioner | `switch.office_fan` off |
+| Office ceiling fan | `fan.office_ceiling_fan` off |
 | Kitchen lights | `scene.kitchen_all_lights_off` + `switch.ecoflow_kitchen_usb_enabled` off |
 | Living room lights | `scene.living_room_lights_off` + individual `light.living_room_*` entities off |
 | Conservatory lights | `scene.conservatory_turn_off_light` |
@@ -242,10 +242,6 @@ Turns off the following lights:
 | `light.kitchen_down_lights` | Kitchen Down Light |
 | `light.living_room_lamp_left` | Left Lamp |
 | `light.living_room_lamp_right` | Right Lamp |
-| `light.office_light` | Office |
-| `light.office_2` | Office |
-| `light.office_3` | Office |
-| `light.office_4` | Office |
 
 ---
 
