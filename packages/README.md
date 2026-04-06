@@ -72,18 +72,18 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | `energy/` | Core energy management, solar forecasting, battery control | [README](integrations/energy/README.md) |
 | `energy/ecoflow.yaml` | EcoFlow power stations | [README](integrations/energy/README.md) |
 | `energy/solar_assistant.yaml` | Solar inverter monitoring | [README](integrations/energy/solar_assistant_README.md) |
-| `energy/zappi.yaml` | MyEnergi Zappi EV charger | [README](integrations/energy/zappi/README.md) |
+| `energy/zappi.yaml` | MyEnergi Zappi EV charger | [README](integrations/energy/zappi_README.md) |
 | `energy/eddi.yaml` | MyEnergi Eddi solar diverter | [README](integrations/hvac/README.md) |
-| `energy/predbat.yaml` | Predbat battery optimization | [README](integrations/energy/predbat/README.md) |
-| `energy/solcast.yaml` | Solar forecasting | [README](integrations/energy/solcast/README.md) |
-| `energy/octopus_energy.yaml` | Octopus Agile tariff | [README](integrations/energy/octopus_energy/README.md) |
+| `energy/predbat.yaml` | Predbat battery optimization | [README](integrations/energy/predbat_README.md) |
+| `energy/solcast.yaml` | Solar forecasting | [README](integrations/energy/solcast_README.md) |
+| `energy/octopus_energy.yaml` | Octopus Agile tariff | [README](integrations/energy/octopus_energy_README.md) |
 
 ### Transport & Vehicles
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | `transport/tesla.yaml` | Tesla vehicle integration (TeslaMate) | [README](integrations/transport/README.md) |
-| `transport/google_travel.yaml` | Google Travel time | [README](integrations/transport/google_travel/README.md) |
+| `transport/google_travel.yaml` | Google Travel time | [README](integrations/transport/google_travel_README.md) |
 
 ### Messaging & Notifications
 
@@ -109,28 +109,28 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | `alarm.yaml` | House alarm system | [README](integrations/alarm_README.md) |
-| `alexa.yaml` | Amazon Echo TTS announcements | [README](integrations/alexa/README.md) |
-| `bins.yaml` | Bin collection tracking | [README](integrations/bins/README.md) |
-| `calendar.yaml` | Google Calendar event notifications with travel time | [README](integrations/calendar/README.md) |
-| `chromecast.yaml` | Chromecast / Magic Mirror / Google TV | [README](integrations/chromecast/README.md) |
-| `cleaning.yaml` | Deebot robot vacuum | [README](integrations/cleaning/README.md) |
-| `esphome.yaml` | ESPHome firmware updates and recovery | [README](integrations/esphome/README.md) |
-| `git.yaml` | GitHub CI/CD config auto-deploy | [README](integrations/git/README.md) |
-| `grocy.yaml` | Grocy inventory management | [README](integrations/grocy/README.md) |
-| `lg.yaml` | LG WebOS TV monitoring | [README](integrations/lg/README.md) |
+| `alexa.yaml` | Amazon Echo TTS announcements | [README](integrations/alexa_README.md) |
+| `bins.yaml` | Bin collection tracking | [README](integrations/bins_README.md) |
+| `calendar.yaml` | Google Calendar event notifications with travel time | [README](integrations/calendar_README.md) |
+| `chromecast.yaml` | Chromecast / Magic Mirror / Google TV | [README](integrations/chromecast_README.md) |
+| `cleaning.yaml` | Deebot robot vacuum | [README](integrations/cleaning_README.md) |
+| `esphome.yaml` | ESPHome firmware updates and recovery | [README](integrations/esphome_README.md) |
+| `git.yaml` | GitHub CI/CD config auto-deploy | [README](integrations/git_README.md) |
+| `grocy.yaml` | Grocy inventory management | [README](integrations/grocy_README.md) |
+| `lg.yaml` | LG WebOS TV monitoring | [README](integrations/lg_README.md) |
 | `n8n.yaml` | N8N workflow integration | [README](integrations/n8n_README.md) |
-| `nuki.yaml` | Nuki smart door lock | [README](integrations/nuki/README.md) |
-| `owntracks.yaml` | OwnTracks location publishing | [README](integrations/owntracks/README.md) |
-| `paperless.yaml` | Paperless-NGX document notifications | [README](integrations/paperless/README.md) |
+| `nuki.yaml` | Nuki smart door lock | [README](integrations/nuki_README.md) |
+| `owntracks.yaml` | OwnTracks location publishing | [README](integrations/owntracks_README.md) |
+| `paperless.yaml` | Paperless-NGX document notifications | [README](integrations/paperless_README.md) |
 | `pihole.yaml` | Pi-hole DNS ad filtering | [README](integrations/pihole_README.md) |
-| `sftpgo.yaml` | SFTPGo file server commands | [README](integrations/sftpgo/README.md) |
+| `sftpgo.yaml` | SFTPGo file server commands | [README](integrations/sftpgo_README.md) |
 | `smoke_alarm.yaml` | Nest Protect smoke / CO detection | [README](integrations/smoke_alarm_README.md) |
-| `spotify.yaml` | Spotify playback logging | [README](integrations/spotify/README.md) |
-| `supervisor.yaml` | Add-on lifecycle and auto-disable | [README](integrations/supervisor/README.md) |
-| `unifi_protect.yaml` | UniFi Protect camera events | [README](integrations/unifi_protect/README.md) |
-| `ups.yaml` | UPS monitoring via NUT | [README](integrations/ups/README.md) |
-| `water.yaml` | Leak detection and alerts | [README](integrations/water/README.md) |
-| `zigbee.yaml` | Zigbee2MQTT coordinator monitoring | [README](integrations/zigbee/README.md) |
+| `spotify.yaml` | Spotify playback logging | [README](integrations/spotify_README.md) |
+| `supervisor.yaml` | Add-on lifecycle and auto-disable | [README](integrations/supervisor_README.md) |
+| `unifi_protect.yaml` | UniFi Protect camera events | [README](integrations/unifi_protect_README.md) |
+| `ups.yaml` | UPS monitoring via NUT | [README](integrations/ups_README.md) |
+| `water.yaml` | Leak detection and alerts | [README](integrations/water_README.md) |
+| `zigbee.yaml` | Zigbee2MQTT coordinator monitoring | [README](integrations/zigbee_README.md) |
 | `weather/` | Forecasts, warnings, carbon intensity, Ecowitt | [README](integrations/weather/README.md) |
 
 ---

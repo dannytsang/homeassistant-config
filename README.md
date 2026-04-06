@@ -64,16 +64,16 @@ Quick reference to all documentation in this repository, sorted by category.
 | Integration | Document | Description | Last Updated |
 |-------------|----------|-------------|--------------|
 | **Energy (Core)** | [README](packages/integrations/energy/README.md) | Solar, battery, grid monitoring | 2026-04-01 |
-| **Octopus Energy** | [README](packages/integrations/energy/octopus_energy/README.md) | Agile tariff integration | 2026-04-01 |
-| **Predbat** | [README](packages/integrations/energy/predbat/README.md) | Battery optimization | 2026-04-01 |
-| **Solcast** | [README](packages/integrations/energy/solcast/README.md) | Solar forecasting | 2026-04-01 |
+| **Octopus Energy** | [README](packages/integrations/energy/octopus_energy_README.md) | Agile tariff integration | 2026-04-01 |
+| **Predbat** | [README](packages/integrations/energy/predbat_README.md) | Battery optimization | 2026-04-01 |
+| **Solcast** | [README](packages/integrations/energy/solcast_README.md) | Solar forecasting | 2026-04-01 |
 | **Solar Assistant** | [README](packages/integrations/energy/solar_assistant_README.md) | Inverter monitoring | 2026-04-01 |
-| **Zappi** | [README](packages/integrations/energy/zappi/README.md) | EV charger integration | 2026-04-01 |
+| **Zappi** | [README](packages/integrations/energy/zappi_README.md) | EV charger integration | 2026-04-01 |
 | **Alarm** | [README](packages/integrations/alarm_README.md) | House alarm system | 2026-04-01 |
 | **HVAC** | [README](packages/integrations/hvac/README.md) | Heating and climate control | 2026-04-01 |
 | **Messaging** | [README](packages/integrations/messaging/README.md) | Notifications (Slack, Discord, Telegram) | 2026-04-01 |
 | **Transport** | [README](packages/integrations/transport/README.md) | Tesla/TeslaMate integration | 2026-04-01 |
-| **Google Travel** | [README](packages/integrations/transport/google_travel/README.md) | Travel time estimates | 2026-04-01 |
+| **Google Travel** | [README](packages/integrations/transport/google_travel_README.md) | Travel time estimates | 2026-04-01 |
 
 ---
 
