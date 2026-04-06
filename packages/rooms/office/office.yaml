@@ -21,8 +21,7 @@ automation:
         state: "on"
     actions:
       - variables:
-          light_2: "{{ state_attr('light.office_2', 'brightness') | int(0) }}"
-          light_3: "{{ state_attr('light.office_ceiling_fan', 'brightness') | int(0) }}"
+          light_1: "{{ state_attr('light.office_ceiling_fan', 'brightness') | int(0) }}"
       - parallel:
           - action: timer.cancel
             target:
@@ -55,11 +54,8 @@ automation:
                       - condition: numeric_state
                         entity_id: sensor.office_motion_2_illuminance
                         below: input_number.office_light_level_threshold
-                      - or:
-                          - condition: template
-                            value_template: "{{ light_2 | int(0) < 200 }}"
-                          - condition: template
-                            value_template: "{{ light_3 | int(0) < 200 }}"
+                      - condition: template
+                        value_template: "{{ light_1 | int(0) < 200 }}"
                 sequence:
                   - parallel:
                       - action: scene.turn_on
@@ -965,7 +961,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - light.office_light
+          - light.office_ceiling_fan
         to: "on"
         for:
           hours: 0
@@ -980,7 +976,7 @@ automation:
         metadata: {}
         data: {}
         target:
-          entity_id: light.office_light
+          entity_id: light.office_ceiling_fan
     mode: single
 
 scene:
@@ -1112,7 +1108,7 @@ scene:
   - id: "1606170296807"
     name: Office Sun Light
     entities:
-      light.office_light:
+      light.office_ceiling_fan:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1128,7 +1124,7 @@ scene:
   - id: "1600776152370"
     name: "Office: Doorbell Notification"
     entities:
-      light.office_light:
+      light.office_ceiling_fan:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1153,7 +1149,7 @@ scene:
   - id: "1613476289811"
     name: "Office: Front Door Open Notification"
     entities:
-      light.office_light:
+      light.office_ceiling_fan:
         min_mireds: 111
         max_mireds: 400
         effect_list:
@@ -1177,7 +1173,7 @@ scene:
   - id: "1613476535744"
     name: "Office: Front Garden Motion Notification"
     entities:
-      light.office_light:
+      light.office_ceiling_fan:
         min_mireds: 111
         max_mireds: 400
         effect_list:
