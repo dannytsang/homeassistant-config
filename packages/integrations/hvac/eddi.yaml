@@ -269,7 +269,7 @@ script:
                       title: Eddi
                   - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
-                      minutes: 20
+                      minutes: "{{ states('input_number.eddi_boost_duration_minutes') | int(20) }}"
           - alias: "Unit rate is on 0p/kw"
             conditions:
               - condition: template
@@ -287,7 +287,7 @@ script:
                       title: Eddi
                   - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
-                      minutes: 20
+                      minutes: "{{ states('input_number.eddi_boost_duration_minutes') | int(20) }}"
           - alias: "Charging schedule is enabled"
             conditions:
               - or:
@@ -313,7 +313,7 @@ script:
                           - person.danny
                   - action: script.hvac_set_solar_diverter_to_boost_mode
                     data:
-                      minutes: 20
+                      minutes: "{{ states('input_number.eddi_boost_duration_minutes') | int(20) }}"
           - alias: "Exceed Cut Off Threshold"
             conditions:
               - condition: state
@@ -382,6 +382,16 @@ script:
                   - action: script.hvac_set_solar_diverter_to_normal_mode
                     data: {}
         default: []
+
+input_number:
+  eddi_boost_duration_minutes:
+    name: Eddi Boost Duration (minutes)
+    min: 5
+    max: 60
+    step: 5
+    initial: 20
+    unit_of_measurement: min
+    icon: mdi:water-boiler
 
 utility_meter:
   # Electricity used every 6 hours =
