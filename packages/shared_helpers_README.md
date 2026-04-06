@@ -1,4 +1,4 @@
-[<- Back to Packages README](../README.md) · [Main README](../../README.md)
+[<- Back to Packages README](README.md) · [Main README](../README.md)
 
 # Shared Helpers
 

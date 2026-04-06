@@ -53,9 +53,9 @@ Integration-specific configuration organized by functional domain. Each package 
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| **Alarm** | House alarm system | [README](alarm/README.md) |
+| **Alarm** | House alarm system | [README](alarm_README.md) |
 | **Nuki** | Smart door lock control and monitoring | [README](nuki/README.md) |
-| **Smoke Alarm** | Nest Protect smoke and CO detection | [README](smoke_alarm/README.md) |
+| **Smoke Alarm** | Nest Protect smoke and CO detection | [README](smoke_alarm_README.md) |
 | **UniFi Protect** | Camera event processing (vehicles, faces) | [README](unifi_protect/README.md) |
 | **Water** | Leak detection and critical alerts | [README](water/README.md) |
 
@@ -65,7 +65,7 @@ Integration-specific configuration organized by functional domain. Each package 
 |-------------|-------------|---------------|
 | **ESPHome** | ESP device firmware updates and recovery | [README](esphome/README.md) |
 | **OwnTracks** | Location publishing to MQTT | [README](owntracks/README.md) |
-| **Pi-hole** | DNS ad filtering across 3 instances | [README](pihole/README.md) |
+| **Pi-hole** | DNS ad filtering across 3 instances | [README](pihole_README.md) |
 | **SFTPGo** | File server shell commands | [README](sftpgo/README.md) |
 | **Supervisor** | Add-on lifecycle and auto-disable | [README](supervisor/README.md) |
 | **UPS** | Uninterruptible power supply monitoring | [README](ups/README.md) |
@@ -82,7 +82,7 @@ Integration-specific configuration organized by functional domain. Each package 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | **Git** | GitHub Actions webhook → config auto-deploy | [README](git/README.md) |
-| **N8N** | N8N workflow integration | [README](n8n/README.md) |
+| **N8N** | N8N workflow integration | [README](n8n_README.md) |
 
 ## Weather
 

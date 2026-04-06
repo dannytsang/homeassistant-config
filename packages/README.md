@@ -48,14 +48,14 @@ See [Rooms Overview](rooms/README.md) for detailed room documentation.
 | `stairs/` | Motion lighting with children's door integration, Magic Mirror | [README](rooms/stairs/README.md) | [SETUP](rooms/stairs/STAIRS-SETUP.md) |
 | `living_room/` | RGB lighting, TV/media control, blind automation | [README](rooms/living_room/README.md) | [SETUP](rooms/living_room/LIVING-ROOM-SETUP.md) |
 | `bedroom/` | Sleep As Android, AWTRIX, blind control | [README](rooms/bedroom/README.md) | [SETUP](rooms/bedroom/BEDROOM-SETUP.md) |
-| `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility/README.md) | - |
+| `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility_README.md) | - |
 | `conservatory/` | Airer, OctoPrint 3D printer, climate | [README](rooms/conservatory/README.md) | - |
-| `bathroom.yaml` | Bathroom automation | [README](rooms/bathroom/README.md) | - |
-| `bedroom2.yaml` | Bedroom 2 (Leo's room) | [README](rooms/bedroom2/README.md) | - |
-| `bedroom3.yaml` | Bedroom 3 (Ashlee's room) | [README](rooms/bedroom3/README.md) | - |
-| `attic.yaml` | Attic | [README](rooms/attic/README.md) | - |
-| `front_garden.yaml` | Front garden | [README](rooms/front_garden/README.md) | - |
-| `back_garden.yaml` | Back garden and shed | [README](rooms/back_garden/README.md) | - |
+| `bathroom.yaml` | Bathroom automation | [README](rooms/bathroom_README.md) | - |
+| `bedroom2.yaml` | Bedroom 2 (Leo's room) | [README](rooms/bedroom2_README.md) | - |
+| `bedroom3.yaml` | Bedroom 3 (Ashlee's room) | [README](rooms/bedroom3_README.md) | - |
+| `attic.yaml` | Attic | [README](rooms/attic_README.md) | - |
+| `front_garden.yaml` | Front garden | [README](rooms/front_garden_README.md) | - |
+| `back_garden.yaml` | Back garden and shed | [README](rooms/back_garden_README.md) | - |
 
 ---
 
@@ -108,7 +108,7 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `alarm.yaml` | House alarm system | [README](integrations/alarm/README.md) |
+| `alarm.yaml` | House alarm system | [README](integrations/alarm_README.md) |
 | `alexa.yaml` | Amazon Echo TTS announcements | [README](integrations/alexa/README.md) |
 | `bins.yaml` | Bin collection tracking | [README](integrations/bins/README.md) |
 | `calendar.yaml` | Google Calendar event notifications with travel time | [README](integrations/calendar/README.md) |
@@ -118,13 +118,13 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | `git.yaml` | GitHub CI/CD config auto-deploy | [README](integrations/git/README.md) |
 | `grocy.yaml` | Grocy inventory management | [README](integrations/grocy/README.md) |
 | `lg.yaml` | LG WebOS TV monitoring | [README](integrations/lg/README.md) |
-| `n8n.yaml` | N8N workflow integration | [README](integrations/n8n/README.md) |
+| `n8n.yaml` | N8N workflow integration | [README](integrations/n8n_README.md) |
 | `nuki.yaml` | Nuki smart door lock | [README](integrations/nuki/README.md) |
 | `owntracks.yaml` | OwnTracks location publishing | [README](integrations/owntracks/README.md) |
 | `paperless.yaml` | Paperless-NGX document notifications | [README](integrations/paperless/README.md) |
-| `pihole.yaml` | Pi-hole DNS ad filtering | [README](integrations/pihole/README.md) |
+| `pihole.yaml` | Pi-hole DNS ad filtering | [README](integrations/pihole_README.md) |
 | `sftpgo.yaml` | SFTPGo file server commands | [README](integrations/sftpgo/README.md) |
-| `smoke_alarm.yaml` | Nest Protect smoke / CO detection | [README](integrations/smoke_alarm/README.md) |
+| `smoke_alarm.yaml` | Nest Protect smoke / CO detection | [README](integrations/smoke_alarm_README.md) |
 | `spotify.yaml` | Spotify playback logging | [README](integrations/spotify/README.md) |
 | `supervisor.yaml` | Add-on lifecycle and auto-disable | [README](integrations/supervisor/README.md) |
 | `unifi_protect.yaml` | UniFi Protect camera events | [README](integrations/unifi_protect/README.md) |
@@ -141,12 +141,12 @@ Files that don't fit into the room or integration categories:
 
 | File | Description | Documentation |
 |------|-------------|---------------|
-| `home.yaml` | Home modes, global device control, lock/alarm scripts | [README](home/README.md) |
-| `tracker.yaml` | Presence detection, arrival/departure, music follow | [README](tracker/README.md) |
-| `home_assistant.yaml` | HA lifecycle, backups, upgrades, purge | [README](home_assistant/README.md) |
-| `time.yaml` | Scheduled automations, bedtime announcements | [README](time/README.md) |
-| `smoke_alarms.yaml` | Smoke alarm coordination, camera snapshots | [README](smoke_alarms/README.md) |
-| `shared_helpers.yaml` | Shared template sensors (motion+dark helpers) | [README](shared_helpers/README.md) |
+| `home.yaml` | Home modes, global device control, lock/alarm scripts | [README](home_README.md) |
+| `tracker.yaml` | Presence detection, arrival/departure, music follow | [README](tracker_README.md) |
+| `home_assistant.yaml` | HA lifecycle, backups, upgrades, purge | [README](home_assistant_README.md) |
+| `time.yaml` | Scheduled automations, bedtime announcements | [README](time_README.md) |
+| `smoke_alarms.yaml` | Smoke alarm coordination, camera snapshots | [README](smoke_alarms_README.md) |
+| `shared_helpers.yaml` | Shared template sensors (motion+dark helpers) | [README](shared_helpers_README.md) |
 | `recorder.yaml` | Database and history configuration | - |
 | `logger.yaml` | Logging configuration | - |
 | `rest.yaml` | REST command definitions | - |

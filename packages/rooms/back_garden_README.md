@@ -262,8 +262,8 @@ flowchart TB
 
 | Document | Purpose |
 |----------|---------|
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Rooms Overview](README.md) | Overview of all room packages |
+| [Main Packages README](../README.md) | Architecture and organization guidelines |
 
 ### Related Rooms
 
@@ -276,7 +276,7 @@ flowchart TB
 
 | Integration | Connection |
 |-------------|------------|
-| [Alarm](../../integrations/alarm/README.md) | House alarm system integration |
+| [Alarm](../integrations/alarm_README.md) | House alarm system integration |
 
 ---
 

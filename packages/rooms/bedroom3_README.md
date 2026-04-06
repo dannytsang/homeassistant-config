@@ -523,8 +523,8 @@ flowchart TB
 
 | Document | Purpose |
 |----------|---------|
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Rooms Overview](README.md) | Overview of all room packages |
+| [Main Packages README](../README.md) | Architecture and organization guidelines |
 
 ### Shared Configuration
 
@@ -537,7 +537,7 @@ flowchart TB
 | Room | Connection |
 |------|------------|
 | [Bedroom](../bedroom/README.md) | Shares children's door monitoring patterns |
-| [Bedroom2](../bedroom2/README.md) | Shares children's calendar logic |
+| [Bedroom2](bedroom2_README.md) | Shares children's calendar logic |
 | [Office](../office/README.md) | Shares workday sensor |
 
 ---

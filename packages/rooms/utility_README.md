@@ -1,4 +1,4 @@
-[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+[<- Back to Rooms README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
 # Utility Room Package Documentation
 
@@ -479,8 +479,8 @@ flowchart TB
 
 | Document | Purpose |
 |----------|---------|
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Rooms Overview](README.md) | Overview of all room packages |
+| [Main Packages README](../README.md) | Architecture and organization guidelines |
 
 ### Related Rooms
 

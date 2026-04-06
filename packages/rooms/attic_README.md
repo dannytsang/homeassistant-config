@@ -192,8 +192,8 @@ flowchart TB
 
 | Document | Purpose |
 |----------|---------|
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+| [Rooms Overview](README.md) | Overview of all room packages |
+| [Main Packages README](../README.md) | Architecture and organization guidelines |
 
 ---
 
