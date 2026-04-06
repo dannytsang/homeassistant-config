@@ -801,14 +801,16 @@ script:
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Load first"
                 then:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        In {{ states('predbat.status') }} but inverter is not in load first({{ states('sensor.growatt_sph_inverter_mode') }})
-                      title: "Predbat"
-                      people:
-                        entity_id:
-                          - person.danny
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Predbat is in {{ states('predbat.status') }} but inverter is {{ states('sensor.growatt_sph_inverter_mode') }}.
+                            Switching to Load first.
+                          title: "Predbat"
+                          log_level: "Normal"
+                      - action: script.load_first_priority_mode
+                        data: {}
           - alias: "Check Predbat Mode: Exporting"
             conditions:
               - condition: state
@@ -824,14 +826,16 @@ script:
                         entity_id: sensor.growatt_sph_inverter_mode
                         state: "Grid first"
                 then:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        In {{ states('predbat.status') }} but inverter is not in grid first({{ states('sensor.growatt_sph_inverter_mode') }})
-                      title: "Predbat"
-                      people:
-                        entity_id:
-                          - person.danny
+                  - parallel:
+                      - action: script.send_to_home_log
+                        data:
+                          message: >-
+                            Predbat is in {{ states('predbat.status') }} but inverter is {{ states('sensor.growatt_sph_inverter_mode') }}.
+                            Switching to Grid first.
+                          title: "Predbat"
+                          log_level: "Normal"
+                      - action: script.grid_first_priority_mode
+                        data: {}
           - alias: "Check Predbat Mode: Hold charging"
             conditions:
               - condition: state
