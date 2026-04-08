@@ -9,20 +9,9 @@ This package manages the kitchen automation including lighting control, applianc
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
+- [Dependencies](#dependencies)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Lighting Control](#lighting-control)
-  - [Appliance Monitoring](#appliance-monitoring)
-  - [Safety & Notifications](#safety--notifications)
-  - [Energy Management](#energy-management)
-- [Scenes](#scenes)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The kitchen automation system provides intelligent control of lighting, monitors major appliances, and delivers safety alerts through RGB indicators and voice announcements.
@@ -64,6 +53,29 @@ flowchart TB
     Safety --> Notifications
     Energy --> RGB
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Kitchen: Motion Detected - Lights** has a master enable switch for easy disabling
+- **Kitchen: No Motion - Start Timers** triggers on state transitions (edge detection) rather than continuous state
+- **Kitchen: No Motion - Start Timers** has a master enable switch for easy disabling
+- **Kitchen: No Motion - Timer Events** has a master enable switch for easy disabling
+- **Kitchen: Cooker Light Switch Toggle** triggers on state transitions (edge detection) rather than continuous state
+- **Kitchen: Table Light Switch Toggle** triggers on state transitions (edge detection) rather than continuous state
+- **Kitchen: Appliance Door Opened** triggers on state transitions (edge detection) rather than continuous state
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Integrations
+- `EcoFlow`
 
 ---
 
@@ -711,4 +723,4 @@ Ensure this is configured in your REST package.
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
