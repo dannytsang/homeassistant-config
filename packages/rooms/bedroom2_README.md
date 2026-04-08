@@ -7,20 +7,8 @@ This package manages Leo's bedroom automation including lighting control, circad
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Lighting Control](#lighting-control)
-  - [Circadian Lighting](#circadian-lighting)
-  - [Blind Automation](#blind-automation)
-  - [Remote Controls](#remote-controls)
-- [Scenes](#scenes)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 Leo's bedroom automation provides intelligent lighting with circadian color temperature adjustment, automated blinds based on schedule and occupancy, and convenient remote control for lights and blinds.
@@ -66,6 +54,16 @@ flowchart TB
     BedLogic --> BlindCtrl
     BlindCtrl --> Notifications
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Leo** triggers on state transitions (edge detection) rather than continuous state
+- **Leo** has a master enable switch for easy disabling
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
 
 ---
 
