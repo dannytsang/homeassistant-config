@@ -7,15 +7,8 @@ This package manages the attic automation including hatch contact sensor-based l
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Hatch Control](#hatch-control)
-  - [Safety Timeout](#safety-timeout)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The attic automation system provides simple but effective lighting control based on the attic hatch contact sensor. When the hatch is opened, lights automatically turn on. When closed, they turn off. A safety feature notifies occupants if lights have been left on for an extended period.
@@ -41,6 +34,15 @@ flowchart TB
     Lights --> Safety
     Safety --> Notifications
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Attic: Hatch Opened** triggers on state transitions (edge detection) rather than continuous state
+- **Attic: Hatch Closed** triggers on state transitions (edge detection) rather than continuous state
 
 ---
 
