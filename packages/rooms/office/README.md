@@ -9,6 +9,8 @@ This package manages the office room automation in the Home Assistant configurat
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
+- [Dependencies](#dependencies)
 - [Architecture](#architecture)
 - [Automations](#automations)
   - [Motion Detection](#motion-detection)
@@ -76,6 +78,35 @@ flowchart TB
     LightLogic --> Lights
     LightLogic --> Plugs
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Temperature-based automations** use tiered thresholds (26°C, 29°C, 31°C) for escalating responses — based on summer temperatures experienced in the room
+- **Time delays** (10 minutes for computer shutdown, 2 minutes for motion detection) account for temporary disconnections and transient states
+- **Office: Open Blinds In The Morning** uses morning schedule aligned with typical workday start
+- **Office: Computer Turned Off After Sunrise** and **Office: Playing Computer Games** consider sun position for daylight-aware behavior
+- **Office: Motion Detected** has a master enable switch for easy disabling
+- **Office: Computer Turned On** triggers on state transitions (edge detection) rather than continuous state
+- **Office: Computer Turned Off For A Period Of Time** considers occupancy/presence (UDM Pro availability) in its logic
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Integrations
+- `EcoFlow` — Office plug management for energy optimization
+
+### Related Packages
+- [Front Garden](../front_garden/README.md) — Shares outdoor brightness sensor for blind control
+- [Living Room](../living_room/README.md) — Shares computer presence groups for blind control
+- [Porch](../porch/README.md) — Front door notifications trigger office lights
 
 ---
 
@@ -860,4 +891,4 @@ Most automations use "Debug" log level. Set to "Normal" or "Warning" in producti
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
