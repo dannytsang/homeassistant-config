@@ -1110,6 +1110,37 @@ automation:
                 target:
                   entity_id: cover.bedroom_blinds
     mode: single
+  - id: "1674916813112"
+    alias: "Bedroom: Lamps Off And Stairs Light On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - light.bedroom_lamps
+        from: "on"
+        to: "off"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: light.stairs
+            state: "on"
+          - condition: state
+            entity_id: light.stairs_2
+            state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: Bedroom light turned off. Turning stairs lights off.
+              title: "\U0001F6CF️ Bedroom"
+              log_level: Debug
+          - action: scene.turn_on
+            data:
+              transition: 2
+            target:
+              entity_id: scene.stairs_light_off
+    mode: single
 
 scene:
   - id: "1621715555428"

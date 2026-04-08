@@ -77,6 +77,37 @@ automation:
             target:
               entity_id: light.porch
     mode: single
+  # region Presence
+  - id: "1636203020481"
+    alias: "Porch: Some One Leaving"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.front_door
+        from: "off"
+        to: "on"
+    condition: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.porch_motion_occupancy
+                state: "on"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: "\U0001F6AA Someone leaving."
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.porch_motion_occupancy
+                state: "off"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message: ":test_tube: \U0001F6AA Someone entering."
+                  log_level: Normal
+        default: []
+    mode: single
   # region: Door
   - id: "1606157753577"
     alias: "Porch: Front Door Opened"
@@ -331,6 +362,34 @@ automation:
             data: {}
     mode: queued
     max: 10
+  # region Heating
+  - id: "1653857006776"
+    alias: "Porch: Heating Turned On Check Entrances"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - climate.hive_receiver_heat
+        attribute: hvac_action
+        to: heating
+        from: idle
+    condition:
+      - condition: state
+        entity_id: climate.hive_receiver_heat
+        state: auto
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.front_door
+                state: "on"
+            sequence:
+              - action: script.send_direct_notification
+                data:
+                  message: Consider closing the front door or turning the heating off.
+                  title: "Heating turned on and front \U0001F6AA door is open."
+        default: []
+    mode: single
 
 scene:
   - id: "1606157607021"

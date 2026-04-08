@@ -120,6 +120,70 @@ automation:
                     {%- endif -%}
                   log_level: "Normal"
 
+  - id: "1590564595890"
+    alias: "Living Room: UPS Below 5 Minutes Run time"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.lounge_ups_battery_runtime
+        below: 301
+    condition:
+      - condition: state
+        entity_id: sensor.lounge_ups_status_data
+        state: OB DISCHRG
+    actions:
+      - action: script.send_direct_notification
+        data:
+          message: "⚠️ Less than 5 minutes left on 🔋 ⚠️"
+          title: "🔋 Living Room UPS"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+    mode: single
+  - id: "1591705795121"
+    alias: "Office: Server UPS On Battery With Less Than 5 Minutes"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.server_ups_battery_runtime
+        below: 301
+    condition:
+      - condition: state
+        entity_id: sensor.server_ups_status_data
+        state: OB DISCHRG
+    actions:
+      - action: script.send_direct_notification
+        data:
+          message: "⚠️ Less than 5 minutes left on 🔋 battery ⚠️"
+          title: "🔋 Server UPS"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+    mode: single
+  - id: "1613246359438"
+    alias: "Office: Computer UPS On Battery With Less Than 5 Minutes"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.computer_ups_battery_runtime
+        below: 301
+    condition:
+      - condition: state
+        entity_id: sensor.computer_ups_status_data
+        state: OB DISCHRG
+    actions:
+      - action: script.send_direct_notification
+        data:
+          message: "⚠️ Less than 5 minutes left on 🔋 battery ⚠️"
+          title: "🔋 PC UPS"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+    mode: single
+
 template:
   - sensor:
       - name: 3D Printer UPS Power

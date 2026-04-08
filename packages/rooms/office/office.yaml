@@ -978,6 +978,79 @@ automation:
         target:
           entity_id: light.office_ceiling_fan
     mode: single
+  # region Alarm
+  - id: "1613264719942"
+    alias: "Office: Alarm Armed Home Mode & Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.office_area_motion
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: armed_home
+      - condition: state
+        entity_id: group.jd_computer
+        state: "off"
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: "\U0001F43E Motioned detected in the office!"
+          log_level: Normal
+    mode: single
+  - id: "1622973276606"
+    alias: "Office: Arm Office Door"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: input_boolean.alarm_office_door
+        from: "off"
+        to: "on"
+    condition: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: state
+                entity_id: binary_sensor.office_door_contact
+                state: "on"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message:
+                    "⚠️ :alarm: Unable to arm office door because the door is not closed.
+                    Disabling alarm."
+                  log_level: Normal
+              - action: input_boolean.turn_off
+                target:
+                  entity_id: input_boolean.alarm_office_door
+        default:
+          - action: script.send_to_home_log
+            data:
+              message: "\U0001F514 \U0001F6AA Office door armed."
+              log_level: Normal
+    mode: single
+  - id: "1622973478458"
+    alias: "Office: Trigger Armed Door"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.office_door_contact
+        from: "off"
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.alarm_office_door
+        state: "on"
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: ":rotating_light: \U0001F6AA Office door armed and was opened:rotating_light:"
+      - action: input_boolean.turn_off
+        target:
+          entity_id: input_boolean.alarm_office_door
+    mode: queued
+    max: 10
 
 scene:
   - id: "1600795089307"

@@ -134,6 +134,134 @@ automation:
               - person.leo
           suppress_if_quiet: false
     mode: single
+  - id: "1627509008928"
+    alias: Enter No Children Mode
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: input_select.home_mode
+        to: No Children
+    condition: []
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: ":repeat: Entering No Children mode."
+          log_level: Normal
+    mode: single
+  - id: "1634576629865"
+    alias: "NFC Tag: Scanned Locked By User"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: tag_scanned
+        context:
+          user_id:
+            - 06cbf6deafc54cf0beffa49552a396b1
+            - 2df8a2a6e0be4d5d902aad2d39ed4c9b
+    condition: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.tag_id == '47e42f4c-3ffa-463f-ae2f-ed0b97a4fe9c'}}"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message:
+                    "\U0001F6AA :label: Front door tag scanned by {{ states.person|selectattr('attributes.user_id',
+                    '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
+                    }}."
+                  log_level: Normal
+              - action: script.nfc_front_door
+          - conditions:
+              - condition: template
+                value_template: "{{ trigger.event.data.tag_id == '8b6d6755-b4d5-4b23-8e8b-cf224d221bb7'}}"
+            sequence:
+              - action: script.send_to_home_log
+                data:
+                  message:
+                    "\U0001F6AA :label: Bedroom right tag scanned by {{ states.person|selectattr('attributes.user_id',
+                    '==', trigger.event.context.user_id)|map(attribute='attributes.friendly_name')|first
+                    }}."
+                  log_level: Normal
+              - action: script.nfc_bedroom_right
+        default: []
+    mode: single
+  - id: "1647094935963"
+    alias: Exit Naughty Step Mode
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: input_boolean.naughty_step_mode
+        from: "on"
+        to: "off"
+    condition: []
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: Exiting naught step mode.
+          log_level: Normal
+      - action: input_boolean.turn_on
+        data: {}
+        target:
+          entity_id:
+            - input_boolean.enable_living_room_motion_triggers
+            - input_boolean.enable_stairs_motion_triggers
+    mode: single
+  - id: "1659198098255"
+    alias: "House: Turn On Fake Presence"
+    description: ""
+    triggers:
+      - trigger: sun
+        event: sunset
+        offset: 0
+      - trigger: time_pattern
+        hours: "17"
+        minutes: /15
+      - trigger: time_pattern
+        hours: "18"
+        minutes: /15
+      - trigger: time_pattern
+        hours: "19"
+        minutes: /15
+      - trigger: time_pattern
+        hours: "20"
+        minutes: /15
+      - trigger: time_pattern
+        hours: "21"
+        minutes: /15
+      - trigger: time_pattern
+        hours: "22"
+        minutes: /15
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: armed_away
+      - condition: state
+        entity_id: group.tracked_people
+        state: not_home
+      - condition: sun
+        after: sunset
+        after_offset: -02:00:00
+      - or:
+          - condition: template
+            value_template:
+              "{{ states('sensor.terina_home_nearest_distance')|float(0)
+              > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
+          - condition: template
+            value_template:
+              "{{ states('sensor.danny_home_nearest_distance')|float(0)
+              > states('input_number.long_distance_away_from_home')|int(0) - 1 }}"
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: Changing lights to pretend someone is at home.
+          log_level: Normal
+      - action: script.downstairs_random_light
+        data: {}
+      - action: script.upstairs_random_lights
+        data: {}
+    mode: single
 
 scene:
   - id: "1582406269472"

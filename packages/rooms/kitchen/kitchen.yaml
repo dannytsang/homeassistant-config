@@ -1002,6 +1002,27 @@ automation:
               message: Kettle boiled
               suppress_if_quiet: true
     mode: single
+  # region Alarm
+  - id: "1613264961246"
+    alias: "Kitchen: Alarm Armed Home Mode & Motion Detected"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id: binary_sensor.kitchen_area_motion
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.house_alarm
+        state: armed_home
+      - condition: state
+        entity_id: group.jd_computer
+        state: "off"
+    actions:
+      - action: script.send_to_home_log
+        data:
+          message: "\U0001F43E Motioned detected in the kitchen!"
+          log_level: Normal
+    mode: single
 
 scene:
   - id: kitchen_main_lights_dim
