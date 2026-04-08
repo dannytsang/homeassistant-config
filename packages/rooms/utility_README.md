@@ -9,20 +9,8 @@ This package manages the utility room automation including lighting control, was
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Lighting Control](#lighting-control)
-  - [Washing Machine Monitoring](#washing-machine-monitoring)
-  - [Fridge/Freezer Safety](#fridgefreezer-safety)
-  - [Leak Detection](#leak-detection)
-- [Scenes](#scenes)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The utility room automation provides motion-activated lighting, washing machine cycle tracking with notifications, fridge/freezer door monitoring with temperature alerts, and integration with the house-wide leak detection system.
@@ -65,6 +53,20 @@ flowchart TB
     Appliance --> Logs
     LeakMon --> Notifications
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Utility Room: Motion Detected** has a master enable switch for easy disabling
+- **Utility Room: No Motion Detected** has a master enable switch for easy disabling
+- **Utility Room: No Motion Detected For Short Time** has a master enable switch for easy disabling
+- **Utility: Freezer Door Open** triggers on state transitions (edge detection) rather than continuous state
+- **Utility: Freezer Door Closed** triggers on state transitions (edge detection) rather than continuous state
+- **Utility: Freezer Open For A Long Period Of Time** triggers on state transitions (edge detection) rather than continuous state
+- **Utility: Fridge Open For A Long Period Of Time** triggers on state transitions (edge detection) rather than continuous state
 
 ---
 
@@ -520,4 +522,4 @@ Fridge high temperature alert triggers at 7°C. This is a food safety threshold.
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
