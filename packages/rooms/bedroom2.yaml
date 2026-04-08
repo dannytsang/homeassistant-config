@@ -344,6 +344,22 @@ automation:
                         window is open. Skipping closing blinds. ⚠️"
                       title: "Leo's 🛏️ bedroom"
                       log_level: "Debug"
+              - alias: Window closed
+                conditions:
+                  - condition: state
+                    entity_id: binary_sensor.leos_bedroom_window_contact
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message:
+                        "{{ clock_result.emoji }} 🪟 Closing
+                        Leo's blinds"
+                      title: "Leo's 🛏️ bedroom"
+                      log_level: "Debug"
+                  - action: cover.close_cover
+                    target:
+                      entity_id: cover.leos_bedroom_blinds
             default:
               - action: script.send_to_home_log
                 data:
