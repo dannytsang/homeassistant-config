@@ -9,23 +9,8 @@ This package manages the master bedroom automation including Sleep As Android in
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Blind Control](#blind-control)
-  - [Door Monitoring](#door-monitoring)
-  - [Motion Lighting](#motion-lighting)
-  - [Fan Control](#fan-control)
-  - [TV Integration](#tv-integration)
-  - [Remote Control](#remote-control)
-  - [Sleep As Android](#sleep-as-android)
-- [Scenes](#scenes)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The bedroom automation system provides intelligent control of blinds based on occupancy and time, motion-activated ambient lighting, Sleep As Android integration for sleep tracking and smart wake-up, and monitoring of children's bedroom doors during evening hours.
@@ -80,6 +65,20 @@ flowchart TB
     DoorLogic --> Notifications
     FanLogic --> Fan
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Bedroom: Close Blinds When Someone Is In Bed After Sunset** triggers on state transitions (edge detection) rather than continuous state
+- **Bedroom: Window Closed At Night** triggers on state transitions (edge detection) rather than continuous state
+- **Bedroom: Window Closed At Night** has a master enable switch for easy disabling
+- **Bedroom: Window Closed And Someone Is In Bed At Night** triggers on state transitions (edge detection) rather than continuous state
+- **Bedroom: Open Blind When No One Is In Bed** triggers on state transitions (edge detection) rather than continuous state
+- **Bedroom: Open Blind When No One Is In Bed** has a master enable switch for easy disabling
+- **Bedroom: Other Bedroom Door Opens Warning** triggers on state transitions (edge detection) rather than continuous state
 
 ---
 
@@ -1010,4 +1009,4 @@ flowchart TB
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
