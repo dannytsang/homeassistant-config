@@ -52,6 +52,14 @@ flowchart TB
     OUTDOOR_TEMP --> MOLD
 ```
 
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+
+---
+
 ## Architecture
 
 ### Motion-Based Lighting

@@ -9,20 +9,9 @@ This package manages the stairs and landing automation including motion-based li
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
+- [Dependencies](#dependencies)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Motion Lighting](#motion-lighting)
-  - [No Motion Handling](#no-motion-handling)
-  - [Children's Door Integration](#childrens-door-integration)
-  - [Magic Mirror Control](#magic-mirror-control)
-  - [Blind Control](#blind-control)
-  - [Security](#security)
-- [Scenes](#scenes)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The stairs automation provides intelligent lighting that adapts to time of day, children's bedroom door states, and occupancy. It also controls the Magic Mirror display and stair blinds.
@@ -67,6 +56,29 @@ flowchart TB
     TimeCheck --> Mirror
     TimeCheck --> Blinds
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Stairs: Motion Detected For Ambient Lights** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Motion Detected Before Kids Bed Time (Dark, Upstairs)** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Upstairs Dark, After Bed Time, Motion Detected Before Midnight** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Dark, After Bed Time, Motion Detected After Midnight** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Magic Mirror Control (Motion/Night)** has a master enable switch for easy disabling
+- **Stairs: No Motion Detected (Lights Off)** has a master enable switch for easy disabling
+- **Stairs: Light Switch** triggers on state transitions (edge detection) rather than continuous state
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Related Packages
+- Living Room
 
 ---
 
@@ -617,4 +629,4 @@ This can be customized per child via their respective `enable_*_door_automations
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
