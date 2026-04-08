@@ -44,6 +44,15 @@ flowchart TB
 
 ---
 
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Attic: Hatch Opened** triggers on state transitions (edge detection) rather than continuous state
+- **Attic: Hatch Closed** triggers on state transitions (edge detection) rather than continuous state
+
+---
+
 ## Architecture
 
 ### File Structure

@@ -77,6 +77,26 @@ flowchart TB
 
 ---
 
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Conservatory: Motion Detected And It** triggers on state transitions (edge detection) rather than continuous state
+- **Conservatory: No Motion Detected** triggers on state transitions (edge detection) rather than continuous state
+- **Conservatory: Door Closed** triggers on state transitions (edge detection) rather than continuous state
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Integrations
+- `Octopus Energy`
+
+---
+
 ## Architecture
 
 ### File Structure
@@ -706,4 +726,4 @@ flowchart TB
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*

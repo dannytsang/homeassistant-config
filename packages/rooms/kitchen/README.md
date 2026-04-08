@@ -67,6 +67,27 @@ flowchart TB
 
 ---
 
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Kitchen: Motion Detected - Lights** has a master enable switch for easy disabling
+- **Kitchen: No Motion - Start Timers** triggers on state transitions (edge detection) rather than continuous state
+- **Kitchen: No Motion - Start Timers** has a master enable switch for easy disabling
+- **Kitchen: No Motion - Timer Events** has a master enable switch for easy disabling
+- **Kitchen: Cooker Light Switch Toggle** triggers on state transitions (edge detection) rather than continuous state
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Integrations
+- `EcoFlow`
+
+---
+
 ## Architecture
 
 ### File Structure
@@ -711,4 +732,4 @@ Ensure this is configured in your REST package.
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
