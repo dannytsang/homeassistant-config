@@ -9,6 +9,7 @@ This package manages alarm automation including 8 automations and 0 scripts.
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Automations](#automations)
 - [Entity Reference](#entity-reference)
 
@@ -20,13 +21,27 @@ The alarm automation system provides intelligent control and monitoring.
 
 ```mermaid
 flowchart TB
-    subgraph Automations
+    subgraph Inputs["📥 Inputs"]
+        binary_sensor_alarmed_doors_and_windows["alarmed_doors_and_wi"]
+    end
+    subgraph Logic["🧠 Logic"]
         AlarmDisarmed["Alarm: Disarmed"]
         AlarmArmOvernightHom["Alarm: Arm Overnight Home Mode"]
-        AlarmArmOvernightHom["Alarm: Arm Overnight Home Mode Final Che"]
-        AlarmArmOvernightWhe["Alarm: Arm Overnight When Doors And Wind"]
+        AlarmArmOvernightHom["Alarm: Arm Overnight Home Mode"]
+        AlarmArmOvernightWhe["Alarm: Arm Overnight When Door"]
         AlarmArmed["Alarm: Armed"]
     end
+    subgraph Outputs["📤 Outputs"]
+        alias: Turn on bedroom light to warn not all doors/windows are closed_[""]
+        light_under_bed_left["under_bed_left"]
+        light_under_bed_right["under_bed_right"]
+        light_bedroom_lamp_left["bedroom_lamp_left"]
+        light_bedroom_lamp_right["bedroom_lamp_right"]
+    end
+    binary_sensor_alarmed_doors_and_windows --> AlarmDisarmed
+    AlarmDisarmed --> alias: Turn on bedroom light to warn not all doors/windows are closed_
+    AlarmDisarmed --> light_under_bed_left
+    AlarmDisarmed --> light_under_bed_right
 ```
 
 ### File Structure
@@ -36,6 +51,18 @@ packages/integrations/
 ├── alarm.yaml      # Main package file
 └── README.md             # This documentation
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Alarm: Disarmed** has a master enable switch for easy disabling
+- **Alarm: Arm Overnight Home Mode** triggers on state transitions (edge detection) rather than continuous state
+- **Alarm: Arm Overnight Home Mode** has a master enable switch for easy disabling
+- **Alarm: Arm Overnight Home Mode Final Check** uses scheduled times for predictable daily routines
+- **Alarm: Arm Overnight When Doors And Windows Shut** triggers on state transitions (edge detection) rather than continuous state
 
 ---
 
@@ -184,4 +211,4 @@ packages/integrations/
 | Automation not triggering | Entity states and conditions |
 | Script failing | Service calls and entity availability |
 
-*Last updated: 2026-04-07*
+*Last updated: 2026-04-08*
