@@ -70,6 +70,27 @@ flowchart TB
 
 ---
 
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Stairs: Motion Detected For Ambient Lights** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Motion Detected Before Kids Bed Time (Dark, Upstairs)** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Upstairs Dark, After Bed Time, Motion Detected Before Midnight** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Dark, After Bed Time, Motion Detected After Midnight** triggers on state transitions (edge detection) rather than continuous state
+- **Stairs: Magic Mirror Control (Motion/Night)** has a master enable switch for easy disabling
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Related Packages
+- Living Room
+
+---
+
 ## Architecture
 
 ### File Structure
@@ -617,4 +638,4 @@ This can be customized per child via their respective `enable_*_door_automations
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
