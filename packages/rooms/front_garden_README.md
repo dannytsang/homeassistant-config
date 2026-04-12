@@ -7,19 +7,9 @@ This package manages front garden automation including doorbell notifications, c
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
+- [Dependencies](#dependencies)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Doorbell](#doorbell)
-  - [Camera](#camera)
-  - [Lighting](#lighting)
-  - [Lockbox](#lockbox)
-  - [Electricity Meter](#electricity-meter)
-- [Shell Commands](#shell-commands)
-- [Entity Reference](#entity-reference)
-- [Configuration](#configuration)
-
----
-
 ## Overview
 
 The front garden automation system provides intelligent doorbell notifications with camera capture, vehicle detection on the driveway, sunlight-based blind control, lockbox security monitoring, and electricity meter door surveillance.
@@ -64,6 +54,25 @@ flowchart TB
     SecurityLogic --> Notifications
     AIAnalysis --> Notifications
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Front Garden: Vehicle Detected On Driveway** triggers on state transitions (edge detection) rather than continuous state
+- **Front Garden: Lock Box State Changed** triggers on state transitions (edge detection) rather than continuous state
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Related Packages
+- Front Garden
 
 ---
 

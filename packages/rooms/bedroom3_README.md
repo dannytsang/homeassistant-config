@@ -7,18 +7,8 @@ This package manages Ashlee's bedroom automation including smart blind control w
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Blind Control](#blind-control)
-  - [Switches](#switches)
-  - [Hue Remote](#hue-remote)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 Ashlee's bedroom features intelligent blind automation that adapts to school schedules, calendar events, and bed occupancy. The system integrates with family calendars to determine when to open blinds for school days vs. holidays, monitors bed occupancy for privacy-aware blind control, and includes a weather-responsive script for temperature management.
@@ -60,6 +50,14 @@ flowchart TB
     FanCtrl --> Fan
     WeatherLogic --> Blinds
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Ashlee** triggers on state transitions (edge detection) rather than continuous state
 
 ---
 

@@ -7,15 +7,8 @@ This package manages back garden automation including shed security monitoring a
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Shed Security](#shed-security)
-  - [Light Level Control](#light-level-control)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The back garden automation system provides security monitoring for the shed and intelligent light-based control of bedroom blinds.
@@ -53,6 +46,16 @@ flowchart TB
     LightCtrl --> Logs
     LightCtrl --> Blinds
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Shed: Door Closed** triggers on state transitions (edge detection) rather than continuous state
+- **Shed: Motion Detected When Door Is Closed** triggers on state transitions (edge detection) rather than continuous state
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
 
 ---
 

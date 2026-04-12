@@ -9,21 +9,9 @@ This package manages conservatory automation including motion-activated lighting
 ## Table of Contents
 
 - [Overview](#overview)
+- [Design Decisions](#design-decisions)
+- [Dependencies](#dependencies)
 - [Architecture](#architecture)
-- [Automations](#automations)
-  - [Motion & Lighting](#motion--lighting)
-  - [Door Monitoring](#door-monitoring)
-  - [System Recovery](#system-recovery)
-  - [Airer Control](#airer-control)
-  - [3D Printer](#3d-printer)
-- [Scenes](#scenes)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
-
----
-
 ## Overview
 
 The conservatory automation system provides intelligent lighting control, climate management with energy-aware underfloor heating, automated clothes drying scheduling, and comprehensive 3D printer monitoring and control.
@@ -74,6 +62,26 @@ flowchart TB
     DoorMon --> Notifications
     PrinterCtrl --> Notifications
 ```
+
+---
+
+## Design Decisions
+
+Key architectural decisions captured from the YAML configuration:
+
+- **Conservatory: Motion Detected And It** triggers on state transitions (edge detection) rather than continuous state
+- **Conservatory: No Motion Detected** triggers on state transitions (edge detection) rather than continuous state
+- **Conservatory: Door Closed** triggers on state transitions (edge detection) rather than continuous state
+- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+
+---
+
+## Dependencies
+
+This package relies on the following components:
+
+### Integrations
+- `Octopus Energy`
 
 ---
 
@@ -706,4 +714,4 @@ flowchart TB
 
 ---
 
-*Last updated: 2026-03-01*
+*Last updated: 2026-04-08*
