@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+import base64
 from collections.abc import Mapping
+from contextlib import suppress
+from hashlib import sha256
 from http import HTTPStatus
 import json
 import logging
 import secrets
 from string import Template
 from typing import Any
-from urllib.parse import urlencode
+from urllib.parse import quote, urlencode
 
 from aiohttp.web import Request, Response
 from yarl import URL
@@ -28,10 +31,12 @@ from .const import (
     CONF_AUTHORIZE_URL,
     CONF_BLOCK_LOGIN,
     CONF_CREATE_USER,
+    CONF_ERROR_URL,
     CONF_LOGOUT_URL,
     CONF_SCOPE,
     CONF_TOKEN_URL,
     CONF_USE_HEADER_AUTH,
+    CONF_USE_PKCE,
     CONF_USER_INFO_URL,
     CONF_USERNAME_FIELD,
     CRED_ID_TOKEN,
@@ -42,6 +47,22 @@ from .const import (
 from .oauth_helper import exchange_code_for_token, fetch_user_info
 
 _LOGGER = logging.getLogger(__name__)
+
+_PKCE_VERIFIER_KEY = "pkce_code_verifier"
+
+
+def _generate_pkce_pair() -> tuple[str, str]:
+    """Generate a PKCE code_verifier and code_challenge (S256 method).
+
+    See RFC 7636: https://datatracker.ietf.org/doc/html/rfc7636#section-4.1.
+
+    Returns (code_verifier, code_challenge).
+    """
+    # verifier is 43-128 unreserved characters
+    code_verifier = secrets.token_urlsafe(96)[:128]
+    digest = sha256(code_verifier.encode("ascii")).digest()
+    code_challenge = base64.urlsafe_b64encode(digest).rstrip(b"=").decode("ascii")
+    return code_verifier, code_challenge
 
 
 class OpenIDAuthorizeView(HomeAssistantView):
@@ -55,6 +76,52 @@ class OpenIDAuthorizeView(HomeAssistantView):
         """Initialize the authorisation view."""
         self.hass = hass
 
+    def should_show_consent_screen(self, params: Mapping[str, str]) -> bool:
+        """Determine whether to show the consent screen based on configuration and request parameters."""
+        conf: dict[str, Any] | None = self.hass.data.get(DOMAIN)
+        if not conf:
+            return False
+
+        if not conf.get(CONF_BLOCK_LOGIN, False):
+            _LOGGER.debug(
+                "block_login is disabled; skipping consent screen. HA will handle consent if needed"
+            )
+            return False
+
+        client_id = params.get("client_id")
+        internal_url = None
+        external_url = None
+        cloud_url = None
+
+        with suppress(NoURLAvailableError):
+            internal_url = get_url(
+                self.hass, allow_internal=True, allow_external=False, allow_cloud=False
+            )
+
+        with suppress(NoURLAvailableError):
+            external_url = get_url(
+                self.hass,
+                allow_internal=False,
+                allow_external=True,
+                prefer_external=True,
+            )
+
+        cloud_url = None
+        with suppress(NoURLAvailableError):
+            cloud_url = get_url(self.hass, allow_internal=False, require_cloud=True)
+
+        if client_id is not None and (
+            (external_url and client_id.startswith(external_url))
+            or (internal_url and client_id.startswith(internal_url))
+            or (cloud_url and client_id.startswith(cloud_url))
+        ):
+            _LOGGER.debug(
+                "Request from Home Assistant frontend detected; skipping consent screen"
+            )
+            return False
+
+        return True
+
     async def get(self, request: Request) -> Response:
         """Redirect the browser to the IdP’s authorisation endpoint."""
         conf: dict[str, str] = self.hass.data[DOMAIN]
@@ -62,16 +129,14 @@ class OpenIDAuthorizeView(HomeAssistantView):
         params = request.rel_url.query
         _LOGGER.debug("OpenIDAuthorizeView received params: %s", dict(params))
         _LOGGER.debug("OpenIDAuthorizeView full URL: %s", request.url)
-        # Check if we should show consent screen
-        should_show_consent = (
-            conf.get(CONF_BLOCK_LOGIN, False) and params.get("client_id") is not None
-        )
 
-        if should_show_consent:
+        # Check if we should show consent screen
+        if self.should_show_consent_screen(params):
             _LOGGER.info(
                 "Showing consent screen for client_id: %s", params.get("client_id")
             )
             return await self._show_consent_screen(request, params)
+
         # Prefer client-provided state (Music Assistant) so the same value is returned
         # through the entire flow. Try both "state" and explicit "client_state" (forwarded by JS).
         client_id = params.get("client_id")
@@ -106,16 +171,25 @@ class OpenIDAuthorizeView(HomeAssistantView):
                 "status": "pending"
             }
 
-        self.hass.data["_openid_state"][state] = params
-        _LOGGER.debug("Storing params under state %s: %s", state, dict(params))
-
-        query = {
+        stored_params = dict(params)
+        query: dict[str, str] = {
             "response_type": "code",
             "client_id": conf[CONF_CLIENT_ID],
             "redirect_uri": redirect_uri,
             "scope": conf.get(CONF_SCOPE, ""),
             "state": state,
         }
+
+        if conf.get(CONF_USE_PKCE, False):
+            code_verifier, code_challenge = _generate_pkce_pair()
+            stored_params[_PKCE_VERIFIER_KEY] = code_verifier
+            query["code_challenge"] = code_challenge
+            query["code_challenge_method"] = "S256"
+            _LOGGER.debug("PKCE enabled; code_challenge added to authorize request")
+
+        self.hass.data["_openid_state"][state] = stored_params
+        _LOGGER.debug("Storing params under state %s: %s", state, stored_params)
+
         encoded_query = urlencode(query)
         url = conf[CONF_AUTHORIZE_URL] + "?" + encoded_query
 
@@ -231,16 +305,26 @@ class OpenIDConsentView(HomeAssistantView):
                 "status": "pending"
             }
 
-        self.hass.data["_openid_state"][state] = original_params
-        _LOGGER.debug("Storing params under state %s: %s", state, dict(original_params))
-
-        query = {
+        query: dict[str, str] = {
             "response_type": "code",
             "client_id": conf[CONF_CLIENT_ID],
             "redirect_uri": redirect_uri,
             "scope": conf.get(CONF_SCOPE, ""),
             "state": state,
         }
+
+        if conf.get(CONF_USE_PKCE, False):
+            code_verifier, code_challenge = _generate_pkce_pair()
+            original_params[_PKCE_VERIFIER_KEY] = code_verifier
+            query["code_challenge"] = code_challenge
+            query["code_challenge_method"] = "S256"
+            _LOGGER.debug(
+                "PKCE enabled; code_challenge added to consent authorize request"
+            )
+
+        self.hass.data["_openid_state"][state] = original_params
+        _LOGGER.debug("Storing params under state %s: %s", state, dict(original_params))
+
         encoded_query = urlencode(query)
         url = conf[CONF_AUTHORIZE_URL] + "?" + encoded_query
 
@@ -326,6 +410,7 @@ class OpenIDCallbackView(HomeAssistantView):
                 client_secret=conf[CONF_CLIENT_SECRET],
                 redirect_uri=redirect_uri,
                 use_header_auth=bool(conf.get(CONF_USE_HEADER_AUTH, True)),
+                code_verifier=params.get(_PKCE_VERIFIER_KEY),
             )
 
             access_token = token_data.get("access_token")
@@ -783,20 +868,26 @@ def _show_error(
     alert_message: str,
 ) -> Response:
     # make sure the alert_type and alert_message can be safely displayed
+    conf: dict[str, Any] | None = hass.data.get(DOMAIN)
     alert_type = alert_type.replace("'", "&#39;").replace('"', "&quot;")
     alert_message = alert_message.replace("'", "&#39;").replace('"', "&quot;")
     redirect_url = params.get("redirect_uri", "/").replace("auth_callback=1", "")
     safe_redirect_url = redirect_url.replace("'", "%27").replace('"', "%22")
 
-    template_content = hass.data[DOMAIN]["error_template"]
-    template = Template(template_content)
-    html = template.substitute(
-        alert_type=alert_type,
-        alert_message=alert_message,
-        redirect_url=safe_redirect_url,
-    )
+    error_url = conf.get(CONF_ERROR_URL)
+    if error_url is not None:
+        full_error_url = f"{error_url}?alert_type={quote(alert_type)}&alert_message={quote(alert_message)}"
+        return Response(status=HTTPStatus.FOUND, headers={"Location": full_error_url})
+    else:
+        template_content = hass.data[DOMAIN]["error_template"]
+        template = Template(template_content)
+        html = template.substitute(
+            alert_type=alert_type,
+            alert_message=alert_message,
+            redirect_url=safe_redirect_url,
+        )
 
-    return Response(status=HTTPStatus.OK, content_type="text/html", text=html)
+        return Response(status=HTTPStatus.OK, content_type="text/html", text=html)
 
 
 def _android_waiting_response(
