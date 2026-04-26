@@ -172,24 +172,85 @@ Key architectural decisions captured from the YAML configuration:
 
 ---
 
+---
+
+## Scripts
+
+### set_alarm_to_away_mode
+Sets the alarm to away mode. Only acts if alarm is not already in away mode.
+
+### set_alarm_to_disarmed_mode
+Sets the alarm to disarmed mode. Only acts if alarm is not already disarmed.
+
+### set_alarm_to_home_mode
+Sets the alarm to home mode. Only acts if alarm is not already in home mode.
+
+### arm_alarm_overnight
+Complex overnight arming logic with people-aware behavior:
+- **Already locked + armed:** Skip
+- **Everyone home:** Arm home + lock door
+- **Someone not far:** Log and retry later
+- **Someone home, rest far:** Arm home + lock door (after 22:59 or before 02:00)
+- **Otherwise:** Notify and retry later
+
+---
+
 ## Entity Reference
 
-### Referenced Entities
+### Alarm Panel
 
-- `schedule.alarm_scheduled_home_mode`
-- `person.danny`
-- `person.terina`
-- `alias: Turn on bedroom light to warn not all doors/windows are closed.`
-- `light.under_bed_left`
-- `light.under_bed_right`
-- `light.bedroom_lamp_left`
-- `light.bedroom_lamp_right`
-- `action: script.set_alarm_to_home_mode`
-- `action: script.lock_front_door`
-- `binary_sensor.alarmed_doors_and_windows`
-- `alarm_control_panel.house_alarm`
-- `person.leo`
-- `action: script.send_actionable_notification_with_2_buttons`
+| Entity | Purpose |
+|--------|---------|
+| `alarm_control_panel.house_alarm` | Main house alarm panel |
+
+### Binary Sensors
+
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.alarmed_doors_and_windows` | Combined door/window sensor group |
+
+### People
+
+| Entity | Purpose |
+|--------|---------|
+| `person.danny` | Danny's presence |
+| `person.terina` | Terina's presence |
+| `person.leo` | Leo's presence |
+
+### Locks
+
+| Entity | Purpose |
+|--------|---------|
+| `lock.front_door` | Front door lock |
+
+### Schedules
+
+| Entity | Purpose |
+|--------|---------|
+| `schedule.alarm_scheduled_home_mode` | Scheduled arming schedule |
+
+### Input Booleans
+
+| Entity | Purpose |
+|--------|---------|
+| `input_boolean.enable_alarm_automations` | Master switch for alarm automations |
+
+### Input Numbers
+
+| Entity | Purpose |
+|--------|---------|
+| `input_number.long_distance_away_from_home` | Distance threshold for "far away" detection |
+
+### Lights (Indicators)
+
+| Entity | Purpose |
+|--------|---------|
+| `light.under_bed_left` | Under-bed indicator light |
+| `light.under_bed_right` | Under-bed indicator light |
+| `light.bedroom_lamp_left` | Bedroom lamp |
+| `light.bedroom_lamp_right` | Bedroom lamp |
+
+---
 
 ---
 

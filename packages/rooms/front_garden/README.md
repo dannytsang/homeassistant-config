@@ -1,302 +1,224 @@
-[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
-
 # Front Garden
 
-This package manages 7 automations and 0 scripts for front garden.
+[<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
+
+# Front Garden Package Documentation
+
+This package manages front garden automation including doorbell handling, vehicle detection, lock box monitoring, and outdoor lighting control.
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Purpose](#purpose)
-- [Dependencies](#dependencies)
-- [How It Works](#how-it-works)
+- [Architecture](#architecture)
 - [Automations](#automations)
-- [Entities](#entities)
-- [Troubleshooting](#troubleshooting)
-- [Related Files](#related-files)
-- [Notes](#notes)
+  - [Doorbell](#doorbell)
+  - [Camera Monitoring](#camera-monitoring)
+  - [Vehicle Detection](#vehicle-detection)
+  - [Lock Box](#lock-box)
+  - [Outdoor Lighting](#outdoor-lighting)
+- [Entity Reference](#entity-reference)
+- [Cross-References](#cross-references)
 
 ---
 
 ## Overview
 
-This package provides automation for **front garden**. It includes 7 automations and 0 scripts.
+The front garden package handles:
+- **Doorbell events** with notification delivery and camera capture
+- **Vehicle detection** on the driveway
+- **Lock box monitoring** for security
+- **Electricity meter access** monitoring
+- **Outdoor lighting** control based on ambient light
+
+---
+
+## Architecture
 
 ### File Structure
 
 ```
 packages/rooms/
-├── front_garden.yaml  # Main package configuration
-└── README.md                           # This documentation
+├── front_garden.yaml     # Main package (7 automations)
+└── README.md              # This documentation
 ```
 
----
+### Key Components
 
-## Purpose
-
-- **Front Garden: Doorbell Pressed**: 
-- **Front Garden: Doorbell Camera Updated**: 
-- **Front Garden: Vehicle Detected On Driveway**: 
-- **Front Garden: Below Direct Sun Light**: 
-- **Front Garden: Lock Box State Changed**: 
-
-### Package Architecture
-
-The following diagram shows the high-level flow of this package:
-
-```mermaid
-flowchart TB
-    subgraph Inputs["📥 Inputs"]
-        binary_sensor_driveway_vehicle_detected["driveway_vehicle_det"]
-        binary_sensor_outdoor_lock_box_contact["outdoor_lock_box_con"]
-        binary_sensor_electricity_meter_door_contact["electricity_meter_do"]
-    end
-    subgraph Logic["🧠 Logic"]
-        FrontGardenDoorbellP["Front Garden: Doorbell Pressed"]
-        FrontGardenDoorbellC["Front Garden: Doorbell Camera "]
-        FrontGardenVehicleDe["Front Garden: Vehicle Detected"]
-        FrontGardenBelowDire["Front Garden: Below Direct Sun"]
-        FrontGardenLockBoxSt["Front Garden: Lock Box State C"]
-    end
-    binary_sensor_driveway_vehicle_detected --> FrontGardenDoorbellP
-    binary_sensor_outdoor_lock_box_contact --> FrontGardenDoorbellP
-    binary_sensor_electricity_meter_door_contact --> FrontGardenDoorbellP
-```
-
----
-
-## Dependencies
-
-This package depends on the following components:
-
-### Related Packages
-
-- Front Garden
-
----
-
-## How It Works
-
-This section explains the overall behavior and logic of the package.
-
-### Automation Logic
-
-**Front Garden: Doorbell Pressed**
-Triggered when: When `Front Door Ding` state changes
-
-**Front Garden: Doorbell Camera Updated**
-Triggered when: When `Front Door` changes to 'unavailable'
-
-**Front Garden: Vehicle Detected On Driveway**
-Triggered when: When `Driveway Vehicle Detected` changes from 'off' to 'on'
-
-*... plus 4 additional automations. See [Automations](#automations) section for details.*
-
-### Workflow Diagram
-
-The following diagram illustrates the automation flow:
-
-```mermaid
-flowchart LR
-    FrontGardenDoor["Front Garden: Doorbe"]
-    FrontGardenDoor["Front Garden: Doorbe"]
-    FrontGardenVehi["Front Garden: Vehicl"]
-    FrontGardenBelo["Front Garden: Below "]
-    FrontGardenLock["Front Garden: Lock B"]
-    FrontGardenLock["Front Garden: Lockbo"]
-    subgraph Triggers["📡 Triggers"]
-        state[State]
-    end
-    state --> FrontGardenDoor
-```
+| Component | Purpose |
+|-----------|---------|
+| `event.front_door_ding` | Doorbell ring event |
+| `camera.front_door` | Front door camera |
+| `binary_sensor.driveway_vehicle_detected` | Vehicle detection sensor |
+| `binary_sensor.outdoor_lock_box_contact` | Lock box state |
+| `binary_sensor.electricity_meter_door_contact` | Meter cabinet door |
+| `sensor.front_garden_motion_illuminance` | Outdoor light level |
+| `sensor.season` | Current season state |
 
 ---
 
 ## Automations
 
-Detailed documentation for each automation in this package.
+### Doorbell
 
-### Front Garden: Doorbell Pressed
+#### Front Garden: Doorbell Pressed
+**ID:** `1694521590171`
 
-**Automation ID:** `1694521590171`
-
-#### Trigger
-
-- When `Front Door Ding` state changes
-
-#### Actions
-
-1. Execute actions in parallel
-
-### Front Garden: Doorbell Camera Updated
-
-**Automation ID:** `1621070004545`
-
-#### Trigger
-
-- When `Front Door` changes to 'unavailable'
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- Template condition is true
-
-#### Actions
-
-- *See YAML for action details*
-
-#### Flow Diagram
+Handles doorbell press with multi-channel notifications and camera capture.
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|When `Front Door` changes to '| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[Template condition is tru]
-    Condition1 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> End2([End])
+    A["🔔 Doorbell Pressed"] --> B["Parallel Actions"]
+    B --> N1["📱 Push notification\n(Danny & Terina)"]
+    B --> N2["🔊 Alexa: \"Ding dong\""]
+    B --> N3["📋 Add to shared todo\n(if everyone away)"]
+    B --> C["📸 Wait for camera update"]
+    C --> P1["📱 Send image\nto Danny"]
+    C --> P2["📱 Send video\nto Danny"]
 ```
 
-### Front Garden: Vehicle Detected On Driveway
+**Triggers:**
+- `event.front_door_ding` state changes
 
-**Automation ID:** `1720276673719`
-
-#### Trigger
-
-- When `Driveway Vehicle Detected` changes from 'off' to 'on'
-
-#### Actions
-
-- *See YAML for action details*
-
-### Front Garden: Below Direct Sun Light
-
-**Automation ID:** `1660894232444`
-
-#### Trigger
-
-- When `Front Garden Motion Illuminance` drops below input_number.close_blinds_brightness_threshold
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- `Season` is 'summer'
-
-#### Actions
-
-- *See YAML for action details*
-
-#### Flow Diagram
-
-```mermaid
-flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|When `Front Garden Motion Illu| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Season` is 'summer']
-    Condition1 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> End2([End])
-```
-
-### Front Garden: Lock Box State Changed
-
-**Automation ID:** `1714914120928`
-
-#### Trigger
-
-- When `Outdoor Lock Box Contact` changes from '- ' to '- '
-
-#### Actions
-
-- *See YAML for action details*
-
-### Front Garden: Lockbox Sensor Disconnected
-
-**Automation ID:** `1718364408150`
-
-#### Trigger
-
-- When `Outdoor Lock Box Contact` changes to 'unavailable'
-
-#### Actions
-
-- *See YAML for action details*
-
-### Front Garden: Electricity Meter Door Opened
-
-**Automation ID:** `1761115884229`
-
-#### Trigger
-
-- When `Electricity Meter Door Contact` changes to 'on'
-
-#### Actions
-
-- *See YAML for action details*
+**Actions (parallel):**
+1. Send direct notification to Danny and Terina
+2. Alexa announcement "Ding dong" (no quiet hour suppression)
+3. Set `input_boolean.wait_for_doorbell_camera_update` to on
+4. Add to shared notifications todo if no one home
+5. Delayed: wait for camera update, then send image and video to Danny
 
 ---
 
-## Entities
+#### Front Garden: Doorbell Camera Updated
+**ID:** `1621070004545`
 
-Key entities used or created by this package.
+Captures and downloads doorbell video when camera becomes available.
 
-### Referenced Entities
+**Triggers:**
+- Camera front_door changes to any state (recovers from unavailable)
 
-- `event.front_door_ding`
-- `person.danny`
-- `person.terina`
-- `action: script.alexa_announce`
-- `todo.shared_notifications`
-- `camera.front_door`
-- `binary_sensor.driveway_vehicle_detected`
-- `binary_sensor.outdoor_lock_box_contact`
-- `binary_sensor.electricity_meter_door_contact`
+**Conditions:**
+- Video ID has changed from last stored
 
----
-
-## Troubleshooting
-
-Common issues and how to resolve them.
-
-### Automation Issues
-
-| Issue | Possible Cause | Resolution |
-|-------|---------------|------------|
-| Automation not triggering | Entity unavailable or condition not met | Check entity states in Developer Tools |
-| Automation fires unexpectedly | Trigger too broad or condition missing | Review trigger entity and add conditions |
-| Actions not executing | Service call invalid or entity offline | Verify service and entity in YAML |
-
-### General Debugging
-
-1. Check Home Assistant logs for errors
-2. Verify all referenced entities exist in Developer Tools
-3. Test automations manually using the 'Run' button
-4. Review traces for executed automations to see execution path
+**Actions:**
+- Download the video clip
+- Store video file for notification use
 
 ---
 
-## Related Files
+### Vehicle Detection
 
-| File | Description |
-|------|-------------|
-| [`packages/rooms/front_garden.yaml`](./front_garden.yaml) | Main package YAML configuration |
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+#### Front Garden: Vehicle Detected On Driveway
+**ID:** `1720276673719`
 
----
+Logs when a vehicle is detected on the driveway.
 
-## Notes
-
-### Design Decisions
-
-- **Front Garden: Vehicle Detected On Driveway** triggers on state transitions (edge detection) rather than continuous state
-- **Front Garden: Lock Box State Changed** triggers on state transitions (edge detection) rather than continuous state
-- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+**Triggers:**
+- `binary_sensor.driveway_vehicle_detected` changes from `off` to `on`
 
 ---
 
-*Last updated: 2026-04-09*
+### Lock Box
+
+#### Front Garden: Lock Box State Changed
+**ID:** `1714914120928`
+
+Monitors the outdoor lock box state changes.
+
+**Triggers:**
+- `binary_sensor.outdoor_lock_box_contact` changes
+
+---
+
+#### Front Garden: Lockbox Sensor Disconnected
+**ID:** `1718364408150`
+
+Alerts when lock box sensor becomes unavailable.
+
+**Triggers:**
+- Lock box contact changes to `unavailable`
+
+**Actions:**
+- Log debug message
+
+---
+
+### Outdoor Lighting
+
+#### Front Garden: Below Direct Sun Light
+**ID:** `1660894232444`
+
+Controls outdoor lights based on ambient light and season.
+
+**Triggers:**
+- Front garden illuminance drops below `input_number.close_blinds_brightness_threshold`
+
+**Conditions:**
+- Season is 'summer'
+
+**Logic:** When ambient light drops during summer, outdoor lights can be activated based on other conditions (see YAML for specific light control actions).
+
+---
+
+### Electricity Meter
+
+#### Front Garden: Electricity Meter Door Opened
+**ID:** `1761115884229`
+
+Monitors access to the electricity meter cabinet.
+
+**Triggers:**
+- `binary_sensor.electricity_meter_door_contact` changes to `on`
+
+---
+
+## Entity Reference
+
+### Events
+
+| Entity | Purpose |
+|--------|---------|
+| `event.front_door_ding` | Doorbell ring event |
+
+### Binary Sensors
+
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.driveway_vehicle_detected` | Vehicle on driveway |
+| `binary_sensor.outdoor_lock_box_contact` | Lock box state |
+| `binary_sensor.electricity_meter_door_contact` | Meter cabinet door |
+
+### Cameras
+
+| Entity | Purpose |
+|--------|---------|
+| `camera.front_door` | Front door camera |
+
+### Sensors
+
+| Entity | Purpose |
+|--------|---------|
+| `sensor.front_garden_motion_illuminance` | Outdoor light level |
+| `sensor.season` | Current season |
+
+### People
+
+| Entity | Purpose |
+|--------|---------|
+| `person.danny` | Notification recipient |
+| `person.terina` | Notification recipient |
+
+---
+
+## Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| [Living Room README](../living_room/README.md) | Shares outdoor brightness sensor for blind control |
+| [Office README](../office/README.md) | Shares outdoor brightness sensor |
+| [Alarm README](../../integrations/alarm.yaml) | Front door lock integration |
+
+---
+
+*Last updated: 2026-04-26*
