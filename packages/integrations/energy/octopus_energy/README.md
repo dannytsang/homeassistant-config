@@ -1,206 +1,177 @@
+# Octopus Energy Integration
+
 [<- Back to Energy README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
 
-# Octopus Energy
+# Octopus Energy Rate-Based Automation
 
-This package manages 2 automations and 0 scripts for octopus energy.
+This package provides Octopus Energy rate change handling to coordinate charging across multiple devices (Zappi EV charger, Eddi solar diverter, EcoFlow batteries, Conservatory underfloor heating, and Airer).
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Purpose](#purpose)
-- [Dependencies](#dependencies)
-- [How It Works](#how-it-works)
+- [Architecture](#architecture)
 - [Automations](#automations)
-- [Entities](#entities)
-- [Troubleshooting](#troubleshooting)
-- [Related Files](#related-files)
+  - [Electricity Rates Changed](#octopus-energy-electricity-rates-changed)
+  - [Refresh Intelligent Dispatches](#refresh-intelligent-dispatches)
+- [Script](#script)
+- [Entity Reference](#entity-reference)
+- [Cross-References](#cross-references)
 
 ---
 
 ## Overview
 
-This package provides automation for **octopus energy**. It includes 2 automations and 0 scripts.
+When Octopus Agile electricity rates change, this package distributes the event to multiple systems that respond to rate signals:
 
-### File Structure
-
-```
-packages/integrations/energy/
-├── octopus_energy.yaml  # Main package configuration
-└── README.md                           # This documentation
-```
+- **Solar Assistant** - Battery charging optimization
+- **Zappi** - EV charging optimization
+- **Eddi** - Hot water solar diversion boost
+- **EcoFlow** - Portable battery charging
+- **Conservatory UFH** - Underfloor heating control
+- **Tesla** - Low rate notifications
+- **Airer** - Clothes airer activation
 
 ---
 
-## Purpose
-
-- **Octopus Energy: Electricity Rates Changed**: 
-- **Refresh intelligent dispatches**: Example from: https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches
-
-### Package Architecture
-
-The following diagram shows the high-level flow of this package:
+## Architecture
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Inputs"]
-        binary_sensor_octopus_energy_intelligent_dispatching["octopus_energy_intel"]
-    end
-    subgraph Logic["🧠 Logic"]
-        OctopusEnergyElectri["Octopus Energy: Electricity Ra"]
-        Refreshintelligentdi["Refresh intelligent dispatches"]
-    end
-    binary_sensor_octopus_energy_intelligent_dispatching --> OctopusEnergyElectri
-```
-
----
-
-## Dependencies
-
-This package depends on the following components:
-
-### Integrations
-
-- `EcoFlow`
-- `Zappi`
-- `Octopus Energy`
-
----
-
-## How It Works
-
-This section explains the overall behavior and logic of the package.
-
-### Automation Logic
-
-**Octopus Energy: Electricity Rates Changed**
-Triggered when: When `Octopus Energy Electricity Current Rate` state changes
-
-**Refresh intelligent dispatches**
-Example from: https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches
-Triggered when: When `Myenergi Zappi Plug Status` changes to 'EV Disconnected'
-
-### Workflow Diagram
-
-The following diagram illustrates the automation flow:
-
-```mermaid
-flowchart LR
-    OctopusEnergyEl["Octopus Energy: Elec"]
-    Refreshintellig["Refresh intelligent "]
     subgraph Triggers["📡 Triggers"]
-        state[State]
+        RateChange["⚡ Octopus Rate Changes"]
+        ZappiStatus["🔌 Zappi Status Change"]
+        TimePattern["⏰ Every 3 minutes"]
     end
-    state --> OctopusEnergyEl
+
+    subgraph Logic["🧠 Rate Distributor"]
+        OctopusRate["Octopus Rate Change Handler"]
+    end
+
+    subgraph Consumers["⚡ Rate-Consuming Systems"]
+        SolarAssist["Solar Assistant\nBattery Mode Check"]
+        Zappi["Zappi EV Charger\nCharge Check"]
+        Eddi["Eddi Solar Diverter\nBoost Check"]
+        EcoFlow["EcoFlow Batteries\nCharging Mode"]
+        UFH["Conservatory UFH\nRate-Based Heating"]
+        Tesla["Tesla\nLow Rate Notification"]
+        Airer["Conservatory Airer\nCost-Based Activation"]
+    end
+
+    RateChange --> OctopusRate
+    ZappiStatus --> OctopusRate
+    TimePattern --> OctopusRate
+
+    OctopusRate --> SolarAssist
+    OctopusRate --> Zappi
+    OctopusRate --> Eddi
+    OctopusRate --> EcoFlow
+    OctopusRate --> UFH
+    OctopusRate --> Tesla
+    OctopusRate --> Airer
 ```
 
 ---
 
 ## Automations
 
-Detailed documentation for each automation in this package.
-
 ### Octopus Energy: Electricity Rates Changed
+**ID:** `168962611780`
 
-**Automation ID:** `168962611780`
+Distributes rate changes to all connected systems.
 
-#### Trigger
+**Triggers:**
+- `sensor.octopus_energy_electricity_current_rate` changes
 
-- When `Octopus Energy Electricity Current Rate` state changes
+**Actions (parallel branches):**
 
-#### Actions
-
-1. Call script: Zappi Check Ev Charge
-2. Execute actions in parallel
-3. Conditional action selection
-
-#### Flow Diagram
-
-```mermaid
-flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|When `Octopus Energy Electrici| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> Action1[Call script: Zappi Check ]
-    Action1 --> Action2[...and 2 more]
-    Action2 --> End2([End])
-```
-
-### Refresh intelligent dispatches
-
-Example from: https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches
-
-**Automation ID:** `168962611781`
-
-#### Trigger
-
-- When `Myenergi Zappi Plug Status` changes to 'EV Disconnected'
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- `Myenergi Zappi Plug Status` is 'EV Disconnected'
-
-#### Actions
-
-- *See YAML for action details*
-
-#### Flow Diagram
-
-```mermaid
-flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|When `Myenergi Zappi Plug Stat| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Myenergi Zappi Plug Stat]
-    Condition1 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> End2([End])
-```
+| System | Condition | Action |
+|--------|-----------|--------|
+| Solar Assistant | `enable_solar_assistant_automations` on + Growatt available | `solar_assistant_check_charging_mode` |
+| Zappi | `enable_zappi_automations` on + EV not disconnected | `zappi_check_ev_charge` |
+| Eddi | Not stopped + not Holiday + `enable_hot_water_automations` on | `hvac_check_eddi_boost_hot_water` |
+| EcoFlow | `enable_ecoflow_automations` on | `ecoflow_check_charging_mode` |
+| UFH | `enable_conservatory_under_floor_heating_automations` on | `conservatory_electricity_rate_change` |
+| Tesla | Tesla unplugged + Zappi disconnected + `enable_tesla_automations` on | `tesla_notify_low_electricity_rates` |
+| Airer | `enable_conservatory_airer_when_cost_below_nothing` OR `enable_conservatory_airer_when_cost_nothing` on | `check_conservatory_airer` |
 
 ---
 
-## Entities
+### Refresh Intelligent Dispatches
+**ID:** `168962611781`
 
-Key entities used or created by this package.
+Keeps Octopus Intelligent Dispatching schedule up-to-date based on Zappi status changes and periodic refreshes.
 
-### Referenced Entities
+**Triggers:**
+- Zappi plug status changes to anything other than "EV Disconnected"
+- Every 3 minutes (time pattern)
 
-- `binary_sensor.octopus_energy_intelligent_dispatching`
+**Conditions:**
+- Zappi plug is not "EV Disconnected"
 
----
-
-## Troubleshooting
-
-Common issues and how to resolve them.
-
-### Automation Issues
-
-| Issue | Possible Cause | Resolution |
-|-------|---------------|------------|
-| Automation not triggering | Entity unavailable or condition not met | Check entity states in Developer Tools |
-| Automation fires unexpectedly | Trigger too broad or condition missing | Review trigger entity and add conditions |
-| Actions not executing | Service call invalid or entity offline | Verify service and entity in YAML |
-
-### General Debugging
-
-1. Check Home Assistant logs for errors
-2. Verify all referenced entities exist in Developer Tools
-3. Test automations manually using the 'Run' button
-4. Review traces for executed automations to see execution path
+**Actions:**
+- Calls `script.refresh_octopus_intelligent_dispatching`
 
 ---
 
-## Related Files
+## Script
 
-| File | Description |
-|------|-------------|
-| [`packages/integrations/energy/octopus_energy.yaml`](./octopus_energy.yaml) | Main package YAML configuration |
-| [Integrations Overview](../README.md) | Overview of all integration packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+### refresh_octopus_intelligent_dispatching
+
+Calls the `octopus_energy.refresh_intelligent_dispatches` service for the intelligent dispatch sensor.
 
 ---
 
-*Last updated: 2026-04-09*
+## Entity Reference
+
+### Octopus Energy Sensors
+
+| Entity | Purpose |
+|--------|---------|
+| `sensor.octopus_energy_electricity_current_rate` | Current import rate |
+| `sensor.octopus_energy_electricity_export_current_rate` | Current export rate |
+| `binary_sensor.octopus_energy_intelligent_dispatching` | Intelligent dispatch status |
+
+### MyEnergi Status
+
+| Entity | Purpose |
+|--------|---------|
+| `sensor.myenergi_zappi_plug_status` | Zappi charging status |
+| `select.myenergi_eddi_operating_mode` | Eddi mode (Normal/Stopped/etc) |
+
+### Tesla
+
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.model_y_charger` | Tesla charger connection status |
+
+### Automation Enables
+
+| Entity | Purpose |
+|--------|---------|
+| `input_boolean.enable_solar_assistant_automations` | Solar Assistant master switch |
+| `input_boolean.enable_zappi_automations` | Zappi master switch |
+| `input_boolean.enable_hot_water_automations` | Hot water master switch |
+| `input_boolean.enable_ecoflow_automations` | EcoFlow master switch |
+| `input_boolean.enable_conservatory_under_floor_heating_automations` | UFH master switch |
+| `input_boolean.enable_tesla_automations` | Tesla master switch |
+| `input_boolean.enable_conservatory_airer_when_cost_below_nothing` | Airer negative rates |
+| `input_boolean.enable_conservatory_airer_when_cost_nothing` | Airer zero rates |
+
+---
+
+## Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| [Energy README](../README.md) | Parent energy package |
+| [Solar Assistant README](solar_assistant_README.md) | Battery management |
+| [EcoFlow README](ecoflow_README.md) | Portable battery control |
+| [Zappi README](zappi_README.md) | EV charger |
+| [HVAC README](../../hvac/README.md) | Eddi solar diverter |
+| [Conservatory README](../../rooms/conservatory/README.md) | UFH and airer |
+
+---
+
+*Last updated: 2026-04-26*
