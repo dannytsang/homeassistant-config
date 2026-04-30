@@ -140,7 +140,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - binary_sensor.bathroom_light_input_0
+          - binary_sensor.bathroom_switch_input_0
     conditions: []
     actions:
       - delay:
@@ -173,17 +173,62 @@ automation:
           entity_id: timer.bathroom_light_off
     conditions: []
     actions:
-      - parallel:
+      - if:
+          - condition: state
+            entity_id: switch.bathroom_fan_2
+            state: "on"
+        then:
+          - parallel:
+              - action: script.send_to_home_log
+                data:
+                  message: "💡 Light ⏳timer finished. Turning off lights and 🪭fan."
+                  title: "🛁 Bathroom"
+                  log_level: "Debug"
+              - action: switch.turn_off
+                entity_id: switch.bathroom_fan_2
+                data: {}
+        else:
           - action: script.send_to_home_log
             data:
               message: "💡 Light ⏳timer finished. Turning off lights."
               title: "🛁 Bathroom"
               log_level: "Debug"
-          - action: light.turn_off
-            target:
-              entity_id: light.bathroom_lights
+      - action: switch.turn_off
+        target:
+          entity_id: switch.bathroom_lights_2
     mode: single
-  # region Door
+  - id: "1777131323273"
+    alias: "Bathroom: Light On For Long Time And Fan Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.bathroom_lights_2
+        to:
+          - "on"
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+    conditions:
+      - condition: state
+        entity_id: switch.bathroom_fan_2
+        state: "off"
+      - condition: state
+        entity_id: input_boolean.enable_bathroom_automations
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Light on for more than 5 minutes. Turning bathroom fan on.
+          - action: switch.turn_on
+            entity_id: switch.bathroom_fan_2
+            data: {}
+    mode: single
+  # region Humidity
   - id: "1680461746985"
     alias: "Bathroom: High Humidity"
     description: ""
@@ -192,7 +237,7 @@ automation:
         entity_id: sensor.bathroom_motion_humidity
         for:
           hours: 0
-          minutes: 30
+          minutes: 1
           seconds: 0
         above: 59.9
     conditions:
@@ -203,15 +248,74 @@ automation:
         entity_id: binary_sensor.bathroom_door_contact
         state: "off"
     actions:
-      - action: script.send_direct_notification
-        data:
-          message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%). The 🚪door and 🪟window is closed."
-          title: "🛁 Bathroom"
-          log_level: "Debug"
-          people:
-            entity_id:
-              - person.danny
-              - person.terina
+      - choose:
+          - alias: Bathroom automations off
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_bathroom_automations
+                state: "off"
+            sequence:
+              - action: script.send_direct_notification
+                data:
+                  message: "High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%). The 🚪door and 🪟window is closed."
+                  title: "🛁 Bathroom"
+                  people:
+                    entity_id:
+                      - person.danny
+                      - person.terina
+          - alias: Bathroom fan not on
+            conditions:
+              - condition: state
+                entity_id: input_boolean.enable_bathroom_automations
+                state: "on"
+              - not:
+                  - condition: state
+                    entity_id: switch.bathroom_fan_2
+                    state: "on"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        High Humidity ({{ states('sensor.bathroom_motion_humidity') }} > 59.9%). The 🚪door and 🪟window is closed.
+                        Turning 🪭extract fan on.
+                      title: "🛁 Bathroom"
+                      log_level: "Debug"
+                  - action: switch.turn_on
+                    entity_id: switch.bathroom_fan_2
+                    data: {}
+        default: []
+    mode: single
+  - id: "1680461746986"
+    alias: "Bathroom: High Humidity"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id: sensor.bathroom_motion_humidity
+        for:
+          hours: 0
+          minutes: 5
+          seconds: 0
+        below: 60
+    conditions:
+      - condition: state
+        entity_id: input_boolean.enable_bathroom_automations
+        state: "off"
+      - condition: state
+        entity_id: switch.bathroom_fan_2
+        state: "on"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                Humidity dropped ({{ states('sensor.bathroom_motion_humidity') }} < 60%).
+                Turning 🪭extract fan off.
+              title: "🛁 Bathroom"
+              log_level: "Debug"
+          - action: switch.turn_off
+            entity_id: switch.bathroom_fan_2
+            data: {}
     mode: single
   # region Toothbrush
   - id: "1760479357022"
@@ -250,12 +354,11 @@ script:
           count: 2
           sequence:
             - action: light.turn_on
-              data:
-                brightness_pct: 100
-              entity_id: light.bathroom
-            - action: light.turn_off
+              entity_id: light.bathroom_lights
               data: {}
-              entity_id: light.bathroom
+            - action: light.turn_off
+              entity_id: light.bathroom_lights
+              data: {}
     mode: single
 
 sensor:
