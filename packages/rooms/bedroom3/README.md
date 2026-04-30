@@ -1,380 +1,316 @@
+# Bedroom3 (Ashlee's Room)
+
 [<- Back to Rooms README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
 
-# Bedroom3
+# Ashlee's Bedroom Package Documentation
 
-This package manages 10 automations and 0 scripts for bedroom3.
+This package manages Ashlee's bedroom automation including intelligent blind control based on schedules/calendar/bed occupancy, fan control, and notifications.
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Purpose](#purpose)
-- [How It Works](#how-it-works)
+- [Architecture](#architecture)
 - [Automations](#automations)
-- [Entities](#entities)
-- [Troubleshooting](#troubleshooting)
-- [Related Files](#related-files)
-- [Notes](#notes)
+  - [Blind Control](#blind-control)
+  - [Bed Occupancy](#bed-occupancy)
+  - [Fan Control](#fan-control)
+  - [Notifications](#notifications)
+- [Entity Reference](#entity-reference)
+- [Cross-References](#cross-references)
 
 ---
 
 ## Overview
 
-This package provides automation for **bedroom3**. It includes 10 automations and 0 scripts.
+Ashlee's bedroom features:
+- **Smart blind scheduling** based on school days, activities, and bed occupancy
+- **Fan control** triggered by bed presence
+- **Calendar integration** for activity-aware opening times
+- **Mode-aware behavior** (No Children, Guest modes)
+
+---
+
+## Architecture
 
 ### File Structure
 
 ```
 packages/rooms/
-├── bedroom3.yaml  # Main package configuration
-└── README.md                           # This documentation
+├── bedroom3.yaml          # Main package (10 automations)
+└── README.md              # This documentation
 ```
 
----
+### Key Components
 
-## Purpose
-
-- **Ashlee**: 
-- **Ashlee**: 
-- **Ashlee**: 
-- **Ashlee**: 
-- **Ashlee**: 
-
-### Package Architecture
-
-The following diagram shows the high-level flow of this package:
-
-```mermaid
-flowchart TB
-    subgraph Inputs["📥 Inputs"]
-        binary_sensor_ashlees_bedroom_window_contact["ashlees_bedroom_wind"]
-        binary_sensor_ashlees_bed_occupied["ashlees_bed_occupied"]
-    end
-    subgraph Logic["🧠 Logic"]
-        Ashlee["Ashlee"]
-        Ashlee["Ashlee"]
-        Ashlee["Ashlee"]
-        Ashlee["Ashlee"]
-        Ashlee["Ashlee"]
-    end
-    subgraph Outputs["📤 Outputs"]
-        switch_ashlees_bedroom_fan["ashlees_bedroom_fan"]
-    end
-    binary_sensor_ashlees_bedroom_window_contact --> Ashlee
-    binary_sensor_ashlees_bed_occupied --> Ashlee
-    Ashlee --> switch_ashlees_bedroom_fan
-```
-
----
-
-## How It Works
-
-This section explains the overall behavior and logic of the package.
-
-### Automation Logic
-
-**Ashlee**
-Triggered when: At 07:45:00
-
-**Ashlee**
-Triggered when: At 08:00:00
-
-**Ashlee**
-Triggered when: At input_datetime.childrens_bed_time
-
-*... plus 7 additional automations. See [Automations](#automations) section for details.*
-
-### Workflow Diagram
-
-The following diagram illustrates the automation flow:
-
-```mermaid
-flowchart LR
-    Ashlee["Ashlee"]
-    Ashlee["Ashlee"]
-    Ashlee["Ashlee"]
-    Ashlee["Ashlee"]
-    Ashlee["Ashlee"]
-    Ashlee["Ashlee"]
-    subgraph Triggers["📡 Triggers"]
-        time[Time]
-    end
-    time --> Ashlee
-```
+| Component | Purpose |
+|-----------|---------|
+| `cover.ashlees_bedroom_blinds` | Motorized blind control |
+| `binary_sensor.ashlees_bed_occupied` | Bed occupancy detection |
+| `binary_sensor.ashlees_bedroom_window_contact` | Window state monitoring |
+| `switch.ashlees_bedroom_fan` | Ceiling fan control |
+| `calendar.work` | Danny's work calendar |
+| `calendar.tsang_children` | Children's activities calendar |
 
 ---
 
 ## Automations
 
-Detailed documentation for each automation in this package.
+### Blind Control
 
-### Ashlee
+#### Ashlee's Bedroom: Open Blinds In The Morning
+**ID:** `1599994669457`
 
-**Automation ID:** `1599994669457`
-
-#### Trigger
-
-- At 07:45:00
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- `Ashlees Bedroom Blinds` state check
-- `Home Mode` is 'Guest'
-- `Ashlees Bedroom Blinds` is below input_number.blind_closed_position_threshold
-
-#### Actions
-
-1. Call cover service
-2. Call cover service
-3. Call cover service
-4. Execute actions in parallel
-5. Conditional action selection
-
-#### Flow Diagram
+Opens blinds at staggered times based on school schedule and activities.
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|At 07:45:00| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Ashlees Bedroom Blinds` ]
-    Condition1 --> Condition2[...and 2 more]
-    Condition2 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> Action1[Call cover service]
-    Action1 --> Action2[...and 4 more]
-    Action2 --> End2([End])
+    A["⏰ Time Trigger\n07:45 / 08:00 / 09:00 / 10:00"] --> B{"Blinds below threshold\n+ automations enabled?"}
+    B -->|No| Z["⛔ Skip"]
+    B -->|Yes| C{"Mode = Guest?"}
+    C -->|Yes| Z
+    C -->|No| D{"School day + activities\n+ workday?"}
+    D -->|Yes| E["🕖 07:45: Open blinds\n📝 Log: School day"]
+    D -->|No| F{"Activities found?"}
+    F -->|Yes| G["⏰ Open at activity time"]
+    F -->|No| H{"10:00 trigger + not No Children?"}
+    H -->|Yes| I["🕙 10:00: Open blinds"]
 ```
 
-### Ashlee
+**Triggers:**
+- 07:45, 08:00, 09:00, 10:00 daily
 
-**Automation ID:** `1599994669458`
+**Conditions:**
+- Blinds below `input_number.blind_closed_position_threshold`
+- `input_boolean.enable_ashlees_blind_automations` is `on`
+- Home mode is NOT "Guest"
 
-#### Trigger
+**Logic:**
+1. Check calendars for children's activities (exclude half term/holidays)
+2. If school day with activities → open at 07:45
+3. If activities found (but not half term/holidays) → open at activity time
+4. Otherwise → open at 10:00 fallback
 
-- At 08:00:00
+---
 
-#### Conditions
+#### Ashlee's Bedroom: Open Blinds In The Morning No Children Mode
+**ID:** `1599994669458`
 
-All conditions must be met for the automation to execute:
+Simplified opening for "No Children" mode.
 
-- `Home Mode` is 'No Children'
+**Triggers:**
+- 08:00 (workday) / 09:00 (non-workday)
 
-#### Actions
+**Conditions:**
+- Home mode is "No Children"
 
-1. Conditional action selection
+**Actions:**
+- Log mode and day type
+- Open blinds
 
-#### Flow Diagram
+---
+
+#### Ashlee's Bedroom: Timed Close Blinds
+**ID:** `1605925028960`
+
+Closes blinds at bedtime with smart window checking.
 
 ```mermaid
 flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|At 08:00:00| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Home Mode` is 'No Childr]
-    Condition1 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> Action1[Conditional action select]
-    Action1 --> End2([End])
+    A["⏰ Bedtime / 22:00"] --> B{"Blinds above threshold\n+ automations enabled?"}
+    B -->|No| Z["⛔ Skip"]
+    B -->|Yes| C{"Window still open?"}
+    C -->|Yes| D["⚠️ Log: Waiting for window close"]
+    C -->|No| E{"No Children mode?"}
+    E -->|Yes| F["🌇 Close blinds"]
+    E -->|No| G{"Bed sensor enabled?"}
+    G -->|Yes| H{"Bed occupied?"}
+    H -->|Yes| I["⏳ Skip - someone in bed"]
+    H -->|No| J["🌇 Close blinds"]
+    G -->|No| K["🌇 Close blinds"]
 ```
 
-### Ashlee
+**Triggers:**
+- At `input_datetime.childrens_bed_time`
+- At 22:00 (for No Children mode)
 
-**Automation ID:** `1605925028960`
+**Conditions:**
+- Blinds above `input_number.blind_closed_position_threshold`
+- `input_boolean.enable_ashlees_blind_automations` is `on`
 
-#### Trigger
-
-- At input_datetime.childrens_bed_time
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- `Ashlees Bedroom Blinds` state check
-- `Ashlees Bedroom Blinds` is above input_number.blind_closed_position_threshold
-
-#### Actions
-
-1. Conditional action selection
-
-#### Flow Diagram
-
-```mermaid
-flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|At input_datetime.childrens_be| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Ashlees Bedroom Blinds` ]
-    Condition1 --> Condition2[...and 1 more]
-    Condition2 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> Action1[Conditional action select]
-    Action1 --> End2([End])
-```
-
-### Ashlee
-
-**Automation ID:** `1622891806607`
-
-#### Trigger
-
-- When `Ashlees Bedroom Window Contact` changes from 'on' to 'off'
-
-#### Conditions
-
-All conditions must be met for the automation to execute:
-
-- `Ashlees Bedroom Blinds` state check
-- Time is after input_datetime.childrens_bed_time
-- `Ashlees Bedroom Blinds` is above input_number.blind_closed_position_threshold
-
-#### Actions
-
-- *See YAML for action details*
-
-#### Flow Diagram
-
-```mermaid
-flowchart TD
-    Start([Start]) --> Trigger{Trigger}
-    Trigger -->|When `Ashlees Bedroom Window C| CheckCondition{Conditions Met?}
-    CheckCondition -->|Yes| Condition1[`Ashlees Bedroom Blinds` ]
-    Condition1 --> Condition2[...and 2 more]
-    Condition2 --> Execute[Execute Actions]
-    CheckCondition -->|No| End1([End])
-    Execute --> End2([End])
-```
-
-### Ashlee
-
-**Automation ID:** `1655237597647`
-
-#### Trigger
-
-- When `Ashlees Bed Occupied` changes from 'off' to 'on'
-
-#### Actions
-
-1. Execute actions in parallel
-2. Conditional action selection
-
-### Ashlee
-
-**Automation ID:** `1655235874989`
-
-#### Trigger
-
-- When `Ashlees Bedroom Fan` changes to 'on'
-
-#### Actions
-
-1. Execute actions in parallel
-
-### Ashlee
-
-**Automation ID:** `1656355431188`
-
-#### Trigger
-
-- *See YAML for trigger details*
-
-#### Actions
-
-- *See YAML for action details*
-
-### Ashlee
-
-**Automation ID:** `1656355431189`
-
-#### Trigger
-
-- *See YAML for trigger details*
-
-#### Actions
-
-1. Execute actions in parallel
-
-### Ashlee
-
-**Automation ID:** `1656355431190`
-
-#### Trigger
-
-- *See YAML for trigger details*
-
-#### Actions
-
-1. Execute actions in parallel
-
-### Ashlee
-
-**Automation ID:** `1656355431191`
-
-#### Trigger
-
-- *See YAML for trigger details*
-
-#### Actions
-
-1. Execute actions in parallel
+**Logic:**
+- Window open → skip with warning
+- No Children mode → close at 22:00
+- Bed sensor enabled + someone in bed → skip
+- Otherwise → close blinds
 
 ---
 
-## Entities
+#### Ashlee's Bedroom: Window Closed After Dark
+**ID:** `1622891806607`
 
-Key entities used or created by this package.
+Catches up on closing if window was open at bedtime.
 
-### Template Sensors
+**Triggers:**
+- Window contact changes from `on` to `off` for 1+ minute
 
-- `Ashlees Bed Occupied`
+**Conditions:**
+- Blinds above threshold
+- Automations enabled
+- After children's bedtime
 
-### Referenced Entities
-
-- `calendar.work`
-- `calendar.tsang_children`
-- `binary_sensor.ashlees_bedroom_window_contact`
-- `binary_sensor.ashlees_bed_occupied`
-- `switch.ashlees_bedroom_fan`
-
----
-
-## Troubleshooting
-
-Common issues and how to resolve them.
-
-### Automation Issues
-
-| Issue | Possible Cause | Resolution |
-|-------|---------------|------------|
-| Automation not triggering | Entity unavailable or condition not met | Check entity states in Developer Tools |
-| Automation fires unexpectedly | Trigger too broad or condition missing | Review trigger entity and add conditions |
-| Actions not executing | Service call invalid or entity offline | Verify service and entity in YAML |
-
-### General Debugging
-
-1. Check Home Assistant logs for errors
-2. Verify all referenced entities exist in Developer Tools
-3. Test automations manually using the 'Run' button
-4. Review traces for executed automations to see execution path
+**Actions:**
+- Log message
+- Close blinds
 
 ---
 
-## Related Files
+### Bed Occupancy
 
-| File | Description |
-|------|-------------|
-| [`packages/rooms/bedroom3.yaml`](./bedroom3.yaml) | Main package YAML configuration |
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+#### Ashlee's Bedroom: Someone Is In Bed
+**ID:** `1655237597647`
 
----
+Actions when bed occupancy detected.
 
-## Notes
+**Triggers:**
+- Bed sensor changes to `on` for 30+ seconds
 
-### Design Decisions
-
-- **Ashlee** triggers on state transitions (edge detection) rather than continuous state
+**Actions (parallel):**
+- If bed sensor enabled + automations enabled + blinds open → close blinds
+- If automations enabled → turn off fan after 5 minutes
 
 ---
 
-*Last updated: 2026-04-09*
+#### Ashlee's Bedroom: Fan Turned On
+**ID:** `1655235874989`
+
+Starts fan cooldown timer when fan turns on.
+
+**Triggers:**
+- Fan changes to `on`
+
+**Actions:**
+- Send notification to Danny
+- Start 5-minute timer before fan auto-off check
+
+---
+
+### Fan Control
+
+#### Ashlee's Bedroom: Fan Timeout
+**ID:** `1656355431188`
+
+Turns off fan after timeout when no one is in bed.
+
+**Triggers:**
+- Timer finishes
+
+**Conditions:**
+- Fan is on
+- Bed not occupied
+
+**Actions:**
+- Turn off fan
+
+---
+
+#### Ashlee's Bedroom: No One In Bed And Fan Is On
+**ID:** `1656355431189`
+
+Turns off fan when bed becomes empty.
+
+**Triggers:**
+- Bed sensor changes to `off`
+
+**Conditions:**
+- Fan is on
+
+**Actions:**
+- Log message
+- Turn off fan
+
+---
+
+#### Ashlee's Bedroom: Someone In Bed After Dark
+**ID:** `1656355431190`
+
+Turns on fan when someone gets into bed after dark.
+
+**Triggers:**
+- Bed sensor changes to `on`
+
+**Conditions:**
+- After sunset
+- Fan not already on
+
+**Actions:**
+- Log message
+- Turn on fan
+
+---
+
+#### Ashlee's Bedroom: Morning Fan
+**ID:** `1656355431191`
+
+Turns on fan in the morning if bed is occupied.
+
+**Triggers:**
+- Time: 07:30
+
+**Conditions:**
+- Bed is occupied
+
+**Actions:**
+- Turn on fan
+
+---
+
+## Entity Reference
+
+### Covers
+
+| Entity | Purpose |
+|--------|---------|
+| `cover.ashlees_bedroom_blinds` | Motorized blind |
+
+### Binary Sensors
+
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.ashlees_bed_occupied` | Bed occupancy |
+| `binary_sensor.ashlees_bedroom_window_contact` | Window state |
+
+### Switches
+
+| Entity | Purpose |
+|--------|---------|
+| `switch.ashlees_bedroom_fan` | Ceiling fan |
+
+### Calendars
+
+| Entity | Purpose |
+|--------|---------|
+| `calendar.work` | Danny's work schedule |
+| `calendar.tsang_children` | Children's activities |
+
+### Input Booleans
+
+| Entity | Purpose |
+|--------|---------|
+| `input_boolean.enable_ashlees_blind_automations` | Blind control master switch |
+| `input_boolean.enable_ashlees_bed_sensor` | Bed sensor enable |
+
+---
+
+## Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| [Bedroom README](../bedroom/README.md) | Parent bedroom with children's door monitoring |
+| [Stairs README](../stairs/README.md) | Children's door states affect stairs lighting |
+| [HVAC README](../../integrations/hvac/README.md) | Central heating integration |
+
+---
+
+*Last updated: 2026-04-26*

@@ -1,122 +1,95 @@
+# Solcast Solar Forecasting
+
 [<- Back to Energy README](../README.md) · [Packages README](../../README.md) · [Main README](../../../README.md)
 
-# Solcast
+# Solcast Integration
 
-This package manages 1 automations and 0 scripts for solcast.
+This package manages Solcast solar forecasting integration with 1 automation and 1 script.
 
 ---
 
 ## Table of Contents
 
 - [Overview](#overview)
-- [Purpose](#purpose)
 - [How It Works](#how-it-works)
-- [Automations](#automations)
-- [Troubleshooting](#troubleshooting)
-- [Related Files](#related-files)
+- [Automation](#automation)
+- [Script](#script)
+- [Entity Reference](#entity-reference)
+- [Cross-References](#cross-references)
 
 ---
 
 ## Overview
 
-This package provides automation for **solcast**. It includes 1 automation and 0 scripts.
+Solcast provides granular solar generation forecasts that inform battery charging decisions and energy optimization. The integration updates forecasts daily at 08:00.
 
-### File Structure
-
-```
-packages/integrations/energy/
-├── solcast.yaml  # Main package configuration
-└── README.md                           # This documentation
-```
-
----
-
-## Purpose
-
-- **Solcast: Update Forecast**: 
-
-### Package Architecture
-
-The following diagram shows the high-level flow of this package:
-
-```mermaid
-flowchart TB
-    subgraph Logic["🧠 Logic"]
-        SolcastUpdateForecas["Solcast: Update Forecast"]
-    end
-```
+**Note:** Solcast has API usage limits. The script checks remaining API calls before updating.
 
 ---
 
 ## How It Works
 
-This section explains the overall behavior and logic of the package.
-
-### Automation Logic
-
-**Solcast: Update Forecast**
-Triggered when: At 08:00:00
-
-### Workflow Diagram
-
-The following diagram illustrates the automation flow:
-
 ```mermaid
-flowchart LR
-    SolcastUpdateFo["Solcast: Update Fore"]
-    subgraph Triggers["📡 Triggers"]
-    end
+flowchart TD
+    A["⏰ 08:00 Daily"] --> B["Check: API calls < limit?"]
+    B -->|Yes| C["📤 Update Solcast forecasts"]
+    B -->|No| D["⚠️ Log: API limit reached"]
+    C --> E["📊 Forecasts updated\nfor energy calculations"]
+    D --> F["⏸️ Skip update"]
 ```
 
 ---
 
-## Automations
-
-Detailed documentation for each automation in this package.
+## Automation
 
 ### Solcast: Update Forecast
+**ID:** `1691767286139`
 
-**Automation ID:** `1691767286139`
+Triggers daily Solcast forecast update at 08:00.
 
-#### Trigger
+**Triggers:**
+- Time: 08:00:00 daily
 
-- At 08:00:00
-
-#### Actions
-
-- *See YAML for action details*
-
----
-
-## Troubleshooting
-
-Common issues and how to resolve them.
-
-### Automation Issues
-
-| Issue | Possible Cause | Resolution |
-|-------|---------------|------------|
-| Automation not triggering | Entity unavailable or condition not met | Check entity states in Developer Tools |
-| Automation fires unexpectedly | Trigger too broad or condition missing | Review trigger entity and add conditions |
-| Actions not executing | Service call invalid or entity offline | Verify service and entity in YAML |
-
-### General Debugging
-
-1. Check Home Assistant logs for errors
-2. Verify all referenced entities exist in Developer Tools
-3. Test automations manually using the 'Run' button
-4. Review traces for executed automations to see execution path
+**Actions:**
+- Calls `script.update_solcast`
 
 ---
 
-## Related Files
+## Script
 
-| File | Description |
-|------|-------------|
-| [`packages/integrations/energy/solcast.yaml`](./solcast.yaml) | Main package YAML configuration |
-| [Integrations Overview](../README.md) | Overview of all integration packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
+### update_solcast
+
+Checks API usage and triggers forecast update.
+
+**Logic:**
+1. Compare `sensor.solcast_pv_forecast_api_used` against `sensor.solcast_pv_forecast_api_limit`
+2. If within limit → update forecasts + log to home log
+3. If at limit → log warning to home log
 
 ---
 
-*Last updated: 2026-04-09*
+## Entity Reference
+
+### Sensors (from Solcast Integration)
+
+| Entity | Purpose |
+|--------|---------|
+| `sensor.solcast_pv_forecast_forecast_today` | Today's total forecast |
+| `sensor.solcast_pv_forecast_forecast_tomorrow` | Tomorrow's forecast |
+| `sensor.solcast_pv_forecast_forecast_remaining_today` | Remaining generation today |
+| `sensor.solcast_pv_forecast_api_used` | API calls used this period |
+| `sensor.solcast_pv_forecast_api_limit` | API call limit |
+
+---
+
+## Cross-References
+
+| Document | Purpose |
+|----------|---------|
+| [Energy README](../README.md) | Parent energy package |
+| [Solar Assistant README](solar_assistant_README.md) | Solar inverter monitoring |
+| [EcoFlow README](ecoflow_README.md) | Battery charging from solar |
+
+---
+
+*Last updated: 2026-04-26*
