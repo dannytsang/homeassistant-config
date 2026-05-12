@@ -298,6 +298,20 @@ Turns off the airer when schedule ends.
 - Log message
 - Turn off `switch.airer`
 
+### Temperature
+
+#### Conservatory: Cold Temperature
+**ID:** `1674478124534`
+
+Triggers heating boost when temperature falls below 3°C.
+
+**Triggers:**
+- `sensor.conservatory_area_mean_temperature` drops below 3°C
+
+**Actions:**
+- Set climate preset to `boost`
+- Log message: "Conservatory fell below 3c. Boosting central heating."
+
 ---
 
 ### 3D Printer

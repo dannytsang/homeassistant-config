@@ -595,22 +595,6 @@ MQTT remote control for fan.
 
 ---
 
-#### Office: Front Door Status On For Long Time
-**ID:** `1743186662871`
-
-Turns off office light if front door has been closed for 3 minutes.
-
-**Triggers:**
-- `light.office_light` on for 3 minutes
-
-**Conditions:**
-- Front door is closed (`off`)
-
-**Actions:**
-- Turns off `light.office_light`
-
----
-
 ### Utilities
 
 The package includes various utility automations for device management and notifications.

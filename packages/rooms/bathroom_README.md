@@ -15,7 +15,7 @@ flowchart TB
         LIGHT_LEVEL[Light Level\nsensor.bathroom_area_mean_light_level]
         HUMIDITY[Humidity\nsensor.bathroom_motion_humidity]
         TEMP[Door Temperature\nsensor.bathroom_door_temperature]
-        SWITCH[Light Switch\nbinary_sensor.bathroom_light_input_0]
+        SWITCH[Light Switch\nbinary_sensor.bathroom_switch_input_0]
     end
 
     subgraph Logic["⚙️ Logic"]
@@ -24,7 +24,7 @@ flowchart TB
     end
 
     subgraph Outputs["💡 Outputs"]
-        LIGHTS[Bathroom Lights\nlight.bathroom_lights]
+        LIGHTS[Bathroom Lights\nswitch.bathroom_lights_2]
     end
 
     subgraph External["🔗 External"]
@@ -73,7 +73,7 @@ The lighting system uses a sophisticated decision tree:
 
 ### Humidity & Mold Prevention
 
-- **High Humidity Alert**: Triggers when humidity > 59.9% for 30+ minutes with door/window closed
+- **High Humidity Alert**: Triggers when humidity > 59.9% for 1+ minute with door/window closed
 - **Mold Indicator**: Calculates mold risk based on indoor humidity, indoor temperature, and outdoor temperature
 
 ### Toothbrush Integration
@@ -138,7 +138,7 @@ No Motion Detected
 |-----------|-------|
 | **ID** | `1754254675073` |
 | **Trigger** | Wall switch input changes |
-| **Entity** | `binary_sensor.bathroom_light_input_0` |
+| **Entity** | `binary_sensor.bathroom_switch_input_0` |
 | **Action** | If lights turned on manually, cancel auto-off timer |
 
 ### Bathroom: Light Timer Finished
@@ -149,14 +149,32 @@ No Motion Detected
 | **Trigger** | `timer.bathroom_light_off` finishes |
 | **Action** | Turn off lights + log event |
 
+### Bathroom: Fan Auto-Off (Low Humidity)
+
+| Attribute | Value |
+|-----------|-------|
+| **Type** | Sub-automation (choice branch) |
+| **Trigger** | `switch.bathroom_light_2` turns `off` |
+| **Conditions** | Fan switch (`switch.bathroom_fan_2`) is `on` AND humidity < 60% |
+| **Action** | Turn off fan (`switch.bathroom_fan`) + log event |
+
 ### Bathroom: High Humidity
 
 | Attribute | Value |
 |-----------|-------|
 | **ID** | `1680461746985` |
-| **Trigger** | Humidity > 59.9% for 30 minutes |
+| **Trigger** | Humidity > 59.9% for 1 minute |
 | **Conditions** | Window closed AND door closed |
 | **Action** | Send notification to Danny & Terina |
+
+### Bathroom: Light On For Long Time And Fan Off
+
+| Attribute | Value |
+|-----------|-------|
+| **ID** | `1777131323273` |
+| **Trigger** | `switch.bathroom_lights_2` on for 5+ minutes |
+| **Conditions** | Fan switch (`switch.bathroom_fan_2`) is `off` AND automations enabled |
+| **Action** | Turn on fan (`switch.bathroom_fan_2`) + log event |
 
 ### Bathroom: Danny's Toothbrush
 
@@ -215,7 +233,7 @@ Calculates mold risk based on:
 | `binary_sensor.bathroom_area_motion` | Aggregated area motion |
 | `binary_sensor.bathroom_door_contact` | Door contact sensor |
 | `binary_sensor.bathroom_window_contact` | Window contact sensor |
-| `binary_sensor.bathroom_light_input_0` | Wall switch input |
+| `binary_sensor.bathroom_switch_input_0` | Wall switch input |
 
 ### Sensors
 
@@ -232,7 +250,7 @@ Calculates mold risk based on:
 
 | Entity | Description |
 |--------|-------------|
-| `light.bathroom_lights` | Main bathroom light group |
+| `switch.bathroom_lights_2` | Main bathroom light switch |
 | `light.bathroom` | Individual bathroom light (for flashing) |
 
 ### Input Helpers
