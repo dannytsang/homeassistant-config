@@ -24,7 +24,7 @@ flowchart TB
     end
 
     subgraph Outputs["💡 Outputs"]
-        LIGHTS[Bathroom Lights\nlight.bathroom_lights]
+        LIGHTS[Bathroom Lights\nswitch.bathroom_lights_2]
     end
 
     subgraph External["🔗 External"]
@@ -149,6 +149,15 @@ No Motion Detected
 | **Trigger** | `timer.bathroom_light_off` finishes |
 | **Action** | Turn off lights + log event |
 
+### Bathroom: Fan Auto-Off (Low Humidity)
+
+| Attribute | Value |
+|-----------|-------|
+| **Type** | Sub-automation (choice branch) |
+| **Trigger** | `switch.bathroom_light_2` turns `off` |
+| **Conditions** | Fan switch (`switch.bathroom_fan_2`) is `on` AND humidity < 60% |
+| **Action** | Turn off fan (`switch.bathroom_fan`) + log event |
+
 ### Bathroom: High Humidity
 
 | Attribute | Value |
@@ -232,7 +241,7 @@ Calculates mold risk based on:
 
 | Entity | Description |
 |--------|-------------|
-| `light.bathroom_lights` | Main bathroom light group |
+| `switch.bathroom_lights_2` | Main bathroom light switch |
 | `light.bathroom` | Individual bathroom light (for flashing) |
 
 ### Input Helpers
