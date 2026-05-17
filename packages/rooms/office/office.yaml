@@ -669,10 +669,14 @@ automation:
         entity_id: sun.sun
         attribute: elevation
         above: input_number.office_blinds_afternoon_sun_elevation_threshold
-      - condition: numeric_state
-        entity_id: cover.office_blinds
-        attribute: current_tilt_position
-        below: 50
+      - or:
+          - condition: numeric_state
+            entity_id: cover.office_blinds
+            attribute: current_tilt_position
+            above: 50
+          - condition: state
+            entity_id: binary_sensor.office_windows
+            state: "50"
       - condition: state
         entity_id: binary_sensor.office_windows
         state: "off"
