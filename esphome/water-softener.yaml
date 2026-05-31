@@ -11,7 +11,7 @@ esp32:
   framework:
     type: esp-idf
 
-# https://community.home-assistant.io/t/using-esphome-to-build-a-water-flow-rate-meter/119380/386?u=tuxinator94
+# https://community.home-assistant.io/t/using-esphome-to-build-a-water-flow-rate-meter/119380/386
 globals:
   - id: water_offset
     type: float
@@ -55,7 +55,10 @@ sensor:
     name: "Salt Level"
 
   - platform: pulse_counter
-    pin: GPIO25
+    pin:
+      number: GPIO25
+      mode:
+        input: true
     unit_of_measurement: 'L/min'
     id: water_usage
     name: 'Current water usage'
@@ -64,9 +67,11 @@ sensor:
       - lambda: |-
           if (id(k_factor) > 0) return (x / id(k_factor));
           else return 0;
-    
     total:
       name: 'Water Usage Pulse'
+      unit_of_measurement: "pulses"
+      accuracy_decimals: 0
+      disabled_by_default: true
 
   - platform: integration
     id: total_water_raw
@@ -84,7 +89,7 @@ sensor:
     lambda: return id(total_water_raw).state - id(water_offset);
 
   - platform: template
-    name: "Total Water MC"
+    name: "Total Water m³"
     id: total_water_m3
     unit_of_measurement: 'm³'
     device_class: water
