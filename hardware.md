@@ -221,9 +221,14 @@ A powerful and relatively cheap SOC board to power home projects. I have these m
 
 **Integration:** [Reolink](https://www.home-assistant.io/integrations/reolink/)
 
+## <a name="reiga"></a>UseeLink
+Fans
+* [52 Ceiling Fan](https://www.amazon.co.uk/dp/B0FMDXSQQW) Smart ceiling fan with wifi connectivity.
+
+**Integration:** Tuya
+
 ## <a name="ring"></a>Ring
 Does not have all the support with [Home Assistant](https://home-assistant.io), however [HACS](https://hacs.xyz/) fills the gap. Not too many issues to report and works well in general. The 1st generation alarm works with 2nd generation sensors.
-* [Doorbell 2](https://en-uk.ring.com/products/video-doorbell-2)
 * [Security 1st Gen](https://www.amazon.co.uk/ring-alarm-5-piece-kit-home-security-system-with-optional-assisted-monitoring-no-long-term-commitments-works-with-alexa/dp/B087Q3BR8M0)
 * [Ring Alarm Contact Sensor 1st Gen](https://www.amazon.co.uk/gp/product/B07QRZ8TNY/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1)
 * [Ring Alarm Contact Sensor 2nd Gen](https://www.amazon.co.uk/ring-alarm-contact-sensor-2nd-generation/dp/B08L5BZFJ7/ref=sr_1_3?crid=2EHCOKQXDB8D&keywords=ring+alarm&qid=1640880930&sprefix=ring+alarm%2Caps%2C81&sr=8-3)
@@ -285,6 +290,7 @@ Very well priced IoT device manufacturer. I am using the temperature sensor for 
 Fully kitted networking gear of choice and provides really good integration with [Home Assistant](https://home-assistant.io). I have also gone towards their cameras and protect system.
 * [G4 Instant](https://techspecs.ui.com/unifi/cameras-nvrs/camera-g4-instant)
 * [G5 Flex](https://techspecs.ui.com/unifi/cameras-nvrs/uvc-g5-flex)
+* [G6 Entry Pro](https://techspecs.ui.com/unifi/door-access/uvc-g6-pro-entry)
 * [G6 Instant](https://uk.store.ui.com/uk/en/category/cameras-compact/products/uvc-g6-ins)
 * [G6 Turret](https://uk.store.ui.com/uk/en/category/cameras-dome-turret/products/uvc-g6-turret)
 * [Unifi Dream Machine Pro](https://uk.store.ui.com/uk/en/collections/unifi-dream-machine/products/udm-pro)
