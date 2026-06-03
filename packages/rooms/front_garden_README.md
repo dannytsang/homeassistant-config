@@ -145,25 +145,6 @@ flowchart TD
 
 ---
 
-#### Front Garden: Doorbell Camera Updated
-**ID:** `1621070004545`
-
-Automatically downloads doorbell footage when camera updates.
-
-**Triggers:**
-- `camera.front_door` state change (not to `unavailable`)
-
-**Conditions:**
-- `last_video_id` attribute differs from stored `input_text.doorbell_last_video_id`
-
-**Actions:**
-1. Downloads latest video to `/front_door/latest.mp4`
-2. Uses `downloader.download_file` service
-
-**Note:** Shell command for archiving is commented out due to a Home Assistant bug (see [issue #21599](https://github.com/home-assistant/home-assistant.io/issues/21599))
-
----
-
 ### Camera
 
 #### Front Garden: Vehicle Detected On Driveway
