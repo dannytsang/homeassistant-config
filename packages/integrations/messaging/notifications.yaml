@@ -369,13 +369,13 @@ script:
           - repeat:
               for_each: "{{ mobile|default([], true) }}"
               sequence:
-                - action: script.post_home_assistant_direct_notification
+                - action: script.post_to_home_assistant_with_url_attachment
                   data:
                     message: "{{ message }}"
                     title: "{{ title|default(none, true) }}"
                     people: "{{ repeat.item }}"
-                    data:
-                      image: "{{ url }}"
+                    url: "{{ url }}"
+                    url_type: "{{ url_type }}"
                   continue_on_error: true
           - repeat:
               for_each: "{{ telegram|default([], true) }}"
