@@ -143,6 +143,18 @@ automation:
       - action: script.refresh_octopus_intelligent_dispatching
         data: {}
     mode: single
+  - id: "168962611782"
+    alias: Refresh intelligent dispatches
+    description: "Example from: https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches"
+    triggers:
+      - trigger: state
+        entity_id: sensor.myenergi_zappi_plug_status
+        to: "EV Disconnected"
+    conditions: []
+    actions:
+      - action: script.refresh_octopus_intelligent_dispatching
+        data: {}
+    mode: single
 
 script:
   refresh_octopus_intelligent_dispatching:
@@ -150,5 +162,4 @@ script:
     sequence:
       - action: octopus_energy.refresh_intelligent_dispatches
         target:
-          entity_id:
-            - binary_sensor.octopus_energy_intelligent_dispatching
+          entity_id: binary_sensor.octopus_energy_00000000_0009_4000_8020_00000007f36a_intelligent_dispatching
