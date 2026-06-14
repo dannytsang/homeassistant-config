@@ -1,12 +1,32 @@
-[<- Back to README](../../README.md)
+[<- Back to README](../README.md)
 
 # /packages Folder
 
-This directory contains Home Assistant configuration organized as [packages](https://www.home-assistant.io/docs/configuration/packages/#create-a-packages-folder). Packages allow related configuration (automations, sensors, scripts) to be grouped together in a single YAML file.
+Last reviewed: 2026-06-14
+
+This directory contains Home Assistant configuration organized as [packages](https://www.home-assistant.io/docs/configuration/packages/#create-a-packages-folder). Packages group related automations, scripts, scenes, sensors, helpers, commands, and integration configuration by room or functional area.
+
+## Current Inventory
+
+| Metric | Count |
+|--------|-------|
+| Package YAML files | 71 |
+| Package README files | 64 |
+| Package automations | 378 |
+| Package scripts | 133 |
+| Package scenes | 64 |
+| Package sensors | 83 |
+| Package template blocks | 46 |
+| Package groups | 16 |
+| Package MQTT entries | 122 |
+| REST commands | 3 |
+| Shell commands | 3 |
+| Conversation blocks | 1 |
+| Intent scripts | 13 |
 
 ## Why Packages?
 
-The main reason for using packages is to better manage configurations in a way that makes logical sense — grouping by room or integration rather than by entity type. This comes at the cost of not being able to edit some entities from the UI (Lovelace), but makes the configuration more maintainable and portable.
+Packages keep related configuration together by room or integration rather than by entity type. This makes the configuration easier to review, move, and remove, at the cost of some entities not being editable through the Home Assistant UI.
 
 ### Automation Naming Convention
 
@@ -16,8 +36,9 @@ Automations stored in packages use a caret (`^`) prefix to denote they cannot be
 
 | Category | Document | Description |
 |----------|----------|-------------|
-| **Rooms Overview** | [rooms/README.md](rooms/README.md) | All room packages with quick links |
-| **Integrations Overview** | [integrations/README.md](integrations/README.md) | All integration packages |
+| **Rooms Overview** | [rooms/README.md](rooms/README.md) | All room packages with quick links and package counts |
+| **Integrations Overview** | [integrations/README.md](integrations/README.md) | All integration packages with package counts |
+| **Setup Statistics** | [../setup_statistics.md](../setup_statistics.md) | Current package inventory and automation analysis |
 | **This File** | [packages/README.md](README.md) | Package architecture guide |
 
 ## Folder Structure
@@ -26,7 +47,7 @@ Configuration is split into three categories, in priority order:
 
 1. **`rooms/`** - Highest priority. Settings based on physical rooms in the house.
 2. **`integrations/`** - Integration-specific configuration. Self-contained per integration.
-3. **Root folder** - Catch-all for files that don't fit the above categories.
+3. **Root folder** - Catch-all for files that do not fit the above categories.
 
 ### Priority Example
 
@@ -36,19 +57,19 @@ A new light in the lounge would go into `/packages/rooms/living_room/` rather th
 
 ## Rooms
 
-Configuration organized by physical rooms in the house. Each room package contains automations, scenes, scripts, and sensors specific to that area.
+Configuration organized by physical rooms in the house. Each room package contains automations, scenes, scripts, sensors, and templates specific to that area.
 
 See [Rooms Overview](rooms/README.md) for detailed room documentation.
 
 | Room | Description | Documentation | Setup Guide |
 |------|-------------|---------------|-------------|
-| `office/` | Office automation with motion lighting, blind control, computer presence | [README](rooms/office/README.md) | [SETUP](rooms/office/OFFICE-SETUP.md) |
-| `kitchen/` | Kitchen with appliance monitoring, oven, dishwasher, smoke alarm | [README](rooms/kitchen/README.md) | [SETUP](rooms/kitchen/KITCHEN-SETUP.md) |
+| `office/` | Office automation with motion lighting, blind control, computer presence, Steam monitoring | [README](rooms/office/README.md) | [SETUP](rooms/office/OFFICE-SETUP.md) |
+| `kitchen/` | Kitchen with appliance monitoring, oven, dishwasher, smoke alarm, MEATER monitoring | [README](rooms/kitchen/README.md) | [SETUP](rooms/kitchen/KITCHEN-SETUP.md) |
 | `porch/` | Front door, motion lighting, lock status, NFC entry | [README](rooms/porch/README.md) | [SETUP](rooms/porch/PORCH-SETUP.md) |
 | `stairs/` | Motion lighting with children's door integration, Magic Mirror | [README](rooms/stairs/README.md) | [SETUP](rooms/stairs/STAIRS-SETUP.md) |
 | `living_room/` | RGB lighting, TV/media control, blind automation | [README](rooms/living_room/README.md) | [SETUP](rooms/living_room/LIVING-ROOM-SETUP.md) |
 | `bedroom/` | Sleep As Android, AWTRIX, blind control | [README](rooms/bedroom/README.md) | [SETUP](rooms/bedroom/BEDROOM-SETUP.md) |
-| `utility/` | Washing machine, fridge/freezer monitoring | [README](rooms/utility_README.md) | - |
+| `utility.yaml` | Washing machine, fridge/freezer monitoring | [README](rooms/utility_README.md) | - |
 | `conservatory/` | Airer, OctoPrint 3D printer, climate | [README](rooms/conservatory/README.md) | - |
 | `bathroom.yaml` | Bathroom automation | [README](rooms/bathroom_README.md) | - |
 | `bedroom2.yaml` | Bedroom 2 (Leo's room) | [README](rooms/bedroom2_README.md) | - |
@@ -61,7 +82,7 @@ See [Rooms Overview](rooms/README.md) for detailed room documentation.
 
 ## Integrations
 
-Configuration organized by integration. Each integration package is self-contained — removing the integration only requires deleting its package file.
+Configuration organized by integration. Each integration package is self-contained; removing the integration normally only requires deleting its package file and any related UI integration setup.
 
 See [Integrations Overview](integrations/README.md) for detailed integration documentation.
 
@@ -69,40 +90,41 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `energy/` | Core energy management, solar forecasting, battery control | [README](integrations/energy/README.md) |
-| `energy/ecoflow.yaml` | EcoFlow power stations | [README](integrations/energy/README.md) |
+| `energy/energy.yaml` | Core energy management, groups, grid/battery scripts | [README](integrations/energy/energy_README.md) |
+| `energy/ecoflow.yaml` | EcoFlow power stations | [README](integrations/energy/ecoflow_README.md) |
 | `energy/solar_assistant.yaml` | Solar inverter monitoring | [README](integrations/energy/solar_assistant_README.md) |
 | `energy/zappi.yaml` | MyEnergi Zappi EV charger | [README](integrations/energy/zappi_README.md) |
-| `energy/eddi.yaml` | MyEnergi Eddi solar diverter | [README](integrations/hvac/README.md) |
 | `energy/predbat.yaml` | Predbat battery optimization | [README](integrations/energy/predbat_README.md) |
 | `energy/solcast.yaml` | Solar forecasting | [README](integrations/energy/solcast_README.md) |
-| `energy/octopus_energy.yaml` | Octopus Agile tariff | [README](integrations/energy/octopus_energy_README.md) |
+| `energy/octopus_energy.yaml` | Octopus Energy tariff and dispatching | [README](integrations/energy/octopus_energy_README.md) |
+| `energy/energy_conversations.yaml` | Energy conversation intents | [README](integrations/energy/README.md) |
 
 ### Transport & Vehicles
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `transport/tesla.yaml` | Tesla vehicle integration (TeslaMate) | [README](integrations/transport/README.md) |
-| `transport/google_travel.yaml` | Google Travel time | [README](integrations/transport/google_travel_README.md) |
+| `transport/tesla.yaml` | Tesla vehicle integration (TeslaMate MQTT) | [README](integrations/transport/tesla_README.md) |
+| `transport/google_travel.yaml` | Google Travel time helpers | [README](integrations/transport/google_travel_README.md) |
 
 ### Messaging & Notifications
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `messaging/notifications.yaml` | Core notification system | [README](integrations/messaging/README.md) |
+| `messaging/notifications.yaml` | Core notification scripts | [README](integrations/messaging/README.md) |
 | `messaging/slack.yaml` | Slack integration | [README](integrations/messaging/README.md) |
 | `messaging/discord.yaml` | Discord integration | [README](integrations/messaging/README.md) |
 | `messaging/telegram.yaml` | Telegram integration | [README](integrations/messaging/README.md) |
 | `messaging/home_assistant_mobile.yaml` | Mobile app notifications | [README](integrations/messaging/README.md) |
 | `messaging/callmebot.yaml` | WhatsApp via CallMeBot | [README](integrations/messaging/README.md) |
+| `messaging/message_callback.yaml` | Actionable notification callback handling | [README](integrations/messaging/README.md) |
 
 ### Climate & HVAC
 
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
-| `hvac/hive.yaml` | Hive heating control | [README](integrations/hvac/README.md) |
-| `hvac/hvac.yaml` | General HVAC automation | [README](integrations/hvac/README.md) |
-| `hvac/eddi.yaml` | Eddi solar diverter | [README](integrations/hvac/README.md) |
+| `hvac/hive.yaml` | Hive heating control | [README](integrations/hvac/hive_README.md) |
+| `hvac/hvac.yaml` | General HVAC automation and templates | [README](integrations/hvac/hvac_README.md) |
+| `hvac/eddi.yaml` | MyEnergi Eddi solar diverter | [README](integrations/hvac/eddi_README.md) |
 
 ### Other Integrations
 
@@ -122,7 +144,6 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | `nuki.yaml` | Nuki smart door lock | [README](integrations/nuki_README.md) |
 | `owntracks.yaml` | OwnTracks location publishing | [README](integrations/owntracks_README.md) |
 | `paperless.yaml` | Paperless-NGX document notifications | [README](integrations/paperless_README.md) |
-| `pihole.yaml` | Pi-hole DNS ad filtering | [README](integrations/pihole_README.md) |
 | `sftpgo.yaml` | SFTPGo file server commands | [README](integrations/sftpgo_README.md) |
 | `smoke_alarm.yaml` | Nest Protect smoke / CO detection | [README](integrations/smoke_alarm_README.md) |
 | `spotify.yaml` | Spotify playback logging | [README](integrations/spotify_README.md) |
@@ -137,7 +158,7 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 
 ## Root Folder Files
 
-Files that don't fit into the room or integration categories:
+Files that do not fit into the room or integration categories:
 
 | File | Description | Documentation |
 |------|-------------|---------------|
@@ -146,20 +167,7 @@ Files that don't fit into the room or integration categories:
 | `home_assistant.yaml` | HA lifecycle, backups, upgrades, purge | [README](home_assistant_README.md) |
 | `time.yaml` | Scheduled automations, bedtime announcements | [README](time_README.md) |
 | `smoke_alarms.yaml` | Smoke alarm coordination, camera snapshots | [README](smoke_alarms_README.md) |
-| `shared_helpers.yaml` | Shared template sensors (motion+dark helpers) | [README](shared_helpers_README.md) |
-| `recorder.yaml` | Database and history configuration | - |
-| `logger.yaml` | Logging configuration | - |
-| `rest.yaml` | REST command definitions | - |
-| `shell.yaml` | Shell command definitions | - |
-| `template.yaml` | Global template sensors | - |
-| `command_line.yaml` | Command line sensors | - |
-| `mqtt.yaml` | MQTT configuration | - |
-| `notify.yaml` | Notification services | - |
-| `group.yaml` | Group definitions | - |
-| `zone.yaml` | Zone definitions | - |
-| `timer.yaml` | Global timers | - |
-| `counter.yaml` | Global counters | - |
-| `input_*.yaml` | Input helpers (booleans, numbers, selects, etc.) | - |
+| `shared_helpers.yaml` | Shared logging and motion/dark helpers | [README](shared_helpers_README.md) |
 
 ---
 
@@ -169,21 +177,22 @@ Files that don't fit into the room or integration categories:
 |----------|---------|
 | [Rooms Overview](rooms/README.md) | Detailed documentation for all room packages |
 | [Integrations Overview](integrations/README.md) | Detailed documentation for all integration packages |
+| [Setup Statistics](../setup_statistics.md) | Current counts and package inventory |
 
 ## Adding New Packages
 
 When adding new configuration:
 
-1. **Room-based first** - If it's specific to a room, add it to that room's package
-2. **Integration second** - If it's integration-specific, create an integration package
-3. **Root last** - Only use root for truly global configuration
+1. **Room-based first** - If it is specific to a room, add it to that room's package.
+2. **Integration second** - If it is integration-specific, create an integration package.
+3. **Root last** - Only use root for truly global configuration.
 
 ### Documentation
 
-When creating significant new packages, consider adding a README.md in the same folder documenting:
+When creating significant new packages, add or update a README in the same folder documenting:
 - Overview of what the package does
 - Key automations and their triggers
 - Important sensors and their purposes
-- Configuration options (input booleans, numbers, etc.)
+- Configuration options such as input booleans, numbers, and selects
 - Entity reference
 - Links to related setup guides or external documentation
