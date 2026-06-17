@@ -1,4 +1,4 @@
-# Home Assistant Configuration - Complete Reference Index
+# Home Assistant Configuration - Codex Reference Index
 
 **Last Updated:** 2026-06-14
 **Configuration Status:** Production-Ready | Professional Grade
@@ -8,6 +8,14 @@
 ## Overview
 
 This Home Assistant configuration is a **professional-grade smart home automation system** with sophisticated energy management, comprehensive security, and intelligent comfort automation.
+
+### Quick Statistics
+- **7,604 total states** across the live system (see `statistics.md`)
+- **380 YAML-defined automations** (378 in packages, 2 deprecated UI automations)
+- **139 YAML-defined scripts** (133 in packages, 6 UI scripts)
+- **67 YAML-defined scenes** (64 in packages, 3 UI scenes)
+- **567 live switch entities** with extensive power monitoring
+- **3,359 live sensor entities** plus 83 package-defined sensor entries
 
 ---
 
@@ -200,7 +208,7 @@ Complete automation YAML reference with all trigger types, conditions, actions, 
 ### Critical Rules
 - ❌ Never use singular `response_variable:` - always plural `response_variables:`
 - ❌ Never use `condition: service:` - use `action: domain.service`
-- ❌ Never add Claude attribution to commits - user-attributed only
+- ❌ Never add assistant attribution to commits - user-attributed only
 - ✅ Always validate automation IDs are unique (13-digit numbers)
 - ✅ Always use `| float(0)` for sensor comparisons
 - ✅ Always include logging in automations
