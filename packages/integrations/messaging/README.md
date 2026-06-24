@@ -100,7 +100,7 @@ packages/integrations/messaging/
 | `person.danny` | `notify.mobile_app_top_dog` |
 | `person.terina` | `notify.mobile_app_top_dog` + `notify.mobile_app_oneplus_10` |
 | `person.leo` | `notify.mobile_app_ipad_air_4th_generation_6730` |
-| `person.ashlee` | `notify.mobile_app_ipad_4` |
+| `person.ashlee` | `notify.ashlee_s_ipad` |
 
 Platform preference per person is resolved dynamically at notification time using the `get_preferred_direct_message_platform.jinja` macro, reading from `input_text.direct_message_list`.
 
@@ -255,7 +255,7 @@ Routes a message to the correct mobile app notify service based on the `people` 
 | `person.danny` | `notify.mobile_app_top_dog` |
 | `person.terina` | `notify.mobile_app_top_dog` + `notify.mobile_app_oneplus_10` |
 | `person.leo` | `notify.mobile_app_ipad_air_4th_generation_6730` |
-| `person.ashlee` | `notify.mobile_app_ipad_4` |
+| `person.ashlee` | `notify.ashlee_s_ipad` |
 
 ---
 
