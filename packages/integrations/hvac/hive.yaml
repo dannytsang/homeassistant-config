@@ -18,7 +18,7 @@ automation:
       - action: script.send_direct_notification
         data:
           message: Thermostat switched to auto mode (again).
-          title: ":hotsprings: :droplet: Boiler"
+          title: "♨️ :droplet: Boiler"
           people:
             entity_id:
               - person.danny
@@ -81,7 +81,7 @@ automation:
                 data:
                   message: >-
                     In Holiday mode. Skipping turning off central heating.
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
         default:
           - parallel:
@@ -89,7 +89,7 @@ automation:
                 data:
                   message: >-
                     Thermostat switched off. Setting temperature to 7c.
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
               - action: climate.set_temperature
                 target:
@@ -139,7 +139,7 @@ automation:
       - action: script.send_to_home_log
         data:
           message: Hot water mode changed to {{ states('select.hive_water_mode') }}
-          title: ":hotsprings: :droplet: Boiler"
+          title: "♨️ :droplet: Boiler"
       - choose:
           - conditions:
               - condition: state
@@ -149,7 +149,7 @@ automation:
               - action: script.send_direct_notification
                 data:
                   message: In holiday mode so hot water should not be on. Turning hot water off.
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   people:
                     entity_id:
                       - person.danny
@@ -183,7 +183,7 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning on hot water.
-                  title: ":hotsprings: Central Heating"
+                  title: "♨️ Central Heating"
                   log_level: "Debug"
           - alias: "Already Heated Hot water"
             conditions:
@@ -202,13 +202,13 @@ automation:
 
 
                     Skipping scheduled turning on hot water.
-                  title: ":hotsprings: Central Heating"
+                  title: "♨️ Central Heating"
                   log_level: "Normal"
         default:
           - action: script.send_to_home_log
             data:
               message: Turning on hot water from schedule.
-              title: ":hotsprings: Central Heating"
+              title: "♨️ Central Heating"
               log_level: "Debug"
           - action: script.set_how_water_to_on
             data: {}
@@ -243,16 +243,89 @@ automation:
               - action: script.send_to_home_log
                 data:
                   message: In Holiday mode. Skipping turning off hot water.
-                  title: ":hotsprings: Central Heating"
+                  title: "♨️ Central Heating"
                   log_level: "Normal"
         default:
           - action: script.send_to_home_log
             data:
               message: Turning off hot water from schedule.
-              title: ":hotsprings: Central Heating"
+              title: "♨️ Central Heating"
               log_level: "Normal"
           - action: script.set_hot_water_to_off
             data: {}
+    mode: single
+  - id: "1781974291399"
+    alias: "HVAC: Hot Water On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - select.hive_water_mode
+        not_to: "off"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Hot water Turned on. Starting Timer
+              title: HVAC
+          - action: timer.start
+            metadata: {}
+            target:
+              entity_id: timer.hot_water_on
+            data:
+              duration:
+                hours: 0
+                minutes: 30
+                seconds: 0
+    mode: single
+  - id: "1781974291400"
+    alias: "HVAC: Hot Water Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - select.hive_water_mode
+        to: "off"
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Hot water Turned off. Cancelling Timer
+              title: "♨️ Central Heating"
+          - action: timer.cancel
+            metadata: {}
+            target:
+              entity_id: timer.hot_water_on
+    mode: single
+  - id: "1781974497124"
+    alias: "HVAC: Hot Water Check"
+    description: ""
+    triggers:
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.hot_water_on
+    conditions: []
+    actions:
+      - choose:
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.central_heating_pump_temperature
+                below: 40
+            sequence:
+              - action: script.send_direct_notification
+                metadata: {}
+                data:
+                  suppress_if_quiet: true
+                  title: "⚠️♨️ Central Heating⚠️"
+                  message: Hot water did not come on.
+                  priority: high
     mode: single
 
 schedule:
@@ -397,7 +470,7 @@ script:
               - action: script.send_to_home_log
                 data:
                   message: "Setting heating to :running: away mode."
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
               - action: climate.set_temperature
                 target:
@@ -424,7 +497,7 @@ script:
               - action: script.send_to_home_log
                 data:
                   message: "Setting heating to :house_with_garden: home mode."
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
               - sequence:
                   - action: script.check_and_run_central_heating
@@ -444,7 +517,7 @@ script:
               - action: script.send_to_home_log
                 data:
                   message: "Setting heating to off."
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
               - action: climate.set_temperature
                 target:
@@ -475,7 +548,7 @@ script:
                 data:
                   message: >-
                     In Holiday mode. Skipping turning on central heating.
-                  title: ":hotsprings: :droplet: Boiler"
+                  title: "♨️ :droplet: Boiler"
                   log_level: "Normal"
           - conditions:
               - or:
@@ -498,7 +571,7 @@ script:
                     data:
                       message: >-
                         Thermostat switched on. Setting temperature to {{ state_attr('schedule.central_heating', 'temperature') }}.
-                      title: ":hotsprings: :droplet: Boiler"
+                      title: "♨️ :droplet: Boiler"
                       log_level: "Normal"
                   - action: climate.set_temperature
                     target:
@@ -517,7 +590,7 @@ script:
           - action: script.send_to_home_log
             data:
               message: Turning off schedule.
-              title: ":hotsprings: :droplet: Boiler"
+              title: "♨️ :droplet: Boiler"
               log_level: "Normal"
     mode: single
   check_and_run_hot_water:
@@ -548,7 +621,7 @@ script:
               - action: script.send_direct_notification
                 data:
                   message: Hive central heating is offline.
-                  title: "⚠️ :hotsprings: :droplet: Boiler ⚠️"
+                  title: "⚠️ ♨️ :droplet: Boiler ⚠️"
                   people:
                     entity_id:
                       - person.danny
@@ -564,7 +637,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: "Turning off the hot water."
-                      title: ":hotsprings: :droplet: Boiler"
+                      title: "♨️ :droplet: Boiler"
                       log_level: "Debug"
                   - action: select.select_option
                     target:
@@ -587,7 +660,7 @@ script:
               - action: script.send_direct_notification
                 data:
                   message: Hive central heating is offline.
-                  title: "⚠️ :hotsprings: :droplet: Boiler ⚠️"
+                  title: "⚠️ ♨️ :droplet: Boiler ⚠️"
                   people:
                     entity_id:
                       - person.danny
@@ -603,7 +676,7 @@ script:
                   - action: script.send_to_home_log
                     data:
                       message: "Turning on the hot water."
-                      title: ":hotsprings: :droplet: Boiler"
+                      title: "♨️ :droplet: Boiler"
                       log_level: "Debug"
                   - action: select.select_option
                     target:
