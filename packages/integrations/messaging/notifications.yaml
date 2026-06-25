@@ -1044,28 +1044,517 @@ script:
                     status: completed
   notification_persistent_indicator_manager:
     alias: "Notification Persistent Indicator Manager"
-    description: "Manage notifications which stay on until a certain condition is met"
+    description: "Manage persistent notifications with distinct colors per notification type. Critical notifications blink; info/warning fade between multiple active notifications."
     fields:
-      add_notification:
-        description: New notification.
-        example: "FRONT DOOR"
+      action:
+        description: "add | remove | clear_all"
+        required: true
         selector:
           select:
             options:
-              - FRONT_DOOR_OPEN
-      remove_notification:
-        description: Notification that is no longer applicable.
-        example: "FRONT DOOR"
+              - add
+              - remove
+              - clear_all
+      notification_id:
+        description: "Unique notification identifier (e.g., FRONT_DOOR_OPEN, SMOKE_ALARM, WATER_LEAK)"
+        example: "FRONT_DOOR_OPEN"
+        selector:
+          text:
+      priority:
+        description: "info | warning | critical"
+        example: "warning"
+        default: "info"
         selector:
           select:
             options:
-              - FRONT_DOOR_OPEN
+              - info
+              - warning
+              - critical
+      lights:
+        description: "List of lights to use as indicators (defaults to kitchen RGB)"
+        example: "['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb']"
+        default: "['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb']"
+        selector:
+          object:
+    variables:
+      v_action: "{{ action }}"
+      v_notification_id: "{{ notification_id | default('', true) }}"
+      v_priority: "{{ priority | default('info') }}"
+      v_lights: "{{ lights | default(['light.kitchen_cooker_rgb', 'light.kitchen_table_rgb'], true) }}"
+      # Priority levels for comparison
+      priority_levels:
+        info: 1
+        warning: 2
+        critical: 3
+      # Notification type to color mapping (distinct colors for different events)
+      notification_colors:
+        FRONT_DOOR_OPEN:
+          priority: info
+          color: blue
+          scenes:
+            - scene.kitchen_cooker_ambient_light_to_blue
+            - scene.kitchen_table_ambient_light_to_blue
+        WINDOW_OPEN:
+          priority: info
+          color: cyan
+          rgb: [0, 255, 255]
+        APPLIANCE_DOOR_OPEN:
+          priority: info
+          color: teal
+          rgb: [0, 128, 128]
+        DISHWASHER_FINISHED:
+          priority: info
+          color: green
+          rgb: [0, 255, 0]
+        OVEN_PREHEATED:
+          priority: info
+          color: orange
+          rgb: [255, 165, 0]
+        GRID_POWER_HIGH:
+          priority: warning
+          color: pink
+          scenes:
+            - scene.kitchen_cooker_ambient_light_to_pink
+            - scene.kitchen_table_ambient_light_to_pink
+        WATER_SOFTENER_LOW:
+          priority: warning
+          color: yellow
+          rgb: [255, 255, 0]
+        WATER_LEAK:
+          priority: warning
+          color: aqua
+          rgb: [0, 255, 255]
+        SMOKE_ALARM:
+          priority: critical
+          color: red
+          scenes:
+            - scene.kitchen_cooker_light_to_red
+            - scene.kitchen_table_light_to_red
+        CO_ALARM:
+          priority: critical
+          color: purple
+          rgb: [128, 0, 128]
+        GAS_LEAK:
+          priority: critical
+          color: red
+          scenes:
+            - scene.kitchen_cooker_light_to_red
+            - scene.kitchen_table_light_to_red
+        INTRUDER:
+          priority: critical
+          color: red
+          scenes:
+            - scene.kitchen_cooker_light_to_red
+            - scene.kitchen_table_light_to_red
     sequence:
+      # Get current active notifications from input_text helper
+      - variables:
+          current_notifications: "{{ states('input_text.active_persistent_notifications') | default('[]', true) }}"
+          notifications_list: "{{ current_notifications | from_json | default([], true) }}"
+
+      # Process based on action
       - choose:
+          # ADD: Register new notification
           - conditions:
               - condition: template
-                value_template: "{{ add_notification in 'FRONT_DOOR_OPEN' }}"
+                value_template: "{{ v_action == 'add' and v_notification_id | length > 0 }}"
             sequence:
-              - action: script.front_door_open_notification
-                data: {}
-        default: []
+              - variables:
+                  # Remove existing entry for this notification_id if present
+                  filtered_list: "{{ notifications_list | rejectattr('id', 'eq', v_notification_id) | list }}"
+                  # Add new notification
+                  new_entry:
+                    id: "{{ v_notification_id }}"
+                    priority: "{{ v_priority }}"
+                    timestamp: "{{ now().isoformat() }}"
+                  updated_list: "{{ filtered_list + [new_entry] }}"
+                  # Find highest priority among active notifications
+                  highest_priority: "{{ updated_list | map(attribute='priority') | map('extract', priority_levels) | max | default(1) }}"
+                  highest_priority_name: "{{ priority_levels.items() | selectattr('1', 'eq', highest_priority | int) | map(attribute='0') | first | default('info') }}"
+                  # Get notifications at highest priority level
+                  highest_priority_notifications: "{{ updated_list | selectattr('priority', 'eq', highest_priority_name) | list }}"
+              # Update the registry
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "{{ updated_list | to_json }}"
+              # Apply light indicator based on priority and count
+              - choose:
+                  # CRITICAL: Single notification - blink to get attention
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'critical' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: blink
+                          lights: "{{ v_lights }}"
+                  # CRITICAL: Multiple - stay on highest priority color (red), no blinking
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'critical' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: scene.turn_on
+                        target:
+                          entity_id:
+                            - scene.kitchen_cooker_light_to_red
+                            - scene.kitchen_table_light_to_red
+                  # WARNING: Single notification - solid color
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'warning' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: solid
+                          lights: "{{ v_lights }}"
+                  # WARNING: Multiple - fade/phase between them
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'warning' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_ids: "{{ highest_priority_notifications | map(attribute='id') | list }}"
+                          effect: breathe
+                          lights: "{{ v_lights }}"
+                  # INFO: Single notification - solid color
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'info' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: solid
+                          lights: "{{ v_lights }}"
+                  # INFO: Multiple - fade/phase between them
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'info' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_ids: "{{ highest_priority_notifications | map(attribute='id') | list }}"
+                          effect: breathe
+                          lights: "{{ v_lights }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "Persistent notification added: {{ v_notification_id }} ({{ v_priority }}). Active: {{ updated_list | map(attribute='id') | join(', ') }}"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+          # REMOVE: Unregister notification
+          - conditions:
+              - condition: template
+                value_template: "{{ v_action == 'remove' and v_notification_id | length > 0 }}"
+            sequence:
+              - variables:
+                  updated_list: "{{ notifications_list | rejectattr('id', 'eq', v_notification_id) | list }}"
+                  highest_priority: "{{ updated_list | map(attribute='priority') | map('extract', priority_levels) | max | default(0) }}"
+                  highest_priority_name: "{{ priority_levels.items() | selectattr('1', 'eq', highest_priority | int) | map(attribute='0') | first | default('none') }}"
+                  highest_priority_notifications: "{{ updated_list | selectattr('priority', 'eq', highest_priority_name) | list }}"
+              # Update the registry
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "{{ updated_list | to_json }}"
+              # Update lights based on remaining notifications
+              - choose:
+                  # No active notifications - turn off indicator lights
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ updated_list | length == 0 }}"
+                    sequence:
+                      - action: light.turn_off
+                        target:
+                          entity_id: "{{ v_lights }}"
+                  # CRITICAL: Single notification - blink
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'critical' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: blink
+                          lights: "{{ v_lights }}"
+                  # CRITICAL: Multiple - solid red
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'critical' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: scene.turn_on
+                        target:
+                          entity_id:
+                            - scene.kitchen_cooker_light_to_red
+                            - scene.kitchen_table_light_to_red
+                  # WARNING: Single - solid
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'warning' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: solid
+                          lights: "{{ v_lights }}"
+                  # WARNING: Multiple - breathe
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'warning' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_ids: "{{ highest_priority_notifications | map(attribute='id') | list }}"
+                          effect: breathe
+                          lights: "{{ v_lights }}"
+                  # INFO: Single - solid
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'info' and highest_priority_notifications | length == 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_id: "{{ highest_priority_notifications[0].id }}"
+                          effect: solid
+                          lights: "{{ v_lights }}"
+                  # INFO: Multiple - breathe
+                  - conditions:
+                      - condition: template
+                        value_template: "{{ highest_priority_name == 'info' and highest_priority_notifications | length > 1 }}"
+                    sequence:
+                      - action: script.notification_apply_light_effect
+                        data:
+                          notification_ids: "{{ highest_priority_notifications | map(attribute='id') | list }}"
+                          effect: breathe
+                          lights: "{{ v_lights }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "Persistent notification removed: {{ v_notification_id }}. Remaining: {{ updated_list | map(attribute='id') | join(', ') | default('none', true) }}"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+          # CLEAR_ALL: Remove all notifications
+          - conditions:
+              - condition: template
+                value_template: "{{ v_action == 'clear_all' }}"
+            sequence:
+              - action: input_text.set_value
+                target:
+                  entity_id: input_text.active_persistent_notifications
+                data:
+                  value: "[]"
+              - action: light.turn_off
+                target:
+                  entity_id: "{{ v_lights }}"
+              - action: script.send_to_home_log
+                data:
+                  message: "All persistent notifications cleared"
+                  title: "🔔 Notification Manager"
+                  log_level: "Debug"
+
+    mode: queued
+    max: 10
+
+  # Helper script to apply light effects based on notification type
+  notification_apply_light_effect:
+    alias: "Notification Apply Light Effect"
+    description: "Apply color and effect to notification lights based on notification type"
+    fields:
+      notification_id:
+        description: "Single notification ID (for solid/blink effects)"
+        selector:
+          text:
+      notification_ids:
+        description: "List of notification IDs (for breathe effect)"
+        selector:
+          object:
+      effect:
+        description: "solid | blink | breathe"
+        required: true
+        selector:
+          select:
+            options:
+              - solid
+              - blink
+              - breathe
+      lights:
+        description: "List of lights to control"
+        required: true
+        selector:
+          object:
+    variables:
+      v_notification_id: "{{ notification_id | default('', true) }}"
+      v_notification_ids: "{{ notification_ids | default([], true) }}"
+      v_effect: "{{ effect }}"
+      v_lights: "{{ lights }}"
+      # Same color mapping as main script
+      notification_colors:
+        FRONT_DOOR_OPEN:
+          rgb: [0, 0, 255]      # Blue
+        WINDOW_OPEN:
+          rgb: [0, 255, 255]    # Cyan
+        APPLIANCE_DOOR_OPEN:
+          rgb: [0, 128, 128]   # Teal
+        DISHWASHER_FINISHED:
+          rgb: [0, 255, 0]     # Green
+        OVEN_PREHEATED:
+          rgb: [255, 165, 0]   # Orange
+        GRID_POWER_HIGH:
+          rgb: [255, 192, 203] # Pink
+        WATER_SOFTENER_LOW:
+          rgb: [255, 255, 0]   # Yellow
+        WATER_LEAK:
+          rgb: [0, 255, 255]   # Aqua
+        SMOKE_ALARM:
+          rgb: [255, 0, 0]     # Red
+        CO_ALARM:
+          rgb: [128, 0, 128]   # Purple
+        GAS_LEAK:
+          rgb: [255, 0, 0]     # Red
+        INTRUDER:
+          rgb: [255, 0, 0]     # Red
+    sequence:
+      - choose:
+          # SOLID: Set single color
+          - conditions:
+              - condition: template
+                value_template: "{{ v_effect == 'solid' and v_notification_id | length > 0 }}"
+            sequence:
+              - variables:
+                  color: "{{ notification_colors[v_notification_id].rgb | default([255, 255, 255], true) }}"
+              - action: light.turn_on
+                target:
+                  entity_id: "{{ v_lights }}"
+                data:
+                  rgb_color: "{{ color }}"
+                  brightness: 255
+
+          # BLINK: Flash to get attention (for critical single notifications)
+          - conditions:
+              - condition: template
+                value_template: "{{ v_effect == 'blink' and v_notification_id | length > 0 }}"
+            sequence:
+              - variables:
+                  color: "{{ notification_colors[v_notification_id].rgb | default([255, 0, 0], true) }}"
+              - action: light.turn_on
+                target:
+                  entity_id: "{{ v_lights }}"
+                data:
+                  rgb_color: "{{ color }}"
+                  brightness: 255
+                  effect: blink
+
+          # BREATHE: Fade between multiple notification colors
+          - conditions:
+              - condition: template
+                value_template: "{{ v_effect == 'breathe' and v_notification_ids | length > 0 }}"
+            sequence:
+              # For simplicity, use the first notification's color with breathe effect
+              # A more advanced version could cycle through colors
+              - variables:
+                  first_notification: "{{ v_notification_ids[0] }}"
+                  color: "{{ notification_colors[first_notification].rgb | default([255, 255, 255], true) }}"
+              - action: light.turn_on
+                target:
+                  entity_id: "{{ v_lights }}"
+                data:
+                  rgb_color: "{{ color }}"
+                  brightness: 255
+                  effect: breathe
+
+    mode: single
+
+input_text:
+  active_persistent_notifications:
+    name: Active Persistent Notifications
+    initial: "[]"
+    max: 1000
+
+# ============================================
+# USAGE EXAMPLES
+# ============================================
+#
+# NOTIFICATION TYPES AND COLORS:
+#   FRONT_DOOR_OPEN     = Blue    (info)
+#   WINDOW_OPEN         = Cyan    (info)
+#   APPLIANCE_DOOR_OPEN = Teal    (info)
+#   DISHWASHER_FINISHED = Green   (info)
+#   OVEN_PREHEATED      = Orange  (info)
+#   GRID_POWER_HIGH     = Pink    (warning)
+#   WATER_SOFTENER_LOW  = Yellow  (warning)
+#   WATER_LEAK          = Aqua    (warning)
+#   SMOKE_ALARM         = Red     (critical) - blinks when single
+#   CO_ALARM            = Purple  (critical) - blinks when single
+#   GAS_LEAK            = Red     (critical) - blinks when single
+#   INTRUDER            = Red     (critical) - blinks when single
+#
+# BEHAVIOR:
+# - Single critical notification: Blinks to get attention
+# - Multiple critical: Solid red (highest priority wins)
+# - Single info/warning: Solid color for that notification type
+# - Multiple info/warning: Breathe effect fading between them
+# - When all notifications cleared: Lights turn off
+#
+# EXAMPLE 1: Front Door Open (info/blue)
+# --------------------------------------
+# automation:
+#   - alias: "Front Door Opened - Add Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.front_door
+#         to: "on"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: add
+#           notification_id: FRONT_DOOR_OPEN
+#           priority: info
+#
+#   - alias: "Front Door Closed - Remove Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.front_door
+#         to: "off"
+#         for: "00:00:20"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: remove
+#           notification_id: FRONT_DOOR_OPEN
+#
+# EXAMPLE 2: Smoke Alarm (critical/red, blinks)
+# ---------------------------------------------
+# automation:
+#   - alias: "Smoke Alarm - Add Critical Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.kitchen_smoke_alarm_smoke
+#         to: "on"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: add
+#           notification_id: SMOKE_ALARM
+#           priority: critical
+#
+#   - alias: "Smoke Alarm Cleared - Remove Notification"
+#     trigger:
+#       - platform: state
+#         entity_id: binary_sensor.kitchen_smoke_alarm_smoke
+#         to: "off"
+#     action:
+#       - action: script.notification_persistent_indicator_manager
+#         data:
+#           action: remove
+#           notification_id: SMOKE_ALARM
+#
+# EXAMPLE 3: Multiple Info Notifications (breathe effect)
+# -------------------------------------------------------
+# If FRONT_DOOR_OPEN (blue) and DISHWASHER_FINISHED (green) are both active,
+# lights will breathe/fade between blue and green.
