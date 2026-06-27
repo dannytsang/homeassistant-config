@@ -2,7 +2,7 @@
 
 # Rooms
 
-Last reviewed: 2026-06-14
+Last reviewed: 2026-06-27
 
 Room-specific automations, scripts, scenes, templates, sensors, and commands organized by physical location in the house.
 
@@ -11,11 +11,11 @@ Room-specific automations, scripts, scenes, templates, sensors, and commands org
 | Metric | Count |
 |--------|-------|
 | Room YAML files | 20 |
-| Room automations | 213 |
-| Room scenes | 64 |
-| Room scripts | 41 |
-| Room sensors | 48 |
-| Room template blocks | 14 |
+| Room automations | 212 |
+| Room scenes | 63 |
+| Room scripts | 38 |
+| Room sensors | 47 |
+| Room template blocks | 13 |
 | Room shell commands | 1 |
 
 ## Subfolder Rooms
@@ -40,7 +40,7 @@ Room-specific automations, scripts, scenes, templates, sensors, and commands org
 | **Bedroom 2** | [bedroom2.yaml](bedroom2.yaml) | 15 automations, 2 scenes, 1 script, 1 sensor, 1 template block | [README](bedroom2_README.md) |
 | **Bedroom 3** | [bedroom3.yaml](bedroom3.yaml) | 10 automations, 1 script, 1 sensor, 1 template block | [README](bedroom3_README.md) |
 | **Front Garden** | [front_garden.yaml](front_garden.yaml) | 5 automations, 1 shell command | [README](front_garden_README.md) |
-| **Utility** | [utility.yaml](utility.yaml) | 12 automations, 1 script, 5 sensors, 1 template block | [README](utility_README.md) |
+| **Utility** | [utility.yaml](utility.yaml) | 11 automations, 1 script, 5 sensors, 1 template block | [README](utility_README.md) |
 
 ## Package Notes
 

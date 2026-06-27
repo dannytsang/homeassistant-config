@@ -2,7 +2,7 @@
 
 # Integrations
 
-Last reviewed: 2026-06-14
+Last reviewed: 2026-06-27
 
 Integration-specific configuration organized by functional domain. Each package is self-contained where practical, with UI integration setup and secrets handled separately.
 
@@ -11,10 +11,10 @@ Integration-specific configuration organized by functional domain. Each package 
 | Metric | Count |
 |--------|-------|
 | Integration YAML files | 45 |
-| Integration automations | 128 |
-| Integration scripts | 87 |
-| Integration sensors | 55 |
-| Integration template blocks | 35 |
+| Integration automations | 130 |
+| Integration scripts | 77 |
+| Integration sensors | 36 |
+| Integration template blocks | 30 |
 | Integration groups | 4 |
 | Integration MQTT entries | 122 |
 | REST commands | 3 |
@@ -26,8 +26,8 @@ Integration-specific configuration organized by functional domain. Each package 
 
 | Category | YAML files | Current package contents | Documentation |
 |----------|------------|--------------------------|---------------|
-| **Energy** | 8 | 39 automations, 28 scripts, 12 sensors, 20 template blocks, 4 groups, 1 conversation block, 13 intent scripts | [README](energy/README.md) |
-| **HVAC** | 3 | 13 automations, 12 scripts, 16 sensors, 7 template blocks, 1 schedule, 1 input number, 1 utility meter | [README](hvac/README.md) |
+| **Energy** | 8 | 38 automations, 28 scripts, 12 sensors, 16 template blocks, 4 groups, 1 conversation block, 13 intent scripts | [README](energy/README.md) |
+| **HVAC** | 3 | 16 automations, 12 scripts, 16 sensors, 7 template blocks, 1 schedule, 1 input number, 1 utility meter | [README](hvac/README.md) |
 | **Messaging** | 7 | 5 automations, 23 scripts, 2 notify services | [README](messaging/README.md) |
 | **Transport** | 2 | 2 automations, 2 scripts, 4 template blocks, 122 MQTT entries | [README](transport/README.md) |
 | **Weather** | 3 | 6 automations, 2 REST blocks | [README](weather/README.md) |
@@ -77,7 +77,7 @@ Integration-specific configuration organized by functional domain. Each package 
 | **Alarm** | 8 automations, 4 scripts | [README](alarm_README.md) |
 | **Nuki** | 3 automations, 2 scripts | [README](nuki_README.md) |
 | **Smoke Alarm** | 6 automations | [README](smoke_alarm_README.md) |
-| **UniFi Protect** | 5 automations | [README](unifi_protect_README.md) |
+| **UniFi Protect** | 4 automations | [README](unifi_protect_README.md) |
 | **Water** | 2 automations, 1 template block | [README](water_README.md) |
 
 ## Infrastructure & Monitoring

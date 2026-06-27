@@ -1,10 +1,10 @@
 # Home Assistant Setup Statistics & Analysis
 
-Generated: 2026-06-14
+Generated: 2026-06-27
 
 ## Overview
 
-This Home Assistant configuration has **380 YAML-defined automations** in the repository: **378 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
+This Home Assistant configuration has **383 YAML-defined automations** in the repository: **381 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
 
 State counts are tracked separately in [statistics.md](statistics.md), because they come from the live Home Assistant state machine and include UI-created entities, integration-provided entities, disabled entities, and runtime-only entities that are not all represented in YAML.
 
@@ -15,8 +15,8 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | Metric | Count |
 |--------|-------|
 | Package YAML files | 71 |
-| Package README files | 64 |
-| Package automations | 378 |
+| Package README files | 66 |
+| Package automations | 381 |
 | UI automations in `automations.yaml` | 2 deprecated water leak automations |
 | Package scripts | 133 |
 | UI scripts in `scripts.yaml` | 6 |
@@ -41,11 +41,11 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Area | Automations | Notes |
 |------|-------------|-------|
-| Room packages | 213 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
-| Integration packages | 128 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
-| Root/global packages | 37 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
+| Room packages | 212 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
+| Integration packages | 130 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
+| Root/global packages | 39 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
 | UI legacy file | 2 | Deprecated water leak automations retained for reference |
-| **Total YAML automations** | **380** | 378 package automations plus 2 UI automations |
+| **Total YAML automations** | **383** | 381 package automations plus 2 UI automations |
 
 ---
 
@@ -72,7 +72,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `rooms/office/steam.yaml` | 2 | Steam-related office automation |
 | `rooms/porch/porch.yaml` | 12 | 6 scenes, 5 scripts, 1 template block |
 | `rooms/stairs/stairs.yaml` | 14 | 9 scenes |
-| `rooms/utility.yaml` | 12 | 1 script, 5 sensors, 1 template block |
+| `rooms/utility.yaml` | 11 | 1 script, 5 sensors, 1 template block |
 
 ---
 
@@ -98,7 +98,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `integrations/git.yaml` | 1 | GitHub Actions deployment hook |
 | `integrations/grocy.yaml` | 0 | 2 REST commands, 2 sensors |
 | `integrations/hvac/eddi.yaml` | 4 | 4 scripts, 1 input number, 1 utility meter |
-| `integrations/hvac/hive.yaml` | 7 | 1 schedule, 8 scripts, 12 sensors |
+| `integrations/hvac/hive.yaml` | 10 | 1 schedule, 8 scripts, 12 sensors |
 | `integrations/hvac/hvac.yaml` | 2 | 4 sensors, 7 template blocks |
 | `integrations/lg.yaml` | 4 | LG appliance and TV monitoring |
 | `integrations/messaging/callmebot.yaml` | 0 | 2 notify services, 1 script |
@@ -118,7 +118,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `integrations/supervisor.yaml` | 13 | 1 script |
 | `integrations/transport/google_travel.yaml` | 0 | 1 script, 2 template blocks |
 | `integrations/transport/tesla.yaml` | 2 | 122 MQTT entries, 1 script, 2 template blocks |
-| `integrations/unifi_protect.yaml` | 5 | Camera event processing |
+| `integrations/unifi_protect.yaml` | 4 | Camera event processing |
 | `integrations/ups.yaml` | 4 | 1 template block |
 | `integrations/water.yaml` | 2 | 1 template block |
 | `integrations/weather/carbon_intensity_uk.yaml` | 0 | 1 REST sensor/config block |
@@ -132,7 +132,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Package | Automations | Other YAML features |
 |---------|-------------|---------------------|
-| `home.yaml` | 9 | 1 scene, 7 scripts, 1 template block |
+| `home.yaml` | 11 | 1 scene, 7 scripts, 1 template block |
 | `home_assistant.yaml` | 6 | 2 scripts, 1 template block |
 | `shared_helpers.yaml` | 0 | 1 helper script, 1 template block |
 | `smoke_alarms.yaml` | 1 | 1 script |

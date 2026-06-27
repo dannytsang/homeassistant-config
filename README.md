@@ -31,15 +31,15 @@ Quick reference to all documentation in this repository, sorted by category.
 | [INSTALL.md](INSTALL.md) | Installation and setup instructions | 2026-06-14 |
 | [hardware.md](hardware.md) | Complete hardware inventory by manufacturer | 2026-06-14 |
 | [statistics.md](statistics.md) | Live entity counts and system statistics | 2026-06-14 |
-| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-06-14 |
+| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-06-27 |
 
 ### Package Documentation
 
 | Category | Document | Description | Last Updated |
 |----------|----------|-------------|--------------|
-| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-06-14 |
-| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-06-14 |
-| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-06-14 |
+| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-06-27 |
+| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-06-27 |
+| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-06-27 |
 
 ### Room Documentation
 

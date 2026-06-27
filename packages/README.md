@@ -2,7 +2,7 @@
 
 # /packages Folder
 
-Last reviewed: 2026-06-14
+Last reviewed: 2026-06-27
 
 This directory contains Home Assistant configuration organized as [packages](https://www.home-assistant.io/docs/configuration/packages/#create-a-packages-folder). Packages group related automations, scripts, scenes, sensors, helpers, commands, and integration configuration by room or functional area.
 
@@ -11,8 +11,8 @@ This directory contains Home Assistant configuration organized as [packages](htt
 | Metric | Count |
 |--------|-------|
 | Package YAML files | 71 |
-| Package README files | 64 |
-| Package automations | 378 |
+| Package README files | 66 |
+| Package automations | 381 |
 | Package scripts | 133 |
 | Package scenes | 64 |
 | Package sensors | 83 |

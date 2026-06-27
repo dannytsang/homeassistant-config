@@ -2,7 +2,7 @@
 
 # Alarm Package Documentation
 
-This package manages alarm automation including 8 automations and 0 scripts.
+This package manages alarm automation including 8 automations and 4 scripts.
 
 ---
 

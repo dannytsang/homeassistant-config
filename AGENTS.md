@@ -1,6 +1,6 @@
 # Home Assistant Configuration - Codex Reference Index
 
-**Last Updated:** 2026-06-14
+**Last Updated:** 2026-06-27
 **Configuration Status:** Production-Ready | Professional Grade
 
 ---
@@ -11,7 +11,7 @@ This Home Assistant configuration is a **professional-grade smart home automatio
 
 ### Quick Statistics
 - **7,604 total states** across the live system (see `statistics.md`)
-- **380 YAML-defined automations** (378 in packages, 2 deprecated UI automations)
+- **383 YAML-defined automations** (381 in packages, 2 deprecated UI automations)
 - **139 YAML-defined scripts** (133 in packages, 6 UI scripts)
 - **67 YAML-defined scenes** (64 in packages, 3 UI scenes)
 - **567 live switch entities** with extensive power monitoring
