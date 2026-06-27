@@ -1,78 +1,102 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Alexa
+# Alexa Package Documentation
 
-Alexa TTS and announcement scripts using the [alexa_media_player](https://github.com/custom-components/alexa_media_player) HACS integration.
+The Alexa package provides reusable speech scripts for Echo devices. Other automations can call these scripts instead of talking directly to `notify.alexa_media`, which keeps announcements consistent across the house.
 
----
+This documentation covers one YAML file:
 
-## Overview
+| File | Purpose | Contents |
+|------|---------|----------|
+| `alexa.yaml` | Alexa speech helpers | 2 scripts |
 
-Two reusable scripts wrap the `notify.alexa_media` service to provide TTS delivery to Echo devices throughout the house:
+## Quick Summary
 
-- **`alexa_announce`** — plays the announcement chime tone before speaking the message. Respects quiet hours via `schedule.notification_quiet_time`.
-- **`alexa_tts`** — speaks the message without any tone.
+For non-technical users, the important behavior is:
 
-Both scripts default to `media_player.everywhere` when no target is specified, broadcasting to all Echo devices.
+| Area | What Happens |
+|------|--------------|
+| Announcements | `script.alexa_announce` speaks a message with the Alexa announcement sound first. |
+| Quiet hours | Announcements are skipped while `schedule.notification_quiet_time` is on unless the caller explicitly disables suppression. |
+| Plain speech | `script.alexa_tts` speaks a message without the announcement sound and does not check quiet hours. |
+| Default target | Both scripts default to `media_player.everywhere` if no target is supplied. |
 
----
-
-## Scripts
-
-| Script | Alias | Tone | Quiet Hours Aware |
-|--------|-------|------|-------------------|
-| `script.alexa_announce` | Send Alexa announcement | Yes (bong) | Yes |
-| `script.alexa_tts` | Send Alexa TTS | No | No |
-
-### alexa_announce
+## How Alexa Speech Is Routed
 
 ```mermaid
 flowchart TD
-    A[Call alexa_announce] --> B{Quiet time OFF?}
-    B -->|Yes| C[Send via notify.alexa_media<br/>type: announce]
-    B -->|No| D{suppress_if_quiet = false?}
-    D -->|Yes| C
-    D -->|No| E[Skip — quiet time active]
+    Caller[Automation or script calls Alexa helper] --> Helper{Which script?}
+    Helper -->|script.alexa_announce| Quiet{Quiet time active?}
+    Quiet -->|No| Announce[notify.alexa_media type announce]
+    Quiet -->|Yes, suppress_if_quiet false| Announce
+    Quiet -->|Yes, suppress_if_quiet true| Skip[No Alexa notification sent]
+    Helper -->|script.alexa_tts| TTS[notify.alexa_media type tts]
+    Announce --> Target[Target or media_player.everywhere]
+    TTS --> Target
 ```
 
-**Fields:**
+## Scripts
+
+| Script | Alias | Purpose | Quiet Hours |
+|--------|-------|---------|-------------|
+| `script.alexa_announce` | Send Alexa announcement | Sends an Alexa announcement using `notify.alexa_media` with `type: announce`. | Yes, controlled by `suppress_if_quiet`. |
+| `script.alexa_tts` | Send Alexa TTS | Sends plain Alexa text-to-speech using `notify.alexa_media` with `type: tts`. | No. |
+
+### `script.alexa_announce`
+
+Fields:
 
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `message` | Yes | — | Text to speak |
-| `title` | No | — | Optional title |
-| `target` | No | `media_player.everywhere` | Echo device(s) to target |
-| `method` | No | `speak` | `speak` (TTS only) or `all` (TTS + screen display) |
-| `suppress_if_quiet` | No | `true` | If `true`, skip delivery during quiet hours |
+| `message` | Yes | None | Text to speak. |
+| `title` | No | None | Defined as a script field, but not used in the current notify payload. |
+| `target` | No | `media_player.everywhere` | Echo media player target. |
+| `method` | No | `speak` | Announcement method passed to Alexa. YAML allows `speak` or `all`. |
+| `suppress_if_quiet` | No | `true` | If true, skip the announcement while quiet time is on. |
 
-### alexa_tts
+Delivery rules:
 
-Speaks without announcement tone. No quiet-hours check — callers are responsible for gate-keeping.
+| Situation | Result |
+|-----------|--------|
+| `schedule.notification_quiet_time` is `off` | Announcement is sent. |
+| Quiet time is `on` and `suppress_if_quiet` is `false` | Announcement is sent. |
+| Quiet time is `on` and `suppress_if_quiet` is `true` or omitted | Announcement is skipped. |
 
-**Fields:**
+The notify action uses `continue_on_error: true`, so a temporary Alexa Media failure should not stop the caller's remaining actions.
+
+### `script.alexa_tts`
+
+Fields:
 
 | Field | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `message` | Yes | — | Text to speak |
-| `title` | No | — | Optional title |
-| `target` | No | `media_player.everywhere` | Echo device(s) to target |
+| `message` | Yes | None | Text to speak. |
+| `title` | No | None | Defined as a script field, but not used in the current notify payload. |
+| `target` | No | `media_player.everywhere` | Echo media player target. |
 
----
+`script.alexa_tts` does not check quiet hours. Use `script.alexa_announce` with `suppress_if_quiet` when speech should respect quiet time.
 
-## Entities
+## Entities And Services
 
-| Entity | Description |
-|--------|-------------|
-| `media_player.everywhere` | All Echo devices (default target) |
-| `schedule.notification_quiet_time` | Quiet hours schedule — gates `alexa_announce` delivery |
-
----
+| Entity or Service | Purpose |
+|-------------------|---------|
+| `notify.alexa_media` | Alexa Media Player notify service used by both scripts. |
+| `media_player.everywhere` | Default target when no Echo target is supplied. |
+| `schedule.notification_quiet_time` | Quiet-hours guard used by `script.alexa_announce`. |
 
 ## Dependencies
 
-- **HACS Integration:** [alexa_media_player](https://github.com/custom-components/alexa_media_player)
-- **notify service:** `notify.alexa_media`
+| Dependency | Purpose |
+|------------|---------|
+| Alexa Media Player HACS integration | Provides `notify.alexa_media` and Alexa media player entities. |
 
----
+Integration reference: <https://github.com/custom-components/alexa_media_player>
 
-*Last updated: 2026-04-05*
+## Troubleshooting
+
+| Symptom | Check |
+|---------|-------|
+| Announcement does not play | Check whether `schedule.notification_quiet_time` is `on` and whether the caller omitted `suppress_if_quiet: false`. |
+| TTS works but announcement does not | Verify Alexa Media Player supports announcements for the target device and that `method` is one of `speak` or `all`. |
+| Message goes to every Echo | Confirm the caller supplied `target`; otherwise the script intentionally defaults to `media_player.everywhere`. |
+| Caller expects a title to appear | The `title` field exists for both scripts but is not currently passed to `notify.alexa_media`. |

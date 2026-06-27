@@ -272,4 +272,4 @@ Complex overnight arming logic with people-aware behavior:
 | Automation not triggering | Entity states and conditions |
 | Script failing | Service calls and entity availability |
 
-*Last updated: 2026-04-08*
+*Last updated: 2026-06-27*

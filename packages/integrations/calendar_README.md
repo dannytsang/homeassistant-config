@@ -1,96 +1,112 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Calendar — Google Calendar Event Notifications
+# Calendar Package Documentation
 
-*Last updated: 2026-04-05*
+The calendar package sends family event reminders before calendar events start or end. For timed events with a location, it calculates travel from home or Terina's current location and includes a suggested leave time.
 
-Sends advance notifications for family and children's calendar events. For events with a location, calculates driving travel time and conditionally includes public transit options for longer journeys. Notifications go to both Danny and Terina (or Danny only for no-location events).
+This documentation covers `calendar.yaml`.
 
-Integration references: Google Calendar, Google Travel Time
+| File | Purpose | Contents |
+|------|---------|----------|
+| `calendar.yaml` | Family and children calendar notifications | 3 automations, 2 scripts |
 
----
+## Quick Summary
 
-## Event Notification Flow
+For non-technical users, the important behavior is:
+
+| Area | What Happens |
+|------|--------------|
+| Family calendar | Events on `calendar.family` trigger a reminder 1 hour before the event starts. |
+| Children calendar start | Events on `calendar.tsang_children` trigger a reminder 1 hour before the event starts. |
+| Children calendar end | Events on `calendar.tsang_children` trigger a reminder 30 minutes before the event ends. |
+| Travel details | If an event has a location, the notification includes car travel details and a leave time. |
+| Long journeys | If the car distance sensor reports at least 30 km, transit travel details are appended too. |
+
+## How Calendar Notifications Work
 
 ```mermaid
 flowchart TD
-    A([Calendar trigger\nevent start/end with offset]) --> B[script.calendar_event_started\nor script.calendar_event_ended]
-    B --> C[calendar.get_events\nfor the calendar entity]
-    C --> D{For each event\nin results}
-    D --> E{All-day event?}
-    E -- Yes --> Z([Skip — no notification])
-    E -- No --> F{Has location?}
-    F -- No --> G[send_direct_notification\nEvent name, start/end times only]
-    F -- Yes --> H{All adults home?}
-    H -- Yes --> I[calculate_travel\norigin: zone.home]
-    H -- No --> J[calculate_travel\norigin: person.terina]
-    I --> K[Build notification\nwith car travel time + leave-by time]
-    J --> K
-    K --> L{Car distance\n>= 30 km?}
-    L -- Yes --> M[Append transit\ntravel time option]
-    L -- No --> N[send_direct_notification\nto Danny + Terina]
-    M --> N
+    Trigger[Calendar start or end trigger] --> Script[calendar_event_started or calendar_event_ended]
+    Script --> Fetch[calendar.get_events for first calendar entity]
+    Fetch --> Each[Repeat through returned events]
+    Each --> Timed{Timed event?}
+    Timed -->|No| Skip[Skip all-day event]
+    Timed -->|Yes| Location{Location defined?}
+    Location -->|No| Simple[Notify Danny with event and times]
+    Location -->|Yes| Adults{group.all_adult_people home?}
+    Adults -->|Yes| HomeOrigin[Calculate travel from zone.home]
+    Adults -->|No| TerinaOrigin[Calculate travel from person.terina]
+    HomeOrigin --> Travel[Notify Danny and Terina with travel and leave time]
+    TerinaOrigin --> Travel
+    Travel --> Distance{Car distance >= 30?}
+    Distance -->|Yes| Transit[Append transit travel details]
+    Distance -->|No| Done[Send notification]
+    Transit --> Done
 ```
 
----
+## Everyday Behavior
 
-## Automations
+| Situation | Result |
+|-----------|--------|
+| Timed event with no location | Danny receives a direct notification with calendar name, event name, start time, and end time. |
+| Timed event with a location | Danny and Terina receive a direct notification with event details, location, car travel time, distance, and leave time. |
+| Car distance is at least 30 according to `sensor.google_travel_time_by_car` | Transit travel time and distance are added to the location notification. |
+| All adults are home | Travel is calculated from `zone.home`. |
+| Not all adults are home | Travel is calculated from `person.terina`. |
+| All-day event | No notification branch matches, so no notification is sent. |
 
-| Name | ID | Calendar Entity | Trigger Offset | Script Called |
-|---|---|---|---|---|
-| Calendar: Family | `1654008759007` | `calendar.family` | −1 hour before start | `script.calendar_event_started` |
-| Calendar: Children Start Event | `1654008759008` | `calendar.tsang_children` | −1 hour before start | `script.calendar_event_started` |
-| Calendar: Children End Event | `1654008759009` | `calendar.tsang_children` | −30 minutes before end | `script.calendar_event_ended` |
+Power-user note: `calendar_event_ended` defines an `excluded_event_names` variable containing `school`, but the YAML does not currently apply that variable in any condition or template.
 
-All automations run in `queued` mode with 20 stored traces.
+## Technical Reference
 
----
+### Automations
 
-## Scripts
+| ID | Alias | Calendar | Trigger | Action | Mode |
+|----|-------|----------|---------|--------|------|
+| `1654008759007` | `Calendar: Family` | `calendar.family` | Event start, offset `-1:0:0` | Calls `script.calendar_event_started` | `queued` |
+| `1654008759008` | `Calendar: Children Start Event` | `calendar.tsang_children` | Event start, offset `-1:0:0` | Calls `script.calendar_event_started` | `queued` |
+| `1654008759009` | `Calendar: Children End Event` | `calendar.tsang_children` | Event end, offset `-0:30:0` | Calls `script.calendar_event_ended` | `queued` |
 
-### `calendar_event_started`
+All three automations store 20 traces.
 
-Alias: *Calendar event Started*
+### Scripts
 
-Fetches upcoming events from the given calendar and notifies for each non-all-day event. Includes travel information when a location is present.
+| Script | Alias | Purpose | Mode |
+|--------|-------|---------|------|
+| `script.calendar_event_started` | `Calendar event Started` | Gets events from the target calendar and sends start-related notifications. | `queued` |
+| `script.calendar_event_ended` | `Calendar event Ended` | Gets events from the target calendar and sends end-related notifications. | `queued` |
 
-| Field | Required | Default | Description |
-|---|---|---|---|
-| `calendar_id` | Yes | — | Calendar entity ID (target selector; uses first entity) |
-| `start_date_time` | Yes | `now()` | Datetime to begin the event search window |
-| `duration` | No | `1:0:0` | Hours to search forward for events |
+Both scripts define the same fields:
 
-### `calendar_event_ended`
+| Field | Required In Selector | Runtime Default | Notes |
+|-------|----------------------|-----------------|-------|
+| `calendar_id` | Yes | None | Target selector; the script uses the first entity in `calendar_id.entity_id`. |
+| `start_date_time` | Yes | `now()` | Used as the `calendar.get_events` search start when not supplied. |
+| `duration` | No | `1:0:0` | Search duration for `calendar.get_events`. |
 
-Alias: *Calendar event Ended*
+## Important Entities
 
-Same logic as `calendar_event_started` but triggered near event end. Excludes events whose summary contains `school` (via `excluded_event_names` variable).
+| Entity | Used For |
+|--------|----------|
+| `calendar.family` | Family start-event reminder source. |
+| `calendar.tsang_children` | Children start and end reminder source. |
+| `group.all_adult_people` | Chooses travel origin. |
+| `zone.home` | Travel origin when all adults are home. |
+| `person.terina` | Travel origin when not all adults are home. |
+| `person.danny` | Notification recipient for all event notifications. |
+| `sensor.google_travel_time_by_car` | Supplies car mode and distance attributes used in the notification. |
+| `sensor.google_travel_time_by_transit` | Supplies transit mode, time, and distance when the car distance is at least 30. |
+| `input_datetime.travel_start_time_buffer` | Buffer added into the leave-time calculation. |
+| `input_datetime.travel_end_time_buffer` | Buffer added into the leave-time calculation. |
 
-| Field | Required | Default | Description |
-|---|---|---|---|
-| `calendar_id` | Yes | — | Calendar entity ID |
-| `start_date_time` | Yes | `now()` | Datetime to begin the event search window |
-| `duration` | No | `1:0:0` | Hours to search forward |
+## Troubleshooting
 
----
+| Symptom | First Things To Check |
+|---------|-----------------------|
+| No reminder arrives | Check the calendar trigger offset, whether `calendar.get_events` returns the event in the 1-hour search window, and automation traces. |
+| Travel details are missing | Confirm the event has a `location` field and `script.calculate_travel` returned data. |
+| Notification goes only to Danny | That is expected for timed events without a location. |
+| Transit details are missing | Check the `distance` attribute on `sensor.google_travel_time_by_car`; transit is only included when its numeric value is at least 30. |
+| Leave time looks wrong | Check `input_datetime.travel_start_time_buffer` and `input_datetime.travel_end_time_buffer`. |
 
-## Notification Content
-
-| Event Type | Notification Includes |
-|---|---|
-| Non-all-day, no location | Event name, start time, end time |
-| Non-all-day, with location | Event name, location, start/end times, car travel time, leave-by time (+ transit if distance ≥ 30 km) |
-| All-day event | No notification sent |
-
-Travel buffers are sourced from `input_datetime.travel_start_time_buffer` and `input_datetime.travel_end_time_buffer`.
-
----
-
-## Dependencies
-
-- `calendar.family`, `calendar.tsang_children` — Google Calendar entities
-- `script.calculate_travel` — resolves travel time and distance via Google Travel Time
-- `sensor.google_travel_time_by_car`, `sensor.google_travel_time_by_transit` — travel time sensors
-- `group.all_adult_people` — used to determine travel origin (home vs person.terina's location)
-- `input_datetime.travel_start_time_buffer`, `input_datetime.travel_end_time_buffer` — configurable departure buffer times
-- `script.send_direct_notification` — sends push notification to Danny and/or Terina
+*Last updated: 2026-06-27*

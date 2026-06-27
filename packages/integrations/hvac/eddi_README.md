@@ -1,235 +1,112 @@
-# Eddi
+# Eddi Package Documentation
 
-Integration with myEnergi Eddi for hot water heating via solar diversion.
+The Eddi package manages MyEnergi Eddi hot-water diversion. It logs solar diversion, returns Eddi to Normal mode after it has been stopped, stops or boosts Eddi after the hot-water tank reaches max temperature, and uses Octopus current rate plus helper booleans to decide whether electric boosting is worthwhile.
 
-**Integration:** https://github.com/CJNE/ha-myenergi
+Source YAML: `eddi.yaml`
 
----
+| Contents | Count |
+|----------|-------|
+| Automations | 4 |
+| Scripts | 4 |
+| Input numbers | 1 |
+| Utility meters | 1 |
 
-## Overview
+## Quick Summary
 
-The Eddi device diverts excess solar energy to heat hot water via an immersion heater. This package manages:
-- **Solar diversion monitoring** — Tracks when Eddi is diverting excess solar
-- **Scheduled heating** — Ensures hot water availability even without sun
-- **Holiday mode** — Disables scheduled heating when away
-- **Energy tracking** — Logs daily diverted energy
+| Area | What Happens |
+|------|--------------|
+| Solar diversion | When `sensor.myenergi_eddi_status` becomes `Diverting`, a debug home-log entry records daily diverted energy. |
+| Scheduled restore | At 00:00 and 13:00, Eddi is put back into `Normal` mode if it is stopped and automations are enabled. |
+| Boiler coordination | If Eddi cycle energy exceeds the hot-water cutoff while Hive hot water is on, the hot-water schedule check is rerun. |
+| Max temperature | When Eddi reports `Max temp reached`, a 4-hour timer starts and cheap-rate boost logic runs. |
+| Cheap-rate boosting | Negative-rate, zero-rate, and scheduled boost branches can boost Eddi for the configured duration. |
 
-### Key Capabilities
-
-- Automatic daily heating schedule (00:00 and 13:00 checks)
-- Solar diversion notifications
-- Integration with home mode (holiday detection)
-- Manual boost control via scripts
-
----
-
-## Architecture
+## How It Works
 
 ```mermaid
 flowchart TB
-    subgraph myEnergi["🔌 myEnergi"]
-        EddiDevice["Eddi Device"]
-        CTClamp["CT Clamp<br/>(Excess Solar Detection)"]
-    end
-
-    subgraph HomeAssistant["Home Assistant"]
-        subgraph ThisPackage["eddi.yaml"]
-            Diverting["⚡ Diverting Energy<br/>Automation"]
-            ScheduledOn["📅 Scheduled Turn On"]
-        end
-
-        subgraph Entities["Key Entities"]
-            Status["sensor.myenergi_eddi_status"]
-            Mode["select.myenergi_eddi_operating_mode"]
-            Energy["sensor.myenergi_eddi_energy_consumed_session_daily"]
-        end
-    end
-
-    CTClamp -->|Detects| EddiDevice
-    EddiDevice -->|Sets| Status
-    EddiDevice -->|Controlled by| Mode
-    EddiDevice -->|Reports| Energy
-
-    Status -->|Triggers| Diverting
-    Mode -->|Set by| ScheduledOn
+    Status[sensor.myenergi_eddi_status] --> Diverting[Log diverting]
+    Status --> MaxTemp[Max temperature automation]
+    MaxTemp --> Timer[timer.eddi_max_temperature_reached]
+    MaxTemp --> Check[script.hvac_check_eddi_boost_hot_water]
+    Rate[sensor.octopus_energy_electricity_current_rate] --> Check
+    Flags[Boost helper booleans and schedule] --> Check
+    Check --> Boost[Boost Eddi]
+    Check --> Stop[Stop Eddi]
+    Check --> Normal[Set Normal mode]
 ```
-
----
-
-## How Solar Diversion Works
-
-```mermaid
-flowchart LR
-    Solar["☀️ Solar Panels"] --> Inverter["Inverter"]
-    Inverter --> House["🏠 House Load"]
-
-    House -->|Excess| Export["⚡ Export to Grid"]
-    House -->|Excess| Eddi["🔥 Eddi<br/>(Immersion Heater)"]
-
-    Eddi -->|Heats| Water["🚿 Hot Water Tank"]
-```
-
-When solar generation exceeds house consumption, the Eddi device redirects the excess to the immersion heater instead of exporting to the grid.
-
----
 
 ## Automations
 
-### Energy: Eddi Diverting Energy
-**ID:** `1677762423485`
-
-Notifies when Eddi starts diverting excess solar to hot water.
-
-```mermaid
-flowchart TD
-    A["🔌 Eddi Status → Diverting"] --> B{"Energy sensor<br/>available?"}
-    B -->|No| C["⛔ Skip"]
-    B -->|Yes| D{"Hot water<br/>automations enabled?"}
-    D -->|No| C
-    D -->|Yes| E{"Eddi automations<br/>enabled?"}
-    E -->|No| C
-    E -->|Yes| F["📝 Log to Home Log"]
-
-    F --> G["📊 Message:<br/>'Eddi diverting X kWh so far'"]
-```
-
-**Notification includes:**
-- Current diverted energy for the session
-- Visual indicator (⛽)
-- Logged at "Debug" level
-
----
-
-### HVAC: Eddi Turn On
-**ID:** `1685005214749`
-
-Scheduled heating to ensure hot water availability.
-
-```mermaid
-flowchart TD
-    A["⏰ 00:00 OR 13:00"] --> B{"Eddi mode =<br/>Stopped?"}
-    B -->|No| C["⛔ Already on"]
-
-    B -->|Yes| D{"Home mode =<br/>Holiday?"}
-    D -->|Yes| C
-
-    D -->|No| E{"Hot water<br/>automations enabled?"}
-    E -->|No| C
-
-    E -->|Yes| F{"Eddi automations<br/>enabled?"}
-    F -->|No| C
-
-    F -->|Yes| G["🕐 Get current time"]
-    G --> H["📝 Log: Turning on Eddi"]
-    H --> I["🔌 Set Eddi to<br/>Normal mode"]
-```
-
-**Schedule:**
-| Time | Purpose |
-|------|---------|
-| 00:00 | Overnight heating (if no solar during day) |
-| 13:00 | Midday boost (if morning wasn't sunny) |
-
----
-
-## Key Entities
-
-### myEnergi Integration
-
-| Entity | Type | Description |
-|--------|------|-------------|
-| `sensor.myenergi_eddi_status` | Sensor | Current status (Diverting/Stopped/etc) |
-| `select.myenergi_eddi_operating_mode` | Select | Operating mode (Normal/Stopped/Boost) |
-| `sensor.myenergi_eddi_energy_consumed_session_daily` | Sensor | Daily diverted energy (kWh) |
-| `sensor.myenergi_eddi_power` | Sensor | Current power diversion (W) |
-
-### Input Booleans (Feature Flags)
-
-| Entity | Purpose |
-|--------|---------|
-| `input_boolean.enable_hot_water_automations` | Master switch for hot water heating |
-| `input_boolean.enable_eddi_automations` | Eddi-specific automation control |
-
-### Input Select
-
-| Entity | Purpose |
-|--------|---------|
-| `input_select.home_mode` | Home mode (Holiday disables scheduled heating) |
-
----
+| Automation | ID | Trigger | Result |
+|------------|----|---------|--------|
+| `Energy: Eddi Diverting Energy` | `1677762423485` | `sensor.myenergi_eddi_status` becomes `Diverting` | Logs daily session energy if hot-water and Eddi automations are enabled and the daily energy sensor is not `unknown`. |
+| `HVAC: Eddi Turn On` | `1685005214749` | 00:00 and 13:00 | If Eddi mode is `Stopped`, not holiday mode, and automations are enabled, cancels the max-temperature timer and sets operating mode to `Normal`. |
+| `HVAC: Eddi Generated Hot Water And Hot Water Is On` | `1678578286486` | Eddi per-cycle energy rises above cutoff | If Hive receiver water is `on`, logs that Eddi heated enough water and calls `script.check_and_run_hot_water`. |
+| `Eddi: Max Temperature Reached` | `1712238362391` | `sensor.myenergi_eddi_status` becomes `Max temp reached` | Logs, starts `timer.eddi_max_temperature_reached` for 4 hours, and calls the Eddi boost-check script with the current Octopus rate. |
 
 ## Scripts
 
-### Eddi Boost
+| Script | Purpose |
+|--------|---------|
+| `script.hvac_set_solar_diverter_to_holiday_mode` | If Eddi automations are enabled, sets `select.myenergi_eddi_operating_mode` to `Stopped`. |
+| `script.hvac_set_solar_diverter_to_normal_mode` | If Eddi automations are enabled, sets Eddi operating mode to `Normal`. |
+| `script.hvac_set_solar_diverter_to_boost_mode` | Boosts Heater 1 for the supplied `minutes` value using `myenergi.myenergi_eddi_boost`. |
+| `script.hvac_check_eddi_boost_hot_water` | Applies the cheap-rate, scheduled-boost, stop, cancel-boost, and default-normal decision tree. |
 
-Manual boost control can be triggered via:
-- `select.myenergi_eddi_operating_mode` → Set to "Boost"
-- Home Assistant service call
+## Boost Decision Tree
 
-**Boost modes:**
-| Mode | Behavior |
-|------|----------|
-| **Normal** | Automatic solar diversion |
-| **Stopped** | No heating (manual override) |
-| **Boost** | Force heating regardless of solar |
-
----
-
-## Energy Dashboard
-
-The Eddi contributes to home energy tracking:
-- **Diverting** = Free heating from solar excess
-- **Boost** = Grid-powered heating (if solar insufficient)
+`script.hvac_check_eddi_boost_hot_water` uses first-match-wins ordering.
 
 ```mermaid
-flowchart LR
-    Solar["☀️ Solar"] -->|Excess| Eddi["🔥 Eddi"]
-    Grid["⚡ Grid"] -->|Boost| Eddi
-    Eddi -->|Heats| Water["🚿 Hot Water"]
-
-    Eddi -.->|Reports| Energy["Energy Dashboard"]
+flowchart TD
+    Start[Check current import rate and Eddi state] --> Negative{Rate below 0?}
+    Negative -->|Yes and enabled| Boost[Boost for configured minutes]
+    Negative -->|No| Zero{Rate equals 0?}
+    Zero -->|Yes and enabled| Boost
+    Zero -->|No| Schedule{Permanent boost or schedule 1 active?}
+    Schedule -->|Yes| NotifyBoost[Notify Danny and boost]
+    Schedule -->|No| Cutoff{Max-temp timer active before 12:00?}
+    Cutoff -->|Yes| StopEddi[Stop Eddi]
+    Cutoff -->|No| Paid{Rate above 0 and Eddi boosting?}
+    Paid -->|Yes| Cancel[Stop boost]
+    Paid -->|No| Normal{Mode not Normal?}
+    Normal -->|Yes| SetNormal[Set Normal mode]
 ```
 
----
+| Helper | Purpose |
+|--------|---------|
+| `input_boolean.eddi_heat_water_cost_below_nothing` | Allows boosting when import rate is below 0. |
+| `input_boolean.eddi_heat_water_cost_nothing` | Allows boosting when import rate equals 0. |
+| `input_boolean.enable_permanent_hot_water_below_export` | Enables a scheduled-boost branch regardless of schedule 1. |
+| `input_boolean.enable_boost_hot_water_schedule_1` | Enables schedule 1 boost checks. |
+| `binary_sensor.boost_hot_water_schedule_1` | Indicates schedule 1 is currently active. |
+| `input_number.eddi_boost_duration_minutes` | Boost duration, 5-60 minutes, default 20. |
 
-## Dependencies
+## Energy Tracking
 
-### Required Integrations
+| Entity | Source | Purpose |
+|--------|--------|---------|
+| `sensor.myenergi_eddi_energy_consumed_per_heating_cycle` | Utility meter from `sensor.myenergi_eddi_energy_used_today` | Resets every 4 hours and is used to decide if Eddi has heated enough water. |
 
-- [ha-myenergi](https://github.com/CJNE/ha-myenergi) — Eddi device control
-
-### Cross-Package Dependencies
-
-| Dependency | Package | Purpose |
-|------------|---------|---------|
-| `input_select.home_mode` | home | Holiday mode detection |
-| `script.send_to_home_log` | shared_helpers | Logging |
-| `script.get_clock_emoji` | shared_helpers | Time-based emoji |
-
----
+Power-user note: comments and log text mention 4-hour and 6-hour windows in different places, but the YAML utility meter cron is `0 */4 * * *`, so the actual reset cadence is every 4 hours.
 
 ## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Not diverting solar | CT clamp installation, solar excess availability |
-| Not turning on at scheduled times | `input_boolean.enable_eddi_automations` state |
-| Heating during holiday | `input_select.home_mode` value |
-| Energy sensor unavailable | myEnergi integration connectivity |
-
----
+| Eddi does not return to Normal | `select.myenergi_eddi_operating_mode`, home mode, and Eddi/hot-water automation booleans. |
+| Eddi does not boost on cheap rates | Current Octopus rate, cheap-rate booleans, and `input_number.eddi_boost_duration_minutes`. |
+| Eddi keeps stopping before noon | `timer.eddi_max_temperature_reached` and max-temperature branch. |
+| Boiler hot water was not skipped | Eddi cycle energy versus `input_number.hot_water_solar_diverter_boiler_cut_off`. |
+| Diverting log missing | `sensor.myenergi_eddi_energy_consumed_session_daily` must not be `unknown`. |
 
 ## Related Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [HVAC](hvac_README.md) | Central heating coordination |
-| [Hive](hive_README.md) | Main thermostat control |
-| [Solar Assistant](../energy/solar_assistant_README.md) | Solar generation monitoring |
-| [Octopus Energy](../energy/octopus_energy_README.md) | Rate-based decisions |
+| [HVAC overview](README.md) | Folder-level heating, hot-water, and TRV overview. |
+| [Hive](hive_README.md) | Hive hot-water scheduling that Eddi can influence. |
+| [Energy](../energy/README.md) | Octopus and solar context. |
 
----
-
-*Last updated: 2026-04-05*
-
-*Source: [packages/integrations/hvac/eddi.yaml](../../../../packages/integrations/hvac/eddi.yaml)*
+*Last updated: 2026-06-27*

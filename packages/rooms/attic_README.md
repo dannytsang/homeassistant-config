@@ -1,214 +1,84 @@
+[<- Back to Rooms README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
+
 # Attic Package Documentation
 
-This package manages the attic automation including hatch contact sensor-based lighting control and safety timeout notifications.
+The attic package keeps the attic light tied to the hatch. Opening the hatch turns the light on, closing it turns the light off, and a reminder is sent if the light stays on for 30 minutes.
 
----
+## Quick Summary
 
-## Table of Contents
+For non-technical users, the important behavior is:
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Architecture](#architecture)
-## Overview
+| Area | What Happens |
+|------|--------------|
+| Hatch lighting | Opening `binary_sensor.attic_hatch_contact` turns on `light.attic`; closing it turns the light off. |
+| Safety reminder | If `light.attic` remains on for 30 minutes, Danny and Terina get an actionable notification asking whether to turn it off. |
+| Logging | Hatch open and close events are logged to the home log at Debug level. |
 
-The attic automation system provides simple but effective lighting control based on the attic hatch contact sensor. When the hatch is opened, lights automatically turn on. When closed, they turn off. A safety feature notifies occupants if lights have been left on for an extended period.
+## Package Contents
 
-```mermaid
-flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        Hatch["🚪 Attic Hatch<br/>Contact Sensor"]
-    end
+| File | Purpose | Contents |
+|------|---------|----------|
+| `attic.yaml` | Hatch-based attic lighting | 3 automations |
 
-    subgraph Logic["🧠 Automation Logic"]
-        HatchCtrl["🚪 Hatch Controller"]
-        Safety["⏱️ Safety Monitor"]
-    end
-
-    subgraph Outputs["📤 Controlled Devices"]
-        Lights["💡 Attic Lights"]
-        Notifications["🔔 Mobile Notifications"]
-    end
-
-    Hatch --> HatchCtrl
-    HatchCtrl --> Lights
-    Lights --> Safety
-    Safety --> Notifications
-```
-
----
-
-## Design Decisions
-
-Key architectural decisions captured from the YAML configuration:
-
-- **Attic: Hatch Opened** triggers on state transitions (edge detection) rather than continuous state
-- **Attic: Hatch Closed** triggers on state transitions (edge detection) rather than continuous state
-
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/attic/
-├── attic.yaml      # Main package file
-└── README.md       # This documentation
-```
-
-### Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `binary_sensor.attic_hatch_contact` | Contact sensor on attic hatch |
-| `light.attic` | Attic lighting entity |
-
----
-
-## Automations
-
-### Hatch Control
-
-#### Attic: Hatch Opened
-**ID:** `1676493888411`
-
-Automatically turns on attic lights when the hatch is opened.
+## How The Attic Decides What To Do
 
 ```mermaid
 flowchart TD
-    A["🚪 Hatch Opened"] --> B["Log Event"]
-    B --> C["💡 Turn On Lights"]
+    Hatch[binary_sensor.attic_hatch_contact] --> Opened{Hatch opened?}
+    Hatch --> Closed{Hatch closed?}
+    Opened --> LightOn[Turn on light.attic]
+    Opened --> LogOpen[Log hatch opened]
+    Closed --> LightOff[Turn off light.attic]
+    Closed --> LogClose[Log hatch closed]
+    LightOn --> TimerCheck[light.attic on for 30 minutes]
+    TimerCheck --> Notify[Ask Danny and Terina whether to turn it off]
 ```
 
-**Triggers:**
-- `binary_sensor.attic_hatch_contact` changes from `off` to `on`
+## User Controls
 
-**Actions:**
-- Logs debug message: "Attic hatch opened. Turning lights on."
-- Turns on `light.attic`
+There are no package-specific helper toggles, timers, or thresholds. The package reacts directly to the hatch contact sensor and the attic light state.
 
----
+## Everyday Behavior
 
-#### Attic: Hatch Closed
-**ID:** `1676493961946`
+### Hatch Lighting
 
-Automatically turns off attic lights when the hatch is closed.
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Attic: Hatch Opened` | `binary_sensor.attic_hatch_contact` changes from `off` to `on` | Logs the event and turns on `light.attic`. |
+| `Attic: Hatch Closed` | `binary_sensor.attic_hatch_contact` changes from `on` to `off` | Logs the event and turns off `light.attic`. |
 
-```mermaid
-flowchart TD
-    A["🚪 Hatch Closed"] --> B["Log Event"]
-    B --> C["🌑 Turn Off Lights"]
-```
+### Long-On Reminder
 
-**Triggers:**
-- `binary_sensor.attic_hatch_contact` changes from `on` to `off`
+If `light.attic` has been on for 30 minutes, `Attic: Lights On` sends `script.send_actionable_notification_with_2_buttons` to Danny and Terina.
 
-**Actions:**
-- Logs debug message: "Attic hatch closed. Turning lights off."
-- Turns off `light.attic`
+| Button | Action Name | Meaning |
+|--------|-------------|---------|
+| Yes | `switch_off_attic_lights` | Turn the attic lights off via the shared notification action handler. |
+| No | `ignore` | Leave the lights on. |
 
----
+## Power-User Details
 
-### Safety Timeout
-
-#### Attic: Lights On
-**ID:** `1664827040573`
-
-Sends a notification if attic lights have been on for 30 minutes, allowing occupants to turn them off remotely.
-
-```mermaid
-flowchart TD
-    A["💡 Lights Turned On"] --> B["Wait 30 Minutes"]
-    B --> C["🔔 Send Notification"]
-    C --> D["❓ Turn off lights?"]
-    D -->|Yes| E["🌑 Switch Off Lights"]
-    D -->|No| F["✅ Ignore"]
-```
-
-**Triggers:**
-- `light.attic` turns `on` and stays on for 30 minutes
-
-**Actions:**
-- Sends actionable notification to `person.danny` and `person.terina`
-- Message: "Lights have been on for 30 minutes. Turn off?"
-- Action buttons: "Yes" (triggers `switch_off_attic_lights`) / "No" (ignore)
-
----
-
-## Configuration
-
-### No Package-Specific Configuration
-
-This package uses no `input_boolean`, `input_number`, or `timer` entities. It relies on:
-
-- The contact sensor entity (`binary_sensor.attic_hatch_contact`)
-- The light entity (`light.attic`)
-- Shared notification scripts from `packages/shared_helpers.yaml`
-
----
+| Automation | ID | Mode | Notes |
+|------------|----|------|-------|
+| `Attic: Hatch Opened` | `1676493888411` | `single` | Runs logging and light-on action in parallel. |
+| `Attic: Hatch Closed` | `1676493961946` | `single` | Runs logging and light-off action in parallel. |
+| `Attic: Lights On` | `1664827040573` | `single` | Notification only; the actual button handling is outside this package. |
 
 ## Entity Reference
 
-### Binary Sensors
-
 | Entity | Purpose |
 |--------|---------|
-| `binary_sensor.attic_hatch_contact` | Attic hatch open/closed state |
+| `binary_sensor.attic_hatch_contact` | Attic hatch open/closed state. |
+| `light.attic` | Attic light controlled by hatch automations. |
+| `person.danny` | Notification recipient for the 30-minute reminder. |
+| `person.terina` | Notification recipient for the 30-minute reminder. |
+| `script.send_to_home_log` | Shared logging script. |
+| `script.send_actionable_notification_with_2_buttons` | Shared actionable notification script. |
 
-### Lights
-
-| Entity | Type | Purpose |
-|--------|------|---------|
-| `light.attic` | Light | Attic lighting |
-
-### Scripts Used
-
-| Script | Purpose |
-|--------|---------|
-| `script.send_to_home_log` | Logging with level support |
-| `script.send_actionable_notification_with_2_buttons` | Mobile notifications with action buttons |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph HatchFlow["🚪 Hatch Control"]
-        H1["Hatch Opened"] --> H2["Turn On Lights"]
-        H3["Hatch Closed"] --> H4["Turn Off Lights"]
-    end
-
-    subgraph SafetyFlow["⏱️ Safety Timeout"]
-        S1["Lights On"] --> S2["Wait 30 min"]
-        S2 --> S3["Send Notification"]
-        S3 --> S4{"User Response"}
-        S4 -->|Yes| S5["Turn Off"]
-        S4 -->|No| S6["Keep On"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [Rooms Overview](README.md) | Overview of all room packages |
-| [Main Packages README](../README.md) | Architecture and organization guidelines |
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
+## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Lights not turning on when hatch opens | `binary_sensor.attic_hatch_contact` state and connectivity |
-| Lights not turning off when hatch closes | Contact sensor alignment and battery |
-| No timeout notification | Check `script.send_actionable_notification_with_2_buttons` availability |
-
----
-
-*Last updated: 2026-04-05*
+| Light does not turn on when the hatch opens | Check `binary_sensor.attic_hatch_contact` changes to `on` when opened. |
+| Light does not turn off when the hatch closes | Check the hatch sensor changes back to `off` and `light.attic` is available. |
+| 30-minute reminder does not arrive | Check `light.attic` stayed continuously `on` for 30 minutes and the shared notification script is available. |

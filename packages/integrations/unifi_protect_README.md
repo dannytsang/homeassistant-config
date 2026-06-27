@@ -1,69 +1,123 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# UniFi Protect — Camera Event Processing
+# UniFi Protect Package Documentation
 
-*Last updated: 2026-04-05*
-
-Processes camera detection events from UniFi Protect via local webhooks. Handles three detection categories: personal vehicles (logged), known faces (notified in Holiday mode), and unknown faces (image downloaded via SFTPGo then notified with attachment).
+The UniFi Protect package handles front-door doorbell events and selected camera event webhooks. Doorbell presses notify the household, announce through Alexa, optionally create a shared reminder when nobody is home, and send Danny image/video links. Camera event webhooks log personal vehicles, handle known-face events in Holiday mode, and process unknown-face snapshots when the shared key matches.
 
 Integration reference: <https://www.home-assistant.io/integrations/unifiprotect/>
 
----
+| File | Purpose | Contents |
+|------|---------|----------|
+| `unifi_protect.yaml` | Doorbell and camera event processing | 4 automations |
 
-## Unknown Faces Detection Flow
+## Quick Summary
+
+| Area | What Happens |
+|------|--------------|
+| Doorbell | A doorbell event sends direct notifications to Danny and Terina, announces "Ding dong" on Alexa, and sends Danny image/video URLs from the doorbell camera. |
+| Away reminder | If all tracked people are away and the reminder does not already exist, a todo item is added to `todo.shared_notifications`. |
+| Personal vehicles | Local webhook events are logged to the home log when UniFi Protect event automations are enabled. |
+| Known faces | Local webhook events are accepted when enabled; in Holiday mode they send Danny a direct notification containing event details. |
+| Unknown faces | Local webhook events require the enable helper and a matching key token; when not in Holiday mode, an image is downloaded and sent to the home log with a local attachment. |
+
+## Event Flow
 
 ```mermaid
 flowchart TD
-    A([Webhook POST\n/unknown-faces]) --> B{enable_unifi_protect\n_events_automations?}
-    B -- No --> Z([Stop])
-    B -- Yes --> C{key_token matches\nn8n_webhook_key?}
-    C -- No --> Z
-    C -- Yes --> D{Home mode\nis NOT Holiday?}
-    D -- No / default --> Z
-    D -- Yes --> E[Resolve camera_name\nsource_path, file_path]
-    E --> F[shell_command.download_unifi_image\nvia SFTPGo share]
-    F --> G[script.send_home_log_with_local_attachments\nwith image attachment]
+    Doorbell[event.doorbell_doorbell changes] --> ValidState{From/to state not unavailable?}
+    ValidState -->|Yes| DoorNotify[Notify Danny and Terina]
+    ValidState -->|Yes| Alexa[Alexa announce Ding dong]
+    ValidState -->|Yes| TodoCheck{Tracked people not home and todo missing?}
+    TodoCheck -->|Yes| Todo[todo.shared_notifications item]
+    ValidState -->|Yes| MediaLinks[Send Danny image and video URLs]
+
+    Vehicles[Webhook personal-vehicles] --> VehicleEnabled{Event automations enabled?}
+    VehicleEnabled -->|No| Stop[Stop]
+    VehicleEnabled -->|Yes| VehicleLog[Vehicle event home-log entry]
+
+    Known[Webhook known-faces] --> KnownEnabled{Event automations enabled?}
+    KnownEnabled -->|No| Stop
+    KnownEnabled -->|Yes| KnownHoliday{Home mode Holiday?}
+    KnownHoliday -->|Yes| KnownNotify[Notify Danny with event details]
+
+    Unknown[Webhook unknown-faces] --> UnknownEnabled{Event automations enabled?}
+    UnknownEnabled -->|No| Stop
+    UnknownEnabled -->|Yes| KeyCheck{Unknown-face key matches?}
+    KeyCheck -->|Yes| NotHoliday{Home mode not Holiday?}
+    NotHoliday -->|Yes| Download[Download image via SFTPGo]
+    Download --> Attachment[Home-log message with local attachment]
 ```
 
----
+## User Controls
+
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_unifi_protect_events_automations` | Master switch for the webhook-based camera event automations. It does not gate the doorbell automation. |
+| `input_select.home_mode` | Gates known-face notifications to `Holiday` mode and unknown-face attachment handling to non-`Holiday` mode. |
+
+## Entities And Helpers Used
+
+| Entity | Purpose |
+|--------|---------|
+| `event.doorbell_doorbell` | Doorbell event source. |
+| `camera.doorbell_high_resolution_channel` | Provides `entity_picture` and `video_url` attributes for doorbell media links. |
+| `group.tracked_people` | Used to decide whether to create a delayed doorbell reminder. |
+| `todo.shared_notifications` | Stores a doorbell reminder if nobody is home. |
+| `input_text.external_url` | Prefix for doorbell image and video URLs. |
+| `input_text.n8n_webhook_key` | Shared key used by the unknown-faces webhook. |
+| `input_text.camera_external_folder_path` | Root destination path for downloaded unknown-face images. |
+| `input_text.sftpgo_base_url` | SFTPGo base URL for snapshot download. |
+| `input_text.sftpgo_unifi_share_id` | SFTPGo share ID. |
+| `input_text.sftpgo_unifi_share_password` | SFTPGo share password. |
 
 ## Automations
 
-| Name | ID | Webhook ID | Conditions | Action |
-|---|---|---|---|---|
-| Unifi Protect: Personal Vehicles | `1757534420170` | `personal-vehicles` | `enable_unifi_protect_events_automations` on | Log trigger value and event ID |
-| Unifi Protect: Known Faces | `1757533154370` | `known-faces` | `enable_unifi_protect_events_automations` on | Notify (Holiday mode only) with event ID, path, and local link |
-| Unifi Protect: Unknown Faces | `1757533154371` | `unknown-faces` | `enable_unifi_protect_events_automations` on; `key_token` matches `input_text.n8n_webhook_key` | Download snapshot via SFTPGo shell command; send notification with local image attachment (non-Holiday mode) |
+| Automation | Trigger | Conditions | Result |
+|------------|---------|------------|--------|
+| `Unifi Protect: Doorbell Pressed` | `event.doorbell_doorbell` state changes | Previous and new states are not `unavailable` | Sends direct notifications, Alexa announcement, optional todo reminder, and image/video links to Danny. |
+| `Unifi Protect: Personal Vehicles` | Local-only `POST` webhook `personal-vehicles` | Event automations enabled | Logs trigger value and event ID. |
+| `Unifi Protect: Known Faces` | Local-only `POST` webhook `known-faces` | Event automations enabled | If home mode is `Holiday`, sends Danny event details. Otherwise does nothing. |
+| `Unifi Protect: Unknown Faces` | Local-only `POST` webhook `unknown-faces` | Event automations enabled; `trigger.json.key_token` equals `input_text.n8n_webhook_key` | If home mode is not `Holiday`, downloads the image and sends a home-log message with the attachment. Otherwise does nothing. |
 
-All webhooks are `local_only: true` and accept `POST` only. The unknown faces webhook additionally validates a shared key token against `input_text.n8n_webhook_key`.
+## Unknown Faces Details
 
----
+```mermaid
+sequenceDiagram
+    participant Webhook as unknown-faces webhook
+    participant HA as Home Assistant
+    participant SFTPGo as SFTPGo share
+    participant Log as Home log
 
-## Unknown Faces — Variable Resolution
+    Webhook->>HA: POST with key_token, camera_name, file_path, file_name
+    HA->>HA: Check enable helper and key token
+    HA->>HA: Continue only when home_mode is not Holiday
+    HA->>SFTPGo: shell_command.download_unifi_image
+    SFTPGo-->>HA: Snapshot saved to local destination path
+    HA->>Log: send_home_log_with_local_attachments
+```
 
 | Variable | Source |
-|---|---|
-| `camera_name` | `trigger.json.camera_name` |
-| `source_path` | `trigger.json.file_path` + `/` + `trigger.json.file_name` |
-| `file_path` | `input_text.camera_external_folder_path` + `/` + `camera_name` + `/` + `trigger.json.file_name` |
+|----------|--------|
+| `camera_name` | `trigger.json.camera_name`, defaulting to `unknown`. |
+| `source_path` | `trigger.json.file_path + '/' + trigger.json.file_name`. |
+| `file_path` | `input_text.camera_external_folder_path + '/' + camera_name + '/' + trigger.json.file_name`. |
 
----
+## Power-User Notes
 
-## Shell Commands
+| Detail | Current YAML Behavior |
+|--------|-----------------------|
+| Webhook access | Webhook automations are `local_only: true` and accept `POST` only. |
+| Unknown-face authentication | Only `unknown-faces` checks `trigger.json.key_token` against `input_text.n8n_webhook_key`. |
+| Known-face message text | The current message text starts with "Unknown person" even though it is in the known-faces automation. |
+| Unknown-face holiday handling | Unknown-face attachment handling runs when home mode is not `Holiday`; `Holiday` falls through to the default no-op branch. |
+| Cleanup | The YAML has a TODO for deleting the image from SFTPGo after download; no delete action is currently active. |
 
-| Command | Description |
-|---|---|
-| `shell_command.download_unifi_image` | Downloads a camera snapshot from a SFTPGo share using `base_url`, `share_id`, `password`, `source_path`, and `destination_path` |
+## Troubleshooting
 
----
-
-## Dependencies
-
-- `input_boolean.enable_unifi_protect_events_automations` — master guard
-- `input_text.n8n_webhook_key` — shared webhook secret for unknown faces
-- `input_text.sftpgo_base_url`, `input_text.sftpgo_unifi_share_id`, `input_text.sftpgo_unifi_share_password` — SFTPGo connection details
-- `input_text.camera_external_folder_path` — local destination root for downloaded images
-- `input_select.home_mode` — used to gate known-face notifications to Holiday mode
-- `script.send_direct_notification` — push notification for known faces
-- `script.send_home_log_with_local_attachments` — notification with local image file attachment
-- SFTPGo — file transfer service (see `sftpgo.yaml`)
+| Symptom | Check |
+|---------|-------|
+| Doorbell event ignored | Confirm the event did not transition from or to `unavailable`; those transitions are filtered out. |
+| Camera webhooks do nothing | Confirm `input_boolean.enable_unifi_protect_events_automations` is `on`. |
+| Unknown-face webhook ignored | Confirm the posted `key_token` exactly matches `input_text.n8n_webhook_key`. |
+| Unknown-face image missing | Check `shell_command.download_unifi_image`, the SFTPGo helper values, and the resolved destination path in the automation trace. |
+| No todo created for doorbell | The todo is only added when `group.tracked_people` is `not_home` and the same summary is not already in `todo.shared_notifications`. |

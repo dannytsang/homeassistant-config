@@ -1,460 +1,130 @@
-# Alarm System
+[<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-Automated alarm control integrating Ring Alarm with Home Assistant for intelligent arming/disarming based on occupancy, time schedules, and door/window states.
+# Alarm Package Documentation
 
----
+The alarm package coordinates Ring Alarm overnight arming, disarming side effects, triggered-alarm notifications, and Ring MQTT recovery. For everyday use, it tries to arm the house in home mode overnight, checks that alarmed doors and windows are closed, accounts for tracked people who may still be nearby, locks the front door, and alerts the family if the alarm triggers or becomes unavailable.
 
-## Overview
+Integration: [ring-mqtt](https://github.com/tsightler/ring-mqtt)
 
-This package provides comprehensive alarm automation that handles:
+| File | Purpose | Contents |
+|------|---------|----------|
+| `alarm.yaml` | Ring Alarm automation and helper scripts | 8 automations, 4 scripts |
 
-- **Automatic overnight arming** based on schedule and occupancy
-- **Smart presence detection** with distance-based logic for family members
-- **Door/window validation** before arming
-- **Multiple alarm modes** (home, away, disarmed)
-- **Triggered alarm notifications** with actionable responses
-- **Automatic recovery** from Ring MQTT disconnections
+## Quick Summary
 
-The system integrates with Ring Alarm via the [ring-mqtt](https://github.com/tsightler/ring-mqtt) add-on and coordinates with door locks, cameras, and heating systems.
+| Area | What Happens |
+|------|--------------|
+| Overnight arming | A schedule and late-night time checks attempt to arm home mode when conditions are safe. |
+| Door/window safety | Open alarmed doors or windows block normal overnight arming and notify Danny and Terina. |
+| Presence logic | `script.arm_alarm_overnight` compares home state and distance-from-home sensors for Danny, Terina, and Leo. |
+| Final check | At 02:05, a final safety-net check can notify, flash bedroom lights blue, arm home mode, and lock the front door depending on doors/windows and adult presence. |
+| Triggered alarm | A triggered alarm sends direct, actionable, and high-priority Home Assistant notifications. |
+| Ring MQTT recovery | If the alarm panel is unavailable for 5 minutes, the Ring MQTT add-on is restarted and success/failure is logged. |
 
----
-
-## Architecture
+## How Overnight Arming Works
 
 ```mermaid
-flowchart TB
-    subgraph Inputs
-        A[Schedule<br/>alarm_scheduled_home_mode]
-        B[Time Triggers<br/>00:00, 01:00, 02:00]
-        C[Door/Window Sensors<br/>binary_sensor.alarmed_doors_and_windows]
-        D[Person Tracking<br/>Danny, Terina, Leo]
-        E[Front Door Lock]
-        F[Alarm Panel State]
-    end
+flowchart TD
+    Schedule[schedule.alarm_scheduled_home_mode on] --> ArmCheck[Alarm: Arm Overnight Home Mode]
+    TimeChecks[00:00, 00:30, 01:00, 01:30, 02:00] --> ArmCheck
+    ArmCheck --> Basic{Alarm disarmed or front door unlocked?}
+    Basic -->|No| Stop[Stop]
+    Basic -->|Yes| Enabled{Alarm automations enabled?}
+    Enabled -->|No| Stop
+    Enabled -->|Yes| Openings{Alarmed doors/windows open?}
+    Openings -->|Yes| NotifyOpen[Notify Danny and Terina with open entrances]
+    Openings -->|No| Overnight[script.arm_alarm_overnight]
+    ArmCheck --> LockDoor[script.lock_front_door]
 
-    subgraph Automations
-        G[Arm Overnight<br/>Home Mode]
-        H[Final Check<br/>02:05]
-        I[Arm When Doors<br/>Windows Shut]
-        J[Disarmed]
-        K[Armed Away]
-        L[Triggered]
-        M[Disconnected<br/>Recovery]
-    end
+    ClosedLater[Alarmed doors/windows close for 30 seconds] --> DoorCloseAuto[Alarm: Arm Overnight When Doors And Windows Shut]
+    DoorCloseAuto --> Overnight
 
-    subgraph Scripts
-        N[arm_alarm_overnight]
-        O[set_alarm_to_home_mode]
-        P[set_alarm_to_away_mode]
-        Q[set_alarm_to_disarmed_mode]
-    end
-
-    subgraph Outputs
-        R[Ring Alarm Panel]
-        S[Notifications]
-        T[Cameras]
-        U[Heating]
-        V[Door Lock]
-    end
-
-    A --> G
-    B --> G
-    C --> G
-    C --> I
-    D --> G
-    D --> H
-    E --> G
-    F --> J
-    F --> K
-    F --> L
-    F --> M
-
-    G --> N
-    H --> N
-    I --> N
-    N --> O
-    N --> P
-    N --> Q
-
-    O --> R
-    P --> R
-    Q --> R
-    J --> T
-    J --> U
-    K --> T
-    L --> S
-    M --> R
-    G --> V
+    Final[02:05 final check] --> FinalOpen{Doors/windows open?}
+    FinalOpen -->|Yes| BedroomWarn[Notify and turn bedroom lights blue]
+    FinalOpen -->|No| AdultCheck[Check Danny/Terina home and distance conditions]
+    AdultCheck --> FinalArm[Set alarm home mode and lock front door when a final-check branch matches]
 ```
 
----
+## User Controls
 
-## Entities
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_alarm_automations` | Master switch for all eight alarm automations. The scripts themselves do not all check this helper. |
+| `schedule.alarm_scheduled_home_mode` | Defines the overnight arming period used by scheduled and door/window-closed arming. |
+| `input_number.long_distance_away_from_home` | Distance threshold used to decide whether an away person is far enough away that the alarm can still arm. |
+| `input_text.restart_ring_mqtt_add_on_timeout` | Wait timeout after restarting the Ring MQTT add-on. |
 
-### Alarm Control Panel
+## Main Entities Used
 
-| Entity | Description |
-|--------|-------------|
-| `alarm_control_panel.house_alarm` | Main Ring Alarm panel entity |
-
-### Input Boolean
-
-| Entity | Description |
-|--------|-------------|
-| `input_boolean.enable_alarm_automations` | Master switch to enable/disable all alarm automations |
-
-### Binary Sensors
-
-| Entity | Description |
-|--------|-------------|
-| `binary_sensor.alarmed_doors_and_windows` | Group sensor indicating if any alarmed doors/windows are open |
-
-### Schedules
-
-| Entity | Description |
-|--------|-------------|
-| `schedule.alarm_scheduled_home_mode` | Schedule defining when overnight arming should be active |
-
-### Groups
-
-| Entity | Description |
-|--------|-------------|
-| `group.adult_people` | Group of adult residents (Danny, Terina) |
-| `group.all_tracked_people` | All tracked people including Leo |
-
-### Person Entities
-
-| Entity | Description |
-|--------|-------------|
-| `person.danny` | Danny's presence status |
-| `person.terina` | Terina's presence status |
-| `person.leo` | Leo's presence status |
-
-### Distance Sensors
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.danny_home_nearest_distance` | Danny's distance from home (meters) |
-| `sensor.terina_home_nearest_distance` | Terina's distance from home (meters) |
-| `sensor.leo_home_nearest_distance` | Leo's distance from home (meters) |
-
-### Lock
-
-| Entity | Description |
-|--------|-------------|
-| `lock.front_door` | Front door smart lock |
-
----
+| Entity | Purpose |
+|--------|---------|
+| `alarm_control_panel.house_alarm` | Main Ring Alarm panel. |
+| `binary_sensor.alarmed_doors_and_windows` | Aggregate sensor for alarmed doors/windows being open. |
+| `lock.front_door` | Lock checked and locked during overnight routines. |
+| `group.adult_people` | Used by the door/window-closed arming automation. |
+| `group.all_tracked_people` | Used by `script.arm_alarm_overnight` to detect everyone home. |
+| `person.danny`, `person.terina`, `person.leo` | Presence entities used for arming decisions and notifications. |
+| `sensor.danny_home_nearest_distance`, `sensor.terina_home_nearest_distance`, `sensor.leo_home_nearest_distance` | Distance sensors used by arming logic. |
 
 ## Automations
 
-### Alarm: Disarmed
-
-Triggered when the alarm is disarmed.
-
-**Actions:**
-- Logs disarm event to home log
-- Turns off indoor cameras (debug log)
-- Sets central heating to home mode
-
-```mermaid
-flowchart LR
-    A[Alarm State<br/>disarmed] --> B{Automation<br/>Enabled?}
-    B -->|Yes| C[Log to Home Log]
-    B -->|Yes| D[Debug: Cameras Off]
-    B -->|Yes| E[Set Heating to Home Mode]
-```
-
----
-
-### Alarm: Arm Overnight Home Mode
-
-Primary automation for automatically arming the alarm overnight.
-
-**Triggers:**
-- Schedule `alarm_scheduled_home_mode` turns on
-- Time: 00:00, 01:00, 02:00
-- Time pattern: Every 30 minutes between 00:00-01:59
-
-**Conditions:**
-- Alarm is disarmed OR front door is unlocked
-- Alarm automations are enabled
-
-**Logic:**
-
-```mermaid
-flowchart TD
-    A[Trigger<br/>Schedule/Time] --> B{Alarm Disarmed<br/>OR Door Unlocked?}
-    B -->|No| Z[Exit]
-    B -->|Yes| C{Doors/Windows<br/>Open?}
-    C -->|Yes| D[Send Notification<br/>List Open Entrances]
-    C -->|No| E[Execute<br/>arm_alarm_overnight]
-    E --> F[Lock Front Door]
-```
-
----
-
-### Alarm: Arm Overnight Home Mode Final Check
-
-Final attempt to arm the alarm at 02:05 if still disarmed.
-
-**Triggers:**
-- Time: 02:05:00
-
-**Conditions:**
-- Alarm is disarmed
-- Automations enabled
-
-**Logic:**
-
-```mermaid
-flowchart TD
-    A[02:05 Trigger] --> B{Doors/Windows<br/>Open?}
-    B -->|Yes| C[Send Warning Notification]
-    B -->|Yes| D[Turn on Bedroom<br/>Lights Blue]
-    B -->|No| E{Check Occupancy}
-    E -->|Danny Away<br/>Terina Home| F[Notify & Arm Home]
-    E -->|Terina Away<br/>Danny Home| G[Notify & Arm Home]
-    E -->|Both Home| H[Arm Home Mode]
-    E -->|Both Away| I[Skip - No One Home]
-```
-
----
-
-### Alarm: Arm Overnight When Doors And Windows Shut
-
-Arms the alarm when all doors/windows close during the scheduled period.
-
-**Triggers:**
-- `binary_sensor.alarmed_doors_and_windows` changes from on to off (with 30s delay)
-
-**Conditions:**
-- Adult people are home
-- Alarm is disarmed
-- All doors/windows are closed
-- Schedule is active
-- Automations enabled
-
----
-
-### Alarm: Armed
-
-Triggered when alarm is set to away mode.
-
-**Actions:**
-- Logs arming event
-- Turns on all cameras
-
----
-
-### Alarm: Disconnected
-
-Monitors for Ring Alarm disconnections.
-
-**Triggers:**
-- Alarm panel becomes `unavailable` for 1 minute
-
-**Actions:**
-- Sends direct notification to Danny and Terina
-
----
-
-### Alarm: Disconnected For A Period Of Time
-
-Attempts automatic recovery from extended disconnections.
-
-**Triggers:**
-- Alarm panel unavailable for 5 minutes
-
-**Actions:**
-- Logs recovery attempt
-- Restarts Ring MQTT add-on
-- Waits for reconnection
-- Logs success or failure
-
----
-
-### Alarm: Triggered
-
-Handles alarm trigger events with immediate notifications.
-
-**Triggers:**
-- Alarm state changes to `triggered`
-
-**Actions:**
-- Sends direct notifications to all residents
-- Sends actionable notification (Yes/No to turn off)
-- Posts high-priority notification
-
----
+| Automation | Trigger | Conditions | Result |
+|------------|---------|------------|--------|
+| `Alarm: Disarmed` | Alarm panel changes to `disarmed` | Alarm automations enabled | Logs disarm, logs a debug indoor-camera message, and runs `script.set_central_heating_to_home_mode`. |
+| `Alarm: Arm Overnight Home Mode` | Schedule turns on; 00:00; every 30 minutes during hours 0 and 1; 01:00; 02:00 | Alarm is disarmed or front door is not locked; alarm automations enabled | Notifies if openings are present, otherwise calls `script.arm_alarm_overnight`; then calls `script.lock_front_door`. |
+| `Alarm: Arm Overnight Home Mode Final Check` | 02:05 | Alarm disarmed; alarm automations enabled | Warns if openings remain. If openings are closed, selected Danny/Terina presence branches notify, arm home mode, and lock the front door. |
+| `Alarm: Arm Overnight When Doors And Windows Shut` | Alarmed doors/windows change from `on` to `off` for 30 seconds | Adult people home; alarm disarmed; openings closed; schedule active; alarm automations enabled | Calls `script.arm_alarm_overnight` with a closed-openings message. |
+| `Alarm: Armed` | Alarm panel changes to `armed_away` | Alarm automations enabled | Logs away-mode arming and camera text to the home log. |
+| `Alarm: Disconnected` | Alarm panel is `unavailable` for 1 minute | Alarm automations enabled | Sends Danny and Terina a direct notification. |
+| `Alarm: Disconnected For A Period Of Time` | Alarm panel is `unavailable` for 5 minutes | Alarm automations enabled | Logs, restarts add-on `fdb328a7_ring_mqtt`, waits for recovery, then logs success or failure. |
+| `Alarm: Triggered` | Alarm panel changes to `triggered` | Alarm automations enabled | Sends direct notifications to Danny, Terina, and Leo; sends Danny and Terina a Yes/No actionable notification; posts a high-priority Home Assistant direct notification. |
 
 ## Scripts
 
-### set_alarm_to_away_mode
+| Script | Mode | Result |
+|--------|------|--------|
+| `script.set_alarm_to_away_mode` | `single` | If not already `armed_away`, logs and calls `alarm_control_panel.alarm_arm_away`. |
+| `script.set_alarm_to_disarmed_mode` | `single` | If not already `disarmed`, logs and calls `alarm_control_panel.alarm_disarm`. |
+| `script.set_alarm_to_home_mode` | `single` | If not already `armed_home`, logs and calls `alarm_control_panel.alarm_arm_home`. |
+| `script.arm_alarm_overnight` | `single` | Applies the overnight presence/distance decision tree, then logs, arms home mode, locks the front door, or notifies depending on the branch. |
 
-Arms the alarm in away mode (all sensors active).
-
-**Logic:**
-```mermaid
-flowchart LR
-    A[Call Script] --> B{Already Armed<br/>Away?}
-    B -->|No| C[Log Event]
-    B -->|No| D[Arm Away]
-    B -->|Yes| E[Skip]
-```
-
-### set_alarm_to_home_mode
-
-Arms the alarm in home mode (door sensors only, motion sensors disabled).
-
-### set_alarm_to_disarmed_mode
-
-Disarms the alarm system.
-
-### arm_alarm_overnight
-
-Complex script handling overnight arming logic with presence detection.
-
-**Person State Logic:**
+## `arm_alarm_overnight` Decision Tree
 
 ```mermaid
 flowchart TD
-    A[Start] --> B[Calculate Person States]
-    B --> C{Already Locked<br/>& Armed?}
-    C -->|Yes| D[Skip - Already Secured]
-    C -->|No| E{Everyone Home?}
-    E -->|Yes| F[Arm Home Mode<br/>Lock Door]
-    E -->|No| G{Someone Not Far<br/>Before 02:00?}
-    G -->|Yes| H[Log: Waiting for<br/>Person to Return]
-    G -->|No| I{Someone Home &<br/>Rest Far Away?}
-    I -->|Yes| J[Log: Far Away Info<br/>Arm Home Mode]
-    I -->|No| K[Send Notification<br/>People Not Home]
+    Start[Script called with message] --> PersonVars[Build Danny/Terina/Leo arrays: home, far away]
+    PersonVars --> Secured{Front door locked and alarm not disarmed?}
+    Secured -->|Yes| Already[Log already secured]
+    Secured -->|No| Everyone{group.all_tracked_people home?}
+    Everyone -->|Yes| EveryoneHome[Log, set alarm home, lock front door]
+    Everyone -->|No| Nearby{Someone away but not far, before 02:00?}
+    Nearby -->|Yes| Wait[Log that alarm is not turned on and later check will run]
+    Nearby -->|No| SafeMix{Each tracked person is home or far away, between 22:59 and 02:00?}
+    SafeMix -->|Yes| Arm[Log distance details and set alarm home mode]
+    SafeMix -->|No| Notify[Notify Danny and Terina that people are not home]
 ```
 
-**Person State Array:**
-Each person is evaluated as a binary array `[home, far_away]`:
-- `home`: Person state is "home"
-- `far_away`: Distance > `input_number.long_distance_away_from_home` - 1 meter
+Power-user detail: each person is represented as `[home, far_away]`, where `far_away` means the relevant distance sensor is greater than `input_number.long_distance_away_from_home - 1`.
 
-**Decision Matrix:**
+## External Scripts And Services Used
 
-| Danny | Terina | Leo | Time | Action |
-|-------|--------|-----|------|--------|
-| Home | Home | Home | Any | Arm home mode |
-| Not home + not far | Any | Any | Before 02:00 | Wait, check later |
-| Far away | Home | Home | After 22:59 or before 02:00 | Arm home mode with log |
-| Home | Far away | Home | After 22:59 or before 02:00 | Arm home mode with log |
-| Not home + not far | Not home + not far | Not home + not far | Before 02:00 | Wait for return |
+| Dependency | Used For |
+|------------|----------|
+| `script.send_to_home_log` | Normal/debug logging. |
+| `script.send_direct_notification` | Direct resident notifications. |
+| `script.send_actionable_notification_with_2_buttons` | Triggered-alarm Yes/No prompt. |
+| `script.post_home_assistant_direct_notification` | High-priority triggered-alarm notification. |
+| `script.get_clock_emoji` | Clock emoji used in some late-night messages. |
+| `script.set_central_heating_to_home_mode` | Heating response after disarm. |
+| `script.lock_front_door` | Door locking during arming routines. |
+| `hassio.addon_restart` | Ring MQTT add-on recovery. |
 
----
+## Troubleshooting
 
-## Overnight Arming Flow
-
-The complete overnight arming sequence:
-
-```mermaid
-sequenceDiagram
-    participant Schedule as Schedule/Time
-    participant Auto1 as Arm Overnight<br/>Home Mode
-    participant Auto2 as Final Check<br/>(02:05)
-    participant Auto3 as Doors/Windows<br/>Shut
-    participant Script as arm_alarm<br/>_overnight
-    participant HA as Home Assistant
-    participant Ring as Ring Alarm
-
-    Note over Schedule,Ring: Scheduled Arming Period
-
-    Schedule->>Auto1: Trigger (00:00, 01:00, 02:00,<br/>or schedule on)
-    Auto1->>HA: Check doors/windows status
-    alt Doors/Windows Open
-        Auto1->>HA: Send notification<br/>listing open entrances
-    else All Closed
-        Auto1->>Script: Call with message
-        Script->>HA: Calculate person states
-        Script->>Script: Check if already secured
-        alt Everyone Home
-            Script->>Ring: Arm home mode
-            Script->>HA: Lock front door
-        else Someone Expected Back
-            Script->>HA: Log wait message
-        else Someone Far Away
-            Script->>Ring: Arm home mode
-            Script->>HA: Log distance info
-        end
-    end
-
-    Note over Auto2: Final Check at 02:05
-
-    Auto2->>HA: Check if still disarmed
-    Auto2->>HA: Check doors/windows
-    alt Doors/Windows Open
-        Auto2->>HA: Warning notification
-        Auto2->>HA: Blue bedroom lights
-    else All Closed
-        Auto2->>HA: Check occupancy
-        alt One Adult Home, Other Away
-            Auto2->>Ring: Arm home mode
-            Auto2->>HA: Lock front door
-            Auto2->>HA: Notify residents
-        end
-    end
-
-    Note over Auto3: Event-Driven Arming
-
-    HA-->>Auto3: Doors/windows just closed
-    Auto3->>HA: Verify conditions
-    Auto3->>Script: Call arm_alarm_overnight
-```
-
----
-
-## Dependencies
-
-### Required Integrations
-
-- **ring-mqtt**: Ring Alarm integration via MQTT
-- **Home Assistant Companion App**: For person tracking and notifications
-
-### Required Scripts
-
-- `script.send_to_home_log` - Logging to home log
-- `script.send_direct_notification` - Direct notifications to people
-- `script.send_actionable_notification_with_2_buttons` - Actionable notifications
-- `script.post_home_assistant_direct_notification` - High-priority notifications
-- `script.get_clock_emoji` - Clock emoji for time-based messages
-- `script.set_central_heating_to_home_mode` - Heating control
-- `script.lock_front_door` - Door locking
-
-### Required Input Helpers
-
-- `input_boolean.enable_alarm_automations` - Master enable switch
-- `input_number.long_distance_away_from_home` - Distance threshold (meters)
-- `input_text.restart_ring_mqtt_add_on_timeout` - Timeout for add-on restart
-
----
-
-## Configuration
-
-### Schedule Setup
-
-Create a schedule helper named `alarm_scheduled_home_mode` to define when overnight arming should be active. Typically set for evening hours (e.g., 22:00 - 06:00).
-
-### Distance Threshold
-
-Set `input_number.long_distance_away_from_home` to define how far someone must be to be considered "far away" (default in miles for notifications, meters for calculation).
-
-### Enabling Automations
-
-All automations check `input_boolean.enable_alarm_automations` before executing. This provides a master kill-switch for all alarm-related automation.
-
----
-
-## Notes
-
-- The system uses **home mode** for overnight arming (door sensors only) to allow movement inside without triggering
-- **Away mode** is used when leaving the house (all sensors including motion)
-- The 30-second delay on door/window close trigger prevents false triggers from brief openings
-- Final check at 02:05 is a safety net for residents who may be out late
-- Ring MQTT add-on restart is attempted automatically after 5 minutes of disconnection
-
-*Last updated: 2026-04-06*
+| Symptom | Check |
+|---------|-------|
+| Overnight alarm did not arm | Check `input_boolean.enable_alarm_automations`, `binary_sensor.alarmed_doors_and_windows`, `schedule.alarm_scheduled_home_mode`, person states, and distance sensors in the automation trace. |
+| Notification lists open entrances | One or more entities inside `binary_sensor.alarmed_doors_and_windows` were `on`; close them and the door/window-closed automation can retry after 30 seconds if the schedule is active. |
+| Front door did not lock | This package calls `script.lock_front_door`; check the Nuki package and `input_boolean.enable_front_door_lock_automations`. |
+| Alarm unavailable recovery failed | Review `Alarm: Disconnected For A Period Of Time`, the add-on slug `fdb328a7_ring_mqtt`, and `input_text.restart_ring_mqtt_add_on_timeout`. |
+| Expected cameras to actually toggle | Current YAML only logs camera-related messages in this package; it does not call camera enable/disable services. |

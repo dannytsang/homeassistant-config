@@ -1,42 +1,59 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Git — GitHub CI/CD Integration
+# Git CI Pull Integration
 
-*Last updated: 2026-04-05*
-
-Receives GitHub Actions webhook callbacks and triggers an automatic configuration pull when a build passes. Validates a shared secret key before acting; sends a direct alert if the key is incorrect.
+This package lets a successful external CI workflow ask Home Assistant to pull the latest configuration. It only starts the Git Pull add-on when the integration is enabled and the webhook payload includes the expected shared token.
 
 Community reference: <https://community.home-assistant.io/t/guide-to-setting-up-a-fully-automated-ci-for-hassio/51576>
 
----
+## Quick Summary
 
-## Automations
+| Area | What Happens |
+|------|--------------|
+| Webhook | Receives public `POST` requests on webhook ID `git_pull`. |
+| Safety gate | Requires `input_boolean.enable_github_integration` to be on. |
+| Token check | Compares `trigger.json.key_token` with `input_text.github_pull_key`. |
+| Valid token | Logs success and starts the `core_git_pull` add-on. |
+| Invalid token | Sends Danny a direct notification through `script.send_direct_notification`. |
 
-| Name | ID | Trigger | Conditions | Action |
-|---|---|---|---|---|
-| Home Assistant CI | `1613937312554` | Webhook POST → `git_pull` (public, not local-only) | `input_boolean.enable_github_integration` on | See logic below |
+## Package Contents
 
-### Webhook Handling Logic
+| File | Purpose | Contents |
+|------|---------|----------|
+| `git.yaml` | CI webhook handling | 1 automation |
 
-| Key Token Valid? | Response |
-|---|---|
-| Yes | Log "build passed, pulling changes" + start `hassio.addon_start` → `core_git_pull` |
-| No | `script.send_direct_notification` — alert that build passed but incorrect key was received |
+## Flow
 
----
+```mermaid
+flowchart TD
+    Webhook[POST webhook git_pull] --> Enabled{GitHub integration enabled?}
+    Enabled -->|No| Stop[Ignore request]
+    Enabled -->|Yes| Token{key_token matches input_text.github_pull_key?}
+    Token -->|Yes| Log[Log build passed]
+    Token -->|Yes| Pull[Start add-on core_git_pull]
+    Token -->|No| Alert[Send direct notification to Danny]
+```
 
-## Configuration
+## Automation
 
-| Input | Purpose |
-|---|---|
-| `input_boolean.enable_github_integration` | Master enable/disable for the CI integration |
-| `input_text.github_pull_key` | Shared secret token validated against `trigger.json.key_token` |
+| Automation | ID | Trigger | Mode | Result |
+|------------|----|---------|------|--------|
+| `Home Assistant CI` | `1613937312554` | Webhook `git_pull`, `POST`, `local_only: false` | `single` | Validates the token, starts Git Pull on success, and alerts on token mismatch. |
 
----
+## Entities And Services
 
-## Dependencies
+| Entity or Service | Purpose |
+|-------------------|---------|
+| `input_boolean.enable_github_integration` | Master enable switch for this webhook. |
+| `input_text.github_pull_key` | Shared token used to validate webhook payloads. |
+| `hassio.addon_start` with `addon: core_git_pull` | Starts the Git Pull add-on. |
+| `script.send_to_home_log` | Logs valid build/pull events. |
+| `script.send_direct_notification` | Alerts Danny when a request has the wrong token. |
 
-- `hassio.addon_start` with `addon: core_git_pull` — triggers the Git Pull add-on to fetch latest config
-- `script.send_to_home_log` — structured logging on successful pull
-- `script.send_direct_notification` — alert on key mismatch
-- GitHub Actions — sends the webhook after a successful CI run
+## Troubleshooting
+
+| Symptom | Check |
+|---------|-------|
+| Webhook arrives but nothing happens | Confirm `input_boolean.enable_github_integration` is `on`. |
+| Token mismatch notification appears | Compare the CI secret with `input_text.github_pull_key`. |
+| Git does not pull after a valid webhook | Check the `core_git_pull` add-on and the automation trace for `hassio.addon_start`. |

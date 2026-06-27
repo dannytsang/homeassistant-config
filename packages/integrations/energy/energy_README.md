@@ -1,306 +1,102 @@
-# Energy
+[<- Back to Energy README](README.md) · [Integrations README](../README.md) · [Packages README](../../README.md)
 
-Central energy management package coordinating solar, battery, grid, and consumption monitoring.
+# Core Energy Package Documentation
 
----
+The core energy package watches the house battery, solar forecast, grid power, and Octopus saving sessions. It sends the household useful warnings, produces reusable forecast calculations for other packages, and exposes a small set of grid power sensors.
 
-## Overview
+| File | Purpose | Contents |
+|------|---------|----------|
+| `energy.yaml` | Core energy behaviour | 14 automations, 4 groups, 9 scripts, 4 template sensors |
 
-This package serves as the **central nervous system** for the home's energy management. It doesn't control devices directly but provides:
-- **Energy dashboard** sensors for Home Assistant's built-in energy panel
-- **Consumption calculations** — converts grid import into actual home consumption
-- **Rate tracking** — previous/current/next electricity rates for automation logic
-- **Carbon intensity** — grid carbon footprint monitoring
-- **Conversation helpers** — natural language responses for voice assistants
+## Quick Summary
 
-### Key Insight: Import ≠ Consumption
+| Area | What Happens |
+|------|--------------|
+| Battery charge tracking | Records whether the Growatt battery reached the configured charged threshold today and counts consecutive days where it did not. |
+| Solar forecast | At 21:00 on Agile tariffs, updates Solcast, checks tomorrow's forecast against the low-generation threshold, and sends a forecast notification. |
+| Battery warnings | Warns about low battery before peak time, battery depletion, and long runs of days without a full charge. |
+| Grid warnings | Alerts for possible power cuts and high house current draw near the configured fuse limit. |
+| Saving sessions | Notifies Danny and Terina when Octoplus Saving Sessions start and finish. |
+| Forecast helpers | Calculates recommended charge amounts from solar forecast and weather conditions. |
 
-Grid import sensors do **not** represent whole-home usage. When solar or battery is supplying power, consumption can be high while grid import is zero (or negative when exporting).
-
-This package calculates **actual consumption** by combining:
-- Grid import/export
-- Solar generation
-- Battery charge/discharge
-
----
-
-## Architecture
+## How The Package Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Sources["Data Sources"]
-        Growatt["⚡ Growatt Inverter<br/>(Solar, Battery, Grid)"]
-        Octopus["💰 Octopus Energy<br/>(Rates)"]
-        Carbon["🌍 Carbon Intensity UK<br/>(Grid CO₂)"]
-    end
-
-    subgraph ThisPackage["energy.yaml"]
-        subgraph Templates["Template Sensors"]
-            Consumption["🏠 House Consumption<br/>(Calculated)"]
-            SolarConsumed["☀️ Solar Self-Consumed"]
-            BatteryNet["🔋 Battery Net Power"]
-            Rates["💷 Rate Tracking<br/>(Previous/Current/Next)"]
-        end
-
-        subgraph Conversation["Conversation Agents"]
-            EnergyConv["🗣️ Energy Conversations"]
-        end
-    end
-
-    subgraph Consumers["Consumers"]
-        Dashboard["📊 Energy Dashboard"]
-        Automations["🤖 Other Automations"]
-        Voice["🔊 Voice Responses"]
-    end
-
-    Growatt -->|Raw data| Templates
-    Octopus -->|Rate data| Rates
-    Carbon -->|CO₂ data| Templates
-
-    Consumption --> Dashboard
-    SolarConsumed --> Dashboard
-    BatteryNet --> Dashboard
-    Rates --> Automations
-    EnergyConv --> Voice
+    BatterySOC[Growatt battery SoC] --> ChargeToday[Charged-today tracking]
+    BatterySOC --> ExcessSolar[Excess solar notification]
+    BatterySOC --> BatteryAlerts[Battery charge and depleted alerts]
+    Forecast[Forecast.io and Solcast forecast sensors] --> ForecastScripts[Forecast helper scripts]
+    Weather[weather.home] --> ForecastScripts
+    ForecastScripts --> TomorrowNotify[Tomorrow forecast notification]
+    Grid[house_power or smart_meter_electricity_power] --> GridSensors[Grid power template sensors]
+    Load[Growatt load power] --> PowerCut[Power cut notification]
+    Octopus[Octopus saving session binary sensor] --> SavingSession[Saving session notifications]
 ```
 
----
+## Automations
 
-## Energy Dashboard Integration
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Energy: Battery Charged And Forecasted Excess Solar` | Battery SoC rises above `input_number.battery_charged_notification` | Calls `script.energy_notify_excess_solar` when this/next hour solar is forecast and inverter is not `Battery first`. |
+| `Energy: Solar Forecast Tomorrow` | 21:00 | On Agile tariff, updates Solcast, updates the low-forecast counter, and sends tomorrow's forecast. |
+| `Energy: Battery Charged Today` | Battery SoC rises above `input_number.growatt_battery_charged_threshold` | Marks `input_boolean.battery_charged_today` on and resets the not-charged counter if needed. |
+| `Energy: Reset Battery Charged Today` | Midnight | Resets the charged-today flag or increments `input_number.consecutive_days_battery_not_charged`. |
+| `Energy: Solar Production exceed threshold` | Today's forecast rises above `input_number.solar_generation_minimum_threshold` | Logs that production is above threshold. |
+| `Energy: Consecutive Days Battery Not Charged` | Not-charged counter above 6 | Notifies Danny. |
+| `Energy: Consecutive Low Solar Generation` | Low-forecast counter above 6 | Notifies Danny. |
+| `Energy: Battery Charge Notification` | 15:55 | Sends battery SoC and runtime if SoC is above the load-first stop-discharge value plus 1. |
+| `Energy: Low Battery Before Peak Time` | 14:00 and 15:00 | On Agile tariff, warns Danny if estimated runtime will not last beyond 19:00 and inverter is not already charging. |
+| `Energy: Power Cut Notification` | `sensor.growatt_sph_load_power` is `0` for 1 minute | Sends a possible power-cut notification. |
+| `Energy: High Grid Power Draw` | `sensor.house_current` above `sensor.grid_max_import_power_warning` | Warns Danny and Terina about approaching fuse limit. |
+| `Energy: Battery Depleted` | Battery SoC below 11% for 1 minute while importing from grid | Logs and sends a battery depleted notification. |
+| `Energy: Saving Session Started` | Octoplus saving sessions binary sensor turns on | Notifies Danny and Terina. |
+| `Energy: Saving Session Finished` | Octoplus saving sessions binary sensor turns off | Notifies Danny and Terina. |
 
-```mermaid
-flowchart LR
-    subgraph Generation["☀️ Generation"]
-        Solar["sensor.growatt_sph_pv_power<br/>(Solar panels)"]
-    end
+## Scripts
 
-    subgraph Battery["🔋 Battery"]
-        BatteryIn["sensor.growatt_sph_battery_charge_power<br/>(Charging)"]
-        BatteryOut["sensor.growatt_sph_battery_discharge_power<br/>(Discharging)"]
-    end
+| Script | Purpose |
+|--------|---------|
+| `script.todays_solar_forecast_data` | Returns today's forecast-derived charge recommendation, weather condition, weather compensation, and forecast timestamp. |
+| `script.tomorrows_solar_forecast_data` | Returns tomorrow's forecast, source, unit, charge recommendation, weather condition, compensation, and forecast timestamp. |
+| `script.battery_charge_compensation_ratio` | Maps weather conditions to a compensation ratio: 1.5 for rainy/cloudy/fog, 1.25 for partly cloudy/lightning-rainy/snowy, and 1.0 for sunny/windy/exceptional. |
+| `script.calculate_charge_battery_amount` | Converts forecast kWh into a target charge percentage from 100% down to 23%. |
+| `script.energy_notify_tomorrows_solar_forecast` | Sends tomorrow's forecast, battery runtime, and recommended battery charge. |
+| `script.remaining_solar_forecast_today` | Returns forecast minus actual Growatt PV energy so far. |
+| `script.get_first_solar_generation` | Finds the first forecast period above a threshold. |
+| `script.get_last_solar_generation` | Finds the last forecast period above a threshold. |
+| `script.energy_notify_excess_solar` | Notifies adults currently home about excess solar, or logs if no adult is home. |
 
-    subgraph Grid["⚡ Grid"]
-        GridIn["sensor.growatt_sph_grid_import_power<br/>(Importing)"]
-        GridOut["sensor.growatt_sph_grid_export_power<br/>(Exporting)"]
-    end
+## Groups
 
-    subgraph Consumption["🏠 Consumption"]
-        House["sensor.house_consumption<br/>(Calculated)"]
-    end
-
-    Solar -->|Powers| House
-    BatteryOut -->|Powers| House
-    GridIn -->|Powers| House
-
-    Solar -->|Charges| BatteryIn
-    GridIn -->|Charges| BatteryIn
-
-    Solar -->|Exports| GridOut
-    BatteryOut -->|Exports| GridOut
-```
-
----
+| Group | Members |
+|-------|---------|
+| `group.battery_first_charging_schedules` | `input_boolean.enable_battery_first_schedule_1`, `input_boolean.enable_battery_first_schedule_2` |
+| `group.below_export_charging_schedules` | `input_boolean.enable_charge_below_export_schedule_1`, `_2`, `_3` |
+| `group.grid_first_charging_schedules` | `input_boolean.enable_grid_first_schedule_1` |
+| `group.maintain_battery_first_charging_schedules` | `binary_sensor.maintain_charge_first_schedule_1`, `_2` |
 
 ## Template Sensors
 
-### House Consumption
-
-**Entity:** `sensor.house_consumption`
-
-Calculates actual home energy usage by combining all sources:
-
-```yaml
-# Logic:
-consumption = grid_import + solar_generation - grid_export + battery_discharge - battery_charge
-```
-
-This gives the true picture of what the house is using, regardless of where the power comes from.
-
----
-
-### Solar Self-Consumed
-
-**Entity:** `sensor.solar_self_consumed`
-
-Tracks how much solar generation is used directly by the house (not exported or stored).
-
-```mermaid
-flowchart LR
-    Solar["☀️ Solar Generated"] --> Split{"Split"}
-    Split -->|Direct use| SelfConsumed["🏠 Self-Consumed<br/>(sensor.solar_self_consumed)"]
-    Split -->|To battery| Battery["🔋 Battery"]
-    Split -->|To grid| Export["⚡ Export"]
-```
-
----
-
-### Battery Net Power
-
-**Entity:** `sensor.battery_net_power`
-
-Combined view of battery activity:
-- Positive = discharging (supplying power)
-- Negative = charging (absorbing power)
-
----
-
-### Rate Tracking
-
 | Entity | Purpose |
 |--------|---------|
-| `sensor.electricity_previous_rate` | Rate before current period (for trend analysis) |
-| `sensor.electricity_current_rate` | Current import rate (p/kWh) |
-| `sensor.electricity_next_rate` | Upcoming rate (for predictive decisions) |
+| `sensor.grid_power` | Unified grid power using `sensor.house_power`, falling back to smart meter power converted to W. |
+| `sensor.grid_import_power` | Positive import-only power, otherwise `0`. |
+| `sensor.grid_export_power` | Negative grid power converted to positive export power, otherwise `0`. |
+| `sensor.grid_amp_import_warning` | 90% of `input_number.cut_out_fuse_size`, in amps. |
 
-```mermaid
-flowchart LR
-    Octopus["Octopus Energy"] -->|Sets| Current["Current Rate"]
-    Current -->|Becomes| Previous["Previous Rate"]
-    Octopus -->|Forecast| Next["Next Rate"]
+## Power-User Notes
 
-    Previous -->|Used by| Automations["Rate Change Automations"]
-    Current -->|Used by| Automations
-    Next -->|Used by| Predbat["Predbat Planning"]
-```
+The forecast scripts use Home Assistant response variables and are consumed by Solar Assistant and notification scripts. The target charge table in `script.calculate_charge_battery_amount` is deliberately simple: lower forecast means higher recommended grid charge, and forecasts of 18 kWh or more target 23%.
 
----
-
-## Conversation Agents
-
-### Energy Conversations
-
-Provides natural language responses for voice assistants:
-
-**Example Queries:**
-- "How much solar are we generating?"
-- "What's the current electricity rate?"
-- "How much power is the house using?"
-
-**Response Logic:**
-```mermaid
-flowchart TD
-    A["🎤 Voice Query"] --> B{"Intent?"}
-
-    B -->|Solar| C["☀️ Current PV power + today's generation"]
-    B -->|Rate| D["💰 Current rate + next rate + trend"]
-    B -->|Consumption| E["🏠 Current consumption + daily total"]
-    B -->|Battery| F["🔋 Battery % + charge/discharge rate"]
-
-    C --> G["🗣️ Natural response"]
-    D --> G
-    E --> G
-    F --> G
-```
-
----
-
-## Carbon Intensity
-
-**Entity:** `sensor.carbon_intensity_uk`
-
-Tracks the real-time carbon intensity of the UK grid (gCO₂/kWh).
-
-**Usage:**
-- High carbon = prioritize battery/solar
-- Low carbon = acceptable to import from grid
-- Can trigger automations to shift loads to cleaner periods
-
----
-
-## Key Entities
-
-### Sensors (Template)
-
-| Entity | Unit | Description |
-|--------|------|-------------|
-| `sensor.house_consumption` | W | Real-time house consumption |
-| `sensor.solar_self_consumed` | W | Solar used directly by house |
-| `sensor.battery_net_power` | W | Battery discharge (positive) / charge (negative) |
-| `sensor.electricity_previous_rate` | p/kWh | Previous period rate |
-| `sensor.electricity_current_rate` | p/kWh | Current import rate |
-| `sensor.electricity_next_rate` | p/kWh | Next period rate |
-| `sensor.carbon_intensity_uk` | gCO₂/kWh | Grid carbon intensity |
-
-### From Growatt Integration
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.growatt_sph_pv_power` | Solar generation |
-| `sensor.growatt_sph_battery_charge_power` | Battery charging |
-| `sensor.growatt_sph_battery_discharge_power` | Battery discharging |
-| `sensor.growatt_sph_grid_import_power` | Grid import |
-| `sensor.growatt_sph_grid_export_power` | Grid export |
-
----
-
-## Dependencies
-
-### Required Integrations
-
-- [Growatt](https://www.home-assistant.io/integrations/growatt_server/) — Solar/battery/grid data
-- [Octopus Energy](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy) — Rate data
-- [Carbon Intensity UK](https://www.home-assistant.io/integrations/carbon_intensity/) — Grid carbon data
-
-### Cross-Package Dependencies
-
-| Dependency | Package | Purpose |
-|------------|---------|---------|
-| `sensor.growatt_sph_*` | solar_assistant | Raw energy data |
-| `sensor.octopus_energy_electricity_*` | octopus_energy | Rate data |
-| `conversation` | home_assistant | Voice responses |
-
----
-
-## Energy Dashboard Configuration
-
-To use these sensors in Home Assistant's Energy Dashboard:
-
-```yaml
-# configuration.yaml
-energy:
-  # Grid consumption
-  grid:
-    - name: Grid Import
-      power: sensor.growatt_sph_grid_import_power
-    - name: Grid Export
-      power: sensor.growatt_sph_grid_export_power
-
-  # Solar panels
-  solar:
-    - name: Solar Panels
-      power: sensor.growatt_sph_pv_power
-
-  # Battery
-  battery:
-    - name: Home Battery
-      power: sensor.battery_net_power
-```
-
----
+The `Energy: Solar Forecast Tomorrow` automation only runs its forecast work when the current-day Octopus tariff code contains `AGILE`.
 
 ## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Consumption seems wrong | Verify all Growatt sensors are available |
-| Rate sensors stale | Octopus Energy integration status |
-| Negative consumption | Battery sensor signs may be reversed |
-| Carbon intensity unavailable | Carbon Intensity UK integration |
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [Solar Assistant](solar_assistant_README.md) | Inverter control and monitoring |
-| [Octopus Energy](octopus_energy_README.md) | Rate-based automation triggers |
-| [Predbat](predbat_README.md) | Battery optimization planning |
-| [EcoFlow](ecoflow_README.md) | Portable battery coordination |
-| [Zappi](zappi_README.md) | EV charging energy flow |
-
----
-
-*Last updated: 2026-04-05*
-
-*Source: [packages/integrations/energy/energy.yaml](../../../../packages/integrations/energy/energy.yaml)*
+| Forecast notification does not send | `event.octopus_energy_electricity_current_day_rates` tariff code, `script.update_solcast`, and forecast sensor availability. |
+| Battery not-charged counter seems wrong | `input_boolean.battery_charged_today`, `input_number.growatt_battery_charged_threshold`, and midnight automation trace. |
+| Grid sensors are zero | `sensor.house_power` and `sensor.smart_meter_electricity_power` numeric availability. |
+| Low battery before peak warning missing | `sensor.battery_charge_remaining_hours`, inverter mode not `Battery first`, and Agile tariff condition. |
+| Saving session alerts missing | `binary_sensor.octopus_energy_octoplus_saving_sessions` state transitions from non-`unavailable` states. |

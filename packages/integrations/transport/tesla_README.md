@@ -1,232 +1,118 @@
-# Tesla
+# Tesla Package Documentation
 
-Integration with Tesla vehicles via TeslaMate MQTT and the Tesla custom integration.
+The Tesla package brings TeslaMate MQTT telemetry into Home Assistant and adds a few practical automations around vehicle security, TeslaUSB archive logging, and cheap-rate charging notifications.
 
-**Integrations:**
-- https://github.com/alandtse/tesla (Tesla API)
-- https://github.com/teslamate-org/teslamate (TeslaMate MQTT)
+Source YAML: `tesla.yaml`
 
----
+| Contents | Count |
+|----------|-------|
+| Automations | 2 |
+| Scripts | 1 |
+| Template binary sensors | 2 |
+| TeslaMate devices | 2 cars |
 
-## Overview
+## Quick Summary
 
-This package provides comprehensive Tesla vehicle monitoring and automation:
-- **Multi-car support** — Model Y and Model 3 with automatic detection
-- **TeslaMate MQTT** — Real-time data via MQTT (location, charge, climate, etc.)
-- **Tesla API** — Control commands (charge start/stop, climate, etc.)
-- **USB archive** — Sentry/dashcam footage backup via webhook
-- **Smart notifications** — Alerts for windows open, charging status, etc.
-
-### Key Capabilities
-
-- Automatic vehicle detection at home charger
-- Charge monitoring and notifications
-- Climate pre-conditioning triggers
-- Security alerts (windows, doors, sentry events)
-- USB footage archival automation
-
----
+| Area | What Happens |
+|------|--------------|
+| TeslaUSB archive | A local webhook logs TeslaUSB archive messages to the home log. |
+| Window alert | At 23:00, Danny is notified if Model 3 windows are open. |
+| Cheap-rate charging | Terina is notified when free/negative electricity rates make it useful to plug in. |
+| Telemetry | TeslaMate MQTT defines state, battery, charging, climate, security, TPMS, location, and active-route entities for Model Y and Model 3. |
+| Charging helpers | Two template binary sensors infer charging/charger-allowed state from charger power and Tesla charger switches. |
 
 ## Architecture
 
 ```mermaid
 flowchart TB
-    subgraph TeslaCloud["🚗 Tesla Cloud"]
-        TeslaAPI["Tesla API"]
-        Vehicle1["Model Y"]
-        Vehicle2["Model 3"]
-    end
-
-    subgraph TeslaMate["📡 TeslaMate"]
-        MQTT["MQTT Broker"]
-        Telemetry["Vehicle Telemetry"]
-    end
-
-    subgraph HomeAssistant["Home Assistant"]
-        subgraph ThisPackage["tesla.yaml"]
-            USBWebhook["💾 USB Archive<br/>Webhook"]
-            WindowAlert["🪟 Window Alert"]
-            Sensors["MQTT Sensors"]
-        end
-
-        subgraph Entities["Key Entities"]
-            ModelY["binary_sensor.model_y_charger"]
-            Model3["binary_sensor.model_3_charger"]
-            Location["device_tracker.*_location"]
-            Battery["sensor.*_battery_level"]
-        end
-    end
-
-    TeslaAPI -->|Controls| HomeAssistant
-    Vehicle1 -->|Reports| TeslaMate
-    Vehicle2 -->|Reports| TeslaMate
-    TeslaMate -->|Publishes| MQTT
-    MQTT -->|Defines| Sensors
-    Sensors -->|Creates| Entities
-
-    USBWebhook -->|Receives| TeslaMate
-    WindowAlert -->|Reads| Entities
+    TeslaMate[TeslaMate MQTT] --> MQTTEntities[MQTT sensors, binary sensors, trackers]
+    TeslaIntegration[Tesla integration switches/sensors] --> ChargingHelpers[Template charging sensors]
+    Octopus[Octopus current rate] --> RateScript[script.tesla_notify_low_electricity_rates]
+    TeslaTracker[device_tracker.tesla_2] --> RateScript
+    Distance[sensor.tesla_model_y_home_location_distance] --> RateScript
+    TeslaUSB[TeslaUSB webhook] --> HomeLog[Home log]
+    Model3Windows[binary_sensor.model_3_windows] --> NightAlert[Nightly window alert]
 ```
-
----
-
-## Vehicle Detection
-
-The system distinguishes between vehicles using the Zappi charger's vehicle detection:
-
-```mermaid
-flowchart LR
-    subgraph Charger["🔌 Zappi Charger"]
-        ModelYDetect["Model Y<br/>Detected"]
-        Model3Detect["Model 3<br/>Detected"]
-    end
-
-    subgraph HA["Home Assistant"]
-        ModelYSensor["binary_sensor.model_y_charger"]
-        Model3Sensor["binary_sensor.model_3_charger"]
-    end
-
-    subgraph Automations["Automations"]
-        Zappi["Zappi Package"]
-        Notifications["Notifications"]
-    end
-
-    ModelYDetect -->|Sets| ModelYSensor
-    Model3Detect -->|Sets| Model3Sensor
-
-    ModelYSensor -->|Used by| Zappi
-    Model3Sensor -->|Used by| Zappi
-    ModelYSensor -->|Routes to| Notifications
-    Model3Sensor -->|Routes to| Notifications
-```
-
-| Binary Sensor | Vehicle | Purpose |
-|---------------|---------|---------|
-| `binary_sensor.model_y_charger` | Model Y | Detection at home charger |
-| `binary_sensor.model_3_charger` | Model 3 | Detection at home charger |
-
----
 
 ## Automations
 
-### Tesla: USB Archive
-**ID:** `1726077652711`
+| Automation | ID | Trigger | Result |
+|------------|----|---------|--------|
+| `Tesla: USB Archive` | `1726077652711` | Local-only POST webhook `teslausb` | Logs `trigger.json.value2` to the home log with title `Tesla`. Queued mode, max 10. |
+| `Tesla: Windows Open At Night` | `1750161174574` | 23:00 daily and `binary_sensor.model_3_windows` is `on` | Sends Danny a direct notification that Model 3 windows are open. |
 
-Receives Sentry/Dashcam footage from TeslaUSB via webhook.
+## Script
 
-**Trigger:** Webhook `teslausb` (POST)
+### `script.tesla_notify_low_electricity_rates`
 
-**Logic:**
-```mermaid
-flowchart TD
-    A["📡 Webhook from TeslaUSB"] --> B["📝 Log to Home Log"]
-    B --> C["📱 Optional: Notify footage ready"]
-```
+This script checks the current import rate and Terina's Tesla location state.
 
-**TeslaUSB Setup:**
-- TeslaUSB pushes footage to Home Assistant when car connects to home WiFi
-- Webhook ID: `teslausb`
-- Queued mode (max 10) to handle multiple events
-
----
-
-### Tesla: Windows Open At Night
-**ID:** `1750161174574`
-
-Alerts if vehicle windows are left open after 23:00.
+| Field | Required | Default | Purpose |
+|-------|----------|---------|---------|
+| `current_electricity_import_rate` | No | `sensor.octopus_energy_electricity_current_rate` | Import rate used for branch decisions. |
 
 ```mermaid
 flowchart TD
-    A["🕚 23:00 Daily"] --> B{"Model 3 windows<br/>open?"}
-    B -->|Yes| C["📱 Notify Danny"]
-    B -->|No| D["⏭️ Skip"]
+    Start[Script called] --> Negative{Rate below 0?}
+    Negative -->|Yes| HomeNegative{device_tracker.tesla_2 home?}
+    HomeNegative -->|Yes| NotifyNegative[Notify Terina: below 0p/kWh]
+    Negative -->|No| Zero{Rate equals 0?}
+    Zero -->|Yes| HomeZero{device_tracker.tesla_2 home?}
+    HomeZero -->|Yes| NotifyZero[Notify Terina: free electricity]
+    Zero -->|No| Nearby{Rate <= 0 and not_home and distance below 5000m?}
+    Nearby -->|Yes| NotifyNearby[Notify Terina: near home FYI]
 ```
 
-**Notification:**
-- Title: "Car 🚗"
-- Message: "Model 3 windows 🪟 are open."
-- Recipient: `person.danny`
+Power-user note: the notification text reports `sensor.model_y_battery`, while the location condition uses `device_tracker.tesla_2` and `sensor.tesla_model_y_home_location_distance`. If ownership or entity mapping changes, check these three entities together.
 
----
+## TeslaMate MQTT Entities
 
-## MQTT Sensors (TeslaMate)
+The YAML defines two TeslaMate devices:
 
-TeslaMate publishes detailed vehicle data via MQTT. This package defines sensors for:
+| Device Identifier | Model | MQTT Topic Prefix |
+|-------------------|-------|-------------------|
+| `teslamate_car_1` | Model Y | `teslamate/cars/1/` |
+| `teslamate_car_2` | Model 3 | `teslamate/cars/2/` |
 
-### Car 1 (Model Y)
+Each car has MQTT entities in these groups:
 
-| Entity | MQTT Topic | Description |
-|--------|------------|-------------|
-| `sensor.tesla_display_name` | `teslamate/cars/1/display_name` | Vehicle name |
-| `sensor.tesla_state` | `teslamate/cars/1/state` | Online/Asleep/etc |
-| `sensor.tesla_since` | `teslamate/cars/1/since` | State timestamp |
-| `sensor.tesla_version` | `teslamate/cars/1/version` | Firmware version |
+| Group | Examples |
+|-------|----------|
+| Vehicle info | Display name, state, since, version, update version, model, trim, colour, wheels, spoiler. |
+| Location and movement | Geofence, shift state, power, speed, heading, elevation, GPS device tracker. |
+| Temperature | Inside and outside temperature. |
+| Battery and range | Odometer, estimated/rated/ideal range, battery level, usable battery level. |
+| Charging | Energy added, charge limit, current, phases, power, voltage, scheduled start, time to full. |
+| TPMS | Four tyre pressures in bar and psi. |
+| Security/openings | Healthy, update available, locked, sentry mode, windows, doors, trunk, frunk, user present, plugged in, charge port, parking brake. |
+| Active route | Route location, destination, energy at arrival, miles to arrival, minutes to arrival, traffic delay. |
 
-### Common TeslaMate Sensors
+Power-user note: car 2 entries intentionally have distinct `unique_id` values but many repeated `default_entity_id` values. Home Assistant may assign suffixed entity IDs after entity-registry conflict resolution.
 
-| Category | Examples |
-|----------|----------|
-| **Location** | Latitude, longitude, geofence (home/work) |
-| **Charge** | Battery level, charge limit, charging state, time to full |
-| **Climate** | Inside temp, outside temp, climate state, seat heaters |
-| **Drive** | Speed, odometer, shift state, power |
-| **Security** | Locked, sentry mode, windows, doors, trunk |
+## Template Binary Sensors
 
----
-
-## Tesla API Entities
-
-From the Tesla custom integration:
-
-| Entity | Type | Description |
-|--------|------|-------------|
-| `climate.model_y` | Climate | HVAC control |
-| `lock.model_y` | Lock | Door locks |
-| `switch.model_y_charger` | Switch | Charge port |
-| `sensor.model_y_battery` | Sensor | Battery level |
-| `device_tracker.model_y_location` | Tracker | GPS location |
-
----
-
-## Key Automations Using Tesla Data
-
-### Zappi Integration
-The Zappi package uses Tesla detection for:
-- Vehicle-specific notifications (Danny vs Terina)
-- Target charge time setting (Model Y weekdays)
-- Unknown vehicle detection
-
-```mermaid
-flowchart LR
-    Tesla["Tesla Package"] -->|Provides| Detection["Vehicle Detection"]
-    Detection -->|Used by| Zappi["Zappi Package"]
-    Zappi -->|Sends| Notifications["Targeted Notifications"]
-```
-
----
+| Sensor | Trigger Inputs | State Template Summary |
+|--------|----------------|------------------------|
+| `Tesla Charging` for Model Y | `sensor.tesla_charger_power`, `switch.model_y_charger` | On if charger power is greater than 0 or the charger switch is `off`. |
+| `Tesla Charging` for Model 3 | `sensor.tesla_charger_power_2`, `switch.model_3_charger` | On if charger power is greater than 0 or the charger switch is `off`. |
 
 ## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| MQTT sensors unavailable | TeslaMate container status, MQTT broker |
-| Vehicle detection not working | Zappi vehicle detection sensors |
-| USB webhook not firing | TeslaUSB configuration, webhook ID |
-| API commands failing | Tesla integration token validity |
-| Location stuck | TeslaMate GPS polling, car connectivity |
-
----
+| TeslaMate entities unavailable | TeslaMate service, MQTT broker, and topics under `teslamate/cars/1/` and `teslamate/cars/2/`. |
+| TeslaUSB archive not logged | Webhook ID `teslausb`, local-only networking, and payload field `value2`. |
+| Night window alert missing | `binary_sensor.model_3_windows` state at exactly 23:00. |
+| Low-rate notification missing | Script field/default rate, `device_tracker.tesla_2`, `sensor.tesla_model_y_home_location_distance`, and notification delivery to `person.terina`. |
+| Active route sensors unavailable | TeslaMate active-route topic and whether `value_json.error` is present. |
+| TPMS values stale | Tesla vehicles often update tyre pressures only after driving. |
 
 ## Related Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [Zappi](../energy/zappi_README.md) | EV charging coordination |
-| [Google Travel](google_travel_README.md) | Departure time estimation |
-| [Octopus Energy](../energy/octopus_energy_README.md) | Rate-based charging decisions |
+| [Transport README](README.md) | Parent transport package overview. |
+| [Google Travel](google_travel_README.md) | Traffic-aware travel calculations. |
+| [Energy](../energy/README.md) | Octopus rate context. |
 
----
-
-*Last updated: 2026-04-05*
-
-*Source: [packages/integrations/transport/tesla.yaml](../../../../packages/integrations/transport/tesla.yaml)*
+*Last updated: 2026-06-27*

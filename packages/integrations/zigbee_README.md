@@ -1,39 +1,50 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Zigbee
+# Zigbee Coordinator Monitoring
 
-Coordinator availability monitoring for the Zigbee2MQTT bridge.
+This package sends Danny a direct notification if the Zigbee2MQTT bridge connection sensor is unavailable for 1 minute. It is a small early-warning check for coordinator or Zigbee2MQTT bridge problems.
 
----
+## Quick Summary
 
-## Overview
+| Area | What Happens |
+|------|--------------|
+| Monitored entity | `binary_sensor.zigbee2mqtt_bridge_connection_state`. |
+| Delay | Requires `unavailable` for 1 minute to avoid very brief restart noise. |
+| Notification | Sends a direct notification to `person.danny`. |
 
-A single automation notifies Danny when the Zigbee2MQTT bridge connection becomes unavailable, with a 1-minute delay to avoid alerts from brief restarts.
+## Package Contents
 
----
+| File | Purpose | Contents |
+|------|---------|----------|
+| `zigbee.yaml` | Zigbee2MQTT bridge availability alert | 1 automation |
 
-## Automations
+## Flow
 
-| ID | Alias | Trigger | Delay | Action |
-|----|-------|---------|-------|--------|
-| `1741294780206` | Zigbee Coordinator Unavailable | `binary_sensor.zigbee2mqtt_bridge_connection_state` → `unavailable` for 1 min | 1 minute | Direct notification to Danny |
+```mermaid
+flowchart LR
+    Bridge[binary_sensor.zigbee2mqtt_bridge_connection_state] --> Unavailable{Unavailable for 1 minute?}
+    Unavailable -->|No| Ignore[No alert]
+    Unavailable -->|Yes| Notify[Direct notification to Danny]
+```
 
----
+## Automation
 
-## Entities
-
-| Entity | Description |
-|--------|-------------|
-| `binary_sensor.zigbee2mqtt_bridge_connection_state` | Zigbee2MQTT bridge connection status |
-
----
+| Automation | ID | Trigger | Mode | Result |
+|------------|----|---------|------|--------|
+| `Zigbee Coordinator Unavailable` | `1741294780206` | `binary_sensor.zigbee2mqtt_bridge_connection_state` to `unavailable` for 1 minute | `single` | Sends `Zigbee coordinator became unavailable.` to Danny. |
 
 ## Dependencies
 
-- **Integration:** [Zigbee2MQTT](https://www.zigbee2mqtt.io/) via MQTT
-- **Scripts:** `script.send_direct_notification`
-- **Person:** `person.danny` (notification recipient)
+| Dependency | Purpose |
+|------------|---------|
+| Zigbee2MQTT bridge connection sensor | Provides the monitored availability state. |
+| `script.send_direct_notification` | Sends the alert. |
+| `person.danny` | Notification recipient. |
 
----
+## Troubleshooting
 
-*Last updated: 2026-04-05*
+| Symptom | Check |
+|---------|-------|
+| No alert during a restart | The bridge must remain `unavailable` for 1 full minute. |
+| Alert fires repeatedly | Check Zigbee2MQTT, MQTT broker connectivity, and the coordinator host. |
+| Notification does not arrive | Check `script.send_direct_notification` and Danny's notification target. |

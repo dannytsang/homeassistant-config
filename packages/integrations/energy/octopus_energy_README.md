@@ -1,138 +1,66 @@
-# Octopus Energy Integration
+[<- Back to Energy README](README.md) · [Integrations README](../README.md) · [Packages README](../../README.md)
 
-This package integrates the [HomeAssistant-OctopusEnergy](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy) custom component to manage dynamic electricity pricing and coordinate energy-aware automations across the entire home.
+# Octopus Energy Package Documentation
 
-## Purpose
+The Octopus Energy package is the rate-change coordinator for the energy system. When the current import rate changes, it asks each enabled subsystem to re-evaluate what it should do.
 
-Octopus Energy provides time-of-use electricity tariffs with variable rates throughout the day. This package serves as the **central coordinator** for all rate-dependent energy decisions, triggering automations that optimize battery charging, EV charging, hot water heating, and discretionary loads based on current and upcoming electricity prices.
+| File | Purpose | Contents |
+|------|---------|----------|
+| `octopus_energy.yaml` | Octopus rate and Intelligent Dispatch coordination | 3 automations, 1 script |
 
-## Architecture
+## Quick Summary
 
-```mermaid
-flowchart TB
-    subgraph Octopus["Octopus Energy Package"]
-        A[Electricity Rates Changed Automation]
-        B[Refresh Intelligent Dispatches]
-        C[Refresh Script]
-    end
-    
-    subgraph Consumers["Energy Consumers"]
-        D[Solar Assistant<br/>Battery Management]
-        E[Zappi<br/>EV Charging]
-        F[Eddi<br/>Hot Water]
-        G[Ecoflow<br/>Portable Battery]
-        H[Conservatory Heating]
-        I[Tesla Notifications]
-        J[Airer Control]
-    end
-    
-    A -->|Rate Change Event| D
-    A -->|Rate Change Event| E
-    A -->|Rate Change Event| F
-    A -->|Rate Change Event| G
-    A -->|Rate Change Event| H
-    A -->|Rate Change Event| I
-    A -->|Rate Change Event| J
-    
-    B -->|Schedule Updates| E
-```
+| Area | What Happens |
+|------|--------------|
+| Rate changes | Current import rate changes trigger parallel checks for Solar Assistant, Zappi, Eddi, EcoFlow, conservatory heating, Tesla low-rate notifications, and the conservatory airer. |
+| Intelligent Octopus | Dispatch data is refreshed every 3 minutes while the Zappi is connected, and once when the Zappi disconnects. |
+| Safety gates | Each subsystem has its own enable boolean and availability checks before its script is called. |
 
-## Key Entities
-
-### Sensors (from Integration)
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.octopus_energy_electricity_current_rate` | Current import rate (p/kWh) |
-| `sensor.octopus_energy_electricity_export_current_rate` | Current export rate (p/kWh) |
-| `binary_sensor.octopus_energy_intelligent_dispatching` | Intelligent Octopus dispatch status |
-
-### Scripts (Defined in This Package)
-
-| Script | Purpose |
-|--------|---------|
-| `script.refresh_octopus_intelligent_dispatching` | Refetches Intelligent Octopus dispatch schedule |
-
-## Automations
-
-### Electricity Rates Changed
-
-**Trigger:** `sensor.octopus_energy_electricity_current_rate` state change
-
-This is the **central coordination event** for the entire energy management system. When rates change, the automation runs parallel checks across all energy consumers:
+## Rate Change Fan-Out
 
 ```mermaid
 flowchart LR
-    A[Rate Change] --> B{Parallel Checks}
-    B --> C[Solar Assistant<br/>Check Charging]
-    B --> D[Zappi<br/>Check EV Charge]
-    B --> E[Eddi<br/>Check Hot Water]
-    B --> F[Ecoflow<br/>Check Charging]
-    B --> G[Conservatory<br/>Heating]
-    B --> H[Tesla<br/>Low Rate Notify]
-    B --> I[Airer<br/>Check Run]
+    Rate[sensor.octopus_energy_electricity_current_rate changes] --> Parallel[Parallel checks]
+    Parallel --> SolarAssistant[script.solar_assistant_check_charging_mode]
+    Parallel --> Zappi[script.zappi_check_ev_charge]
+    Parallel --> Eddi[script.hvac_check_eddi_boost_hot_water]
+    Parallel --> EcoFlow[script.ecoflow_check_charging_mode]
+    Parallel --> Conservatory[script.conservatory_electricity_rate_change]
+    Parallel --> Tesla[script.tesla_notify_low_electricity_rates]
+    Parallel --> Airer[script.check_conservatory_airer]
 ```
 
-Each check includes:
-- Current import rate
-- Current export rate
-- Relevant unit of measurement
+## Automations
 
-**Conditional Logic:**
-- **Solar Assistant:** Only if `input_boolean.enable_solar_assistant_automations` is on and inverter is available
-- **Zappi:** Only if EV automations enabled and car is connected
-- **Eddi:** Only if hot water automations enabled, not in holiday mode, and Eddi is running
-- **Ecoflow:** Only if Ecoflow automations enabled
-- **Conservatory:** Only if underfloor heating automations enabled
-- **Tesla:** Only if car unplugged, Zappi disconnected, and Tesla automations enabled
-- **Airer:** Only if airer cost-saving automations enabled
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Octopus Energy: Electricity Rates Changed` | `sensor.octopus_energy_electricity_current_rate` changes | Runs enabled subsystem checks in parallel with current import/export rates. |
+| `Refresh intelligent dispatches` | Zappi plug status becomes anything except `EV Disconnected`, or every 3 minutes | Refreshes Intelligent Octopus dispatches while an EV is connected. |
+| `Refresh intelligent dispatches` | Zappi plug status changes to `EV Disconnected` | Refreshes Intelligent Octopus dispatches once after disconnect. |
 
-### Refresh Intelligent Dispatches
+## Script
 
-**Trigger:** 
-- Zappi plug status changes to connected
-- Every 3 minutes while EV is connected
+| Script | Purpose |
+|--------|---------|
+| `script.refresh_octopus_intelligent_dispatching` | Calls `octopus_energy.refresh_intelligent_dispatches` for the configured Intelligent Dispatch binary sensor. |
 
-**Purpose:** Keeps the Intelligent Octopus dispatch schedule current for optimized EV charging windows.
+## Subsystem Conditions
 
-## Dependencies
+| Subsystem | Required Conditions |
+|-----------|---------------------|
+| Solar Assistant | `input_boolean.enable_solar_assistant_automations` on and `select.growatt_sph_work_mode_priority` available. |
+| Zappi | `input_boolean.enable_zappi_automations` on and Zappi plug status is not `EV Disconnected`. |
+| Eddi hot water | Eddi operating mode not `Stopped`, home mode not `Holiday`, and hot-water automations enabled. |
+| EcoFlow | `input_boolean.enable_ecoflow_automations` on. |
+| Conservatory underfloor heating | `input_boolean.enable_conservatory_under_floor_heating_automations` on. |
+| Tesla notification | Model Y charger binary sensor is `Unplugged`, Zappi is disconnected, and Tesla automations enabled. |
+| Conservatory airer | Either cost-below-nothing or cost-nothing airer enable boolean is on. |
 
-### Required Integrations
+## Troubleshooting
 
-- [HomeAssistant-OctopusEnergy](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy) - The core integration
-
-### Input Booleans (Feature Flags)
-
-| Input Boolean | Purpose |
-|---------------|---------|
-| `input_boolean.enable_solar_assistant_automations` | Enable battery management automations |
-| `input_boolean.enable_zappi_automations` | Enable EV charging automations |
-| `input_boolean.enable_hot_water_automations` | Enable hot water heating automations |
-| `input_boolean.enable_ecoflow_automations` | Enable portable battery automations |
-| `input_boolean.enable_conservatory_under_floor_heating_automations` | Enable conservatory heating |
-| `input_boolean.enable_tesla_automations` | Enable Tesla notifications |
-| `input_boolean.enable_conservatory_airer_when_cost_below_nothing` | Enable airer at negative rates |
-| `input_boolean.enable_conservatory_airer_when_cost_nothing` | Enable airer at zero rates |
-
-### Dependent Scripts
-
-| Script | Provided By |
-|--------|-------------|
-| `script.solar_assistant_check_charging_mode` | Solar Assistant package |
-| `script.zappi_check_ev_charge` | MyEnergi package |
-| `script.hvac_check_eddi_boost_hot_water` | HVAC package |
-| `script.ecoflow_check_charging_mode` | Ecoflow package |
-| `script.conservatory_electricity_rate_change` | Conservatory package |
-| `script.tesla_notify_low_electricity_rates` | Tesla package |
-| `script.check_conservatory_airer` | Conservatory package |
-
-## Configuration
-
-No additional configuration required beyond the HomeAssistant-OctopusEnergy integration setup. The package uses entities exposed by that integration.
-
-## Notes
-
-- This package does not define the Octopus Energy sensors themselves—they are created by the integration
-- Rate changes propagate through parallel script calls for minimal latency
-- Each consumer script makes its own rate-based decisions independently
-- Intelligent Octopus dispatches are refreshed frequently while an EV is connected to capture schedule updates
+| Issue | Check |
+|-------|-------|
+| A subsystem did not react to a rate change | Its enable boolean and the trace for `Octopus Energy: Electricity Rates Changed`. |
+| Intelligent dispatches are stale | Zappi plug status and `script.refresh_octopus_intelligent_dispatching` trace. |
+| Solar Assistant not called | `select.growatt_sph_work_mode_priority` must not be `unavailable`. |
+| Zappi not called | `sensor.myenergi_zappi_plug_status` must not be `EV Disconnected`. |

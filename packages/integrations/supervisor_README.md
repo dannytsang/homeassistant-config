@@ -1,76 +1,80 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Supervisor — Add-On Lifecycle Management
+# Supervisor Add-On Management
 
-*Last updated: 2026-04-05*
+This package manages Home Assistant add-ons that should not be left running and installs updates for selected add-ons. It starts stop timers when sensitive add-ons are opened, stops them when the timers finish, logs add-on activity, and installs monitored updates.
 
-Manages Home Assistant add-on security and updates. Security-sensitive add-ons (File Editor, Terminal & SSH, Zigbee2MQTT Proxy) are automatically stopped after a configurable idle period. All monitored add-ons log and install updates automatically.
+Home Assistant reference: <https://www.home-assistant.io/integrations/hassio/>
 
-Integration reference: <https://www.home-assistant.io/integrations/hassio/>
+## Quick Summary
 
----
+| Area | What Happens |
+|------|--------------|
+| Auto-stop | File Editor, Advanced SSH & Web Terminal, and Zigbee2MQTT Proxy get stop timers when they start. |
+| Update installs | Seven monitored add-on/update entities are installed automatically when their configured update trigger and condition pass. |
+| Logging | Starts, stops, and updates are logged through `script.send_to_home_log`. |
+| Master control | Auto-stop behavior is guarded by `input_boolean.enable_stop_add_ons`. |
 
-## Auto-Disable Timer Flow
+## Package Contents
+
+| File | Purpose | Contents |
+|------|---------|----------|
+| `supervisor.yaml` | Add-on stop timers and updates | 13 automations, 1 script |
+
+## Auto-Stop Flow
 
 ```mermaid
 flowchart TD
-    A([Add-on starts]) --> B{enable_stop_add_ons\non?}
-    B -- No --> Z([No action])
-    B -- Yes --> C[Log start\nStart countdown timer]
-    C --> D{Timer expires}
-    D --> E[script.stop_add_on]
-    E --> F[Log message]
-    E --> G[hassio.addon_stop]
+    Addon[Monitored add-on starts] --> Enabled{input_boolean.enable_stop_add_ons on?}
+    Enabled -->|No| Ignore[Do nothing]
+    Enabled -->|Yes| Timer[Start matching timer]
+    Enabled -->|Yes| LogStart[Log start]
+    Timer --> Finished[Timer finished]
+    Finished --> StillEnabled{Auto-stop still enabled?}
+    StillEnabled -->|No| Stop[Do nothing]
+    StillEnabled -->|Yes| Script[script.stop_add_on]
+    Script --> LogStop[Log stop message]
+    Script --> Hassio[hassio.addon_stop]
 ```
-
----
 
 ## Automations
 
-| Name | ID | Trigger | Timer Duration | Action |
-|---|---|---|---|---|
-| Add-Ons: File Editor Started | `1674411819883` | `binary_sensor.file_editor_running` → on | — | Start `timer.stop_add_on_file_editor` (1 h), log |
-| Add-ons: Automatically Disable File Editor | `1638101465298` | `timer.stop_add_on_file_editor` finished | 1 hour | `script.stop_add_on` → `core_configurator` |
-| Add-Ons: Advanced SSH & Web Terminal | `1674411819884` | `binary_sensor.advanced_ssh_web_terminal_running` → on | — | Start `timer.stop_add_on_terminal_ssh` (1 h), log |
-| Add-ons: Automatically Disable Advanced SSH & Web Terminal | `1638101748990` | `timer.stop_add_on_terminal_ssh` finished | 1 hour | `script.stop_add_on` → `a0d7b954_ssh` |
-| Add-ons: Zigbee 2 MQTT Proxy Started | `1638101748992` | `binary_sensor.zigbee2mqtt_proxy_running` → on | — | Start `timer.stop_add_on_zigbee_2_mqtt_proxy` (30 min), log |
-| Add-ons: Automatically Disable Zigbee 2 MQTT Proxy | `1638101748993` | `timer.stop_add_on_zigbee_2_mqtt_proxy` finished | 30 minutes | `script.stop_add_on` → `45df7312_zigbee2mqtt_proxy` |
-| Add-On: Update For File Editor | `1700062541454` | `sensor.file_editor_newest_version` changes | — | Log update, `update.install` → `update.file_editor_update` |
-| Add-On: Update For Terminal & Web | `1700062541455` | `sensor.advanced_ssh_web_terminal_newest_version` changes | — | Log update, `update.install` → `update.advanced_ssh_web_terminal_update` |
-| Add-On: Update For ESPHome | `1700062541456` | `sensor.esphome_newest_version` changes | — | Log update, `update.install` → `update.esphome_update` |
-| Add-On: Update For Zigbee2MQTT Proxy | `1700062541457` | `sensor.zigbee2mqtt_proxy_newest_version` changes | — | Log update, `update.install` → `update.zigbee2mqtt_proxy_update` |
-| Add-On: Update For Log Viewer | `1700062541458` | `sensor.log_viewer_newest_version` changes | — | Log update, `update.install` → `update.log_viewer_update` |
-| Add-On: Update For Visual Studio Code | `1700062541459` | `sensor.visual_studio_code_newest_version` changes | — | Log update, `update.install` → `update.studio_code_server_update` |
-| Add-On: Predbat Core Update | `1767778408951` | `update.predbat_version` → on | — | Log, `update.install` → `update.predbat_version` |
+### Auto-Stop Automations
 
-All auto-disable automations are guarded by `input_boolean.enable_stop_add_ons`.
+| Automation | ID | Trigger | Timer or Action | Mode |
+|------------|----|---------|-----------------|------|
+| `Add-Ons: File Editor Started` | `1674411819883` | `binary_sensor.file_editor_running` turns `on` | Starts `timer.stop_add_on_file_editor` for 1 hour and logs. | `single` |
+| `Add-ons: Automatically Disable File Editor` | `1638101465298` | `timer.stop_add_on_file_editor` finishes | Calls `script.stop_add_on` for `core_configurator`. | `single` |
+| `Add-Ons: Advanced SSH & Web Terminal` | `1674411819884` | `binary_sensor.advanced_ssh_web_terminal_running` turns `on` | Starts `timer.stop_add_on_terminal_ssh` for 1 hour and logs. | `single` |
+| `Add-ons: Automatically Disable Advanced SSH & Web Terminal` | `1638101748990` | `timer.stop_add_on_terminal_ssh` finishes | Calls `script.stop_add_on` for `a0d7b954_ssh`. | `single` |
+| `Add-ons: Zigbee 2 MQTT Proxy Started` | `1638101748992` | `binary_sensor.zigbee2mqtt_proxy_running` turns `on` | Starts `timer.stop_add_on_zigbee_2_mqtt_proxy` for 30 minutes and logs. | Default |
+| `Add-ons: Automatically Disable Zigbee 2 MQTT Proxy` | `1638101748993` | `timer.stop_add_on_zigbee_2_mqtt_proxy` finishes | Calls `script.stop_add_on` for `45df7312_zigbee2mqtt_proxy`. | `single` |
 
----
+### Update Automations
 
-## Scripts
+| Automation | ID | Trigger | Install Target | Mode |
+|------------|----|---------|----------------|------|
+| `Add-On: Update For File Editor` | `1700062541454` | `sensor.file_editor_newest_version` changes | `update.file_editor_update` | `single` |
+| `Add-On: Update For Terminal & Web` | `1700062541455` | `sensor.advanced_ssh_web_terminal_newest_version` changes | `update.advanced_ssh_web_terminal_update` | `single` |
+| `Add-On: Update For ESPHome` | `1700062541456` | `sensor.esphome_newest_version` changes | `update.esphome_update` | `single` |
+| `Add-On: Update For Zigbee2MQTT Proxy` | `1700062541457` | `sensor.zigbee2mqtt_proxy_newest_version` changes | `update.zigbee2mqtt_proxy_update` | `single` |
+| `Add-On: Update For Log Viewer` | `1700062541458` | `sensor.log_viewer_newest_version` changes | `update.log_viewer_update` | `single` |
+| `Add-On: Update For Visual Studio Code` | `1700062541459` | `sensor.visual_studio_code_newest_version` changes | `update.studio_code_server_update` | `single` |
+| `Add-On: Predbat Core Update` | `1767778408951` | `update.predbat_version` turns `on` | `update.predbat_version` | `single` |
 
-| Script | Alias | Fields | Action |
-|---|---|---|---|
-| `stop_add_on` | Stop Add-on | `addonEntityId` (required), `message` (required) | Logs the message and calls `hassio.addon_stop` with the given add-on ID |
+The six version-sensor update automations include a `not state` condition intended to compare newest and current version sensors. In the YAML, the comparison value is written as a literal sensor entity ID string rather than a template.
 
----
+## Script
 
-## Add-On Summary
+| Script | Alias | Fields | Result |
+|--------|-------|--------|--------|
+| `script.stop_add_on` | `Stop Add-on` | `addonEntityId`, `message` | Logs the supplied message and calls `hassio.addon_stop` for the supplied add-on ID. |
 
-| Add-On | Auto-Disable | Auto-Update |
-|---|---|---|
-| File Editor (`core_configurator`) | After 1 hour | Yes |
-| Advanced SSH & Web Terminal (`a0d7b954_ssh`) | After 1 hour | Yes |
-| Zigbee2MQTT Proxy (`45df7312_zigbee2mqtt_proxy`) | After 30 minutes | Yes |
-| ESPHome | No | Yes |
-| Log Viewer | No | Yes |
-| Visual Studio Code (Studio Code Server) | No | Yes |
-| Predbat Core | No | Yes (auto-installs) |
+## Troubleshooting
 
----
-
-## Dependencies
-
-- `input_boolean.enable_stop_add_ons` — master guard for all auto-disable behaviour
-- `script.send_to_home_log` — structured logging
-- Timers: `timer.stop_add_on_file_editor`, `timer.stop_add_on_terminal_ssh`, `timer.stop_add_on_zigbee_2_mqtt_proxy`
+| Symptom | Check |
+|---------|-------|
+| Add-on does not auto-stop | Confirm `input_boolean.enable_stop_add_ons` is on and the matching timer finished. |
+| Zigbee2MQTT Proxy stops earlier than expected | The YAML timer is `00:30:00` even though the stop message says more than an hour. |
+| Add-on update did not install | Check the matching newest-version sensor, update entity, and automation trace. |
+| Stop script fails | Confirm the `addonEntityId` value matches the Supervisor add-on slug. |

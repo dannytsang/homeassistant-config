@@ -1,503 +1,157 @@
+[<- Back to Rooms README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
+
 # Front Garden Package Documentation
 
-This package manages front garden automation including doorbell notifications, camera monitoring, lighting control based on sunlight, lockbox security, and electricity meter monitoring.
+The front garden package watches driveway vehicles, outdoor lockbox state, electricity meter door access, and front-garden brightness. It can analyse a driveway snapshot for Tesco van detection, reopen selected blinds when direct sunlight drops in summer, and capture evidence when the electricity meter door opens.
 
----
+## Quick Summary
 
-## Table of Contents
+For non-technical users, the important behavior is:
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Dependencies](#dependencies)
-- [Architecture](#architecture)
-## Overview
+| Area | What Happens |
+|------|--------------|
+| Driveway vehicle | A detected driveway vehicle triggers a snapshot, local AI image analysis, and a home-log entry with the image attached. |
+| Sunlight and blinds | In summer, if front-garden brightness stays below the configured threshold for 10 minutes, office blinds move to 25% and some bedroom blinds may reopen. |
+| Lockbox | Lockbox state changes notify Danny and Terina; a 5-minute unavailable state notifies Danny. |
+| Electricity meter | Opening the meter door captures a driveway image, sends a high-priority direct notification, and logs with the image attached. |
+| Doorbell footage helper | A shell command exists to copy the latest front-door video, but no automation in this YAML calls it. |
 
-The front garden automation system provides intelligent doorbell notifications with camera capture, vehicle detection on the driveway, sunlight-based blind control, lockbox security monitoring, and electricity meter door surveillance.
+## Package Contents
+
+| File | Purpose | Contents |
+|------|---------|----------|
+| `front_garden.yaml` | Driveway AI, sunlight blind helper, lockbox and meter-door monitoring | 5 automations, 1 shell command |
+
+## How The Front Garden Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        Doorbell["🔔 Doorbell<br/>Ring Events"]
-        Camera["📹 Cameras<br/>Front Door + Driveway"]
-        Motion["🌞 Motion Sensor<br/>Illuminance"]
-        Lockbox["🔐 Lockbox<br/>Contact Sensor"]
-        MeterDoor["⚡ Meter Door<br/>Contact Sensor"]
-        Vehicle["🚗 Vehicle Detection<br/>AI Recognition"]
-    end
+    Vehicle[binary_sensor.driveway_vehicle_detected] --> VehicleAuto[Vehicle Detected On Driveway]
+    DrivewayCam[camera.driveway_high_resolution_channel] --> VehicleAuto
+    VehiclePath[input_text.driveway_vehicle_latest_image_path] --> VehicleAuto
+    Light[sensor.front_garden_motion_illuminance] --> Sunlight[Below Direct Sun Light]
+    Season[sensor.season] --> Sunlight
+    BrightThreshold[input_number.close_blinds_brightness_threshold] --> Sunlight
+    Lockbox[binary_sensor.outdoor_lock_box_contact] --> LockboxAuto[Lock Box State Changed]
+    Lockbox --> Offline[Lockbox Sensor Disconnected]
+    MeterDoor[binary_sensor.electricity_meter_door_contact] --> MeterAuto[Electricity Meter Door Opened]
+    CameraPath[input_text.camera_external_folder_path] --> MeterAuto
 
-    subgraph Logic["🧠 Automation Logic"]
-        DoorbellLogic["🔔 Doorbell Handler"]
-        CameraLogic["📹 Camera Manager"]
-        LightLogic["💡 Light Controller"]
-        SecurityLogic["🔒 Security Monitor"]
-    end
-
-    subgraph Outputs["📤 Controlled Devices/Actions"]
-        Notifications["📱 Notifications<br/>(Mobile/Alexa)"]
-        Blinds["🏠 Blinds Control<br/>(Office/Bedrooms)"]
-        Downloads["💾 Video Downloads"]
-        AIAnalysis["🤖 AI Analysis<br/>(Tesco Van Detection)"]
-    end
-
-    Doorbell --> DoorbellLogic
-    Camera --> CameraLogic
-    Camera --> DoorbellLogic
-    Motion --> LightLogic
-    Lockbox --> SecurityLogic
-    MeterDoor --> SecurityLogic
-    Vehicle --> AIAnalysis
-
-    DoorbellLogic --> Notifications
-    DoorbellLogic --> Downloads
-    CameraLogic --> Downloads
-    LightLogic --> Blinds
-    SecurityLogic --> Notifications
-    AIAnalysis --> Notifications
+    VehicleAuto --> AI[gpt4vision.image_analyzer]
+    VehicleAuto --> LogImage[Home log with image]
+    Sunlight --> OfficeBlinds[cover.office_blinds]
+    Sunlight --> BedroomBlinds[cover.bedroom_blinds]
+    Sunlight --> AshleeBlinds[cover.ashlees_bedroom_blinds]
+    LockboxAuto --> Notify[Direct notification]
+    Offline --> Notify
+    MeterAuto --> Notify
+    MeterAuto --> LogImage
 ```
 
----
+## User Controls
 
-## Design Decisions
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_text.driveway_vehicle_latest_image_path` | Folder used for the latest driveway vehicle snapshot. |
+| `input_text.camera_external_folder_path` | Base folder used for timestamped driveway snapshots when the meter door opens. |
+| `input_text.camera_internal_folder_path` | Base folder used by the doorbell footage copy shell command. |
+| `input_number.close_blinds_brightness_threshold` | Brightness threshold for the summer blind helper. |
+| `input_number.blind_closed_position_threshold` | Blind-position threshold used before opening bedroom blinds. |
+| `input_datetime.childrens_bed_time` | Cutoff time for opening Ashlee's bedroom blinds. |
 
-Key architectural decisions captured from the YAML configuration:
+## Everyday Behavior
 
-- **Front Garden: Vehicle Detected On Driveway** triggers on state transitions (edge detection) rather than continuous state
-- **Front Garden: Lock Box State Changed** triggers on state transitions (edge detection) rather than continuous state
-- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+### Driveway Vehicle AI
 
----
-
-## Dependencies
-
-This package relies on the following components:
-
-### Related Packages
-- Front Garden
-
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/front_garden/
-├── front_garden.yaml     # Main package file
-└── README.md             # This documentation
-```
-
-### Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `event.front_door_ding` | Doorbell ring events |
-| `camera.front_door` | Front door camera with video capture |
-| `camera.driveway_high_resolution_channel` | Driveway camera for vehicle detection |
-| `binary_sensor.driveway_vehicle_detected` | AI-based vehicle detection |
-| `sensor.front_garden_motion_illuminance` | Sunlight level monitoring |
-| `binary_sensor.outdoor_lock_box_contact` | Lockbox open/close monitoring |
-| `binary_sensor.electricity_meter_door_contact` | Meter door security |
-
----
-
-## Automations
-
-### Doorbell
-
-#### Front Garden: Doorbell Pressed
-**ID:** `1694521590171`
-
-Comprehensive doorbell handling with multi-channel notifications and camera capture.
+`Front Garden: Vehicle Detected On Driveway` triggers when `binary_sensor.driveway_vehicle_detected` changes from `off` to `on`.
 
 ```mermaid
-flowchart TD
-    A["🔔 Doorbell Pressed"] --> B["Parallel Actions"]
-    B --> C1["📱 Send Notification<br/>to Danny & Terina"]
-    B --> C2["🔊 Alexa Announce<br/>'Ding dong'"]
-    B --> C3["🚩 Set Wait Flag<br/>for Camera Update"]
-    B --> C4["📝 Add Todo Item<br/>if Away"]
-    B --> C5["📷 Wait for Camera<br/>Then Send Image/Video"]
+sequenceDiagram
+    participant Sensor as Driveway vehicle sensor
+    participant Camera as Driveway camera
+    participant AI as gpt4vision image analyzer
+    participant Log as Home log
 
-    C4 --> D{"Everyone Away?"}
-    D -->|Yes| E["➕ Add to Shared<br/>Notifications"]
-    D -->|No| F["✅ Skip"]
-
-    C5 --> G["⏱️ Wait 1 min<br/>for Camera Update"]
-    G --> H["📸 Send Image<br/>Notification"]
-    H --> I["🎥 Send Video<br/>Notification"]
+    Sensor->>Camera: Vehicle detected, save vehicle_latest.jpg
+    Camera->>AI: Analyse image with Ollama llava
+    AI->>Log: Send response text with local image attachment
 ```
 
-**Triggers:**
-- `event.front_door_ding` state change
+| Step | Detail |
+|------|--------|
+| Snapshot | Saves `vehicle_latest.jpg` under `input_text.driveway_vehicle_latest_image_path`. |
+| AI analysis | Uses provider `Ollama`, model `llava`, target width `3840`, high detail, temperature `0.1`. |
+| Prompt | Asks whether there is a Tesco van and to ignore other vehicles. |
+| Result | Sends `ai.response_text` to `script.send_home_log_with_local_attachments` with the image attached for Danny. |
 
-**Actions:**
-1. **Parallel notifications:**
-   - Send direct notification to Danny and Terina
-   - Alexa announcement ("Ding dong")
-   - Set `input_boolean.wait_for_doorbell_camera_update` to on
-   - Add todo item if nobody is home (prevents duplicates)
-   - Wait for camera update and send image/video
+### Summer Sunlight Blind Helper
 
-**Todo Item Logic:**
-- Only adds if `group.tracked_people` is `not_home`
-- Checks for existing todo item to prevent duplicates
-- Item: "🚪 🔔 Someone rung the door bell."
+`Front Garden: Below Direct Sun Light` triggers when `sensor.front_garden_motion_illuminance` stays below `input_number.close_blinds_brightness_threshold` for 10 minutes and `sensor.season` is `summer`.
 
----
+| Blind | Condition | Action |
+|-------|-----------|--------|
+| Office | Summer brightness trigger fires | Set `cover.office_blinds` to position `25`. |
+| Bedroom | `cover.bedroom_blinds` current position is below `input_number.blind_closed_position_threshold`, before sunset, and `binary_sensor.bedroom_tv_powered_on` is `off` | Open `cover.bedroom_blinds`. |
+| Ashlee's bedroom | `cover.ashlees_bedroom_blinds` current position is below `input_number.blind_closed_position_threshold` and current time is before `input_datetime.childrens_bed_time` | Open `cover.ashlees_bedroom_blinds`. |
 
-### Camera
+### Lockbox Monitoring
 
-#### Front Garden: Vehicle Detected On Driveway
-**ID:** `1720276673719`
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Front Garden: Lock Box State Changed` | Lockbox contact changes between known states, or becomes `unknown`/`unavailable` for 1 minute | Sends Danny and Terina a direct notification with the current lockbox state. |
+| `Front Garden: Lockbox Sensor Disconnected` | Lockbox contact is `unavailable` for 5 minutes | Sends Danny a direct notification. |
 
-AI-powered vehicle detection with Tesco van recognition.
+### Electricity Meter Door
 
-```mermaid
-flowchart TD
-    A["🚗 Vehicle Detected"] --> B["📸 Capture Snapshot"]
-    B --> C["🤖 AI Analysis<br/>Ollama LLaVA"]
-    C --> D{"Tesco Van?"}
-    D -->|Yes| E["📱 Send Notification<br/>with Image"]
-    D -->|No| F["📝 Log Result"]
+When `binary_sensor.electricity_meter_door_contact` turns `on`, `Front Garden: Electricity Meter Door Opened`:
 
-    C --> G["Prompt: 'Is there a Tesco van?<br/>Ignoring all other vehicles.<br/>Answer with yes or no.'"]
-```
+| Step | Result |
+|------|--------|
+| 1 | Builds a timestamped `.jpg` filename. |
+| 2 | Captures `camera.driveway_high_resolution_channel` into `input_text.camera_external_folder_path` under `/driveway/`. |
+| 3 | Sends Danny and Terina a high-priority direct notification with quiet-hour suppression enabled. |
+| 4 | Sends a home-log entry with the local image attachment and quiet-hour suppression disabled. |
 
-**Triggers:**
-- `binary_sensor.driveway_vehicle_detected` changes from `off` to `on`
+## Shell Command
 
-**Actions:**
-1. Capture snapshot from `camera.driveway_high_resolution_channel`
-2. Save to configured path: `vehicle_latest.jpg`
-3. Send image to Ollama LLaVA for analysis
-4. Send notification with AI response and image attachment
+| Command | Purpose |
+|---------|---------|
+| `shell_command.copy_doorbell_footage` | Copies `front_door/latest.mp4` under `input_text.camera_internal_folder_path` to a timestamped filename using `camera.front_door` friendly name. |
 
-**AI Configuration:**
-| Parameter | Value |
-|-----------|-------|
-| Provider | Ollama |
-| Model | llava |
-| Max Tokens | 100 |
-| Target Width | 3840 |
-| Detail | high |
-| Temperature | 0.1 |
+Power-user note: this shell command is defined in the package, but no automation in `front_garden.yaml` calls it.
 
----
+## Power-User Details
 
-### Lighting
-
-#### Front Garden: Below Direct Sun Light
-**ID:** `1660894232444`
-
-Smart blind control based on sunlight levels during summer.
-
-```mermaid
-flowchart TD
-    A["☀️ Illuminance Below Threshold<br/>for 10+ minutes"] --> B{"Summer Season?"}
-    B -->|Yes| C["🏢 Open Office Blinds<br/>to 25%"]
-    B -->|No| Z["⛔ Ignore"]
-
-    C --> D{"Bedroom Blinds Closed?<br/>+ Before Sunset<br/>+ TV Off?"}
-    D -->|Yes| E["🛏️ Open Bedroom Blinds"]
-    D -->|No| F["✅ Skip"]
-
-    C --> G{"Ashlee's Blinds Closed?<br/>+ Before Bedtime?"}
-    G -->|Yes| H["🛏️ Open Ashlee's Blinds"]
-    G -->|No| I["✅ Skip"]
-```
-
-**Triggers:**
-- `sensor.front_garden_motion_illuminance` below `input_number.close_blinds_brightness_threshold` for 10 minutes
-
-**Conditions:**
-- Season must be "summer"
-
-**Actions:**
-1. Log the sunlight level change
-2. Set office blinds to 25% position
-3. Open bedroom blinds if:
-   - Currently below closed threshold
-   - Before sunset
-   - Bedroom TV is off
-4. Open Ashlee's bedroom blinds if:
-   - Currently below closed threshold
-   - Before children's bedtime (`input_datetime.childrens_bed_time`)
-
----
-
-### Lockbox
-
-#### Front Garden: Lock Box State Changed
-**ID:** `1714914120928`
-
-Monitors outdoor lockbox for access events.
-
-**Triggers:**
-- `binary_sensor.outdoor_lock_box_contact` state changes (excluding `unknown`/`unavailable`)
-- State becomes `unknown`/`unavailable` for 1 minute
-
-**Actions:**
-- Send direct notification to Danny and Terina with current state
-
----
-
-#### Front Garden: Lockbox Sensor Disconnected
-**ID:** `1718364408150`
-
-Alerts when lockbox sensor goes offline.
-
-**Triggers:**
-- `binary_sensor.outdoor_lock_box_contact` becomes `unavailable` for 5 minutes
-
-**Actions:**
-- Send direct notification to Danny
-
----
-
-### Electricity Meter
-
-#### Front Garden: Electricity Meter Door Opened
-**ID:** `1761115884229`
-
-Security monitoring for electricity meter access.
-
-```mermaid
-flowchart TD
-    A["⚡ Meter Door Opened"] --> B["📸 Capture Driveway Image<br/>with Timestamp"]
-    B --> C["📱 Send High Priority<br/>Notification"]
-    C --> D["📝 Log with Image<br/>Attachment"]
-```
-
-**Triggers:**
-- `binary_sensor.electricity_meter_door_contact` changes to `on`
-
-**Actions:**
-1. Generate timestamped filename
-2. Capture snapshot from driveway camera
-3. Send high-priority notification (respects quiet hours)
-4. Log to home log with image attachment
-
----
-
-## Shell Commands
-
-### copy_doorbell_footage
-
-Copies the latest doorbell video with a timestamped filename.
-
-```yaml
-copy_doorbell_footage: >-
-  cp {{ states('input_text.camera_internal_folder_path') }}'/front_door/latest.mp4'
-  {{ states('input_text.camera_internal_folder_path') }}'/front_door/'{{ state_attr('camera.front_door', 'friendly_name') }}_{{ as_timestamp(now())|timestamp_custom('%Y-%m-%d_%H%M%S') }}'.mp4'
-```
-
-**Status:** Currently commented out in automations due to Home Assistant bug
-
----
+| Automation | ID | Mode | Notes |
+|------------|----|------|-------|
+| `Front Garden: Vehicle Detected On Driveway` | `1720276673719` | `single` | Uses `response_variable: ai` from `gpt4vision.image_analyzer`. |
+| `Front Garden: Below Direct Sun Light` | `1660894232444` | `single` | Has a summer-only condition. |
+| `Front Garden: Lock Box State Changed` | `1714914120928` | `single` | Handles both known-state changes and 1-minute unknown/unavailable state. |
+| `Front Garden: Lockbox Sensor Disconnected` | `1718364408150` | `single` | Danny-only notification after 5 minutes unavailable. |
+| `Front Garden: Electricity Meter Door Opened` | `1761115884229` | `single` | Captures snapshot before notification and logging. |
 
 ## Entity Reference
 
-### Cameras
-
 | Entity | Purpose |
 |--------|---------|
-| `camera.front_door` | Front door video doorbell |
-| `camera.driveway_high_resolution_channel` | Driveway surveillance camera |
+| `binary_sensor.driveway_vehicle_detected` | Vehicle-detection trigger. |
+| `camera.driveway_high_resolution_channel` | Driveway camera used for vehicle and meter-door snapshots. |
+| `sensor.front_garden_motion_illuminance` | Front-garden brightness sensor. |
+| `sensor.season` | Summer-only condition for the blind helper. |
+| `binary_sensor.outdoor_lock_box_contact` | Lockbox contact and availability state. |
+| `binary_sensor.electricity_meter_door_contact` | Electricity meter door contact. |
+| `binary_sensor.bedroom_tv_powered_on` | Prevents bedroom blinds opening while bedroom TV is on. |
+| `cover.office_blinds` | Set to 25% by summer sunlight helper. |
+| `cover.bedroom_blinds` | Opened conditionally by summer sunlight helper. |
+| `cover.ashlees_bedroom_blinds` | Opened conditionally before children's bedtime. |
+| `camera.front_door` | Referenced by the shell command filename. |
 
-### Binary Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `binary_sensor.driveway_vehicle_detected` | AI vehicle detection trigger |
-| `binary_sensor.outdoor_lock_box_contact` | Lockbox open/close state |
-| `binary_sensor.electricity_meter_door_contact` | Meter door open/close state |
-
-### Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `sensor.front_garden_motion_illuminance` | Outdoor light level for blind control |
-| `sensor.season` | Current season for lighting logic |
-
-### Events
-
-| Entity | Purpose |
-|--------|---------|
-| `event.front_door_ding` | Doorbell ring events |
-
-### Input Helpers (Referenced)
-
-| Entity | Purpose |
-|--------|---------|
-| `input_number.close_blinds_brightness_threshold` | Sunlight threshold for blind control |
-| `input_number.blind_closed_position_threshold` | Position threshold for "closed" state |
-| `input_datetime.childrens_bed_time` | Bedtime limit for children's blinds |
-| `input_text.doorbell_last_video_id` | Tracks last downloaded video |
-| `input_text.driveway_vehicle_latest_image_path` | Path for vehicle snapshots |
-| `input_text.camera_external_folder_path` | External storage path for camera images |
-| `input_text.camera_internal_folder_path` | Internal storage path for camera videos |
-| `input_boolean.wait_for_doorbell_camera_update` | Flag for doorbell camera sync |
-
-### Scripts (Called)
-
-| Script | Purpose |
-|--------|---------|
-| `script.send_direct_notification` | Send mobile notifications |
-| `script.send_direct_notification_with_url` | Send notifications with media URLs |
-| `script.send_to_home_log` | Log events to home log |
-| `script.send_home_log_with_local_attachments` | Log with image attachments |
-| `script.alexa_announce` | Voice announcements via Alexa |
-
-### Covers (Controlled)
-
-| Entity | Purpose |
-|--------|---------|
-| `cover.office_blinds` | Office window blinds |
-| `cover.bedroom_blinds` | Master bedroom blinds |
-| `cover.ashlees_bedroom_blinds` | Ashlee's bedroom blinds |
-
-### Group (Referenced)
-
-| Entity | Purpose |
-|--------|---------|
-| `group.tracked_people` | Combined presence for home/away detection |
-
----
-
-## Configuration
-
-### Required Input Helpers
-
-Ensure these input helpers are configured in your Home Assistant instance:
-
-```yaml
-# Thresholds
-input_number:
-  close_blinds_brightness_threshold:
-    name: Close Blinds Brightness Threshold
-    min: 0
-    max: 100000
-    unit_of_measurement: lx
-
-  blind_closed_position_threshold:
-    name: Blind Closed Position Threshold
-    min: 0
-    max: 100
-    unit_of_measurement: '%'
-
-# Paths
-input_text:
-  doorbell_last_video_id:
-    name: Doorbell Last Video ID
-    max: 255
-
-  driveway_vehicle_latest_image_path:
-    name: Driveway Vehicle Latest Image Path
-    max: 255
-
-  camera_external_folder_path:
-    name: Camera External Folder Path
-    max: 255
-
-  camera_internal_folder_path:
-    name: Camera Internal Folder Path
-    max: 255
-
-# Flags
-input_boolean:
-  wait_for_doorbell_camera_update:
-    name: Wait For Doorbell Camera Update
-
-# Times
-input_datetime:
-  childrens_bed_time:
-    name: Children's Bed Time
-    has_time: true
-```
-
-### Integration Dependencies
-
-| Integration | Purpose |
-|-------------|---------|
-| Downloader | Video file downloads |
-| Ollama/GPT4Vision | AI image analysis |
-| Alexa | Voice announcements |
-| Todoist | Shared notifications list |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph DoorbellFlow["🔔 Doorbell"]
-        D1["Ring Detected"] --> D2["Notify + Alexa"]
-        D2 --> D3["Wait for Camera"]
-        D3 --> D4["Send Image/Video"]
-        D5["Camera Updated"] --> D6["Download Video"]
-    end
-
-    subgraph CameraFlow["📹 Camera"]
-        C1["Vehicle Detected"] --> C2["Capture Image"]
-        C2 --> C3["AI Analysis"]
-        C3 --> C4["Notify Result"]
-    end
-
-    subgraph LightFlow["💡 Lighting"]
-        L1["Low Sunlight"] --> L2{"Summer?"}
-        L2 -->|Yes| L3["Open Office Blinds"]
-        L3 --> L4["Conditional Bedroom"]
-    end
-
-    subgraph SecurityFlow["🔒 Security"]
-        S1["Lockbox Changed"] --> S2["Notify State"]
-        S3["Meter Door Open"] --> S4["Capture + Notify"]
-        S5["Sensor Offline"] --> S6["Alert Danny"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [Rooms Overview](README.md) | Overview of all room packages |
-| [Main Packages README](../README.md) | Architecture and organization guidelines |
-
-### Related Rooms
-
-| Room | Connection |
-|------|------------|
-| [Office](../office/README.md) | Blind control integration |
-| [Bedroom](../bedroom/README.md) | Blind control integration |
-
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Energy](../../integrations/energy/README.md) | Electricity meter monitoring |
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
+## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Doorbell notifications not working | `event.front_door_ding` entity availability |
-| Camera not capturing | Camera entity state and `last_video_id` attribute |
-| AI analysis failing | Ollama service availability and LLaVA model |
-| Blinds not responding | Illuminance sensor and season sensor states |
-| Lockbox alerts missing | Sensor battery and connectivity |
-
-### Seasonal Considerations
-
-- **Summer:** Blind automation active based on sunlight
-- **Winter:** Blind automation disabled (manual control recommended)
-- Adjust `close_blinds_brightness_threshold` based on seasonal light patterns
-
----
-
-*Last updated: 2026-04-05*
+| Vehicle AI result missing | Check `binary_sensor.driveway_vehicle_detected`, driveway camera availability, the image path helper, and Ollama/LLaVA availability. |
+| Blinds did not reopen | Check `sensor.season` is `summer`, brightness stayed below threshold for 10 minutes, and each blind-specific condition is true. |
+| Lockbox notifications repeat or look odd | Check whether `binary_sensor.outdoor_lock_box_contact` is moving through `unknown` or `unavailable`. |
+| Meter-door image missing | Check `input_text.camera_external_folder_path`, the `/driveway/` folder, and `camera.driveway_high_resolution_channel`. |
+| Doorbell footage was not copied | No automation calls `shell_command.copy_doorbell_footage`; run or wire it separately if needed. |

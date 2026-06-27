@@ -1,36 +1,59 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# SFTPGo File Server
+# SFTPGo File Download Helper
 
-*Last updated: 2026-04-05*
+This package exposes one shell command for downloading a file from an SFTPGo share. In this configuration it is used by the UniFi Protect package to fetch camera images before notifications are sent.
 
-Provides a shell command wrapper for downloading files from an SFTPGo file server. Used by the UniFi Protect integration to fetch camera snapshot images for use in notifications.
+Home Assistant reference: <https://www.home-assistant.io/integrations/shell_command/>
 
-Integration reference: <https://www.home-assistant.io/integrations/shell_command/>
+## Quick Summary
 
-## Shell Commands
+| Area | What Happens |
+|------|--------------|
+| Shell command | Defines `shell_command.download_unifi_image`. |
+| Protocol | Uses `curl` against the SFTPGo REST API. |
+| Authentication | Uses HTTP basic auth with an empty username and caller-supplied password. |
+| Consumer | Called by `unifi_protect.yaml`. |
 
-| Command | Description |
-|---------|-------------|
-| `shell_command.download_unifi_image` | Downloads a file from SFTPGo via the SFTPGo REST API using `curl` |
+## Package Contents
 
-### Parameters
+| File | Purpose | Contents |
+|------|---------|----------|
+| `sftpgo.yaml` | SFTPGo download shell command | 1 shell command |
 
-The shell command is templated and accepts the following variables at call time:
+## Flow
 
-| Variable | Description |
-|----------|-------------|
-| `password` | SFTPGo API password (passed at call time; not stored in this file) |
-| `base_url` | Base URL of the SFTPGo instance |
-| `share_id` | SFTPGo share identifier |
-| `source_path` | Path of the file to download within the share (URL-encoded automatically) |
-| `destination_path` | Local filesystem path to write the downloaded file to |
+```mermaid
+flowchart LR
+    UniFi[unifi_protect.yaml] --> Shell[shell_command.download_unifi_image]
+    Shell --> API[SFTPGo share file API]
+    API --> File[Local destination_path]
+```
 
-## Usage
+## Shell Command
 
-This command is called by `unifi_protect.yaml` to retrieve camera snapshot images before sending them in notifications. The `source_path` value is URL-encoded and path-separator characters are additionally percent-encoded (`/` → `%2F`) to satisfy the SFTPGo API.
+| Command | Result |
+|---------|--------|
+| `shell_command.download_unifi_image` | Downloads a file from `base_url` share `share_id` to `destination_path` using a URL-encoded `source_path`. |
 
-## Notes
+## Parameters
 
-- No credentials are hard-coded in this file; the `password` is supplied by the calling context.
-- The `curl` call uses HTTP Basic authentication with an empty username (`-u ':{{ password }}'`).
+| Parameter | Purpose |
+|-----------|---------|
+| `password` | SFTPGo share/API password supplied by the caller. |
+| `base_url` | Base URL of the SFTPGo instance. |
+| `share_id` | SFTPGo share identifier. |
+| `source_path` | File path inside the share. The command applies `urlencode` and then encodes `/` as `%2F`. |
+| `destination_path` | Local path where `curl --output` writes the downloaded file. |
+
+## Power-User Notes
+
+The command uses `-u ':{{ password }}'`, so the basic auth username is intentionally empty. The request URL is built as `/api/v2/shares/{{ share_id }}/files?path=...` and sends `accept: */*`.
+
+## Troubleshooting
+
+| Symptom | Check |
+|---------|-------|
+| Download fails | Check `base_url`, `share_id`, password, and that Home Assistant can reach SFTPGo. |
+| Wrong file is downloaded | Check the rendered `source_path` and SFTPGo share contents. |
+| Notification image is missing | Check the UniFi Protect automation trace and confirm `destination_path` is writable. |

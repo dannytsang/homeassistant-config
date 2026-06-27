@@ -2,524 +2,166 @@
 
 # Utility Room Package Documentation
 
-This package manages the utility room automation including lighting control, washing machine monitoring, appliance safety (fridge/freezer), and leak detection.
+The utility room package manages motion lighting, fridge/freezer safety, and washing machine completion alerts. It turns the utility light on for movement, warns if cold-storage doors or plugs are unsafe, and tracks washing machine runtime from power consumption.
 
----
+## Quick Summary
 
-## Table of Contents
+For non-technical users, the important behavior is:
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Architecture](#architecture)
-## Overview
+| Area | What Happens |
+|------|--------------|
+| Motion lighting | Motion turns on `light.utility_room_light`; no motion starts a 30-second off timer. |
+| Fridge/freezer doors | Long-open fridge and freezer doors send phone notifications and Alexa announcements at 4, 30, 45, and 60 minutes. |
+| Fridge/freezer plugs | If a fridge or freezer smart plug stays off for 1 minute, Danny gets an actionable notification asking whether to turn it back on. |
+| Washing machine | Power usage creates a running/not-running sensor, logs cycle starts, and sends smart completion notifications. |
+| Runtime stats | Five history sensors track washing machine runtime over useful periods. |
 
-The utility room automation provides motion-activated lighting, washing machine cycle tracking with notifications, fridge/freezer door monitoring with temperature alerts, and integration with the house-wide leak detection system.
+## Package Contents
+
+| File | Purpose | Contents |
+|------|---------|----------|
+| `utility.yaml` | Utility lighting, appliance safety, washing machine tracking | 11 automations, 1 script, 5 history sensors, 1 template binary sensor |
+
+## How The Utility Room Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        Motion["🚶 Motion Sensors<br/>(Utility + Light Trigger)"]
-        WM["🧺 Washing Machine<br/>(Power Monitor)"]
-        Fridge["❄️ Fridge Door<br/>(Contact + Temp)"]
-        Freezer["🧊 Freezer Door<br/>(Contact)"]
-        Leak["💧 Leak Sensors"]
-        Plugs["🔌 Smart Plugs<br/>(Fridge/Freezer)"]
-    end
+    Motion[binary_sensor.utility and utility room motion sensors] --> MotionOn[Motion Detected]
+    LightTrigger[binary_sensor.utility_room_light_trigger] --> MotionOn
+    LightTrigger --> NoMotion[No Motion Detected]
+    Enable[input_boolean.enable_utility_motion_trigger] --> MotionOn
+    Enable --> NoMotion
+    Timer[timer.utility_room_light_off] --> TimerFinished[No Motion Detected For Short Time]
+    FreezerDoor[binary_sensor.utility_freezer_door_contact] --> FreezerAlerts[Freezer door logging and long-open alerts]
+    FridgeDoor[binary_sensor.utility_fridge_door_contact] --> FridgeAlerts[Fridge long-open alerts]
+    FreezerPlug[switch.freezer] --> PlugAlerts[Freezer plug off alert]
+    FridgePlug[switch.utility_fridge] --> PlugAlerts
+    WasherPower[sensor.washing_machine_current_consumption] --> WasherRunning[binary_sensor.washing_machine_powered_on]
+    WasherRunning --> WasherAutomations[Started and finished automations]
 
-    subgraph Logic["🧠 Automation Logic"]
-        LightCtrl["💡 Light Controller"]
-        WMMon["🧺 Washing Monitor"]
-        Appliance["🔌 Appliance Safety"]
-        LeakMon["💧 Leak Monitor"]
-    end
-
-    subgraph Outputs["📤 Controlled Devices"]
-        Light["Utility Room Light"]
-        Notifications["📱 Notifications<br/>(Alexa/Mobile)"]
-        Logs["📝 Home Log"]
-    end
-
-    Motion --> LightCtrl
-    WM --> WMMon
-    Fridge --> Appliance
-    Freezer --> Appliance
-    Plugs --> Appliance
-    Leak --> LeakMon
-
-    LightCtrl --> Light
-    WMMon --> Notifications
-    WMMon --> Logs
-    Appliance --> Notifications
-    Appliance --> Logs
-    LeakMon --> Notifications
+    MotionOn --> Light[light.utility_room_light]
+    NoMotion --> Timer
+    TimerFinished --> Light
+    FreezerAlerts --> Notify[Notifications and Alexa]
+    FridgeAlerts --> Notify
+    PlugAlerts --> Actionable[Actionable notification]
+    WasherAutomations --> WashingScript[script.washing_complete_notification]
 ```
 
----
+## User Controls
 
-## Design Decisions
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_utility_motion_trigger` | Master switch for utility-room motion lighting and timer-off behavior. |
+| `timer.utility_room_light_off` | 30-second countdown after the light trigger turns off. |
 
-Key architectural decisions captured from the YAML configuration:
+## Everyday Behavior
 
-- **Utility Room: Motion Detected** has a master enable switch for easy disabling
-- **Utility Room: No Motion Detected** has a master enable switch for easy disabling
-- **Utility Room: No Motion Detected For Short Time** has a master enable switch for easy disabling
-- **Utility: Freezer Door Open** triggers on state transitions (edge detection) rather than continuous state
-- **Utility: Freezer Door Closed** triggers on state transitions (edge detection) rather than continuous state
-- **Utility: Freezer Open For A Long Period Of Time** triggers on state transitions (edge detection) rather than continuous state
-- **Utility: Fridge Open For A Long Period Of Time** triggers on state transitions (edge detection) rather than continuous state
+### Motion Lighting
 
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/utility/
-├── utility.yaml          # Main package file
-└── README.md             # This documentation
-```
-
-### Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `binary_sensor.utility` | Primary utility room motion |
-| `binary_sensor.utility_room_motion_occupancy` | Additional motion sensor |
-| `binary_sensor.utility_room_light_trigger` | Light trigger sensor |
-| `light.utility_room_light` | Main utility room light |
-| `binary_sensor.washing_machine_powered_on` | Washing machine cycle detection |
-| `sensor.washing_machine_current_consumption` | Power monitoring |
-| `binary_sensor.utility_fridge_door_contact` | Fridge door state |
-| `binary_sensor.utility_freezer_door_contact` | Freezer door state |
-| `sensor.utility_fridge_interior_temperature` | Fridge temperature |
-| `switch.utility_fridge` / `switch.freezer` | Smart plugs for appliances |
-
----
-
-## Automations
-
-### Lighting Control
-
-#### Utility Room: Motion Detected
-**ID:** `1741438466512`
-
-Turns on utility room light when motion is detected.
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Utility Room: Motion Detected` | `binary_sensor.utility`, `binary_sensor.utility_room_motion_occupancy`, or `binary_sensor.utility_room_light_trigger` turns `on` | If motion lighting is enabled, logs, turns on `light.utility_room_light`, and cancels the timer. |
+| `Utility Room: No Motion Detected` | `binary_sensor.utility_room_light_trigger` turns `off` | If motion lighting is enabled, starts `timer.utility_room_light_off` for 30 seconds. |
+| `Utility Room: No Motion Detected For Short Time` | `timer.utility_room_light_off` finishes | If motion lighting is enabled, turns off `light.utility_room_light` using `retry.action` with 3 retries. |
 
 ```mermaid
-flowchart TD
-    A["🚶 Motion Detected"] --> B{"Motion triggers enabled?"}
-    B -->|No| Z["⛔ Ignore"]
-    B -->|Yes| C["Cancel light off timer"]
-    C --> D["💡 Turn on light"]
-    D --> E["📝 Log to home log"]
+sequenceDiagram
+    participant Motion as Utility motion sensors
+    participant Timer as timer.utility_room_light_off
+    participant Light as light.utility_room_light
+    participant Log as Home log
+
+    Motion->>Light: Motion detected, turn light on
+    Motion->>Timer: Cancel off timer
+    Motion->>Log: Log motion event
+    Motion-->>Timer: Light trigger off, start 30s timer
+    Timer->>Light: Timer finished, retry light.turn_off
 ```
 
-**Triggers:**
-- `binary_sensor.utility` changes to `on`
-- `binary_sensor.utility_room_motion_occupancy` changes to `on`
-- `binary_sensor.utility_room_light_trigger` changes to `on`
+### Fridge And Freezer Safety
 
-**Conditions:**
-- `input_boolean.enable_utility_motion_trigger` must be `on`
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Utility: Freezer Door Open` | Freezer door changes from `off` to `on` | Logs that the freezer door is open. |
+| `Utility: Freezer Door Closed` | Freezer door changes from `on` to `off` | Logs that the freezer door closed. |
+| `Utility: Freezer Open For A Long Period Of Time` | Freezer door remains open for 4, 30, 45, or 60 minutes | Sends a direct notification and Alexa announcement. |
+| `Utility: Fridge Open For A Long Period Of Time` | Fridge door remains open for 4, 30, 45, or 60 minutes | Sends a direct notification and Alexa announcement. |
+| `Utility: Freezer Plug Turned Off` | `switch.freezer` is off for 1 minute | Logs and sends Danny an actionable notification with Yes/No buttons. |
+| `Utility: Fridge Plug Turned Off` | `switch.utility_fridge` is off for 1 minute | Logs and sends Danny an actionable notification with Yes/No buttons. |
 
-**Actions:**
-1. Log debug message to home log
-2. Turn on `light.utility_room_light`
-3. Cancel `timer.utility_room_light_off`
+Power-user note: this YAML does not include fridge temperature or leak automations. Those should not be assumed from this package.
 
----
+### Washing Machine
 
-#### Utility Room: No Motion Detected
-**ID:** `1741438515603`
+`binary_sensor.washing_machine_powered_on` is a template binary sensor based on `sensor.washing_machine_current_consumption`.
 
-Starts countdown timer when motion stops.
+| Behavior | Detail |
+|----------|--------|
+| Template state | `on` when current consumption is above 9W; otherwise `off`. |
+| Template triggers | Power above 2.4W for 45 seconds, power below 2.5W for 1 minute 45 seconds, and Home Assistant start. |
+| Start automation | Logs when the binary sensor turns `on`. |
+| Finish automation | Calls `script.washing_complete_notification` when the binary sensor changes from `on` to `off`. |
 
-**Triggers:**
-- `binary_sensor.utility_room_light_trigger` changes to `off`
+### Washing Completion Notifications
 
-**Conditions:**
-- `input_boolean.enable_utility_motion_trigger` must be `on`
+`script.washing_complete_notification` works differently depending on presence and time.
 
-**Actions:**
-1. Log debug message to home log
-2. Start `timer.utility_room_light_off` for 30 seconds
-
----
-
-#### Utility Room: No Motion Detected For Short Time
-**ID:** `1741438515604`
-
-Turns off light when timer expires.
-
-**Triggers:**
-- `timer.utility_room_light_off` finishes
-
-**Conditions:**
-- `input_boolean.enable_utility_motion_trigger` must be `on`
-
-**Actions:**
-1. Log debug message to home log
-2. Turn off `light.utility_room_light` with retry logic (3 retries, exponential backoff)
-
----
-
-### Washing Machine Monitoring
-
-#### Utility: Washing Machine Started
-**ID:** `1595679010794`
-
-Detects when washing machine cycle begins.
-
-**Triggers:**
-- `binary_sensor.washing_machine_powered_on` changes to `on`
-
-**Actions:**
-- Log debug message: "🧺 Washing Machine ▶️ Started"
-
----
-
-#### Utility: Washing Machine Finished
-**ID:** `1595679010795`
-
-Sends notification when washing machine cycle completes.
-
-**Triggers:**
-- `binary_sensor.washing_machine_powered_on` changes from `on` to `off`
-
-**Actions:**
-- Execute `script.washing_complete_notification` with completion message
-
----
-
-### Fridge/Freezer Safety
-
-#### Utility: Freezer Door Open
-**ID:** `1595678795894`
-
-Logs when freezer door opens.
-
-**Triggers:**
-- `binary_sensor.utility_freezer_door_contact` changes from `off` to `on`
-
-**Actions:**
-- Log debug message: "🚪 ❄️ Freezer door is open"
-
----
-
-#### Utility: Freezer Door Closed
-**ID:** `1595678900777`
-
-Logs when freezer door closes.
-
-**Triggers:**
-- `binary_sensor.utility_freezer_door_contact` changes from `on` to `off`
-
-**Actions:**
-- Log debug message: "🚪 ❄️ Freezer door closed"
-
----
-
-#### Utility: Freezer Open For A Long Period Of Time
-**ID:** `1595679010792`
-
-Escalating alerts for freezer door left open.
-
-**Triggers (escalating):**
-- Door open for 4 minutes
-- Door open for 30 minutes
-- Door open for 45 minutes
-- Door open for 1 hour
-
-**Actions:**
-1. Send direct notification with duration
-2. Alexa announcement (no quiet hour suppression)
-
----
-
-#### Utility: Freezer Plug Turned Off
-**ID:** `1657801925106`
-
-Alert when freezer smart plug is turned off.
-
-**Triggers:**
-- `switch.freezer` changes to `off` for 1 minute
-
-**Actions:**
-1. Log to home log (Normal level)
-2. Send actionable notification with option to turn freezer back on
-
----
-
-#### Utility: Fridge Open For A Long Period Of Time
-**ID:** `1595679010892`
-
-Escalating alerts for fridge door left open.
-
-**Triggers (escalating):**
-- Door open for 4 minutes
-- Door open for 30 minutes
-- Door open for 45 minutes
-- Door open for 1 hour
-
-**Actions:**
-1. Send direct notification with duration
-2. Alexa announcement (no quiet hour suppression)
-
----
-
-#### Utility: Fridge Plug Turned Off
-**ID:** `1737107000001`
-
-Alert when fridge smart plug is turned off.
-
-**Triggers:**
-- `switch.utility_fridge` changes to `off` for 1 minute
-
-**Actions:**
-1. Log to home log (Normal level)
-2. Send actionable notification with option to turn fridge back on
-
----
-
-#### Fridge: High Temperature
-**ID:** `1762804331887`
-
-Alert when fridge temperature exceeds safe threshold.
-
-**Triggers:**
-- `sensor.utility_fridge_interior_temperature` goes above 7°C
-
-**Actions:**
-- Send direct notification to all household members with current temperature reading
-
----
-
-### Leak Detection
-
-Leak detection is primarily handled by the water integration (`packages/integrations/water.yaml`). The utility room may contain leak sensors that feed into the house-wide leak detection system.
-
-**Related Automations:**
-- `Water: Critical Leak Alert` - Sends critical notification when leak detected
-- `Water: Leak Cleared` - Notification when all leaks resolved
-
----
-
-## Scenes
-
-No scenes are defined in this package. Lighting is controlled directly through automation actions.
-
----
-
-## Scripts
-
-### Washing Complete Notification
-**Alias:** `washing_complete_notification`
-
-Smart notification for washing machine completion with home/away detection.
-
-**Fields:**
-| Field | Required | Description |
-|-------|----------|-------------|
-| `message` | Yes | Message to post |
-| `title` | No | Optional title for the message |
-
-**Variables:**
-- `people_home`: List of people currently at home (derived from `group.tracked_people`)
-
-**Behavior:**
-
-| Condition | Action |
+| Situation | Result |
 |-----------|--------|
-| Someone home + Daytime (09:00-22:00) | Direct notification + Alexa announcement |
-| Nobody home OR Nighttime | Log to home log + Add to todo list |
-
-**Alexa Message:**
-- Emoji stripped from message for voice clarity
-
----
+| `group.tracked_people` is `home` and time is between 09:00 and 22:00 | Sends a direct notification to the people currently home and makes an Alexa announcement with emoji removed. |
+| Nobody home or outside 09:00-22:00 | Logs the message and adds it to `todo.danny_s_notifications`. |
 
 ## Sensors
 
-### History Stats Sensors - Washing Machine
+| Sensor | Platform | Period |
+|--------|----------|--------|
+| `sensor.washing_machine_running_time_today` | `history_stats` | Midnight to now. |
+| `sensor.washing_machine_running_time_last_24_hours` | `history_stats` | Rolling 24 hours. |
+| `sensor.washing_machine_running_time_yesterday` | `history_stats` | Previous 24-hour day ending at midnight. |
+| `sensor.washing_machine_running_time_this_week` | `history_stats` | Since Monday midnight. |
+| `sensor.washing_machine_running_time_last_30_days` | `history_stats` | Rolling 30 days ending at midnight. |
+| `binary_sensor.washing_machine_powered_on` | `template` | Washing machine running state from power draw. |
 
-| Sensor | Unique ID | Period |
-|--------|-----------|--------|
-| `sensor.washing_machine_running_time_today` | `8e7b3f2e-d65b-4b73-929d-7425bf08e610` | Midnight to now |
-| `sensor.washing_machine_running_time_last_24_hours` | `9bd7e07f-91bf-46a6-bc5d-c3f418874633` | Rolling 24h |
-| `sensor.washing_machine_running_time_yesterday` | `a6729412-5121-49b8-b4fc-d6cd4e9f836e` | Previous day |
-| `sensor.washing_machine_running_time_this_week` | `2f44e30c-a022-47a2-8c76-bc6561687b4b` | Since Monday |
-| `sensor.washing_machine_running_time_last_30_days` | `3e744fc4-6631-4aed-ad62-8464b3ae24db` | Rolling 30 days |
+## Power-User Details
 
-**Configuration:**
-- Platform: `history_stats`
-- Entity: `binary_sensor.washing_machine_powered_on`
-- State: `on`
-- Type: `time`
-
----
-
-### Template Binary Sensors
-
-#### Washing Machine Powered On
-**Entity:** `binary_sensor.washing_machine_powered_on`
-
-Detects washing machine running state based on power consumption.
-
-| Attribute | Value |
-|-----------|-------|
-| Unique ID | `ac5bc0d6-2199-4a2a-8d23-c2f81e8fe0dd` |
-| Device Class | `running` |
-| Icon | Dynamic: `mdi:washing-machine` when running, `mdi:washing-machine-off` when off |
-
-**State Logic:**
-```
-ON when: sensor.washing_machine_current_consumption > 9W
-OFF when: sensor.washing_machine_current_consumption <= 9W
-```
-
-**Triggers:**
-- Power goes above 2.4W for 45 seconds
-- Power goes below 2.5W for 1 minute 45 seconds
-- Home Assistant start event
-
----
-
-## Configuration
-
-### Input Booleans
-
-| Entity | Purpose |
-|--------|---------|
-| `input_boolean.enable_utility_motion_trigger` | Master switch for motion lighting |
-
-### Timers
-
-| Timer | Duration | Purpose |
-|-------|----------|---------|
-| `timer.utility_room_light_off` | 30 seconds | Auto-off delay after no motion |
-
----
+| Automation | ID | Mode | Notes |
+|------------|----|------|-------|
+| `Utility Room: Motion Detected` | `1741438466512` | `single` | Requires `input_boolean.enable_utility_motion_trigger`. |
+| `Utility Room: No Motion Detected` | `1741438515603` | default | Starts a 30-second timer. |
+| `Utility Room: No Motion Detected For Short Time` | `1741438515604` | `single` | Uses `retry.action` for light-off reliability. |
+| `Utility: Freezer Door Open` | `1595678795894` | `single` | Logging only. |
+| `Utility: Freezer Door Closed` | `1595678900777` | `single` | Logging only. |
+| `Utility: Freezer Open For A Long Period Of Time` | `1595679010792` | `single` | Repeats at multiple open durations. |
+| `Utility: Freezer Plug Turned Off` | `1657801925106` | `single` | Action name `switch_on_freezer`. |
+| `Utility: Fridge Open For A Long Period Of Time` | `1595679010892` | `single` | Repeats at multiple open durations. |
+| `Utility: Fridge Plug Turned Off` | `1737107000001` | `single` | Action name `switch_on_fridge`. |
+| `Utility: Washing Machine Started` | `1595679010794` | `single` | Logs start. |
+| `Utility: Washing Machine Finished` | `1595679010795` | `single` | Delegates notification behavior to the script. |
 
 ## Entity Reference
 
-### Lights
-
 | Entity | Purpose |
 |--------|---------|
-| `light.utility_room_light` | Main utility room light |
+| `binary_sensor.utility` | Utility-room motion trigger. |
+| `binary_sensor.utility_room_motion_occupancy` | Additional motion trigger. |
+| `binary_sensor.utility_room_light_trigger` | Light trigger used for motion-on and no-motion timer start. |
+| `light.utility_room_light` | Main utility-room light. |
+| `binary_sensor.utility_freezer_door_contact` | Freezer door contact. |
+| `binary_sensor.utility_fridge_door_contact` | Fridge door contact. |
+| `switch.freezer` | Freezer smart plug. |
+| `switch.utility_fridge` | Fridge smart plug. |
+| `sensor.washing_machine_current_consumption` | Washing machine power draw. |
+| `binary_sensor.washing_machine_powered_on` | Derived washing machine running state. |
+| `group.tracked_people` | Presence group used by washing completion script. |
+| `todo.danny_s_notifications` | Todo list used when completion should not be announced. |
 
-### Binary Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `binary_sensor.utility` | Primary motion sensor |
-| `binary_sensor.utility_room_motion_occupancy` | Secondary motion sensor |
-| `binary_sensor.utility_room_light_trigger` | Light trigger sensor |
-| `binary_sensor.washing_machine_powered_on` | Washing machine running state |
-| `binary_sensor.utility_fridge_door_contact` | Fridge door state |
-| `binary_sensor.utility_freezer_door_contact` | Freezer door state |
-
-### Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `sensor.washing_machine_current_consumption` | Washing machine power draw |
-| `sensor.washing_machine_running_time_today` | Today's runtime |
-| `sensor.washing_machine_running_time_last_24_hours` | Last 24h runtime |
-| `sensor.washing_machine_running_time_yesterday` | Yesterday's runtime |
-| `sensor.washing_machine_running_time_this_week` | This week's runtime |
-| `sensor.washing_machine_running_time_last_30_days` | Last 30 days runtime |
-| `sensor.utility_fridge_interior_temperature` | Fridge internal temperature |
-
-### Switches
-
-| Entity | Purpose |
-|--------|---------|
-| `switch.utility_fridge` | Fridge smart plug |
-| `switch.freezer` | Freezer smart plug |
-
-### Timers
-
-| Entity | Purpose |
-|--------|---------|
-| `timer.utility_room_light_off` | Light auto-off timer |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph LightFlow["💡 Motion Lighting"]
-        L1["Motion Detected"] --> L2["Turn On Light"]
-        L2 --> L3["Cancel Timer"]
-        L4["No Motion"] --> L5["Start 30s Timer"]
-        L5 --> L6["Timer Expires"]
-        L6 --> L7["Turn Off Light"]
-    end
-
-    subgraph WMFlow["🧺 Washing Machine"]
-        W1["Power > 9W"] --> W2["Cycle Started"]
-        W3["Power < 9W"] --> W4["Cycle Finished"]
-        W4 --> W5{"Someone Home?"}
-        W5 -->|Yes| W6["Notify + Alexa"]
-        W5 -->|No| W7["Log + Todo"]
-    end
-
-    subgraph FridgeFlow["❄️ Fridge/Freezer"]
-        F1["Door Open"] --> F2["Log"]
-        F3["Door Open 4min+"] --> F4["Alert"]
-        F5["Plug Turned Off"] --> F6["Actionable Notification"]
-        F7["Temp > 7°C"] --> F8["Temperature Alert"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [Rooms Overview](README.md) | Overview of all room packages |
-| [Main Packages README](../README.md) | Architecture and organization guidelines |
-
-### Related Rooms
-
-| Room | Connection |
-|------|------------|
-| [Kitchen](../kitchen/README.md) | Shared appliance monitoring patterns |
-
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Water](../../water.yaml) | Leak detection system integration |
-| [Energy](../../integrations/energy/README.md) | Smart plug power monitoring |
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
+## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Light not responding to motion | `input_boolean.enable_utility_motion_trigger` state |
-| Washing machine not detecting cycles | Power sensor availability and threshold (>9W) |
-| Fridge/Freezer alerts not working | Contact sensor state, door alignment |
-| No notifications when away | `group.tracked_people` state |
-
-### Power Thresholds
-
-The washing machine detection uses a 9W threshold. If your washing machine has different power characteristics, you may need to adjust:
-- The template sensor in `binary_sensor.washing_machine_powered_on`
-- The trigger thresholds in the template configuration
-
-### Temperature Monitoring
-
-Fridge high temperature alert triggers at 7°C. This is a food safety threshold. Adjust in automation `1762804331887` if needed for your specific fridge.
-
----
-
-*Last updated: 2026-04-08*
+| Utility light does not respond | Check `input_boolean.enable_utility_motion_trigger` and the three motion/light-trigger sensors. |
+| Light does not turn off | Check whether `timer.utility_room_light_off` finishes and whether `retry.action` is available. |
+| Fridge/freezer long-open alerts missing | Check contact sensor states and confirm the door remained `on` long enough for a trigger point. |
+| Plug-off action button does not turn appliance back on | Check the shared notification action handler for `switch_on_freezer` or `switch_on_fridge`. |
+| Washing machine start/finish is wrong | Check `sensor.washing_machine_current_consumption` against the 9W template state threshold. |

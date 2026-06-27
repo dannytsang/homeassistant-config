@@ -1,305 +1,108 @@
+[<- Back to Rooms README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
+
 # Back Garden Package Documentation
 
-This package manages back garden automation including shed security monitoring and light level-based blind control.
+The back garden package covers two things: shed security and one light-level blind helper. It logs shed door decisions, alerts on unexpected motion in a closed shed, and opens Leo's bedroom blinds when back-garden brightness has dropped below the configured direct-sun threshold.
 
----
+## Quick Summary
 
-## Table of Contents
+For non-technical users, the important behavior is:
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Architecture](#architecture)
-## Overview
+| Area | What Happens |
+|------|--------------|
+| Shed door | When the shed door closes, the system logs whether the conservatory camera should stay on because of alarm or conservatory-door context. |
+| Shed motion | Motion inside the shed while the shed door is closed sends a direct notification. |
+| Light-level blinds | If back-garden illuminance stays below the configured threshold for 10 minutes, Leo's bedroom blinds may open before children's bedtime. |
 
-The back garden automation system provides security monitoring for the shed and intelligent light-based control of bedroom blinds.
+## Package Contents
+
+| File | Purpose | Contents |
+|------|---------|----------|
+| `back_garden.yaml` | Shed security and back-garden light-level response | 3 automations |
+
+## How The Back Garden Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        ShedDoor["🚪 Shed Door<br/>binary_sensor.shed_door"]
-        ShedMotion["🚶 Shed Motion<br/>binary_sensor.shed_motion"]
-        LightLevel["☀️ Light Level<br/>sensor.back_garden_motion_illuminance"]
-        Alarm["🔔 House Alarm<br/>alarm_control_panel.house_alarm"]
-        Conservatory["🚪 Conservatory Door<br/>binary_sensor.conservatory_door"]
-    end
+    ShedDoor[binary_sensor.shed_door] --> DoorClosed[Shed: Door Closed]
+    ShedMotion[binary_sensor.shed_motion] --> MotionAlert[Shed: Motion Detected When Door Is Closed]
+    Alarm[alarm_control_panel.house_alarm] --> DoorClosed
+    ConservatoryDoor[binary_sensor.conservatory_door] --> DoorClosed
+    LightLevel[sensor.back_garden_motion_illuminance] --> Sunlight[Back Garden: Below Direct Sun Light]
+    Threshold[input_number.close_blinds_brightness_threshold] --> Sunlight
+    Bedtime[input_datetime.childrens_bed_time] --> Sunlight
+    BlindThreshold[input_number.blind_closed_position_threshold] --> Sunlight
 
-    subgraph Logic["🧠 Automation Logic"]
-        DoorMonitor["🚪 Door State Monitor"]
-        MotionAlert["⚠️ Motion Alert Handler"]
-        LightCtrl["💡 Light Level Controller"]
-    end
-
-    subgraph Outputs["📤 Actions"]
-        Logs["📝 Home Logs"]
-        Notifications["📱 Direct Notifications"]
-        Blinds["🪟 Bedroom Blinds"]
-    end
-
-    ShedDoor --> DoorMonitor
-    ShedMotion --> MotionAlert
-    LightLevel --> LightCtrl
-    Alarm --> DoorMonitor
-    Conservatory --> DoorMonitor
-
-    DoorMonitor --> Logs
-    MotionAlert --> Notifications
-    LightCtrl --> Logs
-    LightCtrl --> Blinds
+    DoorClosed --> Log[Home log]
+    MotionAlert --> Notify[Direct notification]
+    Sunlight --> LeoBlinds[cover.leos_bedroom_blinds]
 ```
 
----
+## User Controls
 
-## Design Decisions
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_number.close_blinds_brightness_threshold` | Outdoor brightness threshold used to detect when direct sunlight has dropped. |
+| `input_number.blind_closed_position_threshold` | Position threshold used to decide whether blinds count as closed enough to open. |
+| `input_datetime.childrens_bed_time` | Latest time the Leo blind-opening helper can run. |
 
-Key architectural decisions captured from the YAML configuration:
-
-- **Shed: Door Closed** triggers on state transitions (edge detection) rather than continuous state
-- **Shed: Motion Detected When Door Is Closed** triggers on state transitions (edge detection) rather than continuous state
-- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
-
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/back_garden/
-├── back_garden.yaml      # Main package file
-└── README.md             # This documentation
-```
-
-### Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `binary_sensor.shed_door` | Shed door open/closed state |
-| `binary_sensor.shed_motion` | Motion detection inside shed |
-| `sensor.back_garden_motion_illuminance` | Outdoor light level measurement |
-| `alarm_control_panel.house_alarm` | House alarm state integration |
-| `binary_sensor.conservatory_door` | Conservatory door state |
-| `cover.leos_bedroom_blinds` | Child's bedroom blinds control |
-
----
-
-## Automations
+## Everyday Behavior
 
 ### Shed Security
 
-#### Shed: Door Closed
-**ID:** `1618158789152`
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Shed: Door Closed` | `binary_sensor.shed_door` changes from `on` to `off` | Logs why the conservatory camera should stay on or can be turned off. |
+| `Shed: Motion Detected When Door Is Closed` | `binary_sensor.shed_motion` changes from `off` to `on` while the shed door is `off` | Sends a direct notification that motion was detected in the shed while shut. |
 
-Monitors shed door closure and manages conservatory camera state based on security context.
-
-```mermaid
-flowchart TD
-    A["🚪 Door Closed"] --> B{"Alarm armed?"}
-    B -->|Yes| C{"Conservatory door?"}
-    C -->|Open| D["📝 Log: Keep camera on<br/>Alarm armed + door open"]
-    C -->|Closed| E["📝 Log: Keep camera on<br/>Alarm armed"]
-    B -->|No| F{"Conservatory door?"}
-    F -->|Open| G["📝 Log: Keep camera on<br/>Door open"]
-    F -->|Closed| H["📝 Log: Turn camera off"]
-```
-
-**Triggers:**
-- Shed door changes from `on` (open) to `off` (closed)
-
-**Logic:**
-The automation evaluates multiple conditions to determine whether to keep the conservatory camera active:
-
-| Condition | Camera Action | Reason |
-|-----------|---------------|--------|
-| Alarm armed + Conservatory open | Keep on | Security risk |
-| Alarm armed + Conservatory closed | Keep on | Security armed |
-| Alarm disarmed + Conservatory open | Keep on | Door open |
-| Alarm disarmed + Conservatory closed | Turn off | Safe to disable |
-
-**Purpose:** Ensures the conservatory camera remains active whenever there's a security concern, even when the shed door is closed.
-
----
-
-#### Shed: Motion Detected When Door Is Closed
-**ID:** `1618158998129`
-
-Critical security alert for unexpected motion in a secured shed.
+Power-user note: `Shed: Door Closed` currently logs the camera decision only. It does not call a camera service.
 
 ```mermaid
 flowchart TD
-    A["🚶 Motion Detected"] --> B{"Door closed?"}
-    B -->|Yes| C["🚨 Send Alert"]
-    B -->|No| D["⛔ Ignore - Normal access"]
-    C --> E["📱 Direct Notification"]
-    E --> F["Title: 🛖 Shed"]
-    E --> G["Message: Motion detected<br/>and door is shut"]
+    Closed[Shed door closed] --> Armed{Alarm disarmed?}
+    Armed -->|No| KeepAlarm[Log: keep camera on because alarm is armed]
+    Armed -->|Yes| Conservatory{Conservatory door open?}
+    Conservatory -->|Yes| KeepDoor[Log: keep camera on because conservatory door is open]
+    Conservatory -->|No| CanOff[Log: turning conservatory camera off]
 ```
 
-**Triggers:**
-- Shed motion sensor changes from `off` to `on`
+### Light-Level Blind Helper
 
-**Conditions:**
-- Shed door must be `off` (closed)
+`Back Garden: Below Direct Sun Light` triggers when `sensor.back_garden_motion_illuminance` stays below `input_number.close_blinds_brightness_threshold` for 10 minutes.
 
-**Actions:**
-- Sends direct notification with title "🛖 Shed"
-- Message: "🐾 Motion detected in the shed and the door is shut."
+| Condition | Result |
+|-----------|--------|
+| `cover.bedroom_blinds` current position is below `input_number.blind_closed_position_threshold` and it is before `input_datetime.childrens_bed_time` | Opens `cover.leos_bedroom_blinds`. |
+| Either condition is false | Only logs the brightness event. |
 
-**Purpose:** Detects potential intrusions - motion inside a closed shed is unexpected and warrants immediate alert.
+Power-user note: the condition checks the `current_position` attribute on `cover.bedroom_blinds`, but the action opens `cover.leos_bedroom_blinds`.
 
----
+## Power-User Details
 
-### Light Level Control
-
-#### Back Garden: Below Direct Sun Light
-**ID:** `1660894232445`
-
-Automatically opens bedroom blinds when outdoor light levels drop, optimizing natural light.
-
-```mermaid
-flowchart TD
-    A["☀️ Light Level Drop"] --> B{"Below threshold<br/>for 10 min?"}
-    B -->|No| Z["⏳ Wait"]
-    B -->|Yes| C["📝 Log Event"]
-    C --> D{"Bedroom blinds<br/>below threshold?"}
-    D -->|No| E["⛔ Skip - Already open"]
-    D -->|Yes| F{"Before bedtime?"}
-    F -->|No| G["⛔ Skip - Too late"]
-    F -->|Yes| H["🪟 Open Blinds"]
-```
-
-**Triggers:**
-- Back garden illuminance falls below `input_number.close_blinds_brightness_threshold`
-- Must remain below threshold for 10 minutes
-
-**Conditions for Blind Opening:**
-1. Bedroom blinds position is below `input_number.blind_closed_position_threshold`
-2. Current time is before `input_datetime.childrens_bed_time`
-
-**Actions:**
-1. Logs the light level event to home log (Debug level)
-2. Opens `cover.leos_bedroom_blinds` if conditions met
-
-**Purpose:** Maximizes natural light in the child's bedroom during the day while respecting bedtime boundaries.
-
----
-
-## Configuration
-
-### Input Numbers
-
-| Entity | Purpose | Used In |
-|--------|---------|---------|
-| `input_number.close_blinds_brightness_threshold` | Light level threshold for blind control | Below Direct Sun Light automation |
-| `input_number.blind_closed_position_threshold` | Blind position threshold to determine if blinds are "closed" | Below Direct Sun Light automation |
-
-### Input Datetime
-
-| Entity | Purpose | Used In |
-|--------|---------|---------|
-| `input_datetime.childrens_bed_time` | Bedtime cutoff for blind automation | Below Direct Sun Light automation |
-
-### Related Entities
-
-| Entity | Type | Purpose |
-|--------|------|---------|
-| `alarm_control_panel.house_alarm` | Alarm | Security state for shed monitoring |
-| `binary_sensor.conservatory_door` | Binary Sensor | Door state for camera decisions |
-| `cover.leos_bedroom_blinds` | Cover | Child's bedroom blinds |
-| `cover.bedroom_blinds` | Cover | Master bedroom blinds (reference) |
-
----
+| Automation | ID | Mode | Notes |
+|------------|----|------|-------|
+| `Shed: Door Closed` | `1618158789152` | `single` | Uses ordered `choose` branches for alarm and conservatory-door context. |
+| `Shed: Motion Detected When Door Is Closed` | `1618158998129` | `single` | Requires shed door state `off`. |
+| `Back Garden: Below Direct Sun Light` | `1660894232445` | `single` | No season condition; runs whenever the brightness trigger fires. |
 
 ## Entity Reference
 
-### Binary Sensors
-
 | Entity | Purpose |
 |--------|---------|
-| `binary_sensor.shed_door` | Shed door contact sensor |
-| `binary_sensor.shed_motion` | Shed interior motion detection |
-| `binary_sensor.conservatory_door` | Conservatory door state |
+| `binary_sensor.shed_door` | Shed door contact. |
+| `binary_sensor.shed_motion` | Shed motion sensor. |
+| `alarm_control_panel.house_alarm` | Alarm state used in shed-door logging. |
+| `binary_sensor.conservatory_door` | Conservatory door state used in shed-door logging. |
+| `sensor.back_garden_motion_illuminance` | Back-garden brightness sensor. |
+| `cover.bedroom_blinds` | Position reference used before opening Leo's blinds. |
+| `cover.leos_bedroom_blinds` | Blind opened by the back-garden light-level helper. |
+| `script.send_to_home_log` | Shared logging script. |
+| `script.send_direct_notification` | Shared direct notification script. |
 
-### Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `sensor.back_garden_motion_illuminance` | Outdoor light level (lux) |
-
-### Alarm Control Panels
-
-| Entity | Purpose |
-|--------|---------|
-| `alarm_control_panel.house_alarm` | House alarm state (armed/disarmed) |
-
-### Covers
-
-| Entity | Purpose |
-|--------|---------|
-| `cover.leos_bedroom_blinds` | Child's bedroom blinds |
-| `cover.bedroom_blinds` | Master bedroom blinds |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph ShedFlow["🛖 Shed Security"]
-        S1["Door Closes"] --> S2{"Security Check"}
-        S2 --> S3["Keep camera on if<br/>alarm armed or<br/>conservatory open"]
-        S4["Motion Detected"] --> S5{"Door closed?"}
-        S5 -->|Yes| S6["🚨 Alert"]
-        S5 -->|No| S7["✅ Normal"]
-    end
-
-    subgraph LightFlow["☀️ Light Control"]
-        L1["Light < Threshold<br/>for 10 min"] --> L2{"Blinds closed?<br/>Before bedtime?"}
-        L2 -->|Yes| L3["🪟 Open Blinds"]
-        L2 -->|No| L4["⛔ No action"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [Rooms Overview](README.md) | Overview of all room packages |
-| [Main Packages README](../README.md) | Architecture and organization guidelines |
-
-### Related Rooms
-
-| Room | Connection |
-|------|------------|
-| [Conservatory](../conservatory/README.md) | Camera control integration |
-| [Bedroom](../bedroom/README.md) | Blind control integration |
-
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Alarm](../integrations/alarm_README.md) | House alarm system integration |
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
+## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Motion alerts not firing | `binary_sensor.shed_motion` state and availability |
-| Blinds not opening on light drop | `input_number.close_blinds_brightness_threshold` value |
-| Camera staying on unexpectedly | `alarm_control_panel.house_alarm` state |
-| Shed door state incorrect | Door sensor battery and alignment |
-
-### Seasonal Adjustments
-
-- **Summer:** May need to increase `close_blinds_brightness_threshold` for brighter ambient light
-- **Winter:** May need to decrease threshold or adjust timing for shorter days
-- **Bedtime changes:** Update `input_datetime.childrens_bed_time` when child's schedule changes
-
----
-
-*Last updated: 2026-04-05*
+| Shed motion alert did not fire | Confirm `binary_sensor.shed_motion` changed from `off` to `on` while `binary_sensor.shed_door` was `off`. |
+| Shed camera decision looks wrong | Check `alarm_control_panel.house_alarm` and `binary_sensor.conservatory_door` states at the time the shed door closed. |
+| Leo's blinds did not open | Check brightness was below threshold for 10 minutes, time was before `input_datetime.childrens_bed_time`, and `cover.bedroom_blinds` position was below the closed threshold. |

@@ -2,1011 +2,244 @@
 
 # Bedroom Package Documentation
 
-This package manages the master bedroom automation including Sleep As Android integration, AWTRIX light notifications, motion-based ambient lighting, blind control, and children's bedroom door monitoring.
+The main bedroom package makes the room behave like a sleep, TV, and night-time parent-alert space without much manual control. It closes and opens the blinds around sleep, sunrise, TV use, weather, and the window contact; gives soft under-bed lighting from motion; manages the bedroom fan; receives Sleep as Android events; and flashes the bedroom lamps when Leo's or Ashlee's bedroom doors move after bedtime.
 
----
+This documentation covers the YAML files in this folder:
 
-## Table of Contents
+| File | Purpose | Contents |
+|------|---------|----------|
+| `bedroom.yaml` | Main bedroom behavior | 24 automations, 5 scenes, 8 scripts, 5 sensors, 2 template binary sensors |
+| `sleep_as_android.yaml` | Sleep tracking integration | 8 automations, 1 template binary sensor |
+| `awtrix_light.yaml` | Bedroom clock MQTT notification helper | 1 script |
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Architecture](#architecture)
-## Overview
+## Quick Summary
 
-The bedroom automation system provides intelligent control of blinds based on occupancy and time, motion-activated ambient lighting, Sleep As Android integration for sleep tracking and smart wake-up, and monitoring of children's bedroom doors during evening hours.
+For non-technical users, the important behavior is:
+
+| Area | What Happens |
+|------|--------------|
+| Blinds | Blinds close after sunset when someone is in bed, at 22:00, when the TV starts in bright daylight, or during hot sunny weather. They open in the morning, when the bed becomes empty during the day, after the TV turns off if it is not too hot, and five minutes after a Sleep as Android alarm if conditions match. |
+| Window safety | Blind-closing automations check the bedroom window contact and either skip, wait, or ask before moving the blind when the window is open. |
+| Motion lighting | Bedroom motion turns on soft under-bed lighting and the AWTRIX clock. No motion turns ambient lighting off after 2 minutes and turns the clock off after 30 minutes if the lamps are off. |
+| Fan | The fan turns on when Sleep as Android starts and the room is above 22.5 C. It turns off after 2 hours, after 5 minutes with no mmWave presence, or when the sleep timer finishes. |
+| Sleep tracking | Sleep as Android webhook events update `input_text.sleep_as_android`, control `timer.sleep`, open blinds on alarms, and log selected events based on notification level. |
+| Parent alerts | If Leo's or Ashlee's door opens or closes after children's bedtime while bedroom lights are on, bedroom lamps flash blue or pink/green and the bedroom TV may pause or resume. |
+| Remote control | The bedroom MQTT remote toggles main lights, toggles lamps and under-bed lights, opens/closes blinds, and adjusts bedroom lamp brightness with the dial. |
+| TV tracking | A template binary sensor detects TV power from plug wattage, and history sensors track TV uptime today, yesterday, this week, and over the last 30 days. |
+
+## How The Bedroom Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        Bed["🛏️ Bed Occupancy<br/>(4 pressure sensors)"]
-        Motion["🚶 Motion Sensors<br/>(3 sensors)"]
-        Window["🪟 Window Contact"]
-        Door["🚪 Bedroom Door"]
-        ChildDoors["👶 Children's Doors<br/>(Leo & Ashlee)"]
-        TV["📺 TV Power"]
-        Remote["🎮 Dial Remote"]
-        Sleep["😴 Sleep As Android<br/>(Webhook)"]
-    end
+    Bed[Bed occupancy] --> Blinds[Blind control]
+    Window[Bedroom window contact] --> Blinds
+    TV[Bedroom TV power] --> Blinds
+    Weather[Weather and forecast] --> Blinds
+    Calendar[Work and children calendars] --> Morning[Morning blind schedule]
+    Sleep[Sleep as Android webhook] --> SleepTimer[Sleep timer]
+    Sleep --> Alarm[Alarm wake routine]
+    Motion[Bedroom motion and presence] --> Lighting[Ambient lighting and clock]
+    Door[Bedroom door] --> TVPrivacy[TV privacy pause]
+    ChildDoors[Leo and Ashlee door contacts] --> ParentAlerts[Parent visual alerts]
+    Remote[Bedroom MQTT remote] --> Manual[Manual light and blind control]
 
-    subgraph Logic["🧠 Automation Logic"]
-        Blinds["🪟 Blind Controller"]
-        Lights["💡 Light Controller"]
-        SleepLogic["🌙 Sleep Manager"]
-        DoorLogic["🚪 Door Monitor"]
-        FanLogic["🌀 Fan Controller"]
-    end
-
-    subgraph Outputs["📤 Controlled Devices"]
-        BlindsOut["Bedroom Blinds"]
-        AmbientLights["Ambient Lights<br/>(Under Bed + Lamps)"]
-        Clock["⏰ AWTRIX Clock"]
-        Fan["🌀 Bedroom Fan"]
-        Stairs["🪜 Stairs Lights"]
-        Notifications["📱 Notifications"]
-    end
-
-    Bed --> Blinds
-    Motion --> Lights
-    Window --> Blinds
-    Door --> Lights
-    Door --> Stairs
-    ChildDoors --> DoorLogic
-    TV --> Blinds
-    Sleep --> SleepLogic
-    Remote --> Blinds
-    Remote --> Lights
-
-    Blinds --> BlindsOut
-    Lights --> AmbientLights
-    Lights --> Clock
-    SleepLogic --> Fan
-    SleepLogic --> BlindsOut
-    SleepLogic --> Clock
-    DoorLogic --> Notifications
-    FanLogic --> Fan
+    Morning --> Blinds
+    Alarm --> Blinds
+    SleepTimer --> Fan[Bedroom fan]
+    Lighting --> UnderBed[Under-bed lights]
+    Lighting --> Clock[Bedroom AWTRIX matrix]
+    ParentAlerts --> Lamps[Bedroom lamps]
+    ParentAlerts --> TVPrivacy
+    Manual --> Blinds
+    Manual --> MainLights[Bedroom main lights]
+    Manual --> Lamps
 ```
 
----
+## Main Files
 
-## Design Decisions
+```mermaid
+flowchart LR
+    subgraph BedroomFolder[packages/rooms/bedroom]
+        Main[bedroom.yaml]
+        Sleep[sleep_as_android.yaml]
+        Awtrix[awtrix_light.yaml]
+        Readme[README.md]
+        Setup[BEDROOM-SETUP.md]
+    end
 
-Key architectural decisions captured from the YAML configuration:
-
-- **Bedroom: Close Blinds When Someone Is In Bed After Sunset** triggers on state transitions (edge detection) rather than continuous state
-- **Bedroom: Window Closed At Night** triggers on state transitions (edge detection) rather than continuous state
-- **Bedroom: Window Closed At Night** has a master enable switch for easy disabling
-- **Bedroom: Window Closed And Someone Is In Bed At Night** triggers on state transitions (edge detection) rather than continuous state
-- **Bedroom: Open Blind When No One Is In Bed** triggers on state transitions (edge detection) rather than continuous state
-- **Bedroom: Open Blind When No One Is In Bed** has a master enable switch for easy disabling
-- **Bedroom: Other Bedroom Door Opens Warning** triggers on state transitions (edge detection) rather than continuous state
-
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/bedroom/
-├── bedroom.yaml          # Main package file (blinds, lights, door, TV, remote)
-├── sleep_as_android.yaml # Sleep tracking integration
-└── awtrix_light.yaml     # AWTRIX clock notification scripts
+    Main --> Blinds[Blinds, TV, weather]
+    Main --> Motion[Motion lighting]
+    Main --> DoorAlerts[Bedroom and child door alerts]
+    Main --> Remote[Bedroom remote]
+    Main --> Stats[TV uptime and mould sensors]
+    Sleep --> Timer[Sleep timer and alarm routines]
+    Awtrix --> Notify[Clock MQTT notifications]
+    Readme --> Reference[User and power-user reference]
+    Setup --> Checklist[Setup and troubleshooting checklist]
 ```
 
-### Key Components
+### `bedroom.yaml`
 
-| Component | Purpose |
-|-----------|---------|
-| `binary_sensor.bed_occupied` | Bed occupancy detection (4 pressure sensors) |
-| `binary_sensor.bedroom_motion_occupancy` | Primary motion detection |
-| `binary_sensor.bedroom_motion_3_presence` | Secondary presence sensor |
-| `binary_sensor.bedroom_area_motion` | Area motion detection |
-| `cover.bedroom_blinds` | Motorized blinds control |
-| `light.under_bed_left/right` | Under-bed ambient LED strips |
-| `light.bedroom_lamps` | Desk lamps group |
-| `light.bedroom_clock_matrix` | AWTRIX LED matrix clock |
-| `switch.bedroom_fan` | Smart fan control |
-| `binary_sensor.bedroom_tv_powered_on` | TV power monitoring |
+| Section | YAML Objects | Summary |
+|---------|--------------|---------|
+| Bed and blinds | 4 automations | Closes blinds when bed becomes occupied after sunset or a closed window makes it safe; opens blinds when the bed becomes empty during daylight. |
+| Doors | 4 automations | Turns off stairs lights when the bedroom door closes, handles children door warnings, and pauses TV when the bedroom door opens late at night. |
+| Motion and fan | 5 automations | Controls under-bed ambient lights, AWTRIX clock, and fan timeouts. |
+| Timed blind control | 2 automations | Opens blinds at 08:00, 09:00, or 10:00 based on workday/calendar logic; closes blinds at 22:00. |
+| TV and weather | 2 automations, 1 script | Lowers blinds for daytime TV glare, reopens them after TV use unless it is hot, and closes them during sunny hot weather. |
+| Remote control | 6 automations | Handles four remote buttons plus dial brightness up/down for bedroom lamps. |
+| Scenes | 5 scenes | Ambient on, dim ambient, ambient off, desk lamps on, desk lamps off. |
+| Door alert scripts | 6 scripts | Flash bedroom lamps for Leo/Ashlee door open/close events and coordinate TV pause/resume. |
+| Support scripts | 2 scripts | Weather-based blind closure and sleep-mode clock shutdown. |
+| Sensors | 5 sensors, 2 template binary sensors | TV uptime, mould risk, TV powered-on state, and bed occupancy. |
 
----
+### `sleep_as_android.yaml`
 
-## Automations
+The Sleep as Android package receives webhook events, stores the latest event in `input_text.sleep_as_android`, manages `timer.sleep`, turns on the bedroom fan when sleep tracking starts in a warm room, opens blinds after alarm start when appropriate, and cancels any active or paused sleep timer at 05:00.
+
+### `awtrix_light.yaml`
+
+`script.send_bedroom_clock_notification` publishes a short MQTT notification to the AWTRIX topic from `sensor.bedroom_clock_device_topic`. It supports a required `message`, optional `icon`, and optional `duration` in seconds.
+
+## User Controls
+
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_bedroom_blind_automations` | Master switch for automatic bedroom blind movement. |
+| `input_boolean.enable_bedroom_motion_trigger` | Master switch for bedroom motion lighting. |
+| `input_boolean.enable_bed_sensor` | Enables bedroom bed-occupancy behavior. |
+| `input_boolean.enable_direct_notifications` | Allows the TV glare automation to send a direct actionable notification when the window is open. |
+| `input_select.sleep_as_android_notification_level` | Controls how many Sleep as Android events are logged: `Start/Stop`, `Start/Stop/Alarms`, or `All`. |
+| `input_number.sleep_timer_duration` | Sleep timer starting duration in minutes. |
+| `input_number.sleep_as_android_time_to_add` | Minutes added when falling back asleep after being awake. |
+| `input_number.sleep_as_android_time_to_subtract` | Minutes subtracted after 15 minutes of detected sleep. |
+| `input_number.blind_open_position_threshold` | Shared threshold for treating blinds as open. |
+| `input_number.blind_closed_position_threshold` | Shared threshold for treating blinds as closed. |
+| `input_number.bedroom_blind_closed_threshold` | Bedroom-specific closed threshold used by some TV and timed-open logic. |
+
+## Everyday Behavior
 
 ### Blind Control
 
-#### Bedroom: Close Blinds When Someone Is In Bed After Sunset
-**ID:** `1601641236163`
-
-Automatically closes blinds when someone gets into bed after sunset.
-
-**Triggers:**
-- Bed occupied changes from `off` to `on` for 30 seconds
-
-**Conditions:**
-- Blinds are above open threshold
-- Bedroom blind automations enabled
-- After sunset
-- Window is closed
-- Bed sensor enabled
-
-**Actions:**
-- Log message
-- Close blinds
-
----
-
-#### Bedroom: Window Closed At Night
-**ID:** `1622667464880`
-
-Closes blinds when window is closed after sunset.
-
-**Triggers:**
-- Window contact changes from `on` (open) to `off` (closed)
-
-**Conditions:**
-- Bedroom blind automations enabled
-- After sunset and before sunrise
-- Blinds are not already closed
-
-**Actions:**
-- Log message
-- Close blinds
-
----
-
-#### Bedroom: Window Closed And Someone Is In Bed At Night
-**ID:** `1615689096351`
-
-Closes blinds when window closes at night, with bed occupancy consideration.
-
-**Triggers:**
-- Window contact changes to `off` for 30 seconds
-
-**Conditions:**
-- Blinds above open threshold
-- Bedroom blind automations enabled
-- After sunset
-
-**Logic:**
 ```mermaid
 flowchart TD
-    A["🪟 Window Closed"] --> B{"Bed sensor enabled?"}
-    B -->|Yes| C{"Someone in bed?"}
-    C -->|Yes| D["💤 Close blinds<br/>Log: Someone in bed"]
-    C -->|No| E["🪟 Close blinds<br/>Log: Window closed"]
-    B -->|No| E
+    BedOn[Bed occupied after sunset] --> WindowClosed{Window closed?}
+    WindowClosed -->|Yes| CloseNight[Close blinds]
+    WindowClosed -->|No| SkipWindow[Do not move blinds]
+    BedOff[Bed empty after sunrise-1h and before sunset] --> OpenDay[Open blinds after 1 minute]
+    TimeMorning[08:00 / 09:00 / 10:00] --> CalendarCheck[Check work and children calendars]
+    CalendarCheck --> OpenMorning[Open blinds if matching branch wins]
+    TimeNight[22:00] --> NightWindow{Window open?}
+    NightWindow -->|Yes| LogWait[Log window warning]
+    NightWindow -->|No| CloseTimed[Close blinds]
+    TVOn[TV powered on during bright day] --> TVWindow{Window open?}
+    TVWindow -->|Yes| AskDanny[Ask whether to set blinds to 30]
+    TVWindow -->|No| LowerTV[Set blinds to 20]
+    TVOff[TV off for 1 minute] --> Hot{Current or forecast temperature high?}
+    Hot -->|Yes| KeepClosed[Keep blinds closed]
+    Hot -->|No| Reopen[Open blinds]
 ```
 
----
+| Situation | Result |
+|-----------|--------|
+| Someone gets into bed after sunset, the bed sensor is enabled, and the window is closed | Close `cover.bedroom_blinds`. |
+| Bedroom window closes at night and blinds are not closed | Close blinds. |
+| Bed becomes empty for 30 seconds between one hour before sunrise and sunset | Wait 1 minute, then open blinds. |
+| Morning schedule fires | Open blinds at 08:00 for work/activity logic, 09:00 for non-workday activity logic, or 10:00 fallback. |
+| 22:00 close schedule fires | Close blinds if the window is closed; log a warning if the window is open. |
+| TV turns on in bright daytime | Lower blinds to 20 if the window is closed; send Danny an actionable prompt if the window is open and direct notifications are enabled. |
+| TV turns off during daytime | Open blinds unless the current or next-hour forecast temperature is above `input_number.forecast_high_temperature`. |
+| Weather script is called for `sunny` or `partlycloudy` before sunset | Close blinds if automations are enabled, blinds are open, and the window is closed. |
 
-#### Bedroom: Open Blind When No One Is In Bed
-**ID:** `1601641292576`
+### Motion Lighting And Clock
 
-Opens blinds when bed becomes unoccupied during daytime.
-
-**Triggers:**
-- Bed occupied changes from `on` to `off` for 30 seconds
-
-**Conditions:**
-- Blinds below closed threshold
-- Between sunrise-1hr and sunset
-- Bedroom blind automations enabled
-- Bed sensor enabled
-
-**Actions:**
-- 1 minute delay
-- Log message
-- Open blinds
-
----
-
-#### Bedroom: Morning Timed Open Blinds
-**ID:** `1621875409014`
-
-Scheduled blind opening based on work calendar and day type.
-
-**Triggers:**
-- 08:00 (work days)
-- 09:00 (non-work days with activities)
-- 10:00 (fallback)
-
-**Conditions:**
-- Blinds below closed threshold
-- Bedroom blind automations enabled
-- TV is off
-
-**Logic:**
 ```mermaid
-flowchart TD
-    A["⏰ Time Trigger"] --> B{"Work day<br/>+ No annual leave?"}
-    B -->|Yes| C["🕗 08:00 trigger<br/>Open blinds"]
-    B -->|No| D{"Non-work day<br/>+ Activities?"}
-    D -->|Yes| E["🕘 09:00 trigger<br/>Open blinds"]
-    D -->|No| F["🕙 10:00 fallback<br/>Open blinds"]
+sequenceDiagram
+    participant Motion as Bedroom motion
+    participant Scene as Ambient scenes
+    participant Clock as AWTRIX matrix
+    participant Log as Home log
+
+    Motion->>Scene: Motion on, choose ambient brightness from blinds/time
+    Motion->>Clock: Turn clock on if it is off
+    Motion->>Log: Record motion decision
+    Motion-->>Scene: No motion for 2 minutes, ambient off
+    Motion-->>Clock: No area motion for 30 minutes and lamps off, clock off
 ```
 
----
-
-#### Bedroom: Evening Timed Close Blinds
-**ID:** `1621875567853`
-
-Scheduled blind closure at 22:00.
-
-**Triggers:**
-- 22:00 daily
-
-**Conditions:**
-- Bedroom blind automations enabled
-- Blinds above closed threshold
-
-**Actions:**
-- If window open: Log warning, wait for close
-- If window closed: Close blinds
-
----
-
-#### Bedroom: TV Turned On During Bright Day
-**ID:** `1624194131454`
-
-Lowers blinds when TV turns on during bright daylight.
-
-**Triggers:**
-- TV powered on changes to `on`
-
-**Conditions:**
-- Bedroom blind automations enabled
-- Between sunrise and sunset
-- Blinds above open threshold
-
-**Actions:**
-- If window open: Send actionable notification
-- If window closed: Lower blinds to 20%
-
----
-
-#### Bedroom: TV Turned Off
-**ID:** `1624194439043`
-
-Opens blinds when TV turns off, with weather consideration.
-
-**Triggers:**
-- TV powered on changes to `off` for 1 minute
-
-**Conditions:**
-- Blinds below closed threshold
-- Bedroom blind automations enabled
-- Before sunset and after sunrise
-- After 08:30
-
-**Logic:**
-```mermaid
-flowchart TD
-    A["📺 TV Off"] --> B{"Temperature > threshold?"}
-    B -->|Yes| C["🌡️ Keep blinds closed<br/>Log: Hot weather"]
-    B -->|No| D["🪟 Open blinds<br/>Log: TV off"]
-```
-
----
-
-### Door Monitoring
-
-#### Bedroom: Door Closed
-**ID:** `1715955339483`
-
-Turns off stairs lights when bedroom door closes.
-
-**Triggers:**
-- Bedroom door contact changes to `off` for 10 seconds
-
-**Conditions:**
-- Both children's doors closed
-- No upstairs motion
-
-**Actions:**
-- Log message
-- Turn off stairs lights (main, ambient, stairs_2)
-
----
-
-#### Bedroom: Other Bedroom Door Opens Warning
-**ID:** `1615209552353`
-
-Warns when children's doors open after bedtime.
-
-**Triggers:**
-- Leo's door opens
-- Ashlee's door opens
-
-**Conditions:**
-- Bedroom lamps or main light is on
-- After children's bedtime
-- Not in Guest or No Children mode
-
-**Logic:**
-```mermaid
-flowchart TD
-    A["🚪 Child Door Opens"] --> B{"Bed sensor enabled?"}
-    B -->|Yes| C{"Someone in bed?"}
-    C -->|Yes| D["⚠️ Flash lamps<br/>Log warning"]
-    B -->|No| E{"After sunset?"}
-    E -->|Yes| D
-    E -->|No| F["⛔ No action"]
-```
-
----
-
-#### Bedroom: Other Bedroom Door Closes Warning
-**ID:** `1615209552354`
-
-Warns when children's doors close after bedtime.
-
-**Triggers:**
-- Leo's door closes
-- Ashlee's door closes
-
-**Conditions:**
-- Bedroom lamps are on
-- After children's bedtime
-- Not in Guest or No Children mode
-
-**Actions:**
-- Flash lamps with appropriate color (blue for Leo, pink for Ashlee)
-- Log warning
-
----
-
-#### Bedroom: Pause TV When Door Opens At Night
-**ID:** `1724001157269`
-
-Pauses TV when bedroom door opens late at night.
-
-**Triggers:**
-- Bedroom door contact changes to `on`
-
-**Conditions:**
-- Time between 22:00 and 02:00
-- TV is playing
-- Not using BBC iPlayer
-
-**Actions:**
-- Log message
-- Pause TV
-
----
-
-### Motion Lighting
-
-#### Bedroom: Motion Detected
-**ID:** `1621713217274`
-
-Activates ambient lighting based on motion and time of day.
-
-**Triggers:**
-- Bedroom motion changes to `on`
-
-**Conditions:**
-- Motion triggers enabled
-- Under-bed lights are off, dim, or below brightness 100
-
-**Logic:**
-```mermaid
-flowchart TD
-    A["🚶 Motion Detected"] --> B{"Blinds < 31%?"}
-    B -->|Yes| C["🌙 Dim ambient lights<br/>Log: Blinds down"]
-    B -->|No| D{"After 08:00<br/>Before sunset?"}
-    D -->|Yes| E["☀️ Bright ambient lights<br/>Log: Daytime"]
-    D -->|No| F["🌅 Dim ambient lights<br/>Log: Evening"]
-    C --> G["⏰ Turn on clock<br/>if off"]
-    E --> G
-    F --> G
-```
-
----
-
-#### Bedroom: No Motion
-**ID:** `1621713867762`
-
-Turns off ambient lights after 2 minutes of no motion.
-
-**Triggers:**
-- Bedroom motion changes to `off` for 2 minutes
-
-**Conditions:**
-- Under-bed lights are on
-- Motion triggers enabled
-
-**Actions:**
-- Log message
-- Turn off ambient lights
-
----
-
-#### Bedroom: No Motion For Long Time
-**ID:** `1621713867763`
-
-Turns off clock after 30 minutes of no motion.
-
-**Triggers:**
-- Bedroom area motion changes to `off` for 30 minutes
-
-**Conditions:**
-- Bedroom lamps are off
-- Motion triggers enabled
-
-**Actions:**
-- Log message
-- Turn off clock matrix
-
----
-
-#### Bedroom: No Motion And Fan Is On
-**ID:** `1725207477313`
-
-Turns off fan after 5 minutes of no presence.
-
-**Triggers:**
-- Bedroom motion 3 presence changes to `off` for 5 minutes
-
-**Conditions:**
-- Fan is on
-
-**Actions:**
-- Turn off fan
-
----
-
-### Fan Control
-
-#### Bedroom: Turn Off Fan
-**ID:** `1690844451011`
-
-Auto-turns off fan after 2 hours.
-
-**Triggers:**
-- Fan has been on for 2 hours
-
-**Actions:**
-- Log message
-- Turn off fan
-
----
-
-### TV Integration
-
-See Blind Control section for TV-related blind automations.
-
----
-
-### Remote Control
-
-The bedroom has a 4-button dial remote for manual control.
-
-#### Bedroom: Remote Button 1
-**ID:** `1699308571385`
-
-Toggles main bedroom lights.
-
----
-
-#### Bedroom: Remote Button 2
-**ID:** `1699308571386`
-
-Toggles desk lamps and under-bed lights.
-
----
-
-#### Bedroom: Remote Button 3
-**ID:** `1699308571387`
-
-Opens blinds.
-
----
-
-#### Bedroom: Remote Button 4
-**ID:** `1699308571388`
-
-Closes blinds.
-
----
-
-#### Bedroom: Remote Dial Action Right
-**ID:** `1710079376648`
-
-Increases lamp brightness based on dial rotation speed.
-
----
-
-#### Bedroom: Remote Dial Action Left
-**ID:** `1710079376649`
-
-Decreases lamp brightness based on dial rotation speed.
-
----
+Motion uses `binary_sensor.bedroom_motion_occupancy`. The clock-off long timeout uses `binary_sensor.bedroom_area_motion`, and the fan vacancy timeout uses `binary_sensor.bedroom_motion_3_presence`.
 
 ### Sleep As Android
 
-Located in `sleep_as_android.yaml`.
-
-#### Sleep As Android: Event
-**ID:** `1614285576722`
-
-Main webhook handler for Sleep As Android events.
-
-**Triggers:**
-- Webhook `sleep_as_android`
-
-**Events Handled:**
-- `sleep_tracking_started`
-- `sleep_tracking_stopped`
-- `alarm_alert_start`
-- `awake`
-- Various alarm events
-
-**Notification Levels:**
-| Level | Events Logged |
-|-------|---------------|
-| Start/Stop | sleep_tracking_started, sleep_tracking_stopped |
-| Start/Stop/Alarms | Above + alarm events |
-| All | All events |
-
----
-
-#### Sleep As Android: Started Tracking
-**ID:** `1658438667856`
-
-Starts sleep timer and optionally turns on fan.
-
-**Triggers:**
-- Sleep tracking started
-
-**Actions:**
-- Start sleep timer (duration from `input_number.sleep_timer_duration`)
-- If temperature > 22.5°C: Turn on fan
-
----
-
-#### Sleep As Android: Awake
-**ID:** `1658843567854`
-
-Pauses sleep timer when awake event received.
-
-**Triggers:**
-- `awake` event
-
-**Conditions:**
-- Sleep timer is active
-
-**Actions:**
-- Pause timer
-- Log remaining time
-
----
-
-#### Sleep As Android: Fall Asleep
-**ID:** `1658843828191`
-
-Resumes timer when falling back asleep.
-
-**Triggers:**
-- State changes from `awake`
-
-**Conditions:**
-- Timer is paused
-
-**Actions:**
-- Resume timer with added time
-- Log new remaining time
-
----
-
-#### Sleep As Android: Danny Asleep For A Period Of Time
-**ID:** `1659861914053`
-
-Reduces timer after 15 minutes of sleep.
-
-**Triggers:**
-- `binary_sensor.danny_asleep` on for 15 minutes
-
-**Conditions:**
-- Sleep timer is active
-
-**Actions:**
-- Subtract configured minutes from timer
-- Log adjustment
-
----
-
-#### Timer: Sleep Timer Complete
-**ID:** `1658842750488`
-
-Handles sleep timer completion.
-
-**Triggers:**
-- `timer.sleep` finished event
-
-**Actions:**
-- Log completion
-- Run `script.bedroom_sleep`
-- Turn off fan if on
-
----
-
-#### Bedroom: Danny's Alarm
-**ID:** `1644769166837`
-
-Handles alarm wake-up sequence.
-
-**Triggers:**
-- `alarm_alert_start` event
-
-**Actions:**
-- If home and blinds closed: Schedule blind opening in 5 minutes
-- Turn on clock matrix
-
----
-
-#### Sleep As Android: Stop Sleep Timer
-**ID:** `1667424349110`
-
-Cancels sleep timer at 05:00.
-
-**Triggers:**
-- 05:00 daily
-
-**Conditions:**
-- Timer is active or paused
-
-**Actions:**
-- Cancel timer
-- Log cancellation
-
----
-
-## Scenes
-
-### Ambient Lighting Scenes
-
-| Scene | ID | Brightness | Color Temp | Purpose |
-|-------|-----|------------|------------|---------|
-| `bedroom_turn_on_ambient_light` | `1621715555428` | 128 | 366 mireds | Normal ambient |
-| `bedroom_dim_ambient_light` | `1621715588909` | 10-15 | 366 mireds | Night ambient |
-| `bedroom_turn_off_ambient_light` | `1621715612398` | Off | - | Lights off |
-
-### Desk Lamp Scenes
-
-| Scene | ID | Brightness | Purpose |
-|-------|-----|------------|---------|
-| `bedroom_desk_lamps_on` | `1615211281868` | 200 | Full brightness |
-| `bedroom_desk_lamps_off` | `1615211309175` | Off | Lights off |
-
----
-
-## Scripts
-
-### Bedroom Sleep
-**Alias:** `bedroom_sleep`
-
-Prepares bedroom for sleep by turning off the clock matrix.
-
-**Called by:**
-- Sleep timer completion
-
----
-
-### Bedroom Close Blinds Based Weather
-**Alias:** `bedroom_close_blinds_by_weather`
-
-Closes blinds based on weather conditions.
-
-**Fields:**
-- `temperature` (required): Temperature in Celsius
-- `weather_condition` (required): Weather condition text
-
-**Logic:**
-- Only runs during daytime
-- Closes blinds if sunny/partly cloudy and hot
-- Logs warning if window is open
-
----
-
-### Other Bedroom Door Opening Warning
-**Alias:** `other_bedroom_door_opening_warning`
-
-Handles children's door opening warnings.
-
-**Fields:**
-- `bedroom` (required): `"leo"` or `"ashlee"`
-
-**Actions:**
-- Flash lamps with appropriate color
-- Pause TV if playing Web Video Caster
-- Log warning
-
----
-
-### Other Bedroom Door Closes Warning
-**Alias:** `other_bedroom_door_closes_warning`
-
-Handles children's door closing warnings.
-
-**Fields:**
-- `bedroom` (required): `"leo"` or `"ashlee"`
-
-**Actions:**
-- Flash lamps with appropriate color + green
-- Resume TV if paused
-- Log warning
-
----
-
-### Leo's Door Notifications
-
-| Script | Purpose |
-|--------|---------|
-| `bedroom_leos_door_opened_notification` | Flash blue twice |
-| `bedroom_leos_door_closed_notification` | Flash blue + green twice |
-
-### Ashlee's Door Notifications
-
-| Script | Purpose |
-|--------|---------|
-| `bedroom_ashlees_door_opened_notification` | Flash pink twice |
-| `bedroom_ashlees_door_closed_notification` | Flash pink + green twice |
-
----
-
-### AWTRIX Clock Scripts
-
-Located in `awtrix_light.yaml`.
-
-#### Send Bedroom Clock Notification
-**Alias:** `send_bedroom_clock_notification`
-
-Sends notifications to the AWTRIX LED matrix clock.
-
-**Fields:**
-- `message` (required): Text to display
-- `icon` (optional): Icon number (1-100)
-- `duration` (optional): Display duration in seconds (default: 10)
-
----
-
-## Sensors
-
-### History Stats Sensors
-
-#### TV Uptime Tracking
-
-| Sensor | Period |
-|--------|--------|
-| `sensor.bedroom_tv_uptime_today` | Midnight to now |
-| `sensor.bedroom_tv_uptime_yesterday` | Previous day |
-| `sensor.bedroom_tv_uptime_this_week` | Since Monday |
-| `sensor.bedroom_tv_uptime_last_30_days` | Rolling 30 days |
-
-### Template Binary Sensors
-
-| Sensor | Detection Logic |
-|--------|-----------------|
-| `binary_sensor.bedroom_tv_powered_on` | Power >= 40W |
-| `binary_sensor.bed_occupied` | Any bed sensor above threshold |
-| `binary_sensor.danny_asleep` | Sleep state not in awake/stopped |
-
-### Bed Occupancy Details
-
-The bed occupancy sensor combines 4 pressure sensors:
-- `sensor.bed_top_left` (threshold: 0.15)
-- `sensor.bed_top_right` (threshold: 0.15)
-- `sensor.bed_bottom_left` (threshold: 0.15)
-- `sensor.bed_bottom_right` (threshold: 0.1)
-
-Attributes expose individual sensor values for debugging.
-
-### Mold Indicator
-
-**Sensor:** `sensor.bedroom_mould_indicator`
-
-Calculates mold risk based on indoor vs outdoor conditions.
-
-**Inputs:**
-- Indoor: `sensor.bedroom_door_temperature` / `sensor.bedroom_humidity_2`
-- Outdoor: `sensor.gw2000a_outdoor_temperature`
-- Calibration factor: 1.38
-
----
-
-## Configuration
-
-### Input Booleans
-
-| Entity | Purpose |
-|--------|---------|
-| `input_boolean.enable_bedroom_blind_automations` | Master switch for blind control |
-| `input_boolean.enable_bedroom_motion_trigger` | Master switch for motion lighting |
-| `input_boolean.enable_bed_sensor` | Enable bed occupancy sensor |
-| `input_boolean.enable_direct_notifications` | Allow actionable notifications |
-
-### Input Numbers
-
-| Entity | Purpose |
-|--------|---------|
-| `input_number.blind_open_position_threshold` | Threshold for "blinds open" |
-| `input_number.blind_closed_position_threshold` | Threshold for "blinds closed" |
-| `input_number.bedroom_blind_closed_threshold` | Bedroom-specific closed threshold |
-| `input_number.forecast_high_temperature` | Temperature threshold for blind decisions |
-| `input_number.sleep_timer_duration` | Default sleep timer length (minutes) |
-| `input_number.sleep_as_android_time_to_add` | Minutes to add on fall asleep |
-| `input_number.sleep_as_android_time_to_subtract` | Minutes to subtract after 15 min asleep |
-
-### Input Datetime
-
-| Entity | Purpose |
-|--------|---------|
-| `input_datetime.childrens_bed_time` | Children's bedtime threshold |
-
-### Input Select
-
-| Entity | Options | Purpose |
-|--------|---------|---------|
-| `input_select.sleep_as_android_notification_level` | Start/Stop, Start/Stop/Alarms, All | Event logging level |
-| `input_select.home_mode` | Various | Home mode for door warnings |
-
-### Timers
-
-| Timer | Purpose |
-|-------|---------|
-| `timer.sleep` | Sleep timer for auto-shutdown |
-
-### Input Text
-
-| Entity | Purpose |
-|--------|---------|
-| `input_text.sleep_as_android` | Stores last Sleep As Android event |
-
----
+```mermaid
+flowchart TD
+    Webhook[Sleep as Android webhook] --> Text[input_text.sleep_as_android]
+    Text --> Start{sleep_tracking_started?}
+    Start -->|Danny home| TimerStart[Start timer.sleep]
+    Start -->|Bedroom above 22.5 C and fan off| FanOn[Turn on fan]
+    Text --> Awake{awake?}
+    Awake -->|Timer active| Pause[Pause timer.sleep]
+    Text --> BackAsleep{state changes from awake?}
+    BackAsleep -->|Timer paused| Resume[Resume timer and add configured minutes]
+    Asleep[Danny asleep for 15 minutes] --> Subtract[Subtract configured minutes]
+    Alarm[alarm_alert_start] --> AlarmHome{Danny home and blinds closed?}
+    AlarmHome -->|Yes| DelayOpen[Wait 5 minutes, open blinds]
+    Alarm --> ClockOn[Turn clock on if off]
+    Finished[timer.sleep finished] --> SleepScript[Run script.bedroom_sleep]
+    Finished --> FanOff[Turn fan off if on]
+    FiveAM[05:00] --> Cancel[Cancel active or paused timer]
+```
+
+Power-user note: `binary_sensor.danny_asleep` is `on` for any Sleep as Android state except `awake` and `sleep_tracking_stopped`.
+
+### Children Door Warnings
+
+The bedroom package watches Leo's and Ashlee's door contacts after `input_datetime.childrens_bed_time` when bedroom lights are on and home mode is not `Guest` or `No Children`.
+
+| Door Event | Lamp Pattern | TV Behavior |
+|------------|--------------|-------------|
+| Leo door opens | Blue flash twice, then restore bedroom lamp state | Pause bedroom TV if it is playing `Web Video Caster`. |
+| Leo door closes | Blue, green, off repeated twice, then restore bedroom lamp state | Resume bedroom TV if it is paused. |
+| Ashlee door opens | Pink flash twice, then restore bedroom lamp state | Pause bedroom TV if it is playing `Web Video Caster`. |
+| Ashlee door closes | Pink, green, off repeated twice, then restore bedroom lamp state | Resume bedroom TV if it is paused. |
+
+### Bedroom Remote
+
+| Control | Action |
+|---------|--------|
+| Button 1 | Toggle `light.bedroom_main_light` and `light.bedroom_main_light_2`. |
+| Button 2 | Turn on `scene.bedroom_desk_lamps_on`, or turn off bedroom lamps and under-bed lights if lamps are already on. |
+| Button 3 | Open bedroom blinds. |
+| Button 4 | Close bedroom blinds. |
+| Dial right / brightness up | Increase `light.bedroom_lamps` brightness using `sensor.bedroom_dial_remote_action_time`. |
+| Dial left / brightness down | Decrease `light.bedroom_lamps` brightness using `sensor.bedroom_dial_remote_action_time`. |
 
 ## Entity Reference
 
-### Lights
-
-| Entity | Type | Purpose |
-|--------|------|---------|
-| `light.under_bed_left` | Ambient | Left under-bed LED strip |
-| `light.under_bed_right` | Ambient | Right under-bed LED strip |
-| `light.bedroom_lamps` | Group | Desk lamps (left + right) |
-| `light.bedroom_lamp_left` | Task | Left desk lamp |
-| `light.bedroom_lamp_right` | Task | Right desk lamp |
-| `light.bedroom_main_light` | Main | Ceiling light |
-| `light.bedroom_main_light_2` | Main | Secondary ceiling light |
-| `light.bedroom_clock_matrix` | Display | AWTRIX LED matrix |
-
-### Covers
-
 | Entity | Purpose |
 |--------|---------|
-| `cover.bedroom_blinds` | Motorized blinds |
+| `cover.bedroom_blinds` | Main bedroom blind. |
+| `binary_sensor.bed_occupied` | Template bed occupancy from four bed pressure sensors. |
+| `binary_sensor.bedroom_window_contact` | Window safety input for blinds. |
+| `binary_sensor.bedroom_tv_powered_on` | Template TV power state from `sensor.bedroom_tv_plug_power > 40`. |
+| `binary_sensor.danny_asleep` | Sleep as Android derived sleep state. |
+| `light.under_bed_left`, `light.under_bed_right` | Ambient motion lighting. |
+| `light.bedroom_lamps` | Lamp group used for lighting and child-door alerts. |
+| `light.bedroom_clock_matrix` | AWTRIX clock matrix. |
+| `switch.bedroom_fan` | Bedroom fan switch. |
+| `media_player.bedroom_tv` | TV pause/resume target. |
+| `timer.sleep` | Sleep timer managed from Sleep as Android states. |
+| `sensor.bedroom_mould_indicator` | Mould risk sensor using bedroom and outdoor conditions. |
 
-### Switches
-
-| Entity | Purpose |
-|--------|---------|
-| `switch.bedroom_fan` | Smart fan |
-
-### Binary Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `binary_sensor.bed_occupied` | Bed occupancy |
-| `binary_sensor.bedroom_motion_occupancy` | Motion detection |
-| `binary_sensor.bedroom_motion_3_presence` | Presence detection |
-| `binary_sensor.bedroom_area_motion` | Area motion |
-| `binary_sensor.bedroom_window_contact` | Window state |
-| `binary_sensor.bedroom_door_contact` | Door state |
-| `binary_sensor.leos_bedroom_door_contact` | Leo's door |
-| `binary_sensor.ashlees_bedroom_door_contact` | Ashlee's door |
-| `binary_sensor.bedroom_tv_powered_on` | TV power state |
-| `binary_sensor.danny_asleep` | Sleep state |
-
-### Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `sensor.bed_top_left` | Bed pressure (top left) |
-| `sensor.bed_top_right` | Bed pressure (top right) |
-| `sensor.bed_bottom_left` | Bed pressure (bottom left) |
-| `sensor.bed_bottom_right` | Bed pressure (bottom right) |
-| `sensor.bedroom_tv_plug_power` | TV power consumption |
-| `sensor.bedroom_area_mean_temperature` | Room temperature |
-| `sensor.bedroom_door_temperature` | Door sensor temperature |
-| `sensor.bedroom_humidity_2` | Room humidity |
-| `sensor.bedroom_mould_indicator` | Mold risk indicator |
-| `sensor.bedroom_tv_uptime_*` | Various TV uptime periods |
-| `sensor.bedroom_dial_remote_action_time` | Remote dial timing |
-| `sensor.bedroom_clock_device_topic` | AWTRIX MQTT topic |
-
-### Media Players
-
-| Entity | Purpose |
-|--------|---------|
-| `media_player.bedroom_tv` | Chromecast/TV control |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph BlindFlow["🪟 Blind Control"]
-        B1["🛏️ In Bed + Sunset"] --> B2["Close Blinds"]
-        B3["🪟 Window Closed"] --> B4["Close Blinds"]
-        B5["🌅 Morning Schedule"] --> B6["Open Blinds"]
-        B7["📺 TV On + Bright"] --> B8["Lower Blinds"]
-    end
-
-    subgraph LightFlow["💡 Motion Lighting"]
-        L1["🚶 Motion"] --> L2["Turn On Ambient"]
-        L3["🚷 No Motion 2min"] --> L4["Turn Off Ambient"]
-        L5["🚷 No Motion 30min"] --> L6["Turn Off Clock"]
-    end
-
-    subgraph SleepFlow["😴 Sleep As Android"]
-        S1["Start Tracking"] --> S2["Start Timer + Fan"]
-        S3["Awake"] --> S4["Pause Timer"]
-        S5["Fall Asleep"] --> S6["Resume Timer"]
-        S7["Timer Complete"] --> S8["Turn Off All"]
-        S9["⏰ Alarm"] --> S10["Open Blinds"]
-    end
-
-    subgraph DoorFlow["🚪 Door Monitoring"]
-        D1["Child Door Opens"] --> D2["Flash Lamps"]
-        D3["Bedroom Door Closes"] --> D4["Turn Off Stairs"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [BEDROOM-SETUP.md](BEDROOM-SETUP.md) | Hardware setup and device configuration |
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
-| [Sleep As Android Docs](https://docs.sleep.urbandroid.org/services/automation.html) | Webhook events and automation reference |
-
-### Related Rooms
-
-| Room | Connection |
-|------|------------|
-| [Stairs](../stairs/README.md) | Children's door states affect stairs lighting brightness |
-| [Porch](../porch/README.md) | Bedroom door closes triggers stairs lights off |
-
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Energy](../../integrations/energy/README.md) | AWTRIX clock displays energy notifications |
-| [HVAC](../../integrations/hvac/README.md) | Underfloor heating and climate control |
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
+## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| Blinds not responding | `input_boolean.enable_bedroom_blind_automations` state |
-| Motion lights not working | `input_boolean.enable_bedroom_motion_trigger` state |
-| Bed occupancy not detected | `input_boolean.enable_bed_sensor` state |
-| Sleep timer not starting | Sleep As Android webhook configuration |
-| Door warnings not triggering | `input_datetime.childrens_bed_time` value |
-
-### Seasonal Adjustments
-
-- **Summer:** Consider adjusting `input_number.forecast_high_temperature` for blind behavior
-- **Winter:** May want earlier evening blind closure
-
----
-
-*Last updated: 2026-04-08*
+| Blinds did not move automatically | Check `input_boolean.enable_bedroom_blind_automations`, window contact state, blind position thresholds, and whether TV/weather logic intentionally kept them closed. |
+| Blinds did not close at 22:00 | Check `binary_sensor.bedroom_window_contact`; the automation logs instead of closing while the window is open. |
+| Motion did not turn on under-bed lights | Check `input_boolean.enable_bedroom_motion_trigger`, `binary_sensor.bedroom_motion_occupancy`, and whether the lights were already above brightness 100. |
+| Clock stayed on | Check `binary_sensor.bedroom_area_motion`; the 30-minute clock-off rule only runs when bedroom lamps are off. |
+| Fan did not turn on from sleep tracking | Check `person.danny`, `sensor.bedroom_area_mean_temperature`, `switch.bedroom_fan`, and the latest `input_text.sleep_as_android` event. |
+| Sleep timer logs are too noisy or too quiet | Adjust `input_select.sleep_as_android_notification_level`. |
+| Child-door lamp alerts did not run | Check bedroom lights are on, current time is after `input_datetime.childrens_bed_time`, and `input_select.home_mode` is not `Guest` or `No Children`. |
+| AWTRIX notification did not appear | Check `sensor.bedroom_clock_device_topic` and MQTT connectivity. |

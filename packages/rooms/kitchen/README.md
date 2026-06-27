@@ -2,725 +2,202 @@
 
 # Kitchen Package Documentation
 
-This package manages the kitchen automation including lighting control, appliance monitoring, and safety notifications.
+The kitchen package keeps the kitchen usable without much manual control. It turns the right lighting zones on when motion is detected, dims and turns them off after the room clears, monitors fridge/freezer doors, tracks cooking appliances, announces useful appliance events, and uses the RGB lights for safety and energy signals.
 
----
+This documentation covers both YAML files in this folder:
 
-## Table of Contents
+| File | Purpose | Contents |
+|------|---------|----------|
+| `kitchen.yaml` | Main kitchen behavior | 27 automations, 16 scenes, 6 scripts, 13 history/mould sensors, 6 template sensor groups |
+| `meater.yaml` | MEATER probe logging | 2 automations |
 
-- [Overview](#overview)
-- [Design Decisions](#design-decisions)
-- [Dependencies](#dependencies)
-- [Architecture](#architecture)
-## Overview
+## Quick Summary
 
-The kitchen automation system provides intelligent control of lighting, monitors major appliances, and delivers safety alerts through RGB indicators and voice announcements.
+For non-technical users, the important behavior is:
+
+| Area | What Happens |
+|------|--------------|
+| Motion lighting | Movement turns on table, cooker, and accent lighting when those zones are off or dim. No movement starts a staged dim/off sequence. |
+| Manual switches | Cooker and table wall switch inputs toggle their matching white lights. |
+| Fridge/freezer | Door opens/closes are logged, long-open doors create notifications and Alexa announcements, and EcoFlow plug unavailability alerts Danny. |
+| Oven | Preheat detection notifies people at home, resets after the oven is off, and warns if the oven stays on after preheat. |
+| Dishwasher | Cycle state is tracked, tablets are consumed from stock, low stock is notified, and completion is announced or logged depending on presence. |
+| Safety | Smoke alarm events snapshot the kitchen camera, notify the household, announce on Alexa, and start the smoke-alarm check timer. |
+| Energy signals | If the kitchen is occupied while grid import is high and battery conditions allow, RGB lights signal the grid-use event. |
+| Cooking probe | MEATER start and target-temperature events are logged. |
+
+## How The Kitchen Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Inputs["📥 Sensor Inputs"]
-        Motion["🚶 Motion Sensors<br/>(4 sensors)"]
-        Doors["🚪 Appliance Doors<br/>(Fridge/Freezer)"]
-        Power["⚡ Power Monitoring<br/>(Oven/Dishwasher/Kettle)"]
-        Salt["🧂 Water Softener"]
-        Grid["🔌 Grid Power"]
-        Smoke["💨 Smoke Alarm"]
+    Motion[Kitchen motion and presence sensors] --> Lighting[Motion lighting]
+    Switches[Cooker and table switch inputs] --> Manual[Manual light toggles]
+    Timers[Kitchen light timers] --> Shutdown[Dim and off sequence]
+    Doors[Fridge and freezer contacts] --> DoorMonitor[Door monitoring]
+    EcoFlow[EcoFlow kitchen plug] --> FridgePower[Fridge/freezer power alert]
+    Oven[Oven power sensors] --> OvenLogic[Oven preheat and long-on alerts]
+    Dishwasher[Dishwasher power sensors] --> DishwasherLogic[Cycle and tablet tracking]
+    Salt[Water softener salt sensor] --> SaltAlerts[Salt alerts]
+    Grid[Grid power and battery sensors] --> EnergySignal[RGB energy signal]
+    Smoke[Kitchen smoke alarm] --> SmokeActions[Camera snapshot and urgent alerts]
+    MEATER[MEATER probe sensors] --> CookingLog[Cooking logs]
+
+    Lighting --> WhiteLights[Table and cooker white lights]
+    Lighting --> AccentLights[Cabinet, down, and drawer accent lights]
+    Shutdown --> WhiteLights
+    Shutdown --> AccentLights
+    Manual --> WhiteLights
+    DoorMonitor --> Notifications[Home log, direct notifications, Alexa]
+    OvenLogic --> Notifications
+    DishwasherLogic --> Notifications
+    SaltAlerts --> Notifications
+    EnergySignal --> RGB[Kitchen cooker/table RGB]
+    SmokeActions --> Notifications
+```
+
+## Main Files
+
+```mermaid
+flowchart LR
+    subgraph KitchenFolder[packages/rooms/kitchen]
+        KitchenYaml[kitchen.yaml]
+        MeaterYaml[meater.yaml]
+        Readme[README.md]
+        Setup[KITCHEN-SETUP.md]
     end
 
-    subgraph Logic["🧠 Automation Logic"]
-        LightCtrl["💡 Light Controller"]
-        Appliance["🔌 Appliance Monitor"]
-        Safety["🚨 Safety Handler"]
-        Energy["⚡ Energy Monitor"]
-    end
-
-    subgraph Outputs["📤 Controlled Devices"]
-        Lights["Kitchen Lights<br/>(Main + Ambient + RGB)"]
-        Notifications["📱 Notifications<br/>(Alexa/Mobile)"]
-        RGB["🌈 RGB Indicators"]
-    end
-
-    Motion --> LightCtrl
-    Doors --> Appliance
-    Power --> Appliance
-    Salt --> Appliance
-    Grid --> Energy
-    Smoke --> Safety
-
-    LightCtrl --> Lights
-    Appliance --> Notifications
-    Safety --> RGB
-    Safety --> Notifications
-    Energy --> RGB
+    KitchenYaml --> MotionLighting[Motion lighting and timers]
+    KitchenYaml --> ApplianceMonitoring[Fridge, oven, dishwasher, kettle]
+    KitchenYaml --> Safety[Smoke and alarm helper]
+    KitchenYaml --> Energy[Grid-use RGB indicator]
+    KitchenYaml --> Stats[History and template sensors]
+    MeaterYaml --> Meater[MEATER cooking logs]
+    Readme --> UserReference[User and power-user reference]
+    Setup --> RoomGuide[Device and troubleshooting guide]
 ```
 
----
+### `kitchen.yaml`
 
-## Design Decisions
+| Section | YAML Objects | Summary |
+|---------|--------------|---------|
+| Lighting | 8 automations, 16 scenes, 4 scripts | Handles scheduled lighting, motion lighting, timers, physical switch toggles, and reusable light scripts. |
+| Appliance doors | 4 automations | Logs fridge/freezer doors, escalates long-open doors, and watches the EcoFlow fridge/freezer plug. |
+| Water softener | 2 automations | Warns for low and no salt states. |
+| Oven | 3 automations, 1 script | Detects preheat, resets the preheat helper, and announces long-on events. |
+| Dishwasher | 4 automations, 1 script | Tracks cycle state, completion, tablet usage, and tablet stock. |
+| General/safety | 6 automations | Paper drawer alert, grid-use RGB signalling, smoke alarm response, kettle boiled announcement, and alarm-mode motion logging. |
+| Sensors | 13 history/mould sensors, 6 template groups | Tracks appliance runtime/open time and creates running/alert binary sensors. |
 
-Key architectural decisions captured from the YAML configuration:
+### `meater.yaml`
 
-- **Kitchen: Motion Detected - Lights** has a master enable switch for easy disabling
-- **Kitchen: No Motion - Start Timers** triggers on state transitions (edge detection) rather than continuous state
-- **Kitchen: No Motion - Start Timers** has a master enable switch for easy disabling
-- **Kitchen: No Motion - Timer Events** has a master enable switch for easy disabling
-- **Kitchen: Cooker Light Switch Toggle** triggers on state transitions (edge detection) rather than continuous state
-- **Kitchen: Table Light Switch Toggle** triggers on state transitions (edge detection) rather than continuous state
-- **Kitchen: Appliance Door Opened** triggers on state transitions (edge detection) rather than continuous state
+The MEATER package logs cooking starts and target-temperature events from `sensor.meater_probe_cook_state`, `sensor.meater_probe_target`, `sensor.meater_probe_internal`, and `sensor.meater_probe_cooking`.
 
----
+## User Controls
 
-## Dependencies
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_kitchen_motion_triggers` | Master switch for kitchen motion lighting and no-motion timers. |
+| `input_boolean.enable_oven_automations` | Enables oven preheat/reset automation. |
+| `input_boolean.enable_dishwasher_automations` | Enables dishwasher cycle state tracking. |
+| `input_boolean.oven_preheated` | Internal helper set when preheat is detected. |
+| `input_boolean.dishwasher_cycle_in_progress` | Internal helper for active dishwasher cycles. |
+| `input_boolean.dishwasher_clean_cycle` | Clean-cycle helper that prevents tablet stock consumption for that run. |
+| `input_number.kitchen_light_level_threshold` | Referenced in motion lighting log text for light-level context. |
+| `input_number.kitchen_light_level_2_threshold` | Referenced in motion lighting log text for secondary light-level context. |
+| `input_number.low_water_softener_salt_level` | Warning threshold for water softener salt distance/level. |
+| `input_number.no_water_softener_salt_level` | Critical threshold for water softener salt distance/level. |
 
-This package relies on the following components:
+## Everyday Behavior
 
-### Integrations
-- `EcoFlow`
+### Motion Lighting
 
----
+`Kitchen: Motion Detected - Lights` listens to four motion/presence entities:
 
-## Architecture
-
-### File Structure
-
-```
-packages/rooms/kitchen/
-├── kitchen.yaml          # Main package file
-└── meater.yaml           # MEATER probe integration (separate)
-```
-
-### Key Components
-
-| Component | Purpose |
-|-----------|---------|
-| `binary_sensor.kitchen_area_motion` | Primary motion detection |
-| `binary_sensor.kitchen_motion_*` | Additional motion sensors (LD2412, LD2450) |
-| `light.kitchen_cooker_white` | Main cooker area lighting |
-| `light.kitchen_table_white` | Table area lighting |
-| `light.kitchen_*_rgb` | RGB ambient lights for notifications |
-| `binary_sensor.*_door_contact` | Fridge/freezer door monitoring |
-| `binary_sensor.dishwasher_powered_on` | Dishwasher cycle detection |
-| `binary_sensor.oven_powered_on` | Oven usage detection |
-
----
-
-## Automations
-
-### Lighting Control
-
-#### Kitchen: Motion Detected - Lights
-**ID:** `1606158191303`
-
-Comprehensive motion-activated lighting with zone-based control.
+| Entity |
+|--------|
+| `binary_sensor.kitchen_area_motion` |
+| `binary_sensor.kitchen_motion_ld2412_presence` |
+| `binary_sensor.kitchen_motion_ld2450_presence` |
+| `binary_sensor.kitchen_motion_2_occupancy` |
 
 ```mermaid
 flowchart TD
-    A["🚶 Motion Detected"] --> B{"Motion triggers enabled?"}
-    B -->|No| Z["⛔ Ignore"]
-    B -->|Yes| C["Cancel all timers"]
-    C --> D{"Table light dim/off?"}
-    D -->|Yes| E["💡 Turn on table lights"]
-    D -->|No| F["✅ Skip table"]
-    C --> G{"Cooker light dim/off?"}
-    G -->|Yes| H["💡 Turn on cooker lights"]
-    G -->|No| I["✅ Skip cooker"]
-    C --> J{"Ambient lights on?"}
-    J -->|Yes| K["🔅 Adjust brightness"]
-    J -->|No| L["💡 Turn on dim ambient"]
+    Motion[Motion detected] --> Enabled{Kitchen motion triggers enabled?}
+    Enabled -->|No| Ignore[Ignore]
+    Enabled -->|Yes| Cancel[Cancel all kitchen light timers]
+    Cancel --> Table{Table white light off or brightness below 100?}
+    Cancel --> Cooker{Cooker white light off or brightness below 100?}
+    Cancel --> Accent{Accent lights already on?}
+    Table -->|Yes| TableOn[scene.kitchen_table_lights_on]
+    Cooker -->|Yes| CookerOn[scene.kitchen_cooker_lights_on]
+    Accent -->|Yes and any accent brightness below 100| AccentBright[scene.kitchen_accent_lights_on]
+    Accent -->|No, any accent zone off| AccentDim[scene.kitchen_dim_accent_lights]
 ```
 
-**Triggers:**
-- Any kitchen motion sensor changes to `on`
-
-**Conditions:**
-- `input_boolean.enable_kitchen_motion_triggers` must be `on`
-
-**Logic:**
-1. Cancels all light timers
-2. Turns on table lights if off or dim (<100 brightness)
-3. Turns on cooker lights if off or dim
-4. Adjusts ambient lights based on current state
-
----
-
-#### Kitchen: No Motion - Start Timers
-**ID:** `1737283018711`
-
-Starts countdown when motion stops.
-
-**Triggers:**
-- Kitchen area motion changes from `on` to `off`
-
-**Actions:**
-- Starts `timer.kitchen_cooker_light_dim` for 5 minutes
-
----
-
-#### Kitchen: No Motion - Timer Events
-**ID:** `1737283018712`
-
-Handles dim and off timer completions with smart ambient management.
-
-**Timer Flow:**
-
-```mermaid
-flowchart TD
-    A["🚶 Motion Stops"] --> B["⏱️ Start 5min dim timer"]
-    B --> C["🔅 Dim main lights"]
-    C --> D{"After sunset?"}
-    D -->|Yes| E["🔅 Dim ambient lights"]
-    D -->|No| F["⬛ Turn off ambient lights"]
-    C --> G["⏱️ Start 5min off timer"]
-    G --> H["⬛ Turn off main lights"]
-```
-
-**Ambient Light Behavior:**
-| Time | Action |
-|------|--------|
-| Before sunset | Turn off ambient lights on dim timer |
-| After sunset | Dim ambient lights on dim timer |
-
----
-
-#### Kitchen: Turn Off Lights At Night
-**ID:** `1583797341647`
-
-Scheduled shutdown at 23:30.
-
----
-
-#### Kitchen: Timed Turn On Lights (Dim)
-**ID:** `1588197104336`
-
-Evening ambient lighting activation.
-
-**Triggers:**
-- Sunset event
-- 06:45 daily
-
-**Conditions:**
-- Not in Guest mode
-- Someone is home
-
----
-
-### Appliance Monitoring
-
-#### Kitchen: Appliance Door Monitoring
-
-Three automations handle fridge/freezer door states:
-
-| Automation | ID | Purpose |
-|------------|-----|---------|
-| Appliance Door Opened | `1737283018713` | Log door open |
-| Appliance Door Closed | `1737283018714` | Log door close |
-| Appliance Door Open For Long Period | `1737283018715` | Alert if open too long |
-
-```mermaid
-flowchart TD
-    A["🚪 Door Opens"] --> B["📝 Log door open"]
-    B --> C{"Still open 4 min?"}
-    C -->|Yes| D["📱 Alert + 🔊 Alexa"]
-    D --> E{"Still open 30 min?<br/>(Fridge only)"}
-    E -->|Yes| F["📱 Alert + 🔊 Alexa"]
-    F --> G{"Still open 45 min?<br/>(Fridge only)"}
-    G -->|Yes| H["📱 Alert + 🔊 Alexa"]
-    H --> I{"Still open 60 min?<br/>(Fridge only)"}
-    I -->|Yes| J["📱 Alert + 🔊 Alexa"]
-```
-
-**Alert Thresholds (Fridge):**
-- 4 minutes
-- 30 minutes
-- 45 minutes
-- 1 hour
-
-**Alert Thresholds (Freezer):**
-- 4 minutes
-
-**Actions on Alert:**
-- Send direct notification
-- Alexa announcement (non-quiet hours)
-
----
-
-#### Oven Lifecycle
-
-```mermaid
-flowchart TD
-    A["⚡ Oven Power > 15W"] --> B["🍳 Oven On"]
-    B --> C{"Power drops < 100W?"}
-    C -->|Yes| D{"Already preheated flag set?"}
-    D -->|No| E["🔔 Set preheated flag\n+ Notify + Alexa"]
-    D -->|Yes| F["⛔ Skip"]
-    E --> G{"Preheated for 1h 10min?"}
-    G -->|Yes| H["⚠️ Long on alert + 🔊 Alexa"]
-    B --> I{"Power off for 7 min?"}
-    I -->|Yes| J{"Preheated flag on?"}
-    J -->|Yes| K["✅ Reset preheated flag"]
-    J -->|No| L["⛔ Skip"]
-```
-
----
-
-#### Kitchen: Oven Preheated
-**ID:** `1694521590170`
-
-Detects when oven reaches temperature.
-
-**Triggers:**
-- Oven power drops below 100W (heating element cycles off)
-
-**Conditions:**
-- `input_boolean.oven_preheated` is off
-- Oven automations enabled
-- Not coming from unavailable state
-
-**Actions:**
-- Send notification to people home
-- Set `input_boolean.oven_preheated` to on
-- Alexa announcement (quiet hours respected)
-
----
-
-#### Kitchen: Oven On For Long Time
-**ID:** `1763292351760`
-
-Safety alert for oven left on.
-
-**Triggers:**
-- Oven preheated for 1 hour 10 minutes
-
-**Actions:**
-- Log message
-- Alexa announcement
-
----
-
-#### Kitchen: Dishwasher Cycle Management
-
-```mermaid
-flowchart TD
-    A["⚡ Dishwasher Powered On"] --> B{"Cycle already\nin progress?"}
-    B -->|Yes| Z["⛔ Skip"]
-    B -->|No| C["▶️ Set cycle flag on"]
-    C --> D["📊 Consume tablet via REST"]
-    D --> E{"Tablets < 9?"}
-    E -->|Yes| F["⚠️ Low stock alert"]
-    E -->|No| G["✅ Stock ok"]
-    C --> H{"Powered off\nfor 31 min?"}
-    H -->|Yes| I["✅ Reset cycle flag"]
-    I --> J{"Someone home?"}
-    J -->|Yes| K["📱 Notify + 🔊 Alexa"]
-    J -->|No| L["📝 Log + 📋 Todo item"]
-```
-
-| Automation | ID | Purpose |
-|------------|-----|---------|
-| Dishwasher Cycle Starts | `1694521590172` | Detect cycle start |
-| Reset Dishwasher Cycle | `1694521864038` | Detect cycle complete |
-| Dishwasher Started | `1595679010797` | Track tablet usage |
-| Dishwasher Finished | `1595679010798` | Send completion notice |
-
-**Cycle Detection:**
-- **Start:** Dishwasher powered on + cycle not in progress
-- **Complete:** Powered off for 31 minutes
-
-**Tablet Tracking:**
-- Consumes dishwasher tablet via REST command
-- Updates stock sensor
-- Alerts when < 9 tablets remaining
-
----
-
-#### Kitchen: Kettle Boiled
-**ID:** `1759577733332`
-
-Simple kettle completion notification.
-
-**Triggers:**
-- Kettle status changes from `heating` to `standby`
-
-**Actions:**
-- Log message
-- Alexa announcement (quiet hours respected)
-
----
-
-### Safety & Notifications
-
-#### Kitchen: Smoke Alarm
-**ID:** `1757836826541`
-
-Critical safety automation with camera capture.
-
-**Triggers:**
-- Kitchen smoke alarm triggers
-
-**Actions:**
-1. Captures camera snapshot with timestamp
-2. Alexa announcement (no quiet hour suppression)
-3. Sends notification with image attachment
-4. Starts `timer.check_smoke_alarms` for 1 minute
-
----
-
-#### Kitchen: Water Softener Monitoring
-
-| Automation | ID | Trigger |
-|------------|-----|---------|
-| Low Water Softener Salt | `1688681085048` | Above threshold for 2 hours |
-| No Water Softener Salt | `1688681085049` | At threshold level |
-
----
-
-### Energy Management
-
-#### Kitchen: Using Power From The Grid
-**ID:** `1735567472488`
-
-Visual indicator for grid power usage.
-
-**Triggers:**
-- Grid power above 100W
-
-**Conditions:**
-- Motion detected in kitchen
-- RGB lights are off
-- Battery SOC above discharge stop threshold
-- Not in "Battery first" mode
-
-**Actions:**
-- If battery has charge: Turn RGB lights pink
-- If battery depleted: Pulse pink lights
-
----
-
-#### Kitchen: Stops using Power From The Grid
-**ID:** `1735567472489`
-
-Clears grid power indicator.
-
-**Triggers:**
-- Grid power below 100W
-
-**Conditions:**
-- RGB lights are on
-- Front door is closed
-
-**Actions:**
-- Turn off RGB indicator lights
-
----
-
-## Scenes
-
-### Main Lighting Scenes
-
-| Scene | Purpose | Brightness |
-|-------|---------|------------|
-| `kitchen_main_lights_dim` | Dimmed main lights | 10 |
-| `kitchen_main_lights_off` | All main lights off | Off |
-| `kitchen_table_lights_on` | Table area bright | 200 |
-| `kitchen_cooker_lights_on` | Cooker area bright | 200 |
-
-### Ambient Lighting Scenes
-
-| Scene | Purpose |
-|-------|---------|
-| `kitchen_accent_lights_on` | Full brightness accent |
-| `kitchen_dim_accent_lights` | Dim accent (26 brightness) |
-| `kitchen_accent_lights_off` | Accent lights off |
-| `kitchen_ambient_lights_dim` | Dim cabinet/down/draw lights |
-| `kitchen_ambient_lights_off` | All ambient off |
-
-### RGB Notification Scenes
-
-| Scene | Color | Use Case |
-|-------|-------|----------|
-| `kitchen_cooker_ambient_light_to_blue` | Blue | Info notifications |
-| `kitchen_table_ambient_light_to_blue` | Blue | Info notifications |
-| `kitchen_cooker_ambient_light_to_pink` | Pink | Warning/Grid power |
-| `kitchen_table_ambient_light_to_pink` | Pink | Warning/Grid power |
-| `kitchen_cooker_light_to_red` | Red | Critical/Smoke alarm |
-| `kitchen_table_light_to_red` | Red | Critical/Smoke alarm |
-
----
-
-## Scripts
-
-### Kitchen Cancel All Light Timers
-**Alias:** `kitchen_cancel_all_light_timers`
-
-Cancels all kitchen light-related timers:
-- `timer.kitchen_cooker_light_dim`
-- `timer.kitchen_cooker_light_off`
-- `timer.kitchen_table_light_dim`
-- `timer.kitchen_table_light_off`
-
----
-
-### Kitchen Oven Preheated Notification
-**Alias:** `kitchen_oven_preheated_notification`
-
-Sends notification to people currently home.
-
-**Fields:**
-- `message` (required)
-- `title` (optional)
-
----
-
-### Dishwashing Complete Notification
-**Alias:** `dishwashing_complete_notification`
-
-Smart notification with home/away detection.
-
-**Behavior:**
-- **Someone home:** Direct notification + Alexa announcement
-- **Nobody home:** Log to home log + add to todo list
-
----
-
-### Kitchen Pulse Ambient Light Pink
-**Alias:** `kitchen_pulse_ambient_light_pink`
-
-Pulses RGB lights pink 5 times for attention.
-
-**Use Case:** Battery depleted but still using grid power
-
----
-
-### Light Toggle Scripts
-
-| Script | Purpose |
-|--------|---------|
-| `kitchen_toggle_kitchen_ambient_lights` | Toggle ambient light group |
-| `kitchen_toggle_accent_lights` | Toggle accent light group |
-
----
+No-motion handling is staged:
+
+| Step | Trigger | Result |
+|------|---------|--------|
+| 1 | `binary_sensor.kitchen_area_motion` changes from `on` to `off` | Starts `timer.kitchen_cooker_light_dim` for 5 minutes. |
+| 2 | Cooker or table dim timer finishes | Turns on `scene.kitchen_main_lights_dim`, starts `timer.kitchen_cooker_light_off` for 5 minutes, and adjusts ambient lights by sun state. |
+| 3 | Cooker or table off timer finishes | Turns on `scene.kitchen_main_lights_off`; after sunset and before 23:59:59 it also turns ambient lights off. |
+
+Power-user note: the timer event automation listens for both cooker and table dim/off timers, but the current start path only starts `timer.kitchen_cooker_light_dim` and then `timer.kitchen_cooker_light_off`.
+
+### Scheduled Lighting And Switches
+
+| Automation | Behavior |
+|------------|----------|
+| `Kitchen: Turn Off Lights At Night` | At 23:30, turns `light.kitchen_lights` off via `scene.kitchen_main_lights_off` if the group is on. |
+| `Kitchen: Turn Off Lights In The Morning` | Has weekday/weekend trigger branches, but the current top-level condition only allows Saturday/Sunday, so the weekday branch will not run as written. |
+| `Kitchen: Timed Turn On Lights (Dim)` | At sunset and 06:45, turns on dim accent lights when someone is home and home mode is not `Guest`. |
+| `Kitchen: Cooker Light Switch Toggle` | Toggles `light.kitchen_cooker_white` when `binary_sensor.kitchen_cooker_light_input` changes. |
+| `Kitchen: Table Light Switch Toggle` | Toggles `light.kitchen_table_white` when `binary_sensor.kitchen_table_light_input` changes. |
+
+### Appliances
+
+| Appliance | Entities | Behavior |
+|-----------|----------|----------|
+| Fridge/freezer doors | `binary_sensor.kitchen_fridge_door_contact`, `binary_sensor.kitchen_freezer_door_contact` | Logs opens/closes. Long-open alerts notify directly and announce on Alexa. Fridge has 4, 30, 45, and 60 minute triggers; freezer has a 4 minute trigger. |
+| Fridge/freezer power | `switch.ecoflow_kitchen_plug` | If unavailable for 2 minutes, logs and notifies Danny. |
+| Water softener | `sensor.water_softener_salt_level_average` | Sends low-salt and no-salt direct notifications to Danny and Terina. |
+| Oven | `sensor.oven_channel_1_power`, `binary_sensor.oven_powered_on`, `input_boolean.oven_preheated` | Detects preheat below 100 W, notifies people at home, resets after 7 minutes off, and announces if preheated state remains on for 1 hour 30 minutes while the oven is powered. |
+| Dishwasher | `binary_sensor.dishwasher_powered_on`, `input_boolean.dishwasher_cycle_in_progress`, `sensor.dishwasher_tablet_stock` | Tracks cycle start/finish, consumes one tablet except in clean-cycle mode, warns when stock drops below 9, and handles completion notification. |
+| Kettle | `sensor.kettle_status` | Announces and logs when state changes from `heating` to `standby`. |
+
+### Safety, Energy, And Alarm Helpers
+
+| Automation | Behavior |
+|------------|----------|
+| `Kitchen: Using Power From The Grid` | When grid power rises above 100 W, kitchen motion is on, RGB lights are off, and battery conditions match, turns RGB pink or pulses pink. |
+| `Kitchen: Stops using Power From The Grid` | When grid power drops below 100 W and both kitchen RGB lights are on while the front door is closed, turns the RGB lights off. |
+| `Kitchen: Smoke Alarm` | Takes a camera snapshot, announces an urgent warning, sends the snapshot to the home log, and starts `timer.check_smoke_alarms`. |
+| `Kitchen: Paper Draw Opened` | Sends a direct notification when `binary_sensor.kitchen_paper_draw_contact` opens. |
+| `Kitchen: Alarm Armed Home Mode & Motion Detected` | Logs kitchen motion while the house alarm is armed home and `group.jd_computer` is off. |
+
+## Scenes And Scripts
+
+| Type | Count | Important Examples |
+|------|-------|--------------------|
+| Scenes | 16 | Main lights dim/off, accent on/dim/off, ambient dim/off, table/cooker on, blue/red/pink RGB scenes. |
+| Scripts | 6 | `kitchen_cancel_all_light_timers`, `kitchen_oven_preheated_notification`, `dishwashing_complete_notification`, `kitchen_pulse_ambient_light_pink`. |
 
 ## Sensors
 
-### History Stats Sensors
+| Sensor Type | Count | Purpose |
+|-------------|-------|---------|
+| `history_stats` | 12 | Dishwasher runtime, fridge open time, and fridge/freezer runtime over today/yesterday/week/month windows. |
+| `mold_indicator` | 1 | Kitchen mould indicator using kitchen temperature/humidity and outdoor temperature. |
+| Template binary sensors | 6 | Kettle, dishwasher, fridge/freezer, oven, low salt, and no salt states. |
 
-#### Dishwasher Runtime Tracking
+## Troubleshooting
 
-| Sensor | Period |
-|--------|--------|
-| `sensor.dishwasher_running_time_today` | Midnight to now |
-| `sensor.dishwasher_running_time_last_24_hours` | Rolling 24h |
-| `sensor.dishwasher_running_time_yesterday` | Previous day |
-| `sensor.dishwasher_running_time_this_week` | Since Monday |
-| `sensor.dishwasher_running_time_last_30_days` | Rolling 30 days |
-
-#### Fridge/Freezer Tracking
-
-| Sensor | Purpose |
-|--------|---------|
-| `sensor.fridge_opened_today` | Time fridge door open today |
-| `sensor.fridge_opened_yesterday` | Time fridge door open yesterday |
-| `sensor.fridge_freezer_running_time_*` | Various periods |
-
-### Template Binary Sensors
-
-| Sensor | Detection Logic |
-|--------|-----------------|
-| `binary_sensor.kettle_powered_on` | Power >= 10W |
-| `binary_sensor.dishwasher_powered_on` | Power >= 4W for 1 min |
-| `binary_sensor.fridge_freezer_powered_on` | Power 10-100W |
-| `binary_sensor.oven_powered_on` | Power >= 15W |
-| `binary_sensor.low_water_softener_salt` | Above threshold |
-| `binary_sensor.no_water_softener_salt` | At threshold |
-
-### Mold Indicator
-
-**Sensor:** `sensor.kitchen_mould_indicator`
-
-Uses indoor temperature/humidity vs outdoor temperature to calculate mold risk.
-
-**Inputs:**
-- Indoor: `sensor.kitchen_motion_temperature` / `sensor.kitchen_motion_humidity`
-- Outdoor: `sensor.gw2000a_outdoor_temperature`
-- Calibration factor: 2.01
-
----
-
-## Configuration
-
-### Input Booleans
-
-| Entity | Purpose |
-|--------|---------|
-| `input_boolean.enable_kitchen_motion_triggers` | Master switch for motion lighting |
-| `input_boolean.oven_preheated` | Tracks oven preheat state |
-| `input_boolean.enable_oven_automations` | Enable oven notifications |
-| `input_boolean.dishwasher_cycle_in_progress` | Tracks dishwasher cycle |
-| `input_boolean.enable_dishwasher_automations` | Enable dishwasher tracking |
-| `input_boolean.dishwasher_clean_cycle` | Flag for clean cycle mode |
-
-### Input Numbers
-
-| Entity | Purpose |
-|--------|---------|
-| `input_number.kitchen_light_level_threshold` | Motion light threshold (sensor 1) |
-| `input_number.kitchen_light_level_2_threshold` | Motion light threshold (sensor 2) |
-| `input_number.low_water_softener_salt_level` | Low salt warning threshold |
-| `input_number.no_water_softener_salt_level` | Empty salt threshold |
-
-### Timers
-
-| Timer | Duration | Purpose |
-|-------|----------|---------|
-| `timer.kitchen_cooker_light_dim` | 5 min | Delay before dimming cooker lights |
-| `timer.kitchen_cooker_light_off` | 5 min | Delay before turning off cooker lights |
-| `timer.kitchen_table_light_dim` | 5 min | Delay before dimming table lights |
-| `timer.kitchen_table_light_off` | 5 min | Delay before turning off table lights |
-| `timer.check_smoke_alarms` | 1 min | Smoke alarm check interval |
-
----
-
-## Entity Reference
-
-### Lights
-
-| Entity | Type | Purpose |
-|--------|------|---------|
-| `light.kitchen_cooker_white` | Main | Cooker area task lighting |
-| `light.kitchen_table_white` | Main | Table area task lighting |
-| `light.kitchen_cooker_rgb` | RGB | Cooker ambient/notification |
-| `light.kitchen_table_rgb` | RGB | Table ambient/notification |
-| `light.kitchen_cabinets` | Ambient | Cabinet lighting |
-| `light.kitchen_down_lights` | Ambient | Downlights |
-| `light.kitchen_draws` | Ambient | Drawer lighting |
-| `light.kitchen_accent_lights` | Group | All accent lights |
-| `light.kitchen_ambient_lights` | Group | All ambient lights |
-| `light.kitchen_lights` | Group | All kitchen lights |
-
-### Binary Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `binary_sensor.kitchen_area_motion` | Area motion detection |
-| `binary_sensor.kitchen_motion_ld2412_presence` | LD2412 sensor |
-| `binary_sensor.kitchen_motion_ld2450_presence` | LD2450 sensor |
-| `binary_sensor.kitchen_motion_2_occupancy` | Secondary motion |
-| `binary_sensor.kitchen_fridge_door_contact` | Fridge door |
-| `binary_sensor.kitchen_freezer_door_contact` | Freezer door |
-| `binary_sensor.kitchen_cooker_light_input` | Cooker switch |
-| `binary_sensor.kitchen_table_light_input` | Table switch |
-| `binary_sensor.kitchen_paper_draw_contact` | Paper drawer |
-| `binary_sensor.kitchen_smoke_alarm_smoke` | Smoke detection |
-
-### Sensors
-
-| Entity | Purpose |
-|--------|---------|
-| `sensor.kitchen_motion_ltr390_light` | Illuminance (sensor 1) |
-| `sensor.kitchen_motion_2_illuminance` | Illuminance (sensor 2) |
-| `sensor.kitchen_motion_temperature` | Temperature |
-| `sensor.kitchen_motion_humidity` | Humidity |
-| `sensor.water_softener_salt_level_average` | Salt level |
-| `sensor.dishwasher_switch_0_power` | Dishwasher power |
-| `sensor.oven_channel_1_power` | Oven power |
-| `sensor.kettle_plug_power` | Kettle power |
-| `sensor.ecoflow_kitchen_ac_out_power` | Fridge/freezer power |
-| `sensor.dishwasher_tablet_stock` | Tablet inventory |
-
-### Switches
-
-| Entity | Purpose |
-|--------|---------|
-| `switch.ecoflow_kitchen_plug` | Fridge/freezer plug |
-| `binary_sensor.kitchen_fridge_door_contact` | Fridge door state |
-| `binary_sensor.kitchen_freezer_door_contact` | Freezer door state |
-
----
-
-## Automation Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph MotionFlow["🚶 Motion Lighting"]
-        M1["Motion Detected"] --> M2["Cancel Timers"]
-        M2 --> M3["Turn On Lights"]
-        M3 --> M4["No Motion 5min"]
-        M4 --> M5["Dim Lights"]
-        M5 --> M6["No Motion 5min"]
-        M6 --> M7["Turn Off"]
-    end
-
-    subgraph ApplianceFlow["🔌 Appliances"]
-        A1["Door Open"] --> A2["Log"]
-        A3["Door Open 4min+"] --> A4["Alert"]
-        A5["Oven Preheated"] --> A6["Notify + Alexa"]
-        A7["Dishwasher Finish"] --> A8["Notify Home/Away"]
-    end
-
-    subgraph SafetyFlow["🚨 Safety"]
-        S1["Smoke Alarm"] --> S2["Camera + Notify"]
-        S2 --> S3["Alexa Alert"]
-    end
-
-    subgraph EnergyFlow["⚡ Energy"]
-        E1["Grid Power >100W"] --> E2{"Battery?"}
-        E2 -->|Has Charge| E3["Pink Solid"]
-        E2 -->|Depleted| E4["Pink Pulse"]
-        E5["Grid <100W"] --> E6["Lights Off"]
-    end
-```
-
----
-
-## Related Documentation
-
-| Document | Purpose |
-|----------|---------|
-| [KITCHEN-SETUP.md](KITCHEN-SETUP.md) | Hardware setup and device configuration |
-| [Rooms Overview](../README.md) | Overview of all room packages |
-| [Main Packages README](../../README.md) | Architecture and organization guidelines |
-
-### Related Rooms
-
-| Room | Connection |
-|------|------------|
-| [Porch](../porch/README.md) | Front door notifications trigger kitchen RGB lights |
-| [Utility](../utility/README.md) | Shared appliance monitoring patterns |
-
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Energy](../../integrations/energy/README.md) | Grid power monitoring for RGB notifications |
-| [HVAC](../../integrations/hvac/README.md) | Smoke alarm integration |
-
-### REST Commands
-
-The dishwasher tablet consumption relies on:
-```yaml
-rest_command.consume_finish_lemon_dishwasher_tablet
-```
-
-Ensure this is configured in your REST package.
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
-
-| Issue | Check |
-|-------|-------|
-| Lights not responding to motion | `input_boolean.enable_kitchen_motion_triggers` state |
-| Oven notifications not working | `input_boolean.enable_oven_automations` state |
-| Dishwasher not tracking | Power sensor availability |
-| RGB lights stuck on | Grid power automation state |
-
-### Seasonal Adjustments
-
-- **Summer:** May want to adjust morning light turn-off times
-- **Winter:** Consider earlier sunset trigger for ambient lights
-
----
-
-*Last updated: 2026-04-08*
+| Symptom | Check |
+|---------|-------|
+| Motion lights do nothing | Confirm `input_boolean.enable_kitchen_motion_triggers` is on and one of the four kitchen motion entities is actually changing to `on`. |
+| Lights dim but never turn fully off | Check `timer.kitchen_cooker_light_off`; motion returning cancels all kitchen light timers. |
+| Table timer entities appear unused | The timer event automation listens for table timers, but the current no-motion start path starts cooker timers. This is expected from the current YAML. |
+| Oven notifications missing | Confirm `input_boolean.enable_oven_automations` is on and `sensor.oven_channel_1_power` is available. |
+| Dishwasher stock not changing | Check `input_boolean.dishwasher_clean_cycle`; when it is on, the cycle is logged as clean mode and the helper is reset instead of consuming a tablet. |
+| Grid RGB signal stays on | `Kitchen: Stops using Power From The Grid` requires both kitchen RGB lights on and `binary_sensor.front_door` off. |
+| Smoke snapshot missing | Check `camera.kitchen_high_resolution_channel` and `input_text.camera_external_folder_path`. |
