@@ -642,7 +642,7 @@ Check Conditions
 - `script.living_room_select_game_input` - Switch AV receiver to game input (BD/DVD)
 - `script.living_room_select_vcr_dvr_input` - Switch to VCR/DVR input with TV HDMI2
 - `script.living_room_flash_lounge_lights_green` - Flash lamps green (notification)
-- `script.lounge_flash_lounge_lights_red` - Flash lamps red (alert)
+- `script.living_room_flash_lounge_lights_red` - Flash lamps red (alert)
 
 ### System Scripts
 - `script.check_terinas_work_laptop_status` - Check and respond to laptop status changes

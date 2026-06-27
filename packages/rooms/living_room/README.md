@@ -540,7 +540,7 @@ Briefly flashes lamps green for positive notification.
 ---
 
 #### Living Room: Flash Lights Red
-**Alias:** `lounge_flash_lounge_lights_red`
+**Alias:** `living_room_flash_lounge_lights_red`
 
 Briefly flashes lamps red for warning/alert.
 
