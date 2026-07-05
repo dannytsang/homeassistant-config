@@ -90,7 +90,7 @@ More details on my 📜[website](https://dannytsang.com).
 > ⚠️ **Note:** This configuration is highly specific to my environment. Some parts may not work without adaptation.
 
 ### Statistics 📊
-I have 7,604 states in Home Assistant. More details are in [statistics.md](statistics.md), and YAML package counts are tracked in [setup_statistics.md](setup_statistics.md).
+I have 7,645 states in Home Assistant. More details are in [statistics.md](statistics.md), and YAML package counts are tracked in [setup_statistics.md](setup_statistics.md).
 
 ## Hardware 🔩
 More details [here](hardware.md).
