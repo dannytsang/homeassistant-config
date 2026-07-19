@@ -1,247 +1,72 @@
-# Home Assistant Configuration - Codex Reference Index
+# Home Assistant Configuration — Codex Guide
 
-**Last Updated:** 2026-06-27
-**Configuration Status:** Production-Ready | Professional Grade
+This is the active guidance for Codex when working in this repository. Maintain `claude.md` and `.claude/` independently; do not update them unless the user explicitly asks.
 
----
+## Repository map
 
-## Overview
+- `configuration.yaml` is the entry point. It loads named packages from `packages/`.
+- `packages/rooms/` holds room-specific behaviour. Use it before an integration package when a change belongs to one physical room.
+- `packages/integrations/` holds integration-specific behaviour. Root package files hold genuinely global configuration.
+- `packages/shared_helpers.yaml` holds shared scripts and templates.
+- `automations.yaml`, `scripts.yaml`, and `scenes.yaml` contain UI-managed configuration; do not manually restructure them without an explicit request.
+- `esphome/` contains device definitions; `custom_components/` contains checked-in Home Assistant integrations.
 
-This Home Assistant configuration is a **professional-grade smart home automation system** with sophisticated energy management, comprehensive security, and intelligent comfort automation.
+Start with [packages/README.md](packages/README.md), then the relevant [rooms overview](packages/rooms/README.md) or [integrations overview](packages/integrations/README.md). Package YAML is the source of truth; the matching README explains local intent.
 
-### Quick Statistics
-- **7,604 total states** across the live system (see `statistics.md`)
-- **383 YAML-defined automations** (381 in packages, 2 deprecated UI automations)
-- **139 YAML-defined scripts** (133 in packages, 6 UI scripts)
-- **67 YAML-defined scenes** (64 in packages, 3 UI scenes)
-- **567 live switch entities** with extensive power monitoring
-- **3,359 live sensor entities** plus 83 package-defined sensor entries
+## Before changing anything
 
----
+1. Run `git status --short` and preserve unrelated user changes.
+2. Read `configuration.yaml`, the target package YAML, its closest README, and any scripts, scenes, helpers, or entities it calls.
+3. Search dependencies with `rg` before renaming, removing, or consolidating entities, scripts, scenes, automation IDs, or helpers.
+4. Treat entity existence from the live Home Assistant instance as runtime information. Do not call an entity missing merely because it has no YAML definition.
+5. Never read, print, create, or commit secrets, credentials, tokens, private camera media, or deployment URLs unless the user explicitly requires it.
 
-## Documentation Structure
+## Change rules
 
-This documentation has been organized into specialized reference files for easier navigation:
+- Make the smallest behaviour-complete change. Preserve aliases, automation mode, delays, timeouts, notification/logging paths, manual overrides, and safety behaviour unless the request changes them.
+- Use current official Home Assistant documentation for version-sensitive syntax. Local historical notes are not authoritative.
+- Use `action:` for service calls. Use singular `response_variable:` when capturing an action response; do not use `response_variables:`.
+- Use defensive template defaults such as `| float(0)`, `| int(0)`, or `| default(...)` when entity states or attributes can be unavailable.
+- Follow the repository's numeric automation-ID convention and keep IDs unique. It is a local convention, not a Home Assistant schema requirement.
+- Use trigger IDs and ordered `choose` branches when combining compatible triggers. First matching `choose` branch wins.
+- For motion/presence behaviour, cancel any relevant off/dim timer whenever new presence is detected; do not hide the cancellation in a branch that can be skipped.
+- Keep device triggers in source YAML. CI may replace them only in its disposable validation checkout.
+- Add or update package documentation only when the externally useful behaviour, setup, dependencies, or inventory changes.
 
-### 1. **System Overview & Architecture**
-📄 **[homeassistant-system-overview.md](homeassistant-system-overview.md)**
-- System overview and key statistics
-- Configuration architecture
-- Key areas of focus (Energy, Security, Comfort, Efficiency, Family)
-- Hidden gems and clever solutions
-- Technical excellence assessment
+## Automation consolidation
 
-### 2. **Hardware & Infrastructure**
-📄 **[homeassistant-hardware-infrastructure.md](homeassistant-hardware-infrastructure.md)**
-- Network infrastructure (Ubiquiti, Aruba, Zigbee)
-- Power infrastructure (UPS, Shelly, Kasa, SmartThings)
-- ESPHome custom devices (13 devices total)
-- Specialized devices and integrations
+Do not consolidate automations solely because their YAML looks similar. First compare every trigger transition and duration, condition, action order, timer lifecycle, mode, notification, safety path, disabled state, and external caller.
 
-### 3. **Energy Management System** (Flagship Feature)
-📄 **[homeassistant-energy-management.md](homeassistant-energy-management.md)**
-- Solar & battery infrastructure
-- Energy integrations (Octopus, Predbat, Solar Assistant)
-- Battery mode switching
-- Solar optimization
-- Hot water control
-- EV charging (Zappi)
-- Cost-aware appliance automation
+When consolidation is valid:
 
-### 4. **Home Systems** (Lighting, Climate, Security, Presence)
-📄 **[homeassistant-home-systems.md](homeassistant-home-systems.md)**
-- Lighting system (Hue, LIFX, Innr, Elgato)
-- Climate control (Hive, TRV, Eddi)
-- Security & monitoring (Ring, Reolink, Ubiquiti, Nuki)
-- Presence detection & home modes
-- Smart home connectivity (Alexa, Chromecast, Spotify)
-- Blind & cover automation
+1. Build a behaviour table for the originals.
+2. Preserve a unique existing automation ID where practical.
+3. Use trigger IDs and `choose` only where branch precedence is explicit.
+4. Remove obsolete YAML and README references only after confirming no callers remain.
+5. Compare the final behaviour table to the originals and identify every intentional change.
 
-### 5. **Notification System & Patterns**
-📄 **[homeassistant-notification-patterns.md](homeassistant-notification-patterns.md)**
-- Notification system architecture
-- Smart quiet hours with keyword exceptions
-- Complete script reference catalog
-- Script decision tree
-- Creating new scripts
+## Validation
 
-### 6. **Automation Patterns & Reference**
-📄 **[homeassistant-automation-patterns.md](homeassistant-automation-patterns.md)**
-- Automation ID uniqueness validation
-- Notable automation patterns (7 key patterns)
-- Real-world examples from configuration
-- Motion detection with context-aware responses
-- Log message best practices
+Always inspect `git diff` and run `git diff --check` after an edit. Then use the relevant validation:
 
-### 7. **Technical Implementation Guide**
-📄 **[homeassistant-technical-implementation.md](homeassistant-technical-implementation.md)**
-- Directory structure (71 package YAML files)
-- Configuration architecture
-- Naming conventions (automations, scripts, helpers, scenes, sensors)
-- Common automation patterns (6 patterns with code)
-- Common script patterns (5 patterns with code)
-- Template patterns
-- Helper entity patterns
-- ESPHome configuration
-- Integration-specific patterns (Octopus, Solar Assistant, Predbat, Ring, Hive, Alexa, Sun-based automations)
-- Recorder & database configuration
+- YAML/package/configuration change: Home Assistant configuration check in CI or **Settings → System → Check configuration**.
+- Automation/template logic: Developer Tools → Template, plus automation traces after deployment.
+- ESPHome change: validate the affected ESPHome YAML; CI validates all device definitions when `esphome/**` changes.
+- GitHub workflow change: actionlint in CI.
+- Documentation change: verify every edited local link resolves.
 
-### 8. **Best Practices & Development Guide**
-📄 **[homeassistant-best-practices-guide.md](homeassistant-best-practices-guide.md)**
-- User preferences & conventions
-- Code review process
-- Common gotchas & best practices
-- Entity ID reference
-- Testing & validation
-- Performance considerations
-- Security considerations
-- Common tasks
-- File maintenance
-- Development workflow
+CI validates YAML, Markdown, ESPHome, and stable Home Assistant configuration. Beta/dev Home Assistant checks are informational; do not present them as a release guarantee.
 
----
+## Git and deployment
 
-## Reference Documentation (in .claude/ folder)
+- Do not commit, push, deploy, reload, restart Home Assistant, or change live state unless explicitly requested.
+- Before a requested commit, review the staged diff for credentials and unrelated files. Never add assistant co-author or attribution trailers.
+- Keep commit messages concise, imperative, and user-authored.
 
-These are comprehensive reference guides for core Home Assistant concepts:
+## Useful references
 
-📄 **home-assistant-scripts-reference.md**
-Complete guide to Home Assistant scripts including structure, modes, variables, response variables, error handling, and practical patterns.
-
-📄 **home-assistant-templating-reference.md**
-Comprehensive Jinja2 templating guide with state access, filters, functions, conditionals, loops, and real-world examples.
-
-📄 **home-assistant-splitting-configuration-reference.md**
-Configuration organization guide covering includes, packages, directory structures, and best practices for large systems.
-
-📄 **home-assistant-automation-yaml-reference.md**
-Complete automation YAML reference with all trigger types, conditions, actions, modes, and practical examples.
-
----
-
-## Key Files & Locations
-
-### Main Configuration
-- `configuration.yaml` - Entry point with includes
-- `automations.yaml` - UI-generated automations (20 total)
-- `scripts.yaml` - UI-generated scripts
-- `scenes.yaml` - 3 UI scene definitions; most scenes now live in packages
-
-### Package Structure
-- `packages/shared_helpers.yaml` - Global scripts & templates
-- `packages/rooms/` - Room-based packages (living_room, bedroom, kitchen, office, porch, stairs, conservatory, etc.)
-- `packages/integrations/` - Integration packages (energy, hvac, messaging, security, transport, weather, infrastructure)
-
-### ESPHome Devices
-- `esphome/` - 13 custom devices with OTA updates
-
----
-
-## Quick Navigation by Topic
-
-### Energy Management
-→ [homeassistant-energy-management.md](homeassistant-energy-management.md)
-- Solar forecasting and battery optimization
-- Rate-aware automation (Octopus Energy)
-- Predbat integration
-- Cost minimization strategies
-
-### Motion Detection & Lighting
-→ [homeassistant-home-systems.md](homeassistant-home-systems.md) → Lighting System
-→ [homeassistant-automation-patterns.md](homeassistant-automation-patterns.md) → Motion Detection Patterns
-
-### Automation Consolidation
-→ [homeassistant-automation-patterns.md](homeassistant-automation-patterns.md)
-- Trigger ID branching pattern
-- Multi-branch automations
-- Real-world consolidation examples
-
-### Script Reference
-→ [homeassistant-notification-patterns.md](homeassistant-notification-patterns.md) → Complete Script Reference
-
-### Code Organization
-→ [homeassistant-technical-implementation.md](homeassistant-technical-implementation.md) → Configuration Architecture
-→ [homeassistant-technical-implementation.md](homeassistant-technical-implementation.md) → Naming Conventions
-
-### Development Workflow
-→ [homeassistant-best-practices-guide.md](homeassistant-best-practices-guide.md) → Development Workflow
-→ [homeassistant-best-practices-guide.md](homeassistant-best-practices-guide.md) → Code Review Process
-
----
-
-## Session Work Summary (2026-01-22)
-
-**Phases 1-4 Complete:**
-- ✅ Phase 1: Helper scripts and templates (64beb615)
-- ✅ Phase 2.1: Replace clock/log patterns (ce557e52)
-- ✅ Phase 2.2: Consolidate fridge/freezer automations (14335470)
-- ✅ Phase 3: Consolidate stairs motion detection (375c8754)
-- ✅ Phase 4.1: Porch motion consolidation (26603d94)
-- ✅ Phase 4.2: Kitchen motion consolidation (eab1014f)
-- ⏳ Phase 4.3: Stairs additional consolidation (pending)
-
-**Critical Fixes Applied:**
-- Fixed log_with_clock script (response_variables syntax and template access)
-- Consolidated 8 kitchen automations into 3
-- Consolidated 2 porch automations into 1
-- Added missing scene definitions
-
-**Session Statistics:**
-- 9 commits across 4 optimization phases
-- 34 total fixes across 12 room packages
-- 5,500+ lines of YAML reviewed and validated
-- 0 critical issues remaining in validated packages
-
----
-
-## Quick Reference
-
-### Most Important Concepts
-1. **Response Variables** - Always use `response_variables:` (plural) in scripts
-2. **Trigger IDs** - Use for branching instead of multiple automations
-3. **First Match Wins** - Order matters in choose blocks
-4. **Template Safety** - Always use `| default()` for undefined values
-5. **Parallel Actions** - For independent operations only
-6. **Logging** - Append to messages, don't replace
-7. **Automation Modes** - Choose `queued` for motion, `single` for time-based
-
-### Critical Rules
-- ❌ Never use singular `response_variable:` - always plural `response_variables:`
-- ❌ Never use `condition: service:` - use `action: domain.service`
-- ❌ Never add assistant attribution to commits - user-attributed only
-- ✅ Always validate automation IDs are unique (13-digit numbers)
-- ✅ Always use `| float(0)` for sensor comparisons
-- ✅ Always include logging in automations
-
-### Common Commands
-```bash
-# Validate configuration
-Configuration → Settings → System → Check Configuration
-
-# View automation traces
-Automations & Scenes → Click automation → Traces tab
-
-# Test templates
-Developer Tools → Template
-
-# Check entity states
-Developer Tools → States
-```
-
----
-
-## Getting Help
-
-For specific questions, refer to:
-- **How do I write a script?** → `home-assistant-scripts-reference.md`
-- **How do I write a template?** → `home-assistant-templating-reference.md`
-- **How do I consolidate automations?** → `homeassistant-automation-patterns.md`
-- **What naming convention should I use?** → `homeassistant-technical-implementation.md`
-- **How do I organize my configuration?** → `home-assistant-splitting-configuration-reference.md`
-- **What best practices should I follow?** → `homeassistant-best-practices-guide.md`
-
----
-
-## Archive
-
-The original `claude.md` file (2,332 lines) has been split into focused reference documents for better navigation and maintenance.
+- [README.md](README.md) — project overview and CI/deployment flow.
+- [packages/README.md](packages/README.md) — package architecture and inventory.
+- [setup_statistics.md](setup_statistics.md) — YAML-derived counts and current package analysis.
+- [statistics.md](statistics.md) — live Home Assistant state snapshot; not a YAML inventory.
+- [INSTALL.md](INSTALL.md) — environment-specific setup notes.
