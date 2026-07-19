@@ -2,7 +2,7 @@
 
 # Alarm Package Documentation
 
-This package manages alarm automation including 8 automations and 4 scripts.
+This package manages alarm automation including 8 automations and 5 scripts. The maintained detailed reference is [alarm_README.md](../alarm_README.md); the source is [alarm.yaml](../alarm.yaml).
 
 ---
 

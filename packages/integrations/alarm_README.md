@@ -8,7 +8,7 @@ Integration: [ring-mqtt](https://github.com/tsightler/ring-mqtt)
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `alarm.yaml` | Ring Alarm automation and helper scripts | 8 automations, 4 scripts |
+| `alarm.yaml` | Ring Alarm automation and helper scripts | 8 automations, 5 scripts |
 
 ## Quick Summary
 
@@ -87,6 +87,7 @@ flowchart TD
 | `script.set_alarm_to_disarmed_mode` | `single` | If not already `disarmed`, logs and calls `alarm_control_panel.alarm_disarm`. |
 | `script.set_alarm_to_home_mode` | `single` | If not already `armed_home`, logs and calls `alarm_control_panel.alarm_arm_home`. |
 | `script.arm_alarm_overnight` | `single` | Applies the overnight presence/distance decision tree, then logs, arms home mode, locks the front door, or notifies depending on the branch. |
+| `script.unlocked_door_or_window_notification` | `single` | Sends a direct notification that names the still-open alarmed door or window. |
 
 ## `arm_alarm_overnight` Decision Tree
 

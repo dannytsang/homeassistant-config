@@ -8,7 +8,7 @@ This documentation covers the YAML file in this folder:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `living_room.yaml` | Main living room behavior | 23 automations, 12 scenes, 5 scripts, 11 sensors, 1 template group |
+| `living_room.yaml` | Main living room behavior | 23 automations, 12 scenes, 6 scripts, 11 sensors, 1 template group |
 
 ## Quick Summary
 
@@ -59,7 +59,7 @@ flowchart LR
     LivingYaml --> MediaBlock[TV, PlayStation, Harmony]
     LivingYaml --> ComputerBlock[Computer presence]
     LivingYaml --> Scenes[12 scenes]
-    LivingYaml --> Scripts[5 scripts]
+    LivingYaml --> Scripts[6 scripts]
     LivingYaml --> Sensors[11 sensors and 1 template group]
 ```
 
@@ -153,7 +153,7 @@ The package controls three living room blinds and avoids moving them if the livi
 | Type | Count | Important Examples |
 |------|-------|--------------------|
 | Scenes | 12 | Full lights, lamps only, ceiling only, dim variants, off variants, yellow signal, green scene. |
-| Scripts | 5 | AV receiver input scripts, green/red lounge flashes, and `nfc_bedroom_right`. |
+| Scripts | 6 | AV receiver input scripts, green/red lounge flashes, `nfc_bedroom_right`, and `living_room_close_blinds_down`. |
 
 ## Troubleshooting
 

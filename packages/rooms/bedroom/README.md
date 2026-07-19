@@ -8,7 +8,7 @@ This documentation covers the YAML files in this folder:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `bedroom.yaml` | Main bedroom behavior | 24 automations, 5 scenes, 8 scripts, 5 sensors, 2 template binary sensors |
+| `bedroom.yaml` | Main bedroom behavior | 26 automations, 5 scenes, 8 scripts, 5 sensors, 2 template binary sensors |
 | `sleep_as_android.yaml` | Sleep tracking integration | 8 automations, 1 template binary sensor |
 | `awtrix_light.yaml` | Bedroom clock MQTT notification helper | 1 script |
 
@@ -84,10 +84,11 @@ flowchart LR
 |---------|--------------|---------|
 | Bed and blinds | 4 automations | Closes blinds when bed becomes occupied after sunset or a closed window makes it safe; opens blinds when the bed becomes empty during daylight. |
 | Doors | 4 automations | Turns off stairs lights when the bedroom door closes, handles children door warnings, and pauses TV when the bedroom door opens late at night. |
-| Motion and fan | 5 automations | Controls under-bed ambient lights, AWTRIX clock, and fan timeouts. |
+| Motion and fan | 7 automations | Controls under-bed ambient lights, AWTRIX clock, and fan timeouts. |
 | Timed blind control | 2 automations | Opens blinds at 08:00, 09:00, or 10:00 based on workday/calendar logic; closes blinds at 22:00. |
 | TV and weather | 2 automations, 1 script | Lowers blinds for daytime TV glare, reopens them after TV use unless it is hot, and closes them during sunny hot weather. |
 | Remote control | 6 automations | Handles four remote buttons plus dial brightness up/down for bedroom lamps. |
+| Stairs cleanup | 1 automation | Turns stairs lights off when bedroom lamps are off and the stairs main light comes on. |
 | Scenes | 5 scenes | Ambient on, dim ambient, ambient off, desk lamps on, desk lamps off. |
 | Door alert scripts | 6 scripts | Flash bedroom lamps for Leo/Ashlee door open/close events and coordinate TV pause/resume. |
 | Support scripts | 2 scripts | Weather-based blind closure and sleep-mode clock shutdown. |
