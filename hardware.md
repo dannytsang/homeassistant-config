@@ -11,7 +11,6 @@ I have gradually built up a lot of hardware overtime to from sensors to switches
   - [Hubs / Controllers](#hubs--controllers)
   - [Amazon](#amazon)
   - [Aqara](#aqara)
-  - [Aruba](#aruba)
   - [Broadlink](#broadlink)
   - [Ecowitt](#ecowitt)
   - [Elgato](#elgato)
@@ -67,12 +66,6 @@ We are an Echo/Alexa household due to the compatibility it has with devices. Thi
 Great value devices.
 * [MCCGQ11LM 153](https://www.aqara.com/eu/product/door-and-window-sensor/)
 * [T1M](https://www.aqara.com/eu/product/ceiling-light-t1m/)
-
-**Integration:** Zigbee2MQTT / ZHA
-
-## <a name="aruba"></a>Aruba
-Replaced Unifi with Aruba for their PPSK, controllerless setup. Basic support in Home Assistant.
-* [Aruba 505](https://www.arubanetworks.com/en-gb/products/wireless/access-points/indoor-access-points/500-series/)
 
 **Integration:** Limited native support
 
