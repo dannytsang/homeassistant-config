@@ -2,7 +2,7 @@
 
 # Alarm Package Documentation
 
-This package manages alarm automation including 8 automations and 0 scripts.
+This package manages alarm automation including 8 automations and 5 scripts. The maintained detailed reference is [alarm_README.md](../alarm_README.md); the source is [alarm.yaml](../alarm.yaml).
 
 ---
 
@@ -272,4 +272,4 @@ Complex overnight arming logic with people-aware behavior:
 | Automation not triggering | Entity states and conditions |
 | Script failing | Service calls and entity availability |
 
-*Last updated: 2026-04-08*
+*Last updated: 2026-06-27*

@@ -622,29 +622,89 @@ automation:
     mode: single
   # region Fan
   - id: "1690844451011"
-    alias: "Bedroom: Turn Off Fan"
+    alias: "Bedroom: Timer Fan Finished"
     description: ""
     triggers:
-      - trigger: state
-        entity_id:
-          - switch.bedroom_fan
-        to: "on"
-        for:
-          hours: 2
-          minutes: 0
-          seconds: 0
-    conditions: []
+      - trigger: event
+        event_type: timer.finished
+        event_data:
+          entity_id: timer.bedroom_fan_off
+    conditions:
+      - condition: state
+        entity_id: timer.bedroom_fan_off
+        state:
+          - active
     actions:
       - parallel:
           - action: script.send_to_home_log
             data:
-              message: Fan has been on for 2 hours. Turning fan off.
+              message: Fan timer finished. Turning fan off.
               title: "🛏️ Bedroom"
               log_level: "Debug"
           - action: switch.turn_off
             data: {}
             target:
               entity_id: switch.bedroom_fan
+    mode: single
+  - id: "1783281109118"
+    alias: "Bedroom: Fan Turned On"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.bedroom_fan
+        to:
+          - "on"
+    conditions:
+      - not:
+          - condition: state
+            entity_id: timer.bedroom_fan_off
+            state:
+              - active
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Bedroom fan turned on. Started Timer
+              title: "🛏️ Bedroom"
+          - action: timer.start
+            metadata: {}
+            target:
+              entity_id: timer.bedroom_fan_off
+            data:
+              duration:
+                hours: 2
+                minutes: 0
+                seconds: 0
+    mode: single
+  - id: "1783281109119"
+    alias: "Bedroom: Fan Turned Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.bedroom_fan
+        to:
+          - "off"
+    conditions:
+      - condition: state
+        entity_id: timer.bedroom_fan_off
+        state:
+          - active
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Bedroom fan turned off. Cancelled Timer
+              title: "🛏️ Bedroom"
+          - action: timer.cancel
+            target:
+              entity_id: timer.bedroom_fan_off
+            data: {}
     mode: single
   # region Time
   - id: "1621875409014"

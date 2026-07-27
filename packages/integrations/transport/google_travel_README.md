@@ -1,437 +1,113 @@
-# Google Travel Time Integration Package Documentation
+# Google Travel Package Documentation
 
-This package provides Google Travel Time integration for calculating travel duration between locations using real-time traffic data from Google Maps.
+The Google Travel package provides one reusable script for traffic-aware route calculations. It updates the Google Travel Time sensor using dynamic origin and destination helpers, logs the journey, and returns a structured response that other automations can use.
 
----
+Source YAML: `google_travel.yaml`
 
-## Table of Contents
+| Contents | Count |
+|----------|-------|
+| Automations | 0 |
+| Scripts | 1 |
+| Template sensors | 2 |
 
-- [Overview](#overview)
-- [Architecture](#architecture)
-- [Integrations](#integrations)
-- [Scripts](#scripts)
-- [Sensors](#sensors)
-- [Configuration](#configuration)
-- [Entity Reference](#entity-reference)
+## Quick Summary
 
----
+| Area | What Happens |
+|------|--------------|
+| Origin | If not supplied, the script uses `zone.home`. |
+| Destination | Required script field. |
+| Travel data | `sensor.google_travel_time_by_car` is refreshed after origin/destination are set. |
+| Logging | The script logs origin, destination, traffic-aware journey time, and distance. |
+| Response | The script stops with response variable `journey`. |
 
-## Overview
+## How It Works
 
-The Google Travel Time integration package enables dynamic travel time calculations using Google's Directions API. It supports flexible origin/destination inputs including zones, person entities, and raw addresses, with automatic traffic-aware duration estimates.
-
-```mermaid
-flowchart TB
-    subgraph Inputs["📍 Location Inputs"]
-        Zone["Zone Entities<br/>zone.home"]
-        Person["Person Entities<br/>person.danny"]
-        Address["Raw Addresses<br/>Postcode/Street"]
-    end
-
-    subgraph Processing["🔄 Processing"]
-        Origin["Origin Address<br/>input_text.origin_address"]
-        Destination["Destination Address<br/>input_text.destination_address"]
-        Script["Calculate Travel Script"]
-    end
-
-    subgraph GoogleAPI["🌐 Google Maps API"]
-        Directions["Directions API"]
-        Traffic["Real-time Traffic"]
-    end
-
-    subgraph Outputs["📤 Outputs"]
-        TravelTime["Travel Time Sensor<br/>sensor.google_travel_time_by_car"]
-        Distance["Distance Attribute"]
-        Duration["Duration in Traffic"]
-        Log["Home Log Entry"]
-    end
-
-    Zone --> Origin
-    Person --> Origin
-    Address --> Origin
-    Zone --> Destination
-    Person --> Destination
-    Address --> Destination
-
-    Origin --> Script
-    Destination --> Script
-    Script --> GoogleAPI
-    GoogleAPI --> TravelTime
-    TravelTime --> Distance
-    TravelTime --> Duration
-    Script --> Log
-```
-
----
-
-## Architecture
-
-### File Structure
-
-```
-packages/integrations/transport/
-├── google_travel.yaml        # Main package file
-└── README.md                 # This documentation
-```
-
-### Key Components
-
-| Component | Type | Purpose |
-|-----------|------|---------|
-| `input_text.origin_address` | Input Text | Dynamic origin location storage |
-| `input_text.destination_address` | Input Text | Dynamic destination location storage |
-| `sensor.origin_address` | Template Sensor | Resolved origin display name |
-| `sensor.destination_address` | Template Sensor | Resolved destination display name |
-| `sensor.google_travel_time_by_car` | Google Travel Time | Core travel time sensor |
-| `script.calculate_travel` | Script | Orchestrates travel calculation workflow |
-
----
-
-## Integrations
-
-### Google Travel Time
-
-Home Assistant's native [Google Travel Time](https://www.home-assistant.io/integrations/google_travel_time/) integration provides the core travel time sensor.
-
-**Configuration Requirements:**
-- Google Maps API key with Directions API enabled
-- Origin and destination configured to use input_text entities for dynamic updates
-- Travel mode: driving (configurable)
-
-**Sensor Attributes:**
-| Attribute | Description |
-|-----------|-------------|
-| `distance` | Distance between locations (e.g., "12.3 km") |
-| `duration` | Base duration without traffic |
-| `duration_in_traffic` | Traffic-aware duration estimate |
-| `origin` | Resolved origin address |
-| `destination` | Resolved destination address |
-
-### Input Text Helpers
-
-Two input_text entities store dynamic location values:
-- `input_text.origin_address` - Defaults to `zone.home` if not specified
-- `input_text.destination_address` - Must be set before calculation
-
----
-
-## Scripts
-
-### Calculate Travel Time
-**Alias:** `calculate_travel`
-
-Main script for calculating travel time between two locations with intelligent address resolution.
-
-**Fields:**
-| Field | Type | Required | Default | Description |
-|-------|------|----------|---------|-------------|
-| `origin` | Text | No | `zone.home` | Starting location (zone, person, or address) |
-| `destination` | Text | Yes | - | Destination location (zone, person, or address) |
-
-**Logic Flow:**
 ```mermaid
 flowchart TD
-    A["Script Called"] --> B["Set Origin Input<br/>default: zone.home"]
-    B --> C["Set Destination Input"]
-    C --> D["Update Google Travel Sensor"]
-    D --> E["Resolve Origin Name"]
-    E --> F{"Input Type?"}
-    F -->|zone.*| G["Get Zone Friendly Name"]
-    F -->|person.*| H["Get Person Friendly Name"]
-    F -->|Other| I["Use Raw Value"]
-    G --> J["Resolve Destination Name"]
-    H --> J
-    I --> J
-    J --> K{"Input Type?"}
-    K -->|zone.*| L["Get Zone Friendly Name"]
-    K -->|person.*| M["Get Person Friendly Name"]
-    K -->|Other| N["Use Raw Value"]
-    L --> O["Build Journey Object"]
-    M --> O
-    N --> O
-    O --> P["Log to Home Log"]
-    P --> Q["Return Journey Data"]
+    Call[Call script.calculate_travel] --> SetOrigin[Set input_text.origin_address]
+    Call --> SetDestination[Set input_text.destination_address]
+    SetOrigin --> Update[Update sensor.google_travel_time_by_car]
+    SetDestination --> Update
+    Update --> Resolve[Resolve zone/person friendly names]
+    Resolve --> Log[Send journey to home log]
+    Log --> Response[Return journey object]
 ```
 
-**Address Resolution Logic:**
+## Script
 
-The script intelligently resolves location inputs:
+### `script.calculate_travel`
 
-| Input Pattern | Resolution |
-|--------------|------------|
-| `zone.home` | Friendly name of the zone |
-| `zone.work` | Friendly name of the zone |
-| `person.danny` | Friendly name of the person |
-| `SW1A 1AA` | Used as-is (postcode) |
-| `123 Main Street` | Used as-is (address) |
+| Field | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `origin` | No | `zone.home` | Start location. Can be a zone entity, person entity, postcode, or address. |
+| `destination` | Yes | Empty string if omitted by caller | End location. Can be a zone entity, person entity, postcode, or address. |
 
-**Response Variable:** `journey`
+The script performs these steps:
+
+1. Sets `input_text.origin_address` and `input_text.destination_address` in parallel.
+2. Calls `homeassistant.update_entity` for `sensor.google_travel_time_by_car`.
+3. Resolves `zone.*` and `person.*` values to friendly names for logging.
+4. Builds a `journey` response object from Google Travel Time state and attributes.
+5. Logs the journey to `script.send_to_home_log` with title `:car: Travel`.
+6. Stops with `response_variable: journey`.
+
+Response shape:
 
 ```json
 {
   "origin_address": "Home",
-  "destination_address": "London Bridge",
-  "display_distance": "12.3 km",
-  "travel_time": 25,
+  "destination_address": "Work",
+  "display_distance": "12.5 mi",
+  "travel_time": 25.0,
   "travel_time_unit_of_measurement": "min",
   "display_travel_time": "25 mins"
 }
 ```
 
-**Home Log Entry:**
-- Title: `:car: Travel`
-- Message includes origin, destination, journey time, and distance
-- Log Level: Normal
-
----
+Power-user note: `display_travel_time` is populated from the sensor's `duration_in_traffic` attribute. The plain `duration` attribute is read into an internal variable but is not returned.
 
 ## Sensors
 
-### Template Sensors
+| Entity | Source | Purpose |
+|--------|--------|---------|
+| `sensor.origin_address` | `input_text.origin_address` | Template mirror for the current origin. |
+| `sensor.destination_address` | `input_text.destination_address` | Template mirror for the current destination. |
+| `sensor.google_travel_time_by_car` | Google Travel Time integration, configured elsewhere | Travel time, distance, and duration-in-traffic source. |
 
-#### Origin Address
-**Entity:** `sensor.origin_address`
-**Unique ID:** `71c7a6cb-f480-4835-aed7-6e05a8c53dfe`
+## Dependencies
 
-| Attribute | Value |
-|-----------|-------|
-| **Icon** | mdi:map-marker-outline |
-| **State** | `{{ states('input_text.origin_address') }}` |
+| Dependency | Purpose |
+|------------|---------|
+| `input_text.origin_address` | Stores dynamic origin. |
+| `input_text.destination_address` | Stores dynamic destination. |
+| `sensor.google_travel_time_by_car` | Provides travel time and distance. |
+| `script.send_to_home_log` | Logs journey details. |
 
-Mirrors the origin input_text value for easy access in automations and dashboards.
-
-#### Destination Address
-**Entity:** `sensor.destination_address`
-**Unique ID:** `f01b1d6b-9bbd-4261-945b-581d864eb4a4`
-
-| Attribute | Value |
-|-----------|-------|
-| **Icon** | mdi:map-marker |
-| **State** | `{{ states('input_text.destination_address') }}` |
-
-Mirrors the destination input_text value for easy access in automations and dashboards.
-
-### Google Travel Time Sensor
-
-**Entity:** `sensor.google_travel_time_by_car`
-
-Provided by the Google Travel Time integration (configured separately in `configuration.yaml`).
-
-| Attribute | Description | Example |
-|-----------|-------------|---------|
-| `distance` | Distance between points | "12.3 km" |
-| `duration` | Base travel time | "20 mins" |
-| `duration_in_traffic` | Traffic-adjusted time | "25 mins" |
-| `origin` | Resolved origin | "Home" |
-| `destination` | Resolved destination | "London Bridge" |
-
----
-
-## Configuration
-
-### Prerequisites
-
-1. **Google Cloud Platform Account**
-   - Enable the [Directions API](https://developers.google.com/maps/documentation/directions/overview)
-   - Create an API key
-   - (Optional) Set up billing alerts
-
-2. **Home Assistant Configuration**
-   
-   Add to `configuration.yaml`:
-   ```yaml
-   sensor:
-     - platform: google_travel_time
-       name: Google Travel Time By Car
-       api_key: !secret google_maps_api_key
-       origin: input_text.origin_address
-       destination: input_text.destination_address
-   ```
-
-3. **Input Text Helpers**
-   
-   The package creates these automatically:
-   ```yaml
-   input_text:
-     origin_address:
-       name: Origin Address
-       initial: zone.home
-     destination_address:
-       name: Destination Address
-   ```
-
-### Secrets Required
-
-| Secret | Purpose |
-|--------|---------|
-| `google_maps_api_key` | Google Maps Directions API access |
-
-### External Dependencies
-
-| Integration/Entity | Required For |
-|-------------------|--------------|
-| `script.send_to_home_log` | Travel result logging |
-| Google Travel Time sensor | Core travel time data |
-
----
-
-## Entity Reference
-
-### Input Text
-
-| Entity | Purpose | Default |
-|--------|---------|---------|
-| `input_text.origin_address` | Origin location storage | `zone.home` |
-| `input_text.destination_address` | Destination location storage | Empty |
-
-### Sensors
-
-| Entity | Description | Source |
-|--------|-------------|--------|
-| `sensor.origin_address` | Display name of origin | Template |
-| `sensor.destination_address` | Display name of destination | Template |
-| `sensor.google_travel_time_by_car` | Travel time with traffic | Google Travel Time |
-
-### Scripts
-
-| Entity | Description |
-|--------|-------------|
-| `script.calculate_travel` | Calculate travel time between locations |
-
----
-
-## Data Flow Summary
-
-```mermaid
-flowchart TB
-    subgraph UserInput["👤 User Input"]
-        UI1["Script Call<br/>origin + destination"]
-    end
-
-    subgraph Storage["💾 Input Storage"]
-        IT1["input_text.origin_address"]
-        IT2["input_text.destination_address"]
-    end
-
-    subgraph Resolution["🔍 Name Resolution"]
-        R1{"Zone?"} -->|Yes| R2["Get friendly_name"]
-        R1 -->|No| R3{"Person?"}
-        R3 -->|Yes| R2
-        R3 -->|No| R4["Use raw value"]
-    end
-
-    subgraph Google["🌍 Google API"]
-        G1["Update Entity Call"]
-        G2["Directions API Request"]
-        G3["Traffic Data"]
-    end
-
-    subgraph Output["📊 Output"]
-        O1["Journey Response Object"]
-        O2["Home Log Entry"]
-    end
-
-    UI1 --> IT1
-    UI1 --> IT2
-    IT1 --> Resolution
-    IT2 --> Resolution
-    IT1 --> G1
-    IT2 --> G1
-    G1 --> G2
-    G2 --> G3
-    G3 --> O1
-    Resolution --> O1
-    O1 --> O2
-```
-
----
-
-## Usage Examples
-
-### Basic Travel Calculation
+## Example
 
 ```yaml
 action: script.calculate_travel
 data:
-  destination: "London Bridge Station"
+  origin: zone.home
+  destination: person.danny
+response_variable: journey
 ```
 
-### From Specific Origin
+## Troubleshooting
 
-```yaml
-action: script.calculate_travel
-data:
-  origin: "zone.work"
-  destination: "Heathrow Airport Terminal 5"
-```
-
-### Using Person Location
-
-```yaml
-action: script.calculate_travel
-data:
-  origin: "person.danny"
-  destination: "zone.home"
-```
-
-### In Automations
-
-```yaml
-automation:
-  - alias: "Morning Commute Check"
-    trigger:
-      - platform: time
-        at: "07:30:00"
-    action:
-      - action: script.calculate_travel
-        data:
-          origin: "zone.home"
-          destination: "zone.work"
-      - action: notify.mobile_app_phone
-        data:
-          message: "Commute time: {{ states('sensor.google_travel_time_by_car') }} mins"
-```
-
----
+| Issue | Check |
+|-------|-------|
+| Script returns 0 minutes | `sensor.google_travel_time_by_car` state and API response. |
+| Friendly names are blank | The supplied `zone.*` or `person.*` entity must exist. |
+| Travel sensor does not update | Google Travel Time integration, API key/billing, and input text states. |
+| Destination missing | The script field is marked required, but direct service calls can still pass an empty destination. |
 
 ## Related Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [Integrations Overview](README.md) | Overview of all integration packages |
-| [Main Packages README](../README.md) | Architecture and organization guidelines |
+| [Transport README](README.md) | Parent transport package overview. |
+| [Google Travel folder README](google_travel/README.md) | Short package-local reference. |
+| [Tesla](tesla_README.md) | Vehicle telemetry that may use travel/routing context. |
 
-### Related Integrations
-
-| Integration | Connection |
-|-------------|------------|
-| [Tesla](./tesla.yaml) | Vehicle location for travel calculations |
-| [Home Assistant Location](../../shared_helpers.yaml) | Person/zone location helpers |
-
-### External Documentation
-
-- [Home Assistant Google Travel Time](https://www.home-assistant.io/integrations/google_travel_time/)
-- [Google Maps Directions API](https://developers.google.com/maps/documentation/directions/overview)
-
----
-
-## Maintenance Notes
-
-### Troubleshooting
-
-| Issue | Check |
-|-------|-------|
-| "Unknown" travel time | API key validity, billing status |
-| Wrong origin/destination | input_text entity states |
-| No traffic data | API key has Directions API enabled |
-| Script fails | Destination field is required |
-
-### API Limits
-
-- Free tier: $200 credit/month (approximately 40,000 requests)
-- Monitor usage in Google Cloud Console
-- Consider caching for frequent routes
-
----
-
-*Last updated: 2026-04-05*
+*Last updated: 2026-06-27*

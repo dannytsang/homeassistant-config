@@ -1,453 +1,315 @@
 # Office Setup Documentation
 
-**Created:** 2026-01-24
-**Room:** Office (Danny's Work/Gaming Space)
-**Focus:** Smart Automation, Streaming, Gaming Integration
+**Room:** Office, work, gaming, and streaming space
+**YAML files:** `office.yaml`, `steam.yaml`
+**Last updated:** 2026-06-27
 
----
+This guide explains what is installed in the office and how the automations are expected to behave. It is written for someone using the room first, then gives enough detail for a Home Assistant power user to troubleshoot or tune the YAML.
 
 ## Device Inventory
 
-| Category | Device | Type | Function |
-|----------|--------|------|----------|
-| **Lighting** | light.office_2, 3, 4 | Color Temperature Lights | Main ambient/desk lighting with brightness & color control |
-| | light.office_light | RGB Light | Status indicator (notifications, PC off, door open) |
-| | light.office_key_lights | Streaming Light | Illumination for video/streaming |
-| **Motion** | binary_sensor.office_motion_2 | Motion Detector | Detects presence in room |
-| | sensor.office_motion_2_target_distance | Proximity Sensor | Distance-based motion detection |
-| **Environment** | sensor.office_motion_2_illuminance | Light Sensor | Measures ambient brightness |
-| | sensor.office_area_mean_temperature | Thermometer | Room temperature monitoring |
-| | binary_sensor.office_windows | Window Sensor | Detects open/closed state |
-| **Climate** | switch.office_fan | Smart Fan | Temperature-controlled ventilation |
-| **Window** | cover.office_blinds | Motorized Blinds | Tilt control (0-50 position) |
-| **Computer** | group.jd_computer | PC Group | Tracks personal PC power state |
-| | group.dannys_work_computer | PC Group | Tracks work PC power state |
-| | switch.external_hdd | Storage Device | External backup drive |
-| | sensor.steam_danny | Gaming Tracker | Game detection via Steam |
-| **Other** | switch.fly_zapper | Pest Control | Auto-shuts off after 2 hours |
-| | Remote Control | MQTT Device | Toggle key lights & fan |
+```mermaid
+flowchart TB
+    subgraph Room[Office]
+        Desk[Desk and computers]
+        WindowArea[Window and blinds]
+        Ceiling[Ceiling fan and main light]
+        CameraLights[Elgato key lights]
+        MotionSensor[Motion, distance, illuminance sensor]
+        Door[Office door contact]
+        Remote[MQTT remote]
+    end
 
----
-
-## Automation Functions
-
-### 🔆 Motion-Based Lighting
-
-**Triggers:** Motion detected or proximity sensor activation
-
-**Logic:**
-- Detects motion → checks brightness level
-- **Bright outside**: Skips turning on lights
-- **Dark**: Turns on main lights (office_2, office_3 at full brightness)
-- **Already on but not bright enough**: Increases brightness
-- Cancels light-off timers on re-detection
-- Turns off after 3 minutes no motion (1 min detection + 1 min timer + 1 min additional)
-
-**Related Automations:**
-- `ID 1606428361967` - Motion Detected
-- `ID 1587044886896` - No Motion Detected
-- `ID 1587044886897` - Office Light Off Timer Finished
-
----
-
-### 🌡️ Temperature Control
-
-**Triggers:** Temperature thresholds reached
-
-**Priority Levels:**
-1. **26°C+**: Auto-on if daytime (8:30-22:00) & people home
-2. **29°C+**: Warning notification with manual toggle option
-3. **31°C+**: Emergency override - forces fan on immediately
-
-**Safety Features:**
-- **3:00 AM Shutdown**: Force fan off (overnight safety)
-- Prevents fan from running indefinitely
-- Escalating notification strategy
-
-**Related Automations:**
-- `ID 1622584959878` - High Temperature
-- `ID 1728046359271` - Fan Turns Off at 3am
-
----
-
-### 🪟 Intelligent Blind Management
-
-**Schedule-Based Control:**
-- **8:00 AM**: Opens blinds (with brightness & computer state checks)
-- **Sunset**: Partially closes to 25% tilt
-- **Sunset +1 hour**: Fully closes (0% tilt)
-
-**Brightness-Based Control:**
-- **Very Bright**: Fully closes blinds
-- **Medium Bright**: Tilt to 25%
-- **Dark**: Opens to 50%
-
-**Sun Position Tracking:**
-- **Morning Sun (8:10+)**: Tracks azimuth to avoid direct glare
-- **Afternoon Sun**: Closes if sun in view + room is dark
-- Uses both azimuth and elevation angles
-
-**Safety Features:**
-- **Window Open**: Blocks blind closure (prevents damage)
-- **Computer Offline**: Opens blinds
-- Responsive to external conditions
-
-**Related Automations:**
-- `ID 1622374444832` - Open Blinds In The Morning
-- `ID 1622374233312` - Partially Close Office Blinds At Sunset
-- `ID 1622374233310` - Fully Close Office Blinds At Night
-- `ID 1622666920056` - Window Closed At Night
-- `ID 1680528200295` - No Direct Sun Light In The Morning
-- `ID 1680528200297` - No Direct Sun Light In The Afternoon
-- `ID 1678300398737` - Bright Outside
-- `ID 1678300398736` - Really Bright Outside
-- `ID 1678637987424` - Outside Went Darker
-
----
-
-### 💻 Computer Integration
-
-**PC Status Tracking:**
-- Personal PC (JD Computer)
-- Work PC (Danny's Work Computer)
-- Steam game detection
-
-**Computer ON (1 min):**
-- Activates goXLR audio mixer
-- Runs brightness check script
-- Adjusts blinds if needed
-
-**Computer OFF (1 min):**
-- Turns off key lights
-
-**Computer OFF (5 min):**
-- Opens blinds (if daytime & sunny)
-
-**Computer OFF (10 min):**
-- Turns off external HDD backup drive
-- Powers down EcoFlow plug
-
-**Gaming Detection:**
-- Monitors Steam for specific games (e.g., ARC Raiders)
-- Automatically closes blinds when gaming
-- Prevents screen glare during gameplay
-
-**Uptime Tracking:**
-- Daily uptime statistics
-- Weekly uptime statistics
-- Monthly (30-day) uptime statistics
-- Yesterday's uptime
-
-**Related Automations:**
-- `ID 1619865008647` - Computer Turned On
-- `ID 1606256309890` - Computer Turned Off For A Period Of Time
-- `ID 1678741966796` - Computer Turned Off
-- `ID 1678741966794` - Computer Turned Off After Sunrise
-- `ID 1768737131768` - Playing Computer Games
-
----
-
-### 🎮 Streaming & Gaming Features
-
-**Remote Control:**
-- MQTT-based remote with 2 buttons
-- Button 1 (open): Toggle key lights
-- Button 2 (close): Toggle fan
-
-**Status Light Notifications (office_light RGB):**
-- 🟢 Green: Door open
-- 🔵 Blue: Front door open (secondary notification)
-- 🟣 Purple: Front garden motion detected
-- 🔴 Red: PC off notification
-
-**Key Light Control:**
-- Toggles via remote or automation
-- Used for streaming/video recording
-- Brightness and color adjustable
-
-**Scene Integration:**
-- PC turned off notification scenes
-- Light notification scenes
-- Doorbell notification scene
-
-**Related Automations:**
-- `ID 1722108194998` - Remote Keylight
-- `ID 1722108194999` - Remote Fan
-
----
-
-### 🔌 Smart Device Controls
-
-**External Backup Drive:**
-- Powers down when PC off for 10+ minutes
-- Prevents unnecessary power consumption
-- Extends drive lifespan
-
-**EcoFlow Plug Management:**
-- Controlled via script when PC off
-- Smart power management
-
-**Fly Zapper:**
-- Auto-shutoff after 2 hours
-- Prevents accidental extended operation
-- Saves power and extends bulb life
-
-**Light Status Monitor:**
-- Front door status light turns off after 3 minutes
-- Prevents notification spam
-- Auto-reset after status changes
-
-**Related Automations:**
-- `ID 1721434316175` - Fly Zapper
-- `ID 1743186662871` - Front Door Status On For Long Time
-- Custom scripts for device management
-
----
-
-## Room Layout & Device Placement
-
-```
-                         NORTH (Morning Sun)
-    ╔═══════════════════════════════════════════════════════╗
-    ║                                                       ║
-    ║  🪟 Window           🪟 Window (Sensor)              ║
-    ║  (Cover Office      ┌─────────────┐                  ║
-    ║   Blinds)           │  Motorized  │                  ║
-    ║  ▼ ▼ ▼ ▼ ▼        │  Blinds     │                  ║
-    ║                     │  (Tilt 0-50)│                  ║
-    ║  ┌─────────────┐    └─────────────┘                  ║
-    ║  │   Desk      │                                      ║
-    ║  │  Setup      │    💡 office_2   💡 office_3        ║
-    ║  │             │    (Main Lights - Color Temp)       ║
-    ║  └──┬──────────┘                                      ║
-    ║     │                                                  ║
-    ║  ┌──┴─────────────────────┐                           ║
-    ║  │  PC Monitors           │  🌡️ Temperature          ║
-    ║  │  (JD's Computer)       │     Sensor               ║
-    ║  │                        │                           ║
-    ║  │ 💻 External HDD        │  📏 office_motion_2      ║
-    ║  │    Backup Drive        │     (Proximity +          ║
-    ║  │                        │      Illuminance)         ║
-    ║  └────────────────────────┘                           ║
-    ║                                                       ║
-    ║  🎙️  GoXLR Audio Mixer                               ║
-    ║  🖥️  Work Computer (Separate PC)                      ║
-    ║  💡 office_key_lights (Streaming/RGB)                ║
-    ║  🎮 Steam Game Detection                             ║
-    ║  📡 Remote Control (MQTT)                            ║
-    ║                                                       ║
-    ║  💡 office_light (Status Light - RGB)                ║
-    ║     Status Indicators:                               ║
-    ║     - Green: Door Open                               ║
-    ║     - Blue: Door Open (Different notification)       ║
-    ║     - Purple: Motion Detected                        ║
-    ║     - Red: PC Off Notification                       ║
-    ║                                                       ║
-    ║  💨 office_fan                                        ║
-    ║     (Temp-controlled, >26°C auto-on)                 ║
-    ║                                                       ║
-    ║  🪰 Fly Zapper                                        ║
-    ║     (Auto-off after 2 hours)                          ║
-    ║                                                       ║
-    ╚═══════════════════════════════════════════════════════╝
-           SOUTH (Afternoon Sun - Higher Azimuth)
+    Desk --> PCGroups[group.jd_computer and group.dannys_work_computer]
+    Desk --> ExternalHDD[switch.external_hdd]
+    Desk --> Steam[sensor.steam_danny]
+    WindowArea --> Blinds[cover.office_blinds]
+    WindowArea --> WindowSensor[binary_sensor.office_windows]
+    Ceiling --> MainLight[light.office_ceiling_fan]
+    Ceiling --> Fan[fan.office_ceiling_fan]
+    CameraLights --> KeyLights[light.office_key_lights]
+    MotionSensor --> Presence[binary_sensor.office_motion_2_presence]
+    MotionSensor --> Distance[sensor.office_motion_2_target_distance]
+    MotionSensor --> Lux[sensor.office_motion_2_illuminance]
+    Door --> DoorHelper[input_boolean.alarm_office_door]
+    Remote --> KeyLights
+    Remote --> Fan
 ```
 
----
+| Category | Entity | Role |
+|----------|--------|------|
+| Main light | `light.office_ceiling_fan` | Main office light, controlled by motion scenes and bright-room logic. |
+| Key lights | `light.office_key_lights`, `light.elgato_key_light_left`, `light.elgato_key_light_right` | Streaming/video lighting, manually toggled by MQTT remote. |
+| Motion | `binary_sensor.office_motion_2_presence` | Main presence signal for motion lighting. |
+| Distance | `sensor.office_motion_2_target_distance` | mmWave-style distance signal used to start and cancel no-motion handling. |
+| Room brightness | `sensor.office_motion_2_illuminance`, `sensor.office_area_mean_light_level` | Decides whether lights are needed. |
+| Outdoor brightness | `sensor.front_garden_motion_illuminance` | Shared brightness source for blind glare decisions. |
+| Temperature | `sensor.office_area_mean_temperature` | Drives automatic fan behavior. |
+| Fan | `fan.office_ceiling_fan` | Cooling fan controlled by temperature, remote, and overnight shutoff automations. |
+| Blinds | `cover.office_blinds` | Motorized tilt blinds, using 0, 25, and 50 percent tilt positions. |
+| Window | `binary_sensor.office_windows` | Prevents blind closure while the window is open. |
+| Personal PC | `group.jd_computer` | Main PC presence group for work/gaming routines. |
+| Work PC | `group.dannys_work_computer` | Work computer presence group. |
+| Backup drive | `switch.external_hdd` | Turned off when the personal PC has been off for a while. |
+| Steam | `sensor.steam_danny` | Steam online and game activity source. |
+| Fly zapper | `switch.fly_zapper` | Turns itself off after 2 hours. |
+| Office door | `binary_sensor.office_door_contact`, `input_boolean.alarm_office_door` | Simple door-arm helper and logging. |
+| House alarm | `alarm_control_panel.house_alarm` | Used by office motion alarm logging. |
 
-## Key Automation Workflows
+## What Users Should Expect
 
-### Morning Routine (8:00 AM)
-
-```
-Blind Opening Logic:
-├─ Check brightness (front garden illuminance)
-├─ Check if computers are on (work/personal)
-├─ If VERY BRIGHT: Keep blinds closed (avoid glare)
-├─ If MEDIUM BRIGHT: Open to 25% tilt
-└─ If DARK: Fully open (50% tilt)
-```
-
-**Decision Tree:**
-1. Is it sunrise? → Continue
-2. Is it after 8:00 AM? → Continue
-3. Are computers on? → Factor in
-4. Check external brightness levels
-5. Check sun position (azimuth/elevation)
-6. Apply appropriate blind tilt
-
----
-
-### During Work (Computer On)
-
-```
-Active Workflow:
-├─ Lights auto-adjust with motion
-│   ├─ Motion on: Brightness check
-│   ├─ Motion off: 2 min wait → 1 min timer → Off
-│   └─ Brightness-aware: Skip if room is bright
-├─ Blinds respond to sun position & brightness
-│   ├─ Morning sun (azimuth <X): Avoid glare
-│   ├─ Afternoon sun (azimuth >X): Close if needed
-│   └─ Responsive to brightness thresholds
-├─ Temperature fan activates if >26°C
-│   ├─ Daytime priority
-│   ├─ Emergency override at 31°C
-│   └─ Notification at 29°C
-├─ If gaming detected: Close blinds (reduce glare)
-├─ GoXLR audio mixer: Active
-├─ Key lights: Available for streaming
-└─ Status light: Shows current notifications
+```mermaid
+journey
+    title Typical Office Day
+    section Morning
+      Blinds decide open, partial, or closed: 4: Home Assistant
+      Computer starts and brightness check runs: 4: Home Assistant
+    section Working
+      Motion lighting responds only when dark: 5: Home Assistant
+      Blinds adjust for glare: 4: Home Assistant
+      Fan turns on if the room gets hot: 4: Home Assistant
+    section Gaming or Streaming
+      Steam game can close blinds: 4: Home Assistant
+      Remote toggles key lights and fan: 5: User
+    section Evening
+      Blinds partially close at sunset: 5: Home Assistant
+      Blinds fully close one hour later: 5: Home Assistant
+      Fan is stopped overnight: 4: Home Assistant
 ```
 
----
+| Situation | Expected Office Behavior |
+|-----------|--------------------------|
+| You walk into a dark office | The main light turns on and the light-off timer is cancelled. |
+| You walk into a bright office | The system logs that light was skipped rather than turning on unnecessary lighting. |
+| You leave the office | After 2 minutes of no presence plus a 1-minute timer, the main light turns off. |
+| The room gets hot | The fan turns on automatically at 26 C when someone is home during the day. At 29 C it can notify Danny. At 31 C it can force the fan on. |
+| It is morning | Blinds open, partially open, or stay closed depending on brightness and active computers. |
+| It is sunset | Blinds partially close, then fully close one hour later. |
+| The window is open | Blind closure is skipped to avoid damage or awkward movement. |
+| The personal PC turns on | A brightness check runs and logs GoXLR activity. |
+| The personal PC has been off for 10 minutes | Backup-drive and EcoFlow shutdown scripts run. |
+| Steam starts a tracked game | The blinds close if they are open enough to create glare. |
+| The fly zapper is left on | It turns itself off after 2 hours. |
+| The remote open button is pressed | Office key lights toggle. |
+| The remote close button is pressed | The office fan toggles. |
 
-### After Work (Computer Off)
+## Key Workflows
 
+### Motion Lighting
+
+```mermaid
+flowchart TD
+    A[Motion or target distance detected] --> B{Motion triggers enabled?}
+    B -->|No| C[Do nothing]
+    B -->|Yes| D[Cancel office_lights_off timer]
+    D --> E{Room dark enough?}
+    E -->|Yes| F[Turn on scene.office_main_light_on]
+    E -->|No| G[Log that lights are skipped]
+    H[No target distance for 2 minutes and presence off] --> I[Start 1 minute timer]
+    I --> J[Timer finished]
+    J --> K[Turn on scene.office_main_light_off]
 ```
-Shutdown Sequence:
-├─ At 1 min: Turn off key lights
-├─ At 5 min: Open blinds (if daytime & sunny)
-├─ At 10 min:
-│   ├─ Turn off external HDD
-│   ├─ Turn off EcoFlow plug
-│   └─ GoXLR mixer off
-└─ Lights continue: Motion-based control
+
+Power-user details:
+
+| Setting | Value |
+|---------|-------|
+| Main enable helper | `input_boolean.enable_office_motion_triggers` |
+| Presence trigger | `binary_sensor.office_motion_2_presence` to `on` |
+| Distance trigger | `sensor.office_motion_2_target_distance` above `0.1` |
+| No-motion trigger | `sensor.office_motion_2_target_distance` below `0.01` for 2 minutes and presence off |
+| Off timer | `timer.office_lights_off`, started for 1 minute |
+| Brightness threshold | `input_number.office_light_level_threshold` |
+
+### Temperature And Fan
+
+The office fan is controlled by temperature and also has two overnight safety shutoffs.
+
+```mermaid
+flowchart TD
+    Temp[Temperature trigger] --> FanState{fan.office_ceiling_fan off?}
+    FanState -->|No| Done[Do nothing]
+    FanState -->|Yes| PeopleHome{group.tracked_people home?}
+    PeopleHome -->|Yes| Daytime{08:30 to 22:00?}
+    Daytime -->|Yes| AutoOn[Above 26 C: turn fan on]
+    Daytime -->|No| Emergency{Above 31 C?}
+    PeopleHome -->|No| Emergency
+    Emergency -->|Yes| ForceOn[Emergency fan on]
+    Emergency -->|No| Warn{Above 29 C?}
+    Warn -->|Yes| Notify[Ask Danny whether to turn fan on]
+    Warn -->|No| Done
 ```
 
----
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Office: High Temperature` | Temperature above 26 C, 29 C for 1 minute, or 31 C for 1 minute | Runs a tiered `choose` block that can turn on the fan or notify Danny. |
+| `Office: Turn Off Fan Overnight` | 02:00 | Turns off `fan.office_ceiling_fan`. |
+| `Office: Fan Turns Off at 3am` | 03:00 | Turns off `fan.office_ceiling_fan` via `switch.turn_off`. |
 
-### Evening (Sunset)
+The 26 C branch is first. If someone is home between 08:30 and 22:00 and the fan is off, it turns the fan on before the later warning/emergency branches are considered.
 
+### Blind Management
+
+Tilt positions used by the package:
+
+```mermaid
+flowchart LR
+    Closed[0 percent closed] --> Partial[25 percent partial]
+    Partial --> Open[50 percent open]
+    Open --> Partial
+    Partial --> Closed
+
+    Morning[Morning routine] --> Open
+    MediumBright[Moderately bright with computer active] --> Partial
+    VeryBright[Very bright with computer active] --> Closed
+    Sunset[Sunset] --> Partial
+    Night[Sunset plus 1 hour] --> Closed
+    Darker[Outside went darker] --> Open
 ```
-Evening Routine:
-├─ At Sunset: Partial close to 25% tilt
-│   └─ Check: Window sensor (don't close if open)
-├─ At Sunset +1 hour: Full close (0% tilt)
-│   └─ Check: Window sensor (safety)
-├─ Temperature management:
-│   ├─ If >26°C: Keep fan on
-│   └─ At 3:00 AM: Force fan off (sleep safety)
-└─ Lights: Motion sensors still active
+
+| Tilt Position | Meaning |
+|---------------|---------|
+| `0` | Closed |
+| `25` | Partial tilt for glare/privacy |
+| `50` | Open |
+
+The blind system combines time, sun position, outdoor brightness, window state, and computer state.
+
+| Trigger | Behavior |
+|---------|----------|
+| 08:00 | Morning routine decides between closed, 25 percent, and 50 percent based on brightness and whether a computer is on. |
+| Sunset | Partially closes to 25 percent if the window is closed. |
+| Sunset plus 1 hour | Fully closes to 0 percent if the window is closed. |
+| Window closes at night | Closes blinds if earlier closure was skipped because the window was open. |
+| Sun moves past morning threshold | Opens blinds after direct morning sun is no longer a glare problem. |
+| Sun crosses afternoon thresholds | Opens blinds after afternoon direct sun is no longer a glare problem. |
+| Outdoor brightness rises | Partially or fully closes blinds when a computer is active. |
+| Outdoor brightness drops | Opens blinds when glare is no longer likely. |
+
+Power-user tuning helpers:
+
+| Helper | Purpose |
+|--------|---------|
+| `input_boolean.enable_office_blind_automations` | Master switch for blind automation. |
+| `input_number.blind_low_brightness_threshold` | Lower outdoor brightness threshold. |
+| `input_number.blind_high_brightness_threshold` | High outdoor brightness threshold. |
+| `input_number.office_blinds_morning_sun_azimuth_threshold` | Morning sun position threshold. |
+| `input_number.office_blinds_afternoon_sun_azimuth_threshold` | Afternoon sun azimuth threshold. |
+| `input_number.office_blinds_afternoon_sun_elevation_threshold` | Afternoon sun elevation threshold. |
+
+### Computer And Steam
+
+```mermaid
+flowchart LR
+    Off1[PC off plus 1 minute] --> Monitor[If work PC is also off, log monitor-light shutdown]
+    Monitor --> Off5[PC off plus 5 minutes]
+    Off5 --> Blinds[During daytime, open blinds when blind automations are enabled]
+    Blinds --> Off10[PC off plus 10 minutes]
+    Off10 --> PowerDown[Turn off external HDD and EcoFlow office plug]
 ```
 
----
+```mermaid
+flowchart TD
+    SteamGame[sensor.steam_danny game attribute changes] --> Notifications{Steam notifications enabled?}
+    Notifications -->|Yes| LogGame[Log current Steam game and image]
+    Notifications -->|No| NoLog[Skip Steam logging]
+    SteamGame --> TrackedGame{Game is ARC Raiders?}
+    TrackedGame -->|Yes| PCHome{group.jd_computer home?}
+    PCHome -->|Yes| BlindsOpen{cover.office_blinds above 50?}
+    BlindsOpen -->|Yes| CloseBlinds[Close blinds for glare reduction]
+    BlindsOpen -->|No| NoClose[Leave blinds as-is]
+    PCHome -->|No| NoClose
+    TrackedGame -->|No| NoClose
+```
 
-## Configuration Parameters
+| Event | Automation | Behavior |
+|-------|------------|----------|
+| Personal PC comes online | `Office: Computer Turned On` | Logs GoXLR activity and runs `script.office_check_brightness`. |
+| Personal PC goes offline for 1 minute | `Office: Computer Turned Off` | Logs monitor-light shutdown if the work computer is also off. |
+| Personal PC goes offline for 5 minutes during daytime | `Office: Computer Turned Off After Sunrise` | Opens blinds if blind automation is enabled. |
+| Personal PC goes offline for 10 minutes | `Office: Computer Turned Off For A Period Of Time` | Runs backup-drive and EcoFlow shutdown scripts. |
+| Steam game changes to `ARC Raiders` | `Office: Playing Computer Games` | Closes blinds if the personal PC is home and blinds are more than 50 percent open. |
+| Steam status changes | `Steam: Status Change` | Logs Steam status when Steam notifications are enabled. |
+| Steam game attribute changes | `Steam: Playing Game` | Logs the current game and image when Steam notifications are enabled. |
 
-### Temperature Thresholds
-- `sensor.office_area_mean_temperature`
-- Warning: 26°C (auto-on if daytime)
-- Alert: 29°C (notification)
-- Emergency: 31°C (override)
+### Remote And Device Controls
 
-### Brightness Thresholds
-- `input_number.office_light_level_threshold` - Motion trigger level
-- `input_number.blind_low_brightness_threshold` - Partial opening
-- `input_number.blind_high_brightness_threshold` - Closing level
+| Device | Automation | Behavior |
+|--------|------------|----------|
+| MQTT remote open action | `Office: Remote Keylight` | Toggles `light.office_key_lights`. |
+| MQTT remote close action | `Office: Remote Fan` | Toggles `fan.office_ceiling_fan`. |
+| Fly zapper | `Office: Fly Zapper` | Turns `switch.fly_zapper` off after 2 hours. |
+| External HDD | `script.office_turn_off_backup_drive` | Turns `switch.external_hdd` off when the personal PC is not home. |
 
-### Sun Position Thresholds
-- `input_number.office_blinds_morning_sun_azimuth_threshold` - Morning sun angle
-- `input_number.office_blinds_afternoon_sun_azimuth_threshold` - Afternoon sun angle
-- `input_number.office_blinds_afternoon_sun_elevation_threshold` - Sun elevation
+### Alarm Helpers
 
-### Time Schedules
-- Motion detection: 2 minutes no-motion delay
-- Light-off timer: 1 minute
-- Blind opening: 8:00 AM
-- Partial close: At sunset
-- Full close: Sunset +1 hour
-- Fan shutdown: 3:00 AM
-- PC off detection: 1, 5, 10 minutes
+| Automation | Behavior |
+|------------|----------|
+| `Office: Alarm Armed Home Mode & Motion Detected` | Logs office motion when the alarm is armed home. |
+| `Office: Arm Office Door` | Arms the office door only if the contact sensor says it is closed. |
+| `Office: Trigger Armed Door` | Logs an opened armed door and turns off the arm helper. |
 
----
+## Scenes
 
-## Helper Entities
+| Scene | Purpose |
+|-------|---------|
+| `scene.office_main_light_on` | Bright main ceiling light. |
+| `scene.office_main_light_off` | Main ceiling light off. |
+| `scene.office_dim_main_lights` | Very dim warm main light. |
+| `scene.office_turn_off_all_lights` | Ceiling fan light and key lights off. |
+| `scene.office_sun_light` | Older daylight-style office light scene. |
+| `scene.office_doorbell_notification` | Green notification scene. |
+| `scene.office_front_door_open_notification` | Blue notification scene. |
+| `scene.office_front_garden_motion_notification` | Purple notification scene. |
 
-### Input Booleans
-- `input_boolean.enable_office_motion_triggers` - Enable/disable motion lighting
-- `input_boolean.enable_office_blind_automations` - Enable/disable blind automations
+Referenced but not defined in `office.yaml`:
 
-### Timers
-- `timer.office_lights_off` - 1-minute light-off timer
-
-### Groups
-- `group.jd_computer` - Personal PC devices
-- `group.dannys_work_computer` - Work PC devices
-
----
+| Scene | Used By |
+|-------|---------|
+| `scene.office_room_brightness_above_threshold` | `Office: Light On And Bright Room` |
 
 ## Scripts
 
-### Blind Control
-- `office_open_blinds` - Opens blinds to 50% tilt
-- `office_close_blinds` - Fully closes blinds (0% tilt)
-- `office_check_brightness` - Checks brightness and adjusts blinds accordingly
+| Script | What It Does |
+|--------|--------------|
+| `script.office_turn_off_backup_drive` | Safely turns off the external HDD when the personal PC is no longer home. |
+| `script.office_check_brightness` | If glare conditions match, sets blinds to 25 percent tilt. |
+| `script.office_open_blinds` | Sets blinds to 50 percent tilt. |
+| `script.office_close_blinds` | Sets blinds to 0 percent tilt. |
+| `script.ecoflow_office_turn_off_plug` | External dependency used when the personal PC has been off for 10 minutes. |
 
-### Device Management
-- `office_turn_off_backup_drive` - Powers down external HDD
-- `ecoflow_office_turn_off_plug` - Powers down EcoFlow outlet
-- `office_pc_turned_off_notification` - Lights notification sequence
+## Sensors Created By The Package
 
----
+| Sensor | Tracks | Period |
+|--------|--------|--------|
+| PC Uptime Today | `group.jd_computer` | Today from midnight |
+| PC Uptime Last 24 Hours | `group.jd_computer` | Rolling 24 hours |
+| PC Uptime Yesterday | `group.jd_computer` | Previous day |
+| PC Uptime This Week | `group.jd_computer` | Current week from Monday |
+| PC Uptime Last 30 Days | `group.jd_computer` | Rolling 30 days |
+| Work Computer Uptime Today | `group.dannys_work_computer` | Today from midnight |
+| Work Computer Uptime Yesterday | `group.dannys_work_computer` | Previous day |
+| Work Computer Uptime This Week | `group.dannys_work_computer` | Current week from Monday |
+| Work Computer Uptime Last 30 Days | `group.dannys_work_computer` | Rolling 30 days |
 
-## Sensors
+## Troubleshooting
 
-### PC Uptime Tracking
-- PC Uptime Today (today's hours)
-- PC Uptime Last 24 Hours
-- PC Uptime Yesterday
-- PC Uptime This Week
-- PC Uptime Last 30 Days
-- Work Computer Uptime Today
-- Work Computer Uptime Yesterday
-- Work Computer Uptime This Week
-- Work Computer Uptime Last 30 Days
+| Problem | Check |
+|---------|-------|
+| Motion lights do not turn on | `input_boolean.enable_office_motion_triggers`, room illuminance, threshold value, and whether the light is already bright. |
+| Motion lights do not turn off | `binary_sensor.office_motion_2_presence`, `sensor.office_motion_2_target_distance`, and `timer.office_lights_off`. |
+| Blinds do not move | `input_boolean.enable_office_blind_automations`, `binary_sensor.office_windows`, current tilt position, and sun/brightness thresholds. |
+| Blinds close unexpectedly | Outdoor brightness thresholds, active computer state, and sun azimuth/elevation threshold values. |
+| Fan does not turn on automatically | Temperature sensor, `group.tracked_people`, time of day, and whether `fan.office_ceiling_fan` is already on. |
+| Steam messages do not appear | `input_boolean.enable_steam_notifications`, `sensor.steam_danny`, and the Steam integration. |
+| Remote buttons do nothing | MQTT device availability and the device action subtypes `open` and `close`. |
 
----
+## File Summary
 
-## Status Indicators
-
-### RGB Status Light (light.office_light)
-
-**Notification Scenes:**
-- Doorbell notification: Green (Green RGB)
-- PC off notification: Purple (Purple RGB)
-- Front door open: Blue (Blue RGB)
-- Front garden motion: Purple (Purple RGB)
-- Door closed notification: Off
-- Auto-timeout: 3 minutes
-
----
-
-## Key Features
-
-✅ **Adaptive Lighting** - Brightness-aware motion response
-✅ **Climate Control** - Graduated temperature alerts (26°C warning → 31°C emergency)
-✅ **Sun Tracking** - Avoids glare based on sun azimuth & elevation
-✅ **PC Integration** - Game detection, uptime tracking, auto-shutdown helpers
-✅ **Streaming Ready** - Key lights, audio mixer, remote controls
-✅ **Status Notifications** - RGB indicator light for multiple events
-✅ **Safety Features** - Window sensor blocks blind closure, emergency fan override
-✅ **Gaming Optimized** - Auto-closes blinds when gaming, reduces glare
-✅ **Remote Control** - MQTT-based buttons for key lights & fan
-✅ **History Tracking** - PC uptime statistics (daily/weekly/monthly)
-
----
-
-## File Structure
-
-```
-packages/rooms/office/
-├── office.yaml          # Main automation configuration
-├── OFFICE-SETUP.md      # This file - Room documentation
-└── [future sub-files]
-```
-
----
-
-**Last Updated:** 2026-01-24
-**Documentation Version:** 1.0
-**Automation Count:** 24
-**Device Count:** 18
-**Configuration Files:** 1 main + reference docs
+| Metric | Count |
+|--------|-------|
+| YAML files | 2 |
+| Automations | 29 |
+| Scenes | 8 |
+| Scripts | 4 |
+| Sensors | 9 |

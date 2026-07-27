@@ -1,279 +1,155 @@
-# 🛁 Bathroom
+[<- Back to Rooms README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-Smart bathroom automation with motion-based lighting, humidity monitoring, and toothbrush integration.
+# Bathroom Package Documentation
 
-## Overview
+The bathroom package handles hands-off lighting and ventilation. It turns the light on when motion is detected and the room is not considered too bright, delays light-off after motion stops, runs the fan for long visits or high humidity, and flashes the light when Danny's toothbrush session passes five minutes.
 
-The bathroom automation provides intelligent lighting control based on motion detection, ambient light levels, and door status. It includes humidity monitoring with mold prevention alerts and integrates with smart toothbrushes for automated light control during brushing sessions.
+## Quick Summary
+
+For non-technical users, the important behavior is:
+
+| Area | What Happens |
+|------|--------------|
+| Motion lighting | Motion can turn on `switch.bathroom_lights_2`; no motion starts a light-off timer unless the bathroom door is closed. |
+| Brightness check | If the lights are off but the room is above `input_number.bathroom_light_level_threshold`, motion is logged and the lights stay off. |
+| Fan control | The fan turns on after the light has been on for 5 minutes, or when humidity is high enough. |
+| Humidity safety | High humidity can turn the fan on or notify Danny and Terina depending on the automation master switch and sensor states. |
+| Toothbrush cue | Danny's toothbrush passing 300 seconds briefly turns the bathroom light off and back on. |
+
+## Package Contents
+
+| File | Purpose | Contents |
+|------|---------|----------|
+| `bathroom.yaml` | Bathroom lighting, fan, humidity, toothbrush, and mould-risk sensor | 9 automations, 1 script, 1 sensor |
+
+## How The Bathroom Decides What To Do
 
 ```mermaid
 flowchart TB
-    subgraph Sensors["🎛️ Sensors"]
-        MOTION[Motion Sensors\nbinary_sensor.bathroom_motion_pir\nbinary_sensor.bathroom_motion_2_occupancy]
-        DOOR[Door Contact\nbinary_sensor.bathroom_door_contact]
-        WINDOW[Window Contact\nbinary_sensor.bathroom_window_contact]
-        LIGHT_LEVEL[Light Level\nsensor.bathroom_area_mean_light_level]
-        HUMIDITY[Humidity\nsensor.bathroom_motion_humidity]
-        TEMP[Door Temperature\nsensor.bathroom_door_temperature]
-        SWITCH[Light Switch\nbinary_sensor.bathroom_switch_input_0]
-    end
+    Motion[bathroom motion sensors] --> MotionAuto[Motion Detected]
+    AreaMotion[binary_sensor.bathroom_area_motion] --> NoMotion[No Motion Detected]
+    Door[binary_sensor.bathroom_door_contact] --> NoMotion
+    LightLevel[sensor.bathroom_area_mean_light_level] --> MotionAuto
+    Threshold[input_number.bathroom_light_level_threshold] --> MotionAuto
+    Timer[timer.bathroom_light_off] --> TimerDone[Light Timer Finished]
+    Light[switch.bathroom_lights_2] --> LightOff[Light Turned Off]
+    Light --> LongLight[Light On For Long Time And Fan Off]
+    Humidity[sensor.bathroom_motion_humidity] --> HumidityAuto[High humidity automations]
+    Window[binary_sensor.bathroom_window_contact] --> HumidityAuto
+    Enable[input_boolean.enable_bathroom_automations] --> HumidityAuto
+    Toothbrush[sensor.dannys_toothbrush_time] --> ToothbrushAuto[Danny's Toothbrush]
 
-    subgraph Logic["⚙️ Logic"]
-        THRESHOLD[Light Threshold\ninput_number.bathroom_light_level_threshold]
-        TIMER[Light Off Timer\ntimer.bathroom_light_off]
-    end
-
-    subgraph Outputs["💡 Outputs"]
-        LIGHTS[Bathroom Lights\nswitch.bathroom_lights_2]
-    end
-
-    subgraph External["🔗 External"]
-        OUTDOOR_TEMP[Outdoor Temp\nsensor.gw2000a_outdoor_temperature]
-        TOOTHBRUSH[Danny's Toothbrush\nsensor.dannys_toothbrush_time]
-        NOTIFICATIONS[Notifications\nscript.send_direct_notification]
-        LOG[Home Log\nscript.send_to_home_log]
-    end
-
-    MOTION -->|Triggers| AUTOMATIONS
-    DOOR -->|Status Check| AUTOMATIONS
-    WINDOW -->|Humidity Check| AUTOMATIONS
-    LIGHT_LEVEL -->|Brightness Check| AUTOMATIONS
-    HUMIDITY -->|Mold/Humidity Alerts| AUTOMATIONS
-    SWITCH -->|Manual Override| AUTOMATIONS
-    TOOTHBRUSH -->|Light Flash| AUTOMATIONS
-
-    AUTOMATIONS --> LIGHTS
-    AUTOMATIONS --> TIMER
-    AUTOMATIONS --> NOTIFICATIONS
-    AUTOMATIONS --> LOG
-
-    HUMIDITY --> MOLD[Mold Indicator\nsensor.bathroom_mould_indicator]
-    TEMP --> MOLD
-    OUTDOOR_TEMP --> MOLD
+    MotionAuto --> Light
+    NoMotion --> Timer
+    TimerDone --> Light
+    TimerDone --> Fan[switch.bathroom_fan_2]
+    LongLight --> Fan
+    HumidityAuto --> Fan
+    HumidityAuto --> Notify[Direct notification]
+    ToothbrushAuto --> Light
 ```
 
-## Design Decisions
+## User Controls
 
-Key architectural decisions captured from the YAML configuration:
+| Entity | Plain-English Purpose |
+|--------|-----------------------|
+| `input_boolean.enable_bathroom_automations` | Master switch used by fan and humidity automations. Motion lighting does not check this helper. |
+| `input_number.bathroom_light_level_threshold` | Brightness threshold used to decide whether motion should turn the light on. |
+| `timer.bathroom_light_off` | Auto-off countdown started after no motion. |
 
-- Uses ambient light sensors for adaptive lighting that responds to natural light conditions
+## Everyday Behavior
 
----
+### Motion Lighting
 
-## Architecture
-
-### Motion-Based Lighting
-
-The lighting system uses a sophisticated decision tree:
-
-1. **Motion Detection**: Triggers on either PIR sensor or mmWave occupancy sensor
-2. **Ambient Light Check**: Only turns on lights if below threshold (`input_number.bathroom_light_level_threshold`)
-3. **Timer Management**: Cancels any pending "light off" timer when motion is detected
-4. **No Motion Handling**: Starts a timer (2.5 min at night, 3 min during day) unless door is closed
-
-### Humidity & Mold Prevention
-
-- **High Humidity Alert**: Triggers when humidity > 59.9% for 1+ minute with door/window closed
-- **Mold Indicator**: Calculates mold risk based on indoor humidity, indoor temperature, and outdoor temperature
-
-### Toothbrush Integration
-
-Smart toothbrush triggers a light flash sequence (off/on) when brushing time exceeds 5 minutes, serving as a visual timer.
-
-## Automations
-
-### Bathroom: Motion Detected
-
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1754227355547` |
-| **Trigger** | Motion sensor state changes to `on` |
-| **Entities** | `binary_sensor.bathroom_motion_pir`, `binary_sensor.bathroom_motion_2_occupancy` |
-
-**Logic Flow:**
-
-```
-Motion Detected
-    ├── If lights OFF AND ambient light > threshold
-    │   └── Log: "Too bright, skipping"
-    ├── If lights OFF
-    │   ├── Turn on lights
-    │   └── Log: "Turning light on"
-    └── If lights already ON
-        └── Log: "Light already on"
-    └── Cancel light off timer
+```mermaid
+flowchart TD
+    Motion[Motion sensor turns on] --> LightOff{Light is off?}
+    LightOff -->|No| AlreadyOn[Log light already on]
+    LightOff -->|Yes| Bright{Light level above threshold?}
+    Bright -->|Yes| TooBright[Log too bright and skip light-on]
+    Bright -->|No| TurnOn[Turn on switch.bathroom_lights_2]
+    AlreadyOn --> Cancel[Cancel timer.bathroom_light_off]
+    TooBright --> Cancel
+    TurnOn --> Cancel
 ```
 
-### Bathroom: No Motion Detected
+| Situation | Result |
+|-----------|--------|
+| Motion from `binary_sensor.bathroom_motion_pir` or `binary_sensor.bathroom_motion_2_occupancy` | Runs `Bathroom: Motion Detected`. |
+| Light is off and room brightness is above threshold | Logs that it is too bright and leaves the light off. |
+| Light is off and brightness is not above threshold | Turns on `switch.bathroom_lights_2`. |
+| Any motion branch completes | Cancels `timer.bathroom_light_off`. |
 
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1754227694151` |
-| **Trigger** | Area motion changes to `off` |
-| **Entity** | `binary_sensor.bathroom_area_motion` |
+### No Motion And Timer
 
-**Logic Flow:**
+| Trigger | Condition | Result |
+|---------|-----------|--------|
+| `binary_sensor.bathroom_area_motion` turns `off` | Bathroom door is closed (`off`) | Logs and does not start the timer. |
+| No motion between 00:00 and 06:00 | Door is not closed | Starts `timer.bathroom_light_off` for 3 minutes. |
+| No motion outside 00:00-06:00 | Door is not closed | Starts `timer.bathroom_light_off` for 6 minutes. |
+| `timer.bathroom_light_off` finishes | Fan is on | Logs, turns off `switch.bathroom_fan_2`, then turns off the light. |
+| `timer.bathroom_light_off` finishes | Fan is not on | Logs and turns off the light. |
 
-```
-No Motion Detected
-    ├── If door closed
-    │   └── Log: "Skipping - door closed"
-    ├── If after midnight (00:00-06:00)
-    │   └── Start 2.5 minute timer
-    └── Otherwise
-        └── Start 3 minute timer
-```
+### Fan And Humidity
 
-### Bathroom: Light Turned Off
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Bathroom: Light On For Long Time And Fan Off` | Light on for 5 minutes, fan off, bathroom automations enabled | Turns on `switch.bathroom_fan_2`. |
+| `Bathroom: High Humidity` | Humidity above 59.9% for 1 minute | If automations are on, window and door are both `on`, and fan is off, turns on the fan. If automations are off, sends Danny and Terina a direct notification. |
+| `Bathroom: High Humidity` | Humidity above 69.9% for 1 minute | If automations are on and fan is off, turns on the fan. |
+| Second `Bathroom: High Humidity` automation | Humidity below 60% for 5 minutes, bathroom automations off, fan on | Turns off `switch.bathroom_fan_2`. |
+| `Bathroom: Light Turned Off` | Light switch turns off and humidity is below 60% | Cancels the timer and can turn off fan-related switch entities. |
 
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1754254675071` |
-| **Trigger** | Light state changes to `off` |
-| **Action** | Cancel light off timer + log event |
+Power-user note: there are two automations with alias `Bathroom: High Humidity`; their IDs are different and their behavior is different.
 
-### Bathroom: Light Switch Toggled
+### Toothbrush Cue
 
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1754254675073` |
-| **Trigger** | Wall switch input changes |
-| **Entity** | `binary_sensor.bathroom_switch_input_0` |
-| **Action** | If lights turned on manually, cancel auto-off timer |
+`Bathroom: Danny's Toothbrush` triggers when `sensor.dannys_toothbrush_time` rises above 300 seconds and the bathroom light is on. It turns `switch.bathroom_lights_2` off, waits 1 second, then turns it back on.
 
-### Bathroom: Light Timer Finished
+The package also defines `script.bathroom_flash_light`, which repeats two quick on/off actions on `switch.bathroom_lights_2`. It is available but is not called by the toothbrush automation in this YAML.
 
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1754254675072` |
-| **Trigger** | `timer.bathroom_light_off` finishes |
-| **Action** | Turn off lights + log event |
+## Mould Indicator Sensor
 
-### Bathroom: Fan Auto-Off (Low Humidity)
+| Sensor | Platform | Inputs |
+|--------|----------|--------|
+| `sensor.bathroom_mould_indicator` | `mold_indicator` | `sensor.bathroom_door_temperature`, `sensor.bathroom_motion_humidity`, `sensor.gw2000a_outdoor_temperature`, calibration factor `1.32` |
 
-| Attribute | Value |
-|-----------|-------|
-| **Type** | Sub-automation (choice branch) |
-| **Trigger** | `switch.bathroom_light_2` turns `off` |
-| **Conditions** | Fan switch (`switch.bathroom_fan_2`) is `on` AND humidity < 60% |
-| **Action** | Turn off fan (`switch.bathroom_fan`) + log event |
+## Power-User Details
 
-### Bathroom: High Humidity
-
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1680461746985` |
-| **Trigger** | Humidity > 59.9% for 1 minute |
-| **Conditions** | Window closed AND door closed |
-| **Action** | Send notification to Danny & Terina |
-
-### Bathroom: Light On For Long Time And Fan Off
-
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1777131323273` |
-| **Trigger** | `switch.bathroom_lights_2` on for 5+ minutes |
-| **Conditions** | Fan switch (`switch.bathroom_fan_2`) is `off` AND automations enabled |
-| **Action** | Turn on fan (`switch.bathroom_fan_2`) + log event |
-
-### Bathroom: Danny's Toothbrush
-
-| Attribute | Value |
-|-----------|-------|
-| **ID** | `1760479357022` |
-| **Trigger** | Toothbrush time > 300 seconds |
-| **Condition** | Lights are on |
-| **Action** | Flash lights (off → 1s delay → on) |
-
-## Scripts
-
-### bathroom_flash_light
-
-Flashes the bathroom light twice at 100% brightness.
-
-| Property | Value |
-|----------|-------|
-| **Mode** | single |
-| **Sequence** | Repeat 2×: turn on (100%) → turn off |
-
-## Sensors
-
-### Bathroom Mould Indicator
-
-Platform: `mold_indicator`
-
-Calculates mold risk based on:
-- Indoor temperature: `sensor.bathroom_door_temperature`
-- Indoor humidity: `sensor.bathroom_motion_humidity`
-- Outdoor temperature: `sensor.gw2000a_outdoor_temperature`
-- Calibration factor: `1.32`
-
-## Configuration
-
-### Input Number
-
-| Entity | Purpose | Default |
-|--------|---------|---------|
-| `input_number.bathroom_light_level_threshold` | Ambient light threshold for auto-on | (configured in HA) |
-
-### Timer
-
-| Entity | Duration | Purpose |
-|--------|----------|---------|
-| `timer.bathroom_light_off` | Dynamic (2.5-3 min) | Auto-off delay after no motion |
+| Automation | ID | Mode | Notes |
+|------------|----|------|-------|
+| `Bathroom: Motion Detected` | `1754227355547` | `single` | Does not check `input_boolean.enable_bathroom_automations`. |
+| `Bathroom: No Motion Detected` | `1754227694151` | `single` | Door-closed branch prevents timer start. |
+| `Bathroom: Light Turned Off` | `1754254675071` | `single` | Cancels timer, then checks fan and humidity. |
+| `Bathroom: Light Switch Toggled` | `1754254675073` | `single` | Waits 1 second before checking whether the light is on. |
+| `Bathroom: Light Timer Finished` | `1754254675072` | `single` | Turns off lights after optional fan-off action. |
+| `Bathroom: Light On For Long Time And Fan Off` | `1777131323273` | `single` | Requires bathroom automations enabled. |
+| `Bathroom: High Humidity` | `1680461746985` | `single` | Handles high and critical humidity triggers. |
+| `Bathroom: High Humidity` | `1680461746986` | `single` | Handles humidity dropping below 60%. |
+| `Bathroom: Danny's Toothbrush` | `1760479357022` | `single` | Visual cue after 300 seconds. |
 
 ## Entity Reference
 
-### Binary Sensors
+| Entity | Purpose |
+|--------|---------|
+| `binary_sensor.bathroom_motion_pir` | Motion trigger for light-on. |
+| `binary_sensor.bathroom_motion_2_occupancy` | Occupancy trigger for light-on. |
+| `binary_sensor.bathroom_area_motion` | Area motion sensor used for no-motion timer start. |
+| `binary_sensor.bathroom_door_contact` | Door state used to suppress no-motion timer and in humidity logic. |
+| `binary_sensor.bathroom_window_contact` | Window state used in humidity logic. |
+| `binary_sensor.bathroom_switch_input_0` | Wall switch input used to cancel timer after manual light-on. |
+| `switch.bathroom_lights_2` | Bathroom light switch. |
+| `switch.bathroom_fan_2` | Main fan switch used by most fan automations. |
+| `switch.bathroom_fan` | Additional fan switch referenced by the light-off low-humidity branch. |
+| `sensor.bathroom_area_mean_light_level` | Brightness sensor for motion light-on decisions. |
+| `sensor.bathroom_motion_humidity` | Humidity sensor for fan decisions. |
+| `sensor.dannys_toothbrush_time` | Toothbrush timer sensor. |
 
-| Entity | Description |
-|--------|-------------|
-| `binary_sensor.bathroom_motion_pir` | PIR motion sensor |
-| `binary_sensor.bathroom_motion_2_occupancy` | mmWave occupancy sensor |
-| `binary_sensor.bathroom_area_motion` | Aggregated area motion |
-| `binary_sensor.bathroom_door_contact` | Door contact sensor |
-| `binary_sensor.bathroom_window_contact` | Window contact sensor |
-| `binary_sensor.bathroom_switch_input_0` | Wall switch input |
+## Troubleshooting
 
-### Sensors
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.bathroom_area_mean_light_level` | Average ambient light level |
-| `sensor.bathroom_motion_humidity` | Humidity from motion sensor |
-| `sensor.bathroom_door_temperature` | Temperature from door sensor |
-| `sensor.bathroom_mould_indicator` | Mold risk indicator |
-| `sensor.dannys_toothbrush_time` | Smart toothbrush session time |
-| `sensor.gw2000a_outdoor_temperature` | Outdoor temperature (external) |
-
-### Lights
-
-| Entity | Description |
-|--------|-------------|
-| `switch.bathroom_lights_2` | Main bathroom light switch |
-| `light.bathroom` | Individual bathroom light (for flashing) |
-
-### Input Helpers
-
-| Entity | Type | Description |
-|--------|------|-------------|
-| `input_number.bathroom_light_level_threshold` | number | Light threshold for auto-on |
-
-### Timer
-
-| Entity | Description |
-|--------|-------------|
-| `timer.bathroom_light_off` | Auto-off countdown timer |
-
-## Dependencies
-
-- `script.send_to_home_log` - Logging utility
-- `script.send_direct_notification` - Notification service
-- `sensor.gw2000a_outdoor_temperature` - Weather station data
-- `person.danny`, `person.terina` - Notification recipients
-
-## Author
-
-Created by Danny Tsang <danny@tsang.uk>
-
-*Last updated: 2026-04-05*
+| Issue | Check |
+|-------|-------|
+| Motion does not turn the light on | Check the two motion sensors, `switch.bathroom_lights_2`, and whether `sensor.bathroom_area_mean_light_level` is above the threshold. |
+| Light does not turn off after no motion | Check whether `binary_sensor.bathroom_door_contact` is `off`; door closed suppresses the timer. |
+| Fan did not start after a shower | Check `input_boolean.enable_bathroom_automations`, humidity value, door/window contact states, and whether `switch.bathroom_fan_2` was already on. |
+| Fan did not turn off | Check which fan entity is on: the YAML references both `switch.bathroom_fan_2` and `switch.bathroom_fan`. |

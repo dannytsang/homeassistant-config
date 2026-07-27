@@ -38,3 +38,30 @@ automation:
                   entity_id: switch.gw2000a_plug
                 data: {}
     mode: single
+  - id: "1713094180265"
+    alias: "Ecowitt: USB Switched Off"
+    description: ""
+    triggers:
+      - trigger: state
+        entity_id:
+          - switch.gw2000a_plug
+        to: "off"
+        for:
+          minutes: 5
+    conditions: []
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              message: >-
+                Ecowitt GW2000A has been switched off for more than 5 minutes.
+                Switching on.
+              title: Ecowitt
+              log_level: "Debug"
+          - sequence:
+              - action: switch.turn_on
+                target:
+                  entity_id: switch.gw2000a_plug
+                data: {}
+    mode: single

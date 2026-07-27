@@ -122,32 +122,8 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                  - action: script.send_direct_notification
-                    data:
-                      message: >-
-                        {{ clock_result.emoji }}
-                        Did not turned on because the following:
-                        {% for opening in state_attr('binary_sensor.alarmed_doors_and_windows', 'entity_id') %}{% if states(opening) == 'on' %}
-                        {{ '* ' ~ state_attr(opening, 'friendly_name') ~ '\n' }}{% endif %}{% endfor %}
-                      title: "⚠️ 🔔 Alarm ⚠️"
-                      people:
-                        entity_id:
-                          - person.danny
-                          - person.terina
-                  - alias: Turn on bedroom light to warn not all doors/windows are closed.
-                    action: light.turn_on
-                    data:
-                      rgb_color:
-                        - 17
-                        - 0
-                        - 255
-                      brightness: 255
-                    target:
-                      entity_id:
-                        - light.under_bed_left
-                        - light.under_bed_right
-                        - light.bedroom_lamp_left
-                        - light.bedroom_lamp_right
+                  - action: script.unlocked_door_or_window_notification
+                    data: {}
           - conditions:
               - condition: state
                 entity_id: binary_sensor.alarmed_doors_and_windows
@@ -595,3 +571,33 @@ script:
                   - person.terina
     mode: single
     icon: mdi:alarm-light
+  unlocked_door_or_window_notification:
+    alias: Unlocked Door Or Window Notification
+    description: Get and send notification when an alarmed door or window is still open.
+    sequence:
+      - action: script.send_direct_notification
+        data:
+          message: >-
+            {{ clock_result.emoji }}
+            Did not turned on because the following:
+            {% for opening in state_attr('binary_sensor.alarmed_doors_and_windows', 'entity_id') %}{% if states(opening) == 'on' %}
+            {{ '* ' ~ state_attr(opening, 'friendly_name') ~ '\n' }}{% endif %}{% endfor %}
+          title: "⚠️ 🔔 Alarm ⚠️"
+          people:
+            entity_id:
+              - person.danny
+              - person.terina
+      - alias: Turn on bedroom light to warn not all doors/windows are closed.
+        action: light.turn_on
+        data:
+          rgb_color:
+            - 17
+            - 0
+            - 255
+          brightness: 255
+        target:
+          entity_id:
+            - light.under_bed_left
+            - light.under_bed_right
+            - light.bedroom_lamp_left
+            - light.bedroom_lamp_right

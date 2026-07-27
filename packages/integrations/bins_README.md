@@ -1,88 +1,95 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Bins
+# Bins Package Documentation
 
-Bin collection monitoring using an estimated distance sensor to detect when the bin leaves and returns to the property.
+The bins package watches the bin's estimated distance from home so Danny gets useful reminders around collection day. It can notify when the bin has been taken out, and when it appears to have been emptied and returned during the configured collection window.
 
----
+This documentation covers `bins.yaml`.
 
-## Overview
+| File | Purpose | Contents |
+|------|---------|----------|
+| `bins.yaml` | Bin distance monitoring and collection-window helper | 2 automations, 5 statistics sensors, 1 template binary sensor |
 
-Two automations notify Danny about bin collection events. Distance statistics sensors provide smoothed readings used to detect movement. A template binary sensor tracks whether the current time falls within the collection window defined by configurable offset helpers.
+## Quick Summary
 
----
+For non-technical users, the important behavior is:
 
-## Automations
+| Area | What Happens |
+|------|--------------|
+| Taken out alert | If `sensor.bin_estimated_distance` stays above 7 m for 1 hour, Danny gets a direct notification saying the bin was taken out. |
+| Returned alert | If the bin stays below 7 m for 30 minutes while collection is due, the event is logged and Danny gets a direct notification. |
+| Collection window | `binary_sensor.bin_collection_due` turns on around the `calendar.bins` event using configurable start and end offsets. |
+| Distance history | Five statistics sensors smooth and summarize the distance sensor for monitoring and debugging. |
 
-| ID | Alias | Trigger | Condition | Action |
-|----|-------|---------|-----------|--------|
-| `1714779045289` | Bin: Taken Out | `sensor.bin_estimated_distance` > 7 m for 1 hour | None | Direct notification to Danny: "Taken out" |
-| `1736801234567` | Bin: Emptied And Returned | `sensor.bin_estimated_distance` < 7 m for 30 min | `binary_sensor.bin_collection_due` on for ≥ 1 hour | Home log + direct notification to Danny: "Emptied and returned home" |
+## How It Decides What To Do
 
 ```mermaid
 flowchart TD
-    A[sensor.bin_estimated_distance] --> B{> 7m for 1 hour?}
-    B -->|Yes| C[Notify Danny: Taken out]
-    A --> D{< 7m for 30 min?}
-    D -->|Yes| E{bin_collection_due\non for ≥ 1 hour?}
-    E -->|Yes| F[Log + Notify Danny:\nEmptied and returned]
-    E -->|No| G[No action]
+    Distance[sensor.bin_estimated_distance] --> Out{Above 7 m for 1 hour?}
+    Out -->|Yes| TakenOut[Notify Danny: Taken out]
+    Distance --> Returned{Below 7 m for 30 minutes?}
+    Calendar[calendar.bins] --> Window[binary_sensor.bin_collection_due]
+    StartOffset[input_number.bin_collection_notification_start_offset] --> Window
+    EndOffset[input_number.bin_collection_notification_end_offset] --> Window
+    Window --> Due{Collection due on for 1 hour?}
+    Returned --> Due
+    Due -->|Yes| ReturnedAction[Home log + notify Danny: emptied and returned]
+    Due -->|No| Ignore[No action]
 ```
 
----
+## Everyday Behavior
 
-## Sensors
+| Situation | Result |
+|-----------|--------|
+| Bin distance is above 7 m for 1 hour | `Bin: Taken Out` sends `Taken out.` to `person.danny`. |
+| Bin distance is below 7 m for 30 minutes and collection due has been on for 1 hour | `Bin: Emptied And Returned` logs the returned distance and notifies `person.danny`. |
+| Outside the configured collection window | The returned-bin automation does not run, even if the distance drops below 7 m. |
 
-### Statistics Sensors
+## Technical Reference
+
+### Automations
+
+| ID | Alias | Trigger | Conditions | Actions | Mode |
+|----|-------|---------|------------|---------|------|
+| `1714779045289` | `Bin: Taken Out` | `sensor.bin_estimated_distance` above `7` for 1 hour | None | `script.send_direct_notification` to `person.danny` | `single` |
+| `1736801234567` | `Bin: Emptied And Returned` | `sensor.bin_estimated_distance` below `7` for 30 minutes | `binary_sensor.bin_collection_due` on for 1 hour | Parallel home-log entry and direct notification to `person.danny` | `single` |
+
+### Sensors
+
+All statistics sensors are derived from `sensor.bin_estimated_distance` and use precision `2`.
 
 | Sensor Name | Characteristic | Window | Sampling Size |
-|-------------|---------------|--------|---------------|
-| Bin Distance Change Sample | `change_sample` | all history | 100 |
-| Bin Distance 95 Percent | `distance_95_percent_of_values` | all history | 100 |
-| Bin Distance 95 Percent Over 5 Minutes | `distance_95_percent_of_values` | 5 min | 50 |
-| Bin Distance Change Over 5 minutes | `change` | 5 min | 50 |
-| Bin Distance Change Over 1 minutes | `change` | 1 min | 25 |
-
-All statistics sensors are derived from `sensor.bin_estimated_distance`.
+|-------------|----------------|--------|---------------|
+| `Bin Distance Change Sample` | `change_sample` | No `max_age` configured | 100 |
+| `Bin Distance 95 Percent` | `distance_95_percent_of_values` | No `max_age` configured | 100 |
+| `Bin Distance 95 Percent Over 5 Minutes` | `distance_95_percent_of_values` | 5 minutes | 50 |
+| `Bin Distance Change Over 5 minutes` | `change` | 5 minutes | 50 |
+| `Bin Distance Change Over 1 minutes` | `change` | 1 minute | 25 |
 
 ### Template Binary Sensor
 
-**`binary_sensor.bin_collection_due`**
+| Entity | Logic |
+|--------|-------|
+| `binary_sensor.bin_collection_due` | On when now is within the `calendar.bins` event window after applying `input_number.bin_collection_notification_start_offset` and `input_number.bin_collection_notification_end_offset`. |
 
-Returns `on` when the current time is within the collection notification window:
+## Important Entities
 
-- `start`: within `input_number.bin_collection_notification_start_offset` hours before the calendar event start
-- `end`: within `input_number.bin_collection_notification_end_offset` hours after the calendar event end
+| Entity | Used For |
+|--------|----------|
+| `sensor.bin_estimated_distance` | Main distance measurement used by both automations and all statistics sensors. |
+| `binary_sensor.bin_collection_due` | Gate for the returned-bin notification. |
+| `calendar.bins` | Supplies the next collection event start and end times. |
+| `input_number.bin_collection_notification_start_offset` | Hours before the calendar start when collection should be considered due. |
+| `input_number.bin_collection_notification_end_offset` | Hours after the calendar end when collection should stop being considered due. |
+| `person.danny` | Direct notification recipient. |
 
-```mermaid
-flowchart LR
-    A[calendar.bins\nnext event] --> B{now within\nstart offset?}
-    B -->|Yes| C{now within\nend offset?}
-    C -->|Yes| D[bin_collection_due = ON]
-    C -->|No| E[bin_collection_due = OFF]
-    B -->|No| E
-```
+## Troubleshooting
 
----
+| Symptom | First Things To Check |
+|---------|-----------------------|
+| No taken-out alert | Check `sensor.bin_estimated_distance` exceeded `7` continuously for 1 hour. |
+| No returned alert | Check `binary_sensor.bin_collection_due` has been `on` for at least 1 hour and distance stayed below `7` for 30 minutes. |
+| Collection window looks wrong | Check `calendar.bins` start/end attributes and both bin collection offset helpers. |
+| Distance looks noisy | Compare the raw distance sensor with the five `Bin Distance ...` statistics sensors. |
 
-## Entities
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.bin_estimated_distance` | Estimated distance of bin from home (metres) |
-| `binary_sensor.bin_collection_due` | True when within the collection notification window |
-| `calendar.bins` | Bin collection calendar (provides start/end times) |
-| `input_number.bin_collection_notification_start_offset` | Hours before collection start to begin window |
-| `input_number.bin_collection_notification_end_offset` | Hours after collection end to close window |
-
----
-
-## Dependencies
-
-- **Scripts:** `script.send_to_home_log`, `script.send_direct_notification`
-- **Person:** `person.danny` (notification recipient)
-- **Calendar:** `calendar.bins`
-
----
-
-*Last updated: 2026-04-05*
+*Last updated: 2026-06-27*

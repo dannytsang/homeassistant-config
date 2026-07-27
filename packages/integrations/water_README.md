@@ -1,42 +1,74 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# Water Leak Detection
+# Water Leak Detection Package Documentation
 
-*Last updated: 2026-04-05*
+The water package turns every Home Assistant moisture-class entity into one whole-house leak signal. If any moisture sensor reports wet, the package logs the affected locations and sends a high-priority direct notification. When all moisture sensors have been dry for a minute, it sends an all-clear notification and log entry.
 
-Monitors all moisture sensors across the house and issues critical alerts when a leak is detected. A template binary sensor aggregates every moisture-class entity so automations only need a single trigger point.
+| File | Purpose | Contents |
+|------|---------|----------|
+| `water.yaml` | Whole-house leak aggregation and alerts | 1 template binary sensor, 2 automations |
 
-## Entities
+## Quick Summary
 
-| Entity | Type | Description |
-|--------|------|-------------|
-| `binary_sensor.house_leak_detected` | Template binary sensor | `on` when any moisture sensor is active; `locations` attribute lists the friendly names of all currently triggered sensors |
+| Area | What Happens |
+|------|--------------|
+| Leak aggregation | `binary_sensor.house_leak_detected` turns `on` when any entity with `device_class: moisture` is `on`. |
+| Location list | The sensor's `locations` attribute lists the friendly names of all active moisture sensors. |
+| Leak alert | A leak logs to the home log and sends a high-priority notification using `critical_alerts`. |
+| Leak cleared | Once the aggregate sensor stays `off` for 1 minute, the package logs and sends a resolved notification. |
 
-## Automations
-
-| Automation | Trigger | Description |
-|------------|---------|-------------|
-| Water: Critical Leak Alert | `binary_sensor.house_leak_detected` → `on` | Sends a high-priority critical notification (bypasses Do Not Disturb) listing all leak locations, and logs to the home log |
-| Water: Leak Cleared | `binary_sensor.house_leak_detected` → `off` for 1 minute | Sends a notification and home-log entry confirming all leaks are resolved |
-
-## Alert / Clear Flow
+## Leak Flow
 
 ```mermaid
 flowchart TD
-    A([Any moisture sensor turns on]) --> B[house_leak_detected = on]
-    B --> C{Automation:\nCritical Leak Alert}
-    C --> D[send_direct_notification\nchannel: critical_alerts\npriority: high]
-    C --> E[send_to_home_log]
+    Moisture[Any moisture-class entity] --> Template[binary_sensor.house_leak_detected]
+    Template -->|on| Alert[Water: Critical Leak Alert]
+    Alert --> Log[send_to_home_log with locations]
+    Alert --> Notify[send_direct_notification with priority high and critical_alerts channel]
 
-    F([All moisture sensors turn off]) --> G[house_leak_detected = off]
-    G --> H{1-minute debounce}
-    H --> I{Automation:\nLeak Cleared}
-    I --> J[send_direct_notification\nAll leaks resolved]
-    I --> K[send_to_home_log]
+    Template -->|off for 1 minute| Clear[Water: Leak Cleared]
+    Clear --> ClearLog[send_to_home_log all resolved]
+    Clear --> ClearNotify[send_direct_notification all dry]
 ```
 
-## Notes
+## Entities
 
-- The `binary_sensor.house_leak_detected` template iterates over **all** entities whose `device_class` is `moisture`, so adding a new moisture sensor is automatically picked up without changing the automation.
-- The `locations` attribute on the binary sensor lists the `friendly_name` of every sensor that is currently `on`, which is included verbatim in the alert notification.
-- The 1-minute `for:` delay on the Leak Cleared automation prevents a false "all clear" from a briefly bouncing sensor.
+| Entity | Type | Purpose |
+|--------|------|---------|
+| `binary_sensor.house_leak_detected` | Template binary sensor | Whole-house leak sensor. It is `on` when any moisture-class entity is `on`. |
+
+### `locations` Attribute
+
+The template builds `locations` by iterating over all states with `attributes.device_class == 'moisture'` and collecting the friendly names for those currently `on`.
+
+Example output shape:
+
+```text
+['Kitchen Leak Sensor', 'Utility Room Leak Sensor']
+```
+
+## Automations
+
+| Automation | Trigger | Result |
+|------------|---------|--------|
+| `Water: Critical Leak Alert` | `binary_sensor.house_leak_detected` changes to `on` | Logs `Water leak detected at: ...` and sends `🚨 WATER LEAK DETECTED!` with `ttl: 0`, `priority: high`, `channel: critical_alerts`, and `importance: max`. |
+| `Water: Leak Cleared` | `binary_sensor.house_leak_detected` changes to `off` for 1 minute | Logs that all leaks are resolved and sends `✅ Water Leak Resolved`. |
+
+## Power-User Notes
+
+| Detail | Current YAML Behavior |
+|--------|-----------------------|
+| Sensor discovery | New moisture-class sensors are picked up automatically without editing this package. |
+| Alert recipients | The package calls `script.send_direct_notification` without specifying a `people` block; recipient behavior depends on that shared script's defaults. |
+| Actions | Logging and notification actions run in parallel for both alert and clear paths. |
+| Clear debounce | The all-clear waits 1 minute to avoid a false resolution from a briefly bouncing sensor. |
+| Mode | Both automations use `mode: single`. |
+
+## Troubleshooting
+
+| Symptom | Check |
+|---------|-------|
+| Leak sensor is wet but aggregate sensor is off | Confirm the source entity has `device_class: moisture` and state `on`. |
+| Alert does not list a location | Check the source sensor's `friendly_name`; the template uses friendly names for `locations`. |
+| No critical notification arrives | Check `script.send_direct_notification` and the receiving app's handling of `critical_alerts`, `priority: high`, and `importance: max`. |
+| All-clear did not send | Confirm `binary_sensor.house_leak_detected` stayed `off` continuously for 1 minute. |

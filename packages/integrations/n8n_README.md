@@ -1,35 +1,56 @@
 [<- Back to Integrations README](README.md) · [Packages README](../README.md) · [Main README](../../README.md)
 
-# n8n — Workflow Automation Integration
+# n8n Workflow Helper
 
-*Last updated: 2026-04-05*
+This package exposes one Home Assistant shell command for calling an n8n webhook. The command is intended to ask n8n to delete a UniFi image from SFTPGo, but the only YAML consumer currently found in this repository is commented out in `unifi_protect.yaml`.
 
-Provides shell command helpers used by other integrations to interact with n8n workflows and SFTPGo. Currently defines the command for deleting UniFi Protect camera snapshots from SFTPGo via an n8n webhook.
+## Quick Summary
 
----
+| Area | What Happens |
+|------|--------------|
+| Shell command | Defines `shell_command.delete_unifi_image`. |
+| Target | Sends an authenticated HTTP `POST` request to a caller-supplied webhook URL. |
+| Payload | Passes the requested file path in the command body. |
+| Current use | Available for use, with the referenced UniFi Protect delete call commented out. |
 
-## Shell Commands
+## Package Contents
 
-| Command | Description |
-|---|---|
-| `shell_command.delete_unifi_image` | Sends a `POST` request to an n8n webhook to delete a file from SFTPGo. Authenticates with `username`/`password` and passes `file_path` as JSON body to `webhook_url`. |
+| File | Purpose | Contents |
+|------|---------|----------|
+| `n8n.yaml` | n8n webhook shell command | 1 shell command |
 
-### `delete_unifi_image` Parameters
+## Flow
 
-| Parameter | Description |
-|---|---|
-| `username` | SFTPGo credentials username |
-| `password` | SFTPGo credentials password |
-| `file_path` | Path of the file to delete in SFTPGo |
-| `webhook_url` | n8n webhook URL that handles the delete operation |
+```mermaid
+flowchart LR
+    Caller[Calling automation or script] --> Shell[shell_command.delete_unifi_image]
+    Shell --> Webhook[n8n webhook_url]
+    Webhook --> SFTPGo[SFTPGo delete workflow]
+```
 
-> **Note:** This shell command is currently commented out in `unifi_protect.yaml` (pending implementation). It is defined here so it is available when the delete flow is enabled.
+## Shell Command
 
----
+| Command | Result |
+|---------|--------|
+| `shell_command.delete_unifi_image` | Runs `curl` with `POST`, basic auth from `username` and `password`, `Content-Type: application/json`, a `file_path` payload, and the caller-provided `webhook_url`. |
 
-## Dependencies
+## Parameters
 
-- n8n — workflow automation platform; hosts the webhook that proxies the SFTPGo delete request
-- SFTPGo — file transfer server storing camera snapshots (see `sftpgo.yaml`)
-- `input_text.n8n_delete_sftpgo_unifi_share_file_webhook_url` — the n8n webhook URL used by `delete_unifi_image`
-- `unifi_protect.yaml` — consumer of the delete command (currently pending)
+| Parameter | Purpose |
+|-----------|---------|
+| `username` | Username for the HTTP basic auth call to the webhook endpoint. |
+| `password` | Password for the HTTP basic auth call to the webhook endpoint. |
+| `file_path` | File path passed to the n8n workflow. |
+| `webhook_url` | n8n webhook endpoint to call. |
+
+## Power-User Notes
+
+The command is a raw `shell_command`, so quoting and templating are handled by Home Assistant before `curl` runs. If the delete workflow is enabled later, validate the rendered command with safe test values before relying on it for cleanup.
+
+## Troubleshooting
+
+| Symptom | Check |
+|---------|-------|
+| Command is not running | Confirm a caller actually invokes `shell_command.delete_unifi_image`; the UniFi Protect reference is currently commented out. |
+| n8n receives no request | Check `webhook_url`, network access from Home Assistant, and HTTP basic auth credentials. |
+| File is not deleted | Check the n8n workflow and SFTPGo permissions for the supplied `file_path`. |

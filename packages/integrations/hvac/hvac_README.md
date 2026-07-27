@@ -1,226 +1,101 @@
-# HVAC
+# HVAC TRV Package Documentation
 
-Central heating, ventilation, and air conditioning coordination.
+This package is the radiator coordination layer. It mirrors the main Hive thermostat target to selected TRVs, creates radiator temperature sensors, tracks boiler flow-temperature deltas, and alerts when rooms remain below their minimum target while the boiler is not already heating.
 
----
+Source YAML: `hvac.yaml`
 
-## Overview
+| Contents | Count |
+|----------|-------|
+| Automations | 2 |
+| Statistics sensors | 4 |
+| Template sensors | 26 |
 
-This package provides the coordination layer between different heating systems:
-- **Radiator control** — TRV management and temperature monitoring
-- **Boiler control** — Central heating activation
-- **Hot water** — Eddi solar diversion coordination
-- **Climate modes** — Home mode integration (holiday, guest, etc.)
+## Quick Summary
 
-### Key Capabilities
+| Area | What Happens |
+|------|--------------|
+| TRV sync | When `sensor.thermostat_target_temperature` changes, six radiator TRVs are set to that temperature. |
+| Below-target alerts | Bedroom, Leo's bedroom, living room, and office are monitored for 30 minutes below minimum target. |
+| Boiler idle guard | Alerts are suppressed while `climate.hive_receiver_heat` has `hvac_action: heating`. |
+| Office guard | Office alerts only send if office windows and the conservatory door are both closed. |
+| Sensors | Current, target, and minimum-target radiator values are exposed for dashboards and automations. |
 
-- Synchronizes radiator TRVs with thermostat setpoints
-- Monitors rooms below target temperature
-- Integrates heating with home mode (holiday = heating off)
-- Provides centralized HVAC status
-
----
-
-## Architecture
-
-```mermaid
-flowchart TB
-    subgraph HeatingSystems["🔥 Heating Systems"]
-        Hive["🌡️ Hive<br/>(Thermostat + TRVs)"]
-        Eddi["🔥 Eddi<br/>(Hot Water)"]
-        Boiler["⚡ Boiler<br/>(Central Heating)"]
-    end
-
-    subgraph ThisPackage["hvac.yaml"]
-        TargetTemp["Target Temp<br/>Changed"]
-        BelowTarget["Below Target<br/>Monitor"]
-        Holiday["Holiday Mode<br/>Handler"]
-    end
-
-    subgraph HomeMode["🏠 Home Mode"]
-        Mode["input_select.home_mode"]
-    end
-
-    Hive -->|Controls| Boiler
-    TargetTemp -->|Updates| Hive
-    BelowTarget -->|Monitors| Hive
-
-    Mode -->|Influences| Holiday
-    Holiday -->|Can disable| Eddi
-```
-
----
-
-## System Coordination
-
-The HVAC system works as a hierarchy:
+## How It Works
 
 ```mermaid
 flowchart TB
-    subgraph User["👤 User Control"]
-        Thermostat["🌡️ Thermostat<br/>Set Target Temp"]
-        Schedule["📅 Schedule<br/>Time-based"]
-    end
-
-    subgraph Automation["🤖 Automation Layer"]
-        TRVSync["TRV Sync<br/>(hive.yaml)"]
-        Monitoring["Temp Monitoring<br/>(hvac.yaml)"]
-    end
-
-    subgraph Devices["🔧 Devices"]
-        TRVs["🌡️ TRVs<br/>(6 rooms)"]
-        Boiler["🔥 Boiler"]
-        Eddi["🔥 Eddi<br/>(Hot Water)"]
-    end
-
-    Thermostat -->|Target| TRVSync
-    Schedule -->|Time| TRVSync
-
-    TRVSync -->|Set temp| TRVs
-    TRVs -->|Request heat| Boiler
-
-    Monitoring -->|Watch| TRVs
-
-    Eddi -.->|Independent| HotWater["🚿 Hot Water"]
+    Thermostat[sensor.thermostat_target_temperature] --> Sync[HVAC: House Target Temperature Changed]
+    Sync --> TRVs[Six TRV climate entities]
+    TRVs --> TempSensors[Radiator temperature and target sensors]
+    Thresholds[input_number room thresholds] --> MinSensors[Minimum target sensors]
+    TempSensors --> Alert[HVAC: Radiators Below Target Temperature]
+    MinSensors --> Alert
+    Boiler[climate.hive_receiver_heat hvac_action] --> Alert
+    Alert --> Notify[Direct notification to Danny]
 ```
-
----
 
 ## Automations
 
-### HVAC: House Target Temperature Changed
-**ID:** `1678125037184`
+| Automation | ID | Trigger | Result |
+|------------|----|---------|--------|
+| `HVAC: House Target Temperature Changed` | `1678125037184` | `sensor.thermostat_target_temperature` changes | Logs the change and sets six TRVs to the new target temperature. |
+| `HVAC: Radiators Below Target Temperature` | `1678271646645` | Monitored radiator temperature stays below its minimum target for 30 minutes | Sends Danny a room-specific radiator call-for-heat notification, unless the boiler is already heating. |
 
-Propagates thermostat changes to all radiator TRVs.
+## TRVs Synced To Main Target
 
-See [Hive documentation](hive_README.md) for details.
+| Entity |
+|--------|
+| `climate.ashlees_bedroom_radiator` |
+| `climate.bedroom_radiator` |
+| `climate.kitchen_radiator` |
+| `climate.leos_bedroom_radiator` |
+| `climate.living_room_radiator` |
+| `climate.office_radiator` |
 
----
+## Rooms Monitored For Below-Target Alerts
 
-### HVAC: Radiators Below Target Temperature
-**ID:** `1678271646645`
+| Room | Temperature Sensor | Minimum Target Sensor | Extra Conditions |
+|------|--------------------|-----------------------|------------------|
+| Bedroom | `sensor.bedroom_radiator_temperature` | `sensor.bedroom_radiator_minimum_target_temperature` | Boiler must not already be heating. |
+| Leo's bedroom | `sensor.leos_radiator_temperature` | `sensor.leos_radiator_minimum_target_temperature` | Boiler must not already be heating. |
+| Living room | `sensor.living_room_radiator_temperature` | `sensor.living_room_radiator_minimum_target_temperature` | Boiler must not already be heating. |
+| Office | `sensor.office_radiator_temperature` | `sensor.office_radiator_minimum_target_temperature` | Boiler must not already be heating; office windows and conservatory door must be closed for the office-specific branch. |
 
-Monitors rooms struggling to reach target temperature.
+Minimum target sensors are calculated as TRV target temperature minus the room's `input_number.*_radiator_heating_threshold`.
 
-**Monitored Rooms:**
-- Bedroom
-- Leo's bedroom
-- Living room
-- Office
+## Sensors
 
-**Trigger:** Temperature below minimum target for 30+ minutes
+### Boiler Delta Statistics
 
----
+| Entity | Source | Window/Characteristic |
+|--------|--------|-----------------------|
+| `sensor.flow_temperature_delta_last_24_hours` | `sensor.boiler_delta_temperature` | Mean over 24 hours. |
+| `sensor.flow_temperature_highest_delta` | `sensor.boiler_delta_temperature` | Maximum over 30 days. |
+| `sensor.flow_temperature_lowest_delta` | `sensor.boiler_delta_temperature` | Minimum over 30 days. |
+| `sensor.flow_temperature_delta_difference` | `sensor.boiler_delta_temperature` | Absolute distance over 30 days. |
 
-## Key Entities
+### Radiator Template Sensors
 
-### Climate Entities
+Current and target temperature sensors are defined for Ashlee's bedroom, bedroom, conservatory radiator 1, conservatory radiator 2, kitchen, Leo's bedroom, living room, office, and porch. Additional sensors expose `sensor.thermostat_action` and `sensor.thermostat_target_temperature` from `climate.hive_receiver_heat`.
 
-| Entity | Description |
-|--------|-------------|
-| `climate.hive_receiver_heat` | Main thermostat |
-| `climate.*_radiator` | Individual room TRVs |
-
-### Sensor Entities
-
-| Entity | Description |
-|--------|-------------|
-| `sensor.thermostat_target_temperature` | Current heating target |
-| `sensor.*_radiator_temperature` | Room temperatures |
-| `sensor.*_radiator_minimum_target_temperature` | Floor temperatures |
-
-### Input Select
-
-| Entity | Options | Purpose |
-|--------|---------|---------|
-| `input_select.home_mode` | Home, Away, Holiday, Guest, No Children | Controls heating behavior |
-
----
-
-## Home Mode Integration
-
-```mermaid
-flowchart TD
-    A["🏠 Home Mode Changed"] --> B{"New Mode?"}
-
-    B -->|Holiday| C["🔥 Heating: Off<br/>🚿 Hot Water: Off"]
-    B -->|Away| D["🔥 Heating: Eco<br/>🚿 Hot Water: On"]
-    B -->|Home| E["🔥 Heating: Normal<br/>🚿 Hot Water: On"]
-    B -->|Guest| F["🔥 Heating: Normal<br/>🚿 Hot Water: On"]
-
-    C --> G["📱 Notify Status"]
-    D --> G
-    E --> G
-    F --> G
-```
-
-| Mode | Heating | Hot Water | Notes |
-|------|---------|-----------|-------|
-| **Home** | Normal schedule | On | Standard operation |
-| **Away** | Eco/Reduced | On | Lower temperatures |
-| **Holiday** | Off | Off | Everything disabled |
-| **Guest** | Normal | On | Guest comfort priority |
-| **No Children** | Adult schedule | On | Different room priorities |
-
----
-
-## Heating Logic Flow
-
-```mermaid
-sequenceDiagram
-    participant Thermostat as Thermostat
-    participant HVAC as HVAC Package
-    participant TRVs as TRVs
-    participant Boiler as Boiler
-
-    Thermostat->>HVAC: Target temp changed
-    HVAC->>TRVs: Set all to new target
-    TRVs->>TRVs: Compare room temp vs target
-    TRVs->>Boiler: Request heat if below target
-    Boiler->>Boiler: Fire if any TRV needs heat
-```
-
----
-
-## Dependencies
-
-### Sub-packages
-
-| Package | Purpose |
-|---------|---------|
-| [Hive](hive_README.md) | Thermostat and TRV control |
-| [Eddi](eddi_README.md) | Hot water solar diversion |
-
-### Cross-Package Dependencies
-
-| Dependency | Package | Purpose |
-|------------|---------|---------|
-| `input_select.home_mode` | home | Mode-based heating control |
-| `script.send_to_home_log` | shared_helpers | Logging |
-
----
+Minimum-target sensors are defined for Ashlee's bedroom, bedroom, kitchen, Leo's bedroom, living room, and office.
 
 ## Troubleshooting
 
 | Issue | Check |
 |-------|-------|
-| No heating | Thermostat schedule, home mode, TRV batteries |
-| One room cold | That room's TRV, minimum target setting |
-| Boiler short-cycling | TRV synchronization, temperature differential |
-| Hot water cold | Eddi status, holiday mode, solar availability |
-
----
+| TRVs did not update | `sensor.thermostat_target_temperature` and the six TRV climate entities. |
+| Below-target alert did not fire | Room temperature, minimum target, 30-minute duration, and boiler `hvac_action`. |
+| Office alert missing | `binary_sensor.office_windows` and `binary_sensor.conservatory_door`; both must be `off` for the office-specific notification. |
+| Minimum target is unexpected | TRV target temperature and the room threshold helper. |
+| Boiler delta sensors unavailable | `sensor.boiler_delta_temperature` history and statistics integration availability. |
 
 ## Related Documentation
 
 | Document | Purpose |
 |----------|---------|
-| [Hive](hive_README.md) | TRV and thermostat details |
-| [Eddi](eddi_README.md) | Hot water heating |
-| [Energy](../energy/README.md) | Energy dashboard integration |
+| [HVAC overview](README.md) | Folder-level HVAC overview. |
+| [Hive](hive_README.md) | Main thermostat and hot-water scheduling. |
+| [Eddi](eddi_README.md) | Hot-water solar diverter logic. |
 
----
-
-*Last updated: 2026-04-05*
-
-*Source: [packages/integrations/hvac/hvac.yaml](../../../../packages/integrations/hvac/hvac.yaml)*
+*Last updated: 2026-06-27*
