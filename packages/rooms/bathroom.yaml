@@ -137,7 +137,7 @@ automation:
           - alias: Fan on and humidity is low
             conditions:
               - condition: state
-                entity_id: switch.bathroom_fan_2
+                entity_id: switch.bathroom_fan_group
                 state: "on"
               - condition: numeric_state
                 entity_id: sensor.bathroom_motion_humidity
@@ -198,7 +198,7 @@ automation:
     actions:
       - if:
           - condition: state
-            entity_id: switch.bathroom_fan_2
+            entity_id: switch.bathroom_fan_group
             state: "on"
         then:
           - parallel:
@@ -208,7 +208,7 @@ automation:
                   title: "🛁 Bathroom"
                   log_level: "Debug"
               - action: switch.turn_off
-                entity_id: switch.bathroom_fan_2
+                entity_id: switch.bathroom_fan_group
                 data: {}
         else:
           - action: script.send_to_home_log
@@ -235,7 +235,7 @@ automation:
           seconds: 0
     conditions:
       - condition: state
-        entity_id: switch.bathroom_fan_2
+        entity_id: switch.bathroom_fan_group
         state: "off"
       - condition: state
         entity_id: input_boolean.enable_bathroom_automations
@@ -248,7 +248,7 @@ automation:
               log_level: Debug
               message: Light on for more than 5 minutes. Turning bathroom fan on.
           - action: switch.turn_on
-            entity_id: switch.bathroom_fan_2
+            entity_id: switch.bathroom_fan_group
             data: {}
     mode: single
   # region Humidity
@@ -302,7 +302,7 @@ automation:
                 state: "on"
               - not:
                   - condition: state
-                    entity_id: switch.bathroom_fan_2
+                    entity_id: switch.bathroom_fan_group
                     state: "on"
               - condition: trigger
                 id: "high"
@@ -316,7 +316,7 @@ automation:
                       title: "🛁 Bathroom"
                       log_level: "Debug"
                   - action: switch.turn_on
-                    entity_id: switch.bathroom_fan_2
+                    entity_id: switch.bathroom_fan_group
                     data: {}
           - alias: Critical trigger
             conditions:
@@ -325,7 +325,7 @@ automation:
                 state: "on"
               - not:
                   - condition: state
-                    entity_id: switch.bathroom_fan_2
+                    entity_id: switch.bathroom_fan_group
                     state: "on"
             sequence:
               - parallel:
@@ -336,7 +336,7 @@ automation:
                       title: "🛁 Bathroom"
                       log_level: "Debug"
                   - action: switch.turn_on
-                    entity_id: switch.bathroom_fan_2
+                    entity_id: switch.bathroom_fan_group
                     data: {}
         default: []
     mode: single
@@ -356,7 +356,7 @@ automation:
         entity_id: input_boolean.enable_bathroom_automations
         state: "off"
       - condition: state
-        entity_id: switch.bathroom_fan_2
+        entity_id: switch.bathroom_fan_group
         state: "on"
     actions:
       - parallel:
@@ -368,7 +368,7 @@ automation:
               title: "🛁 Bathroom"
               log_level: "Debug"
           - action: switch.turn_off
-            entity_id: switch.bathroom_fan_2
+            entity_id: switch.bathroom_fan_group
             data: {}
     mode: single
   # region Toothbrush
