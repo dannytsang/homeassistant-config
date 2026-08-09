@@ -26,7 +26,7 @@ For non-technical users, the important behavior is:
 ```mermaid
 flowchart TD
     Base[input_text.grocy_base_url] --> TabletSensor[Dishwasher Tablet Stock REST sensor]
-    TabletId[input_text.grocy_dishwasher_tablet_product_id] --> TabletSensor
+    TabletId[input_number.grocy_dishwasher_tablet_product_id] --> TabletSensor
     Base --> SaltSensor[Salt Blocks REST sensor]
     SaltId[input_number.grocy_salt_block_product_id] --> SaltSensor
     Base --> TabletCommand[consume_finish_lemon_dishwasher_tablet]
@@ -47,7 +47,7 @@ Both sensors read `value_json.stock_amount_aggregated`, use unit `pcs`, and set 
 
 | Name | Entity | Resource Product Helper | Scan Interval | Icon |
 |------|--------|-------------------------|---------------|------|
-| `Dishwasher Tablet Stock` | `sensor.dishwasher_tablet_stock` | `input_text.grocy_dishwasher_tablet_product_id` | 600 seconds | `mdi:pill-multiple` |
+| `Dishwasher Tablet Stock` | `sensor.dishwasher_tablet_stock` | `input_number.grocy_dishwasher_tablet_product_id` | 600 seconds | `mdi:pill-multiple` |
 | `Salt Blocks` | `sensor.salt_blocks` | `input_number.grocy_salt_block_product_id` | 600 seconds | `mdi:shaker-outline` |
 
 ### REST Commands
@@ -59,14 +59,14 @@ Both commands POST to `/stock/products/{id}/consume` with `transaction_type: con
 | `rest_command.consume_finish_lemon_dishwasher_tablet` | `input_number.grocy_finish_lemon_dishwasher_tablet_product_id` | `1` |
 | `rest_command.consume_salt_block` | `input_number.grocy_salt_block_product_id` | `2` |
 
-Power-user note: the dishwasher tablet sensor and dishwasher tablet consumption command use different helper entity domains for their product IDs: `input_text.grocy_dishwasher_tablet_product_id` for the sensor and `input_number.grocy_finish_lemon_dishwasher_tablet_product_id` for the command.
+Power-user note: the dishwasher tablet sensor and dishwasher tablet consumption command use different helper entity domains for their product IDs: `input_number.grocy_dishwasher_tablet_product_id` for the sensor and `input_number.grocy_finish_lemon_dishwasher_tablet_product_id` for the command.
 
 ## Important Entities And Secrets
 
 | Entity Or Secret | Used For |
 |------------------|----------|
 | `input_text.grocy_base_url` | Grocy API base URL. |
-| `input_text.grocy_dishwasher_tablet_product_id` | Product ID used by the dishwasher tablet stock sensor. |
+| `input_number.grocy_dishwasher_tablet_product_id` | Product ID used by the dishwasher tablet stock sensor. |
 | `input_number.grocy_finish_lemon_dishwasher_tablet_product_id` | Product ID used by the dishwasher tablet consumption command. |
 | `input_number.grocy_salt_block_product_id` | Product ID used by the salt sensor and salt consumption command. |
 | `!secret grocy_api` | API key sent as the `GROCY-API-KEY` header. |
