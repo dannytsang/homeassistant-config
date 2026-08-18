@@ -1082,24 +1082,17 @@ automation:
     alias: "Bedroom: Remote Dial Action Right"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: dial_rotate_right_slow
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: dial_rotate_right_step
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: brightness_step_up
+      - trigger: state
+        entity_id: event.bedroom_dial_remote_action
+        not_from: unavailable
+        not_to: unavailable
     conditions:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'dial_rotate' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.direction == 'right' }}"
     actions:
       - action: light.turn_on
         metadata: {}
@@ -1118,24 +1111,17 @@ automation:
     alias: "Bedroom: Remote Dial Action Left"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: dial_rotate_left_slow
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: dial_rotate_left_step
-      - trigger: device
-        domain: mqtt
-        device_id: 61ab87aac9c81fe8687771074e560f48
-        type: action
-        subtype: brightness_step_down
+      - trigger: state
+        entity_id: event.bedroom_dial_remote_action
+        not_from: unavailable
+        not_to: unavailable
     conditions:
       - condition: template
         value_template: "{{ states('sensor.bedroom_dial_remote_action_time')|float(15) > 0}}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'dial_rotate' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.direction == 'left' }}"
     actions:
       - action: light.turn_on
         metadata: {}
