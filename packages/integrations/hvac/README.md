@@ -36,9 +36,9 @@ flowchart TB
     TRVSync --> TRVs[Six radiator TRVs]
     TRVs --> RoomAlerts[Below-target alerts]
 
-    EddiStatus[sensor.myenergi_eddi_status] --> EddiLogic[Eddi automations]
+    EddiStatus[sensor.eddi_myenergi_eddi_status] --> EddiLogic[Eddi automations]
     OctopusRate[sensor.octopus_energy_electricity_current_rate] --> EddiLogic
-    EddiLogic --> EddiMode[select.myenergi_eddi_operating_mode]
+    EddiLogic --> EddiMode[select.eddi_myenergi_eddi_operating_mode]
     EddiLogic --> HiveWater
 ```
 
