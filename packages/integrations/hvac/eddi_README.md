@@ -15,7 +15,7 @@ Source YAML: `eddi.yaml`
 
 | Area | What Happens |
 |------|--------------|
-| Solar diversion | When `sensor.myenergi_eddi_status` becomes `Diverting`, a debug home-log entry records daily diverted energy. |
+| Solar diversion | When `sensor.eddi_myenergi_eddi_status` becomes `Diverting`, a debug home-log entry records daily diverted energy. |
 | Scheduled restore | At 00:00 and 13:00, Eddi is put back into `Normal` mode if it is stopped and automations are enabled. |
 | Boiler coordination | If Eddi cycle energy exceeds the hot-water cutoff while Hive hot water is on, the hot-water schedule check is rerun. |
 | Max temperature | When Eddi reports `Max temp reached`, a 4-hour timer starts and cheap-rate boost logic runs. |
@@ -25,7 +25,7 @@ Source YAML: `eddi.yaml`
 
 ```mermaid
 flowchart TB
-    Status[sensor.myenergi_eddi_status] --> Diverting[Log diverting]
+    Status[sensor.eddi_myenergi_eddi_status] --> Diverting[Log diverting]
     Status --> MaxTemp[Max temperature automation]
     MaxTemp --> Timer[timer.eddi_max_temperature_reached]
     MaxTemp --> Check[script.hvac_check_eddi_boost_hot_water]
@@ -40,16 +40,16 @@ flowchart TB
 
 | Automation | ID | Trigger | Result |
 |------------|----|---------|--------|
-| `Energy: Eddi Diverting Energy` | `1677762423485` | `sensor.myenergi_eddi_status` becomes `Diverting` | Logs daily session energy if hot-water and Eddi automations are enabled and the daily energy sensor is not `unknown`. |
+| `Energy: Eddi Diverting Energy` | `1677762423485` | `sensor.eddi_myenergi_eddi_status` becomes `Diverting` | Logs daily session energy if hot-water and Eddi automations are enabled and the daily energy sensor is not `unknown`. |
 | `HVAC: Eddi Turn On` | `1685005214749` | 00:00 and 13:00 | If Eddi mode is `Stopped`, not holiday mode, and automations are enabled, cancels the max-temperature timer and sets operating mode to `Normal`. |
 | `HVAC: Eddi Generated Hot Water And Hot Water Is On` | `1678578286486` | Eddi per-cycle energy rises above cutoff | If Hive receiver water is `on`, logs that Eddi heated enough water and calls `script.check_and_run_hot_water`. |
-| `Eddi: Max Temperature Reached` | `1712238362391` | `sensor.myenergi_eddi_status` becomes `Max temp reached` | Logs, starts `timer.eddi_max_temperature_reached` for 4 hours, and calls the Eddi boost-check script with the current Octopus rate. |
+| `Eddi: Max Temperature Reached` | `1712238362391` | `sensor.eddi_myenergi_eddi_status` becomes `Max temp reached` | Logs, starts `timer.eddi_max_temperature_reached` for 4 hours, and calls the Eddi boost-check script with the current Octopus rate. |
 
 ## Scripts
 
 | Script | Purpose |
 |--------|---------|
-| `script.hvac_set_solar_diverter_to_holiday_mode` | If Eddi automations are enabled, sets `select.myenergi_eddi_operating_mode` to `Stopped`. |
+| `script.hvac_set_solar_diverter_to_holiday_mode` | If Eddi automations are enabled, sets `select.eddi_myenergi_eddi_operating_mode` to `Stopped`. |
 | `script.hvac_set_solar_diverter_to_normal_mode` | If Eddi automations are enabled, sets Eddi operating mode to `Normal`. |
 | `script.hvac_set_solar_diverter_to_boost_mode` | Boosts Heater 1 for the supplied `minutes` value using `myenergi.myenergi_eddi_boost`. |
 | `script.hvac_check_eddi_boost_hot_water` | Applies the cheap-rate, scheduled-boost, stop, cancel-boost, and default-normal decision tree. |
@@ -95,7 +95,7 @@ Power-user note: comments and log text mention 4-hour and 6-hour windows in diff
 
 | Issue | Check |
 |-------|-------|
-| Eddi does not return to Normal | `select.myenergi_eddi_operating_mode`, home mode, and Eddi/hot-water automation booleans. |
+| Eddi does not return to Normal | `select.eddi_myenergi_eddi_operating_mode`, home mode, and Eddi/hot-water automation booleans. |
 | Eddi does not boost on cheap rates | Current Octopus rate, cheap-rate booleans, and `input_number.eddi_boost_duration_minutes`. |
 | Eddi keeps stopping before noon | `timer.eddi_max_temperature_reached` and max-temperature branch. |
 | Boiler hot water was not skipped | Eddi cycle energy versus `input_number.hot_water_solar_diverter_boiler_cut_off`. |

@@ -8,7 +8,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_eddi_status
+          - sensor.eddi_myenergi_eddi_status
         to: "Diverting"
     conditions:
       - condition: not
@@ -44,7 +44,7 @@ automation:
         at: "13:00:00"
     conditions:
       - condition: state
-        entity_id: select.myenergi_eddi_operating_mode
+        entity_id: select.eddi_myenergi_eddi_operating_mode
         state: "Stopped"
       - not:
           - condition: state
@@ -78,7 +78,7 @@ automation:
             data:
               option: Normal
             target:
-              entity_id: select.myenergi_eddi_operating_mode
+              entity_id: select.eddi_myenergi_eddi_operating_mode
     mode: single
   - id: "1678578286486"
     alias: "HVAC: Eddi Generated Hot Water And Hot Water Is On"
@@ -120,7 +120,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_eddi_status
+          - sensor.eddi_myenergi_eddi_status
         to: Max temp reached
     conditions:
       - condition: state
@@ -167,7 +167,7 @@ script:
                 data:
                   option: Stopped
                 target:
-                  entity_id: select.myenergi_eddi_operating_mode
+                  entity_id: select.eddi_myenergi_eddi_operating_mode
     mode: single
     icon: mdi:gas-station
   hvac_set_solar_diverter_to_normal_mode:
@@ -189,7 +189,7 @@ script:
                 data:
                   option: Normal
                 target:
-                  entity_id: select.myenergi_eddi_operating_mode
+                  entity_id: select.eddi_myenergi_eddi_operating_mode
     mode: single
     icon: mdi:gas-station
   hvac_set_solar_diverter_to_boost_mode:
@@ -217,7 +217,7 @@ script:
               target: Heater 1
               time: "{{ minutes|float(0) }}"
             target:
-              device_id: 69fa95cf807591fa318b0e7da75e2762
+              device_id: 022e59e77b42308614c276985cb7ecb2
     mode: single
     icon: mdi:gas-station
   hvac_check_eddi_boost_hot_water:
@@ -328,7 +328,7 @@ script:
               - if:
                   - not:
                       - condition: state
-                        entity_id: select.myenergi_eddi_operating_mode
+                        entity_id: select.eddi_myenergi_eddi_operating_mode
                         state: "Stopped"
                 then:
                   - parallel:
@@ -345,31 +345,31 @@ script:
                         data:
                           option: "Stopped"
                         target:
-                          entity_id: select.myenergi_eddi_operating_mode
+                          entity_id: select.eddi_myenergi_eddi_operating_mode
           - alias: "Unit rate is above 0p/kWh"
             conditions:
               - condition: template
                 value_template: "{{ current_import_rate > 0}}"
               - condition: state
-                entity_id: sensor.myenergi_eddi_status
+                entity_id: sensor.eddi_myenergi_eddi_status
                 state: "Boosting"
             sequence:
               - parallel:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        Currently {{ states('sensor.myenergi_eddi_status') }}. Cancelling boost.
+                        Currently {{ states('sensor.eddi_myenergi_eddi_status') }}. Cancelling boost.
                       title: Eddi
                       log_level: "Debug"
                   - action: myenergi.myenergi_stop_boost
                     target:
-                      entity_id: select.myenergi_eddi_operating_mode
+                      entity_id: select.eddi_myenergi_eddi_operating_mode
                     data: {}
           - alias: "Default mode"
             conditions:
               - not:
                   - condition: state
-                    entity_id: select.myenergi_eddi_operating_mode
+                    entity_id: select.eddi_myenergi_eddi_operating_mode
                     state: "Normal"
             sequence:
               - parallel:
@@ -397,7 +397,7 @@ utility_meter:
   # Electricity used every 6 hours =
   # heating cycle before needing to reheat hot water again.
   myenergi_eddi_energy_consumed_6_hours:
-    source: sensor.myenergi_eddi_energy_used_today
+    source: sensor.eddi_myenergi_eddi_energy_used_today
     name: MyEnergi Eddi Energy Consumed Per Heating Cycle
     unique_id: 2e83399e-89e8-4941-99ee-4c2741d23026
     cron: "0 */4 * * *"

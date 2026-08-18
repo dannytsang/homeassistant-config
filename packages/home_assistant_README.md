@@ -169,7 +169,7 @@ Reports the total count of all entities registered in Home Assistant. The `break
 | `input_boolean.enable_zappi_automations` | Guards Zappi startup check |
 | `sensor.octopus_energy_electricity_current_rate` | Current import rate passed to solar/Zappi checks |
 | `sensor.octopus_energy_electricity_export_current_rate` | Current export rate passed to solar/Zappi checks |
-| `sensor.myenergi_zappi_plug_status` | EV connection state |
+| `sensor.zappi_myenergi_zappi_plug_status` | EV connection state |
 | `group.tracked_people` | Determines if someone is home for Magic Mirror cast |
 | `alarm_control_panel.house_alarm` | Guards Magic Mirror cast (skips if armed away) |
 | `media_player.stairs_chromecast` | Magic Mirror display target |

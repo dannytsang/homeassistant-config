@@ -85,9 +85,9 @@ The Predbat branch runs in parallel. If `input_boolean.enable_predbat_automation
 
 | Entity | Purpose |
 |--------|---------|
-| `sensor.myenergi_zappi_plug_status` | EV connection state; `EV Disconnected` means no EV connected. |
-| `sensor.myenergi_zappi_status` | Used to avoid schedule-stop handling when Zappi is `Paused`. |
-| `select.myenergi_zappi_charge_mode` | Set to `Fast` or `Eco+` by this package. |
+| `sensor.zappi_myenergi_zappi_plug_status` | EV connection state; `EV Disconnected` means no EV connected. |
+| `sensor.zappi_myenergi_zappi_status` | Used to avoid schedule-stop handling when Zappi is `Paused`. |
+| `select.zappi_myenergi_zappi_charge_mode` | Set to `Fast` or `Eco+` by this package. |
 | `binary_sensor.ev_charger_schedule_1/2` | Active schedule windows. |
 | `binary_sensor.model_y_charger` | Model Y detection, used for Terina notifications. |
 | `binary_sensor.model_3_charger` | Model 3 detection, used to avoid unknown vehicle alerts. |

@@ -194,7 +194,7 @@ This file contains one automation, `Mobile Notification Action Router`, that lis
 | `switch_off_alarm` | Logs the event and runs `script.set_alarm_to_disarmed_mode`. |
 | `switch_off_attic_lights` | Logs the event and turns off `light.attic`. |
 | `update_home_assistant` | Logs the event and installs `update.home_assistant_core_update` with backup. |
-| `zappi_stop` | Logs the event and sets `select.myenergi_zappi_charge_mode` to `Stopped`. |
+| `zappi_stop` | Logs the event and sets `select.zappi_myenergi_zappi_charge_mode` to `Stopped`. |
 
 ## Everyday Behavior
 
@@ -357,7 +357,7 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 | Discord configuration | `input_text.discord_home_log_channel_id`, `input_text.discord_direct_notification_channel_id`, `input_text.dannys_discord_chat_id`, `input_text.terinas_discord_chat_id`, `input_text.leos_discord_chat_id`, `input_text.ashlees_discord_chat_id` |
 | Telegram configuration | `input_text.telegram_config_id`, `input_text.dannys_telegram_chat_id` |
 | Delayed notification todos | `todo.danny_s_notifications`, `todo.shared_notifications` |
-| Callback targets | `cover.bedroom_blinds`, `switch.server_fan`, `fan.office_ceiling_fan`, `switch.ecoflow_kitchen_plug`, `switch.freezer`, `input_select.home_mode`, `light.attic`, `update.home_assistant_core_update`, `select.myenergi_zappi_charge_mode` |
+| Callback targets | `cover.bedroom_blinds`, `switch.server_fan`, `fan.office_ceiling_fan`, `switch.ecoflow_kitchen_plug`, `switch.freezer`, `input_select.home_mode`, `light.attic`, `update.home_assistant_core_update`, `select.zappi_myenergi_zappi_charge_mode` |
 
 ## Configuration Inputs
 

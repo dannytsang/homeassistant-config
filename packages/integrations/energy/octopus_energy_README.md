@@ -63,4 +63,4 @@ flowchart LR
 | A subsystem did not react to a rate change | Its enable boolean and the trace for `Octopus Energy: Electricity Rates Changed`. |
 | Intelligent dispatches are stale | Zappi plug status and `script.refresh_octopus_intelligent_dispatching` trace. |
 | Solar Assistant not called | `select.growatt_sph_work_mode_priority` must not be `unavailable`. |
-| Zappi not called | `sensor.myenergi_zappi_plug_status` must not be `EV Disconnected`. |
+| Zappi not called | `sensor.zappi_myenergi_zappi_plug_status` must not be `EV Disconnected`. |

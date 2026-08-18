@@ -16,7 +16,7 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: sensor.myenergi_zappi_plug_status
+            entity_id: sensor.zappi_myenergi_zappi_plug_status
             state: "EV Disconnected"
       - or:
           - and:
@@ -58,11 +58,11 @@ automation:
         state: "on"
       - not:
           - condition: state
-            entity_id: sensor.myenergi_zappi_plug_status
+            entity_id: sensor.zappi_myenergi_zappi_plug_status
             state: "EV Disconnected"
       - not:
           - condition: state
-            entity_id: sensor.myenergi_zappi_status
+            entity_id: sensor.zappi_myenergi_zappi_status
             state: "Paused"
       - or:
           - condition: state
@@ -83,13 +83,13 @@ automation:
       - action: myenergi.myenergi_boost
         target:
           entity_id:
-            - select.myenergi_zappi_charge_mode
+            - select.zappi_myenergi_zappi_charge_mode
         data:
           amount: 1
       - action: select.select_option
         target:
           entity_id:
-            - select.myenergi_zappi_charge_mode
+            - select.zappi_myenergi_zappi_charge_mode
         data:
           option: Eco+
     mode: single
@@ -99,7 +99,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_zappi_plug_status
+          - sensor.zappi_myenergi_zappi_plug_status
         from: EV Disconnected
         not_to: "unavailable"
     conditions:
@@ -119,7 +119,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_zappi_plug_status
+          - sensor.zappi_myenergi_zappi_plug_status
         from: EV Disconnected
         not_to: "unavailable"
         for:
@@ -154,7 +154,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_zappi_plug_status
+          - sensor.zappi_myenergi_zappi_plug_status
         to: EV Disconnected
     conditions:
       - condition: state
@@ -197,7 +197,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.myenergi_zappi_plug_status
+          - sensor.zappi_myenergi_zappi_plug_status
         to: EV Connected
       - trigger: state
         entity_id:
@@ -205,7 +205,7 @@ automation:
         to: "on"
     conditions:
       - condition: state
-        entity_id: sensor.myenergi_zappi_plug_status
+        entity_id: sensor.zappi_myenergi_zappi_plug_status
         state: EV Connected
       - condition: state
         entity_id: binary_sensor.model_y_charger
@@ -289,7 +289,7 @@ script:
                 sequence:
                   - if:
                       - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
+                        entity_id: sensor.zappi_myenergi_zappi_plug_status
                         state: EV Connected
                     then:
                       - parallel:
@@ -319,7 +319,7 @@ script:
                             data:
                               option: Fast
                             target:
-                              entity_id: select.myenergi_zappi_charge_mode
+                              entity_id: select.zappi_myenergi_zappi_charge_mode
               - alias: "Electricity rates below 0p/kWh"
                 conditions:
                   - condition: template
@@ -330,7 +330,7 @@ script:
                 sequence:
                   - if:
                       - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
+                        entity_id: sensor.zappi_myenergi_zappi_plug_status
                         state: EV Connected
                     then:
                       - parallel:
@@ -370,7 +370,7 @@ script:
                             data:
                               option: Fast
                             target:
-                              entity_id: select.myenergi_zappi_charge_mode
+                              entity_id: select.zappi_myenergi_zappi_charge_mode
               - alias: "Electricity rates is 0p/kWh"
                 conditions:
                   - condition: template
@@ -381,7 +381,7 @@ script:
                 sequence:
                   - if:
                       - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
+                        entity_id: sensor.zappi_myenergi_zappi_plug_status
                         state: EV Connected
                     then:
                       - parallel:
@@ -413,7 +413,7 @@ script:
                             data:
                               option: Fast
                             target:
-                              entity_id: select.myenergi_zappi_charge_mode
+                              entity_id: select.zappi_myenergi_zappi_charge_mode
               - alias: "Electricity rates below export"
                 conditions:
                   - condition: template
@@ -424,7 +424,7 @@ script:
                 sequence:
                   - if:
                       - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
+                        entity_id: sensor.zappi_myenergi_zappi_plug_status
                         state: EV Connected
                     then:
                       - parallel:
@@ -456,15 +456,15 @@ script:
                             data:
                               option: Fast
                             target:
-                              entity_id: select.myenergi_zappi_charge_mode
+                              entity_id: select.zappi_myenergi_zappi_charge_mode
               - alias: "Electricity rates starts to cost"
                 conditions:
                   - not:
                       - condition: state
-                        entity_id: sensor.myenergi_zappi_plug_status
+                        entity_id: sensor.zappi_myenergi_zappi_plug_status
                         state: EV Disconnected
                   - condition: state
-                    entity_id: select.myenergi_zappi_charge_mode
+                    entity_id: select.zappi_myenergi_zappi_charge_mode
                     state: Fast
                   - condition: template
                     value_template: "{{ current_import_rate > 0}}"
@@ -516,7 +516,7 @@ script:
                         data:
                           option: Eco+
                         target:
-                          entity_id: select.myenergi_zappi_charge_mode
+                          entity_id: select.zappi_myenergi_zappi_charge_mode
             default: []
           - alias: Predbat
             choose:
