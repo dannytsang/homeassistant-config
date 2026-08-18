@@ -99,7 +99,7 @@ Power-user note: comments and log text mention 4-hour and 6-hour windows in diff
 | Eddi does not boost on cheap rates | Current Octopus rate, cheap-rate booleans, and `input_number.eddi_boost_duration_minutes`. |
 | Eddi keeps stopping before noon | `timer.eddi_max_temperature_reached` and max-temperature branch. |
 | Boiler hot water was not skipped | Eddi cycle energy versus `input_number.hot_water_solar_diverter_boiler_cut_off`. |
-| Diverting log missing | `sensor.eddi_myenergi_eddi_energy_consumed_session_daily` must not be `unknown`. |
+| Diverting log missing | `sensor.myenergi_eddi_energy_consumed_session_daily` must not be `unknown`. |
 
 ## Related Documentation
 
