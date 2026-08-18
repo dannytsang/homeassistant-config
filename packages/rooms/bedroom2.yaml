@@ -525,12 +525,15 @@ automation:
     alias: "Leo's Bedroom: Remote Turn On"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 7da5565cc39ea45df83d982a085622b6
-        type: action
-        subtype: on_press_release
-    conditions: []
+      - trigger: state
+        entity_id: event.leo_s_bedroom_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'on' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - action: light.turn_on
         target:
@@ -541,12 +544,15 @@ automation:
     alias: "Leo's Bedroom: Remote Turn Off"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 7da5565cc39ea45df83d982a085622b6
-        type: action
-        subtype: off_press_release
-    conditions: []
+      - trigger: state
+        entity_id: event.leo_s_bedroom_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'off' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - action: light.turn_off
         data: {}
@@ -557,12 +563,15 @@ automation:
     alias: "Leo's Bedroom: Remote Up"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 7da5565cc39ea45df83d982a085622b6
-        type: action
-        subtype: up_press_release
-    conditions: []
+      - trigger: state
+        entity_id: event.leo_s_bedroom_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'up' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - action: cover.open_cover
         target:
@@ -573,12 +582,15 @@ automation:
     alias: "Leo's Bedroom: Remote Down"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 7da5565cc39ea45df83d982a085622b6
-        type: action
-        subtype: down_press_release
-    conditions: []
+      - trigger: state
+        entity_id: event.leo_s_bedroom_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'down' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - action: cover.close_cover
         target:

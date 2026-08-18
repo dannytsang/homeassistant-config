@@ -915,12 +915,15 @@ automation:
     alias: "Office: Remote Keylight"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 589ffdf441f33bc8f72a6f9faf153da2
-        type: action
-        subtype: open
-    conditions: []
+      - trigger: state
+        entity_id: event.office_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'open' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -939,12 +942,15 @@ automation:
     alias: "Office: Remote Fan"
     description: ""
     triggers:
-      - trigger: device
-        domain: mqtt
-        device_id: 589ffdf441f33bc8f72a6f9faf153da2
-        type: action
-        subtype: close
-    conditions: []
+      - trigger: state
+        entity_id: event.office_remote_action
+        not_from: unavailable
+        not_to: unavailable
+    conditions:
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.button == 'close' }}"
+      - condition: template
+        value_template: "{{ trigger.to_state.attributes.event_type == 'press_release' }}"
     actions:
       - parallel:
           - action: script.send_to_home_log
