@@ -89,8 +89,8 @@ flowchart TB
 | `input_boolean.ecoflow_kitchen_charge_electricity_below_nothing` | Allows kitchen EcoFlow charging when import rate is negative. |
 | `input_boolean.ecoflow_office_charge_electricity_below_nothing` | Allows office EcoFlow charging when import rate is negative. |
 | `switch.ecoflow_backup_reserve_enabled` | Global backup-reserve gate used by the charging-mode script. |
-| `switch.ecoflow_kitchen_backup_reserve_enabled` | Kitchen backup reserve must be enabled for several safety and reserve actions. |
-| `switch.ecoflow_office_backup_reserve_enabled` | Office backup reserve must be enabled for several safety and reserve actions. |
+| `switch.kitchen_ecoflow_backup_reserve_enabled` | Kitchen backup reserve must be enabled for several safety and reserve actions. |
+| `switch.office_ecoflow_backup_reserve_enabled` | Office backup reserve must be enabled for several safety and reserve actions. |
 
 ## Troubleshooting
 
@@ -100,4 +100,4 @@ flowchart TB
 | Plug turns back on unexpectedly | Battery low thresholds and the low-battery plug recovery automations. |
 | Reserve or charge rate does not update | `retry.action` failures, EcoFlow cloud availability, and the target input numbers. |
 | Sunset plug shutdown is skipped | Office computer state, adult occupancy, battery levels, backup reserve level, and solar excess. |
-| Kitchen offline alert or recovery fires | `sensor.ecoflow_kitchen_main_battery_level` and `switch.ecoflow_kitchen_plug` availability. |
+| Kitchen offline alert or recovery fires | `sensor.kitchen_ecoflow_battery_level` and `switch.ecoflow_kitchen_plug` availability. |

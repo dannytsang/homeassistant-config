@@ -155,7 +155,7 @@ Powers up devices sequentially, logging each room:
 
 | Room | Devices turned on |
 |---|---|
-| Kitchen | `switch.toaster`, `switch.ecoflow_kitchen_usb_enabled` |
+| Kitchen | `switch.toaster`, `switch.kitchen_ecoflow_usb_enabled` |
 | Living Room | `switch.harmony_hub_plug`, `switch.playstation_plug`, `switch.tv_plug` |
 | Bedroom | `switch.bedroom_tv_plug` |
 | Conservatory | `switch.printer_plug`, `switch.conservatory_extension_1` |
@@ -200,7 +200,7 @@ Sequential shutdown of all major devices and lights. Each step runs in parallel 
 | Office lights | `scene.office_all_lights_off` |
 | Bedroom fan | `switch.bedroom_fan` off |
 | Office ceiling fan | `fan.office_ceiling_fan` off |
-| Kitchen lights | `scene.kitchen_all_lights_off` + `switch.ecoflow_kitchen_usb_enabled` off |
+| Kitchen lights | `scene.kitchen_all_lights_off` + `switch.kitchen_ecoflow_usb_enabled` off |
 | Living room lights | `scene.living_room_lights_off` + individual `light.living_room_*` entities off |
 | Conservatory lights | `scene.conservatory_turn_off_light` |
 | Stairs lights | `scene.stairs_light_off`, `scene.stairs_light_2_off` |

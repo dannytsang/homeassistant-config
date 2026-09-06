@@ -23,17 +23,17 @@ automation:
       - or:
           - and:
               - condition: numeric_state
-                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                entity_id: number.kitchen_ecoflow_backup_reserve_level
                 above: input_number.ecoflow_kitchen_minimum_backup_reserve
               - condition: state
-                entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                entity_id: switch.kitchen_ecoflow_backup_reserve_enabled
                 state: "on"
           - and:
               - condition: numeric_state
-                entity_id: number.ecoflow_office_backup_reserve_level
+                entity_id: number.office_ecoflow_backup_reserve_level
                 above: input_number.ecoflow_office_minimum_backup_reserve
               - condition: state
-                entity_id: switch.ecoflow_office_backup_reserve_enabled
+                entity_id: switch.office_ecoflow_backup_reserve_enabled
                 state: "on"
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
@@ -72,10 +72,10 @@ automation:
     conditions:
       - or:
           - condition: state
-            entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+            entity_id: switch.kitchen_ecoflow_backup_reserve_enabled
             state: "on"
           - condition: state
-            entity_id: switch.ecoflow_office_backup_reserve_enabled
+            entity_id: switch.office_ecoflow_backup_reserve_enabled
             state: "on"
       - condition: state
         entity_id: input_boolean.enable_ecoflow_automations
@@ -110,10 +110,10 @@ automation:
     description: ""
     triggers:
       - trigger: numeric_state
-        entity_id: sensor.ecoflow_kitchen_battery_level
+        entity_id: sensor.kitchen_ecoflow_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
       - trigger: numeric_state
-        entity_id: sensor.ecoflow_office_battery_level
+        entity_id: sensor.office_ecoflow_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
     conditions:
       - or:
@@ -130,7 +130,7 @@ automation:
       - choose:
           - conditions:
               - condition: template
-                value_template: "{{ trigger.entity_id == 'sensor.ecoflow_kitchen_battery_level'}}"
+                value_template: "{{ trigger.entity_id == 'sensor.kitchen_ecoflow_battery_level'}}"
               - condition: state
                 entity_id: switch.ecoflow_kitchen_plug
                 state: "off"
@@ -139,7 +139,7 @@ automation:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        Fridge Freezer switch is off and battery level ({{ states('sensor.ecoflow_kitchen_battery_level') }})
+                        Fridge Freezer switch is off and battery level ({{ states('sensor.kitchen_ecoflow_battery_level') }})
                         below minimum ({{ states('sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold') }}).
                         Turning on.
                       title: EcoFlow
@@ -153,15 +153,15 @@ automation:
                       entity_id: switch.ecoflow_kitchen_plug
                   - action: script.ecoflow_set_charge_rate
                     data:
-                      entity_id: number.ecoflow_kitchen_ac_charging_power
+                      entity_id: number.kitchen_ecoflow_ac_charging_power
                       target_charge_rate: 200
                   - action: script.ecoflow_set_backup_reserve
                     data:
-                      entity_id: number.ecoflow_kitchen_backup_reserve_level
+                      entity_id: number.kitchen_ecoflow_backup_reserve_level
                       target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_minimum_backup_reserve') }}"
           - conditions:
               - condition: template
-                value_template: "{{ trigger.entity_id == 'sensor.ecoflow_office_battery_level'}}"
+                value_template: "{{ trigger.entity_id == 'sensor.office_ecoflow_battery_level'}}"
               - condition: state
                 entity_id: switch.ecoflow_office_plug
                 state: "off"
@@ -170,7 +170,7 @@ automation:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        Office switch is off and battery level ({{ states('sensor.ecoflow_office_battery_level') }})
+                        Office switch is off and battery level ({{ states('sensor.office_ecoflow_battery_level') }})
                         below minimum ({{ states('sensor.ecoflow_office_minimum_backup_reserve_low_threshold') }}).
                         Turning on.
                       title: EcoFlow
@@ -190,7 +190,7 @@ automation:
     triggers:
       - trigger: numeric_state
         entity_id:
-          - sensor.ecoflow_kitchen_battery_level
+          - sensor.kitchen_ecoflow_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
     conditions:
       - condition: state
@@ -220,7 +220,7 @@ automation:
     triggers:
       - trigger: numeric_state
         entity_id:
-          - sensor.ecoflow_office_battery_level
+          - sensor.office_ecoflow_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
     conditions:
       - condition: state
@@ -258,7 +258,7 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.ecoflow_kitchen_battery_level
+        entity_id: sensor.kitchen_ecoflow_battery_level
         below: sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold
     actions:
       - parallel:
@@ -268,7 +268,7 @@ automation:
               title: EcoFlow
               message: >-
                 Kitchen Battery Below minimum threshold
-                {{ states('sensor.ecoflow_kitchen_battery_level') }}({{ states('sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold') }})
+                {{ states('sensor.kitchen_ecoflow_battery_level') }}({{ states('sensor.ecoflow_kitchen_minimum_backup_reserve_low_threshold') }})
                 and switch has become available. Turning switch on.
               people:
                 entity_id:
@@ -292,7 +292,7 @@ automation:
         entity_id: input_boolean.enable_ecoflow_automations
         state: "on"
       - condition: numeric_state
-        entity_id: sensor.ecoflow_office_battery_level
+        entity_id: sensor.office_ecoflow_battery_level
         below: sensor.ecoflow_office_minimum_backup_reserve_low_threshold
     actions:
       - parallel:
@@ -302,7 +302,7 @@ automation:
               title: EcoFlow
               message: >-
                 Office Battery Below minimum threshold
-                {{ states('sensor.ecoflow_office_battery_level') }}({{ states('sensor.ecoflow_office_minimum_backup_reserve_low_threshold') }})
+                {{ states('sensor.office_ecoflow_battery_level') }}({{ states('sensor.ecoflow_office_minimum_backup_reserve_low_threshold') }})
                 and switch has become available. Turning switch on.
               people:
                 entity_id:
@@ -318,7 +318,7 @@ automation:
     triggers:
       - trigger: numeric_state
         entity_id:
-          - sensor.ecoflow_kitchen_battery_level
+          - sensor.kitchen_ecoflow_battery_level
         below: 6
     conditions:
       - condition: state
@@ -345,13 +345,13 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.ecoflow_kitchen_main_battery_level
+          - sensor.kitchen_ecoflow_battery_level
         to: unknown
         for:
           minutes: 30
       - trigger: state
         entity_id:
-          - sensor.ecoflow_kitchen_main_battery_level
+          - sensor.kitchen_ecoflow_battery_level
         to: unavailable
         for:
           minutes: 30
@@ -446,9 +446,9 @@ script:
     sequence:
       - variables:
           input_number_entity_id: >-
-            {%- if entity_id == 'number.ecoflow_kitchen_backup_reserve_level' -%}
+            {%- if entity_id == 'number.kitchen_ecoflow_backup_reserve_level' -%}
             input_number.target_ecoflow_kitchen_backup_reserve
-            {%- elif entity_id == 'number.ecoflow_office_backup_reserve_level' -%}
+            {%- elif entity_id == 'number.office_ecoflow_backup_reserve_level' -%}
             input_number.target_ecoflow_office_backup_reserve
             {%- endif -%}
       - action: input_number.set_value
@@ -516,9 +516,9 @@ script:
     sequence:
       - variables:
           input_number_entity_id: >-
-            {%- if entity_id == 'number.ecoflow_kitchen_backup_reserve_level' -%}
+            {%- if entity_id == 'number.kitchen_ecoflow_backup_reserve_level' -%}
             input_number.target_ecoflow_kitchen_backup_reserve
-            {%- elif entity_id == 'number.ecoflow_office_backup_reserve_level' -%}
+            {%- elif entity_id == 'number.office_ecoflow_backup_reserve_level' -%}
             input_number.target_ecoflow_office_backup_reserve
             {%- endif -%}
       - action: script.ecoflow_update_backup_reserve
@@ -553,7 +553,7 @@ script:
           - conditions:
               - condition: template
                 value_template: >-
-                  {{ entity_id == 'number.ecoflow_kitchen_ac_charging_power' }}
+                  {{ entity_id == 'number.kitchen_ecoflow_ac_charging_power' }}
             sequence:
               - action: input_number.set_value
                 data:
@@ -562,12 +562,12 @@ script:
                   entity_id: input_number.target_ecoflow_kitchen_charge_rate
               - action: script.ecoflow_update_charge_rate
                 data:
-                  entity_id: number.ecoflow_kitchen_ac_charging_power
+                  entity_id: number.kitchen_ecoflow_ac_charging_power
                   charge_rate: "{{ states('input_number.target_ecoflow_kitchen_charge_rate')|int(200) }}"
           - conditions:
               - condition: template
                 value_template: >-
-                  {{ entity_id == 'number.ecoflow_office_ac_charging_power' }}
+                  {{ entity_id == 'number.office_ecoflow_ac_charging_power' }}
             sequence:
               - action: input_number.set_value
                 data:
@@ -576,7 +576,7 @@ script:
                   entity_id: input_number.target_ecoflow_office_charge_rate
               - action: script.ecoflow_update_charge_rate
                 data:
-                  entity_id: number.ecoflow_office_ac_charging_power
+                  entity_id: number.office_ecoflow_ac_charging_power
                   charge_rate: "{{ states('input_number.target_ecoflow_office_charge_rate')|int(200) }}"
         default: []
     mode: queued
@@ -627,7 +627,7 @@ script:
     fields:
       entity_id:
         description: Charge rate entity to apply to.
-        example: number.ecoflow_kitchen_ac_charging_power
+        example: number.kitchen_ecoflow_ac_charging_power
         selector:
           entity:
             filter:
@@ -636,9 +636,9 @@ script:
     sequence:
       - variables:
           input_number_entity_id: >-
-            {%- if entity_id == 'number.ecoflow_kitchen_ac_charging_power' -%}
+            {%- if entity_id == 'number.kitchen_ecoflow_ac_charging_power' -%}
             input_number.target_ecoflow_kitchen_charge_rate
-            {%- elif entity_id == 'number.ecoflow_office_ac_charging_power' -%}
+            {%- elif entity_id == 'number.office_ecoflow_ac_charging_power' -%}
             input_number.target_ecoflow_office_charge_rate
             {%- endif -%}
       - action: script.ecoflow_update_charge_rate
@@ -670,7 +670,7 @@ script:
         if:
           - alias: Kitchen fully charged
             condition: numeric_state
-            entity_id: sensor.ecoflow_kitchen_battery_level
+            entity_id: sensor.kitchen_ecoflow_battery_level
             above: 99
         then:
           - alias: Give full excess to office
@@ -687,24 +687,24 @@ script:
               - alias: Battery fully charged
                 conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    entity_id: sensor.kitchen_ecoflow_battery_level
                     above: 99
                 sequence:
                   - if:
                       - not:
                           - condition: state
-                            entity_id: number.ecoflow_kitchen_backup_reserve_level
+                            entity_id: number.kitchen_ecoflow_backup_reserve_level
                             state: "100"
                     then:
                       - action: script.send_to_home_log
                         data:
                           message: >-
-                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.ecoflow_kitchen_backup_reserve_level', with_unit=True) }}).
+                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.kitchen_ecoflow_backup_reserve_level', with_unit=True) }}).
                           title: EcoFlow
                           log_level: "Debug"
                       - action: script.ecoflow_set_backup_reserve
                         data:
-                          entity_id: number.ecoflow_kitchen_backup_reserve_level
+                          entity_id: number.kitchen_ecoflow_backup_reserve_level
                           target_reserve_amount: 100
                     else:
                       - action: script.send_to_home_log
@@ -727,7 +727,7 @@ script:
               - alias: Kitchen not fully charged
                 conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    entity_id: sensor.kitchen_ecoflow_battery_level
                     below: 100
                   - condition: state
                     entity_id: input_boolean.ecoflow_kitchen_charge_below_export
@@ -735,9 +735,9 @@ script:
                   - or:
                       - condition: template
                         value_template: >-
-                          {{ kitchen_target_charge_rate|int(0) > 0 and kitchen_target_charge_rate != states('number.ecoflow_kitchen_ac_charging_power')|int(0) }}
+                          {{ kitchen_target_charge_rate|int(0) > 0 and kitchen_target_charge_rate != states('number.kitchen_ecoflow_ac_charging_power')|int(0) }}
                       - condition: numeric_state
-                        entity_id: number.ecoflow_kitchen_backup_reserve_level
+                        entity_id: number.kitchen_ecoflow_backup_reserve_level
                         below: 100
                 sequence:
                   - if:
@@ -769,22 +769,22 @@ script:
                   - if:
                       - not:
                           - condition: state
-                            entity_id: number.ecoflow_kitchen_ac_charging_power
+                            entity_id: number.kitchen_ecoflow_ac_charging_power
                             state: "{{ kitchen_target_charge_rate }}"
                     then:
                       - action: script.ecoflow_set_charge_rate
                         data:
-                          entity_id: number.ecoflow_kitchen_ac_charging_power
+                          entity_id: number.kitchen_ecoflow_ac_charging_power
                           target_charge_rate: "{{ kitchen_target_charge_rate }}"
                   - if:
                       - not:
                           - condition: state
-                            entity_id: number.ecoflow_kitchen_backup_reserve_level
+                            entity_id: number.kitchen_ecoflow_backup_reserve_level
                             state: "100"
                     then:
                       - action: script.ecoflow_set_backup_reserve
                         data:
-                          entity_id: number.ecoflow_kitchen_backup_reserve_level
+                          entity_id: number.kitchen_ecoflow_backup_reserve_level
                           target_reserve_amount: 100
             default:
               - action: script.send_to_home_log
@@ -798,24 +798,24 @@ script:
               - alias: Battery fully charged
                 conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_office_battery_level
+                    entity_id: sensor.office_ecoflow_battery_level
                     above: 99
                 sequence:
                   - if:
                       - not:
                           - condition: state
-                            entity_id: number.ecoflow_office_backup_reserve_level
+                            entity_id: number.office_ecoflow_backup_reserve_level
                             state: "100"
                     then:
                       - action: script.send_to_home_log
                         data:
                           message: >-
-                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.ecoflow_kitchen_backup_reserve_level', with_unit=True) }}).
+                            Battery fully charged. Setting backup reserve to 100% ({{ states('number.kitchen_ecoflow_backup_reserve_level', with_unit=True) }}).
                           title: EcoFlow
                           log_level: "Debug"
                       - action: script.ecoflow_set_backup_reserve
                         data:
-                          entity_id: number.ecoflow_office_backup_reserve_level
+                          entity_id: number.office_ecoflow_backup_reserve_level
                           target_reserve_amount: 100
                     else:
                       - action: script.send_to_home_log
@@ -838,7 +838,7 @@ script:
               - alias: Battery not fully charged
                 conditions:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_office_battery_level
+                    entity_id: sensor.office_ecoflow_battery_level
                     below: 100
                   - condition: state
                     entity_id: input_boolean.ecoflow_office_charge_below_export
@@ -846,9 +846,9 @@ script:
                   - or:
                       - condition: template
                         value_template: >-
-                          {{ office_target_charge_rate|int(0) > 0 and office_target_charge_rate != states('number.ecoflow_office_ac_charging_power')|int(0) }}
+                          {{ office_target_charge_rate|int(0) > 0 and office_target_charge_rate != states('number.office_ecoflow_ac_charging_power')|int(0) }}
                       - condition: numeric_state
-                        entity_id: number.ecoflow_office_backup_reserve_level
+                        entity_id: number.office_ecoflow_backup_reserve_level
                         below: 100
                 sequence:
                   - if:
@@ -879,11 +879,11 @@ script:
                           log_level: "Debug"
                   - action: script.ecoflow_set_charge_rate
                     data:
-                      entity_id: number.ecoflow_office_ac_charging_power
+                      entity_id: number.office_ecoflow_ac_charging_power
                       target_charge_rate: "{{ office_target_charge_rate }}"
                   - action: script.ecoflow_set_backup_reserve
                     data:
-                      entity_id: number.ecoflow_office_backup_reserve_level
+                      entity_id: number.office_ecoflow_backup_reserve_level
                       target_reserve_amount: 100
             default:
               - action: script.send_to_home_log
@@ -933,7 +933,7 @@ script:
             sequence:
               - if:
                   - condition: numeric_state
-                    entity_id: sensor.ecoflow_kitchen_battery_level
+                    entity_id: sensor.kitchen_ecoflow_battery_level
                     below: 99
                 then:
                   - action: script.send_to_home_log
@@ -952,11 +952,11 @@ script:
                           entity_id: switch.ecoflow_kitchen_plug
                   - action: script.ecoflow_set_backup_reserve
                     data:
-                      entity_id: number.ecoflow_kitchen_backup_reserve_level
+                      entity_id: number.kitchen_ecoflow_backup_reserve_level
                       target_reserve_amount: 100
                   - action: script.ecoflow_set_charge_rate
                     data:
-                      entity_id: number.ecoflow_kitchen_ac_charging_power
+                      entity_id: number.kitchen_ecoflow_ac_charging_power
                       target_charge_rate: 1200
                 else:
                   - action: script.send_to_home_log
@@ -982,7 +982,7 @@ script:
                             entity_id: switch.ecoflow_kitchen_plug
                             state: "on"
                           - condition: numeric_state
-                            entity_id: sensor.ecoflow_kitchen_battery_level
+                            entity_id: sensor.kitchen_ecoflow_battery_level
                             above: input_number.ecoflow_kitchen_low_battery_reserve
                         then:
                           - parallel:
@@ -1005,22 +1005,22 @@ script:
                       - if:
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                                entity_id: number.kitchen_ecoflow_backup_reserve_level
                                 state: input_number.ecoflow_kitchen_low_battery_reserve
                         then:
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              entity_id: number.kitchen_ecoflow_backup_reserve_level
                               target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve') }}"
                       - if:
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_kitchen_ac_charging_power
+                                entity_id: number.kitchen_ecoflow_ac_charging_power
                                 state: "200"
                         then:
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              entity_id: number.kitchen_ecoflow_ac_charging_power
                               target_charge_rate: 200
                   - sequence:
                       - alias: Check if office plug has been switched off
@@ -1029,7 +1029,7 @@ script:
                             entity_id: switch.ecoflow_office_plug
                             state: "on"
                           - condition: numeric_state
-                            entity_id: sensor.ecoflow_office_battery_level
+                            entity_id: sensor.office_ecoflow_battery_level
                             above: input_number.ecoflow_office_low_battery_reserve
                         then:
                           - parallel:
@@ -1052,22 +1052,22 @@ script:
                       - if:
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_office_backup_reserve_level
+                                entity_id: number.office_ecoflow_backup_reserve_level
                                 state: input_number.ecoflow_office_low_battery_reserve
                         then:
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_office_backup_reserve_level
+                              entity_id: number.office_ecoflow_backup_reserve_level
                               target_reserve_amount: "{{ states('input_number.ecoflow_office_low_battery_reserve') }}"
                       - if:
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_office_ac_charging_power
+                                entity_id: number.office_ecoflow_ac_charging_power
                                 state: "200"
                         then:
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_office_ac_charging_power
+                              entity_id: number.office_ecoflow_ac_charging_power
                               target_charge_rate: 200
           - alias: Electricity rate below 0p/kw
             conditions:
@@ -1120,11 +1120,11 @@ script:
                                   log_level: "Debug"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              entity_id: number.kitchen_ecoflow_backup_reserve_level
                               target_reserve_amount: 100
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              entity_id: number.kitchen_ecoflow_ac_charging_power
                               target_charge_rate: 1200
                   - sequence:
                       - if:
@@ -1161,11 +1161,11 @@ script:
                                   log_level: "Debug"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_office_backup_reserve_level
+                              entity_id: number.office_ecoflow_backup_reserve_level
                               target_reserve_amount: 100
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_office_ac_charging_power
+                              entity_id: number.office_ecoflow_ac_charging_power
                               target_charge_rate: 1200
           - alias: Electricity rate 0p/kw
             conditions:
@@ -1218,11 +1218,11 @@ script:
                                   log_level: "Debug"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              entity_id: number.kitchen_ecoflow_backup_reserve_level
                               target_reserve_amount: 100
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              entity_id: number.kitchen_ecoflow_ac_charging_power
                               target_charge_rate: 1200
                   - sequence:
                       - if:
@@ -1259,11 +1259,11 @@ script:
                                   log_level: "Debug"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_office_backup_reserve_level
+                              entity_id: number.office_ecoflow_backup_reserve_level
                               target_reserve_amount: 100
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_office_ac_charging_power
+                              entity_id: number.office_ecoflow_ac_charging_power
                               target_charge_rate: 1200
           - alias: Excess solar detected
             conditions:
@@ -1296,7 +1296,7 @@ script:
             sequence:
               - if:
                   - condition: numeric_state
-                    entity_id: number.ecoflow_kitchen_backup_reserve_level
+                    entity_id: number.kitchen_ecoflow_backup_reserve_level
                     below: 100
                 then:
                   - alias: Check if fridge freezer plug has been switched off
@@ -1331,11 +1331,11 @@ script:
                           log_level: "Debug"
                   - action: script.ecoflow_set_charge_rate
                     data:
-                      entity_id: number.ecoflow_kitchen_ac_charging_power
+                      entity_id: number.kitchen_ecoflow_ac_charging_power
                       target_charge_rate: 1200
                   - action: script.ecoflow_set_backup_reserve
                     data:
-                      entity_id: number.ecoflow_kitchen_backup_reserve_level
+                      entity_id: number.kitchen_ecoflow_backup_reserve_level
                       target_reserve_amount: 100
                 else:
                   - action: script.send_to_home_log
@@ -1356,24 +1356,24 @@ script:
               - or:
                   - and:
                       - condition: numeric_state
-                        entity_id: number.ecoflow_kitchen_backup_reserve_level
+                        entity_id: number.kitchen_ecoflow_backup_reserve_level
                         above: input_number.ecoflow_kitchen_minimum_backup_reserve
                       - condition: state
-                        entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                        entity_id: switch.kitchen_ecoflow_backup_reserve_enabled
                         state: "on"
                   - and:
                       - condition: numeric_state
-                        entity_id: number.ecoflow_office_backup_reserve_level
+                        entity_id: number.office_ecoflow_backup_reserve_level
                         above: input_number.ecoflow_office_minimum_backup_reserve
                       - condition: state
-                        entity_id: switch.ecoflow_office_backup_reserve_enabled
+                        entity_id: switch.office_ecoflow_backup_reserve_enabled
                         state: "on"
             sequence:
               - choose:
                   - alias: Reduce charge rate
                     conditions:
                       - condition: numeric_state
-                        entity_id: number.ecoflow_kitchen_ac_charging_power
+                        entity_id: number.kitchen_ecoflow_ac_charging_power
                         above: input_number.ecoflow_charge_solar_threshold
                       - condition: template
                         value_template: >-
@@ -1386,14 +1386,14 @@ script:
                             data:
                               message: >-
                                 Solar production dipped below household consumption. Reducing charge rate from
-                                {{ states('number.ecoflow_kitchen_ac_charging_power') }}
+                                {{ states('number.kitchen_ecoflow_ac_charging_power') }}
                                 to
                                 {{ (((states('sensor.ecoflow_solar_excess')|float(0) * 1000) / 200)|int(0)) * 200 }}w.
                               title: Solar
                               log_level: "Debug"
                           - action: script.ecoflow_set_charge_rate
                             data:
-                              entity_id: number.ecoflow_kitchen_ac_charging_power
+                              entity_id: number.kitchen_ecoflow_ac_charging_power
                               target_charge_rate: >-
                                 {%-if ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
                                 states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200
@@ -1411,11 +1411,11 @@ script:
                       - or:
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_kitchen_backup_reserve_level
+                                entity_id: number.kitchen_ecoflow_backup_reserve_level
                                 state: input_number.ecoflow_kitchen_low_battery_reserve
                           - not:
                               - condition: state
-                                entity_id: number.ecoflow_office_backup_reserve_level
+                                entity_id: number.office_ecoflow_backup_reserve_level
                                 state: input_number.ecoflow_office_low_battery_reserve
                     sequence:
                       - parallel:
@@ -1428,11 +1428,11 @@ script:
                               log_level: "Debug"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_kitchen_backup_reserve_level
+                              entity_id: number.kitchen_ecoflow_backup_reserve_level
                               target_reserve_amount: "{{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(15) }}"
                           - action: script.ecoflow_set_backup_reserve
                             data:
-                              entity_id: number.ecoflow_office_backup_reserve_level
+                              entity_id: number.office_ecoflow_backup_reserve_level
                               target_reserve_amount: "{{ states('input_number.ecoflow_office_low_battery_reserve')|int(15) }}"
                 default: []
           - alias: Electricity start to cost
@@ -1446,10 +1446,10 @@ script:
               - alias: Check Ecoflow Kitchen
                 if:
                   - condition: numeric_state
-                    entity_id: number.ecoflow_kitchen_backup_reserve_level
+                    entity_id: number.kitchen_ecoflow_backup_reserve_level
                     above: input_number.ecoflow_kitchen_minimum_backup_reserve
                   - condition: state
-                    entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+                    entity_id: switch.kitchen_ecoflow_backup_reserve_enabled
                     state: "on"
                 then:
                   - parallel:
@@ -1467,7 +1467,7 @@ script:
                           log_level: "Debug"
                       - action: script.ecoflow_set_backup_reserve
                         data:
-                          entity_id: number.ecoflow_kitchen_backup_reserve_level
+                          entity_id: number.kitchen_ecoflow_backup_reserve_level
                           target_reserve_amount: >-
                             {{ states('input_number.ecoflow_kitchen_low_battery_reserve')|int(0) }}
                 else:
@@ -1487,10 +1487,10 @@ script:
               - alias: Check Ecoflow Office
                 if:
                   - condition: numeric_state
-                    entity_id: number.ecoflow_office_backup_reserve_level
+                    entity_id: number.office_ecoflow_backup_reserve_level
                     above: input_number.ecoflow_office_minimum_backup_reserve
                   - condition: state
-                    entity_id: switch.ecoflow_office_backup_reserve_enabled
+                    entity_id: switch.office_ecoflow_backup_reserve_enabled
                     state: "on"
                 then:
                   - parallel:
@@ -1508,7 +1508,7 @@ script:
                           log_level: "Debug"
                       - action: script.ecoflow_set_backup_reserve
                         data:
-                          entity_id: number.ecoflow_office_backup_reserve_level
+                          entity_id: number.office_ecoflow_backup_reserve_level
                           target_reserve_amount: >-
                             {{ states('input_number.ecoflow_office_low_battery_reserve')|int(0) }}
                 else:
@@ -1534,10 +1534,10 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_office_backup_reserve_level')|int(100) ==
+              {{ states('number.office_ecoflow_backup_reserve_level')|int(100) ==
               states('input_number.ecoflow_office_minimum_backup_reserve')|int(10)}}
           - condition: state
-            entity_id: switch.ecoflow_office_backup_reserve_enabled
+            entity_id: switch.office_ecoflow_backup_reserve_enabled
             state: "on"
           - condition: state
             entity_id: switch.ecoflow_office_plug
@@ -1588,17 +1588,17 @@ script:
                 conditions:
                   - or:
                       - condition: numeric_state
-                        entity_id: sensor.ecoflow_office_battery_level
+                        entity_id: sensor.office_ecoflow_battery_level
                         below: input_number.ecoflow_office_minimum_backup_reserve
                       - condition: template
                         value_template: >-
-                          {{ states('sensor.ecoflow_office_battery_level')|int(10) ==
+                          {{ states('sensor.office_ecoflow_battery_level')|int(10) ==
                           states('input_number.ecoflow_office_minimum_backup_reserve')|int(10)}}
                 sequence:
                   - action: script.send_direct_notification
                     data:
                       message: >-
-                        Battery level too low ({{ states('sensor.ecoflow_office_battery_level') }} <=
+                        Battery level too low ({{ states('sensor.office_ecoflow_battery_level') }} <=
                         {{ states('input_number.ecoflow_office_minimum_backup_reserve') }} %).
                         Not turning plug off.
                       title: Ecoflow
@@ -1625,10 +1625,10 @@ script:
       - if:
           - condition: template
             value_template: >-
-              {{ states('number.ecoflow_kitchen_backup_reserve_level')|int(100) ==
+              {{ states('number.kitchen_ecoflow_backup_reserve_level')|int(100) ==
               states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10)}}
           - condition: state
-            entity_id: switch.ecoflow_kitchen_backup_reserve_enabled
+            entity_id: switch.kitchen_ecoflow_backup_reserve_enabled
             state: "on"
           - condition: state
             entity_id: switch.ecoflow_kitchen_plug
@@ -1653,17 +1653,17 @@ script:
                 conditions:
                   - or:
                       - condition: numeric_state
-                        entity_id: sensor.ecoflow_kitchen_battery_level
+                        entity_id: sensor.kitchen_ecoflow_battery_level
                         below: input_number.ecoflow_kitchen_minimum_backup_reserve
                       - condition: template
                         value_template: >-
-                          {{ states('sensor.ecoflow_kitchen_battery_level')|int(10) ==
+                          {{ states('sensor.kitchen_ecoflow_battery_level')|int(10) ==
                           states('input_number.ecoflow_kitchen_minimum_backup_reserve')|int(10)}}
                 sequence:
                   - action: script.send_to_home_log
                     data:
                       message: >-
-                        Battery level too low ({{ states('sensor.ecoflow_kitchen_battery_level') }} <=
+                        Battery level too low ({{ states('sensor.kitchen_ecoflow_battery_level') }} <=
                         {{ states('input_number.ecoflow_kitchen_minimum_backup_reserve') }} %).
                         Not turning plug off.
                       title: Ecoflow
