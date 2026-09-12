@@ -7,7 +7,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - binary_sensor.file_editor_running
+          - switch.file_editor
         to: "on"
     conditions:
       - condition: state
@@ -52,7 +52,7 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - binary_sensor.advanced_ssh_web_terminal_running
+          - switch.advanced_ssh_web_terminal
         to: "on"
     conditions:
       - condition: state
@@ -94,7 +94,7 @@ automation:
     description: ""
     triggers:
       - trigger: state
-        entity_id: binary_sensor.zigbee2mqtt_proxy_running
+        entity_id: switch.zigbee2mqtt_proxy
         to: "on"
     conditions:
       - condition: state
@@ -138,13 +138,9 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.file_editor_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.file_editor_newest_version
-            state: sensor.file_editor_version
+          - update.file_editor_update
+        to: "on"
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -165,13 +161,8 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.advanced_ssh_web_terminal_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.advanced_ssh_web_terminal_newest_version
-            state: sensor.advanced_ssh_web_terminal_version
+          - update.advanced_ssh_web_terminal_update
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -192,13 +183,9 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.esphome_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.esphome_newest_version
-            state: sensor.esphome_version
+          - update.esphome_device_builder_update
+        to: "on"
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -211,7 +198,7 @@ automation:
           - action: update.install
             data: {}
             target:
-              entity_id: update.esphome_update
+              entity_id: update.esphome_device_builder_update
     mode: single
   - id: "1700062541457"
     alias: "Add-On: Update For Zigbee2MQTT Proxy"
@@ -219,13 +206,9 @@ automation:
     triggers:
       - trigger: state
         entity_id:
-          - sensor.zigbee2mqtt_proxy_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.zigbee2mqtt_proxy_newest_version
-            state: sensor.zigbee2mqtt_proxy_version
+          - update.zigbee2mqtt_proxy_update
+        to: "on"
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
@@ -240,46 +223,15 @@ automation:
             target:
               entity_id: update.zigbee2mqtt_proxy_update
     mode: single
-  - id: "1700062541458"
-    alias: "Add-On: Update For Log Viewer"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id:
-          - sensor.log_viewer_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.log_viewer_newest_version
-            state: sensor.log_viewer_version
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: >-
-                Log Viewer updated from {{ states('sensor.log_viewer_version') }} to
-                {{ states('sensor.log_viewer_newest_version')}}.
-              title: "➕ Add-on"
-              log_level: "Normal"
-          - action: update.install
-            data: {}
-            target:
-              entity_id: update.log_viewer_update
-    mode: single
   - id: "1700062541459"
     alias: "Add-On: Update For Visual Studio Code"
     description: ""
     triggers:
       - trigger: state
         entity_id:
-          - sensor.visual_studio_code_newest_version
-    conditions:
-      - condition: not
-        conditions:
-          - condition: state
-            entity_id: sensor.visual_studio_code_newest_version
-            state: sensor.visual_studio_code_version
+          - update.studio_code_server_update
+        to: "on"
+    conditions: []
     actions:
       - parallel:
           - action: script.send_to_home_log
