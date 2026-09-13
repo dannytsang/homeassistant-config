@@ -188,7 +188,7 @@ Disarms the alarm in parallel with a log entry.
 |---|---|
 | ID | `1582754128581` |
 | Trigger | `person.terina` changes from `not_home` to `home` |
-| Condition | `sensor.apollo_r_pro_1_w_ef755c_ltr390_light` below 55 (dark outside) |
+| Condition | `sensor.living_room_motion_3_ltr390_light` below 55 (dark outside) |
 
 In parallel:
 - If living room lamps are off, calls `script.front_door_lock_status`.

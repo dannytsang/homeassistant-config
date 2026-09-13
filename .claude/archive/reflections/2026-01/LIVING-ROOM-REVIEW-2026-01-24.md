@@ -70,7 +70,7 @@ conditions:
   - or:
       # Sensor 1: Dark room (motion sensor light levels low)
       - condition: numeric_state
-        entity_id: sensor.apollo_r_pro_1_w_ef755c_ltr390_light
+        entity_id: sensor.living_room_motion_3_ltr390_light
         below: input_number.living_room_light_level_2_threshold
       - condition: numeric_state
         entity_id: sensor.living_room_motion_illuminance

@@ -93,7 +93,7 @@ flowchart LR
 | `binary_sensor.living_room_area_motion` |
 | `binary_sensor.lounge_motion` |
 | `binary_sensor.living_room_motion_occupancy` |
-| `binary_sensor.apollo_r_pro_1_w_ef755c_ld2412_presence` |
+| `binary_sensor.living_room_motion_3_ld2450_presence` |
 
 ```mermaid
 flowchart TD

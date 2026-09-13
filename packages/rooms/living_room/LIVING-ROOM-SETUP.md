@@ -11,8 +11,8 @@ The living room setup combines motion sensors, lamps, ceiling lights, motorized 
 | Lamps | `light.living_room_lamp_left`, `light.living_room_lamp_right`, `light.living_room_lamps` | Main ambient lamp pair and group. |
 | Ceiling lights | `light.lounge_ceiling`, `light.living_room_ceiling`, left/right ceiling bulb entities | Full-room lighting and grouped ceiling control. |
 | TV lighting | `light.tv_backlight` | Ambient TV backlight turned off with TV shutdown. |
-| Motion | `binary_sensor.living_room_area_motion`, `binary_sensor.lounge_motion`, `binary_sensor.living_room_motion_occupancy`, `binary_sensor.apollo_r_pro_1_w_ef755c_ld2412_presence` | Motion and presence inputs for lighting. |
-| Light level | `sensor.apollo_r_pro_1_w_ef755c_ltr390_light`, `sensor.living_room_motion_illuminance`, `sensor.front_garden_motion_illuminance` | Indoor lighting decisions and outdoor glare decisions. |
+| Motion | `binary_sensor.living_room_area_motion`, `binary_sensor.lounge_motion`, `binary_sensor.living_room_motion_occupancy`, `binary_sensor.living_room_motion_3_ld2450_presence` | Motion and presence inputs for lighting. |
+| Light level | `sensor.living_room_motion_3_ltr390_light`, `sensor.living_room_motion_illuminance`, `sensor.front_garden_motion_illuminance` | Indoor lighting decisions and outdoor glare decisions. |
 | Blinds | `cover.living_room_blinds_left`, `cover.living_room_blinds_middle`, `cover.living_room_blinds_right`, `binary_sensor.living_room_windows` | Blind position and window-open safety. |
 | Media | `binary_sensor.tv_powered_on`, `sensor.tv_plug_power`, `binary_sensor.playstation_powered_on`, `sensor.playstation_plug_power`, `remote.living_room`, `switch.harmony_hub_plug` | TV/console activity and Harmony Hub management. |
 | Computers | `group.family_computer`, `group.terinas_work_computer`, `device_tracker.doug` | Glare-aware blind logic and presence logging. |

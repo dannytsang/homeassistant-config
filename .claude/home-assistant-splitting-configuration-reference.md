@@ -304,7 +304,7 @@ sensor:
       kitchen_motion_illuminance:
         friendly_name: "Kitchen Motion Illuminance"
         unit_of_measurement: lux
-        value_template: "{{ state_attr('sensor.apollo_r_pro_1_w_ef755c_ltr390_light', 'illuminance') }}"
+        value_template: "{{ state_attr('sensor.living_room_motion_3_ltr390_light', 'illuminance') }}"
 
 input_boolean:
   enable_kitchen_motion_triggers:
