@@ -206,7 +206,7 @@ Sequential shutdown of all major devices and lights. Each step runs in parallel 
 | Stairs lights | `scene.stairs_light_off`, `scene.stairs_light_2_off` |
 | Porch lights | `scene.porch_lights_off` |
 | Bathroom lights | `scene.bathroom_turn_off_light` |
-| Lounge Google TV | `media_player.lounge_tv` off (if not already off/unavailable) |
+| Lounge Google TV | `media_player.lounge` off (if not already off/unavailable) |
 | Bedroom Chromecast | `media_player.bedroom_tv` off (if not already off/unavailable) |
 | Living room TV (Harmony) | `remote.living_room` off (if `binary_sensor.tv_powered_on` is `on`) |
 | Bedroom TV | `remote.bedroom_remote` power command (if `binary_sensor.bedroom_tv_powered_on` is `on`) |
