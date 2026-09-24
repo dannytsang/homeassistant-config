@@ -2,7 +2,7 @@
 
 # Messaging Package Documentation
 
-The messaging package is the home's notification hub. Automations call a small set of send scripts, and those scripts decide whether to write to the home log, send a direct message, attach an image or URL, or show action buttons on a phone. The package supports Slack, Discord, Telegram, WhatsApp through CallMeBot, Home Assistant mobile app notifications, and HASS Agent desktop notifications.
+The messaging package is the home's notification hub. Automations call a small set of send scripts, and those scripts decide whether to write to the home log, send a direct message, attach an image or URL, or show action buttons on a phone. The package supports Discord, Telegram, WhatsApp through CallMeBot, Home Assistant mobile app notifications, and HASS Agent desktop notifications.
 
 This documentation covers every YAML file in this folder:
 
@@ -10,7 +10,6 @@ This documentation covers every YAML file in this folder:
 |------|---------|----------|
 | `notifications.yaml` | Main notification orchestration | 10 scripts |
 | `home_assistant_mobile.yaml` | Home Assistant mobile app delivery | 4 scripts |
-| `slack.yaml` | Slack command handling and Slack delivery | 1 automation, 3 scripts |
 | `discord.yaml` | Discord delivery | 3 scripts |
 | `telegram.yaml` | Telegram inbound events and Telegram delivery | 3 automations, 2 scripts |
 | `callmebot.yaml` | WhatsApp delivery through CallMeBot | 2 REST notify services, 1 script |
@@ -22,12 +21,11 @@ For non-technical users, the important behavior is:
 
 | Area | What Happens |
 |------|--------------|
-| Home log | `script.send_to_home_log` writes household status messages to the configured Slack and/or Discord home-log channels when the log level allows it. |
+| Home log | `script.send_to_home_log` writes household status messages to the configured Discord home-log channels when the log level allows it. |
 | Direct messages | `script.send_direct_notification` sends person-targeted alerts through each person's configured preferred platforms. |
 | Quiet-time filtering | Direct text notifications only send during the configured bedtime window when the YAML's quiet-time conditions allow it. Important messages can bypass the filter. |
 | Attachments | Dedicated scripts send local files or URL/image attachments to home-log channels or direct recipients. |
 | Action buttons | Two-button and three-button notification scripts send tappable actions to mobile and Telegram recipients. Mobile app responses are handled by one callback router. |
-| Chat commands | Slack slash commands and Telegram messages can be passed to Home Assistant conversation agents, with responses sent back to the chat platform. |
 | WhatsApp | CallMeBot REST notify services send WhatsApp messages for Danny and Terina. |
 
 ## How Messaging Decides What To Do
@@ -42,17 +40,16 @@ flowchart TB
     Send --> Actionable[send_actionable_notification_with_2_or_3_buttons]
 
     HomeLog --> LogLevel{home_log_level not Off and level matches?}
-    LogLevel -->|Yes| HomePlatforms[Slack and/or Discord home log]
+    LogLevel -->|Yes| HomePlatforms[Discord home log]
     LogLevel -->|No| SkipLog[No home-log delivery]
 
     Direct --> QuietGate{Quiet-time conditions allow delivery?}
     Url --> QuietGate
-    Attach --> AttachmentHomeLog[Slack and Discord home log attachments]
+    Attach --> AttachmentHomeLog[Discord home log attachments]
     Attach --> AttachmentPeople{people supplied and direct notifications enabled?}
 
     QuietGate -->|Yes| Preferred[Resolve preferred platforms from input_text.direct_message_list]
     QuietGate -->|No| SkipDirect[No direct delivery]
-    Preferred --> Slack[Slack direct channel]
     Preferred --> Discord[Discord direct channel]
     Preferred --> Mobile[Home Assistant mobile app]
     Preferred --> Telegram[Telegram]
@@ -72,7 +69,6 @@ flowchart LR
     subgraph MessagingFolder[packages/integrations/messaging]
         Notifications[notifications.yaml]
         Mobile[home_assistant_mobile.yaml]
-        Slack[slack.yaml]
         Discord[discord.yaml]
         Telegram[telegram.yaml]
         WhatsApp[callmebot.yaml]
@@ -82,7 +78,6 @@ flowchart LR
 
     Notifications --> Orchestration[Home log, direct messages, attachments, actionables]
     Mobile --> MobileDelivery[Per-person mobile delivery]
-    Slack --> SlackDelivery[Slack webhook and notify service]
     Discord --> DiscordDelivery[Discord notify services]
     Telegram --> TelegramDelivery[Telegram bot events and messages]
     WhatsApp --> CallMeBot[CallMeBot REST notify services]
@@ -99,8 +94,8 @@ This is the primary API used by other packages.
 | `script.send_to_home_log` | Sends text to configured home-log platforms if `input_select.home_log_level` allows it. |
 | `script.send_direct_notification` | Sends a text direct notification to selected people or, by default, Danny, Terina, Leo, and Ashlee. |
 | `script.send_direct_notification_with_url` | Sends a direct notification with a URL, routed by preferred platform where supported. |
-| `script.send_home_log_with_local_attachments` | Sends a local file attachment to Slack and Discord home-log channels, and optionally to direct recipients. |
-| `script.send_home_log_with_url` | Sends a URL attachment to Slack and Discord home-log channels. |
+| `script.send_home_log_with_local_attachments` | Sends a local file attachment to Discord home-log channels, and optionally to direct recipients. |
+| `script.send_home_log_with_url` | Sends a URL attachment to Discord home-log channels. |
 | `script.send_actionable_notification_with_2_buttons` | Sends a two-button notification to preferred mobile and Telegram recipients. |
 | `script.send_actionable_notification_with_3_buttons` | Sends a three-button notification to preferred mobile and Telegram recipients. |
 | `script.post_to_hass_agent` | Sends a desktop notification to a supplied HASS Agent notify service. |
@@ -129,19 +124,6 @@ Mobile delivery targets used by the YAML:
 | `person.leo` | `notify.mobile_app_ipad_air_4th_generation_6730` |
 | `person.ashlee` | `notify.send_message` with target `notify.ashlee_s_ipad` in mobile platform scripts; `notify.mobile_app_ipad_2` in the wrapper actionable scripts in `notifications.yaml` |
 | No person match | Defaults usually send to Danny, Terina, and Leo mobile devices. |
-
-### `slack.yaml`
-
-Slack has one inbound automation and three delivery scripts.
-
-| Type | Name | What It Does |
-|------|------|--------------|
-| Automation | `Slack: Command Received` | Receives a webhook slash command, logs command details, and for Danny outside `privategroup` channels sends the text to the configured conversation agent. |
-| Script | `script.post_slack_notification` | Sends a text message to `notify.danny_tsang` with optional Slack block formatting and people mentions. |
-| Script | `script.post_to_slack_with_url_attachment` | Sends a Slack message with an image URL accessory. |
-| Script | `script.post_to_slack_with_local_attachments` | Sends a Slack message with a local file attachment. |
-
-Slack command handling uses `input_text.dannys_slack_id`, `input_text.dannys_selected_conversation_agent`, and `input_text.dannys_secondary_selected_conversation_agent`.
 
 ### `discord.yaml`
 
@@ -209,7 +191,6 @@ flowchart TD
     Enabled -->|Yes| Level{log_level unset or equals current level?}
     Level -->|No| Drop
     Level -->|Yes| Platforms{Configured home_log_platforms}
-    Platforms -->|Contains Slack| Slack[script.post_slack_notification]
     Platforms -->|Contains Discord| Discord[script.post_discord_notification]
 ```
 
@@ -236,7 +217,7 @@ flowchart TD
     Log --> Enabled{enable_direct_notifications on?}
     Enabled -->|No| Stop
     Enabled -->|Yes| Resolve[Resolve preferred platforms]
-    Resolve --> Send[Send to Slack, Discord, Mobile, Telegram, and/or WhatsApp]
+    Resolve --> Send[Send to Discord, Mobile, Telegram, and/or WhatsApp]
 ```
 
 Quiet-time bypass conditions implemented by the YAML:
@@ -253,9 +234,9 @@ Power-user note: as currently written, `send_direct_notification` is gated by th
 
 | Script | Home Log | Direct Delivery | Notes |
 |--------|----------|-----------------|-------|
-| `script.send_home_log_with_local_attachments` | Slack and Discord when home log is not off | Slack, Discord, and Telegram when `people` is supplied and direct notifications are enabled | The script computes mobile and WhatsApp platform lists but does not send local attachments to them. |
-| `script.send_home_log_with_url` | Slack and Discord when home log is not off | No direct delivery | Sends URL attachments to home-log channels only. |
-| `script.send_direct_notification_with_url` | Always calls `send_to_home_log` first | Slack, Discord, Mobile, Telegram, and WhatsApp when quiet/direct gates pass | Discord, Telegram, and WhatsApp include the URL in or alongside the text rather than using every platform's attachment API. |
+| `script.send_home_log_with_local_attachments` | Discord when home log is not off | Discord, and Telegram when `people` is supplied and direct notifications are enabled | The script computes mobile and WhatsApp platform lists but does not send local attachments to them. |
+| `script.send_home_log_with_url` | Discord when home log is not off | No direct delivery | Sends URL attachments to home-log channels only. |
+| `script.send_direct_notification_with_url` | Always calls `send_to_home_log` first | Discord, Mobile, Telegram, and WhatsApp when quiet/direct gates pass | Discord, Telegram, and WhatsApp include the URL in or alongside the text rather than using every platform's attachment API. |
 
 ### Actionable Notifications
 
@@ -294,7 +275,6 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 
 | ID | Alias | File |
 |----|-------|------|
-| `1689193654844` | Slack: Command Received | `slack.yaml` |
 | `1653739708849` | Telegram: Event Received | `telegram.yaml` |
 | `1653739708850` | Telegram: Message Received | `telegram.yaml` |
 | `1653739708851` | Telegram: Callback Received | `telegram.yaml` |
@@ -318,9 +298,6 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 | `script.post_to_home_assistant_with_url_attachment` | `home_assistant_mobile.yaml` |
 | `script.post_actionable_notification_to_home_assistant_with_2_buttons` | `home_assistant_mobile.yaml` |
 | `script.post_actionable_notification_to_home_assistant_with_3_buttons` | `home_assistant_mobile.yaml` |
-| `script.post_slack_notification` | `slack.yaml` |
-| `script.post_to_slack_with_url_attachment` | `slack.yaml` |
-| `script.post_to_slack_with_local_attachments` | `slack.yaml` |
 | `script.post_discord_notification` | `discord.yaml` |
 | `script.post_to_discord_with_url_attachment` | `discord.yaml` |
 | `script.post_to_discord_with_local_attachments` | `discord.yaml` |
@@ -334,7 +311,6 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 |-------------------|------|----------|
 | `notify.danny_s_whatsapp` | `callmebot.yaml` | Danny WhatsApp via CallMeBot REST notify. |
 | `notify.terina_s_whatsapp` | `callmebot.yaml` | Terina WhatsApp via CallMeBot REST notify. |
-| `notify.danny_tsang` | `slack.yaml`, `discord.yaml` | Slack messages and one Discord URL-embed script. |
 | `notify.home_assistant` | `discord.yaml` | Discord text and local attachment messages. |
 | `telegram_bot.send_message` | `telegram.yaml` | Telegram bot text replies and direct notifications. |
 | `telegram_bot.send_photo` | `telegram.yaml` | Telegram local attachment/photo delivery. |
@@ -353,7 +329,6 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 | Logging controls | `input_select.home_log_level`, `input_text.home_log_platforms` |
 | Direct routing | `input_text.direct_message_list` |
 | Quiet-time controls | `input_datetime.childrens_bed_time`, `schedule.notification_quiet_time` |
-| Slack configuration | `input_text.slack_home_log_channel_id`, `input_text.slack_direct_notification_channel_id`, `input_text.dannys_slack_id`, `input_text.terinas_slack_id`, `input_text.leos_slack_id`, `input_text.dannys_selected_conversation_agent`, `input_text.dannys_secondary_selected_conversation_agent` |
 | Discord configuration | `input_text.discord_home_log_channel_id`, `input_text.discord_direct_notification_channel_id`, `input_text.dannys_discord_chat_id`, `input_text.terinas_discord_chat_id`, `input_text.leos_discord_chat_id`, `input_text.ashlees_discord_chat_id` |
 | Telegram configuration | `input_text.telegram_config_id`, `input_text.dannys_telegram_chat_id` |
 | Delayed notification todos | `todo.danny_s_notifications`, `todo.shared_notifications` |
@@ -364,22 +339,21 @@ The callback router only handles Home Assistant mobile app action events. Telegr
 | Entity | Used For |
 |--------|----------|
 | `input_select.home_log_level` | Turns home-log posts off or allows messages whose `log_level` equals the selected level. |
-| `input_text.home_log_platforms` | Enables Slack and/or Discord home-log delivery by containing those platform names. |
+| `input_text.home_log_platforms` | Enables Discord home-log delivery by containing those platform names. |
 | `input_boolean.enable_direct_notifications` | Master switch for direct, attachment-direct, and actionable sends. |
 | `input_text.direct_message_list` | Default preferred-platform source used by `get_preferred_direct_message_platform.jinja` when no people list is supplied. |
 | `input_datetime.childrens_bed_time` | Start of the bedtime window used by `send_direct_notification`. |
 | `schedule.notification_quiet_time` | Quiet-time schedule used by URL direct notifications and one keyword-bypass branch. |
-| Platform channel and ID input texts | Route Slack, Discord, and Telegram messages to the right channels, users, and chat IDs. |
+| Platform channel and ID input texts | Route Discord, and Telegram messages to the right channels, users, and chat IDs. |
 
 ## Maintenance Notes
 
 | Symptom | First Things To Check |
 |---------|-----------------------|
-| Home-log messages missing | `input_select.home_log_level`, requested `log_level`, and whether `input_text.home_log_platforms` contains `Slack` or `Discord`. |
+| Home-log messages missing | `input_select.home_log_level`, requested `log_level`, and whether `input_text.home_log_platforms` contains `Discord`. |
 | Direct messages missing | `input_boolean.enable_direct_notifications`, the selected people, and the preferred-platform output from `input_text.direct_message_list`. |
 | Direct text messages only send at unexpected times | Review the implemented bedtime gate in `script.send_direct_notification`: it requires the current time to be after `input_datetime.childrens_bed_time` and before `07:30`. |
 | URL direct messages missing | Check `schedule.notification_quiet_time`, `priority`, bypass keywords, and `input_boolean.enable_direct_notifications`. |
-| Slack commands do not answer | Confirm the webhook is receiving data, `input_text.dannys_slack_id` matches the Slack user ID, and the selected conversation agent entities are valid. |
 | Telegram replies missing | Check Telegram bot integration, `input_text.telegram_config_id`, `input_text.dannys_telegram_chat_id`, and conversation agent availability. |
 | Mobile action button does nothing | Check the action string exactly matches one of the callback-router action names. |
 | WhatsApp missing | Confirm the CallMeBot phone and API-key secrets and whether `people` contains `person.danny` or `person.terina`. |

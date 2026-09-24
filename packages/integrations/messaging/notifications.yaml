@@ -1,5 +1,4 @@
 # Created by Danny Tsang <danny@tsang.uk>
-# Integration: https://www.home-assistant.io/integrations/slack/
 # Integration: https://www.home-assistant.io/integrations/mobile_app/
 script:
   # region Encapsulated scripts
@@ -41,16 +40,6 @@ script:
           - condition: template
             value_template: "{{ log_level|default(none, true) is none or log_level == states('input_select.home_log_level') }}"
         then:
-          - if:
-              - condition: template
-                value_template: "{{ 'Slack' in states('input_text.home_log_platforms') }}"
-            then:
-              - action: script.post_slack_notification
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "{{ states('input_text.slack_home_log_channel_id') }}"
-                continue_on_error: true
           - if:
               - condition: template
                 value_template: "{{ 'Discord' in states('input_text.home_log_platforms') }}"
@@ -159,9 +148,6 @@ script:
         then:
           - variables:
               # Get people's preferred messaging platform
-              slack: >-
-                {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-                {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
               discord: >-
                 {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
                 {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
@@ -184,21 +170,6 @@ script:
                 entity_id: input_boolean.enable_direct_notifications
                 state: "on"
             then:
-              # Check anyone has set Slack for their direct messages
-              - if:
-                  - condition: template
-                    value_template: "{{ slack|default('', true)|length > 0 }}"
-                then:
-                  - action: script.post_slack_notification
-                    data:
-                      message: "{{ message }}"
-                      title: "{{ title|default(none, true) }}"
-                      target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                      people: >-
-                        {{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
-                        |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
-                        |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}
-                    continue_on_error: true
               - if:
                   - condition: template
                     value_template: "{{ discord|default('', true)|length > 0 }}"
@@ -287,9 +258,6 @@ script:
               - web
     variables:
       # Get people's preferred messaging platform
-      slack: >-
-        {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-        {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0 else people.entity_id, 'Slack') }}
       discord: >-
         {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
         {{ preferred_direct_message_platform(states('input_text.direct_message_list') if people.entity_id|default('', true)|length == 0 else people.entity_id, 'Discord') }}
@@ -333,21 +301,6 @@ script:
             entity_id: input_boolean.enable_direct_notifications
             state: "on"
         then:
-          # Check anyone has set Slack for their direct messages
-          - if:
-              - condition: template
-                value_template: "{{ slack|default('', true)|length > 0 }}"
-            then:
-              - action: script.post_to_slack_with_url_attachment
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                  people: >-
-                    {{ slack|join(' ')|replace('person.danny', states('input_text.dannys_slack_id'))
-                    |replace('person.terina', states('input_text.terinas_slack_id'))
-                    |replace('person.leo', states('input_text.leos_slack_id')) }}
-                continue_on_error: true
           - if:
               - condition: template
                 value_template: "{{ discord|default('', true)|length > 0 }}"
@@ -462,9 +415,6 @@ script:
             {{ people|default(namespace(entity_id=['person.danny', 'person.terina', 'person.leo', 'person.ashlee']), true) }}
       - variables:
           # Get people's preferred messaging platform
-          slack: >-
-            {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
-            {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Slack') }}
           discord: >-
             {% from 'get_preferred_direct_message_platform.jinja' import preferred_direct_message_platform %}
             {{ preferred_direct_message_platform(states('input_text.direct_message_list') if persons.entity_id|default('', true)|length == 0  else persons.entity_id, 'Discord') }}
@@ -485,13 +435,6 @@ script:
                     state: "Off"
             then:
               - parallel:
-                  - action: script.post_to_slack_with_local_attachments
-                    data:
-                      message: "{{ message }}"
-                      title: "{{ title|default(none, true) }}"
-                      target: "{{ states('input_text.slack_home_log_channel_id') }}"
-                      filePath: "{{ filePath }}"
-                    continue_on_error: true
                   - action: script.post_to_discord_with_local_attachments
                     data:
                       message: "{{ message }}"
@@ -507,21 +450,6 @@ script:
                 entity_id: input_boolean.enable_direct_notifications
                 state: "on"
             then:
-              - if:
-                  - condition: template
-                    value_template: "{{ slack|default('', true)|length > 0 }}"
-                then:
-                  - action: script.post_to_slack_with_local_attachments
-                    data:
-                      message: "{{ message }}"
-                      title: "{{ title|default(none, true) }}"
-                      target: "{{ states('input_text.slack_direct_notification_channel_id') }}"
-                      people: >-
-                        {{ slack|join(' ')|replace('person.danny', '<@'~states('input_text.dannys_slack_id')~'>')
-                        |replace('person.terina', '<@'~states('input_text.terinas_slack_id')~'>')
-                        |replace('person.leo', '<@'~states('input_text.leos_slack_id')~'>') }}
-                      filePath: "{{ filePath }}"
-                    continue_on_error: true
               - if:
                   - condition: template
                     value_template: "{{ discord|default('', true)|length > 0 }}"
@@ -578,12 +506,6 @@ script:
                 state: "Off"
         then:
           - parallel:
-              - action: script.post_to_slack_with_url_attachment
-                data:
-                  message: "{{ message }}"
-                  title: "{{ title|default(none, true) }}"
-                  target: "{{ states('input_text.slack_home_log_channel_id') }}"
-                  url: "{{ url }}"
               - action: script.post_to_discord_with_url_attachment
                 data:
                   message: "{{ message }}"
