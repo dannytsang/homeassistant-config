@@ -56,7 +56,7 @@ flowchart TD
 |------------|----|---------|----------------|------|
 | `Add-On: Update For File Editor` | `1700062541454` | `sensor.file_editor_newest_version` changes | `update.file_editor_update` | `single` |
 | `Add-On: Update For Terminal & Web` | `1700062541455` | `sensor.advanced_ssh_web_terminal_newest_version` changes | `update.advanced_ssh_web_terminal_update` | `single` |
-| `Add-On: Update For ESPHome` | `1700062541456` | `sensor.esphome_newest_version` changes | `update.esphome_update` | `single` |
+| `Add-On: Update For ESPHome` | `1700062541456` | `sensor.esphome_device_builder_newest_version` changes | `update.esphome_update` | `single` |
 | `Add-On: Update For Zigbee2MQTT Proxy` | `1700062541457` | `sensor.zigbee2mqtt_proxy_newest_version` changes | `update.zigbee2mqtt_proxy_update` | `single` |
 | `Add-On: Update For Log Viewer` | `1700062541458` | `sensor.log_viewer_newest_version` changes | `update.log_viewer_update` | `single` |
 | `Add-On: Update For Visual Studio Code` | `1700062541459` | `sensor.visual_studio_code_newest_version` changes | `update.studio_code_server_update` | `single` |
