@@ -5,17 +5,27 @@ template:
       - name: House Leak Detected
         unique_id: 96bb0645-6a0a-4b13-9cd4-a17bdccf2809
         device_class: moisture
+
         state: >-
-          {{ states | selectattr('attributes.device_class', 'eq', 'moisture') | map(attribute='state') | select('eq', 'on') | list | count > 0 }}
+          {{
+            states.binary_sensor
+            | selectattr('attributes.device_class', 'eq', 'moisture')
+            | rejectattr('entity_id', 'eq', 'binary_sensor.house_leak_detected')
+            | selectattr('state', 'eq', 'on')
+            | list
+            | count > 0
+          }}
+
         attributes:
           locations: >-
-            {% set ns = namespace(leaks = []) %}
-            {%- for item in states | selectattr('attributes.device_class', 'eq', 'moisture') -%}
-              {%- if item.state == 'on' -%}
-                {% set ns.leaks = ns.leaks + [item.attributes.friendly_name] %}
-              {%- endif -%}
-            {%- endfor -%}
-            {{ ns.leaks }}
+            {{
+              states.binary_sensor
+              | selectattr('attributes.device_class', 'eq', 'moisture')
+              | rejectattr('entity_id', 'eq', 'binary_sensor.house_leak_detected')
+              | selectattr('state', 'eq', 'on')
+              | map(attribute='attributes.friendly_name')
+              | list
+            }}
 
 automation:
   - id: "1736794523847"
