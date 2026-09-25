@@ -125,11 +125,10 @@ script:
     mode: queued
     max: 10
   post_to_discord_with_local_attachments:
-    alias: "Post To Discord Home Log With File Attachments"
+    alias: "Post To Discord With File Attachments"
     icon: mdi:message-image
     description: >-
-      Post a message with a file attachment to the home_log
-      channel. Please use a send script to decouple from the messaging platform.
+      Post a message with a file attachment to Discord. Please use a send script to decouple from the messaging platform.
     fields:
       message:
         description: Message to post
@@ -144,15 +143,21 @@ script:
       people:
         description: (optional)Discord user ID to message.
         example: "<@123456>"
+        selector:
+          text:
       target:
         description: >-
           List of Discord channel or user ID to post the message to.
           If a user is set then they will not be tagged but notified of the post.
         required: true
         example: "['1234', '4567']"
+        selector:
+          text:
       filePath:
         description: File path to attach to post.
         required: true
+        selector:
+          text:
     sequence:
       - choose:
           # Check a title was set
@@ -166,8 +171,8 @@ script:
                     **{{ title|default('', true) }}**
 
 
-                    {{ iif(people is not none,people|default('', true)~' ','') }}
-                    {% from 'process_messages.jinja' import process_messages %}
+                    {{ iif(people is not none,people~' '|default('', true),'') }}
+                    {%- from 'process_messages.jinja' import process_messages -%}
                     {{ process_messages(message, 'Discord') }}
                   target: "{{ target }}"
                   data:
