@@ -90,7 +90,7 @@ flowchart LR
 
 ### `meater.yaml`
 
-The MEATER package logs cooking starts and target-temperature events from `sensor.meater_probe_cook_state`, `sensor.meater_probe_target`, `sensor.meater_probe_internal`, and `sensor.meater_probe_cooking`.
+The MEATER package logs cooking starts and target-temperature events from `sensor.kitchen_meat_probe_cook_state`, `sensor.meater_probe_target`, `sensor.meater_probe_internal`, and `sensor.kitchen_meat_probe_cooking`.
 
 ## User Controls
 

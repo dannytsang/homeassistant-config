@@ -19,7 +19,7 @@ The kitchen setup is centered on two lighting zones, accent/RGB feedback lights,
 | Water softener | `sensor.water_softener_salt_level_average`, `input_number.low_water_softener_salt_level`, `input_number.no_water_softener_salt_level` | Salt warning and critical alerts. |
 | Safety | `binary_sensor.kitchen_smoke_alarm_smoke`, `camera.kitchen_high_resolution_channel`, `timer.check_smoke_alarms` | Smoke-alarm snapshot, alerts, and follow-up timer. |
 | Energy | `sensor.grid_power`, `sensor.growatt_sph_battery_state_of_charge`, `sensor.growatt_sph_inverter_mode`, `sensor.growatt_battery_discharge_power`, `input_number.growatt_battery_discharge_stop_soc` | Determines whether to show grid-use RGB feedback. |
-| Cooking probe | `sensor.meater_probe_cook_state`, `sensor.meater_probe_target`, `sensor.meater_probe_internal`, `sensor.meater_probe_cooking` | MEATER cooking logs. |
+| Cooking probe | `sensor.kitchen_meat_probe_cook_state`, `sensor.meater_probe_target`, `sensor.meater_probe_internal`, `sensor.kitchen_meat_probe_cooking` | MEATER cooking logs. |
 
 ## Lighting Setup
 
