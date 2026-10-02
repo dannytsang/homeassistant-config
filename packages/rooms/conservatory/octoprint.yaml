@@ -211,6 +211,31 @@ automation:
           priority: high
           suppress_if_quiet: false
     mode: single
+  - id: "1789293546881"
+    alias: "3D Printer: Bed Temp Preheat"
+    description: ""
+    triggers:
+      - trigger: numeric_state
+        entity_id:
+          - sensor.octoprint_actual_bed_temp
+        above: sensor.octoprint_target_bed_temp
+    conditions:
+      - condition: state
+        entity_id: binary_sensor.octoprint_printing
+        state: "off"
+    actions:
+      - parallel:
+          - action: script.send_to_home_log
+            metadata: {}
+            data:
+              log_level: Debug
+              message: Bed Temp has preheated
+              title: 3D Printer
+          - action: script.alexa_announce
+            data:
+              message: 3D printer bed has preheated
+              suppress_if_quiet: true
+    mode: single
 
 scene:
   - id: "1623014393915"
