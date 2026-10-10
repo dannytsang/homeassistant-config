@@ -657,7 +657,7 @@ script:
           kitchen_target_charge_rate: >-
             {%- from 'calculate_ecoflow_delta2_charge_rate.jinja' import calculate_ecoflow_delta2_charge_rate -%}
             {{ calculate_ecoflow_delta2_charge_rate(
-            (excess_solar + states('sensor.ecoflow_ac_in_power')|float(0) + states('sensor.ecoflow_office_ac_in_power')|float(0)),
+            (excess_solar + states('sensor.ecoflow_ac_in_power')|float(0) + states('sensor.office_ecoflow_ac_in_power')|float(0)),
             200,
             1200)|int(0) }}
           office_target_charge_rate: >-
@@ -1378,7 +1378,7 @@ script:
                       - condition: template
                         value_template: >-
                           {{ ((states('sensor.ecoflow_solar_excess')|float(-1) * 1000) +
-                          states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) >=
+                          states('sensor.kitchen_ecoflow_ac_in_power')|float(0)) >=
                           states('input_number.ecoflow_charge_solar_threshold')|float(0) }}
                     sequence:
                       - parallel:
@@ -1396,13 +1396,13 @@ script:
                               entity_id: number.kitchen_ecoflow_ac_charging_power
                               target_charge_rate: >-
                                 {%-if ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200
+                                states('sensor.kitchen_ecoflow_ac_in_power')|float(0)) / 200)|int(0)) * 200
                                 > 1200 -%}
                                 1200
                                 {%- elif ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 200 -%}
+                                states('sensor.kitchen_ecoflow_ac_in_power')|float(0)) / 200)|int(0)) * 200 > 200 -%}
                                 {{ ((((states('sensor.ecoflow_solar_excess')|float(0) * 1000) +
-                                states('sensor.ecoflow_kitchen_ac_in_power')|float(0)) / 200)|int(0)) * 200 }}
+                                states('sensor.kitchen_ecoflow_ac_in_power')|float(0)) / 200)|int(0)) * 200 }}
                                 {%- else -%}
                                 200
                                 {%- endif -%}
