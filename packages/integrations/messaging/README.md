@@ -132,7 +132,7 @@ Discord has three delivery scripts and no inbound automations in this folder.
 | Script | Summary |
 |--------|---------|
 | `script.post_discord_notification` | Sends text to `notify.home_assistant`, with optional title and user mention text. |
-| `script.post_to_discord_with_url_attachment` | Sends a Discord embed with a URL image through `notify.danny_tsang`. |
+| `script.post_to_discord_with_url_attachment` | Sends a Discord embed with a URL image through `notify.home_assistant`. |
 | `script.post_to_discord_with_local_attachments` | Sends one local image attachment through `notify.home_assistant`. |
 
 ### `telegram.yaml`
