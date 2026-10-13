@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import copy
+import hashlib
 import logging
-import threading
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
+import jinja2
 import voluptuous as vol
 from homeassistant.config_entries import SOURCE_IMPORT, ConfigEntry, ConfigEntryState
 from homeassistant.const import (
@@ -18,13 +20,17 @@ from homeassistant.const import (
     CONF_CHOOSE,
     CONF_DEFAULT,
     CONF_ELSE,
+    CONF_ENABLED,
     CONF_PARALLEL,
     CONF_REPEAT,
     CONF_SEQUENCE,
     CONF_SERVICE_DATA,
+    CONF_SERVICE_DATA_TEMPLATE,
+    CONF_SERVICE_TEMPLATE,
     CONF_TARGET,
     CONF_THEN,
     ENTITY_MATCH_ALL,
+    STATE_UNKNOWN,
 )
 from homeassistant.core import DOMAIN as HA_DOMAIN
 from homeassistant.core import SupportsResponse
@@ -33,6 +39,7 @@ from homeassistant.exceptions import (
     InvalidStateError,
     ServiceNotFound,
     ServiceValidationError,
+    TemplateError,
 )
 from homeassistant.helpers import (
     config_validation as cv,
@@ -44,7 +51,7 @@ from homeassistant.helpers import script
 from homeassistant.helpers.entity_component import DATA_INSTANCES, EntityComponent
 from homeassistant.helpers.entity_platform import async_get_platforms
 from homeassistant.helpers.target import async_extract_referenced_entity_ids
-from homeassistant.helpers.template import Template, result_as_boolean
+from homeassistant.helpers.template import Template, is_complex, result_as_boolean
 
 try:
     from homeassistant.helpers.target import TargetSelection
@@ -54,7 +61,7 @@ except ImportError:
 if TYPE_CHECKING:
     from homeassistant.core import Context, HomeAssistant, ServiceCall
     from homeassistant.helpers.entity import Entity
-    from homeassistant.helpers.typing import ConfigType
+    from homeassistant.helpers.typing import ConfigType, VolSchemaType
 
 from .const import (
     ACTION_SERVICE,
@@ -63,6 +70,7 @@ from .const import (
     ATTR_BACKOFF,
     ATTR_EXPECTED_STATE,
     ATTR_IGNORE_TARGET,
+    ATTR_INNER_DATA,
     ATTR_ON_ERROR,
     ATTR_REPAIR,
     ATTR_RETRIES,
@@ -85,8 +93,9 @@ GROUP_DOMAIN = "group"
 RETURN_RESPONSE = "return_response"
 ENTITY_SERVICE_FIELDS = {str(key) for key in cv.ENTITY_SERVICE_FIELDS}
 
+_NOT_SET = object()  # A parameter which isn't provided (None is a valid value).
+
 _running_retries: dict[str, tuple[str, int]] = {}
-_running_retries_write_lock = threading.Lock()
 
 
 def _template_parameter(value: Any) -> str:
@@ -94,31 +103,65 @@ def _template_parameter(value: Any) -> str:
     return str(cv.template(value).async_render(parse_result=False))
 
 
+_ARTIFICIAL_TOKENS = {
+    "[[": "{{",
+    "]]": "}}",
+    "[%": "{%",
+    "%]": "%}",
+    "[#": "{#",
+    "#]": "#}",
+}
+# Used only for lexing templates with the artificial tokens (nothing is rendered).
+_ARTIFICIAL_TOKENS_ENV = jinja2.Environment(  # noqa: S701
+    variable_start_string="[[",
+    variable_end_string="]]",
+    block_start_string="[%",
+    block_end_string="%]",
+    comment_start_string="[#",
+    comment_end_string="#]",
+    keep_trailing_newline=True,
+)
+_DELIMITER_TOKEN_TYPES = {
+    "variable_begin",
+    "variable_end",
+    "block_begin",
+    "block_end",
+    "raw_begin",
+    "raw_end",
+    "comment_begin",
+    "comment_end",
+}
+
+
 def _fix_template_tokens(value: str) -> str:
     """Replace template's artificial tokens brackets with Jinja's valid tokens."""
-    for artificial, valid in {
-        "[[": "{{",
-        "]]": "}}",
-        "[%": "{%",
-        "%]": "%}",
-        "[#": "{#",
-        "#]": "#}",
-    }.items():
-        value = value.replace(artificial, valid)
-    return value
+    # Jinja's lexer finds the actual delimiters, so brackets inside the template
+    # (e.g. a nested list or a string literal) aren't replaced.
+    result = []
+    try:
+        for _, token_type, token in _ARTIFICIAL_TOKENS_ENV.lex(value):
+            if token_type in _DELIMITER_TOKEN_TYPES:
+                for artificial, valid in _ARTIFICIAL_TOKENS.items():
+                    token = token.replace(artificial, valid)  # noqa: PLW2901
+            result.append(token)
+    except jinja2.TemplateSyntaxError as error:
+        message = f"invalid template ({error.message})"
+        raise vol.Invalid(message) from error
+    return "".join(result)
 
 
-def _backoff_parameter(value: Any | None) -> str | None:
+def _backoff_parameter(value: Any) -> str:
     """Check backoff parameter."""
     value_str = cv.string(value)
     vol.Length(min=1)(cv.template(_fix_template_tokens(value_str)).template)
     return value_str
 
 
-def _validation_parameter(value: Any | None) -> str | None:
+def _validation_parameter(value: Any) -> str:
     """Check validation parameter."""
-    cv.dynamic_template(_fix_template_tokens(cv.string(value)))
-    return value
+    value_str = cv.string(value)
+    cv.dynamic_template(_fix_template_tokens(value_str))
+    return value_str
 
 
 def _script_schema_validate_only(value: Any) -> Any:
@@ -127,8 +170,18 @@ def _script_schema_validate_only(value: Any) -> Any:
     return value
 
 
+def _expected_state_without_ignore_target(value: dict[str, Any]) -> dict[str, Any]:
+    """Check expected_state isn't used together with ignore_target (if true)."""
+    if ATTR_EXPECTED_STATE in value and value.get(ATTR_IGNORE_TARGET):
+        message = f"{ATTR_EXPECTED_STATE} can't be used with {ATTR_IGNORE_TARGET}"
+        raise vol.Invalid(message)
+    return value
+
+
 SERVICE_SCHEMA_BASE_FIELDS = {
-    vol.Required(ATTR_RETRIES, default=DEFAULT_RETRIES): cv.positive_int,
+    vol.Required(ATTR_RETRIES, default=DEFAULT_RETRIES): vol.All(
+        cv.positive_int, vol.Range(min=1)
+    ),
     vol.Required(ATTR_BACKOFF, default=DEFAULT_BACKOFF): _backoff_parameter,
     vol.Optional(ATTR_EXPECTED_STATE): vol.All(cv.ensure_list, [_template_parameter]),
     vol.Optional(ATTR_VALIDATION): _validation_parameter,
@@ -142,25 +195,31 @@ SERVICE_SCHEMA_BASE_FIELDS = {
 ACTION_SERVICE_PARAMS = vol.Schema(
     {
         **SERVICE_SCHEMA_BASE_FIELDS,
-        vol.Required(CONF_ACTION): _template_parameter,
+        vol.Required(CONF_ACTION): vol.All(_template_parameter, cv.service),
+        vol.Optional(ATTR_INNER_DATA): dict,
     },
     extra=vol.ALLOW_EXTRA,
 )
-ACTION_SERVICE_SCHEMA = vol.All(
-    cv.has_at_most_one_key(ATTR_EXPECTED_STATE, ATTR_IGNORE_TARGET),
-    ACTION_SERVICE_PARAMS,
+# HA 2026.9+ annotates schemas with probatio types, while mypy sees voluptuous.
+ACTION_SERVICE_SCHEMA = cast(
+    "VolSchemaType",
+    vol.All(ACTION_SERVICE_PARAMS, _expected_state_without_ignore_target),
 )
 
-ACTIONS_SERVICE_SCHEMA = vol.All(
-    cv.has_at_most_one_key(ATTR_EXPECTED_STATE, ATTR_IGNORE_TARGET),
-    vol.Schema(
-        {
-            **SERVICE_SCHEMA_BASE_FIELDS,
-            vol.Required(CONF_SEQUENCE): cv.SCRIPT_SCHEMA,
-            # "on_error" should be passed as-is to retry.action
-            vol.Optional(ATTR_ON_ERROR): _script_schema_validate_only,
-        },
-        extra=vol.ALLOW_EXTRA,
+ACTIONS_SERVICE_SCHEMA = cast(
+    "VolSchemaType",
+    vol.All(
+        vol.Schema(
+            {
+                **SERVICE_SCHEMA_BASE_FIELDS,
+                vol.Required(CONF_SEQUENCE): cv.SCRIPT_SCHEMA,
+                # "on_error" should be passed as-is to retry.action
+                vol.Optional(ATTR_ON_ERROR): _script_schema_validate_only,
+                # The frontend stores data here (like HA's own schemas).
+                vol.Remove("metadata"): dict,
+            },
+        ),
+        _expected_state_without_ignore_target,
     ),
 )
 
@@ -170,9 +229,14 @@ def _get_entity_component(hass: HomeAssistant, domain: str) -> EntityComponent |
     return hass.data.get(DATA_INSTANCES, {}).get(domain)
 
 
+def _entity_state(entity: Entity) -> Any:
+    """Return the entity's state as the state machine shows it (None is unknown)."""
+    return STATE_UNKNOWN if entity.state is None else entity.state
+
+
 def _get_entity(hass: HomeAssistant, entity_id: str) -> Entity | None:
     """Get entity object."""
-    entity_comp = _get_entity_component(hass, entity_id.split(".")[0])
+    entity_comp = _get_entity_component(hass, entity_id.split(".", maxsplit=1)[0])
     return entity_comp.get_entity(entity_id) if entity_comp else None
 
 
@@ -223,6 +287,15 @@ class RetryParams:
             for key, value in data.items()
             if key not in ACTION_SERVICE_PARAMS.schema
         }
+        # inner_data allows parameters which collide with retry's own parameters.
+        nested_data = data.get(ATTR_INNER_DATA, {})
+        if duplicates := inner_data.keys() & nested_data.keys():
+            message = (
+                f"{', '.join(sorted(duplicates))} provided both in "
+                f"{ATTR_INNER_DATA} and outside of it"
+            )
+            raise ServiceValidationError(message)
+        inner_data.update(nested_data)
         domain_services = hass.services.async_services_for_domain(
             self.retry_data[ATTR_DOMAIN]
         )
@@ -236,8 +309,14 @@ class RetryParams:
             return False
         return self.inner_data.keys() & ENTITY_SERVICE_FIELDS != set()
 
-    def _expand_group(self, hass: HomeAssistant, entity_id: str) -> set[str]:
+    def _expand_group(
+        self, hass: HomeAssistant, entity_id: str, visited: set[str] | None = None
+    ) -> set[str]:
         """Return group member ids (when a group)."""
+        visited = visited if visited is not None else set()
+        if entity_id in visited:
+            return set()  # Groups which contain each other.
+        visited.add(entity_id)
         entity_ids = set()
         entity_obj = _get_entity(hass, entity_id)
         if (
@@ -248,7 +327,7 @@ class RetryParams:
             for member_id in getattr(entity_obj, "extra_state_attributes", {}).get(
                 ATTR_ENTITY_ID, []
             ):
-                entity_ids.update(self._expand_group(hass, member_id))
+                entity_ids.update(self._expand_group(hass, member_id, visited))
         else:
             entity_ids.add(entity_id)
         return entity_ids
@@ -277,12 +356,19 @@ class RetryParams:
         if not self.has_target:
             return set()
 
-        if self.inner_data.get(ATTR_ENTITY_ID) == ENTITY_MATCH_ALL:
+        target = self.inner_data
+        if isinstance(raw_entity_ids := target.get(ATTR_ENTITY_ID), str):
+            # Normalize like HA's entity services, e.g. "light.a, light.b" or "ALL".
+            # Strings which entity services reject are used as-is.
+            with contextlib.suppress(vol.Invalid):
+                target = {**target, ATTR_ENTITY_ID: cv.comp_entity_ids(raw_entity_ids)}
+
+        if target.get(ATTR_ENTITY_ID) == ENTITY_MATCH_ALL:
             return self._all_entity_ids(hass)
 
         entities = async_extract_referenced_entity_ids(
             hass,
-            TargetSelection(self.inner_data),
+            TargetSelection(target),
         )
 
         entity_ids = {
@@ -334,20 +420,25 @@ class RetryAction:
         self._context = context
         self._attempt = 1
         self._template_variables = {
+            **self._inner_data,
+            # Retry's own variables take precedence over the inner action's data.
             CONF_ACTION: self._action,
             ATTEMPT_VARIABLE: 0,
-            **self._inner_data,
         }
-        cv.positive_float(
-            self._params.retry_data[ATTR_BACKOFF].async_render(
-                variables=self._template_variables
+        # Rendered (and validated) in advance: the wait after each failed attempt.
+        self._backoffs = [
+            cv.positive_float(
+                self._params.retry_data[ATTR_BACKOFF].async_render(
+                    variables={**self._template_variables, ATTEMPT_VARIABLE: attempt}
+                )
             )
-        )
+            for attempt in range(self._params.retry_data[ATTR_RETRIES] - 1)
+        ]
         self._retry_id = params.retry_data.get(
             ATTR_RETRY_ID, self._entity_id or self._action
         )
         self._str_cache: str | None = None
-        self._start_id()
+        self._validation_error: TemplateError | None = None
 
     def _get_template_variables(self) -> dict[str, Any]:
         """Return template variables."""
@@ -364,13 +455,17 @@ class RetryAction:
                 raise InvalidStateError(message)
         else:
             ent_obj = None
-        if (state_delay := self._params.retry_data[ATTR_STATE_DELAY]) > 0:
+        if (state_delay := self._params.retry_data[ATTR_STATE_DELAY]) > 0 and (
+            ATTR_EXPECTED_STATE in self._params.retry_data
+            or ATTR_VALIDATION in self._params.retry_data
+        ):
             await asyncio.sleep(state_delay)
         if not self._check_state(ent_obj) or not self._check_validation():
             await asyncio.sleep(self._params.retry_data[ATTR_STATE_GRACE])
             if not self._check_state(ent_obj):
+                state = _entity_state(ent_obj) if ent_obj else None
                 message = (
-                    f'{self._entity_id} state is "{getattr(ent_obj, "state", "None")}" '
+                    f'{self._entity_id} state is "{state}" '
                     "but expecting one of "
                     f'"{self._params.retry_data[ATTR_EXPECTED_STATE]}"'
                 )
@@ -379,17 +474,20 @@ class RetryAction:
                 message = (
                     f'"{self._params.retry_data[ATTR_VALIDATION].template}" is False'
                 )
+                if self._validation_error:
+                    message += f" ({self._validation_error})"
                 raise InvalidStateError(message)
 
     def _check_state(self, entity: Entity | None) -> bool:
         """Check if the entity's state is expected."""
         if not entity or ATTR_EXPECTED_STATE not in self._params.retry_data:
             return True
+        state = _entity_state(entity)
         for expected in self._params.retry_data[ATTR_EXPECTED_STATE]:
-            if entity.state == expected:
+            if state == expected:
                 return True
             try:
-                if entity.state is not None and float(entity.state) == float(expected):
+                if float(state) == float(expected):
                     return True
             except ValueError:
                 pass
@@ -399,11 +497,17 @@ class RetryAction:
         """Check if the validation statement is true."""
         if ATTR_VALIDATION not in self._params.retry_data:
             return True
-        return result_as_boolean(
-            self._params.retry_data[ATTR_VALIDATION].async_render(
-                variables=self._get_template_variables(),
+        self._validation_error = None
+        try:
+            return result_as_boolean(
+                self._params.retry_data[ATTR_VALIDATION].async_render(
+                    variables=self._get_template_variables(),
+                )
             )
-        )
+        except TemplateError as error:
+            # E.g. an attribute which doesn't exist yet. It's not satisfied.
+            self._validation_error = error
+            return False
 
     def _initial_check(self) -> bool:
         """Check if the state is already as expected and/or the validation passes."""
@@ -480,8 +584,8 @@ class RetryAction:
             ),
             (
                 ATTR_RETRY_ID,
-                self._params.retry_data.get(ATTR_RETRY_ID),
-                None if ATTR_RETRY_ID not in self._params.retry_data else "add",
+                self._params.retry_data.get(ATTR_RETRY_ID, _NOT_SET),
+                _NOT_SET,
             ),
         ):
             if value != default:
@@ -493,7 +597,7 @@ class RetryAction:
             str_value += f"[{', '.join(retry_params)}]"
         return str_value
 
-    def _log(self, level: int, prefix: str, stack_info: bool = False) -> None:  # noqa: FBT001, FBT002
+    def _log(self, level: int, prefix: str, exc_info: bool = False) -> None:  # noqa: FBT001, FBT002
         """Log entry."""
         LOGGER.log(
             level,
@@ -502,23 +606,27 @@ class RetryAction:
             self._attempt,
             self._params.retry_data[ATTR_RETRIES],
             str(self),
-            exc_info=stack_info,
+            exc_info=exc_info,
         )
 
     def _repair(self) -> None:
         """Create a repair ticket."""
-        ir.async_delete_issue(self._hass, DOMAIN, str(self))
+        # A short ID, which is the same for identical actions (de-dup).
+        issue_id = hashlib.sha256(str(self).encode()).hexdigest()
+        ir.async_delete_issue(self._hass, DOMAIN, issue_id)
         ir.async_create_issue(
             self._hass,
             DOMAIN,
-            str(self),
-            is_fixable=False,
+            issue_id,
+            # Kept until the user marks it as resolved (HA's ConfirmRepairFlow).
+            is_fixable=True,
+            is_persistent=True,
             learn_more_url="https://github.com/amitfin/retry#retryaction",
             severity=ir.IssueSeverity.ERROR,
             translation_key="failure",
             translation_placeholders={
                 "action": str(self),
-                "retries": self._params.retry_data[ATTR_RETRIES],
+                "retries": str(self._params.retry_data[ATTR_RETRIES]),
             },
         )
 
@@ -526,22 +634,22 @@ class RetryAction:
         """Add or override self as the retry ID running job."""
         if not self._retry_id:
             return
-        with _running_retries_write_lock:
-            self._set_id(
-                1 if not self._check_id() else _running_retries[self._retry_id][1] + 1
-            )
+        # No lock is needed: there's no await between the read and the write, so
+        # nothing else runs in between on the event loop (also in _end_id).
+        self._set_id(
+            1 if not self._check_id() else _running_retries[self._retry_id][1] + 1
+        )
 
     def _end_id(self) -> None:
         """Remove self from being the retry ID running job."""
         if not self._retry_id:
             return
-        with _running_retries_write_lock:
-            if self._check_id():
-                count = _running_retries[self._retry_id][1] - 1
-                if not count:
-                    del _running_retries[self._retry_id]
-                else:
-                    self._set_id(count)
+        if self._check_id():
+            count = _running_retries[self._retry_id][1] - 1
+            if not count:
+                del _running_retries[self._retry_id]
+            else:
+                self._set_id(count)
 
     def _set_id(self, count: int) -> None:
         """Set the retry_id entry with a counter."""
@@ -556,6 +664,14 @@ class RetryAction:
         )
 
     async def async_retry(self) -> Any:
+        """Perform the attempts, while owning the retry ID."""
+        self._start_id()
+        try:
+            return await self._async_attempts()
+        finally:
+            self._end_id()
+
+    async def _async_attempts(self) -> Any:
         """Loop of attempts."""
         result = None
         while True:
@@ -583,7 +699,7 @@ class RetryAction:
                     if self._attempt < self._params.retry_data[ATTR_RETRIES]
                     else logging.ERROR,
                     "Failed",
-                    stack_info=True,
+                    exc_info=True,
                 )
                 if self._attempt >= self._params.retry_data[ATTR_RETRIES]:
                     issue_repair = self._params.retry_data.get(ATTR_REPAIR)
@@ -593,35 +709,72 @@ class RetryAction:
                         )
                     if issue_repair:
                         self._repair()
-                    self._end_id()
                     if (
                         on_error := self._params.retry_data.get(ATTR_ON_ERROR)
                     ) is not None:
-                        await script.Script(
-                            self._hass, on_error, ACTION_SERVICE, DOMAIN
-                        ).async_run(
-                            run_variables={
-                                key: value
-                                for key, value in self._template_variables.items()
-                                if key != ATTEMPT_VARIABLE
-                            },
-                            context=self._context,
-                        )
+                        # The script logs its own errors. The original error is
+                        # the one which is raised.
+                        with contextlib.suppress(Exception):
+                            await _async_run_script(
+                                self._hass,
+                                on_error,
+                                ACTION_SERVICE,
+                                self._context,
+                                {
+                                    key: value
+                                    for key, value in self._template_variables.items()
+                                    if key != ATTEMPT_VARIABLE
+                                },
+                            )
                     raise
-                await asyncio.sleep(
-                    float(
-                        self._params.retry_data[ATTR_BACKOFF].async_render(
-                            variables=self._get_template_variables()
-                        )
-                    )
-                )
+                await asyncio.sleep(self._backoffs[self._attempt - 1])
                 self._attempt += 1
             else:
                 self._log(
                     logging.DEBUG if self._attempt == 1 else logging.INFO, "Succeeded"
                 )
-                self._end_id()
                 return result
+
+
+async def _async_run_script(
+    hass: HomeAssistant,
+    sequence: list[dict[str, Any]],
+    name: str,
+    context: Context,
+    run_variables: dict[str, Any] | None = None,
+) -> None:
+    """Run an ad-hoc script and unload it afterwards."""
+    script_obj = script.Script(hass, sequence, name, DOMAIN)
+    try:
+        await script_obj.async_run(run_variables=run_variables, context=context)
+    finally:
+        # HA keeps a reference to every script until it's unloaded. HA 2026.4 and
+        # older have no way to unload a script, so the script is kept there.
+        if hasattr(script_obj, "async_unload"):
+            await script_obj.async_unload()
+
+
+def _step_data(action: dict[str, Any]) -> Any:
+    """Remove and return a step's data, merged like HA does (the target wins)."""
+    data = action.get(CONF_SERVICE_DATA)
+    data_template = action.get(CONF_SERVICE_DATA_TEMPLATE)
+    if data is not None and data_template is not None:
+        if not isinstance(data, dict) or not isinstance(data_template, dict):
+            # A template of the whole data can be merged only once it's rendered,
+            # so data_template stays a parameter of the step (rare legacy syntax).
+            return action.pop(CONF_SERVICE_DATA)
+        merged: Any = {**data, **data_template}
+    else:
+        merged = data if data is not None else data_template
+    action.pop(CONF_SERVICE_DATA, None)
+    action.pop(CONF_SERVICE_DATA_TEMPLATE, None)
+    if isinstance(merged, dict):
+        target = action.get(CONF_TARGET)
+        target_keys = set(target) if isinstance(target, dict) else set()
+        if ATTR_ENTITY_ID in action:  # Legacy syntax (outside of the target).
+            target_keys.add(ATTR_ENTITY_ID)
+        merged = {key: value for key, value in merged.items() if key not in target_keys}
+    return merged
 
 
 def _wrap_actions(  # noqa: PLR0912
@@ -629,26 +782,49 @@ def _wrap_actions(  # noqa: PLR0912
 ) -> None:
     """Warp any action with retry."""
     for action in sequence:
+        if action.get(CONF_ENABLED) is False:
+            continue  # Never performed (a template is checked when it runs).
         action_type = cv.determine_script_action(action)
         match action_type:
             case cv.SCRIPT_ACTION_CALL_SERVICE:
-                domain_service = action[CONF_ACTION]
+                domain_service = (
+                    action.pop(CONF_SERVICE_TEMPLATE)  # Legacy syntax.
+                    if CONF_SERVICE_TEMPLATE in action
+                    else action[CONF_ACTION]
+                )
                 if domain_service == f"{DOMAIN}.{ACTIONS_SERVICE}":
                     message = "Nested retry.actions are disallowed"
-                    raise IntegrationError(message)
+                    raise ServiceValidationError(message)
                 if domain_service == f"{DOMAIN}.{ACTION_SERVICE}":
                     message = "retry.action inside retry.actions is disallowed"
-                    raise IntegrationError(message)
-                action[CONF_SERVICE_DATA] = action.get(CONF_SERVICE_DATA, {})
-                action[CONF_SERVICE_DATA][CONF_ACTION] = domain_service
-                action[CONF_SERVICE_DATA].update(copy.deepcopy(retry_params))
+                    raise ServiceValidationError(message)
+                # The step's data is passed separately, so it can't collide with
+                # the retry parameters (e.g. a field named "action").
+                step_data = _step_data(action)
+                action[CONF_SERVICE_DATA] = {
+                    CONF_ACTION: domain_service,
+                    **copy.deepcopy(retry_params),
+                    **({ATTR_INNER_DATA: step_data} if step_data else {}),
+                }
                 action[CONF_ACTION] = f"{DOMAIN}.{ACTION_SERVICE}"
+                target = action.get(CONF_TARGET, {})
+                call_data = {
+                    **action[CONF_SERVICE_DATA],
+                    **(target if isinstance(target, dict) else {}),
+                    # Legacy syntax (outside of the target).
+                    **(
+                        {ATTR_ENTITY_ID: action[ATTR_ENTITY_ID]}
+                        if ATTR_ENTITY_ID in action
+                        else {}
+                    ),
+                }
                 # Validate parameters so errors are raised as soon as possible.
-                RetryParams(
-                    hass,
-                    None,
-                    {**action[CONF_SERVICE_DATA], **action.get(CONF_TARGET, {})},
-                )
+                # Templates are rendered only when the step runs (like HA does).
+                # A missing action fails only if its step runs (like HA does),
+                # e.g. in a branch which isn't taken.
+                if isinstance(target, dict) and not is_complex(call_data):
+                    with contextlib.suppress(ServiceNotFound):
+                        RetryParams(hass, None, call_data)
             case cv.SCRIPT_ACTION_REPEAT:
                 _wrap_actions(hass, action[CONF_REPEAT][CONF_SEQUENCE], retry_params)
             case cv.SCRIPT_ACTION_CHOOSE:
@@ -689,22 +865,40 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
 
     async def async_action(service_call: ServiceCall) -> Any:
         """Perform action with retries."""
-        params = RetryParams(hass, get_config_entry(), service_call.data)
+        data: dict[str, Any] = service_call.data
+        if (on_error := data.get(ATTR_ON_ERROR)) is not None:
+            # Full validation, like automations (e.g. device actions).
+            data = {
+                **data,
+                ATTR_ON_ERROR: await script.async_validate_actions_config(
+                    hass, on_error
+                ),
+            }
+        params = RetryParams(hass, get_config_entry(), data)
 
+        # All loops are created first: if one fails, none of them runs.
+        retry_actions = [
+            RetryAction(hass, params, service_call.context, entity_id)
+            for entity_id in (params.entities if params.has_target else [None])
+        ]
         results = await asyncio.gather(
-            *[
-                RetryAction(hass, params, service_call.context, entity_id).async_retry()
-                for entity_id in (params.entities if params.has_target else [None])
-            ],
+            *[retry_action.async_retry() for retry_action in retry_actions],
             return_exceptions=True,
         )
 
         if error := next(
-            (result for result in results if isinstance(result, Exception)), None
+            (result for result in results if isinstance(result, BaseException)),
+            None,
         ):
             raise error
 
-        return next((result for result in results if result is not None), {})
+        # Entity actions key the response by entity ID, so the responses of the
+        # per-entity loops merge into the response of a single call.
+        response: dict[str, Any] = {}
+        for result in results:
+            if isinstance(result, dict):
+                response.update(result)
+        return response
 
     hass.services.async_register(
         DOMAIN,
@@ -716,16 +910,17 @@ async def async_setup(hass: HomeAssistant, _config: ConfigType) -> bool:
 
     async def async_actions(service_call: ServiceCall) -> None:
         """Perform actions and retry failed actions."""
-        sequence = service_call.data[CONF_SEQUENCE].copy()
+        # Full validation, like automations (e.g. device actions).
+        sequence = await script.async_validate_actions_config(
+            hass, service_call.data[CONF_SEQUENCE]
+        )
         retry_params: dict[str, Any] = {
             key: service_call.data[key]
             for key in service_call.data
             if key in SERVICE_SCHEMA_BASE_FIELDS
         }
         _wrap_actions(hass, sequence, retry_params)
-        await script.Script(hass, sequence, ACTIONS_SERVICE, DOMAIN).async_run(
-            context=service_call.context
-        )
+        await _async_run_script(hass, sequence, ACTIONS_SERVICE, service_call.context)
 
     hass.services.async_register(
         DOMAIN,
