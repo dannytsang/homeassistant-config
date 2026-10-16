@@ -27,7 +27,7 @@ Background reference: <https://devblog.yvn.no/posts/replacing-maps-timeline-with
 flowchart LR
     Danny[device_tracker.top_dog] --> DannyTopic[owntracks/danny/iphone]
     Terina[device_tracker.oneplus_10] --> TerinaTopic[owntracks/terina/oneplus]
-    Leo[device_tracker.leos_iphone] --> LeoTopic[owntracks/leo/iphone]
+    Leo[device_tracker.iphone] --> LeoTopic[owntracks/leo/iphone]
     DannyTopic --> MQTT[MQTT retained OwnTracks payload]
     TerinaTopic --> MQTT
     LeoTopic --> MQTT
@@ -39,7 +39,7 @@ flowchart LR
 |------------|----|----------------|------------|------|
 | `People: Update Danny's Owntracks` | `1744064001680` | `device_tracker.top_dog` | `owntracks/danny/iphone` | `single` |
 | `People: Update Terina's Owntracks` | `1744064001681` | `device_tracker.oneplus_10` | `owntracks/terina/oneplus` | `single` |
-| `People: Update Leo's Owntracks` | `1744064001682` | `device_tracker.leos_iphone` | `owntracks/leo/iphone` | `single` |
+| `People: Update Leo's Owntracks` | `1744064001682` | `device_tracker.iphone` | `owntracks/leo/iphone` | `single` |
 
 Each automation publishes with `retain: true`.
 

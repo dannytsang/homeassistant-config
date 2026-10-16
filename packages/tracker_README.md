@@ -255,7 +255,7 @@ Logs Ashlee's departure when no tracked adults remain at home.
 | Property | Value |
 |---|---|
 | ID | `1712574983598` |
-| Trigger | `device_tracker.leos_nintendo_switch` transitions to `home` |
+| Trigger | `device_tracker.iphone` transitions to `home` |
 | Mode | Single |
 
 If home mode is `No Children`, switches `input_select.home_mode` to `Normal` and logs the change. Leo's Nintendo Switch arriving on the network is used as a proxy for Leo returning home.
@@ -446,7 +446,7 @@ flowchart TD
 | `input_number.arriving_home_threshold` | Very close distance for alarm pre-disarm |
 | `sensor.dannys_phone_ble_area` | BLE room detection for music following |
 | `media_player.spotify_danny` | Spotify player for music following |
-| `device_tracker.leos_nintendo_switch` | Proxy for Leo's arrival (No Children mode exit) |
+| `device_tracker.iphoneh` | Proxy for Leo's arrival (No Children mode exit) |
 | `sensor.google_travel_time_by_car` | ETA sensor refreshed when heading home |
 | `input_text.origin_address` / `input_text.destination_address` | Travel time sensor inputs |
 | `calendar.tsang_children` / `calendar.family` | Checked when no one is home |
