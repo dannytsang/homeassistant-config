@@ -25,7 +25,7 @@ Background reference: <https://devblog.yvn.no/posts/replacing-maps-timeline-with
 
 ```mermaid
 flowchart LR
-    Danny[device_tracker.danny_s_phone] --> DannyTopic[owntracks/danny/iphone]
+    Danny[device_tracker.top_dog] --> DannyTopic[owntracks/danny/iphone]
     Terina[device_tracker.oneplus_10] --> TerinaTopic[owntracks/terina/oneplus]
     Leo[device_tracker.leos_iphone] --> LeoTopic[owntracks/leo/iphone]
     DannyTopic --> MQTT[MQTT retained OwnTracks payload]
@@ -37,7 +37,7 @@ flowchart LR
 
 | Automation | ID | Source Tracker | MQTT Topic | Mode |
 |------------|----|----------------|------------|------|
-| `People: Update Danny's Owntracks` | `1744064001680` | `device_tracker.danny_s_phone` | `owntracks/danny/iphone` | `single` |
+| `People: Update Danny's Owntracks` | `1744064001680` | `device_tracker.top_dog` | `owntracks/danny/iphone` | `single` |
 | `People: Update Terina's Owntracks` | `1744064001681` | `device_tracker.oneplus_10` | `owntracks/terina/oneplus` | `single` |
 | `People: Update Leo's Owntracks` | `1744064001682` | `device_tracker.leos_iphone` | `owntracks/leo/iphone` | `single` |
 
