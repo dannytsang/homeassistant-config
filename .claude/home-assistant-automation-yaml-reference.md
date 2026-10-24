@@ -1482,7 +1482,9 @@ automation:
               - parallel:
                   - action: light.turn_on
                     target:
-                      entity_id: light.porch
+                      entity_id:
+                        - light.porch_light_white
+                        - light.porch_light_rgb
                     data:
                       brightness_pct: 100
                   - action: timer.cancel

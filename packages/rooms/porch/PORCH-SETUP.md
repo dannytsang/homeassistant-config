@@ -10,7 +10,9 @@ The porch setup is intentionally small: one main light, one motion sensor, the f
 |----------|--------|---------|
 | Motion | `binary_sensor.porch_motion_occupancy` | Motion input for porch light automation and entry direction. |
 | Light level | `sensor.porch_motion_illuminance` | Determines whether door opening should turn on the porch light. |
-| Lighting | `light.porch` | Main porch light used for entry lighting and status colors. |
+| Lighting | `
+- light.porch_light_white
+- light.porch_light_rgb` | Main porch light used for entry lighting and status colors. |
 | Door | `binary_sensor.front_door` | Front-door open/closed state. |
 | Manual input | `binary_sensor.porch_main_light_input` | Physical switch input for manual porch light toggle. |
 | Timer | `timer.porch_light` | One-minute off timer. |

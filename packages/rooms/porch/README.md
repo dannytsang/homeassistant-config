@@ -20,7 +20,9 @@ For non-technical users, the important behavior is:
 | Door lighting | Opening the front door turns on the porch light if it is dark. Closing the door starts the porch light timer. |
 | Door notifications | Opening the door while someone is home turns on visual notification lights; closing the door clears them. |
 | Entry direction | A template sensor reports `entering` or `leaving` from porch motion state when the door changes. |
-| Manual switch | The porch wall switch toggles `light.porch` and cancels the porch light timer. |
+| Manual switch | The porch wall switch toggles `
+- light.porch_light_white
+- light.porch_light_rgb` and cancels the porch light timer. |
 | Safety shutoff | If the porch light is on for 5 minutes while the door is closed and no timer is active, it is turned off. |
 | NFC | The NFC script disarms the house alarm if it is armed and flashes living room lights as feedback. |
 | Heating | If heating starts while the front door is open, a direct notification suggests closing the door or turning heating off. |
@@ -37,7 +39,9 @@ flowchart TB
     Heating[Hive heating action] --> HeatWarning[Open-door heating warning]
     NFC[NFC front door script] --> Alarm[Alarm disarm script]
 
-    MotionLight --> PorchLight[light.porch]
+    MotionLight --> PorchLight[
+- light.porch_light_white
+- light.porch_light_rgb]
     DoorLogic --> PorchLight
     DoorLogic --> Counter[counter.front_door_opened_closed]
     DoorLogic --> NotifyLights[Stairs and kitchen notification lights]
@@ -74,11 +78,15 @@ flowchart TD
     Motion[Porch motion changes] --> Enabled{Motion triggers enabled?}
     Enabled -->|No| Ignore[Ignore]
     Enabled -->|Yes| Which{Trigger branch}
-    Which -->|Motion on for 2 minutes| On[Turn light.porch on at 100 percent]
+    Which -->|Motion on for 2 minutes| On[Turn 
+- light.porch_light_white
+- light.porch_light_rgb on at 100 percent]
     On --> Cancel[Cancel timer.porch_light]
     Which -->|Motion off for 1 minute| Start[Start timer.porch_light for 1 minute]
     Start --> TimerFinished[Porch: Light Timer Finished]
-    TimerFinished --> Off[Turn light.porch off]
+    TimerFinished --> Off[Turn 
+- light.porch_light_white
+- light.porch_light_rgb off]
 ```
 
 ### Front Door
@@ -105,7 +113,9 @@ Power-user notes:
 | Detail | Current YAML Behavior |
 |--------|-----------------------|
 | NFC | `script.nfc_front_door` disarms `alarm_control_panel.house_alarm` via `script.set_alarm_to_disarmed_mode` when the alarm is not already disarmed. |
-| Lock status | `script.stop_lock_status_light` stops `script.front_door_lock_status` and turns off `light.porch`; no porch automation directly triggers from a lock entity in this file. |
+| Lock status | `script.stop_lock_status_light` stops `script.front_door_lock_status` and turns off `
+- light.porch_light_white
+- light.porch_light_rgb`; no porch automation directly triggers from a lock entity in this file. |
 | Entry direction | `sensor.door_entry_direction` is recalculated when `binary_sensor.front_door` changes, using porch motion `on` as `leaving` and `off` as `entering`. |
 
 ## Troubleshooting
