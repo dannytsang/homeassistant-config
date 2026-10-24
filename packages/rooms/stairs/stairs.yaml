@@ -12,54 +12,54 @@ automation:
     conditions: []
     actions:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: sun
-                  after: sunrise
-                - condition: state
-                  entity_id: light.stairs_2
-                  state: "off"
-                - condition: state
-                  entity_id: input_boolean.enable_stairs_motion_triggers
-                  state: "on"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🐾 Motion on lower 🪜 stairs and it's night time.
-                      Turning ambient 💡 light on 🔅 dim.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id: scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-            - conditions:
-                - condition: time
-                  after: 00:00:00
-                - condition: sun
-                  before: sunrise
-                - condition: state
-                  entity_id: light.stairs_2
-                  state: "off"
-                - condition: state
-                  entity_id: input_boolean.enable_stairs_motion_triggers
-                  state: "on"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🐾 Motion on lower 🪜 stairs and it's night time.
-                      Dimming ambient 💡 🔅 light.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id: scene.stairs_light_2_dim
-                  data:
-                    transition: 0.5
-          default: []
+          - choose:
+              - conditions:
+                  - condition: sun
+                    after: sunrise
+                  - condition: state
+                    entity_id: light.stairs_2
+                    state: "off"
+                  - condition: state
+                    entity_id: input_boolean.enable_stairs_motion_triggers
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion on lower 🪜 stairs and it's night time.
+                        Turning ambient 💡 light on 🔅 dim.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+              - conditions:
+                  - condition: time
+                    after: 00:00:00
+                  - condition: sun
+                    before: sunrise
+                  - condition: state
+                    entity_id: light.stairs_2
+                    state: "off"
+                  - condition: state
+                    entity_id: input_boolean.enable_stairs_motion_triggers
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion on lower 🪜 stairs and it's night time.
+                        Dimming ambient 💡 🔅 light.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_2_dim
+                    data:
+                      transition: 0.5
+            default: []
     mode: single
   - id: "1598726353326"
     alias: "Stairs: Motion Detected Before Kids Bed Time (Dark, Upstairs)"
@@ -97,19 +97,19 @@ automation:
                 value_template: "{{ state_attr('light.stairs', 'brightness')|int(0) < 5 }}"
     actions:
       - parallel:
-        - action: script.send_to_home_log
-          data:
-            message: >-
-              🐾 Motion on the 🪜 upstairs, before bed time
-              and it's dark
-              ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
-              {{ states('input_number.stairs_light_level_threshold', with_unit=True) }}).
-              Turning 💡 🔆 light on.
-            title: "Stairs"
-            log_level: "Debug"
-        - action: scene.turn_on
-          target:
-            entity_id: scene.stairs_light_on
+          - action: script.send_to_home_log
+            data:
+              message: >-
+                🐾 Motion on the 🪜 upstairs, before bed time
+                and it's dark
+                ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
+                {{ states('input_number.stairs_light_level_threshold', with_unit=True) }}).
+                Turning 💡 🔆 light on.
+              title: "Stairs"
+              log_level: "Debug"
+          - action: scene.turn_on
+            target:
+              entity_id: scene.stairs_light_on
     mode: queued
     max: 10
   - id: "1587595659605"
@@ -150,131 +150,131 @@ automation:
                 value_template: "{{ state_attr('light.stairs', 'brightness')|int(0) < 5 }}"
     actions:
       - parallel:
-        - choose:
-          - conditions:
-              - condition: state
-                entity_id: input_select.home_mode
-                state: "No Children"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion 🪜 upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and in No Children Mode.
-                    Turning stairs 💡 🔆 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - conditions:
-              - not:
+          - choose:
+              - conditions:
                   - condition: state
                     entity_id: input_select.home_mode
                     state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.childrens_bedroom_doors
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion on the 🪜 upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👨‍👩‍👧‍👦 children's doors are shut.
-                    Turning 💡 🔆 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          - conditions:
-              - not:
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion 🪜 upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and in No Children Mode.
+                        Turning stairs 💡 🔆 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_on
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "No Children"
                   - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.childrens_bedroom_doors
-                state: "on"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion on the 🪜 upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👨‍👩‍👧‍👦 children's 🚪 doors are open.
-                    💡 🔅 Dimming light.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_dim
-          - conditions:
-              - not:
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
                   - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "on"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "off"
-              - condition: state
-                entity_id: binary_sensor.leos_bedroom_door_contact
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👦 Leo's 🚪 door is shut. Turning 💡 🔆 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_dim
-          - conditions:
-              - not:
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
                   - condition: state
-                    entity_id: input_select.home_mode
-                    state: "No Children"
-              - condition: state
-                entity_id: input_boolean.enable_leos_door_automations
-                state: "off"
-              - condition: state
-                entity_id: input_boolean.enable_ashlees_door_automations
-                state: "on"
-              - condition: state
-                entity_id: binary_sensor.ashlees_bedroom_door_contact
-                state: "off"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
-                    👧 Ashlee's 🚪 door is shut.
-                    Turning 💡 🔆 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_light_on
-          default: []
+                    entity_id: binary_sensor.childrens_bedroom_doors
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion on the 🪜 upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
+                        👨‍👩‍👧‍👦 children's doors are shut.
+                        Turning 💡 🔆 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_on
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "No Children"
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.childrens_bedroom_doors
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion on the 🪜 upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
+                        👨‍👩‍👧‍👦 children's 🚪 doors are open.
+                        💡 🔅 Dimming light.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_dim
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "No Children"
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "off"
+                  - condition: state
+                    entity_id: binary_sensor.leos_bedroom_door_contact
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
+                        👦 Leo's 🚪 door is shut. Turning 💡 🔆 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_dim
+              - conditions:
+                  - not:
+                      - condition: state
+                        entity_id: input_select.home_mode
+                        state: "No Children"
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "off"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.ashlees_bedroom_door_contact
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and
+                        👧 Ashlee's 🚪 door is shut.
+                        Turning 💡 🔆 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_on
+            default: []
     mode: queued
     max: 10
   - id: "1587595659606"
@@ -318,55 +318,55 @@ automation:
                 value_template: "{{ state_attr('light.stairs', 'brightness')|int(0) < 5 }}"
     actions:
       - parallel:
-        - choose:
-          - alias: Bedroom light is on
-            conditions:
-              - condition: state
-                entity_id: light.bedroom_lamps
-                state: "on"
-            sequence:
+          - choose:
+              - alias: Bedroom light is on
+                conditions:
+                  - condition: state
+                    entity_id: light.bedroom_lamps
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion upstairs and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
+                        {{ states('input_number.stairs_light_level_threshold', with_unit=True) }})
+                        🛏️ bedroom light is on and it's :clock12: late but bedroom light(s) are on.
+                        Turning 💡 🔆 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_on
+              - alias: Check if night light settings is turned on.
+                conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_stairs_night_light
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 Motion and it's dark
+                        ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
+                        Turning night 💡 🔅 light on.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_night_light
+            default:
               - action: script.send_to_home_log
                 data:
                   message: >-
                     🐾 Motion upstairs and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance', with_unit=True) }} <
-                    {{ states('input_number.stairs_light_level_threshold', with_unit=True) }})
-                    🛏️ bedroom light is on and it's :clock12: late but bedroom light(s) are on.
-                    Turning 💡 🔆 light on.
+                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
+                    Night mode is turned off so turning 💡 🔆 light on.
                   title: "Stairs"
                   log_level: "Debug"
               - action: scene.turn_on
                 target:
                   entity_id: scene.stairs_light_on
-          - alias: Check if night light settings is turned on.
-            conditions:
-              - condition: state
-                entity_id: input_boolean.enable_stairs_night_light
-                state: "on"
-            sequence:
-              - action: script.send_to_home_log
-                data:
-                  message: >-
-                    🐾 Motion and it's dark
-                    ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
-                    Turning night 💡 🔅 light on.
-                  title: "Stairs"
-                  log_level: "Debug"
-              - action: scene.turn_on
-                target:
-                  entity_id: scene.stairs_night_light
-          default:
-            - action: script.send_to_home_log
-              data:
-                message: >-
-                  🐾 Motion upstairs and it's dark
-                  ({{ states('sensor.stairs_motion_illuminance') }} < 5 lux) and it's :clock12: late.
-                  Night mode is turned off so turning 💡 🔆 light on.
-                title: "Stairs"
-                log_level: "Debug"
-            - action: scene.turn_on
-              target:
-                entity_id: scene.stairs_light_on
     mode: single
   - id: "1592062695452"
     alias: "Stairs: Magic Mirror Control (Motion/Night)"
@@ -408,14 +408,14 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                - action: switch.turn_on
-                  target:
-                    entity_id: switch.magic_mirror_plug
-                - action: script.send_to_home_log
-                  data:
-                    message: "Turning on 🪞 Magic Mirror."
-                    title: "🐾 Motion on the 🪜 stairs/lounge"
-                    log_level: "Debug"
+                  - action: switch.turn_on
+                    target:
+                      entity_id: switch.magic_mirror_plug
+                  - action: script.send_to_home_log
+                    data:
+                      message: "Turning on 🪞 Magic Mirror."
+                      title: "🐾 Motion on the 🪜 stairs/lounge"
+                      log_level: "Debug"
           - alias: "No Motion At Night - Turn Off Mirror"
             conditions:
               - condition: trigger
@@ -430,14 +430,14 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                - action: switch.turn_off
-                  target:
-                    entity_id: switch.magic_mirror_plug
-                - action: script.log_with_clock
-                  data:
-                    message: "🚷 Turning off 🪞 Magic Mirror because no motion was detected."
-                    title: "Stairs"
-                    log_level: "Debug"
+                  - action: switch.turn_off
+                    target:
+                      entity_id: switch.magic_mirror_plug
+                  - action: script.log_with_clock
+                    data:
+                      message: "🚷 Turning off 🪞 Magic Mirror because no motion was detected."
+                      title: "Stairs"
+                      log_level: "Debug"
     mode: queued
     max: 10
   - id: "1587595847618"
@@ -490,23 +490,23 @@ automation:
                             state: "on"
                         sequence:
                           - parallel:
-                            - action: script.send_to_home_log
-                              data:
-                                message: >-
-                                  🚷 No motion at the bottom of the stairs for 1 minute.
-                                  Turning ambient light off.
-                                title: "Stairs"
-                                log_level: "Debug"
-                            - action: scene.turn_on
-                              target:
-                                entity_id: scene.stairs_light_2_off
-                              data:
-                                transition: 2
-                            - delay:
-                                seconds: 1
-                            - action: light.turn_off
-                              target:
-                                entity_id: light.stairs_2
+                              - action: script.send_to_home_log
+                                data:
+                                  message: >-
+                                    🚷 No motion at the bottom of the stairs for 1 minute.
+                                    Turning ambient light off.
+                                  title: "Stairs"
+                                  log_level: "Debug"
+                              - action: scene.turn_on
+                                target:
+                                  entity_id: scene.stairs_light_2_off
+                                data:
+                                  transition: 2
+                              - delay:
+                                  seconds: 1
+                              - action: light.turn_off
+                                target:
+                                  entity_id: light.stairs_2
           - alias: "Bottom Motion Off - Turn Off Bottom Light (Fallback)"
             conditions:
               - condition: trigger
@@ -516,18 +516,18 @@ automation:
                 state: "on"
             sequence:
               - parallel:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🚷 No motion at the bottom of the stairs for 1 minute.
-                      Turning light off.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id: scene.stairs_light_2_off
-                  data:
-                    transition: 2
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🚷 No motion at the bottom of the stairs for 1 minute.
+                        Turning light off.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id: scene.stairs_light_2_off
+                    data:
+                      transition: 2
         default: []
     mode: queued
     max: 10
@@ -581,52 +581,52 @@ automation:
             state: "No Children"
     actions:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_leos_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: binary_sensor.leos_bedroom_door_contact
-                  state: "on"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🐾 🚪 🔅 {{ trigger.to_state.name }} opened after bed time and
-                      the stairs light are on. 💡 🔅 Dimming all lights.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.stairs_light_dim
-                      - scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_ashlees_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: binary_sensor.ashlees_bedroom_door_contact
-                  state: "on"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🚪 🔆 {{ trigger.to_state.name }} opened after bed time and
-                      the stairs light are on. 💡 🔅 Dimming all lights.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.stairs_light_on
-                      - scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-          default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.leos_bedroom_door_contact
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🐾 🚪 🔅 {{ trigger.to_state.name }} opened after bed time and
+                        the stairs light are on. 💡 🔅 Dimming all lights.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_dim
+                        - scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.ashlees_bedroom_door_contact
+                    state: "on"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🚪 🔆 {{ trigger.to_state.name }} opened after bed time and
+                        the stairs light are on. 💡 🔅 Dimming all lights.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_on
+                        - scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+            default: []
     mode: queued
     max: 10
   - id: "1615850302527"
@@ -653,83 +653,82 @@ automation:
         state: "Normal"
     actions:
       - parallel:
-        - choose:
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_leos_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: input_boolean.enable_ashlees_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: binary_sensor.childrens_bedroom_doors
-                  state: "off"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      🚪 🔆 {{ trigger.to_state.name }} closed after bed time, 👨‍👩‍👧‍👦
-                      children's 🚪 doors are closed and the light are on. Turn up 💡 🔆 all lights.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.stairs_light_on
-                      - scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_leos_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: input_boolean.enable_ashlees_door_automations
-                  state: "off"
-                - condition: state
-                  entity_id: binary_sensor.leos_bedroom_door_contact
-                  state: "off"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message:
-                      "👦 Leo's 🚪 door closed after bed time and the
-                      lights are on. Turn up 💡 🔆 all lights."
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.stairs_light_on
-                      - scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-            - conditions:
-                - condition: state
-                  entity_id: input_boolean.enable_leos_door_automations
-                  state: "off"
-                - condition: state
-                  entity_id: input_boolean.enable_ashlees_door_automations
-                  state: "on"
-                - condition: state
-                  entity_id: binary_sensor.ashlees_bedroom_door_contact
-                  state: "off"
-              sequence:
-                - action: script.send_to_home_log
-                  data:
-                    message: >-
-                      👧 Ashlee's 🚪 door closed after bed time and the
-                      stairs light are on. Turn up 💡 🔆 all lights.
-                    title: "Stairs"
-                    log_level: "Debug"
-                - action: scene.turn_on
-                  target:
-                    entity_id:
-                      - scene.stairs_light_on
-                      - scene.stairs_light_2_on
-                  data:
-                    transition: 0.5
-          default: []
+          - choose:
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.childrens_bedroom_doors
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        🚪 🔆 {{ trigger.to_state.name }} closed after bed time, 👨‍👩‍👧‍👦
+                        children's 🚪 doors are closed and the light are on. Turn up 💡 🔆 all lights.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_on
+                        - scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "off"
+                  - condition: state
+                    entity_id: binary_sensor.leos_bedroom_door_contact
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: "👦 Leo's 🚪 door closed after bed time and the
+                        lights are on. Turn up 💡 🔆 all lights."
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_on
+                        - scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+              - conditions:
+                  - condition: state
+                    entity_id: input_boolean.enable_leos_door_automations
+                    state: "off"
+                  - condition: state
+                    entity_id: input_boolean.enable_ashlees_door_automations
+                    state: "on"
+                  - condition: state
+                    entity_id: binary_sensor.ashlees_bedroom_door_contact
+                    state: "off"
+                sequence:
+                  - action: script.send_to_home_log
+                    data:
+                      message: >-
+                        👧 Ashlee's 🚪 door closed after bed time and the
+                        stairs light are on. Turn up 💡 🔆 all lights.
+                      title: "Stairs"
+                      log_level: "Debug"
+                  - action: scene.turn_on
+                    target:
+                      entity_id:
+                        - scene.stairs_light_on
+                        - scene.stairs_light_2_on
+                    data:
+                      transition: 0.5
+            default: []
     mode: single
   # region Timed
   - id: "1588856667889"
@@ -759,14 +758,14 @@ automation:
         state: "on"
     actions:
       - parallel:
-        - action: switch.turn_off
-          target:
-            entity_id: switch.magic_mirror_plug
-        - action: script.send_to_home_log
-          data:
-            message: "🚷 No motion detected. Turning off 🪞 Magic Mirror based on time of the day."
-            title: "Stairs"
-            log_level: "Debug"
+          - action: switch.turn_off
+            target:
+              entity_id: switch.magic_mirror_plug
+          - action: script.send_to_home_log
+            data:
+              message: "🚷 No motion detected. Turning off 🪞 Magic Mirror based on time of the day."
+              title: "Stairs"
+              log_level: "Debug"
     mode: single
   - id: "1630760046947"
     alias: "Stairs: Close Blinds At Night"
@@ -784,14 +783,14 @@ automation:
         state: "on"
     actions:
       - parallel:
-        - action: script.send_to_home_log
-          data:
-            message: "🌅 🪟 Closing blinds."
-            title: "Stairs"
-            log_level: "Debug"
-        - action: cover.close_cover
-          target:
-            entity_id: cover.stairs_blinds
+          - action: script.send_to_home_log
+            data:
+              message: "🌅 🪟 Closing blinds."
+              title: "Stairs"
+              log_level: "Debug"
+          - action: cover.close_cover
+            target:
+              entity_id: cover.stairs_blinds
     mode: single
   - id: "1630760149356"
     alias: "Stairs: Open Blinds In The Morning"
@@ -808,14 +807,14 @@ automation:
         state: "on"
     actions:
       - parallel:
-        - action: script.send_to_home_log
-          data:
-            message: "🌅 Opening blinds."
-            title: "Stairs"
-            log_level: "Debug"
-        - action: cover.open_cover
-          target:
-            entity_id: cover.stairs_blinds
+          - action: script.send_to_home_log
+            data:
+              message: "🌅 Opening blinds."
+              title: "Stairs"
+              log_level: "Debug"
+          - action: cover.open_cover
+            target:
+              entity_id: cover.stairs_blinds
     mode: single
   # region Camera
   - id: "1630015410190"
@@ -832,20 +831,20 @@ automation:
         state: "armed_away"
     actions:
       - parallel:
-        - action: camera.snapshot
-          data_template:
-            filename:
-              "{{ states('input_text.latest_frigate_upstairs_person_file_path')
-              }}"
-          target:
-            entity_id: camera.stairs_high_resolution_channel
-        - action: script.send_home_log_with_local_attachments
-          data:
-            title: Person detected on stairs
-            message: Frigate detected a person on the stairs.
-            filePath:
-              "{{ states('input_text.latest_frigate_upstairs_person_file_path')
-              }}"
+          - action: camera.snapshot
+            data_template:
+              filename:
+                "{{ states('input_text.latest_frigate_upstairs_person_file_path')
+                }}"
+            target:
+              entity_id: camera.stairs_high_resolution_channel
+          - action: script.send_home_log_with_local_attachments
+            data:
+              title: Person detected on stairs
+              message: Frigate detected a person on the stairs.
+              filePath:
+                "{{ states('input_text.latest_frigate_upstairs_person_file_path')
+                }}"
     mode: queued
     max: 10
   # region Light
@@ -1090,27 +1089,66 @@ scene:
     name: Stairs Night Light
     entities:
       light.stairs:
-        min_mireds: 111
-        max_mireds: 666
+        min_color_temp_kelvin: 2702
+        max_color_temp_kelvin: 6535
         effect_list:
-          - effect_colorloop
-          - effect_pulse
-          - effect_stop
+          - flow1
+          - flow2
+          - fading
+          - hopping
+          - breathing
+          - rolling
         supported_color_modes:
           - color_temp
-          - hs
-        color_mode: hs
+        effect:
+        color_mode: color_temp
         brightness: 5
+        color_temp_kelvin: 6250
         hs_color:
-          - 358.599
-          - 100
+          - 34.787
+          - 4.471
         rgb_color:
           - 255
-          - 0
-          - 5
+          - 250
+          - 244
         xy_color:
-          - 0.7
-          - 0.299
-        friendly_name: Stairs Light
-        supported_features: 55
+          - 0.332
+          - 0.335
+        friendly_name: Stairs
+        supported_features: 44
         state: "on"
+      light.stairs_ambient:
+        min_color_temp_kelvin: 2702
+        max_color_temp_kelvin: 6535
+        effect_list:
+          - flow1
+          - flow2
+          - fading
+          - hopping
+          - breathing
+          - rolling
+        supported_color_modes:
+          - color_temp
+          - xy
+        effect:
+        color_mode: color_temp
+        brightness: 38
+        color_temp_kelvin: 2702
+        hs_color:
+          - 28.391
+          - 65.659
+        rgb_color:
+          - 255
+          - 167
+          - 88
+        xy_color:
+          - 0.524
+          - 0.388
+        friendly_name: Stairs Ambient
+        supported_features: 44
+        state: "on"
+    metadata:
+      light.stairs_ambient:
+        entity_only: true
+      light.stairs:
+        entity_only: true
