@@ -2,7 +2,7 @@
 
 # Integrations
 
-Last reviewed against YAML: 2026-07-19
+Last reviewed against YAML: 2026-10-24
 
 Integration-specific configuration organized by functional domain. Each package is self-contained where practical, with UI integration setup and secrets handled separately.
 
@@ -10,9 +10,9 @@ Integration-specific configuration organized by functional domain. Each package 
 
 | Metric | Count |
 |--------|-------|
-| Integration YAML files | 45 |
-| Integration automations | 130 |
-| Integration scripts | 78 |
+| Integration YAML files | 44 |
+| Integration automations | 125 |
+| Integration scripts | 74 |
 | Integration sensors | 36 |
 | Integration template blocks | 30 |
 | Integration groups | 4 |
@@ -28,20 +28,20 @@ Each package's README is its implementation guide. The source YAML is linked bes
 
 | Category | YAML files | Current package contents | Documentation |
 |----------|------------|--------------------------|---------------|
-| **Energy** | 8 | 38 automations, 28 scripts, 12 sensors, 16 template blocks, 4 groups, 1 conversation block, 13 intent scripts | [README](energy/README.md) |
+| **Energy** | 8 | 34 automations, 27 scripts, 12 sensors, 16 template blocks, 4 groups, 1 conversation block, 13 intent scripts | [README](energy/README.md) |
 | **HVAC** | 3 | 16 automations, 12 scripts, 16 sensors, 7 template blocks, 1 schedule, 1 input number, 1 utility meter | [README](hvac/README.md) |
-| **Messaging** | 7 | 5 automations, 23 scripts, 2 notify services | [README](messaging/README.md) |
+| **Messaging** | 6 | 4 automations, 20 scripts, 2 notify services | [README](messaging/README.md) |
 | **Transport** | 2 | 2 automations, 2 scripts, 4 template blocks, 122 MQTT entries | [README](transport/README.md) |
-| **Weather** | 3 | 6 automations, 2 REST blocks | [README](weather/README.md) |
+| **Weather** | 3 | 7 automations, 2 REST blocks | [README](weather/README.md) |
 
 ## Energy Documentation
 
 | Package | Current package contents | Document |
 |---------|--------------------------|----------|
-| [energy.yaml](energy/energy.yaml) | 14 automations, 9 scripts, 4 groups, 4 template blocks | [README](energy/energy_README.md) |
+| [energy.yaml](energy/energy.yaml) | 12 automations, 9 scripts, 4 groups, 4 template blocks | [README](energy/energy_README.md) |
 | [ecoflow.yaml](energy/ecoflow.yaml) | 11 automations, 10 scripts, 4 template blocks | [README](energy/ecoflow_README.md) |
 | [energy_conversations.yaml](energy/energy_conversations.yaml) | 1 conversation block, 13 intent scripts | [README](energy/README.md) |
-| [octopus_energy.yaml](energy/octopus_energy.yaml) | 3 automations, 1 script | [README](energy/octopus_energy_README.md) |
+| [octopus_energy.yaml](energy/octopus_energy.yaml) | 1 automation | [README](energy/octopus_energy_README.md) |
 | [predbat.yaml](energy/predbat.yaml) | 2 automations | [README](energy/predbat_README.md) |
 | [solar_assistant.yaml](energy/solar_assistant.yaml) | 1 automation, 6 scripts, 12 sensors, 8 template blocks | [README](energy/solar_assistant_README.md) |
 | [solcast.yaml](energy/solcast.yaml) | 1 automation, 1 script | [README](energy/solcast_README.md) |
@@ -89,7 +89,7 @@ Each package's README is its implementation guide. The source YAML is linked bes
 | **[ESPHome](esphome.yaml)** | 2 automations | [README](esphome_README.md) |
 | **[OwnTracks](owntracks.yaml)** | 3 automations | [README](owntracks_README.md) |
 | **[SFTPGo](sftpgo.yaml)** | 1 shell command | [README](sftpgo_README.md) |
-| **[Supervisor](supervisor.yaml)** | 13 automations, 1 script | [README](supervisor_README.md) |
+| **[Supervisor](supervisor.yaml)** | 12 automations, 1 script | [README](supervisor_README.md) |
 | **[UPS](ups.yaml)** | 4 automations, 1 template block | [README](ups_README.md) |
 | **[Zigbee](zigbee.yaml)** | 1 automation | [README](zigbee_README.md) |
 
@@ -106,7 +106,7 @@ Each package's README is its implementation guide. The source YAML is linked bes
 | Integration | Current package contents | Documentation |
 |-------------|--------------------------|---------------|
 | **[Weather](weather/weather.yaml)** | 5 automations, 1 REST block | [README](weather/README.md) |
-| **[Ecowitt](weather/ecowitt.yaml)** | 1 automation | [README](weather/README.md) |
+| **[Ecowitt](weather/ecowitt.yaml)** | 2 automations | [README](weather/README.md) |
 | **[Carbon Intensity UK](weather/carbon_intensity_uk.yaml)** | 1 REST block | [README](weather/README.md) |
 
 ## Related Documentation

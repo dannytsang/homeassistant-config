@@ -6,14 +6,13 @@ The Octopus Energy package is the rate-change coordinator for the energy system.
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `octopus_energy.yaml` | Octopus rate and Intelligent Dispatch coordination | 3 automations, 1 script |
+| `octopus_energy.yaml` | Electricity-rate change coordinator | 1 automation |
 
 ## Quick Summary
 
 | Area | What Happens |
 |------|--------------|
 | Rate changes | Current import rate changes trigger parallel checks for Solar Assistant, Zappi, Eddi, EcoFlow, conservatory heating, Tesla low-rate notifications, and the conservatory airer. |
-| Intelligent Octopus | Dispatch data is refreshed every 3 minutes while the Zappi is connected, and once when the Zappi disconnects. |
 | Safety gates | Each subsystem has its own enable boolean and availability checks before its script is called. |
 
 ## Rate Change Fan-Out
@@ -35,14 +34,6 @@ flowchart LR
 | Automation | Trigger | Result |
 |------------|---------|--------|
 | `Octopus Energy: Electricity Rates Changed` | `sensor.octopus_energy_electricity_current_rate` changes | Runs enabled subsystem checks in parallel with current import/export rates. |
-| `Refresh intelligent dispatches` | Zappi plug status becomes anything except `EV Disconnected`, or every 3 minutes | Refreshes Intelligent Octopus dispatches while an EV is connected. |
-| `Refresh intelligent dispatches` | Zappi plug status changes to `EV Disconnected` | Refreshes Intelligent Octopus dispatches once after disconnect. |
-
-## Script
-
-| Script | Purpose |
-|--------|---------|
-| `script.refresh_octopus_intelligent_dispatching` | Calls `octopus_energy.refresh_intelligent_dispatches` for the configured Intelligent Dispatch binary sensor. |
 
 ## Subsystem Conditions
 
@@ -61,6 +52,5 @@ flowchart LR
 | Issue | Check |
 |-------|-------|
 | A subsystem did not react to a rate change | Its enable boolean and the trace for `Octopus Energy: Electricity Rates Changed`. |
-| Intelligent dispatches are stale | Zappi plug status and `script.refresh_octopus_intelligent_dispatching` trace. |
 | Solar Assistant not called | `select.growatt_sph_work_mode_priority` must not be `unavailable`. |
 | Zappi not called | `sensor.zappi_myenergi_zappi_plug_status` must not be `EV Disconnected`. |

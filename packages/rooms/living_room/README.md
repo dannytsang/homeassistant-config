@@ -8,7 +8,7 @@ This documentation covers the YAML file in this folder:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `living_room.yaml` | Main living room behavior | 23 automations, 12 scenes, 6 scripts, 11 sensors, 1 template group |
+| `living_room.yaml` | Main living room behavior | 23 automations, 13 scenes, 6 scripts, 11 sensors, 1 template group |
 
 ## Quick Summary
 

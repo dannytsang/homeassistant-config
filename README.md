@@ -31,15 +31,15 @@ Quick reference to all documentation in this repository, sorted by category.
 | [INSTALL.md](INSTALL.md) | Installation and setup instructions | 2026-06-14 |
 | [hardware.md](hardware.md) | Complete hardware inventory by manufacturer | 2026-06-14 |
 | [statistics.md](statistics.md) | Live entity counts and system statistics | 2026-06-14 |
-| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-06-27 |
+| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-10-24 |
 
 ### Package Documentation
 
 | Category | Document | Description | Last Updated |
 |----------|----------|-------------|--------------|
-| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-06-27 |
-| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-06-27 |
-| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-06-27 |
+| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-10-24 |
+| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-10-24 |
+| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-10-24 |
 
 ### Room Documentation
 
@@ -72,7 +72,7 @@ Quick reference to all documentation in this repository, sorted by category.
 | **Zappi** | [README](packages/integrations/energy/zappi_README.md) | EV charger integration | 2026-06-14 |
 | **Alarm** | [README](packages/integrations/alarm_README.md) | House alarm system | 2026-06-14 |
 | **HVAC** | [README](packages/integrations/hvac/README.md) | Heating and climate control | 2026-06-14 |
-| **Messaging** | [README](packages/integrations/messaging/README.md) | Notifications (Slack, Discord, Telegram) | 2026-06-14 |
+| **Messaging** | [README](packages/integrations/messaging/README.md) | Notifications (Discord, Telegram, WhatsApp, mobile, and desktop) | 2026-10-24 |
 | **Transport** | [README](packages/integrations/transport/README.md) | Tesla/TeslaMate integration | 2026-06-14 |
 | **Google Travel** | [README](packages/integrations/transport/google_travel_README.md) | Travel time estimates | 2026-06-14 |
 

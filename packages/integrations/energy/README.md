@@ -8,10 +8,10 @@ This documentation covers all YAML files in this folder:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `energy.yaml` | Core energy notifications, solar forecast helpers, grid sensors, and schedule groups | 14 automations, 4 groups, 9 scripts, 4 template sensors |
+| `energy.yaml` | Core energy notifications, solar forecast helpers, grid sensors, and schedule groups | 12 automations, 4 groups, 9 scripts, 4 template sensors |
 | `ecoflow.yaml` | Kitchen and office EcoFlow backup battery management | 11 automations, 10 scripts, 4 template sensors |
 | `energy_conversations.yaml` | Voice/conversation responses for energy questions | 13 intents, 13 intent scripts |
-| `octopus_energy.yaml` | Rate-change coordinator and Intelligent Octopus dispatch refresh | 3 automations, 1 script |
+| `octopus_energy.yaml` | Rate-change coordinator | 1 automation |
 | `predbat.yaml` | Predbat plan notification and mode-mismatch alerting | 2 automations |
 | `solar_assistant.yaml` | Growatt inverter mode control and battery/runtime sensors | 1 automation, 6 scripts, 12 statistics sensors, 8 template sensors |
 | `solcast.yaml` | Solcast forecast refresh with API-limit protection | 1 automation, 1 script |
@@ -64,7 +64,6 @@ Core package for energy notifications and reusable forecast helpers. It does not
 | Section | YAML Objects | Summary |
 |---------|--------------|---------|
 | Battery and solar notifications | 12 automations | Tracks charged/not-charged days, low forecast days, daily forecast recommendations, low battery before peak, battery depletion, power cuts, and high grid draw. |
-| Octopus saving sessions | 2 automations | Notifies Danny and Terina when Octoplus Saving Sessions start or finish. |
 | Schedule groups | 4 groups | Groups battery-first, below-export, grid-first, and maintain-charge schedules for reporting and voice summaries. |
 | Forecast and notification scripts | 9 scripts | Builds forecast data, calculates target charge, finds first/last useful solar periods, and sends solar notifications. |
 | Grid sensors | 4 template sensors | Creates unified grid power, import power, export power, and fuse warning current sensors. |

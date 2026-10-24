@@ -2,7 +2,7 @@
 
 # /packages Folder
 
-Last reviewed against YAML: 2026-07-19
+Last reviewed against YAML: 2026-10-24
 
 This directory contains Home Assistant configuration organized as [packages](https://www.home-assistant.io/docs/configuration/packages/#create-a-packages-folder). Packages group related automations, scripts, scenes, sensors, helpers, commands, and integration configuration by room or functional area.
 
@@ -10,11 +10,11 @@ This directory contains Home Assistant configuration organized as [packages](htt
 
 | Metric | Count |
 |--------|-------|
-| Package YAML files | 71 |
+| Package YAML files | 70 |
 | Package README files | 66 |
-| Package automations | 383 |
-| Package scripts | 135 |
-| Package scenes | 64 |
+| Package automations | 376 |
+| Package scripts | 131 |
+| Package scenes | 65 |
 | Package sensors | 83 |
 | Package template blocks | 46 |
 | Package groups | 16 |
@@ -111,7 +111,6 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | Integration | Description | Documentation |
 |-------------|-------------|---------------|
 | [notifications.yaml](integrations/messaging/notifications.yaml) | Core notification scripts | [README](integrations/messaging/README.md) |
-| [slack.yaml](integrations/messaging/slack.yaml) | Slack integration | [README](integrations/messaging/README.md) |
 | [discord.yaml](integrations/messaging/discord.yaml) | Discord integration | [README](integrations/messaging/README.md) |
 | [telegram.yaml](integrations/messaging/telegram.yaml) | Telegram integration | [README](integrations/messaging/README.md) |
 | [home_assistant_mobile.yaml](integrations/messaging/home_assistant_mobile.yaml) | Mobile app notifications | [README](integrations/messaging/README.md) |

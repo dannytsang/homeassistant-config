@@ -2,11 +2,11 @@
 
 # Core Energy Package Documentation
 
-The core energy package watches the house battery, solar forecast, grid power, and Octopus saving sessions. It sends the household useful warnings, produces reusable forecast calculations for other packages, and exposes a small set of grid power sensors.
+The core energy package watches the house battery, solar forecast, and grid power. It sends the household useful warnings, produces reusable forecast calculations for other packages, and exposes a small set of grid power sensors.
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `energy.yaml` | Core energy behaviour | 14 automations, 4 groups, 9 scripts, 4 template sensors |
+| `energy.yaml` | Core energy behaviour | 12 automations, 4 groups, 9 scripts, 4 template sensors |
 
 ## Quick Summary
 
@@ -16,7 +16,6 @@ The core energy package watches the house battery, solar forecast, grid power, a
 | Solar forecast | At 21:00 on Agile tariffs, updates Solcast, checks tomorrow's forecast against the low-generation threshold, and sends a forecast notification. |
 | Battery warnings | Warns about low battery before peak time, battery depletion, and long runs of days without a full charge. |
 | Grid warnings | Alerts for possible power cuts and high house current draw near the configured fuse limit. |
-| Saving sessions | Notifies Danny and Terina when Octoplus Saving Sessions start and finish. |
 | Forecast helpers | Calculates recommended charge amounts from solar forecast and weather conditions. |
 
 ## How The Package Decides What To Do
@@ -31,7 +30,6 @@ flowchart TB
     ForecastScripts --> TomorrowNotify[Tomorrow forecast notification]
     Grid[house_power or smart_meter_electricity_power] --> GridSensors[Grid power template sensors]
     Load[Growatt load power] --> PowerCut[Power cut notification]
-    Octopus[Octopus saving session binary sensor] --> SavingSession[Saving session notifications]
 ```
 
 ## Automations
@@ -50,8 +48,6 @@ flowchart TB
 | `Energy: Power Cut Notification` | `sensor.growatt_sph_load_power` is `0` for 1 minute | Sends a possible power-cut notification. |
 | `Energy: High Grid Power Draw` | `sensor.house_current` above `sensor.grid_max_import_power_warning` | Warns Danny and Terina about approaching fuse limit. |
 | `Energy: Battery Depleted` | Battery SoC below 11% for 1 minute while importing from grid | Logs and sends a battery depleted notification. |
-| `Energy: Saving Session Started` | Octoplus saving sessions binary sensor turns on | Notifies Danny and Terina. |
-| `Energy: Saving Session Finished` | Octoplus saving sessions binary sensor turns off | Notifies Danny and Terina. |
 
 ## Scripts
 
@@ -99,4 +95,3 @@ The `Energy: Solar Forecast Tomorrow` automation only runs its forecast work whe
 | Battery not-charged counter seems wrong | `input_boolean.battery_charged_today`, `input_number.growatt_battery_charged_threshold`, and midnight automation trace. |
 | Grid sensors are zero | `sensor.house_power` and `sensor.smart_meter_electricity_power` numeric availability. |
 | Low battery before peak warning missing | `sensor.battery_charge_remaining_hours`, inverter mode not `Battery first`, and Agile tariff condition. |
-| Saving session alerts missing | `binary_sensor.octopus_energy_octoplus_saving_sessions` state transitions from non-`unavailable` states. |

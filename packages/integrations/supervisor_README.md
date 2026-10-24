@@ -11,7 +11,7 @@ Home Assistant reference: <https://www.home-assistant.io/integrations/hassio/>
 | Area | What Happens |
 |------|--------------|
 | Auto-stop | File Editor, Advanced SSH & Web Terminal, and Zigbee2MQTT Proxy get stop timers when they start. |
-| Update installs | Seven monitored add-on/update entities are installed automatically when their configured update trigger and condition pass. |
+| Update installs | Six monitored add-on/update entities are installed automatically when their configured update trigger and condition pass. |
 | Logging | Starts, stops, and updates are logged through `script.send_to_home_log`. |
 | Master control | Auto-stop behavior is guarded by `input_boolean.enable_stop_add_ons`. |
 
@@ -19,7 +19,7 @@ Home Assistant reference: <https://www.home-assistant.io/integrations/hassio/>
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `supervisor.yaml` | Add-on stop timers and updates | 13 automations, 1 script |
+| `supervisor.yaml` | Add-on stop timers and updates | 12 automations, 1 script |
 
 ## Auto-Stop Flow
 
@@ -43,26 +43,25 @@ flowchart TD
 
 | Automation | ID | Trigger | Timer or Action | Mode |
 |------------|----|---------|-----------------|------|
-| `Add-Ons: File Editor Started` | `1674411819883` | `binary_sensor.file_editor_running` turns `on` | Starts `timer.stop_add_on_file_editor` for 1 hour and logs. | `single` |
+| `Add-Ons: File Editor Started` | `1674411819883` | `switch.file_editor` turns `on` | Starts `timer.stop_add_on_file_editor` for 1 hour and logs. | `single` |
 | `Add-ons: Automatically Disable File Editor` | `1638101465298` | `timer.stop_add_on_file_editor` finishes | Calls `script.stop_add_on` for `core_configurator`. | `single` |
-| `Add-Ons: Advanced SSH & Web Terminal` | `1674411819884` | `binary_sensor.advanced_ssh_web_terminal_running` turns `on` | Starts `timer.stop_add_on_terminal_ssh` for 1 hour and logs. | `single` |
+| `Add-Ons: Advanced SSH & Web Terminal` | `1674411819884` | `switch.advanced_ssh_web_terminal` turns `on` | Starts `timer.stop_add_on_terminal_ssh` for 1 hour and logs. | `single` |
 | `Add-ons: Automatically Disable Advanced SSH & Web Terminal` | `1638101748990` | `timer.stop_add_on_terminal_ssh` finishes | Calls `script.stop_add_on` for `a0d7b954_ssh`. | `single` |
-| `Add-ons: Zigbee 2 MQTT Proxy Started` | `1638101748992` | `binary_sensor.zigbee2mqtt_proxy_running` turns `on` | Starts `timer.stop_add_on_zigbee_2_mqtt_proxy` for 30 minutes and logs. | Default |
+| `Add-ons: Zigbee 2 MQTT Proxy Started` | `1638101748992` | `switch.zigbee2mqtt_proxy` turns `on` | Starts `timer.stop_add_on_zigbee_2_mqtt_proxy` for 30 minutes and logs. | Default |
 | `Add-ons: Automatically Disable Zigbee 2 MQTT Proxy` | `1638101748993` | `timer.stop_add_on_zigbee_2_mqtt_proxy` finishes | Calls `script.stop_add_on` for `45df7312_zigbee2mqtt_proxy`. | `single` |
 
 ### Update Automations
 
 | Automation | ID | Trigger | Install Target | Mode |
 |------------|----|---------|----------------|------|
-| `Add-On: Update For File Editor` | `1700062541454` | `sensor.file_editor_newest_version` changes | `update.file_editor_update` | `single` |
-| `Add-On: Update For Terminal & Web` | `1700062541455` | `sensor.advanced_ssh_web_terminal_newest_version` changes | `update.advanced_ssh_web_terminal_update` | `single` |
-| `Add-On: Update For ESPHome` | `1700062541456` | `sensor.esphome_device_builder_newest_version` changes | `update.esphome_update` | `single` |
-| `Add-On: Update For Zigbee2MQTT Proxy` | `1700062541457` | `sensor.zigbee2mqtt_proxy_newest_version` changes | `update.zigbee2mqtt_proxy_update` | `single` |
-| `Add-On: Update For Log Viewer` | `1700062541458` | `sensor.log_viewer_newest_version` changes | `update.log_viewer_update` | `single` |
-| `Add-On: Update For Visual Studio Code` | `1700062541459` | `sensor.visual_studio_code_newest_version` changes | `update.studio_code_server_update` | `single` |
+| `Add-On: Update For File Editor` | `1700062541454` | `update.file_editor_update` turns `on` | `update.file_editor_update` | `single` |
+| `Add-On: Update For Terminal & Web` | `1700062541455` | `update.advanced_ssh_web_terminal_update` changes | `update.advanced_ssh_web_terminal_update` | `single` |
+| `Add-On: Update For ESPHome` | `1700062541456` | `update.esphome_device_builder_update` turns `on` | `update.esphome_device_builder_update` | `single` |
+| `Add-On: Update For Zigbee2MQTT Proxy` | `1700062541457` | `update.zigbee2mqtt_proxy_update` turns `on` | `update.zigbee2mqtt_proxy_update` | `single` |
+| `Add-On: Update For Visual Studio Code` | `1700062541459` | `update.studio_code_server_update` turns `on` | `update.studio_code_server_update` | `single` |
 | `Add-On: Predbat Core Update` | `1767778408951` | `update.predbat_version` turns `on` | `update.predbat_version` | `single` |
 
-The six version-sensor update automations include a `not state` condition intended to compare newest and current version sensors. In the YAML, the comparison value is written as a literal sensor entity ID string rather than a template.
+The six update automations have no conditions: the trigger state change is sufficient to run the install action.
 
 ## Script
 

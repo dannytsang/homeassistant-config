@@ -10,7 +10,7 @@ This documentation covers all YAML files in this folder:
 |------|---------|----------|
 | `conservatory.yaml` | Main room behavior | 9 automations, 2 scenes, 1 script, 1 sensor |
 | `airer.yaml` | Clothes airer behavior | 2 automations, 1 script |
-| `octoprint.yaml` | 3D printer behavior | 6 automations, 3 scenes, 3 scripts |
+| `octoprint.yaml` | 3D printer behavior | 7 automations, 3 scenes, 3 scripts |
 
 ## Quick Summary
 
@@ -24,7 +24,7 @@ For non-technical users, the important behavior is:
 | Cold temperature | If the conservatory mean temperature drops below 3 C, the package requests a heating boost and logs it. |
 | Underfloor heating rates | A reusable script can lower the underfloor-heating target when import electricity costs money, or raise it to 20 C when rates are zero or negative and the room is cool. |
 | Clothes airer | The airer follows a schedule, optional cold-weather compensation, and optional zero/negative electricity-price rules. |
-| 3D printer | Print starts control the Prusa light and fan, progress is logged, paused prints alert Danny urgently, and helper scripts keep the printer light appropriate for brightness and print state. |
+| 3D printer | Print starts control the Prusa light and fan, progress is logged, paused prints alert Danny urgently, a bed-preheat event is announced, and helper scripts keep the printer light appropriate for brightness and print state. |
 
 ## How The Conservatory Decides What To Do
 
@@ -310,6 +310,7 @@ flowchart LR
 | `3D Printer: Finished Printing` | Printing changes from `on` to `off` | Logs completion and `sensor.octoprint_start_time`. |
 | `3D Printer: Light Turned on` | `light.prusa` has been on for 5 minutes | Runs `script.3d_printer_check_turn_off_light`. |
 | `3D Printer: Paused Mid Print` | OctoPrint state becomes `pausing` or `paused` while printing | Sends Danny a high-priority direct notification without quiet-hour suppression. |
+| `3D Printer: Bed Temp Preheat` | The actual bed temperature rises above the configured bed target while not printing | Logs and announces that the 3D printer bed has preheated. |
 
 `script.3d_printer_left_unattended` is available for other automations to call. It sends Danny and Terina a high-priority notification if OctoPrint has a known estimated finish time and `binary_sensor.octoprint_printing` is on.
 
@@ -336,6 +337,7 @@ flowchart LR
 | `1613321560216` | 3D Printer: Finished Printing | `octoprint.yaml` |
 | `1656239435552` | 3D Printer: Light Turned on | `octoprint.yaml` |
 | `1656239435553` | 3D Printer: Paused Mid Print | `octoprint.yaml` |
+| `1789293546881` | 3D Printer: Bed Temp Preheat | `octoprint.yaml` |
 
 ### Scenes Defined Here
 

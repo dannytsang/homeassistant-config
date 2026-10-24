@@ -8,7 +8,7 @@ This documentation covers the YAML files in this folder:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `bedroom.yaml` | Main bedroom behavior | 26 automations, 5 scenes, 8 scripts, 5 sensors, 2 template binary sensors |
+| `bedroom.yaml` | Main bedroom behavior | 24 automations, 5 scenes, 8 scripts, 5 sensors, 1 template binary sensor |
 | `sleep_as_android.yaml` | Sleep tracking integration | 8 automations, 1 template binary sensor |
 | `awtrix_light.yaml` | Bedroom clock MQTT notification helper | 1 script |
 

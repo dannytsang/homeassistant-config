@@ -10,7 +10,7 @@ This documentation covers all YAML files in this folder:
 |------|---------|----------|
 | `weather.yaml` | Forecast and warning behavior | 5 automations, 1 REST sensor |
 | `carbon_intensity_uk.yaml` | UK carbon intensity data | 9 REST sensors |
-| `ecowitt.yaml` | Local weather station watchdog | 1 automation |
+| `ecowitt.yaml` | Local weather station watchdog | 2 automations |
 
 ## Quick Summary
 
@@ -102,6 +102,7 @@ The Ecowitt watchdog reboots the GW2000A smart plug when data looks stale.
 |---------|--------|
 | `sensor.gw2000a_dewpoint` remains unchanged for 3 minutes | Log debug message and reboot `switch.gw2000a_plug`. |
 | `sensor.gw2000a_solar_lux` is `unavailable` for 1 minute | Log debug message and reboot `switch.gw2000a_plug`. |
+| `switch.gw2000a_plug` remains `off` for 5 minutes | Log debug message and turn the plug back on. |
 
 The reboot sequence turns the plug off, waits 30 seconds, then turns it back on.
 

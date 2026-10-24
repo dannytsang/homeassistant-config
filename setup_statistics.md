@@ -1,10 +1,10 @@
 # Home Assistant Setup Statistics & Analysis
 
-Generated: 2026-06-27
+Reviewed against YAML: 2026-10-24
 
 ## Overview
 
-This Home Assistant configuration has **383 YAML-defined automations** in the repository: **381 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
+This Home Assistant configuration has **378 YAML-defined automations** in the repository: **376 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
 
 State counts are tracked separately in [statistics.md](statistics.md), because they come from the live Home Assistant state machine and include UI-created entities, integration-provided entities, disabled entities, and runtime-only entities that are not all represented in YAML.
 
@@ -14,20 +14,20 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Metric | Count |
 |--------|-------|
-| Package YAML files | 71 |
+| Package YAML files | 70 |
 | Package README files | 66 |
-| Package automations | 381 |
+| Package automations | 376 |
 | UI automations in `automations.yaml` | 2 deprecated water leak automations |
-| Package scripts | 133 |
+| Package scripts | 131 |
 | UI scripts in `scripts.yaml` | 6 |
-| Package scenes | 64 |
+| Package scenes | 65 |
 | UI scenes in `scenes.yaml` | 3 |
 | Package sensors | 83 |
 | Package template blocks | 46 |
 | Package groups | 16 |
 | Package MQTT entries | 122 |
 | REST commands | 3 |
-| Shell commands | 3 |
+| Shell commands | 2 |
 | Conversation blocks | 1 |
 | Intent scripts | 13 |
 
@@ -41,11 +41,11 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Area | Automations | Notes |
 |------|-------------|-------|
-| Room packages | 212 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
-| Integration packages | 130 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
-| Root/global packages | 39 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
+| Room packages | 213 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
+| Integration packages | 125 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
+| Root/global packages | 38 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
 | UI legacy file | 2 | Deprecated water leak automations retained for reference |
-| **Total YAML automations** | **383** | 381 package automations plus 2 UI automations |
+| **Total YAML automations** | **378** | 376 package automations plus 2 UI automations |
 
 ---
 
@@ -63,11 +63,11 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `rooms/bedroom3.yaml` | 10 | 1 script, 1 sensor, 1 template block |
 | `rooms/conservatory/airer.yaml` | 2 | 1 script |
 | `rooms/conservatory/conservatory.yaml` | 9 | 2 scenes, 1 script, 1 sensor |
-| `rooms/conservatory/octoprint.yaml` | 6 | 3 scenes, 3 scripts |
+| `rooms/conservatory/octoprint.yaml` | 7 | 3 scenes, 3 scripts |
 | `rooms/front_garden.yaml` | 5 | 1 shell command |
 | `rooms/kitchen/kitchen.yaml` | 27 | 16 scenes, 6 scripts, 13 sensors, 6 template blocks |
 | `rooms/kitchen/meater.yaml` | 2 | MEATER cook monitoring |
-| `rooms/living_room/living_room.yaml` | 23 | 12 scenes, 5 scripts, 11 sensors, 1 template block |
+| `rooms/living_room/living_room.yaml` | 23 | 13 scenes, 6 scripts, 11 sensors, 1 template block |
 | `rooms/office/office.yaml` | 27 | 8 scenes, 4 scripts, 9 sensors |
 | `rooms/office/steam.yaml` | 2 | Steam-related office automation |
 | `rooms/porch/porch.yaml` | 12 | 6 scenes, 5 scripts, 1 template block |
@@ -80,16 +80,16 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Integration/package | Automations | Other YAML features |
 |---------------------|-------------|---------------------|
-| `integrations/alarm.yaml` | 8 | 4 scripts |
+| `integrations/alarm.yaml` | 8 | 5 scripts |
 | `integrations/alexa.yaml` | 0 | 2 scripts |
 | `integrations/bins.yaml` | 2 | 5 sensors, 1 template block |
 | `integrations/calendar.yaml` | 3 | 2 scripts |
 | `integrations/chromecast.yaml` | 2 | 1 script |
 | `integrations/cleaning.yaml` | 3 | 1 REST command |
 | `integrations/energy/ecoflow.yaml` | 11 | 10 scripts, 4 template blocks |
-| `integrations/energy/energy.yaml` | 14 | 4 groups, 9 scripts, 4 template blocks |
+| `integrations/energy/energy.yaml` | 12 | 4 groups, 9 scripts, 4 template blocks |
 | `integrations/energy/energy_conversations.yaml` | 0 | 1 conversation block, 13 intent scripts |
-| `integrations/energy/octopus_energy.yaml` | 3 | 1 script |
+| `integrations/energy/octopus_energy.yaml` | 1 | — |
 | `integrations/energy/predbat.yaml` | 2 | Battery optimization automations |
 | `integrations/energy/solar_assistant.yaml` | 1 | 6 scripts, 12 sensors, 8 template blocks |
 | `integrations/energy/solcast.yaml` | 1 | 1 script |
@@ -106,7 +106,6 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `integrations/messaging/home_assistant_mobile.yaml` | 0 | 4 scripts |
 | `integrations/messaging/message_callback.yaml` | 1 | Action callback handling |
 | `integrations/messaging/notifications.yaml` | 0 | 10 shared notification scripts |
-| `integrations/messaging/slack.yaml` | 1 | 3 scripts |
 | `integrations/messaging/telegram.yaml` | 3 | 2 scripts |
 | `integrations/n8n.yaml` | 0 | 1 shell command |
 | `integrations/nuki.yaml` | 3 | 2 scripts |
@@ -115,14 +114,14 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `integrations/sftpgo.yaml` | 0 | 1 shell command |
 | `integrations/smoke_alarm.yaml` | 6 | Nest Protect safety handling |
 | `integrations/spotify.yaml` | 1 | Playback logging |
-| `integrations/supervisor.yaml` | 13 | 1 script |
+| `integrations/supervisor.yaml` | 12 | 1 script |
 | `integrations/transport/google_travel.yaml` | 0 | 1 script, 2 template blocks |
 | `integrations/transport/tesla.yaml` | 2 | 122 MQTT entries, 1 script, 2 template blocks |
 | `integrations/unifi_protect.yaml` | 4 | Camera event processing |
 | `integrations/ups.yaml` | 4 | 1 template block |
 | `integrations/water.yaml` | 2 | 1 template block |
 | `integrations/weather/carbon_intensity_uk.yaml` | 0 | 1 REST sensor/config block |
-| `integrations/weather/ecowitt.yaml` | 1 | Ecowitt weather station automation |
+| `integrations/weather/ecowitt.yaml` | 2 | Ecowitt weather station automation |
 | `integrations/weather/weather.yaml` | 5 | 1 REST sensor/config block |
 | `integrations/zigbee.yaml` | 1 | Zigbee2MQTT monitoring |
 
@@ -132,7 +131,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Package | Automations | Other YAML features |
 |---------|-------------|---------------------|
-| `home.yaml` | 11 | 1 scene, 7 scripts, 1 template block |
+| `home.yaml` | 10 | 1 scene, 7 scripts, 1 template block |
 | `home_assistant.yaml` | 6 | 2 scripts, 1 template block |
 | `shared_helpers.yaml` | 0 | 1 helper script, 1 template block |
 | `smoke_alarms.yaml` | 1 | 1 script |
@@ -162,6 +161,6 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 ## Documentation Currency Notes
 
-- `packages/README.md`, `packages/rooms/README.md`, and `packages/integrations/README.md` should be treated as the navigation entry points for package documentation.
+- `packages/README.md`, `packages/rooms/README.md`, and `packages/integrations/README.md` are the navigation entry points for package documentation and were reconciled with YAML in this review.
 - Detailed package READMEs remain useful for behavior and entity references, but count totals should be regenerated from YAML when accuracy matters.
 - Live entity totals in `statistics.md` are separate from YAML package counts and should be refreshed from Developer Tools using the template included in that file.
