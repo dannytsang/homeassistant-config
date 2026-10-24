@@ -11,7 +11,7 @@ This is the active guidance for Codex when working in this repository. Maintain 
 - `automations.yaml`, `scripts.yaml`, and `scenes.yaml` contain UI-managed configuration; do not manually restructure them without an explicit request.
 - `esphome/` contains device definitions; `custom_components/` contains checked-in Home Assistant integrations.
 
-Start with [packages/README.md](packages/README.md), then the relevant [rooms overview](packages/rooms/README.md) or [integrations overview](packages/integrations/README.md). Package YAML is the source of truth; the matching README explains local intent.
+Start with [packages/README.md](packages/README.md), then the relevant [rooms overview](packages/rooms/README.md) or [integrations overview](packages/integrations/README.md). Package YAML is the source of truth; the matching README explains local intent. Treat overview counts and review dates as navigation aids; verify inventories from YAML when counts affect the task.
 
 ## Before changing anything
 
@@ -55,7 +55,7 @@ Always inspect `git diff` and run `git diff --check` after an edit. Then use the
 - GitHub workflow change: actionlint in CI.
 - Documentation change: verify every edited local link resolves.
 
-CI validates YAML, Markdown, ESPHome, and stable Home Assistant configuration. Beta/dev Home Assistant checks are informational; do not present them as a release guarantee.
+CI runs a blocking stable Home Assistant configuration check for eligible configuration pushes. YAML lint, Markdown lint, actionlint, and beta/dev Home Assistant checks are advisory; Markdown-only pushes do not trigger this workflow. Validate documentation links locally after documentation changes.
 
 ## Git and deployment
 
