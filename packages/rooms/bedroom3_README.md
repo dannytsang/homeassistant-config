@@ -41,7 +41,7 @@ flowchart TB
     Heat --> Cover
     Timeout --> FanOff[Turn fan off]
     Manual --> Cover
-    Manual --> Light[light.ashlees_bedroom_main_light]
+    Manual --> Light[light.ashlee_s_bedroom_main_light_switch_0]
 ```
 
 ## Main File
@@ -110,10 +110,10 @@ Power-user note: the `Someone Is In Bed` automation currently checks for blinds 
 | Control | Action |
 |---------|--------|
 | Fan on for 1 hour | Turn off `switch.ashlees_bedroom_fan`. |
-| Hue remote on button | Toggle `light.ashlees_bedroom_main_light`. |
+| Hue remote on button | Toggle `light.ashlee_s_bedroom_main_light_switch_0`. |
 | Hue remote up button | Open `cover.ashlees_bedroom_blinds`. |
 | Hue remote down button | Close `cover.ashlees_bedroom_blinds`. |
-| Hue remote off button | Toggle `light.ashlees_bedroom_main_light`. |
+| Hue remote off button | Toggle `light.ashlee_s_bedroom_main_light_switch_0`. |
 
 ### Weather Script
 
@@ -126,7 +126,7 @@ Power-user note: the `Someone Is In Bed` automation currently checks for blinds 
 | `cover.ashlees_bedroom_blinds` | Ashlee's bedroom blind. |
 | `binary_sensor.ashlees_bed_occupied` | Template occupancy sensor from four bed pressure sensors. |
 | `binary_sensor.ashlees_bedroom_window_contact` | Window safety input for blind movement. |
-| `light.ashlees_bedroom_main_light` | Main light toggled by Hue remote. |
+| `light.ashlee_s_bedroom_main_light_switch_0` | Main light toggled by Hue remote. |
 | `switch.ashlees_bedroom_fan` | Fan controlled by one-hour timeout. |
 | `sensor.ashlees_bedroom_mould_indicator` | Mould risk sensor using bedroom and outdoor conditions. |
 | `sensor.ashlees_bed_top`, `sensor.ashlees_bed_middle_top`, `sensor.ashlees_bed_middle_bottom`, `sensor.ashlees_bed_bottom` | Bed pressure inputs. |
