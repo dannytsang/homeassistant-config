@@ -13,7 +13,7 @@ The kitchen setup is centered on two lighting zones, accent/RGB feedback lights,
 | Motion | `binary_sensor.kitchen_area_motion`, `binary_sensor.kitchen_motion_ld2412_presence`, `binary_sensor.kitchen_motion_ld2450_presence`, `binary_sensor.kitchen_motion_2_occupancy` | Motion/presence inputs for lighting. |
 | Light level | `sensor.kitchen_motion_ltr390_light`, `sensor.kitchen_motion_2_illuminance` | Logged in lighting decisions. |
 | Switch inputs | `binary_sensor.kitchen_cooker_light_input`, `binary_sensor.kitchen_table_light_input` | Physical switch toggles for cooker and table lights. |
-| Fridge/freezer | `binary_sensor.kitchen_fridge_door_contact`, `binary_sensor.kitchen_freezer_door_contact`, `switch.ecoflow_kitchen_plug`, `sensor.ecoflow_kitchen_ac_out_power` | Door monitoring and fridge/freezer power availability/running state. |
+| Fridge/freezer | `binary_sensor.kitchen_fridge_door_contact`, `binary_sensor.kitchen_freezer_door_contact`, `switch.ecoflow_kitchen_plug`, `sensor.kitchen_ecoflow_ac_out_power` | Door monitoring and fridge/freezer power availability/running state. |
 | Oven | `sensor.oven_channel_1_power`, `binary_sensor.oven_powered_on`, `input_boolean.oven_preheated` | Preheat and long-on detection. |
 | Dishwasher | `sensor.dishwasher_switch_0_power`, `binary_sensor.dishwasher_powered_on`, `sensor.dishwasher_tablet_stock`, `input_boolean.dishwasher_cycle_in_progress`, `input_boolean.dishwasher_clean_cycle` | Cycle tracking and tablet inventory. |
 | Water softener | `sensor.water_softener_salt_level_average`, `input_number.low_water_softener_salt_level`, `input_number.no_water_softener_salt_level` | Salt warning and critical alerts. |
