@@ -42,7 +42,7 @@ flowchart TB
     MotionAuto --> Light
     NoMotion --> Timer
     TimerDone --> Light
-    TimerDone --> Fan[switch.bathroom_fan_group]
+    TimerDone --> Fan[switch.bathroom_fan]
     LongLight --> Fan
     HumidityAuto --> Fan
     HumidityAuto --> Notify[Direct notification]
@@ -87,17 +87,17 @@ flowchart TD
 | `binary_sensor.bathroom_area_motion` turns `off` | Bathroom door is closed (`off`) | Logs and does not start the timer. |
 | No motion between 00:00 and 06:00 | Door is not closed | Starts `timer.bathroom_light_off` for 3 minutes. |
 | No motion outside 00:00-06:00 | Door is not closed | Starts `timer.bathroom_light_off` for 6 minutes. |
-| `timer.bathroom_light_off` finishes | Fan group is on | Logs, turns off `switch.bathroom_fan_group`, then turns off the light. |
+| `timer.bathroom_light_off` finishes | Fan group is on | Logs, turns off `switch.bathroom_fan`, then turns off the light. |
 | `timer.bathroom_light_off` finishes | Fan is not on | Logs and turns off the light. |
 
 ### Fan And Humidity
 
 | Automation | Trigger | Result |
 |------------|---------|--------|
-| `Bathroom: Light On For Long Time And Fan Off` | Light on for 5 minutes, fan group off, bathroom automations enabled | Turns on `switch.bathroom_fan_group`. |
+| `Bathroom: Light On For Long Time And Fan Off` | Light on for 5 minutes, fan group off, bathroom automations enabled | Turns on `switch.bathroom_fan`. |
 | `Bathroom: High Humidity` | Humidity above 59.9% for 1 minute | If automations are on, window and door are both `on`, and fan group is off, turns on the fan group. If automations are off, sends Danny and Terina a direct notification. |
 | `Bathroom: High Humidity` | Humidity above 69.9% for 1 minute | If automations are on and fan group is off, turns on the fan group. |
-| Second `Bathroom: High Humidity` automation | Humidity below 60% for 5 minutes, bathroom automations off, fan group on | Turns off `switch.bathroom_fan_group`. |
+| Second `Bathroom: High Humidity` automation | Humidity below 60% for 5 minutes, bathroom automations off, fan group on | Turns off `switch.bathroom_fan`. |
 | `Bathroom: Light Turned Off` | Light switch turns off and humidity is below 60% | Cancels the timer and can turn off fan-related switch entities. |
 
 Power-user note: there are two automations with alias `Bathroom: High Humidity`; their IDs are different and their behavior is different.
@@ -139,7 +139,7 @@ The package also defines `script.bathroom_flash_light`, which repeats two quick 
 | `binary_sensor.bathroom_window_contact` | Window state used in humidity logic. |
 | `binary_sensor.bathroom_switch_input_0` | Wall switch input used to cancel timer after manual light-on. |
 | `switch.bathroom_lights_2` | Bathroom light switch. |
-| `switch.bathroom_fan_group` | Fan group used by timer, long-light, and humidity automation. |
+| `switch.bathroom_fan` | Fan group used by timer, long-light, and humidity automation. |
 | `switch.bathroom_fan` | Fan switch turned off by the light-off, low-humidity branch. |
 | `sensor.bathroom_area_mean_light_level` | Brightness sensor for motion light-on decisions. |
 | `sensor.bathroom_motion_humidity` | Humidity sensor for fan decisions. |
@@ -151,5 +151,5 @@ The package also defines `script.bathroom_flash_light`, which repeats two quick 
 |-------|-------|
 | Motion does not turn the light on | Check the two motion sensors, `switch.bathroom_lights_2`, and whether `sensor.bathroom_area_mean_light_level` is above the threshold. |
 | Light does not turn off after no motion | Check whether `binary_sensor.bathroom_door_contact` is `off`; door closed suppresses the timer. |
-| Fan did not start after a shower | Check `input_boolean.enable_bathroom_automations`, humidity value, door/window contact states, and whether `switch.bathroom_fan_group` was already on. |
-| Fan did not turn off | Check which fan entity is on: the YAML references both `switch.bathroom_fan_group` and `switch.bathroom_fan`. |
+| Fan did not start after a shower | Check `input_boolean.enable_bathroom_automations`, humidity value, door/window contact states, and whether `switch.bathroom_fan` was already on. |
+| Fan did not turn off | Check which fan entity is on: the YAML references both `switch.bathroom_fan` and `switch.bathroom_fan`. |
