@@ -219,22 +219,49 @@ automation:
         entity_id:
           - sensor.octoprint_actual_bed_temp
         above: sensor.octoprint_target_bed_temp
+      - trigger: numeric_state
+        entity_id:
+          - sensor.octoprint_actual_bed_temp
+        above: sensor.octoprint_target_bed_temp
+        for: "00:05:00"
+        id: "5min"
     conditions:
       - condition: state
         entity_id: binary_sensor.octoprint_printing
         state: "off"
     actions:
-      - parallel:
-          - action: script.send_to_home_log
-            metadata: {}
-            data:
-              log_level: Debug
-              message: Bed Temp has preheated
-              title: 3D Printer
-          - action: script.alexa_announce
-            data:
-              message: 3D printer bed has preheated
-              suppress_if_quiet: true
+      - choose:
+          - conditions:
+              - condition: template
+                value_template: "{{ states('sensor.octoprint_current_file') | trim | lower not in ['unknown', 'unavailable', 'none', ''] }}"
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    metadata: {}
+                    data:
+                      log_level: Debug
+                      message: Bed Temp has preheated
+                      title: 3D Printer
+                  - action: script.alexa_announce
+                    data:
+                      message: 3D printer bed has preheated
+                      suppress_if_quiet: true
+          - conditions:
+              - condition: trigger
+                id: 5min
+            sequence:
+              - parallel:
+                  - action: script.send_to_home_log
+                    metadata: {}
+                    data:
+                      log_level: Debug
+                      message: Bed Temp has preheated
+                      title: 3D Printer
+                  - action: script.alexa_announce
+                    data:
+                      message: 3D printer bed has preheated
+                      suppress_if_quiet: true
+        default: []
     mode: single
 
 scene:
