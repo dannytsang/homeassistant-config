@@ -1,38 +1,6 @@
 # Created by Danny Tsang <danny@tsang.uk>
 # Integration: https://www.home-assistant.io/integrations/cast/
 automation:
-  # region MagicMirror
-  - id: "1647307174048"
-    alias: "Stairs: Check Magic Mirror Is Casting Home Assistant"
-    description: ""
-    triggers:
-      - trigger: time_pattern
-        minutes: "0"
-    conditions:
-      - or:
-          - condition: state
-            entity_id: input_select.home_mode
-            state: "guest"
-          - condition: state
-            entity_id: group.tracked_people
-            state: "home"
-      - not:
-          - condition: state
-            entity_id: alarm_control_panel.house_alarm
-            state: "armed_away"
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: Casting Home Assistant.
-              title: ":mirror: Magic Mirror"
-              log_level: "Debug"
-          - action: cast.show_lovelace_view
-            data:
-              entity_id: media_player.stairs_chromecast
-              dashboard_path: lovelace-magicmirror
-              view_path: home
-    mode: single
   # region Google TV
   - id: "1672397019959"
     alias: "Chromecast: Google TV Turned Playing"

@@ -44,7 +44,6 @@ flowchart TD
 
 | ID | Alias | Trigger | Main Conditions | Action |
 |----|-------|---------|-----------------|--------|
-| `1647307174048` | Stairs: Check Magic Mirror Is Casting Home Assistant | Time pattern, every hour at minute `0`. | `input_select.home_mode` is `guest` or `group.tracked_people` is `home`; `alarm_control_panel.house_alarm` is not `armed_away`. | Logs the cast attempt and calls `cast.show_lovelace_view` for `media_player.stairs_chromecast`. |
 | `1672397019959` | Chromecast: Google TV Turned Playing | `media_player.lounge` or `media_player.bedroom_tv` state changes to `playing`; also listens for `media_title` or `app_name` attribute changes to `playing`. | Triggering media player has `media_position` not equal to `none`. | Calls `script.google_tv_playing_notification` with the triggering entity. |
 
 ### Magic Mirror Cast
@@ -86,7 +85,6 @@ When `media_position`, `media_duration`, and the current YAML `camera != none` t
 
 | Entity or Service | Purpose |
 |-------------------|---------|
-| `media_player.stairs_chromecast` | Stairs Magic Mirror cast target. |
 | `media_player.lounge` | Lounge Google TV playback source. |
 | `media_player.bedroom_tv` | Bedroom Google TV playback source. |
 | `input_select.home_mode` | Allows Magic Mirror casting in guest mode. |

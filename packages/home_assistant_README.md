@@ -47,7 +47,6 @@ Comprehensive startup check running the following **in parallel**:
 | Zappi EV charger | If `input_boolean.enable_zappi_automations` is on and an EV is connected, calls `script.zappi_check_ev_charge` with current electricity rates |
 | Terina's work laptop | Calls `script.check_terinas_work_laptop_status` to adjust living room light thresholds |
 | 3D printer light | Calls `script.3d_printer_check_turn_off_light` |
-| Magic Mirror | If someone is home (or Guest mode) and alarm is not `armed_away`, casts the `lovelace-magicmirror/home` dashboard to `media_player.stairs_chromecast` |
 | Porch light | If the front door is closed (`binary_sensor.front_door` = `off`), turns off the porch light and all `dedicate_notification_light` label lights |
 
 ---
@@ -172,7 +171,6 @@ Reports the total count of all entities registered in Home Assistant. The `break
 | `sensor.zappi_myenergi_zappi_plug_status` | EV connection state |
 | `group.tracked_people` | Determines if someone is home for Magic Mirror cast |
 | `alarm_control_panel.house_alarm` | Guards Magic Mirror cast (skips if armed away) |
-| `media_player.stairs_chromecast` | Magic Mirror display target |
 | `binary_sensor.front_door` | Guards porch light off on startup |
 | `script.solar_assistant_check_charging_mode` | Solar battery charging mode check |
 | `script.zappi_check_ev_charge` | Zappi EV charge check |
