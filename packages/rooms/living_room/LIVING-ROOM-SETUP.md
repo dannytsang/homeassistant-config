@@ -10,7 +10,6 @@ The living room setup combines motion sensors, lamps, ceiling lights, motorized 
 |----------|--------|---------|
 | Lamps | `light.living_room_lamp_left`, `light.living_room_lamp_right`, `light.living_room_lamps` | Main ambient lamp pair and group. |
 | Ceiling lights | `light.lounge_ceiling`, `light.living_room_ceiling`, left/right ceiling bulb entities | Full-room lighting and grouped ceiling control. |
-| TV lighting | `light.tv_backlight` | Ambient TV backlight turned off with TV shutdown. |
 | Motion | `binary_sensor.living_room_area_motion`, `binary_sensor.lounge_motion`, `binary_sensor.living_room_motion_occupancy`, `binary_sensor.living_room_motion_3_ld2450_presence` | Motion and presence inputs for lighting. |
 | Light level | `sensor.living_room_motion_3_ltr390_light`, `sensor.living_room_motion_illuminance`, `sensor.front_garden_motion_illuminance` | Indoor lighting decisions and outdoor glare decisions. |
 | Blinds | `cover.living_room_blinds_left`, `cover.living_room_blinds_middle`, `cover.living_room_blinds_right`, `binary_sensor.living_room_windows` | Blind position and window-open safety. |
@@ -50,4 +49,3 @@ flowchart TD
 | Blinds close while using a computer | Outdoor brightness and computer presence matched glare rules. Disable `input_boolean.enable_living_room_blind_automations` for a long manual session. |
 | Blinds do not close at night | Check window sensor state, blind automation enable helper, and sun/time triggers. |
 | Harmony restart does not happen | The restart automation avoids running when the TV is on. |
-| TV backlight does not turn off | Verify `binary_sensor.tv_powered_on` changes to off and `light.tv_backlight` is available. |

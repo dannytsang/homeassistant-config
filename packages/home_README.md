@@ -51,21 +51,6 @@ Logs that privacy mode is enabled and logs a message about turning off conservat
 
 ---
 
-### `Enter Naughty Step Mode`
-
-| Property | Value |
-|---|---|
-| ID | `1647094528209` |
-| Trigger | `input_boolean.naughty_step_mode` changes from `off` to `on` |
-| Mode | Single |
-
-Turns off living room and stairs lights (`scene.living_room_lights_off`, `scene.stairs_light_2_off`, `scene.stairs_light_off`) and disables motion triggers for those areas:
-
-- `input_boolean.enable_living_room_motion_triggers` → `off`
-- `input_boolean.enable_stairs_motion_triggers` → `off`
-
----
-
 ### `Fridge: High temperature`
 
 | Property | Value |
@@ -305,7 +290,6 @@ flowchart LR
 |---|---|
 | `input_select.home_mode` | Master home mode selector (`Normal`, `Holiday`, `Guest`, `No Children`) |
 | `input_boolean.privacy_mode` | Privacy mode flag |
-| `input_boolean.naughty_step_mode` | Naughty step mode flag |
 | `input_boolean.enable_direct_notifications` | Guards notification sends |
 | `binary_sensor.alarmed_doors_and_windows` | Aggregate open-entry sensor for lock logic |
 | `binary_sensor.external_doors_and_windows` | External-only entry sensor for alarm notification |

@@ -141,7 +141,6 @@ The package controls three living room blinds and avoids moving them if the livi
 | Automation/Script | Behavior |
 |-------------------|----------|
 | `Living Room: TV Turned On` | Logs TV activity and can select the game input when PlayStation state requires it. |
-| `Living Room: TV Turned Off` | Logs shutdown and turns off `light.tv_backlight` if needed. |
 | `Living Room: Restart Harmony Hub` | Restarts `switch.harmony_hub_plug` weekly when safe. |
 | `script.living_room_select_game_input` | Selects the AV receiver game input. |
 | `script.living_room_select_vcr_dvr_input` | Selects the alternate AV receiver input. |
@@ -162,5 +161,4 @@ The package controls three living room blinds and avoids moving them if the livi
 | Motion does not turn lights on | Confirm `input_boolean.enable_living_room_motion_triggers` is on and one illuminance sensor is below its threshold or `sensor.living_room_motion_illuminance` is unavailable. |
 | Lights turn off while someone is present | Check `binary_sensor.living_room_area_motion`; this is the no-motion timer trigger. |
 | Blinds do not move | Confirm `input_boolean.enable_living_room_blind_automations` is on and `binary_sensor.living_room_windows` is not blocking movement. |
-| TV backlight stays on | Check `binary_sensor.tv_powered_on` and `light.tv_backlight`; the off automation depends on TV power state. |
 | Game input does not switch | Check PlayStation power detection and the Harmony/receiver script entities. |

@@ -905,40 +905,6 @@ automation:
                   - action: script.living_room_select_game_input
             default: []
     mode: single
-  - id: "1610388192225"
-    alias: "Living Room: TV Turned Off"
-    description: ""
-    triggers:
-      - trigger: state
-        entity_id: binary_sensor.tv_powered_on
-        from: "on"
-        to: "off"
-        for: 00:00:30
-    conditions: []
-    actions:
-      - parallel:
-          - action: script.send_to_home_log
-            data:
-              message: "📺 TV Turned off."
-              title: "🛋️ Living Room"
-              log_level: "Debug"
-          - sequence:
-              - if:
-                  - condition: state
-                    entity_id: light.tv_backlight
-                    state: "on"
-                then:
-                  - parallel:
-                      - action: script.send_to_home_log
-                        data:
-                          message: "Turning off 📺 TV backlight (WLED)."
-                          title: "🛋️ Living Room"
-                          log_level: "Debug"
-                      - action: light.turn_off
-                        data: {}
-                        target:
-                          entity_id: light.tv_backlight
-    mode: single
   - id: "1754839043037"
     alias: "Living Room: Ceiling Light Switch Flipped"
     description: ""
