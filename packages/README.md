@@ -12,7 +12,7 @@ This directory contains Home Assistant configuration organized as [packages](htt
 |--------|-------|
 | Package YAML files | 70 |
 | Package README files | 66 |
-| Package automations | 376 |
+| Package automations | 372 |
 | Package scripts | 131 |
 | Package scenes | 65 |
 | Package sensors | 83 |

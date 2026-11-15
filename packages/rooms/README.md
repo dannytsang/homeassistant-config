@@ -11,7 +11,7 @@ Room-specific automations, scripts, scenes, templates, sensors, and commands org
 | Metric | Count |
 |--------|-------|
 | Room YAML files | 20 |
-| Room automations | 213 |
+| Room automations | 212 |
 | Room scenes | 64 |
 | Room scripts | 39 |
 | Room sensors | 47 |
@@ -24,7 +24,7 @@ Room-specific automations, scripts, scenes, templates, sensors, and commands org
 |------|------------|--------------------------|--------|-------------|
 | **Bedroom** | [bedroom.yaml](bedroom/bedroom.yaml), [sleep_as_android.yaml](bedroom/sleep_as_android.yaml), [awtrix_light.yaml](bedroom/awtrix_light.yaml) | 32 automations, 5 scenes, 9 scripts, 5 sensors, 2 template blocks | [README](bedroom/README.md) | [SETUP](bedroom/BEDROOM-SETUP.md) |
 | **Kitchen** | [kitchen.yaml](kitchen/kitchen.yaml), [meater.yaml](kitchen/meater.yaml) | 29 automations, 16 scenes, 6 scripts, 13 sensors, 6 template blocks | [README](kitchen/README.md) | [SETUP](kitchen/KITCHEN-SETUP.md) |
-| **Living Room** | [living_room.yaml](living_room/living_room.yaml) | 23 automations, 13 scenes, 6 scripts, 11 sensors, 1 template block | [README](living_room/README.md) | [SETUP](living_room/LIVING-ROOM-SETUP.md) |
+| **Living Room** | [living_room.yaml](living_room/living_room.yaml) | 22 automations, 13 scenes, 6 scripts, 11 sensors, 1 template block | [README](living_room/README.md) | [SETUP](living_room/LIVING-ROOM-SETUP.md) |
 | **Office** | [office.yaml](office/office.yaml), [steam.yaml](office/steam.yaml) | 29 automations, 8 scenes, 4 scripts, 9 sensors | [README](office/README.md) | [SETUP](office/OFFICE-SETUP.md) |
 | **Porch** | [porch.yaml](porch/porch.yaml) | 12 automations, 6 scenes, 5 scripts, 1 template block | [README](porch/README.md) | [SETUP](porch/PORCH-SETUP.md) |
 | **Stairs** | [stairs.yaml](stairs/stairs.yaml) | 14 automations, 9 scenes | [README](stairs/README.md) | [SETUP](stairs/STAIRS-SETUP.md) |

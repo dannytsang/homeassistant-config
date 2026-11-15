@@ -310,7 +310,7 @@ flowchart LR
 | `3D Printer: Finished Printing` | Printing changes from `on` to `off` | Logs completion and `sensor.octoprint_start_time`. |
 | `3D Printer: Light Turned on` | `light.prusa` has been on for 5 minutes | Runs `script.3d_printer_check_turn_off_light`. |
 | `3D Printer: Paused Mid Print` | OctoPrint state becomes `pausing` or `paused` while printing | Sends Danny a high-priority direct notification without quiet-hour suppression. |
-| `3D Printer: Bed Temp Preheat` | The actual bed temperature rises above the configured bed target while not printing | Logs and announces that the 3D printer bed has preheated. |
+| `3D Printer: Bed Temp Preheat` | The actual bed temperature rises above target while not printing | Logs and announces preheat only when OctoPrint has a known current file, or when the temperature has remained above target for 5 minutes. |
 
 `script.3d_printer_left_unattended` is available for other automations to call. It sends Danny and Terina a high-priority notification if OctoPrint has a known estimated finish time and `binary_sensor.octoprint_printing` is on.
 

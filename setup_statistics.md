@@ -4,7 +4,7 @@ Reviewed against YAML: 2026-11-15
 
 ## Overview
 
-This Home Assistant configuration has **378 YAML-defined automations** in the repository: **376 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
+This Home Assistant configuration has **374 YAML-defined automations** in the repository: **372 in packages** and **2 deprecated UI automations** in `automations.yaml`. The package system is now the production source of truth, with room, integration, and root/global packages covering the current automations, scripts, scenes, sensors, helpers, MQTT entities, REST commands, shell commands, conversations, and intent scripts.
 
 State counts are tracked separately in [statistics.md](statistics.md), because they come from the live Home Assistant state machine and include UI-created entities, integration-provided entities, disabled entities, and runtime-only entities that are not all represented in YAML.
 
@@ -16,7 +16,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 |--------|-------|
 | Package YAML files | 70 |
 | Package README files | 66 |
-| Package automations | 376 |
+| Package automations | 372 |
 | UI automations in `automations.yaml` | 2 deprecated water leak automations |
 | Package scripts | 131 |
 | UI scripts in `scripts.yaml` | 4 |
@@ -24,7 +24,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | UI scenes in `scenes.yaml` | 2 |
 | Package sensors | 83 |
 | Package template blocks | 45 |
-| Package groups | 16 |
+| Package groups | 15 |
 | Package MQTT entries | 122 |
 | REST commands | 3 |
 | Shell commands | 2 |
@@ -41,11 +41,11 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Area | Automations | Notes |
 |------|-------------|-------|
-| Room packages | 213 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
-| Integration packages | 125 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
-| Root/global packages | 38 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
+| Room packages | 212 | Physical-room behavior, lighting, blinds, appliance monitoring, presence, media, and local alerts |
+| Integration packages | 124 | Energy, HVAC, messaging, safety, transport, infrastructure, weather, and service integrations |
+| Root/global packages | 36 | Home modes, time routines, tracker/presence, HA lifecycle, shared safety helpers |
 | UI legacy file | 2 | Deprecated water leak automations retained for reference |
-| **Total YAML automations** | **378** | 376 package automations plus 2 UI automations |
+| **Total YAML automations** | **374** | 372 package automations plus 2 UI automations |
 
 ---
 
@@ -64,10 +64,10 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `rooms/conservatory/airer.yaml` | 2 | 1 script |
 | `rooms/conservatory/conservatory.yaml` | 9 | 2 scenes, 1 script, 1 sensor |
 | `rooms/conservatory/octoprint.yaml` | 7 | 3 scenes, 3 scripts |
-| `rooms/front_garden.yaml` | 5 | 1 shell command |
+| `rooms/front_garden.yaml` | 5 | — |
 | `rooms/kitchen/kitchen.yaml` | 27 | 16 scenes, 6 scripts, 13 sensors, 6 template blocks |
 | `rooms/kitchen/meater.yaml` | 2 | MEATER cook monitoring |
-| `rooms/living_room/living_room.yaml` | 23 | 13 scenes, 6 scripts, 11 sensors, 1 template block |
+| `rooms/living_room/living_room.yaml` | 22 | 13 scenes, 6 scripts, 11 sensors, 1 template block |
 | `rooms/office/office.yaml` | 27 | 8 scenes, 4 scripts, 9 sensors |
 | `rooms/office/steam.yaml` | 2 | Steam-related office automation |
 | `rooms/porch/porch.yaml` | 12 | 6 scenes, 5 scripts, 1 template block |
@@ -84,7 +84,7 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | `integrations/alexa.yaml` | 0 | 2 scripts |
 | `integrations/bins.yaml` | 2 | 5 sensors, 1 template block |
 | `integrations/calendar.yaml` | 3 | 2 scripts |
-| `integrations/chromecast.yaml` | 2 | 1 script |
+| `integrations/chromecast.yaml` | 1 | 1 script |
 | `integrations/cleaning.yaml` | 3 | 1 REST command |
 | `integrations/energy/ecoflow.yaml` | 11 | 10 scripts, 4 template blocks |
 | `integrations/energy/energy.yaml` | 12 | 4 groups, 9 scripts, 4 template blocks |
@@ -131,12 +131,12 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 
 | Package | Automations | Other YAML features |
 |---------|-------------|---------------------|
-| `home.yaml` | 10 | 1 scene, 7 scripts, 1 template block |
+| `home.yaml` | 8 | 1 scene, 7 scripts, 1 template block |
 | `home_assistant.yaml` | 6 | 2 scripts, 1 template block |
 | `shared_helpers.yaml` | 0 | 1 helper script, 1 template block |
 | `smoke_alarms.yaml` | 1 | 1 script |
 | `time.yaml` | 5 | 1 script |
-| `tracker.yaml` | 16 | 12 groups, 6 scripts |
+| `tracker.yaml` | 16 | 11 groups, 6 scripts |
 
 ---
 

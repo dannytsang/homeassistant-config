@@ -39,8 +39,7 @@ Presence detection, arrival and departure automation, adaptive music following, 
 | `group.terinas_work_computer` | Terina's Work Computers | `device_tracker.lap_ctc1404` |
 | `group.family_computer` | Family Computer | `device_tracker.doug` |
 | `group.jd_computer` | JD Computer | `device_tracker.jd` |
-| `group.sam_computer` | Sam Computer | `device_tracker.sam`, `device_tracker.sam_2` |
-| `group.turk_computer` | Turk Computer | `device_tracker.turk` |
+| `group.turk_computer` | Turk Computer | `device_tracker.unraid` |
 
 `all_adult_people` and `all_tracked_people` use `all: true`, meaning the group is only `home` when every member is home.
 

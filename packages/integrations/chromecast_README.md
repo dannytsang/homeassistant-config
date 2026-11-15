@@ -8,7 +8,7 @@ This documentation covers one YAML file:
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `chromecast.yaml` | Cast and Google TV logging | 2 automations, 1 script |
+| `chromecast.yaml` | Cast and Google TV logging | 1 automation, 1 script |
 
 ## Quick Summary
 
