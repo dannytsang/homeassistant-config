@@ -2,7 +2,7 @@
 
 # Tracker
 
-*Last updated: 2026-04-06*
+*Last updated: 2026-11-15*
 
 Presence detection, arrival and departure automation, adaptive music following, and device-tracking groups for every household member. This package coordinates everything that happens when people come and go — alarm management, lighting, holiday mode transitions, and per-person personalisation.
 
@@ -34,7 +34,7 @@ Presence detection, arrival and departure automation, adaptive music following, 
 | `group.all_tracked_people` | All Tracked People (all: true) | `person.danny`, `person.leo`, `person.terina` |
 | `group.anyone` | Anyone Home | `person.danny`, `person.terina`, `person.leo`, `person.ashlee` |
 | `group.children_people` | Children | `person.leo`, `person.ashlee` |
-| `group.tracked_people` | Tracked People | `person.danny`, `person.leo`, `person.terina` |
+| `group.tracked_people` | Tracked People | `person.danny`, `person.terina` |
 | `group.dannys_work_computer` | Danny's Work Computers | `device_tracker.laptop_5h1t10r6`, `device_tracker.laptop_5h1t10r6_2` |
 | `group.terinas_work_computer` | Terina's Work Computers | `device_tracker.lap_ctc1404` |
 | `group.family_computer` | Family Computer | `device_tracker.doug` |
@@ -230,7 +230,7 @@ Disarms the alarm in parallel with a log entry. Covers the scenario where Leo ar
 |---|---|
 | ID | `1582456025978` |
 | Trigger | `person.leo` changes from `home` to `not_home` |
-| Condition | `group.tracked_people` is `not_home` (Leo is last to leave) |
+| Condition | `group.tracked_people` is `not_home` (Danny and Terina are away) |
 
 Activates `scene.turn_off_downstairs_lights` and `scene.office_all_lights_off`, logs departure.
 

@@ -2,7 +2,7 @@
 
 # Integrations
 
-Last reviewed against YAML: 2026-10-24
+Last reviewed against YAML: 2026-11-15
 
 Integration-specific configuration organized by functional domain. Each package is self-contained where practical, with UI integration setup and secrets handled separately.
 

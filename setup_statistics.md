@@ -1,6 +1,6 @@
 # Home Assistant Setup Statistics & Analysis
 
-Reviewed against YAML: 2026-10-24
+Reviewed against YAML: 2026-11-15
 
 ## Overview
 
@@ -19,11 +19,11 @@ State counts are tracked separately in [statistics.md](statistics.md), because t
 | Package automations | 376 |
 | UI automations in `automations.yaml` | 2 deprecated water leak automations |
 | Package scripts | 131 |
-| UI scripts in `scripts.yaml` | 6 |
+| UI scripts in `scripts.yaml` | 4 |
 | Package scenes | 65 |
-| UI scenes in `scenes.yaml` | 3 |
+| UI scenes in `scenes.yaml` | 2 |
 | Package sensors | 83 |
-| Package template blocks | 46 |
+| Package template blocks | 45 |
 | Package groups | 16 |
 | Package MQTT entries | 122 |
 | REST commands | 3 |

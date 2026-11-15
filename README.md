@@ -27,19 +27,19 @@ Quick reference to all documentation in this repository, sorted by category.
 
 | Document | Description | Last Updated |
 |----------|-------------|--------------|
-| [README.md](README.md) | This file — project overview and navigation | 2026-06-14 |
+| [README.md](README.md) | This file — project overview and navigation | 2026-11-15 |
 | [INSTALL.md](INSTALL.md) | Installation and setup instructions | 2026-06-14 |
 | [hardware.md](hardware.md) | Complete hardware inventory by manufacturer | 2026-06-14 |
 | [statistics.md](statistics.md) | Live entity counts and system statistics | 2026-06-14 |
-| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-10-24 |
+| [setup_statistics.md](setup_statistics.md) | YAML package inventory and automation analysis | 2026-11-15 |
 
 ### Package Documentation
 
 | Category | Document | Description | Last Updated |
 |----------|----------|-------------|--------------|
-| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-10-24 |
-| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-10-24 |
-| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-10-24 |
+| **Packages** | [packages/README.md](packages/README.md) | Package architecture, current counts, and organization | 2026-11-15 |
+| **Rooms** | [packages/rooms/README.md](packages/rooms/README.md) | Room-based configuration overview and counts | 2026-11-15 |
+| **Integrations** | [packages/integrations/README.md](packages/integrations/README.md) | Integration packages overview and counts | 2026-11-15 |
 
 ### Room Documentation
 
@@ -52,7 +52,7 @@ Quick reference to all documentation in this repository, sorted by category.
 | Bedroom 2 | [README](packages/rooms/bedroom2_README.md) | — | 2026-06-14 |
 | Bedroom 3 | [README](packages/rooms/bedroom3_README.md) | — | 2026-06-14 |
 | Conservatory | [README](packages/rooms/conservatory/README.md) | — | 2026-06-14 |
-| Front Garden | [README](packages/rooms/front_garden_README.md) | — | 2026-06-14 |
+| Front Garden | [README](packages/rooms/front_garden_README.md) | — | 2026-11-15 |
 | Kitchen | [README](packages/rooms/kitchen/README.md) | [SETUP](packages/rooms/kitchen/KITCHEN-SETUP.md) | 2026-06-14 |
 | Living Room | [README](packages/rooms/living_room/README.md) | [SETUP](packages/rooms/living_room/LIVING-ROOM-SETUP.md) | 2026-06-14 |
 | Office | [README](packages/rooms/office/README.md) | [SETUP](packages/rooms/office/OFFICE-SETUP.md) | 2026-06-14 |
@@ -127,11 +127,11 @@ I use the Visual Studio Code add-on to edit files in [Home Assistant](https://ho
 Visual Studio Code addon includes a Git client so all changes are managed through the text editor.
 
 ### Workflows 🖇️
-The advantage of using a source code management system like Git is the ability to use hooks to trigger actions (as well as other advantages).
+GitHub Actions validates this repository and, for eligible configuration changes merged to `main`, requests deployment to Home Assistant after validation succeeds. Documentation and knowledge changes have their own safe path: they are linted in pull requests but do not trigger the deployment workflow when pushed on their own.
 
-I use GitHub actions to verify the changes committed by running it against [Home Assistant](https://home-assistant.io) builds. If successful, [Home Assistant](https://home-assistant.io) will pull down the changes and if the changes are configuration related (as opposed to readme / markdown files) then it will perform another local configuration check and restart to pick up the changes. More details on this can be found [here](https://dannytsang.com/home-assistant-continuous-integration-workflow-2023/)
+See the [CI/CD pipeline guide](.github/workflows/README.md) for the change matrix, Mermaid pipeline diagrams, validation gates, deployment sequence, troubleshooting, and a complete rebuild/migration checklist.
 
-For this reason, the `custom_components` is stored in the repository to allow a successful build and configuration check.
+`custom_components` are stored in the repository so validation can install their declared dependencies and load the configuration in CI.
 
 ### Folder Structure 📂
 This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).
@@ -146,13 +146,11 @@ packages/               # See README.md in folder
 blueprints/             # Blueprints for automations
 camera/                 # Private directory to hold camera images
 esphome/                # Files related to managing the ESP micro controller
-lovelace/               # Dashboard configs
-scripts/                # Automation scripts
 www/                    # A public folder for holding any files such as images that does not need authentication
 automations.yaml        # UI automation file
-configurations.yaml     # Home Assistant's main configuration file
-scene.yaml              # UI scene file
-script.yaml             # UI script file
+configuration.yaml      # Home Assistant's main configuration file
+scenes.yaml             # UI-managed scenes
+scripts.yaml            # UI-managed scripts
 ```
 
 ### Tags / Releases 🏷️

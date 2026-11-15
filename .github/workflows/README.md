@@ -4,6 +4,99 @@ This document explains the GitHub Actions workflows for this Home Assistant conf
 
 ---
 
+## Start Here: What Happens To A Change?
+
+The repository distinguishes between **configuration** (YAML, ESPHome, custom components, and CI support scripts) and **documentation/knowledge** (Markdown guides, diagrams, reviews, and inventories). A pull request is the common review path for both. Deployment is considered only by `push.yml` for eligible non-Markdown pushes to `main` after validation succeeds.
+
+```mermaid
+flowchart TD
+    Change[Commit or pull request] --> Kind{What changed?}
+    Kind -->|Markdown only| Docs[Documentation or knowledge]
+    Kind -->|YAML, ESPHome, custom component, or CI support script| Config[Configuration]
+    Kind -->|Workflow definition| Workflow[Workflow change]
+    Kind -->|Both| Mixed[Mixed change]
+
+    Docs --> PRDocs[PR: YAML lint, Markdown lint, actionlint, and advisory beta/dev validation]
+    Docs --> MainDocs[Push to main: security scan only; no push.yml deployment]
+    Config --> PRConfig[PR: full validation suite; stable HA check runs]
+    Config --> MainConfig[Push to main: push.yml validation, then deployment if successful]
+    Workflow --> PRWorkflow[PR: lint, actionlint, and advisory beta/dev validation; stable normally skipped]
+    Workflow --> MainConfig
+    Mixed --> PRConfig
+    Mixed --> MainConfig
+```
+
+### Change Behaviour
+
+| Change type | Pull request | Push to `main` | Home Assistant deployment |
+|-------------|--------------|----------------|----------------------------|
+| Documentation/knowledge only (`*.md`) | `pull.yml` runs. YAML lint, Markdown lint, actionlint, and advisory beta/dev checks run; the stable Home Assistant check reports **Skipped**. | `push.yml` does not run because its path filter excludes Markdown. `security.yml` still scans the push. | No deployment webhook is sent. |
+| Configuration or CI support-script change | `pull.yml` runs. Stable Home Assistant validation runs for YAML, custom-component, ESPHome, and `.github/scripts/**` changes; ESPHome validation runs when `esphome/**` changes. | `push.yml` validates the configuration. `metrics.yml` runs for its YAML/ESPHome paths; `security.yml` also runs. | After the reusable validation workflow succeeds, `push.yml` sends the deployment webhook. |
+| Workflow definition (`.github/workflows/**`) | `pull.yml` runs YAML/Markdown lint, actionlint, and advisory beta/dev validation. The stable HA check is normally **Skipped** because the PR path filter does not classify workflow definitions as configuration. | `push.yml` runs because `.github/**` is included in its path filter; it runs stable validation and can deploy after success. | Yes after the push workflow's validation succeeds. Review workflow changes especially carefully. |
+| Mixed configuration and documentation/knowledge change | Same as configuration change; Markdown lint also checks the documentation. | Same as configuration change. | Yes, after validation succeeds. |
+
+> **Important:** the beta/dev Home Assistant checks are advisory. The stable Home Assistant configuration check is the production gate for eligible configuration changes. YAML lint, Markdown lint, and actionlint currently publish findings without blocking the reusable validation workflow.
+
+## Pipeline Diagrams
+
+### Pull Request Validation
+
+```mermaid
+flowchart LR
+    PR[Pull request opened or updated] --> Detect[Detect changed paths]
+    Detect --> Reusable[Reusable validation workflow]
+    Reusable --> YAML[YAML lint]
+    Reusable --> Markdown[Markdown lint]
+    Reusable --> Actionlint[actionlint]
+    Reusable --> ESP{ESPHome changed?}
+    Reusable --> Stable{Relevant configuration changed?}
+    Reusable --> Future[HA beta and dev checks\nadvisory]
+    ESP -->|Yes| ESPValidate[Validate ESPHome files]
+    ESP -->|No| ESPSkipped[Mark ESPHome skipped]
+    Stable -->|Yes| Prepare[Install component dependencies\nand prepare disposable config]
+    Prepare --> HAStable[HA stable validation]
+    Stable -->|No| HASkipped[Mark stable check skipped]
+    YAML --> Review[Review checks and merge decision]
+    Markdown --> Review
+    Actionlint --> Review
+    ESPValidate --> Review
+    ESPSkipped --> Review
+    HAStable --> Review
+    HASkipped --> Review
+    Future --> Review
+```
+
+### Configuration Delivery To Home Assistant
+
+```mermaid
+sequenceDiagram
+    participant Author
+    participant GitHub as GitHub Actions
+    participant TS as Tailscale
+    participant HA as Home Assistant deployment receiver
+
+    Author->>GitHub: Push eligible configuration change to main
+    GitHub->>GitHub: Run reusable validation workflow
+    alt Validation succeeds
+        GitHub->>TS: Join home network using OAuth credentials
+        TS-->>GitHub: Secure connectivity available
+        GitHub->>HA: POST authenticated deployment webhook (up to 5 attempts)
+        HA->>HA: Pull approved repository revision
+        HA->>HA: Run local configuration check
+        alt Local check succeeds and runtime change needs loading
+            HA->>HA: Reload or restart according to receiver configuration
+        else Check fails or change is documentation only
+            HA-->>HA: Do not apply runtime configuration
+        end
+    else Validation fails
+        GitHub-->>Author: No deployment webhook
+    end
+```
+
+The workflow proves that the webhook was requested; the final pull, local check, and reload/restart are responsibilities of the Home Assistant-side receiver. Confirm those steps in its local logs after a deployment.
+
+---
+
 ## Workflows Overview
 
 | Workflow | Trigger | Purpose |
@@ -15,6 +108,38 @@ This document explains the GitHub Actions workflows for this Home Assistant conf
 | `metrics.yml` | Push, weekly Sunday | Config statistics and health checks |
 | `labeler.yml` | Pull requests | Auto-applies labels based on file changes |
 | `stale.yml` | Daily | Marks stale issues/PRs for closure |
+
+## Rebuild Or Move The CI/CD Setup
+
+Use this checklist when recreating the automation in a replacement repository, GitHub organization, Home Assistant host, or Tailscale tailnet. Do not put secret values in this repository.
+
+1. **Create the GitHub repository and default branch.** Keep the workflows, `.github/scripts/`, `secrets.yaml.sample`, custom components, and ESPHome sample secrets in version control. Protect `main` and require the stable Home Assistant check by its exact current name: `Home Assistant Core Stable Configuration Check`.
+2. **Configure repository environments and secrets.** Create the `production` environment used by `push.yml`. Add the Tailscale OAuth client ID and secret, the deployment webhook URL, and its authentication token as GitHub Actions secrets. Use the secret names referenced in the [Required Secrets](#required-secrets) table; do not place values in YAML, Markdown, workflow logs, or commits.
+3. **Authorize the GitHub runner in Tailscale.** Create an OAuth client allowed to create the workflow's configured tag (`tag:homeassistant-ci`), then grant that tag network access to the Home Assistant deployment receiver. Test from a manual workflow run before relying on automatic delivery.
+4. **Create or restore the Home Assistant deployment receiver.** It must accept the authenticated POST sent by `push.yml`, pull the intended repository/revision, run a local Home Assistant configuration check, and only reload or restart when that check passes and the change needs applying. The receiver implementation is environment-specific and is not stored in this repository.
+5. **Verify the validation image can load the repository.** Keep `secrets.yaml.sample` current enough for validation, ensure each custom component has a valid `manifest.json`, and keep `.github/scripts/prepare-config-for-ci.sh` aligned with any integrations that cannot initialize in CI. That script modifies only the disposable CI checkout.
+6. **Test all three paths.** Open a Markdown-only PR, a configuration PR, and a mixed PR. Then use **Actions → Push - Validation → Run workflow** with deployment unchecked to test validation, followed by a deliberate deployment test in the protected environment.
+7. **Record environment-specific recovery details privately.** Store deployment URLs, receiver configuration, and Tailscale policy details in the appropriate secrets manager or private runbook—not in this public configuration repository.
+
+### Recovery Decision Flow
+
+```mermaid
+flowchart TD
+    Problem[CI/CD needs rebuilding or has moved] --> Repo{Workflows and scripts present?}
+    Repo -->|No| Restore[Restore .github workflows and scripts from version control]
+    Repo -->|Yes| Secrets{Production secrets and environment configured?}
+    Restore --> Secrets
+    Secrets -->|No| ConfigureSecrets[Create protected environment and add secrets]
+    Secrets -->|Yes| Network{Tailscale tag can reach receiver?}
+    ConfigureSecrets --> Network
+    Network -->|No| Authorize[Fix OAuth tag and tailnet policy]
+    Network -->|Yes| Receiver{Receiver pulls, checks, and safely applies?}
+    Authorize --> Receiver
+    Receiver -->|No| RestoreReceiver[Restore receiver and verify local check gate]
+    Receiver -->|Yes| Test[Run manual validation, then controlled deployment]
+    RestoreReceiver --> Test
+    Test --> Healthy[CI/CD restored]
+```
 
 ---
 

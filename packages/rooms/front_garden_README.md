@@ -14,13 +14,12 @@ For non-technical users, the important behavior is:
 | Sunlight and blinds | In summer, if front-garden brightness stays below the configured threshold for 10 minutes, office blinds move to 25% and some bedroom blinds may reopen. |
 | Lockbox | Lockbox state changes notify Danny and Terina; a 5-minute unavailable state notifies Danny. |
 | Electricity meter | Opening the meter door captures a driveway image, sends a high-priority direct notification, and logs with the image attached. |
-| Doorbell footage helper | A shell command exists to copy the latest front-door video, but no automation in this YAML calls it. |
 
 ## Package Contents
 
 | File | Purpose | Contents |
 |------|---------|----------|
-| `front_garden.yaml` | Driveway AI, sunlight blind helper, lockbox and meter-door monitoring | 5 automations, 1 shell command |
+| `front_garden.yaml` | Driveway AI, sunlight blind helper, lockbox and meter-door monitoring | 5 automations |
 
 ## How The Front Garden Decides What To Do
 
@@ -54,7 +53,6 @@ flowchart TB
 |--------|-----------------------|
 | `input_text.driveway_vehicle_latest_image_path` | Folder used for the latest driveway vehicle snapshot. |
 | `input_text.camera_external_folder_path` | Base folder used for timestamped driveway snapshots when the meter door opens. |
-| `input_text.camera_internal_folder_path` | Base folder used by the doorbell footage copy shell command. |
 | `input_number.close_blinds_brightness_threshold` | Brightness threshold for the summer blind helper. |
 | `input_number.blind_closed_position_threshold` | Blind-position threshold used before opening bedroom blinds. |
 | `input_datetime.childrens_bed_time` | Cutoff time for opening Ashlee's bedroom blinds. |
@@ -112,14 +110,6 @@ When `binary_sensor.electricity_meter_door_contact` turns `on`, `Front Garden: E
 | 3 | Sends Danny and Terina a high-priority direct notification with quiet-hour suppression enabled. |
 | 4 | Sends a home-log entry with the local image attachment and quiet-hour suppression disabled. |
 
-## Shell Command
-
-| Command | Purpose |
-|---------|---------|
-| `shell_command.copy_doorbell_footage` | Copies `front_door/latest.mp4` under `input_text.camera_internal_folder_path` to a timestamped filename using `camera.front_door` friendly name. |
-
-Power-user note: this shell command is defined in the package, but no automation in `front_garden.yaml` calls it.
-
 ## Power-User Details
 
 | Automation | ID | Mode | Notes |
@@ -144,7 +134,6 @@ Power-user note: this shell command is defined in the package, but no automation
 | `cover.office_blinds` | Set to 25% by summer sunlight helper. |
 | `cover.bedroom_blinds` | Opened conditionally by summer sunlight helper. |
 | `cover.ashlees_bedroom_blinds` | Opened conditionally before children's bedtime. |
-| `camera.front_door` | Referenced by the shell command filename. |
 
 ## Troubleshooting
 
@@ -154,4 +143,3 @@ Power-user note: this shell command is defined in the package, but no automation
 | Blinds did not reopen | Check `sensor.season` is `summer`, brightness stayed below threshold for 10 minutes, and each blind-specific condition is true. |
 | Lockbox notifications repeat or look odd | Check whether `binary_sensor.outdoor_lock_box_contact` is moving through `unknown` or `unavailable`. |
 | Meter-door image missing | Check `input_text.camera_external_folder_path`, the `/driveway/` folder, and `camera.driveway_high_resolution_channel`. |
-| Doorbell footage was not copied | No automation calls `shell_command.copy_doorbell_footage`; run or wire it separately if needed. |

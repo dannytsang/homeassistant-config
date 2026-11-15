@@ -17,7 +17,7 @@ For non-technical users, the important behavior is:
 | Area | What Happens |
 |------|--------------|
 | Vacuum error | If `vacuum.t8` enters `error`, the home log records a warning. |
-| Battery full | If the vacuum battery level rises above 99%, the home log records a debug fully-charged message. |
+| Battery full | If `sensor.t8_battery` rises above 99%, the home log records a debug fully-charged message. |
 | Cleaning complete | If the vacuum has been docked for 1 minute, the home log records completion with a URL to the latest map image. |
 | Integration reload | `rest_command.reload_deebot` posts to a secret URL with a secret token. |
 
@@ -26,7 +26,7 @@ For non-technical users, the important behavior is:
 ```mermaid
 flowchart TD
     Vacuum[vacuum.t8] --> Error{State is error?}
-    Vacuum --> Charged{Battery level above 99?}
+    Battery[sensor.t8_battery] --> Charged{Battery level above 99?}
     Vacuum --> Docked{State docked for 1 minute and not from unavailable?}
     Error -->|Yes| ErrorLog[Home log warning]
     Charged -->|Yes| ChargedLog[Home log debug]
@@ -42,7 +42,7 @@ flowchart TD
 | ID | Alias | Trigger | Action | Mode |
 |----|-------|---------|--------|------|
 | `1650387098757` | `Deebot: Error` | `vacuum.t8` to `error` | `script.send_to_home_log` with Normal log level | `single` |
-| `1650387098756` | `Deebot: Fully Charged` | `vacuum.t8` `battery_level` above `99` | `script.send_to_home_log` with Debug log level | `single` |
+| `1650387098756` | `Deebot: Fully Charged` | `sensor.t8_battery` above `99` | `script.send_to_home_log` with Debug log level | `single` |
 | `1654865901253` | `Deebot: Finished Cleaning` | `vacuum.t8` to `docked` for 1 minute, not from `unavailable` | `script.send_home_log_with_url` using the current map image | `single` |
 
 ### REST Command
@@ -56,6 +56,7 @@ flowchart TD
 | Entity | Used For |
 |--------|----------|
 | `vacuum.t8` | Main Deebot T8 vacuum entity and trigger source. |
+| `sensor.t8_battery` | Battery-level trigger for the fully-charged log. |
 | `image.t8_map` | Supplies the latest map image path for the cleaning-complete log. |
 | `input_text.external_url` | Prefixes the map image path to create an external URL. |
 
@@ -64,7 +65,7 @@ flowchart TD
 | Symptom | First Things To Check |
 |---------|-----------------------|
 | No error log | Check whether `vacuum.t8` actually changed to state `error`. |
-| Fully charged log repeats or is missing | Check the `battery_level` attribute and whether it crossed above 99. |
+| Fully charged log repeats or is missing | Check `sensor.t8_battery` and whether it crossed above 99. |
 | Cleaning complete log has a broken map link | Check `input_text.external_url` and the `entity_picture` attribute on `image.t8_map`. |
 | Reload command fails | Check both Deebot REST command secrets and the target API endpoint. |
 
@@ -74,4 +75,4 @@ flowchart TD
 |-------------|---------|
 | [Deebot-4-Home-Assistant](https://github.com/DeebotUniverse/Deebot-4-Home-Assistant) | Provides the Deebot vacuum entities used by this package. |
 
-*Last updated: 2026-06-27*
+*Last updated: 2026-11-15*
