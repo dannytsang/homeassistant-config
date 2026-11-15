@@ -1,0 +1,49 @@
+name: Prepare external Home Assistant config
+description: Build a disposable config with latest stable external integrations.
+
+inputs:
+  ha_channel:
+    description: Home Assistant release channel being validated.
+    required: true
+
+outputs:
+  config_path:
+    description: Disposable config path relative to the workspace.
+    value: ${{ steps.config.outputs.path }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create disposable configuration
+      id: config
+      shell: bash
+      run: |
+        set -euo pipefail
+        config_dir=$(mktemp -d "$GITHUB_WORKSPACE/.ci-external-integrations.XXXXXX")
+        rsync -a \
+          --exclude='.git' \
+          --exclude='custom_components' \
+          --exclude='.ci-external-integrations.*' \
+          "$GITHUB_WORKSPACE/" "$config_dir/"
+        cp "$GITHUB_WORKSPACE/secrets.yaml.sample" "$config_dir/secrets.yaml"
+        relative_path="${config_dir#${GITHUB_WORKSPACE}/}"
+        echo "path=$relative_path" >> "$GITHUB_OUTPUT"
+
+    - name: Download latest stable custom integrations
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+      run: |
+        set -euo pipefail
+        python "$GITHUB_WORKSPACE/.github/scripts/install-external-integrations.py" \
+          --registry "$GITHUB_WORKSPACE/.github/ci/external-integrations.json" \
+          --config-dir "${{ steps.config.outputs.path }}" \
+          --requirements-out "${{ steps.config.outputs.path }}/.ci-external-integration-requirements.txt" \
+          --resolved-out "${{ steps.config.outputs.path }}/.ci-external-integrations.json"
+
+    - name: Prepare config for CI
+      shell: bash
+      env:
+        HA_CHANNEL: ${{ inputs.ha_channel }}
+      working-directory: ${{ steps.config.outputs.path }}
+      run: "$GITHUB_WORKSPACE/.github/scripts/prepare-config-for-ci.sh"

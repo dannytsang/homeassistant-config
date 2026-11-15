@@ -104,20 +104,18 @@ The workflow proves that the webhook was requested; the final pull, local check,
 | `push.yml` | Push to main, weekly schedule, manual | Validates config and deploys to production HA |
 | `pull.yml` | Pull requests | Validates config before merge |
 | `_ha-validate.yml` | Called by push/pull | Reusable validation logic (yamllint, ESPHome, HA stable/beta/dev) |
-| `external-integrations-validate.yml` | Manual | Pilot: validates against latest stable external custom integrations without using checked-in component sources |
 | `security.yml` | Push, PR, weekly Monday | Secret scanning (TruffleHog, Gitleaks) + Python security (Bandit) |
 | `metrics.yml` | Push, weekly Sunday | Config statistics and health checks |
 | `labeler.yml` | Pull requests | Auto-applies labels based on file changes |
 | `stale.yml` | Daily | Marks stale issues/PRs for closure |
 
-### External Integration Validation Pilot
+### External Integration Validation
 
-`external-integrations-validate.yml` is intentionally manual while its
-installation coverage is being proven. It copies the repository into a
-disposable directory, excluding checked-in `custom_components`, then downloads
+The stable, beta, and dev Home Assistant checks each copy the repository into a
+disposable directory, excluding checked-in `custom_components`, then download
 the latest non-prerelease GitHub Release for every domain listed in
-`.github/ci/external-integrations.json`. It builds a latest-stable Home
-Assistant image with those manifest requirements and runs `check_config`.
+`.github/ci/external-integrations.json`. They build the selected Home Assistant
+image with those manifest requirements and run `check_config`.
 
 The workflow fails if an integration has no stable release, its archive does
 not contain the expected `custom_components/<domain>/manifest.json`, or a
@@ -133,7 +131,7 @@ Use this checklist when recreating the automation in a replacement repository, G
 2. **Configure repository environments and secrets.** Create the `production` environment used by `push.yml`. Add the Tailscale OAuth client ID and secret, the deployment webhook URL, and its authentication token as GitHub Actions secrets. Use the secret names referenced in the [Required Secrets](#required-secrets) table; do not place values in YAML, Markdown, workflow logs, or commits.
 3. **Authorize the GitHub runner in Tailscale.** Create an OAuth client allowed to create the workflow's configured tag (`tag:homeassistant-ci`), then grant that tag network access to the Home Assistant deployment receiver. Test from a manual workflow run before relying on automatic delivery.
 4. **Create or restore the Home Assistant deployment receiver.** It must accept the authenticated POST sent by `push.yml`, pull the intended repository/revision, run a local Home Assistant configuration check, and only reload or restart when that check passes and the change needs applying. The receiver implementation is environment-specific and is not stored in this repository.
-5. **Verify the validation image can load the repository.** Keep `secrets.yaml.sample` current enough for validation, ensure each custom component has a valid `manifest.json`, and keep `.github/scripts/prepare-config-for-ci.sh` aligned with any integrations that cannot initialize in CI. That script modifies only the disposable CI checkout.
+5. **Verify the validation image can load the repository.** Keep `secrets.yaml.sample` current enough for validation and `.github/ci/external-integrations.json` aligned with the production custom integrations used by YAML. Every listed upstream release must contain a manifest for its declared domain. `.github/scripts/prepare-config-for-ci.sh` modifies only the disposable CI checkout.
 6. **Test all three paths.** Open a Markdown-only PR, a configuration PR, and a mixed PR. Then use **Actions → Push - Validation → Run workflow** with deployment unchecked to test validation, followed by a deliberate deployment test in the protected environment.
 7. **Record environment-specific recovery details privately.** Store deployment URLs, receiver configuration, and Tailscale policy details in the appropriate secrets manager or private runbook—not in this public configuration repository.
 
@@ -189,7 +187,7 @@ flowchart TD
     cache: 'pip'
 ```
 
-**Current Performance:** Workflows complete within 5-minute timeout without caching, so performance is acceptable.
+**Current Performance:** Home Assistant validation allows 30 minutes for downloading external integrations and building the disposable image; the separate ESPHome job remains capped at 15 minutes.
 
 ---
 
@@ -222,51 +220,36 @@ triggers:
 
 ---
 
-### Stripped Integrations
+### External Custom Integrations
 
-The following integrations are removed from `configuration.yaml` during CI validation because they can't initialize in the CI environment:
-
-| Integration | Reason | Channels Affected |
-|-------------|--------|-------------------|
-| `battery_notes` | Not in base HA image | All |
-| `sonoff` | Requires hardware/cloud API | All |
-| `powercalc` | Compatibility issues | Beta/Dev only |
-
-**Implementation:** See `.github/scripts/prepare-config-for-ci.sh`
-
-#### Previously Stripped (Now Validates Successfully)
-
-| Integration | Date Tested | Result |
-|-------------|-------------|--------|
-| `delete` | 2026-01-19 | ✅ Validates successfully - No external dependencies, only uses Python built-ins and HA core |
-| `a_file_logger` | 2026-01-19 | ⏳ Testing - No external dependencies, only uses Python built-ins and HA core logging |
-| `openid` | 2026-01-19 | ⏳ Testing - No external dependencies, only uses Python built-ins, HA core, and voluptuous |
-
-**Testing methodology:** Removed integration from strip list, ran full validation suite (stable + beta/dev). All tests passed without errors.
+CI retains YAML integration configuration and installs the latest stable release
+of each required custom integration from `.github/ci/external-integrations.json`.
+It fails rather than removing an integration if an upstream release, manifest,
+or Python dependency is unavailable. Device-trigger replacement is still
+performed only in the disposable configuration copy.
 
 ---
 
 ## CI Scripts
 
-### `.github/scripts/install-custom-component-deps.sh`
+### `.github/scripts/install-external-integrations.py`
 
-Installs Python dependencies from custom component manifests:
-1. Iterates through `custom_components/*/manifest.json`
-2. Extracts `requirements` array using `jq`
-3. Installs each dependency via pip
+Downloads the latest stable release for each registry entry, extracts the
+manifest-matched integration into the disposable configuration, and generates
+the requirement set installed in the corresponding Home Assistant image.
 
-**Currently installs:**
-- **alexa_media:** alexapy==1.29.14, packaging>=20.3, wrapt>=1.14.0, dictor>=0.1.12,<0.2
+### `.github/actions/prepare-external-ha-config/action.yml`
 
-**Components without manifests** (no dependencies): delete, llmvision, myenergi, retry
+Shared preparation action used by the stable, beta, and dev validation jobs.
+It creates the disposable configuration, injects external integrations, copies
+sample secrets, and runs the CI-only preparation script.
 
 ### `.github/scripts/prepare-config-for-ci.sh`
 
 Prepares config for CI validation:
 1. Creates required directories (`camera/`)
-2. Strips problematic integrations from `configuration.yaml`
+2. Retains installed external integrations for validation
 3. Replaces device triggers with dummy time triggers
-4. Handles channel-specific logic (beta/dev strip `powercalc`)
 
 **Environment variables:**
 - `HA_CHANNEL` - Set to `beta` or `dev` for channel-specific handling (defaults to `stable`)
@@ -296,14 +279,14 @@ After successful validation on push to `main`:
 
 ### Adding New Custom Components
 
-1. If component has `manifest.json` with requirements → dependencies auto-install
-2. If validation fails → add integration to strip list in `prepare-config-for-ci.sh`
-3. If component uses device triggers → already handled by script
+1. Add its domain and upstream GitHub repository to `.github/ci/external-integrations.json`.
+2. Confirm the latest stable release contains a matching manifest and any requirements.
+3. If it uses device triggers, CI preparation already replaces those only in the disposable copy.
 
 ### Updating Home Assistant Version
 
 1. Monitor beta/dev validation runs for compatibility warnings
-2. Add problematic integrations to channel-specific strip logic if needed
+2. Investigate failing custom-integration releases instead of stripping YAML configuration
 3. Test with `workflow_dispatch` before merging
 
 ### Modifying Validation Logic
@@ -332,13 +315,12 @@ Both scripts (`.github/scripts/*.sh`) are called by multiple workflow jobs. Chan
 - Check logs to confirm device trigger replacement worked
 
 ### Validation Fails with "Integration not found"
-- Add integration to strip list in `prepare-config-for-ci.sh`
-- Ensure integration is in correct section (all channels vs beta/dev only)
+- Confirm the domain and upstream repository in `.github/ci/external-integrations.json`
+- Confirm the upstream latest stable release still contains that domain's `manifest.json`
 
 ### Custom Component Dependency Install Fails
-- Check `manifest.json` syntax (valid JSON)
-- Verify PyPI package exists and version is available
-- Review `install-custom-component-deps.sh` logs for details
+- Check the downloaded integration manifest and generated requirement set in the workflow logs
+- Verify its declared PyPI package/version remains available
 
 ### Deployment Not Triggering
 - Verify Tailscale connection succeeded
@@ -397,8 +379,8 @@ Default guidance:
 - Check `.github/scripts/prepare-config-for-ci.sh` when integrations or triggers appear to behave differently in CI
 
 ### Custom component dependency failures
-- Check `.github/scripts/install-custom-component-deps.sh`
-- Review which manifests produced requirements and which installs failed
+- Check `.github/scripts/install-external-integrations.py`
+- Review the resolved release table and generated requirement install output
 
 ### Healthy skipped checks
 - Some jobs are designed to succeed with a clear "Skipped" result when work is not relevant

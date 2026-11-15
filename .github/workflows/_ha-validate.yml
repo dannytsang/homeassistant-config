@@ -152,7 +152,7 @@ jobs:
     name: Home Assistant Core Stable Configuration Check
     runs-on: ubuntu-latest
     needs: [yamllint, remarklint]
-    timeout-minutes: 5
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -168,21 +168,35 @@ jobs:
             echo "- **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Install custom component dependencies
+      - name: Prepare external integrations
         if: ${{ inputs.run_ha_stable }}
-        run: .github/scripts/install-custom-component-deps.sh
+        id: config
+        uses: ./.github/actions/prepare-external-ha-config
+        with:
+          ha_channel: stable
 
-      - name: Prepare config for CI
+      - name: Build validation image (stable)
         if: ${{ inputs.run_ha_stable }}
-        run: .github/scripts/prepare-config-for-ci.sh
+        run: |
+          set -euo pipefail
+          docker build \
+            --build-arg HA_VERSION=stable \
+            --file "${{ steps.config.outputs.config_path }}/.github/ci/Dockerfile.external-integrations" \
+            --tag ha-config-validation:stable \
+            "${{ steps.config.outputs.config_path }}"
       - name: Validate (stable)
         if: ${{ inputs.run_ha_stable }}
         id: ha
-        uses: frenck/action-home-assistant@v1
-        with:
-          path: "./"
-          secrets: ./secrets.yaml.sample
-          version: "stable"
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            --entrypoint "" \
+            --volume "$GITHUB_WORKSPACE:/github/workspace" \
+            --workdir /github/workspace \
+            ha-config-validation:stable \
+            python -m homeassistant \
+              --config "${{ steps.config.outputs.config_path }}" \
+              --script check_config
       - name: Summarize results
         if: always()  # ensures summary is written even if job fails
         run: |
@@ -207,7 +221,7 @@ jobs:
     name: Home Assistant future channels (beta/dev)
     runs-on: ubuntu-latest
     needs: [yamllint, remarklint]
-    timeout-minutes: 5
+    timeout-minutes: 30
     permissions:
       contents: read
     strategy:
@@ -216,21 +230,32 @@ jobs:
         version: [beta, dev]
     steps:
       - uses: actions/checkout@v7
-      - name: Install custom component dependencies
-        run: .github/scripts/install-custom-component-deps.sh
-
-      - name: Prepare config for CI
-        env:
-          HA_CHANNEL: ${{ matrix.version }}
-        run: .github/scripts/prepare-config-for-ci.sh
+      - name: Prepare external integrations
+        id: config
+        uses: ./.github/actions/prepare-external-ha-config
+        with:
+          ha_channel: ${{ matrix.version }}
+      - name: Build validation image (${{ matrix.version }})
+        run: |
+          set -euo pipefail
+          docker build \
+            --build-arg HA_VERSION=${{ matrix.version }} \
+            --file "${{ steps.config.outputs.config_path }}/.github/ci/Dockerfile.external-integrations" \
+            --tag ha-config-validation:${{ matrix.version }} \
+            "${{ steps.config.outputs.config_path }}"
       - name: Validate (${{ matrix.version }})
         id: ha
-        uses: frenck/action-home-assistant@v1
         continue-on-error: true
-        with:
-          path: "./"
-          secrets: ./secrets.yaml.sample
-          version: "${{ matrix.version }}"
+        run: |
+          set -euo pipefail
+          docker run --rm \
+            --entrypoint "" \
+            --volume "$GITHUB_WORKSPACE:/github/workspace" \
+            --workdir /github/workspace \
+            ha-config-validation:${{ matrix.version }} \
+            python -m homeassistant \
+              --config "${{ steps.config.outputs.config_path }}" \
+              --script check_config
       - name: Summarize results
         if: always()  # ensures summary is written even if job fails
         run: |
