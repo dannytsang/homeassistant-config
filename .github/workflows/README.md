@@ -104,10 +104,26 @@ The workflow proves that the webhook was requested; the final pull, local check,
 | `push.yml` | Push to main, weekly schedule, manual | Validates config and deploys to production HA |
 | `pull.yml` | Pull requests | Validates config before merge |
 | `_ha-validate.yml` | Called by push/pull | Reusable validation logic (yamllint, ESPHome, HA stable/beta/dev) |
+| `external-integrations-validate.yml` | Manual | Pilot: validates against latest stable external custom integrations without using checked-in component sources |
 | `security.yml` | Push, PR, weekly Monday | Secret scanning (TruffleHog, Gitleaks) + Python security (Bandit) |
 | `metrics.yml` | Push, weekly Sunday | Config statistics and health checks |
 | `labeler.yml` | Pull requests | Auto-applies labels based on file changes |
 | `stale.yml` | Daily | Marks stale issues/PRs for closure |
+
+### External Integration Validation Pilot
+
+`external-integrations-validate.yml` is intentionally manual while its
+installation coverage is being proven. It copies the repository into a
+disposable directory, excluding checked-in `custom_components`, then downloads
+the latest non-prerelease GitHub Release for every domain listed in
+`.github/ci/external-integrations.json`. It builds a latest-stable Home
+Assistant image with those manifest requirements and runs `check_config`.
+
+The workflow fails if an integration has no stable release, its archive does
+not contain the expected `custom_components/<domain>/manifest.json`, or a
+dependency cannot install. The job summary records the resolved releases.
+It does not validate production credentials, UI config entries, network access,
+or physical devices.
 
 ## Rebuild Or Move The CI/CD Setup
 

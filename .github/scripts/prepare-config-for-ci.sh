@@ -16,14 +16,19 @@ if [ ! -f "configuration.yaml" ]; then
   exit 1
 fi
 
-# Strip problematic integrations from configuration.yaml
-echo "Removing integrations that can't validate in CI..."
-echo "  - battery_notes (not in base HA image)"
-echo "  - sonoff (requires hardware/cloud API)"
-removed_integrations+=("battery_notes" "sonoff")
+# Strip integrations unavailable to the standard validation image. The external
+# integration pilot installs Sonoff into its disposable config and keeps it.
+if [ "${CI_VALIDATE_EXTERNAL_INTEGRATIONS:-false}" = "true" ]; then
+  echo "Keeping externally installed integrations for validation..."
+else
+  echo "Removing integrations that can't validate in CI..."
+  echo "  - battery_notes (not in base HA image)"
+  echo "  - sonoff (requires hardware/cloud API)"
+  removed_integrations+=("battery_notes" "sonoff")
 
-sed -i -e '/battery_notes\:/,+2d' \
-       -e '/sonoff\:/,+3d' configuration.yaml
+  sed -i -e '/battery_notes\:/,+2d' \
+         -e '/sonoff\:/,+3d' configuration.yaml
+fi
 
 # Additional removals for beta/dev channels
 if [ "${HA_CHANNEL:-stable}" != "stable" ]; then
