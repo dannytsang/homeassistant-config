@@ -30,7 +30,6 @@ jobs:
         with:
           config_file: .github/yamllint-config.yml
           format: parsable
-        continue-on-error: true
       - name: Summarize YAML lint
         if: ${{ always() }}
         run: |
@@ -38,9 +37,9 @@ jobs:
             echo "## 📝 YAML Lint Summary"
             echo ""
             if [[ "${{ steps.yamllint.outcome }}" == "success" ]]; then
-              echo "✅ All YAML files passed validation"
+              echo "✅ YAML lint completed — warnings, if any, remain advisory"
             else
-              echo "⚠️ YAML lint found issues. Check the logs for details."
+              echo "❌ YAML lint found errors that must be resolved. Check the logs for details."
             fi
             echo ""
             echo "- **Config file:** \`.github/yamllint-config.yml\`"
@@ -69,11 +68,10 @@ jobs:
             remark-cli \
             remark-preset-lint-recommended \
             remark-gfm
-          ./node_modules/.bin/remark --no-stdout --color --frail \
+          ./node_modules/.bin/remark --no-stdout --color \
               --use preset-lint-recommended \
               --use remark-gfm \
               "$GITHUB_WORKSPACE"
-        continue-on-error: true
       - name: Summarize Markdown lint
         if: ${{ always() }}
         run: |
@@ -81,9 +79,9 @@ jobs:
             echo "## 📄 Markdown Lint Summary"
             echo ""
             if [[ "${{ steps.remark.outcome }}" == "success" ]]; then
-              echo "✅ All Markdown files passed validation"
+              echo "✅ Markdown lint completed — warnings, if any, remain advisory"
             else
-              echo "⚠️ remark-lint found issues. Check the logs for details."
+              echo "❌ remark-lint found errors that must be resolved. Check the logs for details."
             fi
             echo ""
             echo "- **Preset:** \`preset-lint-recommended\` with GitHub Flavored Markdown"

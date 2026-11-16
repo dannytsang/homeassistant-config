@@ -35,7 +35,7 @@ flowchart TD
 | Workflow definition (`.github/workflows/**`) | `pull.yml` runs YAML/Markdown lint, actionlint, blocking beta, and advisory dev validation. The stable HA check is normally **Skipped** because the PR path filter does not classify workflow definitions as configuration. | `push.yml` runs because `.github/**` is included in its path filter; it runs stable validation and can deploy after success. | Yes after the push workflow's validation succeeds. Review workflow changes especially carefully. |
 | Mixed configuration and documentation/knowledge change | Same as configuration change; Markdown lint also checks the documentation. | Same as configuration change. | Yes, after validation succeeds. |
 
-> **Important:** beta is a blocking compatibility gate; dev is advisory. The stable Home Assistant configuration check remains the production gate for eligible configuration changes. YAML lint, Markdown lint, and actionlint currently publish findings without blocking the reusable validation workflow.
+> **Important:** beta is a blocking compatibility gate; dev is advisory. YAML and Markdown lint block on errors while retaining warnings as advisory. actionlint currently publishes findings without blocking the reusable validation workflow.
 
 ## Pipeline Diagrams
 
