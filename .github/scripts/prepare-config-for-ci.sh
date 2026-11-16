@@ -26,7 +26,7 @@ if [ ! -d "packages" ]; then
 else
   # Count device triggers before replacement
   replaced_trigger_count=$(
-    (rg -c --glob "*.yaml" "trigger: device" packages || true) |
+    (find packages -name "*.yaml" -type f -exec grep -c "trigger: device" {} + || true) |
       awk -F: '{s+=$NF} END {print s+0}'
   )
 
