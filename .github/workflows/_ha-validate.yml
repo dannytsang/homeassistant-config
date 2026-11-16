@@ -55,11 +55,20 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v7
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
       - name: remark-lint
         id: remark
-        uses: docker://pipelinecomponents/remark-lint:latest
-        with:
-          args: "remark --no-stdout --color --frail --use preset-lint-recommended ."
+        run: |
+          npx --yes \
+            --package remark-cli \
+            --package remark-preset-lint-recommended \
+            --package remark-gfm \
+            remark --no-stdout --color --frail \
+              --use preset-lint-recommended \
+              --use remark-gfm \
+              .
         continue-on-error: true
       - name: Summarize Markdown lint
         if: ${{ always() }}
@@ -73,7 +82,7 @@ jobs:
               echo "⚠️ remark-lint found issues. Check the logs for details."
             fi
             echo ""
-            echo "- **Preset:** \`preset-lint-recommended\`"
+            echo "- **Preset:** \`preset-lint-recommended\` with GitHub Flavored Markdown"
             echo "- **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           } >> "$GITHUB_STEP_SUMMARY"
 

@@ -20,19 +20,19 @@ All 14 tasks from this project phase have been completed. See "Completed Tasks" 
 **Description:** Review and fix 13 medium/low priority issues across room packages (missing titles, wrong script calls, typos, malformed emojis, deprecated syntax).
 **Files Modified:** 6 files (sleep_as_android, kitchen, stairs, porch, octoprint, back_garden)
 **Issues Fixed:** 13 total
-  - Missing title parameters: 4
-  - Wrong script calls (log_with_clock): 3
-  - Typos/grammar: 3
-  - Malformed emoji codes: 6
-  - Deprecated syntax: 1
+- Missing title parameters: 4
+- Wrong script calls (log_with_clock): 3
+- Typos/grammar: 3
+- Malformed emoji codes: 6
+- Deprecated syntax: 1
 **Also Fixed:** 1 critical issue (parallel indentation in sleep_as_android)
 **Commits:**
-  - 8d96cd70: Add missing title parameters
-  - d42f80e3: Fix wrong script calls
-  - 5e2c30a7: Fix deprecated syntax
-  - a9a6d6bc: Fix typos
-  - ca5ec1b0: Replace malformed emoji codes (part 1)
-  - 9ad53bb4: Replace malformed emoji codes (part 2)
+- 8d96cd70: Add missing title parameters
+- d42f80e3: Fix wrong script calls
+- 5e2c30a7: Fix deprecated syntax
+- a9a6d6bc: Fix typos
+- ca5ec1b0: Replace malformed emoji codes (part 1)
+- 9ad53bb4: Replace malformed emoji codes (part 2)
 **Impact:** All room packages now have correct syntax, proper titles, and rendering emoji
 **Learnings Documented:** Added Pattern 5 to ha-reflection-reviewer.md (false positive parameter validation)
 

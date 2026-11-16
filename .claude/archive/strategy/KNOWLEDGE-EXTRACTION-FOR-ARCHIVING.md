@@ -313,7 +313,7 @@ value_template: "{{ brightness < 100 }}"
 
 **Room Review Findings:**
 - Checked living room automations
-- [Specific issues found during review]
+- \[Specific issues found during review]
 - Recommendations for improvements
 
 **Usage Pattern:** Point-in-time review from specific date

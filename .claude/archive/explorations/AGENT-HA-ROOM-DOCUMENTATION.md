@@ -100,7 +100,7 @@ See: ha-room-documentation-generator.md (.claude/skills/)
 ## Agent Workflow
 
 1. **Identify target room**
-   - Locate YAML file in packages/rooms/[ROOM]/
+   - Locate YAML file in packages/rooms/\[ROOM]/
 
 2. **Extract device information**
    - Scan for all entity_id references
@@ -135,8 +135,8 @@ See: ha-room-documentation-generator.md (.claude/skills/)
    - Validate all links
 
 8. **Save documentation**
-   - Create [ROOM]-SETUP.md
-   - Location: packages/rooms/[ROOM]/[ROOM]-SETUP.md
+   - Create \[ROOM]-SETUP.md
+   - Location: packages/rooms/\[ROOM]/\[ROOM]-SETUP.md
    - Add to git staging
 
 ---

@@ -73,7 +73,7 @@
 ### 2.1 Motion-Based Lighting (2 automations)
 
 #### Motion Detected
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Motion detected in bathroom area
 - **Conditions:**
   - Bathroom automation enabled
@@ -90,7 +90,7 @@
 ---
 
 #### No Motion Detected
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Motion stops (no motion for 5-10 minutes)
 - **Conditions:**
   - Lights are currently on
@@ -107,7 +107,7 @@
 ### 2.2 Light Control (3 automations)
 
 #### Light Turned Off
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Lights turn off (any method: automation, manual, or timer finish)
 - **Conditions:**
   - Lights transitioned from on → off
@@ -121,7 +121,7 @@
 ---
 
 #### Light Switch Toggled
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Physical light switch pressed (or smart switch entity changed)
 - **Conditions:** None
 - **Actions:**
@@ -134,7 +134,7 @@
 ---
 
 #### Light Timer Finished
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** timer.bathroom_light_off expires
 - **Conditions:**
   - No motion detected recently (double-check)
@@ -151,7 +151,7 @@
 ### 2.3 Environmental Control (1 automation)
 
 #### High Humidity
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Humidity rises above threshold (>75-80%)
 - **Conditions:**
   - Humidity automation enabled
@@ -169,7 +169,7 @@
 ### 2.4 Personal Routine Tracking (1 automation)
 
 #### Danny's Toothbrush
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Electric toothbrush turns on/off
 - **Conditions:** None
 - **Actions:**

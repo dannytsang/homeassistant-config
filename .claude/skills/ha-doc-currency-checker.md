@@ -86,7 +86,7 @@ This will check for any new features, syntax changes, or deprecations that might
 ---
 
 ## Validation Results
-[rest of validation report]
+\[rest of validation report]
 ```
 
 ---

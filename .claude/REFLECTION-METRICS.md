@@ -177,9 +177,9 @@ _Pending - Comprehensive quarterly deep dive_
 | **TOTAL** | **X** | **100%** | **↑/↓/→** |
 
 ### Top 3 Issues This Period
-1. [Issue] - X occurrences
-2. [Issue] - X occurrences
-3. [Issue] - X occurrences
+1. \[Issue] - X occurrences
+2. \[Issue] - X occurrences
+3. \[Issue] - X occurrences
 
 ### Files Most Affected
 1. filename.yaml - X errors
@@ -187,13 +187,13 @@ _Pending - Comprehensive quarterly deep dive_
 3. filename.yaml - X errors
 
 ### Skills & Rules Updated
-- [Skill] - [What was updated]
-- [Reference] - [What was updated]
+- \[Skill] - \[What was updated]
+- \[Reference] - \[What was updated]
 
 ### Improvement vs Previous Month
 - Error rate change: X% → Y% (↑ worse / ↓ better / → same)
-- New patterns prevented: [list]
-- Systemic improvements: [list]
+- New patterns prevented: \[list]
+- Systemic improvements: \[list]
 
 ### Next Month Focus
 - [ ] Priority 1
@@ -214,9 +214,9 @@ April (Q1)     --            [TBD]
 ```
 
 ### Most Common Issues (Rolling 3 Months)
-1. [Issue category] - Recurring across months
-2. [Issue category] - Increasing concern
-3. [Issue category] - Recently introduced
+1. \[Issue category] - Recurring across months
+2. \[Issue category] - Increasing concern
+3. \[Issue category] - Recently introduced
 
 ### Systemic Improvements
 - [ ] Response variable syntax - Eliminated

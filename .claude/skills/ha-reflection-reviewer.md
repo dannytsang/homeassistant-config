@@ -222,7 +222,7 @@ Generate comprehensive report with:
 
 **Examples:**
 - 2026-01-25: Incorrectly flagged `log_level` parameter in `send_to_home_log` calls as "invalid"
-- Actual status: `log_level` is a VALID optional parameter with options ["Normal", "Debug"]
+- Actual status: `log_level` is a VALID optional parameter with options \["Normal", "Debug"]
 - Caused scan to report 16+ false positive issues across 8 files
 
 **Script Reference - send_to_home_log Supported Parameters:**
@@ -439,26 +439,26 @@ ERROR_RATE=$(echo "scale=2; $USER_FIX_COMMITS / $CLAUDE_COMMITS" | bc)
 
 ## Monthly Review Checklist
 
-**[ ] Pre-Review (5 min)**
+**\[ ] Pre-Review (5 min)**
 - [ ] Note current date and time period to review
 - [ ] Identify date range (1st of last month → today)
 - [ ] Prepare reflection report template
 - [ ] Gather git commit history
 
-**[ ] Analysis Phase (15-20 min)**
+**\[ ] Analysis Phase (15-20 min)**
 - [ ] Identify all user fix commits
 - [ ] Read each fix commit diff in detail
 - [ ] Categorize error types found
 - [ ] Document root causes
 - [ ] Create prevention strategies
 
-**[ ] Documentation Phase (5-10 min)**
+**\[ ] Documentation Phase (5-10 min)**
 - [ ] Generate reflection report
 - [ ] Update affected skill files
 - [ ] Update reference documentation
 - [ ] Create action items
 
-**[ ] Post-Review (5 min)**
+**\[ ] Post-Review (5 min)**
 - [ ] Commit all changes
 - [ ] Log metrics in tracking file
 - [ ] Schedule next monthly review

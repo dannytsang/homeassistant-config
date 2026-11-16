@@ -134,42 +134,42 @@
 ## Skills Ecosystem Now Includes
 
 ### 0. **HA Documentation Updater** ← NEW
-   - Fetches & updates reference cache
-   - Maintains audit trail
-   - Reports what's new/deprecated
+- Fetches & updates reference cache
+- Maintains audit trail
+- Reports what's new/deprecated
 
 ### 1. **HA Motion Consolidator** (Existing)
-   - Consolidates motion automations
-   - Trigger ID branching pattern
-   - 40-60% consolidation ratio
+- Consolidates motion automations
+- Trigger ID branching pattern
+- 40-60% consolidation ratio
 
 ### 2. **HA YAML Quality Reviewer** (Existing)
-   - Comprehensive quality audits
-   - Severity-based prioritization
-   - Syntax validation
+- Comprehensive quality audits
+- Severity-based prioritization
+- Syntax validation
 
 ### 3. **HA Consolidation Analyzer** (Existing)
-   - Scores consolidation opportunities
-   - Prioritization matrix
-   - Risk assessment
+- Scores consolidation opportunities
+- Prioritization matrix
+- Risk assessment
 
 ### 4. **HA Reflection Reviewer** (Existing)
-   - Analyzes git commits
-   - Identifies error patterns
-   - Updates skills based on learnings
+- Analyzes git commits
+- Identifies error patterns
+- Updates skills based on learnings
 
 ### 5. **HA Room Documentation Generator** (Existing)
-   - Creates setup documentation
-   - Device inventory, automation flows
-   - ASCII room layouts
+- Creates setup documentation
+- Device inventory, automation flows
+- ASCII room layouts
 
 ### 6-11. **Other Utility Skills** (Existing)
-   - Entity reference validator
-   - Known error detector
-   - Automation ID manager
-   - Consolidation pre-check
-   - Package review
-   - Repo status
+- Entity reference validator
+- Known error detector
+- Automation ID manager
+- Consolidation pre-check
+- Package review
+- Repo status
 
 ---
 

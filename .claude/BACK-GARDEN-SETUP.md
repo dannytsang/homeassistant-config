@@ -56,7 +56,7 @@
 ### 2.1 Shed Access Monitoring (1 automation)
 
 #### Shed Door Closed
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Shed door contact changes to closed state
 - **Conditions:** None (always execute)
 - **Actions:**
@@ -72,7 +72,7 @@
 ### 2.2 Motion-Based Automation (1 automation)
 
 #### Shed: Motion Detected When Door Is Closed
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Motion detected while shed door is closed
 - **Conditions:**
   - Shed door contact = closed
@@ -91,7 +91,7 @@
 ### 2.3 Lighting Control (1 automation)
 
 #### Below Direct Sun Light (Back Garden)
-- **ID:** [varies]
+- **ID:** \[varies]
 - **Trigger:** Back garden light level below brightness threshold
 - **Conditions:**
   - Ambient light: sensor.back_garden_motion_illuminance < threshold

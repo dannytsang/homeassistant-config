@@ -114,11 +114,11 @@ Many entities (especially lights, climate, media players) have dedicated measure
 | Measurement | Records | Fields | Description |
 |---|---|---|---|
 | light.all_lights | 2,335 | 24 | All lights aggregated control state |
-| light.[room]_lights | 2,322 | ~20 | Main room lighting |
-| light.[room]_ambient_lights | 2,209 | ~20 | Room ambient lighting |
-| light.[room]_accent_lights | 2,207 | ~20 | Room accent lighting |
-| light.[room]_down_lights | 1,983 | ~20 | Room downlights |
-| light.[room]_cabinets | 1,983 | ~20 | Room cabinet lighting |
+| light.\[room]_lights | 2,322 | ~20 | Main room lighting |
+| light.\[room]_ambient_lights | 2,209 | ~20 | Room ambient lighting |
+| light.\[room]_accent_lights | 2,207 | ~20 | Room accent lighting |
+| light.\[room]_down_lights | 1,983 | ~20 | Room downlights |
+| light.\[room]_cabinets | 1,983 | ~20 | Room cabinet lighting |
 
 **Light Entity Fields Typically Include:**
 - brightness, brightness_str
@@ -133,9 +133,9 @@ Many entities (especially lights, climate, media players) have dedicated measure
 
 | Measurement | Records | Fields | Description |
 |---|---|---|---|
-| climate.[room]_radiator | 33 | 11 | Room heating control |
-| climate.[room]_radiator | ~30 | ~11 | Room heating control |
-| climate.[room]_thermostat | ~25 | ~11 | Room thermostat control |
+| climate.\[room]_radiator | 33 | 11 | Room heating control |
+| climate.\[room]_radiator | ~30 | ~11 | Room heating control |
+| climate.\[room]_thermostat | ~25 | ~11 | Room thermostat control |
 
 **Climate Entity Fields Typically Include:**
 - current_temperature
@@ -151,8 +151,8 @@ Many entities (especially lights, climate, media players) have dedicated measure
 
 | Measurement | Records | Fields | Description |
 |---|---|---|---|
-| binary_sensor.[device]_battery_low | 32 | 16 | Door/window battery low indicator |
-| binary_sensor.[device]_presence | ~20 | ~6 | Motion presence detector |
+| binary_sensor.\[device]_battery_low | 32 | 16 | Door/window battery low indicator |
+| binary_sensor.\[device]_presence | ~20 | ~6 | Motion presence detector |
 | binary_sensor.security_alarm_composite | ~15 | ~5 | Security alarm composite |
 
 **Binary Sensor Fields Typically Include:**
@@ -165,7 +165,7 @@ Many entities (especially lights, climate, media players) have dedicated measure
 
 | Measurement | Records | Fields | Description |
 |---|---|---|---|
-| media_player.spotify_[user] | 2,246 | ~15 | Spotify player for user |
+| media_player.spotify_\[user] | 2,246 | ~15 | Spotify player for user |
 
 **Media Player Fields Typically Include:**
 - state (playing/paused/idle)

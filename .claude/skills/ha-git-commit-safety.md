@@ -159,8 +159,8 @@ Reject:
 - "test"
 - "fix"
 - "update"
-- "[TODO]"
-- "[PLACEHOLDER]"
+- "\[TODO]"
+- "\[PLACEHOLDER]"
 
 **These are development messages, not publication-ready commits.**
 
@@ -195,7 +195,7 @@ git diff --cached --stat
 git diff --cached
 ```
 
-**Ask:** "Continue with this commit? [y/n]"
+**Ask:** "Continue with this commit? \[y/n]"
 
 ### Step 6: Execute Safely
 

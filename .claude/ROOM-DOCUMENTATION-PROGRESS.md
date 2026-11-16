@@ -109,9 +109,9 @@ Systematic generation of comprehensive setup documentation for all Home Assistan
 **File:** `.claude/CONSERVATORY-SETUP.md`
 **Status:** Generated (2,200+ lines)
 **Sources:** 3 files
-  - `packages/rooms/conservatory/conservatory.yaml` (443 lines)
-  - `packages/rooms/conservatory/airer.yaml` (160 lines)
-  - `packages/rooms/conservatory/octoprint.yaml` (385 lines)
+- `packages/rooms/conservatory/conservatory.yaml` (443 lines)
+- `packages/rooms/conservatory/airer.yaml` (160 lines)
+- `packages/rooms/conservatory/octoprint.yaml` (385 lines)
 **Commit:** e7da203d
 **Details:**
 - 21 automations documented across 3 files
@@ -532,16 +532,16 @@ Before committing each room's documentation, verify:
 **Remaining:** 0
 
 **Lines Generated:** 15,781+ total
-  - Living Room: 855 lines
-  - Bedroom: 1,400+ lines
-  - Stairs: 1,700+ lines
-  - Porch: 1,400+ lines
-  - Conservatory: 2,200+ lines
-  - Front Garden: 2,200+ lines
-  - Back Garden: 1,600+ lines
-  - Bedroom2 (Leo's): 2,500+ lines ✅ FINAL SESSION
-  - Bathroom: 2,000+ lines ✅ FINAL SESSION
-  - Kitchen & Office: Pre-existing (37KB)
+- Living Room: 855 lines
+- Bedroom: 1,400+ lines
+- Stairs: 1,700+ lines
+- Porch: 1,400+ lines
+- Conservatory: 2,200+ lines
+- Front Garden: 2,200+ lines
+- Back Garden: 1,600+ lines
+- Bedroom2 (Leo's): 2,500+ lines ✅ FINAL SESSION
+- Bathroom: 2,000+ lines ✅ FINAL SESSION
+- Kitchen & Office: Pre-existing (37KB)
 
 **Token Usage (Session 2026-01-24):**
 - Living Room: ~2,500 tokens
@@ -559,15 +559,15 @@ Before committing each room's documentation, verify:
 
 When resuming this work:
 
-1. [ ] Read this progress file (`.claude/ROOM-DOCUMENTATION-PROGRESS.md`)
-2. [ ] Read methodology (`.claude/AGENT-HA-ROOM-DOCUMENTATION.md`)
-3. [ ] Review latest completed example for reference
-4. [ ] Check git status to verify clean state
-5. [ ] Start with next priority room (Conservatory)
-6. [ ] Use Task tool with general-purpose agent
-7. [ ] Commit completed documentation
-8. [ ] Update this progress file with new completion status
-9. [ ] Commit this updated progress file
+1. \[ ] Read this progress file (`.claude/ROOM-DOCUMENTATION-PROGRESS.md`)
+2. \[ ] Read methodology (`.claude/AGENT-HA-ROOM-DOCUMENTATION.md`)
+3. \[ ] Review latest completed example for reference
+4. \[ ] Check git status to verify clean state
+5. \[ ] Start with next priority room (Conservatory)
+6. \[ ] Use Task tool with general-purpose agent
+7. \[ ] Commit completed documentation
+8. \[ ] Update this progress file with new completion status
+9. \[ ] Commit this updated progress file
 
 ---
 

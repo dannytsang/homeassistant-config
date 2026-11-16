@@ -220,7 +220,7 @@
 ### 2.4 Airer Automation (2 automations)
 
 #### Turn On Airer
-- **ID:** [varies by schedule]
+- **ID:** \[varies by schedule]
 - **Trigger:** Time-based (specific times defined) OR cost-aware
 - **Conditions:**
   - Airer schedule enabled (input_boolean.enable_conservatory_airer_schedule)
@@ -236,7 +236,7 @@
 ---
 
 #### Turn Off Airer
-- **ID:** [varies by schedule]
+- **ID:** \[varies by schedule]
 - **Trigger:** Time-based (end of drying window) OR temperature drop
 - **Conditions:**
   - Airer schedule enabled
@@ -266,7 +266,7 @@
 ---
 
 #### 50% Complete
-- **ID:** [in octoprint.yaml]
+- **ID:** \[in octoprint.yaml]
 - **Trigger:** Print progress reaches 50%
 - **Conditions:**
   - 3D printer automations enabled
@@ -280,7 +280,7 @@
 ---
 
 #### Check If Printing Light
-- **ID:** [in octoprint.yaml]
+- **ID:** \[in octoprint.yaml]
 - **Trigger:** Printer light state changes
 - **Conditions:**
   - OctoPrint currently printing
@@ -292,7 +292,7 @@
 ---
 
 #### Finished Printing
-- **ID:** [in octoprint.yaml]
+- **ID:** \[in octoprint.yaml]
 - **Trigger:** OctoPrint printing state = off AND print completed
 - **Conditions:**
   - Print completion detected (not pause, not error)
@@ -308,7 +308,7 @@
 ---
 
 #### Light Turned On
-- **ID:** [in octoprint.yaml]
+- **ID:** \[in octoprint.yaml]
 - **Trigger:** Printer light turns on
 - **Conditions:**
   - OctoPrint not printing
@@ -321,7 +321,7 @@
 ---
 
 #### Paused Mid Print
-- **ID:** [in octoprint.yaml]
+- **ID:** \[in octoprint.yaml]
 - **Trigger:** OctoPrint state = paused
 - **Conditions:**
   - 3D printer automations enabled

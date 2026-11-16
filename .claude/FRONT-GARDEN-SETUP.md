@@ -164,7 +164,7 @@
 ### 2.3 Lighting & Privacy (2 automations)
 
 #### Below Direct Sun Light (Front Garden)
-- **ID:** [in automation list]
+- **ID:** \[in automation list]
 - **Trigger:** Front garden light level below threshold
 - **Conditions:**
   - Not during daylight hours (seasonal awareness)
@@ -181,7 +181,7 @@
 ### 2.4 Lock Box & Access (2 automations)
 
 #### Lock Box State Changed
-- **ID:** [in automation list]
+- **ID:** \[in automation list]
 - **Trigger:** NFC lock box state changes
 - **Conditions:**
   - None (state change always triggers)
@@ -195,7 +195,7 @@
 ---
 
 #### Lockbox Sensor Disconnected
-- **ID:** [in automation list]
+- **ID:** \[in automation list]
 - **Trigger:** Lockbox sensor becomes unavailable
 - **Conditions:**
   - Sensor in unavailable state for >2 minutes
@@ -211,7 +211,7 @@
 ### 2.5 Utility Access (1 automation)
 
 #### Electricity Meter Door Opened
-- **ID:** [in automation list]
+- **ID:** \[in automation list]
 - **Trigger:** Meter door contact sensor opens
 - **Conditions:**
   - None (state change always triggers)
