@@ -61,14 +61,18 @@ jobs:
       - name: remark-lint
         id: remark
         run: |
-          npx --yes \
-            --package remark-cli \
-            --package remark-preset-lint-recommended \
-            --package remark-gfm \
-            remark --no-stdout --color --frail \
+          set -euo pipefail
+          lint_dir="$RUNNER_TEMP/remark-lint"
+          mkdir -p "$lint_dir"
+          cd "$lint_dir"
+          npm_config_loglevel=error npm install --no-save --no-audit --no-fund \
+            remark-cli \
+            remark-preset-lint-recommended \
+            remark-gfm
+          ./node_modules/.bin/remark --no-stdout --color --frail \
               --use preset-lint-recommended \
               --use remark-gfm \
-              .
+              "$GITHUB_WORKSPACE"
         continue-on-error: true
       - name: Summarize Markdown lint
         if: ${{ always() }}
