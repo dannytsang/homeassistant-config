@@ -356,7 +356,7 @@ This is rare but possible during HA.io maintenance.
 - **Reference Agent (Phase 2):** `.claude/skills/ha-documentation-reference-agent.md`
 - **Currency Checker Utility:** `.claude/skills/ha-doc-currency-checker.md`
 - **Update Audit Log:** `.claude/documentation-update-log.md`
-- **HA Official Docs:** https://www.home-assistant.io/docs/
+- **HA Official Docs:** <https://www.home-assistant.io/docs/>
 
 ---
 

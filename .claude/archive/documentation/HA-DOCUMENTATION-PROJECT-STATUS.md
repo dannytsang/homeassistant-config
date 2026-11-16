@@ -102,7 +102,7 @@ Create a system to look up, cache, and verify Home Assistant documentation curre
    - Report which docs are stale (>30 days)
 
 2. **Fetch Latest Documentation**
-   - Web fetch from https://www.home-assistant.io/docs/
+   - Web fetch from <https://www.home-assistant.io/docs/>
    - Convert HTML → Markdown (using WebFetch + processing)
    - Extract key content sections
 

@@ -1,6 +1,6 @@
 # Home Assistant Configuration Splitting Reference
 
-**Source:** https://www.home-assistant.io/docs/configuration/splitting_configuration/
+**Source:** <https://www.home-assistant.io/docs/configuration/splitting_configuration/>
 **Date:** 2026-01-22
 **Purpose:** Comprehensive guide to organizing and splitting Home Assistant configuration files
 

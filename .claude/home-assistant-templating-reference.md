@@ -1,6 +1,6 @@
 # Home Assistant Templating Reference
 
-**Source:** https://www.home-assistant.io/docs/configuration/templating/
+**Source:** <https://www.home-assistant.io/docs/configuration/templating/>
 **Engine:** Jinja2 (Python templating)
 **Date:** 2026-01-22
 **Purpose:** Comprehensive reference for template syntax, functions, filters, and best practices

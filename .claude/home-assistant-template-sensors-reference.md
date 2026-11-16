@@ -1,6 +1,6 @@
 # Home Assistant Template Integration Reference
 
-**Source:** https://www.home-assistant.io/integrations/template/
+**Source:** <https://www.home-assistant.io/integrations/template/>
 **Date:** 2026-01-25
 **Purpose:** Complete reference for creating template-based entities (sensors, switches, lights, etc.) derived from other data using Jinja2 templates
 

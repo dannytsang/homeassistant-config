@@ -1,6 +1,6 @@
 # Home Assistant Automation YAML Reference
 
-**Source:** https://www.home-assistant.io/docs/automation/yaml/
+**Source:** <https://www.home-assistant.io/docs/automation/yaml/>
 **Date:** 2026-01-22
 **Purpose:** Comprehensive guide to writing automations in YAML format
 

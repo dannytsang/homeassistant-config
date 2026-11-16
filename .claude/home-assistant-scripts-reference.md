@@ -1,6 +1,6 @@
 # Home Assistant Scripts Reference
 
-**Source:** https://www.home-assistant.io/docs/scripts/
+**Source:** <https://www.home-assistant.io/docs/scripts/>
 **Date:** 2026-01-22
 **Purpose:** Core reference for script syntax, patterns, and best practices
 

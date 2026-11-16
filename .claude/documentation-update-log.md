@@ -99,7 +99,7 @@ The skill can successfully:
 - Legacy migration guide
 - Troubleshooting
 
-**Source:** https://www.home-assistant.io/integrations/template/
+**Source:** <https://www.home-assistant.io/integrations/template/>
 
 **New Total Cache Size:** ~119 KB (was 99 KB)
 

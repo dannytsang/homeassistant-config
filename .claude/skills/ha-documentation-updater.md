@@ -35,7 +35,7 @@ Fetch the latest Home Assistant documentation from official sources, update loca
 - Report overall cache health
 
 **2. Fetch Latest Documentation**
-- Web fetch from https://www.home-assistant.io/docs/
+- Web fetch from <https://www.home-assistant.io/docs/>
 - Extract relevant content sections
 - Convert HTML → Markdown if needed
 - Preserve structure (headings, code blocks, tables)
@@ -175,22 +175,22 @@ Log entry added to `.claude/documentation-update-log.md`:
 These are the authoritative sources for this skill:
 
 1. **Automation YAML**
-   - URL: https://www.home-assistant.io/docs/automation/
+   - URL: <https://www.home-assistant.io/docs/automation/>
    - Section: Full automation syntax and patterns
    - File: `home-assistant-automation-yaml-reference.md`
 
 2. **Scripts**
-   - URL: https://www.home-assistant.io/docs/scripts/
+   - URL: <https://www.home-assistant.io/docs/scripts/>
    - Section: Script syntax, triggers, conditions, actions
    - File: `home-assistant-scripts-reference.md`
 
 3. **Templating**
-   - URL: https://www.home-assistant.io/docs/configuration/templating/
+   - URL: <https://www.home-assistant.io/docs/configuration/templating/>
    - Section: Template syntax, filters, functions
    - File: `home-assistant-templating-reference.md`
 
 4. **Configuration Splitting**
-   - URL: https://www.home-assistant.io/docs/configuration/splitting_configuration/
+   - URL: <https://www.home-assistant.io/docs/configuration/splitting_configuration/>
    - Section: YAML splitting and organization patterns
    - File: `home-assistant-splitting-configuration-reference.md`
 
