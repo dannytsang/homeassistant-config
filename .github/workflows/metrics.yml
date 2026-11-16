@@ -42,7 +42,7 @@ jobs:
           YAML_FILES=$(find . -type f \( -name '*.yaml' -o -name '*.yml' \) \
             ! -path '*/\.*' ! -name '*.sample' | wc -l)
           echo "yaml_files=$YAML_FILES" >> "$GITHUB_OUTPUT"
-          
+
           # Count automations
           if [ -f "automations.yaml" ]; then
             AUTOMATIONS=$(yq 'length' automations.yaml 2>/dev/null || echo 0)
@@ -50,7 +50,7 @@ jobs:
             AUTOMATIONS=0
           fi
           echo "automations=$AUTOMATIONS" >> "$GITHUB_OUTPUT"
-          
+
           # Count scripts
           if [ -f "scripts.yaml" ]; then
             SCRIPTS=$(yq 'length' scripts.yaml 2>/dev/null || echo 0)
@@ -58,7 +58,7 @@ jobs:
             SCRIPTS=0
           fi
           echo "scripts=$SCRIPTS" >> "$GITHUB_OUTPUT"
-          
+
           # Count scenes
           if [ -f "scenes.yaml" ]; then
             SCENES=$(yq 'length' scenes.yaml 2>/dev/null || echo 0)
@@ -66,7 +66,7 @@ jobs:
             SCENES=0
           fi
           echo "scenes=$SCENES" >> "$GITHUB_OUTPUT"
-          
+
           # Count ESPHome devices (exclude secrets.yaml)
           if [ -d "esphome" ]; then
             ESPHOME_DEVICES=$(find esphome -type f -name '*.yaml' ! -name 'secrets.yaml' | wc -l)
@@ -74,7 +74,7 @@ jobs:
             ESPHOME_DEVICES=0
           fi
           echo "esphome_devices=$ESPHOME_DEVICES" >> "$GITHUB_OUTPUT"
-          
+
           # Count custom components
           if [ -d "custom_components" ]; then
             CUSTOM_COMPONENTS=$(find custom_components -mindepth 1 -maxdepth 1 -type d | wc -l)
@@ -82,17 +82,17 @@ jobs:
             CUSTOM_COMPONENTS=0
           fi
           echo "custom_components=$CUSTOM_COMPONENTS" >> "$GITHUB_OUTPUT"
-          
+
           # Total lines of YAML config
           TOTAL_LINES=$(find . -type f \( -name '*.yaml' -o -name '*.yml' \) \
             ! -path '*/\.*' ! -name '*.sample' -exec wc -l {} + 2>/dev/null | \
             tail -1 | awk '{print $1}' || echo 0)
           echo "total_lines=$TOTAL_LINES" >> "$GITHUB_OUTPUT"
-          
+
           # Repository size (in KB)
           REPO_SIZE=$(du -sk . | cut -f1)
           echo "repo_size_kb=$REPO_SIZE" >> "$GITHUB_OUTPUT"
-          
+
           # Count total commits
           TOTAL_COMMITS=$(git rev-list --count HEAD)
           echo "total_commits=$TOTAL_COMMITS" >> "$GITHUB_OUTPUT"
@@ -103,12 +103,12 @@ jobs:
           # Get metrics from one week ago (if available)
           WEEK_AGO=$(date -u -d '7 days ago' '+%Y-%m-%d' 2>/dev/null || date -u -v-7d '+%Y-%m-%d')
           WEEK_AGO_COMMIT=$(git rev-list -1 --before="$WEEK_AGO" HEAD 2>/dev/null || echo "")
-          
+
           if [ -n "$WEEK_AGO_COMMIT" ]; then
             # Count commits in the last week
             COMMITS_THIS_WEEK=$(git rev-list --count HEAD ^"$WEEK_AGO_COMMIT")
             echo "commits_this_week=$COMMITS_THIS_WEEK" >> "$GITHUB_OUTPUT"
-            
+
             # Files changed this week
             FILES_CHANGED=$(git diff --name-only "$WEEK_AGO_COMMIT" HEAD | wc -l)
             echo "files_changed=$FILES_CHANGED" >> "$GITHUB_OUTPUT"
@@ -163,7 +163,7 @@ jobs:
           # Alert if single files are getting too large
           MAX_LINES=1000
           LARGE_FILES=""
-          
+
           for file in configuration.yaml automations.yaml scripts.yaml; do
             if [ -f "$file" ]; then
               LINES=$(wc -l < "$file")
@@ -172,7 +172,7 @@ jobs:
               fi
             fi
           done
-          
+
           if [ -n "$LARGE_FILES" ]; then
             {
               echo ""
