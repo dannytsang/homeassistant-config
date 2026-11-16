@@ -112,13 +112,13 @@ The workflow proves that the webhook was requested; the final pull, local check,
 ### External Integration Validation
 
 The stable, beta, and dev Home Assistant checks each copy the repository into a
-disposable directory, excluding checked-in `custom_components`, then download
+disposable directory, excluding any local `custom_components`, then download
 the latest non-prerelease GitHub Release for every domain listed in
 `.github/ci/external-integrations.json`. They build the selected Home Assistant
 image with those manifest requirements and run `check_config`.
 
 The workflow fails if an integration has no stable release, its archive does
-not contain the expected `custom_components/<domain>/manifest.json`, or a
+not contain a manifest matching the declared domain, or a
 dependency cannot install. The job summary records the resolved releases.
 It does not validate production credentials, UI config entries, network access,
 or physical devices.
@@ -127,7 +127,7 @@ or physical devices.
 
 Use this checklist when recreating the automation in a replacement repository, GitHub organization, Home Assistant host, or Tailscale tailnet. Do not put secret values in this repository.
 
-1. **Create the GitHub repository and default branch.** Keep the workflows, `.github/scripts/`, `secrets.yaml.sample`, custom components, and ESPHome sample secrets in version control. Protect `main` and require the stable Home Assistant check by its exact current name: `Home Assistant Core Stable Configuration Check`.
+1. **Create the GitHub repository and default branch.** Keep the workflows, `.github/ci/` registry, `.github/scripts/`, `secrets.yaml.sample`, and ESPHome sample secrets in version control. Manage production custom integrations through HACS. Protect `main` and require the stable Home Assistant check by its exact current name: `Home Assistant Core Stable Configuration Check`.
 2. **Configure repository environments and secrets.** Create the `production` environment used by `push.yml`. Add the Tailscale OAuth client ID and secret, the deployment webhook URL, and its authentication token as GitHub Actions secrets. Use the secret names referenced in the [Required Secrets](#required-secrets) table; do not place values in YAML, Markdown, workflow logs, or commits.
 3. **Authorize the GitHub runner in Tailscale.** Create an OAuth client allowed to create the workflow's configured tag (`tag:homeassistant-ci`), then grant that tag network access to the Home Assistant deployment receiver. Test from a manual workflow run before relying on automatic delivery.
 4. **Create or restore the Home Assistant deployment receiver.** It must accept the authenticated POST sent by `push.yml`, pull the intended repository/revision, run a local Home Assistant configuration check, and only reload or restart when that check passes and the change needs applying. The receiver implementation is environment-specific and is not stored in this repository.
@@ -163,29 +163,20 @@ flowchart TD
 
 **Status:** ❌ Disabled
 
-**Why:** The `actions/setup-python` action's `cache: 'pip'` option requires a dependency manifest file (e.g., `requirements.txt`, `setup.py`, `pyproject.toml`) to generate cache keys. Without one, the action fails.
+**Why:** The custom-integration requirements are generated inside the disposable
+Docker build context, so runner-level pip caching does not apply. ESPHome
+dependencies are also installed dynamically.
 
 **History:** Removed in commit `0d2395fc` (September 2024) - "Removed cached PIP to fix pipeline build errors"
 
 **Context:** Dependencies are installed dynamically:
 - ESPHome: Direct `pip install esphome`
-- Custom components: Extracted from `manifest.json` at runtime
+- Custom integrations: Downloaded from the CI registry and installed in the
+  disposable Home Assistant image
 
-**Workaround (if needed in future):**
-```yaml
-# Generate requirements.txt before caching
-- name: Generate requirements file
-  run: |
-    echo "esphome" > requirements.txt
-    for manifest in custom_components/*/manifest.json; do
-      jq -r '.requirements[]? // empty' "$manifest" >> requirements.txt
-    done
-
-- uses: actions/setup-python@v6
-  with:
-    python-version: '3.12'
-    cache: 'pip'
-```
+**Future option:** The external-integration action generates requirements in its
+disposable config directory. Add an explicit Docker cache strategy only if
+build times become a measured problem.
 
 **Current Performance:** Home Assistant validation allows 30 minutes for downloading external integrations and building the disposable image; the separate ESPHome job remains capped at 15 minutes.
 

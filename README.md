@@ -131,7 +131,9 @@ GitHub Actions validates this repository and, for eligible configuration changes
 
 See the [CI/CD pipeline guide](.github/workflows/README.md) for the change matrix, Mermaid pipeline diagrams, validation gates, deployment sequence, troubleshooting, and a complete rebuild/migration checklist.
 
-`custom_components` are stored in the repository so validation can install their declared dependencies and load the configuration in CI.
+Production custom integrations are managed through HACS rather than stored in
+this repository. CI downloads the latest stable releases declared in
+`.github/ci/external-integrations.json` into a disposable validation config.
 
 ### Folder Structure 📂
 This repository's top level is the /config folder where typically the configuration.yaml file resides. More details can be found [here](https://www.home-assistant.io/docs/configuration/).

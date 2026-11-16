@@ -2,7 +2,7 @@
 
 # Quick orientation
 
-This repo is a user's Home Assistant configuration: primarily YAML under `packages/`, device firmware under `esphome/`, and local integrations under `custom_components/`. Do not modify `custom_components/` — those are maintained by others.
+This repo is a user's Home Assistant configuration: primarily YAML under `packages/` and device firmware under `esphome/`. Production custom integrations are HACS-managed; their CI sources are declared in `.github/ci/external-integrations.json` and are not stored under `custom_components/`.
 
 Focus on small, well-documented changes: add or update a single package, blueprint, or esphome file per PR.
 
@@ -24,7 +24,7 @@ Focus on small, well-documented changes: add or update a single package, bluepri
 ## PR checklist (include in PR description)
 - Scope summary and motivation.
 - Commands you ran: `yamllint .`, `hass --script check_config -c <path>` (or indicate N/A).
-- Files changed (avoid `custom_components/`).
+- Files changed.
 - Manual test steps: how to trigger automations or call scripts (see below).
 
 ## How to test automations & scripts
