@@ -175,9 +175,8 @@ dependencies are also installed dynamically.
 - Custom integrations: Downloaded from the CI registry and installed in the
   disposable Home Assistant image
 
-**Future option:** The external-integration action generates requirements in its
-disposable config directory. Add an explicit Docker cache strategy only if
-build times become a measured problem.
+**Decision:** Do not add Docker-layer caching. Earlier cache use caused CI
+pipeline failures, so reliability takes precedence over reducing build time.
 
 **Current Performance:** Home Assistant validation allows 30 minutes for downloading external integrations and building the disposable image; the separate ESPHome job remains capped at 15 minutes.
 
