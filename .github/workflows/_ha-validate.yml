@@ -151,7 +151,7 @@ jobs:
     # IMPORTANT: this MUST match your Branch Protection required check name exactly
     name: Home Assistant Core Stable Configuration Check
     runs-on: ubuntu-latest
-    needs: [yamllint, remarklint]
+    needs: [yamllint, remarklint, ci-preparation-regression]
     timeout-minutes: 30
     permissions:
       contents: read
@@ -197,6 +197,15 @@ jobs:
             python -m homeassistant \
               --config "${{ steps.config.outputs.config_path }}" \
               --script check_config
+      - name: Upload resolved external integrations
+        if: ${{ always() && steps.config.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: resolved-external-integrations-stable
+          path: ${{ steps.config.outputs.config_path }}/.ci-external-integrations.json
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
       - name: Summarize results
         if: always()  # ensures summary is written even if job fails
         run: |
@@ -220,7 +229,7 @@ jobs:
   ha-future:
     name: Home Assistant future channels (beta/dev)
     runs-on: ubuntu-latest
-    needs: [yamllint, remarklint]
+    needs: [yamllint, remarklint, ci-preparation-regression]
     timeout-minutes: 30
     permissions:
       contents: read
@@ -245,7 +254,8 @@ jobs:
             "${{ steps.config.outputs.config_path }}"
       - name: Validate (${{ matrix.version }})
         id: ha
-        continue-on-error: true
+        # Beta is a compatibility gate; dev remains an early-warning signal.
+        continue-on-error: ${{ matrix.version == 'dev' }}
         run: |
           set -euo pipefail
           docker run --rm \
@@ -256,6 +266,15 @@ jobs:
             python -m homeassistant \
               --config "${{ steps.config.outputs.config_path }}" \
               --script check_config
+      - name: Upload resolved external integrations
+        if: ${{ always() && steps.config.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: resolved-external-integrations-${{ matrix.version }}
+          path: ${{ steps.config.outputs.config_path }}/.ci-external-integrations.json
+          if-no-files-found: error
+          include-hidden-files: true
+          retention-days: 30
       - name: Summarize results
         if: always()  # ensures summary is written even if job fails
         run: |
@@ -267,12 +286,25 @@ jobs:
             echo ""
             if [[ "${{ steps.ha.outcome }}" == "success" ]]; then
               echo "✅ **Passed** — Configuration is compatible with ${{ matrix.version }}"
+            elif [[ "${{ matrix.version }}" == "beta" ]]; then
+              echo "❌ **Failed** — Beta compatibility is a blocking validation gate"
             else
-              echo "⚠️ **Failed** — Configuration may have issues with ${{ matrix.version }} (this is informational and won't block the workflow)"
+              echo "⚠️ **Failed** — Configuration may have issues with dev (this is informational and won't block the workflow)"
             fi
             echo ""
-            echo "> **Note:** Future channel validations are informational only and do not block merges."
+            echo "> **Note:** Beta failures block this workflow; dev failures are informational."
           } >> "$GITHUB_STEP_SUMMARY"
+
+  ci-preparation-regression:
+    name: CI preparation regression test
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify device-trigger preparation
+        run: bash .github/scripts/test-prepare-config-for-ci.sh
 
   workflow-lint:
     name: actionlint (validate workflows)

@@ -12,6 +12,7 @@ import sys
 import tempfile
 from typing import Any
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 import zipfile
 
@@ -20,6 +21,9 @@ API_URL = "https://api.github.com/repos/{repository}/releases/latest"
 
 
 def request(url: str, token: str | None) -> bytes:
+    if urlparse(url).scheme != "https":
+        raise RuntimeError(f"Refusing to download a non-HTTPS URL: {url}")
+
     headers = {
         "Accept": "application/vnd.github+json",
         "User-Agent": "home-assistant-config-ci",
@@ -29,7 +33,8 @@ def request(url: str, token: str | None) -> bytes:
         headers["Authorization"] = f"Bearer {token}"
 
     try:
-        with urlopen(Request(url, headers=headers), timeout=60) as response:
+        # URL scheme is restricted to HTTPS immediately above.
+        with urlopen(Request(url, headers=headers), timeout=60) as response:  # nosec B310
             return response.read()
     except (HTTPError, URLError) as err:
         raise RuntimeError(f"Could not download {url}: {err}") from err

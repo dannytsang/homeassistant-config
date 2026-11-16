@@ -16,11 +16,11 @@ flowchart TD
     Kind -->|Workflow definition| Workflow[Workflow change]
     Kind -->|Both| Mixed[Mixed change]
 
-    Docs --> PRDocs[PR: YAML lint, Markdown lint, actionlint, and advisory beta/dev validation]
+    Docs --> PRDocs[PR: YAML lint, Markdown lint, actionlint, beta gate, and advisory dev validation]
     Docs --> MainDocs[Push to main: security scan only; no push.yml deployment]
     Config --> PRConfig[PR: full validation suite; stable HA check runs]
     Config --> MainConfig[Push to main: push.yml validation, then deployment if successful]
-    Workflow --> PRWorkflow[PR: lint, actionlint, and advisory beta/dev validation; stable normally skipped]
+    Workflow --> PRWorkflow[PR: lint, actionlint, beta gate, and advisory dev validation; stable normally skipped]
     Workflow --> MainConfig
     Mixed --> PRConfig
     Mixed --> MainConfig
@@ -30,12 +30,12 @@ flowchart TD
 
 | Change type | Pull request | Push to `main` | Home Assistant deployment |
 |-------------|--------------|----------------|----------------------------|
-| Documentation/knowledge only (`*.md`) | `pull.yml` runs. YAML lint, Markdown lint, actionlint, and advisory beta/dev checks run; the stable Home Assistant check reports **Skipped**. | `push.yml` does not run because its path filter excludes Markdown. `security.yml` still scans the push. | No deployment webhook is sent. |
-| Configuration or CI support-script change | `pull.yml` runs. Stable Home Assistant validation runs for YAML, custom-component, ESPHome, and `.github/scripts/**` changes; ESPHome validation runs when `esphome/**` changes. | `push.yml` validates the configuration. `metrics.yml` runs for its YAML/ESPHome paths; `security.yml` also runs. | After the reusable validation workflow succeeds, `push.yml` sends the deployment webhook. |
-| Workflow definition (`.github/workflows/**`) | `pull.yml` runs YAML/Markdown lint, actionlint, and advisory beta/dev validation. The stable HA check is normally **Skipped** because the PR path filter does not classify workflow definitions as configuration. | `push.yml` runs because `.github/**` is included in its path filter; it runs stable validation and can deploy after success. | Yes after the push workflow's validation succeeds. Review workflow changes especially carefully. |
+| Documentation/knowledge only (`*.md`) | `pull.yml` runs. YAML lint, Markdown lint, actionlint, blocking beta, and advisory dev checks run; the stable Home Assistant check reports **Skipped**. | `push.yml` does not run because its path filter excludes Markdown. `security.yml` still scans the push. | No deployment webhook is sent. |
+| Configuration or CI support-script change | `pull.yml` runs. Stable Home Assistant validation runs for YAML, external-integration registry, ESPHome, and `.github/scripts/**` changes; ESPHome validation runs when `esphome/**` changes. | `push.yml` validates the configuration. `metrics.yml` runs for its YAML/ESPHome paths; `security.yml` also runs. | After the reusable validation workflow succeeds, `push.yml` sends the deployment webhook. |
+| Workflow definition (`.github/workflows/**`) | `pull.yml` runs YAML/Markdown lint, actionlint, blocking beta, and advisory dev validation. The stable HA check is normally **Skipped** because the PR path filter does not classify workflow definitions as configuration. | `push.yml` runs because `.github/**` is included in its path filter; it runs stable validation and can deploy after success. | Yes after the push workflow's validation succeeds. Review workflow changes especially carefully. |
 | Mixed configuration and documentation/knowledge change | Same as configuration change; Markdown lint also checks the documentation. | Same as configuration change. | Yes, after validation succeeds. |
 
-> **Important:** the beta/dev Home Assistant checks are advisory. The stable Home Assistant configuration check is the production gate for eligible configuration changes. YAML lint, Markdown lint, and actionlint currently publish findings without blocking the reusable validation workflow.
+> **Important:** beta is a blocking compatibility gate; dev is advisory. The stable Home Assistant configuration check remains the production gate for eligible configuration changes. YAML lint, Markdown lint, and actionlint currently publish findings without blocking the reusable validation workflow.
 
 ## Pipeline Diagrams
 
@@ -50,7 +50,7 @@ flowchart LR
     Reusable --> Actionlint[actionlint]
     Reusable --> ESP{ESPHome changed?}
     Reusable --> Stable{Relevant configuration changed?}
-    Reusable --> Future[HA beta and dev checks\nadvisory]
+    Reusable --> Future[HA beta gate and dev check\ndev advisory]
     ESP -->|Yes| ESPValidate[Validate ESPHome files]
     ESP -->|No| ESPSkipped[Mark ESPHome skipped]
     Stable -->|Yes| Prepare[Install component dependencies\nand prepare disposable config]
@@ -104,7 +104,7 @@ The workflow proves that the webhook was requested; the final pull, local check,
 | `push.yml` | Push to main, weekly schedule, manual | Validates config and deploys to production HA |
 | `pull.yml` | Pull requests | Validates config before merge |
 | `_ha-validate.yml` | Called by push/pull | Reusable validation logic (yamllint, ESPHome, HA stable/beta/dev) |
-| `security.yml` | Push, PR, weekly Monday | Secret scanning (TruffleHog, Gitleaks) + Python security (Bandit) |
+| `security.yml` | Push, PR, weekly Monday | Secret scanning (TruffleHog, Gitleaks), dependency audit of resolved external integrations, and Bandit for CI Python |
 | `metrics.yml` | Push, weekly Sunday | Config statistics and health checks |
 | `labeler.yml` | Pull requests | Auto-applies labels based on file changes |
 | `stale.yml` | Daily | Marks stale issues/PRs for closure |
@@ -118,8 +118,9 @@ the latest non-prerelease GitHub Release for every domain listed in
 image with those manifest requirements and run `check_config`.
 
 The workflow fails if an integration has no stable release, its archive does
-not contain a manifest matching the declared domain, or a
-dependency cannot install. The job summary records the resolved releases.
+not contain a manifest matching the declared domain, or a dependency cannot
+install. The job summary records the resolved releases and each HA channel
+uploads that machine-readable release list as an artifact.
 It does not validate production credentials, UI config entries, network access,
 or physical devices.
 
@@ -245,6 +246,12 @@ Prepares config for CI validation:
 **Environment variables:**
 - `HA_CHANNEL` - Set to `beta` or `dev` for channel-specific handling (defaults to `stable`)
 
+### `.github/scripts/test-prepare-config-for-ci.sh`
+
+Regression fixture for CI preparation. It verifies that a device trigger is
+converted only in a disposable config and that an external integration section
+is retained. The reusable validation workflow runs it before the HA jobs.
+
 ---
 
 ## Deployment
@@ -276,7 +283,7 @@ After successful validation on push to `main`:
 
 ### Updating Home Assistant Version
 
-1. Monitor beta/dev validation runs for compatibility warnings
+1. Treat beta failures as compatibility blockers; monitor dev validation for early warnings
 2. Investigate failing custom-integration releases instead of stripping YAML configuration
 3. Test with `workflow_dispatch` before merging
 
@@ -324,7 +331,7 @@ Both scripts (`.github/scripts/*.sh`) are called by multiple workflow jobs. Chan
 - `pull.yml` runs validation for pull requests.
 - It detects relevant changes first, then calls the reusable validation workflow.
 - Home Assistant stable validation is the main blocking configuration check.
-- Future channel checks (`beta`, `dev`) are informational only.
+- Beta is blocking; dev remains informational.
 
 ### Push workflow
 - `push.yml` runs on pushes to `main`, weekly schedule, and manual dispatch.
@@ -346,7 +353,7 @@ Both scripts (`.github/scripts/*.sh`) are called by multiple workflow jobs. Chan
 
 Current behaviour:
 - `ha-future` runs on PR validation and push validation.
-- Its results are informational only and do not block merges.
+- Beta failures fail the workflow; dev failures remain informational.
 
 Review questions for future changes:
 - Should future-channel validation stay on every PR?
@@ -411,9 +418,10 @@ Current required checks (stable):
 - actionlint (validate workflows)
 
 Advisory checks (informational only):
-- Home Assistant future channels (beta/dev)
+- Home Assistant dev channel
 - ESPHome validate (skipped when not relevant)
 
 Guidance:
 - do not rename required checks without updating branch protection
+- beta is intentionally not a required merge check; it may fail visibly without preventing a merge
 - prefer present-and-skipped jobs over conditionally absent checks
