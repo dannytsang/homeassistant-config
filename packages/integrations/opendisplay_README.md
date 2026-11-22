@@ -12,7 +12,7 @@ The display shows:
 - Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
 - Colour-coded front-door, house-alarm, and heating icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
-- The next five events across the family and children calendars, grouped by date with each event's time and title.
+- A red `IN PROGRESS` card for a current calendar event, followed by the next five family and children events grouped by date with each event's time and title.
 - A 24-hour solar-generation versus household-consumption power graph and home-battery state of charge.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather and battery level. The energy graph is plotted in kW, with green for solar generation and blue for household demand.
@@ -23,7 +23,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 
 | Automation | ID | Trigger | Action |
 |------------|----|---------|--------|
-| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a displayed source changes | Gets the next 72 hours of calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
+| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a displayed source changes | Gets a time window covering current and next-72-hour calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
 
 ### Dependencies
 
