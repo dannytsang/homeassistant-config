@@ -133,7 +133,9 @@ automation:
               x: "75%"
               y: "3%"
               size: 88
-              color: yellow
+              color: >-
+                {% set condition = states('weather.home') %}
+                {{ 'yellow' if condition in ['sunny', 'partlycloudy'] else 'gray' if condition in ['cloudy', 'fog', 'windy', 'windy-variant'] else 'black' }}
             - type: text
               value: >-
                 {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
@@ -153,10 +155,9 @@ automation:
               value: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 H {{ forecast[0].temperature | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[0].templow | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} · W {{ state_attr('weather.home', 'wind_speed') | float(0) | round(0) | int }} {{ state_attr('weather.home', 'wind_speed_unit') | default('mph', true) }}
-              x: "96%"
-              y: "19%"
-              size: 25
-              anchor: rt
+              x: "5%"
+              y: "22%"
+              size: 22
               color: blue
             - type: icon
               value: >-
@@ -194,8 +195,8 @@ automation:
               color: black
             - type: icon
               value: mdi:snowflake
-              x: "62%"
-              y: "19%"
+              x: "42%"
+              y: "22%"
               size: 24
               color: blue
               visible: >-
