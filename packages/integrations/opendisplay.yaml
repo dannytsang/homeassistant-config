@@ -26,10 +26,6 @@ automation:
           - sensor.growatt_sph_load_energy
           - sensor.growatt_sph_grid_energy_out
           - sensor.growatt_sph_battery_state_of_charge
-          - sensor.growatt_sph_pv_power
-          - sensor.growatt_sph_load_power
-          - sensor.open_display_solar_power_change
-          - sensor.open_display_home_power_change
         id: source_changed
     conditions: []
     actions:
@@ -294,91 +290,61 @@ automation:
               size: 42
               color: blue
             - type: text
-              value: "TODAY · kW SOLAR / HOME"
+              value: >-
+                {% set value = states('sensor.growatt_sph_pv_energy') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
+              y: "66%"
+              size: 38
+              color: green
+            - type: icon
+              value: mdi:solar-power
               x: "72%"
-              y: "63%"
-              size: 20
+              y: "65%"
+              size: 42
+              color: green
+            - type: text
+              value: >-
+                {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_load_energy', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
+              y: "73%"
+              size: 38
+              color: blue
+            - type: icon
+              value: mdi:home-lightning-bolt
+              x: "72%"
+              y: "72%"
+              size: 42
               color: black
-            - type: plot
-              x_start: "72%"
-              y_start: "66%"
-              x_end: "95%"
-              y_end: "81%"
-              duration: 86400
-              low: 0
-              round_values: true
-              size: 16
-              ylegend:
-                color: black
-                position: left
-                size: 16
-              yaxis:
-                width: 1
-                color: black
-                grid: 3
-                grid_color: black
-                grid_style: dotted
-              xlegend:
-                format: "%H"
-                interval: 21600
-                snap_to_hours: true
-                color: black
-                position: bottom
-                size: 16
-              xaxis:
-                width: 1
-                color: black
-                grid: false
-              data:
-                - entity: sensor.growatt_sph_pv_power
-                  color: green
-                  width: 3
-                  smooth: true
-                  value_scale: 0.001
-                - entity: sensor.growatt_sph_load_power
-                  color: blue
-                  width: 3
-                  smooth: true
-                  value_scale: 0.001
             - type: text
-              value: "SOLAR"
+              value: >-
+                {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_grid_energy_out', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
+              y: "80%"
+              size: 38
+              color: black
+            - type: icon
+              value: mdi:transmission-tower
               x: "72%"
-              y: "83%"
-              size: 16
-              color: green
-            - type: icon
-              value: >-
-                {% set change = states('sensor.open_display_solar_power_change') | float(0) %}
-                {{ 'mdi:arrow-up' if change > 100 else 'mdi:arrow-down' if change < -100 else 'mdi:arrow-right' }}
-              x: "80%"
-              y: "83%"
-              size: 18
-              color: green
-            - type: text
-              value: "HOME"
-              x: "84%"
-              y: "83%"
-              size: 16
-              color: blue
-            - type: icon
-              value: >-
-                {% set change = states('sensor.open_display_home_power_change') | float(0) %}
-                {{ 'mdi:arrow-up' if change > 100 else 'mdi:arrow-down' if change < -100 else 'mdi:arrow-right' }}
-              x: "92%"
-              y: "83%"
-              size: 18
-              color: blue
+              y: "79%"
+              size: 42
+              color: black
             - type: icon
               value: mdi:battery
               x: "72%"
-              y: "89%"
+              y: "87%"
               size: 42
               color: yellow
             - type: progress_bar
               x_start: "77%"
               x_end: "95%"
-              y_start: "89%"
-              y_end: "93%"
+              y_start: "88%"
+              y_end: "92%"
               progress: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) }}"
               fill: yellow
               background: white
@@ -387,23 +353,3 @@ automation:
               show_percentage: true
     mode: single
     max_exceeded: silent
-
-sensor:
-  - platform: statistics
-    name: "OpenDisplay Solar Power Change"
-    unique_id: 7bb7e291-710b-40f1-acb6-9c795ba65202
-    entity_id: sensor.growatt_sph_pv_power
-    state_characteristic: change
-    max_age:
-      minutes: 30
-    sampling_size: 60
-    precision: 0
-  - platform: statistics
-    name: "OpenDisplay Home Power Change"
-    unique_id: 41fbbe90-37e6-44af-bd28-8c66a621794d
-    entity_id: sensor.growatt_sph_load_power
-    state_characteristic: change
-    max_age:
-      minutes: 30
-    sampling_size: 60
-    precision: 0
