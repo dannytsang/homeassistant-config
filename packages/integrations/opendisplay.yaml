@@ -38,6 +38,12 @@ automation:
           start_date_time: "{{ now().isoformat() }}"
           duration: "72:00:00"
         response_variable: calendars
+      - action: weather.get_forecasts
+        target:
+          entity_id: weather.home
+        data:
+          type: daily
+        response_variable: forecasts
       - action: opendisplay.drawcustom
         target:
           device_id: 662305b757f9b07a501f19d4f34c723b
@@ -71,9 +77,9 @@ automation:
                   'windy-variant': 'weather-windy-variant'
                 } -%}
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
-              x: "68%"
+              x: "75%"
               y: "3%"
-              size: 115
+              size: 88
               color: accent
             - type: text
               value: >-
@@ -86,10 +92,19 @@ automation:
             - type: text
               value: "{{ states('weather.home') | replace('_', ' ') | title }}"
               x: "96%"
-              y: "22%"
-              size: 40
+              y: "16%"
+              size: 36
               anchor: rt
               color: black
+            - type: text
+              value: >-
+                {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
+                TOMORROW · {{ forecast[1].condition | replace('_', ' ') | title if forecast | count > 1 else '—' }} · {{ forecast[1].temperature | float(0) | round(0) | int if forecast | count > 1 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
+              x: "96%"
+              y: "23%"
+              size: 30
+              anchor: rt
+              color: accent
             - type: line
               x_start: "5%"
               x_end: "95%"
@@ -97,45 +112,31 @@ automation:
               y_end: "29%"
               width: 4
               fill: black
-            - type: text
-              value: "HOME STATUS"
+            - type: icon
+              value: "{{ 'mdi:lock' if is_state('lock.front_door', 'locked') else 'mdi:lock-open-variant' }}"
               x: "5%"
               y: "33%"
-              size: 42
-              color: accent
-            - type: text
+              size: 78
+              color: "{{ 'black' if is_state('lock.front_door', 'locked') else 'accent' }}"
+            - type: icon
               value: >-
-                FRONT DOOR · {{ states('lock.front_door') | replace('_', ' ') | title }}
-              x: "5%"
-              y: "40%"
-              size: 42
-              color: black
-            - type: text
-              value: >-
-                ALARM · {{ states('alarm_control_panel.house_alarm') | replace('_', ' ') | title }}
-              x: "5%"
-              y: "47%"
-              size: 42
-              color: black
-            - type: text
-              value: "HEATING"
+                {{ 'mdi:shield-lock' if states('alarm_control_panel.house_alarm').startswith('armed') else 'mdi:shield-check' }}
+              x: "18%"
+              y: "33%"
+              size: 78
+              color: "{{ 'accent' if states('alarm_control_panel.house_alarm').startswith('armed') else 'black' }}"
+            - type: icon
+              value: mdi:radiator
               x: "52%"
               y: "33%"
-              size: 42
-              color: accent
+              size: 72
+              color: "{{ 'accent' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'black' }}"
             - type: text
               value: >-
-                NOW · {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "52%"
-              y: "40%"
-              size: 42
-              color: black
-            - type: text
-              value: >-
-                TARGET · {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "52%"
-              y: "47%"
-              size: 42
+                {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }} → {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+              x: "60%"
+              y: "39%"
+              size: 52
               color: black
             - type: line
               x_start: "5%"
@@ -176,7 +177,7 @@ automation:
               color: black
               parse_colors: true
             - type: text
-              value: "ENERGY TODAY"
+              value: "ENERGY"
               x: "72%"
               y: "58%"
               size: 42
@@ -185,35 +186,63 @@ automation:
               value: >-
                 {% set value = states('sensor.growatt_sph_pv_energy') | float(0) %}
                 {% set unit = state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') | default('kWh', true) %}
-                SOLAR · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
-              x: "72%"
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
               y: "66%"
               size: 38
               color: black
+            - type: icon
+              value: mdi:solar-power
+              x: "72%"
+              y: "65%"
+              size: 42
+              color: accent
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
                 {% set unit = state_attr('sensor.growatt_sph_load_energy', 'unit_of_measurement') | default('kWh', true) %}
-                HOME USE · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
-              x: "72%"
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
               y: "73%"
               size: 38
+              color: black
+            - type: icon
+              value: mdi:home-lightning-bolt
+              x: "72%"
+              y: "72%"
+              size: 42
               color: black
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
                 {% set unit = state_attr('sensor.growatt_sph_grid_energy_out', 'unit_of_measurement') | default('kWh', true) %}
-                EXPORTED · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
-              x: "72%"
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "77%"
               y: "80%"
               size: 38
               color: black
-            - type: text
-              value: >-
-                BATTERY · {{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%
+            - type: icon
+              value: mdi:transmission-tower
+              x: "72%"
+              y: "79%"
+              size: 42
+              color: black
+            - type: icon
+              value: mdi:battery
               x: "72%"
               y: "87%"
-              size: 38
-              color: black
+              size: 42
+              color: accent
+            - type: progress_bar
+              x_start: "77%"
+              x_end: "95%"
+              y_start: "88%"
+              y_end: "92%"
+              progress: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) }}"
+              fill: accent
+              background: white
+              outline: black
+              width: 2
+              show_percentage: true
     mode: single
     max_exceeded: silent

@@ -9,15 +9,15 @@
 The display shows:
 
 - Current local date and time.
-- The condition and temperature from `weather.home`.
-- Front-door lock and house-alarm state.
-- Current and target temperatures from `climate.hive_receiver_heat`.
+- Current weather plus tomorrow's daily forecast from `weather.home`.
+- Icon-based front-door, house-alarm, and heating status.
+- A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
 - The next five events across the family and children calendars, grouped by date with each event's time and title.
 - Today's solar generation, household consumption, grid export, and home-battery state of charge.
 
-The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. Weather and section labels use the display accent colour; energy totals use kWh.
+The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. Weather and section labels use the display accent colour; energy totals use kWh and the battery is shown as a charge gauge.
 
-The display refreshes when Home Assistant starts, every 30 minutes, and when the weather or either calendar's active-event state changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
+The display refreshes when Home Assistant starts, every 30 minutes, and when any displayed source changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
 ## Technical Reference
 
@@ -30,7 +30,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when the
 | Dependency | Purpose |
 |------------|---------|
 | OpenDisplay custom integration | Provides the `opendisplay.drawcustom` action and display device target. |
-| `weather.home` | Current weather condition, temperature, and temperature unit. |
+| `weather.home` | Current weather condition, temperature, unit, and tomorrow's daily forecast. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
