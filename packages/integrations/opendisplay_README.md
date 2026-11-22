@@ -9,7 +9,7 @@
 The display shows:
 
 - A `HOUSE OF TSANG` title and local brand logo, today's date, a lightweight active-event label beneath it when needed, and a small `LAST UPDATED` timestamp at the lower right.
-- Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
+- Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon and a snowflake alert at 3°C or below, from `weather.home`.
 - Compact, colour-coded front-door, house-alarm, people-home, active-light, and heating status icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
 - The next five family and children events, grouped by date with each event's time and title; active events appear separately under today's date with their start time.
