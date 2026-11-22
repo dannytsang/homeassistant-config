@@ -27,6 +27,7 @@ automation:
           - calendar.tsang_children
           - lock.front_door
           - alarm_control_panel.house_alarm
+          - binary_sensor.external_doors_and_windows
           - climate.hive_receiver_heat
           - sensor.growatt_sph_pv_energy
           - sensor.growatt_sph_load_energy
@@ -367,50 +368,76 @@ automation:
               size: 24
               color: green
             - type: icon
+              value: "{{ 'mdi:door-open' if is_state('binary_sensor.external_doors_and_windows', 'on') else 'mdi:door-closed' }}"
+              x: "23%"
+              y: "33%"
+              size: 55
+              color: "{{ 'red' if is_state('binary_sensor.external_doors_and_windows', 'on') else 'green' }}"
+            - type: text
+              value: >-
+                {% set entries = state_attr('binary_sensor.external_doors_and_windows', 'entity_id') | default([], true) %}
+                {% set openings = namespace(count=0) %}
+                {% for entity in entries %}
+                  {% if is_state(entity, 'on') %}
+                    {% set openings.count = openings.count + 1 %}
+                  {% endif %}
+                {% endfor %}
+                {{ openings.count }}
+              x: "28%"
+              y: "35%"
+              size: 28
+              color: "{{ 'red' if is_state('binary_sensor.external_doors_and_windows', 'on') else 'green' }}"
+            - type: text
+              value: "OPEN"
+              x: "23%"
+              y: "42%"
+              size: 20
+              color: "{{ 'red' if is_state('binary_sensor.external_doors_and_windows', 'on') else 'green' }}"
+            - type: icon
               value: mdi:account-multiple
-              x: "25%"
+              x: "32%"
               y: "33%"
               size: 55
               color: "{{ 'green' if states.person | selectattr('state', 'eq', 'home') | list | count else 'black' }}"
             - type: text
               value: "{{ states.person | selectattr('state', 'eq', 'home') | list | count }}"
-              x: "30%"
+              x: "37%"
               y: "35%"
               size: 28
               color: blue
             - type: text
               value: "HOME"
-              x: "25%"
+              x: "32%"
               y: "42%"
               size: 20
               color: green
             - type: icon
               value: mdi:lightbulb
-              x: "36.9%"
+              x: "40.9%"
               y: "32.9%"
               size: 55
               color: black
             - type: icon
               value: mdi:lightbulb
-              x: "37.1%"
+              x: "41.1%"
               y: "33.1%"
               size: 55
               color: black
             - type: icon
               value: mdi:lightbulb
-              x: "37%"
+              x: "41%"
               y: "33%"
               size: 55
               color: "{{ 'yellow' if states.light | selectattr('state', 'eq', 'on') | list | count else 'black' }}"
             - type: text
               value: "{{ states.light | selectattr('state', 'eq', 'on') | list | count }}"
-              x: "42%"
+              x: "46%"
               y: "35%"
               size: 28
               color: blue
             - type: text
               value: "LIGHTS"
-              x: "37%"
+              x: "41%"
               y: "42%"
               size: 20
               color: black

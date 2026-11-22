@@ -10,7 +10,7 @@ The display shows:
 
 - The local House of Tsang brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
 - Current weather with condition-aware icon colouring, wind speed, and today's high/low temperatures, plus an outlined three-day forecast strip with condition icons, abbreviated dates, and high/low values, from `weather.home`.
-- Compact, colour-coded front-door, house-alarm, people-home, active-light, and heating status icons with concise labels.
+- Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, active-light, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next five family and children events grouped by blue date headings with each event's time and title; concurrent active events appear together under their date heading in one red outline box.
 - Today's solar generation, household consumption, grid export, and home-battery state of charge, with live solar, battery, and grid-flow arrows, compact 24-hour history lines, and numeric peak labels for the energy flows.
@@ -35,6 +35,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
+| `binary_sensor.external_doors_and_windows` | Open count and red/green status for external doors, windows, and entrances. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
 | Growatt SPH energy sensors plus grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour energy-flow charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
