@@ -9,13 +9,13 @@
 The display shows:
 
 - A small `LAST UPDATED` timestamp beneath the dashboard title.
-- Current weather plus tomorrow's daily forecast from `weather.home`.
+- Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
 - Colour-coded front-door, house-alarm, and heating icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
 - The next five events across the family and children calendars, grouped by date with each event's time and title.
-- Today's solar generation, household consumption, grid export, and home-battery state of charge.
+- A 24-hour solar-generation versus household-consumption power graph and home-battery state of charge.
 
-The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather and battery level. Energy totals use kWh and the battery is shown as a yellow charge gauge.
+The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather and battery level. The energy graph is plotted in kW, with green for solar generation and blue for household demand.
 
 The display refreshes when Home Assistant starts, every 30 minutes, and when any displayed source changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
@@ -30,12 +30,13 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | Dependency | Purpose |
 |------------|---------|
 | OpenDisplay custom integration | Provides the `opendisplay.drawcustom` action and display device target. |
-| `weather.home` | Current weather condition, temperature, unit, and tomorrow's daily forecast. |
+| `weather.home` | Current weather condition, temperature, unit, and daily high/low forecasts. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH daily energy sensors | Solar generation, household use, grid export, and battery state of charge. |
+| Growatt SPH power sensors | 24-hour solar-generation and household-consumption graph. |
+| Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting
 
