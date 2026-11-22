@@ -36,6 +36,7 @@ automation:
           - sensor.growatt_sph_load_power
           - sensor.open_display_solar_energy_change
           - sensor.open_display_home_energy_change
+          - sensor.open_display_grid_export_change
           - sensor.open_display_battery_soc_change
         id: source_changed
     conditions: []
@@ -326,26 +327,26 @@ automation:
             - type: text
               value: >-
                 {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "62%"
+              x: "53%"
               y: "42%"
               size: 34
               color: black
             - type: icon
               value: mdi:thermometer
-              x: "60%"
+              x: "51%"
               y: "42%"
               size: 24
               color: black
             - type: icon
               value: mdi:target
-              x: "72%"
+              x: "60%"
               y: "42%"
               size: 24
               color: black
             - type: text
               value: >-
                 {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "74%"
+              x: "62%"
               y: "42%"
               size: 34
               color: black
@@ -454,7 +455,7 @@ automation:
               value: >-
                 {% set change = states('sensor.open_display_solar_energy_change') | float(0) %}
                 {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
-              x: "92%"
+              x: "75%"
               y: "60%"
               size: 34
               color: green
@@ -489,7 +490,7 @@ automation:
               value: >-
                 {% set change = states('sensor.open_display_home_energy_change') | float(0) %}
                 {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
-              x: "92%"
+              x: "75%"
               y: "70%"
               size: 34
               color: blue
@@ -519,6 +520,14 @@ automation:
               x: "72%"
               y: "79%"
               size: 42
+              color: black
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_grid_export_change') | float(0) %}
+                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
+              x: "75%"
+              y: "80%"
+              size: 34
               color: black
             - type: plot
               x_start: "77%"
@@ -599,6 +608,15 @@ sensor:
     name: "OpenDisplay Home Energy Change"
     unique_id: c490e90e-96b3-4cf4-bebf-d4605a227079
     entity_id: sensor.growatt_sph_load_energy
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 2
+  - platform: statistics
+    name: "OpenDisplay Grid Export Change"
+    unique_id: 629dbfd9-603f-40bc-8ce7-2e9cf6f9dbb8
+    entity_id: sensor.growatt_sph_grid_energy_out
     state_characteristic: change
     max_age:
       minutes: 30

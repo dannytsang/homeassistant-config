@@ -13,7 +13,7 @@ The display shows:
 - Compact, colour-coded front-door, house-alarm, people-home, active-light, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next five family and children events grouped by blue date headings with each event's time and title; concurrent active events appear together under their date heading in one red outline box.
-- Today's solar generation, household consumption, grid export, and home-battery state of charge, with 30-minute trend arrows and compact 24-hour history lines for the energy flows.
+- Today's solar generation, household consumption, grid export, and home-battery state of charge, with aligned 30-minute trend arrows and compact 24-hour history lines for the energy flows.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather, active lights, and battery level, with black edging on yellow status icons. Energy totals use kWh and the battery is shown as a yellow charge gauge.
 
@@ -36,7 +36,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH energy and power sensors | Daily solar generation, household use, grid export, battery state of charge, and 24-hour energy-flow charts; local statistics sensors derive 30-minute trend arrows for solar, household use, and battery charge. |
+| Growatt SPH energy and power sensors | Daily solar generation, household use, grid export, battery state of charge, and 24-hour energy-flow charts; local statistics sensors derive 30-minute trend arrows for solar, household use, grid export, and battery charge. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting
