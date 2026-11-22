@@ -3,8 +3,8 @@ automation:
   - id: "1769277054493"
     alias: "OpenDisplay: Home Summary"
     description: >-
-      Shows current weather and the next family and children calendar events on
-      the OpenDisplay e-paper display.
+      Shows household status, weather, calendar, climate, and daily energy data
+      on the OpenDisplay e-paper display.
     trace:
       stored_traces: 10
     triggers:
@@ -19,6 +19,13 @@ automation:
           - weather.home
           - calendar.family
           - calendar.tsang_children
+          - lock.front_door
+          - alarm_control_panel.house_alarm
+          - climate.hive_receiver_heat
+          - sensor.growatt_sph_pv_energy
+          - sensor.growatt_sph_load_energy
+          - sensor.growatt_sph_grid_energy_out
+          - sensor.growatt_sph_battery_state_of_charge
         id: source_changed
     conditions: []
     actions:
@@ -42,7 +49,7 @@ automation:
             - type: text
               value: "HOME · {{ now().strftime('%a %-d %b · %H:%M') }}"
               x: "5%"
-              y: "5%"
+              y: "4%"
               size: 60
               color: black
             - type: icon
@@ -64,133 +71,149 @@ automation:
                   'windy-variant': 'weather-windy-variant'
                 } -%}
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
-              x: "78%"
-              y: "5%"
-              size: 120
+              x: "68%"
+              y: "3%"
+              size: 115
               color: accent
             - type: text
               value: >-
-                {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}°{{ state_attr('weather.home', 'temperature_unit') | default('C', true) }}
+                {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
               x: "96%"
-              y: "7%"
-              size: 100
+              y: "5%"
+              size: 92
               anchor: rt
               color: black
             - type: text
               value: "{{ states('weather.home') | replace('_', ' ') | title }}"
               x: "96%"
-              y: "28%"
-              size: 44
+              y: "22%"
+              size: 40
               anchor: rt
               color: black
             - type: line
               x_start: "5%"
               x_end: "95%"
-              y_start: "35%"
-              y_end: "35%"
+              y_start: "29%"
+              y_end: "29%"
+              width: 4
+              fill: black
+            - type: text
+              value: "HOME STATUS"
+              x: "5%"
+              y: "33%"
+              size: 42
+              color: accent
+            - type: text
+              value: >-
+                FRONT DOOR · {{ states('lock.front_door') | replace('_', ' ') | title }}
+              x: "5%"
+              y: "40%"
+              size: 42
+              color: black
+            - type: text
+              value: >-
+                ALARM · {{ states('alarm_control_panel.house_alarm') | replace('_', ' ') | title }}
+              x: "5%"
+              y: "47%"
+              size: 42
+              color: black
+            - type: text
+              value: "HEATING"
+              x: "52%"
+              y: "33%"
+              size: 42
+              color: accent
+            - type: text
+              value: >-
+                NOW · {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+              x: "52%"
+              y: "40%"
+              size: 42
+              color: black
+            - type: text
+              value: >-
+                TARGET · {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+              x: "52%"
+              y: "47%"
+              size: 42
+              color: black
+            - type: line
+              x_start: "5%"
+              x_end: "95%"
+              y_start: "54%"
+              y_end: "54%"
               width: 4
               fill: black
             - type: text
               value: "UP NEXT"
               x: "5%"
-              y: "42%"
+              y: "58%"
               size: 48
+              color: accent
+            - type: multiline
+              value: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set events = (family + children) | sort(attribute='start') -%}
+                {%- set agenda = namespace(last_date='', lines=[]) -%}
+                {%- for event in events[:5] -%}
+                  {%- set start = event.start | string -%}
+                  {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
+                  {%- if event_date != agenda.last_date -%}
+                    {%- set agenda.lines = agenda.lines + ['[accent]' ~ event_date ~ '[/accent]'] -%}
+                    {%- set agenda.last_date = event_date -%}
+                  {%- endif -%}
+                  {%- set event_time = as_datetime(start).strftime('%H:%M') if 'T' in start else 'All day' -%}
+                  {%- set summary = event.summary | default('Untitled event', true) | truncate(26, true, '…') -%}
+                  {%- set agenda.lines = agenda.lines + [event_time ~ ' · ' ~ summary] -%}
+                {%- endfor -%}
+                {{ agenda.lines | join('|') if agenda.lines else 'No upcoming events' }}
+              delimiter: "|"
+              x: "5%"
+              y: "66%"
+              offset_y: 48
+              size: 40
+              color: black
+              parse_colors: true
+            - type: text
+              value: "ENERGY TODAY"
+              x: "72%"
+              y: "58%"
+              size: 42
               color: accent
             - type: text
               value: >-
-                {% set events = calendars['calendar.family'].events | default([], true) %}
-                {% if events | count > 0 %}
-                  {% set event = events[0] %}
-                  {% set start = event.start | string %}
-                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  FAMILY · No upcoming events
-                {% endif %}
-              x: "5%"
-              y: "51%"
-              size: 50
+                {% set value = states('sensor.growatt_sph_pv_energy') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') | default('kWh', true) %}
+                SOLAR · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "72%"
+              y: "66%"
+              size: 38
               color: black
-              truncate: true
-              max_width: 1080
             - type: text
               value: >-
-                {% set events = calendars['calendar.family'].events | default([], true) %}
-                {% if events | count > 1 %}
-                  {% set event = events[1] %}
-                  {% set start = event.start | string %}
-                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  FAMILY · No further events
-                {% endif %}
-              x: "5%"
-              y: "59%"
-              size: 50
+                {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_load_energy', 'unit_of_measurement') | default('kWh', true) %}
+                HOME USE · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "72%"
+              y: "73%"
+              size: 38
               color: black
-              truncate: true
-              max_width: 1080
             - type: text
               value: >-
-                {% set events = calendars['calendar.family'].events | default([], true) %}
-                {% if events | count > 2 %}
-                  {% set event = events[2] %}
-                  {% set start = event.start | string %}
-                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  FAMILY · No further events
-                {% endif %}
-              x: "5%"
-              y: "67%"
-              size: 50
+                {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_grid_energy_out', 'unit_of_measurement') | default('kWh', true) %}
+                EXPORTED · {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
+              x: "72%"
+              y: "80%"
+              size: 38
               color: black
-              truncate: true
-              max_width: 1080
             - type: text
               value: >-
-                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
-                {% if events | count > 0 %}
-                  {% set event = events[0] %}
-                  {% set start = event.start | string %}
-                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  CHILDREN · No upcoming events
-                {% endif %}
-              x: "5%"
-              y: "75%"
-              size: 50
+                BATTERY · {{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%
+              x: "72%"
+              y: "87%"
+              size: 38
               color: black
-              truncate: true
-              max_width: 1080
-            - type: text
-              value: >-
-                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
-                {% if events | count > 1 %}
-                  {% set event = events[1] %}
-                  {% set start = event.start | string %}
-                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  CHILDREN · No further events
-                {% endif %}
-              x: "5%"
-              y: "83%"
-              size: 50
-              color: black
-              truncate: true
-              max_width: 1080
-            - type: text
-              value: >-
-                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
-                {% if events | count > 2 %}
-                  {% set event = events[2] %}
-                  {% set start = event.start | string %}
-                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
-                {% else %}
-                  CHILDREN · No further events
-                {% endif %}
-              x: "5%"
-              y: "91%"
-              size: 50
-              color: black
-              truncate: true
-              max_width: 1080
     mode: single
     max_exceeded: silent

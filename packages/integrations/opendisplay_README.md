@@ -10,10 +10,12 @@ The display shows:
 
 - Current local date and time.
 - The condition and temperature from `weather.home`.
-- Up to three events in the next 72 hours from `calendar.family`.
-- Up to three events in the next 72 hours from `calendar.tsang_children`.
+- Front-door lock and house-alarm state.
+- Current and target temperatures from `climate.hive_receiver_heat`.
+- The next five events across the family and children calendars, grouped by date with each event's time and title.
+- Today's solar generation, household consumption, grid export, and home-battery state of charge.
 
-The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting, and uses the display accent colour for weather and section labels.
+The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. Weather and section labels use the display accent colour; energy totals use kWh.
 
 The display refreshes when Home Assistant starts, every 30 minutes, and when the weather or either calendar's active-event state changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
@@ -21,7 +23,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when the
 
 | Automation | ID | Trigger | Action |
 |------------|----|---------|--------|
-| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or source state changes | Gets the next 72 hours of calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
+| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a displayed source changes | Gets the next 72 hours of calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
 
 ### Dependencies
 
@@ -31,6 +33,9 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when the
 | `weather.home` | Current weather condition, temperature, and temperature unit. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
+| `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
+| `climate.hive_receiver_heat` | Current and target heating temperatures. |
+| Growatt SPH daily energy sensors | Solar generation, household use, grid export, and battery state of charge. |
 
 ## Troubleshooting
 
