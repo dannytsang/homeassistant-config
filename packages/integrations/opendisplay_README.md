@@ -31,7 +31,8 @@ The display refreshes when Home Assistant starts, every 30 minutes, or when the 
 |------------|---------|
 | OpenDisplay custom integration | Provides the `opendisplay.drawcustom` action and display device target. |
 | `media/house-of-tsang-logo.png` | Transparent local logo rendered beside the title. |
-| `weather.home` | Current weather condition, temperature, unit, and daily high/low forecasts. |
+| `weather.home` | Current weather condition, unit, and daily high/low forecasts. |
+| `sensor.gw2000a_outdoor_temperature` | Top-right current outdoor temperature and unit. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
