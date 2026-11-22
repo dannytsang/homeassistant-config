@@ -525,10 +525,8 @@ automation:
                   {%- set agenda.lines = agenda.lines + ['[blue]' ~ active_date ~ '[/blue]'] -%}
                   {%- for event in active.events -%}
                     {%- set active_start = event.start | string -%}
-                    {%- set active_end = event.end | string -%}
-                    {%- set active_time = as_datetime(active_start).strftime('%H:%M') ~ '-' ~ as_datetime(active_end).strftime('%H:%M') if 'T' in active_start and 'T' in active_end else 'All day' -%}
-                    {%- set active_summary = event.summary | default('Current event', true) | truncate(30, true, '…') -%}
-                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · *[/red]'] -%}
+                    {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
+                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ '[/red]'] -%}
                   {%- endfor -%}
                   {%- set agenda.last_date = active_date -%}
                 {%- endif -%}
@@ -540,16 +538,99 @@ automation:
                       {%- set agenda.lines = agenda.lines + ['[blue]' ~ event_date ~ '[/blue]'] -%}
                       {%- set agenda.last_date = event_date -%}
                     {%- endif -%}
-                    {%- set end = event.end | string -%}
-                    {%- set event_time = as_datetime(start).strftime('%H:%M') ~ '-' ~ as_datetime(end).strftime('%H:%M') if 'T' in start and 'T' in end else 'All day' -%}
-                    {%- set summary = event.summary | default('Untitled event', true) | truncate(32, true, '…') -%}
-                    {%- set agenda.lines = agenda.lines + [event_time ~ ' · ' ~ summary] -%}
+                    {%- set agenda.lines = agenda.lines + [as_datetime(start).strftime('%H:%M') if 'T' in start else 'All day'] -%}
                     {%- set agenda.count = agenda.count + 1 -%}
                   {%- endif -%}
                 {%- endfor -%}
                 {{ agenda.lines | join('|') if agenda.lines else 'No upcoming events' }}
               delimiter: "|"
               x: "5.4%"
+              y: "58%"
+              offset_y: 48
+              size: 34
+              color: black
+              parse_colors: true
+            - type: multiline
+              value: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set events = (family + children) | sort(attribute='start') -%}
+                {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
+                {%- set active = namespace(events=[]) -%}
+                {%- for event in events -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.events = active.events + [event] -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if active.events -%}
+                  {%- set active_date = as_datetime(active.events[0].start).strftime('%A %-d %B') -%}
+                  {%- set agenda.lines = agenda.lines + [''] -%}
+                  {%- for event in active.events -%}
+                    {%- set active_start = event.start | string -%}
+                    {%- set active_end = event.end | string -%}
+                    {%- set active_end_time = as_datetime(active_end).strftime('%H:%M') if 'T' in active_start and 'T' in active_end else '' -%}
+                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_end_time ~ '[/red]'] -%}
+                  {%- endfor -%}
+                  {%- set agenda.last_date = active_date -%}
+                {%- endif -%}
+                {%- for event in events -%}
+                  {%- set start = event.start | string -%}
+                  {%- if as_datetime(start) >= now() and agenda.count < 8 -%}
+                    {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
+                    {%- if event_date != agenda.last_date -%}
+                      {%- set agenda.lines = agenda.lines + [''] -%}
+                      {%- set agenda.last_date = event_date -%}
+                    {%- endif -%}
+                    {%- set end = event.end | string -%}
+                    {%- set agenda.lines = agenda.lines + [as_datetime(end).strftime('%H:%M') if 'T' in start and 'T' in end else ''] -%}
+                    {%- set agenda.count = agenda.count + 1 -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ agenda.lines | join('|') if agenda.lines else '' }}
+              delimiter: "|"
+              x: "13%"
+              y: "58%"
+              offset_y: 48
+              size: 34
+              color: black
+              parse_colors: true
+            - type: multiline
+              value: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set events = (family + children) | sort(attribute='start') -%}
+                {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
+                {%- set active = namespace(events=[]) -%}
+                {%- for event in events -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.events = active.events + [event] -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {%- if active.events -%}
+                  {%- set active_date = as_datetime(active.events[0].start).strftime('%A %-d %B') -%}
+                  {%- set agenda.lines = agenda.lines + [''] -%}
+                  {%- for event in active.events -%}
+                    {%- set active_summary = event.summary | default('Current event', true) | truncate(32, true, '…') -%}
+                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_summary ~ ' · *[/red]'] -%}
+                  {%- endfor -%}
+                  {%- set agenda.last_date = active_date -%}
+                {%- endif -%}
+                {%- for event in events -%}
+                  {%- set start = event.start | string -%}
+                  {%- if as_datetime(start) >= now() and agenda.count < 8 -%}
+                    {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
+                    {%- if event_date != agenda.last_date -%}
+                      {%- set agenda.lines = agenda.lines + [''] -%}
+                      {%- set agenda.last_date = event_date -%}
+                    {%- endif -%}
+                    {%- set summary = event.summary | default('Untitled event', true) | truncate(32, true, '…') -%}
+                    {%- set agenda.lines = agenda.lines + [summary] -%}
+                    {%- set agenda.count = agenda.count + 1 -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ agenda.lines | join('|') if agenda.lines else '' }}
+              delimiter: "|"
+              x: "21%"
               y: "58%"
               offset_y: 48
               size: 34
