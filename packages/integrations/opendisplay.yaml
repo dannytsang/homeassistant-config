@@ -28,6 +28,8 @@ automation:
           - sensor.growatt_sph_battery_state_of_charge
           - sensor.growatt_sph_pv_power
           - sensor.growatt_sph_load_power
+          - sensor.open_display_solar_power_change
+          - sensor.open_display_home_power_change
         id: source_changed
     conditions: []
     actions:
@@ -340,15 +342,31 @@ automation:
                   value_scale: 0.001
             - type: text
               value: "SOLAR"
-              x: "76%"
+              x: "72%"
               y: "83%"
               size: 16
               color: green
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_solar_power_change') | float(0) %}
+                {{ 'mdi:arrow-up' if change > 100 else 'mdi:arrow-down' if change < -100 else 'mdi:arrow-right' }}
+              x: "80%"
+              y: "83%"
+              size: 18
+              color: green
             - type: text
               value: "HOME"
-              x: "85%"
+              x: "84%"
               y: "83%"
               size: 16
+              color: blue
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_home_power_change') | float(0) %}
+                {{ 'mdi:arrow-up' if change > 100 else 'mdi:arrow-down' if change < -100 else 'mdi:arrow-right' }}
+              x: "92%"
+              y: "83%"
+              size: 18
               color: blue
             - type: icon
               value: mdi:battery
@@ -369,3 +387,23 @@ automation:
               show_percentage: true
     mode: single
     max_exceeded: silent
+
+sensor:
+  - platform: statistics
+    name: "OpenDisplay Solar Power Change"
+    unique_id: 7bb7e291-710b-40f1-acb6-9c795ba65202
+    entity_id: sensor.growatt_sph_pv_power
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 0
+  - platform: statistics
+    name: "OpenDisplay Home Power Change"
+    unique_id: 41fbbe90-37e6-44af-bd28-8c66a621794d
+    entity_id: sensor.growatt_sph_load_power
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 0
