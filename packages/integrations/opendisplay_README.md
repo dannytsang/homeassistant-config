@@ -17,13 +17,13 @@ The display shows:
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather, active lights, and battery level, with black edging on yellow status icons. Energy totals use kWh and the battery is shown as a yellow charge gauge.
 
-The display refreshes when Home Assistant starts, every 30 minutes, and when any displayed source changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
+The display refreshes when Home Assistant starts, every 30 minutes, or when the people-home or active-light count changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
 ## Technical Reference
 
 | Automation | ID | Trigger | Action |
 |------------|----|---------|--------|
-| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a displayed source changes | Gets a time window covering current and next-72-hour calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
+| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a people-home/active-light count change | Gets a time window covering current and next-72-hour calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
 
 ### Dependencies
 
