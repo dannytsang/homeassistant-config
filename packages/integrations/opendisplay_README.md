@@ -37,7 +37,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `binary_sensor.external_doors_and_windows` | Open count and brown/green status for external doors, windows, and entrances. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH energy/power sensors plus grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour power charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
+| Growatt SPH energy/power sensors, `sensor.house_grid_import_power`, and grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour power charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting
