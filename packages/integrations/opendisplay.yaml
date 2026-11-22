@@ -53,11 +53,17 @@ automation:
           refresh_type: full
           payload:
             - type: text
-              value: "HOME · {{ now().strftime('%a %-d %b · %H:%M') }}"
+              value: "HOME"
               x: "5%"
               y: "4%"
               size: 60
               color: black
+            - type: text
+              value: "LAST UPDATED · {{ now().strftime('%a %-d %b · %H:%M') }}"
+              x: "5%"
+              y: "12%"
+              size: 24
+              color: blue
             - type: icon
               value: >-
                 {%- set icons = {
@@ -80,7 +86,7 @@ automation:
               x: "75%"
               y: "3%"
               size: 88
-              color: accent
+              color: yellow
             - type: text
               value: >-
                 {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
@@ -116,27 +122,51 @@ automation:
               value: "{{ 'mdi:lock' if is_state('lock.front_door', 'locked') else 'mdi:lock-open-variant' }}"
               x: "5%"
               y: "33%"
-              size: 78
-              color: "{{ 'black' if is_state('lock.front_door', 'locked') else 'accent' }}"
+              size: 62
+              color: "{{ 'blue' if is_state('lock.front_door', 'locked') else 'red' }}"
+            - type: text
+              value: "DOOR"
+              x: "5%"
+              y: "42%"
+              size: 24
+              color: blue
+            - type: text
+              value: "{{ states('lock.front_door') | replace('_', ' ') | title }}"
+              x: "5%"
+              y: "46%"
+              size: 24
+              color: "{{ 'blue' if is_state('lock.front_door', 'locked') else 'red' }}"
             - type: icon
               value: >-
                 {{ 'mdi:shield-lock' if states('alarm_control_panel.house_alarm').startswith('armed') else 'mdi:shield-check' }}
-              x: "18%"
+              x: "21%"
               y: "33%"
-              size: 78
-              color: "{{ 'accent' if states('alarm_control_panel.house_alarm').startswith('armed') else 'black' }}"
-            - type: icon
-              value: mdi:radiator
+              size: 62
+              color: "{{ 'red' if states('alarm_control_panel.house_alarm').startswith('armed') else 'green' }}"
+            - type: text
+              value: "ALARM"
+              x: "21%"
+              y: "42%"
+              size: 24
+              color: green
+            - type: text
+              value: "{{ states('alarm_control_panel.house_alarm') | replace('_', ' ') | title }}"
+              x: "21%"
+              y: "46%"
+              size: 24
+              color: "{{ 'red' if states('alarm_control_panel.house_alarm').startswith('armed') else 'green' }}"
+            - type: text
+              value: "HEATING"
               x: "52%"
-              y: "33%"
-              size: 72
-              color: "{{ 'accent' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'black' }}"
+              y: "34%"
+              size: 32
+              color: "{{ 'red' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'blue' }}"
             - type: text
               value: >-
-                {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }} → {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+                NOW {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }} / TARGET {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
               x: "60%"
               y: "39%"
-              size: 52
+              size: 42
               color: black
             - type: line
               x_start: "5%"
@@ -150,7 +180,7 @@ automation:
               x: "5%"
               y: "58%"
               size: 48
-              color: accent
+              color: blue
             - type: multiline
               value: >-
                 {%- set family = calendars['calendar.family'].events | default([], true) -%}
@@ -181,7 +211,7 @@ automation:
               x: "72%"
               y: "58%"
               size: 42
-              color: accent
+              color: yellow
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_pv_energy') | float(0) %}
@@ -190,7 +220,7 @@ automation:
               x: "77%"
               y: "66%"
               size: 38
-              color: black
+              color: green
             - type: icon
               value: mdi:solar-power
               x: "72%"
@@ -205,7 +235,7 @@ automation:
               x: "77%"
               y: "73%"
               size: 38
-              color: black
+              color: blue
             - type: icon
               value: mdi:home-lightning-bolt
               x: "72%"
@@ -232,14 +262,14 @@ automation:
               x: "72%"
               y: "87%"
               size: 42
-              color: accent
+              color: green
             - type: progress_bar
               x_start: "77%"
               x_end: "95%"
               y_start: "88%"
               y_end: "92%"
               progress: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) }}"
-              fill: accent
+              fill: green
               background: white
               outline: black
               width: 2
