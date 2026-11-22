@@ -399,11 +399,28 @@ automation:
               color: blue
             - type: line
               x_start: "5%"
-              x_end: "65%"
+              x_end: "61%"
               y_start: "33%"
               y_end: "33%"
               width: 4
               fill: black
+            - type: icon
+              value: mdi:spotify
+              x: "66%"
+              y: "33.2%"
+              size: 28
+              color: "{{ 'green' if is_state('media_player.spotify_danny', 'playing') else 'white' }}"
+            - type: text
+              value: >-
+                {% if is_state('media_player.spotify_danny', 'playing') %}
+                  {% set title = state_attr('media_player.spotify_danny', 'media_title') | default('Spotify', true) %}
+                  {% set artist = state_attr('media_player.spotify_danny', 'media_artist') | default('', true) %}
+                  {{ (title ~ (' · ' ~ artist if artist else '')) | truncate(31, true, '…') }}
+                {% endif %}
+              x: "68.5%"
+              y: "34%"
+              size: 20
+              color: black
             - type: icon
               value: "{{ 'mdi:lock' if is_state('lock.front_door', 'locked') else 'mdi:lock-open-variant' }}"
               x: "5%"

@@ -10,6 +10,7 @@ The display shows:
 
 - The local House of Tsang brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
 - Current weather with condition-aware icon colouring, wind speed, and today's high/low temperatures, plus an outlined four-day forecast strip with condition icons, abbreviated dates, and high/low values, from `weather.home`.
+- The currently playing Spotify track and artist beneath the forecast, when `media_player.spotify_danny` is playing.
 - Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next eight family and children events grouped by blue date headings, with aligned start-time, end-time, and title columns; concurrent active events appear together under their date heading in one red outline box.
@@ -33,6 +34,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, or when the 
 | `media/house-of-tsang-logo.png` | Transparent local logo rendered beside the title. |
 | `weather.home` | Current weather condition, unit, and daily high/low forecasts. |
 | `sensor.gw2000a_outdoor_temperature` | Top-right current outdoor temperature and unit. |
+| `media_player.spotify_danny` | Current Spotify track and artist, shown only while music is playing. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
