@@ -531,8 +531,9 @@ automation:
                   {%- set agenda.lines = agenda.lines + ['[blue]' ~ active_date ~ '[/blue]'] -%}
                   {%- for event in active.events -%}
                     {%- set active_start = event.start | string -%}
-                    {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
-                    {%- set active_summary = event.summary | default('Current event', true) | truncate(32, true, '…') -%}
+                    {%- set active_end = event.end | string -%}
+                    {%- set active_time = as_datetime(active_start).strftime('%H:%M') ~ '-' ~ as_datetime(active_end).strftime('%H:%M') if 'T' in active_start and 'T' in active_end else 'All day' -%}
+                    {%- set active_summary = event.summary | default('Current event', true) | truncate(25, true, '…') -%}
                     {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · *[/red]'] -%}
                   {%- endfor -%}
                   {%- set agenda.last_date = active_date -%}
@@ -545,8 +546,9 @@ automation:
                       {%- set agenda.lines = agenda.lines + ['[blue]' ~ event_date ~ '[/blue]'] -%}
                       {%- set agenda.last_date = event_date -%}
                     {%- endif -%}
-                    {%- set event_time = as_datetime(start).strftime('%H:%M') if 'T' in start else 'All day' -%}
-                    {%- set summary = event.summary | default('Untitled event', true) | truncate(32, true, '…') -%}
+                    {%- set end = event.end | string -%}
+                    {%- set event_time = as_datetime(start).strftime('%H:%M') ~ '-' ~ as_datetime(end).strftime('%H:%M') if 'T' in start and 'T' in end else 'All day' -%}
+                    {%- set summary = event.summary | default('Untitled event', true) | truncate(27, true, '…') -%}
                     {%- set agenda.lines = agenda.lines + [event_time ~ ' · ' ~ summary] -%}
                     {%- set agenda.count = agenda.count + 1 -%}
                   {%- endif -%}
