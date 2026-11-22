@@ -9,7 +9,7 @@
 The display shows:
 
 - The local House of Tsang brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
-- Current weather with condition-aware icon colouring, wind speed, and today's high/low temperatures, plus an outlined three-day forecast strip with condition icons, abbreviated dates, and high/low values, from `weather.home`.
+- Current weather with condition-aware icon colouring, wind speed, and today's high/low temperatures, plus an outlined four-day forecast strip with condition icons, abbreviated dates, and high/low values, from `weather.home`.
 - Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next eight family and children events grouped by blue date headings with each timed event's start/end range and title; concurrent active events appear together under their date heading in one red outline box.
