@@ -1,0 +1,127 @@
+# Created by Danny Tsang <danny@tsang.uk>
+automation:
+  - id: "1769277054493"
+    alias: "OpenDisplay: Home Summary"
+    description: >-
+      Shows current weather and the next family and children calendar events on
+      the OpenDisplay e-paper display.
+    trace:
+      stored_traces: 10
+    triggers:
+      - trigger: homeassistant
+        event: start
+        id: startup
+      - trigger: time_pattern
+        minutes: "/30"
+        id: scheduled_refresh
+      - trigger: state
+        entity_id:
+          - weather.home
+          - calendar.family
+          - calendar.tsang_children
+        id: source_changed
+    conditions: []
+    actions:
+      - action: calendar.get_events
+        target:
+          entity_id:
+            - calendar.family
+            - calendar.tsang_children
+        data:
+          start_date_time: "{{ now().isoformat() }}"
+          duration: "24:00:00"
+        response_variable: calendars
+      - action: opendisplay.drawcustom
+        target:
+          device_id: 662305b757f9b07a501f19d4f34c723b
+        data:
+          background: white
+          refresh_type: full
+          payload:
+            - type: text
+              value: "HOME · {{ now().strftime('%a %-d %b · %H:%M') }}"
+              x: "5%"
+              y: "5%"
+              size: 18
+              color: black
+            - type: icon
+              value: >-
+                {%- set icons = {
+                  'clear-night': 'weather-night',
+                  'cloudy': 'weather-cloudy',
+                  'fog': 'weather-fog',
+                  'hail': 'weather-hail',
+                  'lightning': 'weather-lightning',
+                  'lightning-rainy': 'weather-lightning-rainy',
+                  'partlycloudy': 'weather-partly-cloudy',
+                  'pouring': 'weather-pouring',
+                  'rainy': 'weather-rainy',
+                  'snowy': 'weather-snowy',
+                  'snowy-rainy': 'weather-snowy-rainy',
+                  'sunny': 'weather-sunny',
+                  'windy': 'weather-windy',
+                  'windy-variant': 'weather-windy-variant'
+                } -%}
+                mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
+              x: "78%"
+              y: "5%"
+              size: 28
+              color: accent
+            - type: text
+              value: >-
+                {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}°{{ state_attr('weather.home', 'temperature_unit') | default('C', true) }}
+              x: "96%"
+              y: "7%"
+              size: 22
+              anchor: rt
+              color: black
+            - type: text
+              value: "{{ states('weather.home') | replace('_', ' ') | title }}"
+              x: "96%"
+              y: "28%"
+              size: 13
+              anchor: rt
+              color: black
+            - type: line
+              x_start: "5%"
+              x_end: "95%"
+              y_start: "35%"
+              y_end: "35%"
+              width: 1
+              fill: black
+            - type: text
+              value: "UP NEXT"
+              x: "5%"
+              y: "42%"
+              size: 14
+              color: accent
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.family'].events | default([], true) %}
+                {% if events | count > 0 %}
+                  FAMILY · {{ events[0].summary | default('Untitled event', true) }}
+                {% else %}
+                  FAMILY · No upcoming events
+                {% endif %}
+              x: "5%"
+              y: "58%"
+              size: 16
+              color: black
+              truncate: true
+              max_width: 260
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
+                {% if events | count > 0 %}
+                  CHILDREN · {{ events[0].summary | default('Untitled event', true) }}
+                {% else %}
+                  CHILDREN · No upcoming events
+                {% endif %}
+              x: "5%"
+              y: "78%"
+              size: 16
+              color: black
+              truncate: true
+              max_width: 260
+    mode: single
+    max_exceeded: silent

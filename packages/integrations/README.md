@@ -10,8 +10,8 @@ Integration-specific configuration organized by functional domain. Each package 
 
 | Metric | Count |
 |--------|-------|
-| Integration YAML files | 44 |
-| Integration automations | 124 |
+| Integration YAML files | 45 |
+| Integration automations | 125 |
 | Integration scripts | 74 |
 | Integration sensors | 36 |
 | Integration template blocks | 30 |
@@ -61,6 +61,7 @@ Each package's README is its implementation guide. The source YAML is linked bes
 | **[Alexa](alexa.yaml)** | 2 scripts | [README](alexa_README.md) |
 | **[Chromecast](chromecast.yaml)** | 1 automation, 1 script | [README](chromecast_README.md) |
 | **[LG](lg.yaml)** | 4 automations | [README](lg_README.md) |
+| **[OpenDisplay](opendisplay.yaml)** | 1 automation | [README](opendisplay_README.md) |
 | **[Spotify](spotify.yaml)** | 1 automation | [README](spotify_README.md) |
 
 ## Household & Appliances

@@ -10,9 +10,9 @@ This directory contains Home Assistant configuration organized as [packages](htt
 
 | Metric | Count |
 |--------|-------|
-| Package YAML files | 70 |
+| Package YAML files | 71 |
 | Package README files | 66 |
-| Package automations | 372 |
+| Package automations | 373 |
 | Package scripts | 131 |
 | Package scenes | 65 |
 | Package sensors | 83 |
@@ -141,6 +141,7 @@ See [Integrations Overview](integrations/README.md) for detailed integration doc
 | [lg.yaml](integrations/lg.yaml) | LG WebOS TV monitoring | [README](integrations/lg_README.md) |
 | [n8n.yaml](integrations/n8n.yaml) | N8N workflow integration | [README](integrations/n8n_README.md) |
 | [nuki.yaml](integrations/nuki.yaml) | Nuki smart door lock | [README](integrations/nuki_README.md) |
+| [opendisplay.yaml](integrations/opendisplay.yaml) | E-paper household weather and calendar summary | [README](integrations/opendisplay_README.md) |
 | [owntracks.yaml](integrations/owntracks.yaml) | OwnTracks location publishing | [README](integrations/owntracks_README.md) |
 | [paperless.yaml](integrations/paperless.yaml) | Paperless-NGX document notifications | [README](integrations/paperless_README.md) |
 | [sftpgo.yaml](integrations/sftpgo.yaml) | SFTPGo file server commands | [README](integrations/sftpgo_README.md) |
