@@ -8,7 +8,7 @@
 
 The display shows:
 
-- Today's date, a lightweight active-event label beneath it when needed, and a small `LAST UPDATED` timestamp at the lower right.
+- A `HOUSE OF TSANG` title and local brand logo, today's date, a lightweight active-event label beneath it when needed, and a small `LAST UPDATED` timestamp at the lower right.
 - Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
 - Colour-coded front-door, house-alarm, and heating icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
@@ -30,6 +30,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | Dependency | Purpose |
 |------------|---------|
 | OpenDisplay custom integration | Provides the `opendisplay.drawcustom` action and display device target. |
+| `media/house-of-tsang-logo.png` | Transparent local logo rendered beside the title. |
 | `weather.home` | Current weather condition, temperature, unit, and daily high/low forecasts. |
 | `calendar.family` | Family event shown in the first agenda row. |
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
