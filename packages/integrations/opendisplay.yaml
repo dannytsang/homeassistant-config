@@ -32,6 +32,8 @@ automation:
           - sensor.growatt_sph_load_energy
           - sensor.growatt_sph_grid_energy_out
           - sensor.growatt_sph_battery_state_of_charge
+          - sensor.growatt_sph_pv_power
+          - sensor.growatt_sph_load_power
           - sensor.open_display_solar_energy_change
           - sensor.open_display_home_energy_change
           - sensor.open_display_battery_soc_change
@@ -73,6 +75,38 @@ automation:
               x: "5%"
               y: "17%"
               size: 25
+              color: black
+            - type: icon
+              value: >-
+                {%- set icons = {
+                  'clear-night': 'weather-night', 'cloudy': 'weather-cloudy',
+                  'fog': 'weather-fog', 'hail': 'weather-hail',
+                  'lightning': 'weather-lightning', 'lightning-rainy': 'weather-lightning-rainy',
+                  'partlycloudy': 'weather-partly-cloudy', 'pouring': 'weather-pouring',
+                  'rainy': 'weather-rainy', 'snowy': 'weather-snowy',
+                  'snowy-rainy': 'weather-snowy-rainy', 'sunny': 'weather-sunny',
+                  'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
+                } -%}
+                mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
+              x: "74.9%"
+              y: "2.9%"
+              size: 88
+              color: black
+            - type: icon
+              value: >-
+                {%- set icons = {
+                  'clear-night': 'weather-night', 'cloudy': 'weather-cloudy',
+                  'fog': 'weather-fog', 'hail': 'weather-hail',
+                  'lightning': 'weather-lightning', 'lightning-rainy': 'weather-lightning-rainy',
+                  'partlycloudy': 'weather-partly-cloudy', 'pouring': 'weather-pouring',
+                  'rainy': 'weather-rainy', 'snowy': 'weather-snowy',
+                  'snowy-rainy': 'weather-snowy-rainy', 'sunny': 'weather-sunny',
+                  'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
+                } -%}
+                mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
+              x: "75.1%"
+              y: "3.1%"
+              size: 88
               color: black
             - type: icon
               value: >-
@@ -122,6 +156,40 @@ automation:
               anchor: rt
               color: blue
             - type: icon
+              value: >-
+                {%- set icons = {
+                  'clear-night': 'weather-night', 'cloudy': 'weather-cloudy',
+                  'fog': 'weather-fog', 'hail': 'weather-hail',
+                  'lightning': 'weather-lightning', 'lightning-rainy': 'weather-lightning-rainy',
+                  'partlycloudy': 'weather-partly-cloudy', 'pouring': 'weather-pouring',
+                  'rainy': 'weather-rainy', 'snowy': 'weather-snowy',
+                  'snowy-rainy': 'weather-snowy-rainy', 'sunny': 'weather-sunny',
+                  'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
+                } -%}
+                {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
+                mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
+              x: "68.9%"
+              y: "20.9%"
+              size: 30
+              color: black
+            - type: icon
+              value: >-
+                {%- set icons = {
+                  'clear-night': 'weather-night', 'cloudy': 'weather-cloudy',
+                  'fog': 'weather-fog', 'hail': 'weather-hail',
+                  'lightning': 'weather-lightning', 'lightning-rainy': 'weather-lightning-rainy',
+                  'partlycloudy': 'weather-partly-cloudy', 'pouring': 'weather-pouring',
+                  'rainy': 'weather-rainy', 'snowy': 'weather-snowy',
+                  'snowy-rainy': 'weather-snowy-rainy', 'sunny': 'weather-sunny',
+                  'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
+                } -%}
+                {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
+                mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
+              x: "69.1%"
+              y: "21.1%"
+              size: 30
+              color: black
+            - type: icon
               value: mdi:snowflake
               x: "93%"
               y: "19%"
@@ -150,7 +218,7 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "64%"
+              x: "69%"
               y: "21%"
               size: 30
               color: yellow
@@ -284,15 +352,24 @@ automation:
             - type: line
               x_start: "5%"
               x_end: "95%"
-              y_start: "54%"
-              y_end: "54%"
+              y_start: "50%"
+              y_end: "50%"
               width: 4
               fill: black
             - type: rectangle
               x_start: "5%"
               x_end: "67%"
-              y_start: "60%"
-              y_end: "64.5%"
+              y_start: "60.5%"
+              y_end: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(count=0) -%}
+                {%- for event in family + children -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.count = active.count + 1 -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ 64.5 + ((active.count - 1) * 3) }}%
               fill: white
               outline: red
               width: 3
@@ -312,18 +389,22 @@ automation:
                 {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
                 {%- set events = (family + children) | sort(attribute='start') -%}
                 {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
-                {%- set active = namespace(event=none) -%}
+                {%- set active = namespace(events=[]) -%}
                 {%- for event in events -%}
-                  {%- if active.event is none and as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
-                    {%- set active.event = event -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.events = active.events + [event] -%}
                   {%- endif -%}
                 {%- endfor -%}
-                {%- if active.event -%}
-                  {%- set active_start = active.event.start | string -%}
+                {%- if active.events -%}
+                  {%- set active_start = active.events[0].start | string -%}
                   {%- set active_date = as_datetime(active_start).strftime('%A %-d %B') -%}
-                  {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
-                  {%- set active_summary = active.event.summary | default('Current event', true) | truncate(32, true, '…') -%}
-                  {%- set agenda.lines = agenda.lines + ['[blue]' ~ active_date ~ '[/blue]', '[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · IN PROGRESS[/red]'] -%}
+                  {%- set agenda.lines = agenda.lines + ['[blue]' ~ active_date ~ '[/blue]'] -%}
+                  {%- for event in active.events -%}
+                    {%- set active_start = event.start | string -%}
+                    {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
+                    {%- set active_summary = event.summary | default('Current event', true) | truncate(32, true, '…') -%}
+                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · IN PROGRESS[/red]'] -%}
+                  {%- endfor -%}
                   {%- set agenda.last_date = active_date -%}
                 {%- endif -%}
                 {%- for event in events -%}
@@ -344,14 +425,14 @@ automation:
               delimiter: "|"
               x: "5%"
               y: "58%"
-              offset_y: 44
+              offset_y: 48
               size: 34
               color: black
               parse_colors: true
             - type: text
               value: "ENERGY"
               x: "72%"
-              y: "58%"
+              y: "53%"
               size: 42
               color: blue
             - type: text
@@ -360,46 +441,70 @@ automation:
                 {% set unit = state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') | default('kWh', true) %}
                 {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
               x: "77%"
-              y: "66%"
-              size: 38
+              y: "60%"
+              size: 32
               color: green
             - type: icon
               value: mdi:solar-power
               x: "72%"
-              y: "65%"
+              y: "59%"
               size: 42
               color: green
             - type: icon
               value: >-
                 {% set change = states('sensor.open_display_solar_energy_change') | float(0) %}
-                {{ 'mdi:arrow-up' if change > 0.01 else 'mdi:arrow-down' if change < -0.01 else 'mdi:arrow-right' }}
+                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
               x: "92%"
-              y: "66%"
-              size: 24
+              y: "60%"
+              size: 34
               color: green
+            - type: plot
+              x_start: "77%"
+              y_start: "64%"
+              x_end: "95%"
+              y_end: "67%"
+              duration: 86400
+              low: 0
+              data:
+                - entity: sensor.growatt_sph_pv_power
+                  color: green
+                  width: 2
+                  smooth: true
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
                 {% set unit = state_attr('sensor.growatt_sph_load_energy', 'unit_of_measurement') | default('kWh', true) %}
                 {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
               x: "77%"
-              y: "73%"
-              size: 38
+              y: "70%"
+              size: 32
               color: blue
             - type: icon
               value: mdi:home-lightning-bolt
               x: "72%"
-              y: "72%"
+              y: "69%"
               size: 42
               color: black
             - type: icon
               value: >-
                 {% set change = states('sensor.open_display_home_energy_change') | float(0) %}
-                {{ 'mdi:arrow-up' if change > 0.01 else 'mdi:arrow-down' if change < -0.01 else 'mdi:arrow-right' }}
+                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
               x: "92%"
-              y: "73%"
-              size: 24
+              y: "70%"
+              size: 34
               color: blue
+            - type: plot
+              x_start: "77%"
+              y_start: "74%"
+              x_end: "95%"
+              y_end: "77%"
+              duration: 86400
+              low: 0
+              data:
+                - entity: sensor.growatt_sph_load_power
+                  color: blue
+                  width: 2
+                  smooth: true
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
@@ -407,7 +512,7 @@ automation:
                 {{ (value / 1000 if unit == 'Wh' else value) | round(1) }} kWh
               x: "77%"
               y: "80%"
-              size: 38
+              size: 32
               color: black
             - type: icon
               value: mdi:transmission-tower
@@ -415,37 +520,48 @@ automation:
               y: "79%"
               size: 42
               color: black
+            - type: plot
+              x_start: "77%"
+              y_start: "84%"
+              x_end: "95%"
+              y_end: "87%"
+              duration: 86400
+              low: 0
+              data:
+                - entity: sensor.growatt_sph_grid_energy_out
+                  color: black
+                  width: 2
             - type: icon
               value: mdi:battery
               x: "71.9%"
-              y: "86.9%"
+              y: "89.9%"
               size: 42
               color: black
             - type: icon
               value: mdi:battery
               x: "72.1%"
-              y: "87.1%"
+              y: "90.1%"
               size: 42
               color: black
             - type: icon
               value: mdi:battery
               x: "72%"
-              y: "87%"
+              y: "90%"
               size: 42
               color: yellow
             - type: icon
               value: >-
                 {% set change = states('sensor.open_display_battery_soc_change') | float(0) %}
-                {{ 'mdi:arrow-up' if change > 0.5 else 'mdi:arrow-down' if change < -0.5 else 'mdi:arrow-right' }}
-              x: "70%"
-              y: "87%"
-              size: 22
+                {{ 'mdi:arrow-up-bold' if change > 0.5 else 'mdi:arrow-down-bold' if change < -0.5 else 'mdi:arrow-right-bold' }}
+              x: "75%"
+              y: "90%"
+              size: 32
               color: black
             - type: progress_bar
               x_start: "77%"
               x_end: "95%"
-              y_start: "86%"
-              y_end: "90%"
+              y_start: "89%"
+              y_end: "93%"
               progress: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) }}"
               fill: yellow
               background: white
@@ -455,7 +571,7 @@ automation:
             - type: text
               value: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%"
               x: "86%"
-              y: "88%"
+              y: "91%"
               size: 24
               anchor: mm
               color: black
