@@ -71,7 +71,7 @@ automation:
             - type: text
               value: "{{ now().strftime('%A %-d %B') }}"
               x: "5%"
-              y: "15%"
+              y: "17%"
               size: 25
               color: black
             - type: icon
@@ -215,6 +215,18 @@ automation:
               color: green
             - type: icon
               value: mdi:lightbulb
+              x: "36.9%"
+              y: "32.9%"
+              size: 55
+              color: black
+            - type: icon
+              value: mdi:lightbulb
+              x: "37.1%"
+              y: "33.1%"
+              size: 55
+              color: black
+            - type: icon
+              value: mdi:lightbulb
               x: "37%"
               y: "33%"
               size: 55
@@ -276,6 +288,24 @@ automation:
               y_end: "54%"
               width: 4
               fill: black
+            - type: rectangle
+              x_start: "5%"
+              x_end: "67%"
+              y_start: "60%"
+              y_end: "64.5%"
+              fill: white
+              outline: red
+              width: 3
+              visible: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(found=false) -%}
+                {%- for event in family + children -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.found = true -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ 'true' if active.found else 'false' }}
             - type: multiline
               value: >-
                 {%- set family = calendars['calendar.family'].events | default([], true) -%}
@@ -318,23 +348,6 @@ automation:
               size: 34
               color: black
               parse_colors: true
-            - type: line
-              x_start: "5%"
-              x_end: "67%"
-              y_start: "64%"
-              y_end: "64%"
-              width: 3
-              fill: red
-              visible: >-
-                {%- set family = calendars['calendar.family'].events | default([], true) -%}
-                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
-                {%- set active = namespace(found=false) -%}
-                {%- for event in family + children -%}
-                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
-                    {%- set active.found = true -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                {{ 'true' if active.found else 'false' }}
             - type: text
               value: "ENERGY"
               x: "72%"
@@ -404,6 +417,18 @@ automation:
               color: black
             - type: icon
               value: mdi:battery
+              x: "71.9%"
+              y: "86.9%"
+              size: 42
+              color: black
+            - type: icon
+              value: mdi:battery
+              x: "72.1%"
+              y: "87.1%"
+              size: 42
+              color: black
+            - type: icon
+              value: mdi:battery
               x: "72%"
               y: "87%"
               size: 42
@@ -430,9 +455,9 @@ automation:
             - type: text
               value: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%"
               x: "86%"
-              y: "91%"
+              y: "88%"
               size: 24
-              anchor: mt
+              anchor: mm
               color: black
             - type: text
               value: "LAST UPDATED · {{ now().strftime('%a %-d %b · %H:%M') }}"
