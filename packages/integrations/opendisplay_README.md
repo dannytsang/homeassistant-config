@@ -8,12 +8,12 @@
 
 The display shows:
 
-- A `HOUSE OF TSANG` title and local brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
-- Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon and a snowflake alert at 3°C or below, from `weather.home`.
+- The local House of Tsang brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
+- Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon and a snowflake beside a forecast low of 3°C or below, from `weather.home`.
 - Compact, colour-coded front-door, house-alarm, people-home, active-light, and heating status icons with concise labels.
-- A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
-- The next five family and children events grouped by date with each event's time and title; an active event appears under its date heading with a red underline.
-- Today's solar generation, household consumption, grid export, and home-battery state of charge.
+- A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
+- The next five family and children events grouped by blue date headings with each event's time and title; an active event appears under its date heading with a red underline.
+- Today's solar generation, household consumption, grid export, and home-battery state of charge, each with a 30-minute trend arrow where applicable.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather and battery level. Energy totals use kWh and the battery is shown as a yellow charge gauge.
 
@@ -36,7 +36,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | `calendar.tsang_children` | Children's event shown in the second agenda row. |
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH daily energy sensors | Solar generation, household use, grid export, and battery state of charge. |
+| Growatt SPH daily energy sensors | Solar generation, household use, grid export, and battery state of charge; local statistics sensors derive 30-minute trend arrows for solar, household use, and battery charge. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting

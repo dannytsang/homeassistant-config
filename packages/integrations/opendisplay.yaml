@@ -32,6 +32,9 @@ automation:
           - sensor.growatt_sph_load_energy
           - sensor.growatt_sph_grid_energy_out
           - sensor.growatt_sph_battery_state_of_charge
+          - sensor.open_display_solar_energy_change
+          - sensor.open_display_home_energy_change
+          - sensor.open_display_battery_soc_change
         id: source_changed
     conditions: []
     actions:
@@ -58,23 +61,17 @@ automation:
           rotate: 270
           refresh_type: full
           payload:
-            - type: text
-              value: "HOUSE OF TSANG"
-              x: "5%"
-              y: "4%"
-              size: 50
-              color: black
             - type: dlimg
               url: "/config/media/house-of-tsang-logo.png"
-              x: 560
-              y: 30
-              xsize: 260
-              ysize: 150
+              x: 60
+              y: 24
+              xsize: 400
+              ysize: 165
               resize_method: contain
             - type: text
               value: "{{ now().strftime('%A %-d %B') }}"
               x: "5%"
-              y: "8%"
+              y: "15%"
               size: 25
               color: black
             - type: icon
@@ -100,13 +97,6 @@ automation:
               y: "3%"
               size: 88
               color: yellow
-            - type: icon
-              value: mdi:snowflake
-              x: "68%"
-              y: "4%"
-              size: 32
-              color: blue
-              visible: "{{ 'true' if state_attr('weather.home', 'temperature') | float(99) <= 3 else 'false' }}"
             - type: text
               value: >-
                 {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
@@ -126,11 +116,20 @@ automation:
               value: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 H {{ forecast[0].temperature | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[0].templow | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
-              x: "96%"
+              x: "92%"
               y: "19%"
               size: 25
               anchor: rt
               color: blue
+            - type: icon
+              value: mdi:snowflake
+              x: "93%"
+              y: "19%"
+              size: 24
+              color: blue
+              visible: >-
+                {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
+                {{ 'true' if forecast | count and forecast[0].templow | float(99) <= 3 else 'false' }}
             - type: icon
               value: >-
                 {%- set icons = {
@@ -151,9 +150,9 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "58%"
+              x: "64%"
               y: "21%"
-              size: 36
+              size: 30
               color: yellow
             - type: text
               value: >-
@@ -237,38 +236,38 @@ automation:
               x: "56%"
               y: "34%"
               size: 32
-              color: "{{ 'red' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'blue' }}"
+              color: black
             - type: icon
               value: mdi:radiator
               x: "52%"
               y: "34%"
               size: 32
-              color: "{{ 'red' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'blue' }}"
+              color: black
             - type: text
               value: >-
                 {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "63%"
-              y: "39%"
-              size: 38
+              x: "62%"
+              y: "42%"
+              size: 34
               color: black
             - type: icon
               value: mdi:thermometer
               x: "60%"
-              y: "39%"
-              size: 28
+              y: "42%"
+              size: 24
               color: black
             - type: icon
               value: mdi:target
-              x: "77%"
-              y: "39%"
-              size: 28
+              x: "72%"
+              y: "42%"
+              size: 24
               color: black
             - type: text
               value: >-
                 {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
-              x: "80%"
-              y: "39%"
-              size: 38
+              x: "74%"
+              y: "42%"
+              size: 34
               color: black
             - type: line
               x_start: "5%"
@@ -294,7 +293,7 @@ automation:
                   {%- set active_date = as_datetime(active_start).strftime('%A %-d %B') -%}
                   {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
                   {%- set active_summary = active.event.summary | default('Current event', true) | truncate(32, true, '…') -%}
-                  {%- set agenda.lines = agenda.lines + ['[accent]' ~ active_date ~ '[/accent]', '[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · IN PROGRESS[/red]'] -%}
+                  {%- set agenda.lines = agenda.lines + ['[blue]' ~ active_date ~ '[/blue]', '[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · IN PROGRESS[/red]'] -%}
                   {%- set agenda.last_date = active_date -%}
                 {%- endif -%}
                 {%- for event in events -%}
@@ -302,7 +301,7 @@ automation:
                   {%- if as_datetime(start) >= now() and agenda.count < 5 -%}
                     {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
                     {%- if event_date != agenda.last_date -%}
-                      {%- set agenda.lines = agenda.lines + ['[accent]' ~ event_date ~ '[/accent]'] -%}
+                      {%- set agenda.lines = agenda.lines + ['[blue]' ~ event_date ~ '[/blue]'] -%}
                       {%- set agenda.last_date = event_date -%}
                     {%- endif -%}
                     {%- set event_time = as_datetime(start).strftime('%H:%M') if 'T' in start else 'All day' -%}
@@ -315,15 +314,15 @@ automation:
               delimiter: "|"
               x: "5%"
               y: "58%"
-              offset_y: 40
+              offset_y: 44
               size: 34
               color: black
               parse_colors: true
             - type: line
               x_start: "5%"
               x_end: "67%"
-              y_start: "63%"
-              y_end: "63%"
+              y_start: "64%"
+              y_end: "64%"
               width: 3
               fill: red
               visible: >-
@@ -357,6 +356,14 @@ automation:
               y: "65%"
               size: 42
               color: green
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_solar_energy_change') | float(0) %}
+                {{ 'mdi:arrow-up' if change > 0.01 else 'mdi:arrow-down' if change < -0.01 else 'mdi:arrow-right' }}
+              x: "92%"
+              y: "66%"
+              size: 24
+              color: green
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
@@ -372,6 +379,14 @@ automation:
               y: "72%"
               size: 42
               color: black
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_home_energy_change') | float(0) %}
+                {{ 'mdi:arrow-up' if change > 0.01 else 'mdi:arrow-down' if change < -0.01 else 'mdi:arrow-right' }}
+              x: "92%"
+              y: "73%"
+              size: 24
+              color: blue
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
@@ -393,11 +408,19 @@ automation:
               y: "87%"
               size: 42
               color: yellow
+            - type: icon
+              value: >-
+                {% set change = states('sensor.open_display_battery_soc_change') | float(0) %}
+                {{ 'mdi:arrow-up' if change > 0.5 else 'mdi:arrow-down' if change < -0.5 else 'mdi:arrow-right' }}
+              x: "70%"
+              y: "87%"
+              size: 22
+              color: black
             - type: progress_bar
               x_start: "77%"
               x_end: "95%"
-              y_start: "88%"
-              y_end: "92%"
+              y_start: "86%"
+              y_end: "90%"
               progress: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) }}"
               fill: yellow
               background: white
@@ -407,7 +430,7 @@ automation:
             - type: text
               value: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%"
               x: "86%"
-              y: "88%"
+              y: "91%"
               size: 24
               anchor: mt
               color: black
@@ -420,3 +443,32 @@ automation:
               color: blue
     mode: single
     max_exceeded: silent
+
+sensor:
+  - platform: statistics
+    name: "OpenDisplay Solar Energy Change"
+    unique_id: df0c9545-9eaf-4cce-8c88-0657ccfac692
+    entity_id: sensor.growatt_sph_pv_energy
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 2
+  - platform: statistics
+    name: "OpenDisplay Home Energy Change"
+    unique_id: c490e90e-96b3-4cf4-bebf-d4605a227079
+    entity_id: sensor.growatt_sph_load_energy
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 2
+  - platform: statistics
+    name: "OpenDisplay Battery SoC Change"
+    unique_id: 924467a3-9121-4f52-9461-20c19e577e56
+    entity_id: sensor.growatt_sph_battery_state_of_charge
+    state_characteristic: change
+    max_age:
+      minutes: 30
+    sampling_size: 60
+    precision: 1
