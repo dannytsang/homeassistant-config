@@ -10,8 +10,10 @@ The display shows:
 
 - Current local date and time.
 - The condition and temperature from `weather.home`.
-- The next event within 24 hours from `calendar.family`.
-- The next event within 24 hours from `calendar.tsang_children`.
+- Up to three events in the next 72 hours from `calendar.family`.
+- Up to three events in the next 72 hours from `calendar.tsang_children`.
+
+The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting, and uses the display accent colour for weather and section labels.
 
 The display refreshes when Home Assistant starts, every 30 minutes, and when the weather or either calendar's active-event state changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
@@ -19,7 +21,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when the
 
 | Automation | ID | Trigger | Action |
 |------------|----|---------|--------|
-| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or source state changes | Gets the next 24 hours of calendar events, then calls `opendisplay.drawcustom`. |
+| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or source state changes | Gets the next 72 hours of calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
 
 ### Dependencies
 

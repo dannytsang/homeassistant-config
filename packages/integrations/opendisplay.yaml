@@ -29,20 +29,21 @@ automation:
             - calendar.tsang_children
         data:
           start_date_time: "{{ now().isoformat() }}"
-          duration: "24:00:00"
+          duration: "72:00:00"
         response_variable: calendars
       - action: opendisplay.drawcustom
         target:
           device_id: 662305b757f9b07a501f19d4f34c723b
         data:
           background: white
+          rotate: 270
           refresh_type: full
           payload:
             - type: text
               value: "HOME · {{ now().strftime('%a %-d %b · %H:%M') }}"
               x: "5%"
               y: "5%"
-              size: 18
+              size: 60
               color: black
             - type: icon
               value: >-
@@ -65,21 +66,21 @@ automation:
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
               x: "78%"
               y: "5%"
-              size: 28
+              size: 120
               color: accent
             - type: text
               value: >-
                 {{ state_attr('weather.home', 'temperature') | float(0) | round(0) | int }}°{{ state_attr('weather.home', 'temperature_unit') | default('C', true) }}
               x: "96%"
               y: "7%"
-              size: 22
+              size: 100
               anchor: rt
               color: black
             - type: text
               value: "{{ states('weather.home') | replace('_', ' ') | title }}"
               x: "96%"
               y: "28%"
-              size: 13
+              size: 44
               anchor: rt
               color: black
             - type: line
@@ -87,41 +88,109 @@ automation:
               x_end: "95%"
               y_start: "35%"
               y_end: "35%"
-              width: 1
+              width: 4
               fill: black
             - type: text
               value: "UP NEXT"
               x: "5%"
               y: "42%"
-              size: 14
+              size: 48
               color: accent
             - type: text
               value: >-
                 {% set events = calendars['calendar.family'].events | default([], true) %}
                 {% if events | count > 0 %}
-                  FAMILY · {{ events[0].summary | default('Untitled event', true) }}
+                  {% set event = events[0] %}
+                  {% set start = event.start | string %}
+                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
                 {% else %}
                   FAMILY · No upcoming events
                 {% endif %}
               x: "5%"
-              y: "58%"
-              size: 16
+              y: "51%"
+              size: 50
               color: black
               truncate: true
-              max_width: 260
+              max_width: 1080
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.family'].events | default([], true) %}
+                {% if events | count > 1 %}
+                  {% set event = events[1] %}
+                  {% set start = event.start | string %}
+                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
+                {% else %}
+                  FAMILY · No further events
+                {% endif %}
+              x: "5%"
+              y: "59%"
+              size: 50
+              color: black
+              truncate: true
+              max_width: 1080
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.family'].events | default([], true) %}
+                {% if events | count > 2 %}
+                  {% set event = events[2] %}
+                  {% set start = event.start | string %}
+                  FAMILY · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
+                {% else %}
+                  FAMILY · No further events
+                {% endif %}
+              x: "5%"
+              y: "67%"
+              size: 50
+              color: black
+              truncate: true
+              max_width: 1080
             - type: text
               value: >-
                 {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
                 {% if events | count > 0 %}
-                  CHILDREN · {{ events[0].summary | default('Untitled event', true) }}
+                  {% set event = events[0] %}
+                  {% set start = event.start | string %}
+                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
                 {% else %}
                   CHILDREN · No upcoming events
                 {% endif %}
               x: "5%"
-              y: "78%"
-              size: 16
+              y: "75%"
+              size: 50
               color: black
               truncate: true
-              max_width: 260
+              max_width: 1080
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
+                {% if events | count > 1 %}
+                  {% set event = events[1] %}
+                  {% set start = event.start | string %}
+                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
+                {% else %}
+                  CHILDREN · No further events
+                {% endif %}
+              x: "5%"
+              y: "83%"
+              size: 50
+              color: black
+              truncate: true
+              max_width: 1080
+            - type: text
+              value: >-
+                {% set events = calendars['calendar.tsang_children'].events | default([], true) %}
+                {% if events | count > 2 %}
+                  {% set event = events[2] %}
+                  {% set start = event.start | string %}
+                  CHILDREN · {{ as_datetime(start).strftime('%a %-d %b %H:%M') if 'T' in start else as_datetime(start).strftime('%a %-d %b') }} · {{ event.summary | default('Untitled event', true) }}
+                {% else %}
+                  CHILDREN · No further events
+                {% endif %}
+              x: "5%"
+              y: "91%"
+              size: 50
+              color: black
+              truncate: true
+              max_width: 1080
     mode: single
     max_exceeded: silent
