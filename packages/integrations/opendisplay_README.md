@@ -8,7 +8,7 @@
 
 The display shows:
 
-- A small `LAST UPDATED` timestamp beneath the dashboard title.
+- Today's date and a small `LAST UPDATED` timestamp beneath the dashboard title.
 - Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
 - Colour-coded front-door, house-alarm, and heating icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
