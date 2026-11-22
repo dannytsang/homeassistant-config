@@ -65,11 +65,55 @@ automation:
               size: 25
               color: black
             - type: text
-              value: "LAST UPDATED · {{ now().strftime('%a %-d %b · %H:%M') }}"
+              value: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(event=none) -%}
+                {%- for event in (family + children) | sort(attribute='start') -%}
+                  {%- if active.event is none and as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.event = event -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                IN PROGRESS · {{ as_datetime(active.event.start).strftime('%a %-d %b · %H:%M') if active.event else '' }}
               x: "5%"
               y: "12%"
-              size: 24
+              size: 22
               color: blue
+              visible: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(found=false) -%}
+                {%- for event in family + children -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.found = true -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ 'true' if active.found else 'false' }}
+            - type: text
+              value: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(event=none) -%}
+                {%- for event in (family + children) | sort(attribute='start') -%}
+                  {%- if active.event is none and as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.event = event -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ active.event.summary | default('Current event', true) | truncate(38, true, '…') if active.event else '' }}
+              x: "5%"
+              y: "16%"
+              size: 28
+              color: black
+              visible: >-
+                {%- set family = calendars['calendar.family'].events | default([], true) -%}
+                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
+                {%- set active = namespace(found=false) -%}
+                {%- for event in family + children -%}
+                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
+                    {%- set active.found = true -%}
+                  {%- endif -%}
+                {%- endfor -%}
+                {{ 'true' if active.found else 'false' }}
             - type: icon
               value: >-
                 {%- set icons = {
@@ -137,9 +181,9 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "77%"
+              x: "58%"
               y: "21%"
-              size: 42
+              size: 36
               color: yellow
             - type: text
               value: >-
@@ -208,53 +252,6 @@ automation:
               y_end: "54%"
               width: 4
               fill: black
-            - type: text
-              value: "UP NEXT"
-              x: "5%"
-              y: "58%"
-              size: 48
-              color: blue
-            - type: rectangle
-              x_start: "5%"
-              y_start: "62%"
-              x_end: "67%"
-              y_end: "67%"
-              fill: red
-              visible: >-
-                {%- set family = calendars['calendar.family'].events | default([], true) -%}
-                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
-                {%- set active = namespace(found=false) -%}
-                {%- for event in family + children -%}
-                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
-                    {%- set active.found = true -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                {{ 'true' if active.found else 'false' }}
-            - type: text
-              value: >-
-                {%- set family = calendars['calendar.family'].events | default([], true) -%}
-                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
-                {%- set active = namespace(event=none) -%}
-                {%- for event in (family + children) | sort(attribute='start') -%}
-                  {%- if active.event is none and as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
-                    {%- set active.event = event -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                IN PROGRESS · {{ active.event.summary | default('Current event', true) | truncate(34, true, '…') if active.event else '' }}
-              x: "7%"
-              y: "63%"
-              size: 28
-              color: white
-              visible: >-
-                {%- set family = calendars['calendar.family'].events | default([], true) -%}
-                {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
-                {%- set active = namespace(found=false) -%}
-                {%- for event in family + children -%}
-                  {%- if as_datetime(event.start) <= now() and as_datetime(event.end) > now() -%}
-                    {%- set active.found = true -%}
-                  {%- endif -%}
-                {%- endfor -%}
-                {{ 'true' if active.found else 'false' }}
             - type: multiline
               value: >-
                 {%- set family = calendars['calendar.family'].events | default([], true) -%}
@@ -270,7 +267,7 @@ automation:
                       {%- set agenda.last_date = event_date -%}
                     {%- endif -%}
                     {%- set event_time = as_datetime(start).strftime('%H:%M') if 'T' in start else 'All day' -%}
-                    {%- set summary = event.summary | default('Untitled event', true) | truncate(26, true, '…') -%}
+                    {%- set summary = event.summary | default('Untitled event', true) | truncate(32, true, '…') -%}
                     {%- set agenda.lines = agenda.lines + [event_time ~ ' · ' ~ summary] -%}
                     {%- set agenda.count = agenda.count + 1 -%}
                   {%- endif -%}
@@ -278,9 +275,9 @@ automation:
                 {{ agenda.lines | join('|') if agenda.lines else 'No upcoming events' }}
               delimiter: "|"
               x: "5%"
-              y: "70%"
-              offset_y: 48
-              size: 40
+              y: "58%"
+              offset_y: 40
+              size: 34
               color: black
               parse_colors: true
             - type: text
@@ -351,5 +348,12 @@ automation:
               outline: black
               width: 2
               show_percentage: true
+            - type: text
+              value: "LAST UPDATED · {{ now().strftime('%a %-d %b · %H:%M') }}"
+              x: "95%"
+              y: "96%"
+              size: 16
+              anchor: rt
+              color: blue
     mode: single
     max_exceeded: silent

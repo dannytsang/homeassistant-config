@@ -8,11 +8,11 @@
 
 The display shows:
 
-- Today's date and a small `LAST UPDATED` timestamp beneath the dashboard title.
+- Today's date, a lightweight active-event label beneath it when needed, and a small `LAST UPDATED` timestamp at the lower right.
 - Current weather plus high/low temperatures for today and tomorrow, including a tomorrow condition icon, from `weather.home`.
 - Colour-coded front-door, house-alarm, and heating icons with concise labels.
 - A current-to-target heating-temperature readout from `climate.hive_receiver_heat`.
-- A red `IN PROGRESS` card for a current calendar event, followed by the next five family and children events grouped by date with each event's time and title.
+- The next five family and children events, grouped by date with each event's time and title; active events appear separately under today's date with their start time.
 - Today's solar generation, household consumption, grid export, and home-battery state of charge.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather and battery level. Energy totals use kWh and the battery is shown as a yellow charge gauge.
