@@ -13,7 +13,7 @@ The display shows:
 - Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, active-light, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next five family and children events grouped by blue date headings with each timed event's start/end range and title; concurrent active events appear together under their date heading in one red outline box.
-- Today's solar generation, household consumption, grid export, and home-battery state of charge, with live solar, battery, and grid-flow arrows, compact 24-hour history lines, and numeric peak labels for the energy flows.
+- Today's solar generation, household consumption, grid export, and home-battery state of charge, with live solar, battery, and grid-flow arrows, compact 24-hour power-history lines, and numeric peak labels for the energy totals.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather, active lights, and battery level, with black edging on yellow status icons. Energy totals use kWh and the battery is shown as a yellow charge gauge.
 
@@ -37,7 +37,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, and when any
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `binary_sensor.external_doors_and_windows` | Open count and red/green status for external doors, windows, and entrances. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH energy sensors plus grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour energy-flow charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
+| Growatt SPH energy/power sensors plus grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour power charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting
