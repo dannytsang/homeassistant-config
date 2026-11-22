@@ -32,12 +32,13 @@ automation:
           - sensor.growatt_sph_load_energy
           - sensor.growatt_sph_grid_energy_out
           - sensor.growatt_sph_battery_state_of_charge
-          - sensor.growatt_sph_pv_power
-          - sensor.growatt_sph_load_power
           - sensor.open_display_solar_energy_change
           - sensor.open_display_home_energy_change
           - sensor.open_display_grid_export_change
           - sensor.open_display_battery_soc_change
+          - sensor.open_display_solar_energy_peak
+          - sensor.open_display_home_energy_peak
+          - sensor.open_display_grid_export_peak
         id: source_changed
     conditions: []
     actions:
@@ -66,7 +67,7 @@ automation:
           payload:
             - type: dlimg
               url: "/config/media/house-of-tsang-logo.png"
-              x: 60
+              x: 20
               y: 24
               xsize: 400
               ysize: 165
@@ -169,8 +170,8 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "68.9%"
-              y: "20.9%"
+              x: "71.9%"
+              y: "23.9%"
               size: 30
               color: black
             - type: icon
@@ -186,8 +187,8 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "69.1%"
-              y: "21.1%"
+              x: "72.1%"
+              y: "24.1%"
               size: 30
               color: black
             - type: icon
@@ -219,8 +220,8 @@ automation:
                 } -%}
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) -%}
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
-              x: "69%"
-              y: "21%"
+              x: "72%"
+              y: "24%"
               size: 30
               color: yellow
             - type: text
@@ -360,7 +361,7 @@ automation:
             - type: rectangle
               x_start: "5%"
               x_end: "67%"
-              y_start: "60.5%"
+              y_start: "62%"
               y_end: >-
                 {%- set family = calendars['calendar.family'].events | default([], true) -%}
                 {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
@@ -370,7 +371,7 @@ automation:
                     {%- set active.count = active.count + 1 -%}
                   {%- endif -%}
                 {%- endfor -%}
-                {{ 64.5 + ((active.count - 1) * 3) }}%
+                {{ 66 + ((active.count - 1) * 3) }}%
               fill: white
               outline: red
               width: 3
@@ -467,10 +468,20 @@ automation:
               duration: 86400
               low: 0
               data:
-                - entity: sensor.growatt_sph_pv_power
+                - entity: sensor.growatt_sph_pv_energy
                   color: green
                   width: 2
                   smooth: true
+            - type: text
+              value: >-
+                {% set value = states('sensor.open_display_solar_energy_peak') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_pv_energy', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }}
+              x: "95%"
+              y: "63%"
+              size: 16
+              anchor: rt
+              color: green
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_load_energy') | float(0) %}
@@ -502,10 +513,20 @@ automation:
               duration: 86400
               low: 0
               data:
-                - entity: sensor.growatt_sph_load_power
+                - entity: sensor.growatt_sph_load_energy
                   color: blue
                   width: 2
                   smooth: true
+            - type: text
+              value: >-
+                {% set value = states('sensor.open_display_home_energy_peak') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_load_energy', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }}
+              x: "95%"
+              y: "73%"
+              size: 16
+              anchor: rt
+              color: blue
             - type: text
               value: >-
                 {% set value = states('sensor.growatt_sph_grid_energy_out') | float(0) %}
@@ -540,6 +561,16 @@ automation:
                 - entity: sensor.growatt_sph_grid_energy_out
                   color: black
                   width: 2
+            - type: text
+              value: >-
+                {% set value = states('sensor.open_display_grid_export_peak') | float(0) %}
+                {% set unit = state_attr('sensor.growatt_sph_grid_energy_out', 'unit_of_measurement') | default('kWh', true) %}
+                {{ (value / 1000 if unit == 'Wh' else value) | round(1) }}
+              x: "95%"
+              y: "83%"
+              size: 16
+              anchor: rt
+              color: black
             - type: icon
               value: mdi:battery
               x: "71.9%"
@@ -601,7 +632,7 @@ sensor:
     entity_id: sensor.growatt_sph_pv_energy
     state_characteristic: change
     max_age:
-      minutes: 30
+      minutes: 60
     sampling_size: 60
     precision: 2
   - platform: statistics
@@ -610,7 +641,7 @@ sensor:
     entity_id: sensor.growatt_sph_load_energy
     state_characteristic: change
     max_age:
-      minutes: 30
+      minutes: 60
     sampling_size: 60
     precision: 2
   - platform: statistics
@@ -619,7 +650,7 @@ sensor:
     entity_id: sensor.growatt_sph_grid_energy_out
     state_characteristic: change
     max_age:
-      minutes: 30
+      minutes: 60
     sampling_size: 60
     precision: 2
   - platform: statistics
@@ -628,6 +659,33 @@ sensor:
     entity_id: sensor.growatt_sph_battery_state_of_charge
     state_characteristic: change
     max_age:
-      minutes: 30
+      minutes: 60
     sampling_size: 60
+    precision: 1
+  - platform: statistics
+    name: "OpenDisplay Solar Energy Peak"
+    unique_id: 3bce6509-3191-48d7-8b57-2c274640eeb8
+    entity_id: sensor.growatt_sph_pv_energy
+    state_characteristic: value_max
+    max_age:
+      hours: 24
+    sampling_size: 288
+    precision: 1
+  - platform: statistics
+    name: "OpenDisplay Home Energy Peak"
+    unique_id: b4cad3ea-7bc7-4beb-af68-555d9ec21a7b
+    entity_id: sensor.growatt_sph_load_energy
+    state_characteristic: value_max
+    max_age:
+      hours: 24
+    sampling_size: 288
+    precision: 1
+  - platform: statistics
+    name: "OpenDisplay Grid Export Peak"
+    unique_id: 32d71c72-248d-48a1-99cd-342f92f50f3b
+    entity_id: sensor.growatt_sph_grid_energy_out
+    state_characteristic: value_max
+    max_age:
+      hours: 24
+    sampling_size: 288
     precision: 1
