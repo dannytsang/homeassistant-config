@@ -32,10 +32,11 @@ automation:
           - sensor.growatt_sph_load_energy
           - sensor.growatt_sph_grid_energy_out
           - sensor.growatt_sph_battery_state_of_charge
-          - sensor.open_display_solar_energy_change
-          - sensor.open_display_home_energy_change
-          - sensor.open_display_grid_export_change
-          - sensor.open_display_battery_soc_change
+          - sensor.growatt_sph_pv_power
+          - sensor.growatt_sph_battery_charge_power
+          - sensor.growatt_sph_battery_discharge_power
+          - sensor.grid_import_power
+          - sensor.grid_export_power
           - sensor.open_display_solar_energy_peak
           - sensor.open_display_home_energy_peak
           - sensor.open_display_grid_export_peak
@@ -405,7 +406,7 @@ automation:
                     {%- set active_start = event.start | string -%}
                     {%- set active_time = as_datetime(active_start).strftime('%H:%M') if 'T' in active_start else 'All day' -%}
                     {%- set active_summary = event.summary | default('Current event', true) | truncate(32, true, '…') -%}
-                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · ▶[/red]'] -%}
+                    {%- set agenda.lines = agenda.lines + ['[red]' ~ active_time ~ ' · ' ~ active_summary ~ ' · >[/red]'] -%}
                   {%- endfor -%}
                   {%- set agenda.last_date = active_date -%}
                 {%- endif -%}
@@ -425,7 +426,7 @@ automation:
                 {%- endfor -%}
                 {{ agenda.lines | join('|') if agenda.lines else 'No upcoming events' }}
               delimiter: "|"
-              x: "5%"
+              x: "5.4%"
               y: "58%"
               offset_y: 48
               size: 34
@@ -454,12 +455,11 @@ automation:
               color: green
             - type: icon
               value: >-
-                {% set change = states('sensor.open_display_solar_energy_change') | float(0) %}
-                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
+                {{ 'mdi:arrow-up-bold' if states('sensor.growatt_sph_pv_power') | float(0) > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "60%"
               size: 34
-              color: green
+              color: "{{ 'green' if states('sensor.growatt_sph_pv_power') | float(0) > 100 else 'black' }}"
             - type: plot
               x_start: "77%"
               y_start: "64%"
@@ -497,14 +497,6 @@ automation:
               y: "69%"
               size: 42
               color: black
-            - type: icon
-              value: >-
-                {% set change = states('sensor.open_display_home_energy_change') | float(0) %}
-                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
-              x: "75%"
-              y: "70%"
-              size: 34
-              color: blue
             - type: plot
               x_start: "77%"
               y_start: "74%"
@@ -544,12 +536,16 @@ automation:
               color: black
             - type: icon
               value: >-
-                {% set change = states('sensor.open_display_grid_export_change') | float(0) %}
-                {{ 'mdi:arrow-up-bold' if change > 0.01 else 'mdi:arrow-down-bold' if change < -0.01 else 'mdi:arrow-right-bold' }}
+                {% set importing = states('sensor.grid_import_power') | float(0) %}
+                {% set exporting = states('sensor.grid_export_power') | float(0) %}
+                {{ 'mdi:arrow-up-bold' if importing > 100 else 'mdi:arrow-down-bold' if exporting > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "80%"
               size: 34
-              color: black
+              color: >-
+                {% set importing = states('sensor.grid_import_power') | float(0) %}
+                {% set exporting = states('sensor.grid_export_power') | float(0) %}
+                {{ 'red' if importing > 100 else 'green' if exporting > 100 else 'black' }}
             - type: plot
               x_start: "77%"
               y_start: "84%"
@@ -591,12 +587,16 @@ automation:
               color: yellow
             - type: icon
               value: >-
-                {% set change = states('sensor.open_display_battery_soc_change') | float(0) %}
-                {{ 'mdi:arrow-up-bold' if change > 0.5 else 'mdi:arrow-down-bold' if change < -0.5 else 'mdi:arrow-right-bold' }}
+                {% set charging = states('sensor.growatt_sph_battery_charge_power') | float(0) %}
+                {% set discharging = states('sensor.growatt_sph_battery_discharge_power') | float(0) %}
+                {{ 'mdi:arrow-up-bold' if charging > 100 else 'mdi:arrow-down-bold' if discharging > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "90%"
               size: 32
-              color: black
+              color: >-
+                {% set charging = states('sensor.growatt_sph_battery_charge_power') | float(0) %}
+                {% set discharging = states('sensor.growatt_sph_battery_discharge_power') | float(0) %}
+                {{ 'green' if charging > 100 else 'red' if discharging > 100 else 'black' }}
             - type: progress_bar
               x_start: "77%"
               x_end: "95%"
@@ -626,42 +626,6 @@ automation:
     max_exceeded: silent
 
 sensor:
-  - platform: statistics
-    name: "OpenDisplay Solar Energy Change"
-    unique_id: df0c9545-9eaf-4cce-8c88-0657ccfac692
-    entity_id: sensor.growatt_sph_pv_energy
-    state_characteristic: change
-    max_age:
-      minutes: 60
-    sampling_size: 60
-    precision: 2
-  - platform: statistics
-    name: "OpenDisplay Home Energy Change"
-    unique_id: c490e90e-96b3-4cf4-bebf-d4605a227079
-    entity_id: sensor.growatt_sph_load_energy
-    state_characteristic: change
-    max_age:
-      minutes: 60
-    sampling_size: 60
-    precision: 2
-  - platform: statistics
-    name: "OpenDisplay Grid Export Change"
-    unique_id: 629dbfd9-603f-40bc-8ce7-2e9cf6f9dbb8
-    entity_id: sensor.growatt_sph_grid_energy_out
-    state_characteristic: change
-    max_age:
-      minutes: 60
-    sampling_size: 60
-    precision: 2
-  - platform: statistics
-    name: "OpenDisplay Battery SoC Change"
-    unique_id: 924467a3-9121-4f52-9461-20c19e577e56
-    entity_id: sensor.growatt_sph_battery_state_of_charge
-    state_characteristic: change
-    max_age:
-      minutes: 60
-    sampling_size: 60
-    precision: 1
   - platform: statistics
     name: "OpenDisplay Solar Energy Peak"
     unique_id: 3bce6509-3191-48d7-8b57-2c274640eeb8
