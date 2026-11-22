@@ -246,10 +246,29 @@ automation:
               color: "{{ 'red' if is_state_attr('climate.hive_receiver_heat', 'hvac_action', 'heating') else 'blue' }}"
             - type: text
               value: >-
-                NOW {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }} / TARGET {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+                {{ state_attr('climate.hive_receiver_heat', 'current_temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+              x: "63%"
+              y: "39%"
+              size: 38
+              color: black
+            - type: icon
+              value: mdi:thermometer
               x: "60%"
               y: "39%"
-              size: 42
+              size: 28
+              color: black
+            - type: icon
+              value: mdi:target
+              x: "77%"
+              y: "39%"
+              size: 28
+              color: black
+            - type: text
+              value: >-
+                {{ state_attr('climate.hive_receiver_heat', 'temperature') | float(0) | round(1) }}{{ state_attr('climate.hive_receiver_heat', 'temperature_unit') | default('°C', true) }}
+              x: "80%"
+              y: "39%"
+              size: 38
               color: black
             - type: line
               x_start: "5%"
@@ -384,7 +403,14 @@ automation:
               background: white
               outline: black
               width: 2
-              show_percentage: true
+              show_percentage: false
+            - type: text
+              value: "{{ states('sensor.growatt_sph_battery_state_of_charge') | float(0) | round(0) | int }}%"
+              x: "86%"
+              y: "88%"
+              size: 24
+              anchor: mt
+              color: black
             - type: text
               value: "LAST UPDATED · {{ now().strftime('%a %-d %b · %H:%M') }}"
               x: "95%"
