@@ -10,20 +10,20 @@ The display shows:
 
 - The local House of Tsang brand logo, today's date, and a small `LAST UPDATED` timestamp at the lower right.
 - Current weather with condition-aware icon colouring, wind speed, and today's high/low temperatures, plus an outlined three-day forecast strip with condition icons, abbreviated dates, and high/low values, from `weather.home`.
-- Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, active-light, and heating status icons with concise labels.
+- Compact, colour-coded front-door, house-alarm, exterior-opening, people-home, and heating status icons with concise labels.
 - A compact current-to-target heating-temperature readout with thermometer and target symbols from `climate.hive_receiver_heat`.
 - The next five family and children events grouped by blue date headings with each timed event's start/end range and title; concurrent active events appear together under their date heading in one red outline box.
-- Today's solar generation, household consumption, grid export, and home-battery state of charge, with live solar, battery, and grid-flow arrows, compact 24-hour power-history lines, and numeric peak labels for the energy totals.
+- Today's solar generation, household consumption, grid export, and home-battery state of charge, with live solar, battery, and grid-flow arrows, compact 24-hour power-history lines, and peak-power labels above each line.
 
 The 1200 × 1600 E1004 canvas is rotated 90° counter-clockwise for its landscape mounting. It uses blue, green, and red for labels and state meaning; the less-legible yellow is reserved for weather, active lights, and battery level, with black edging on yellow status icons. Energy totals use kWh and the battery is shown as a yellow charge gauge.
 
-The display refreshes when Home Assistant starts, every 30 minutes, or when the people-home or active-light count changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
+The display refreshes when Home Assistant starts, every 30 minutes, or when the people-home count changes. The automation uses `single` mode so an e-paper transfer is never interrupted by a competing refresh.
 
 ## Technical Reference
 
 | Automation | ID | Trigger | Action |
 |------------|----|---------|--------|
-| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a people-home/active-light count change | Gets a time window covering current and next-72-hour calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
+| `OpenDisplay: Home Summary` | `1769277054493` | Home Assistant start, every 30 minutes, or a people-home count change | Gets a time window covering current and next-72-hour calendar events, then calls `opendisplay.drawcustom` with a 90° counter-clockwise rotation. |
 
 ### Dependencies
 
@@ -37,7 +37,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, or when the 
 | `lock.front_door` / `alarm_control_panel.house_alarm` | Front-door lock and house-alarm state. |
 | `binary_sensor.external_doors_and_windows` | Open count and brown/green status for external doors, windows, and entrances. |
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
-| Growatt SPH energy/power sensors, `sensor.house_grid_import_power`, and grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, and 24-hour power charts; local statistics sensors derive 24-hour peaks for the three energy totals. |
+| Growatt SPH energy/power sensors, `sensor.house_grid_import_power`, and grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, 24-hour power charts, and local statistics sensors for their peak-power labels. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
 
 ## Troubleshooting
