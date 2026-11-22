@@ -14,6 +14,12 @@ automation:
       - trigger: time_pattern
         minutes: "/30"
         id: scheduled_refresh
+      - trigger: template
+        value_template: "{{ states.person | selectattr('state', 'eq', 'home') | list | count }}"
+        id: people_home_changed
+      - trigger: template
+        value_template: "{{ states.light | selectattr('state', 'eq', 'on') | list | count }}"
+        id: lights_on_changed
       - trigger: state
         entity_id:
           - weather.home
@@ -223,16 +229,52 @@ automation:
             - type: icon
               value: >-
                 {{ 'mdi:shield-lock' if states('alarm_control_panel.house_alarm').startswith('armed') else 'mdi:shield-check' }}
-              x: "21%"
+              x: "14%"
               y: "33%"
               size: 62
               color: "{{ 'red' if states('alarm_control_panel.house_alarm').startswith('armed') else 'green' }}"
             - type: text
               value: "ALARM"
-              x: "21%"
+              x: "14%"
               y: "42%"
               size: 24
               color: green
+            - type: icon
+              value: mdi:account-multiple
+              x: "25%"
+              y: "33%"
+              size: 55
+              color: "{{ 'green' if states.person | selectattr('state', 'eq', 'home') | list | count else 'black' }}"
+            - type: text
+              value: "{{ states.person | selectattr('state', 'eq', 'home') | list | count }}"
+              x: "30%"
+              y: "35%"
+              size: 28
+              color: blue
+            - type: text
+              value: "HOME"
+              x: "25%"
+              y: "42%"
+              size: 20
+              color: green
+            - type: icon
+              value: mdi:lightbulb
+              x: "37%"
+              y: "33%"
+              size: 55
+              color: "{{ 'yellow' if states.light | selectattr('state', 'eq', 'on') | list | count else 'black' }}"
+            - type: text
+              value: "{{ states.light | selectattr('state', 'eq', 'on') | list | count }}"
+              x: "42%"
+              y: "35%"
+              size: 28
+              color: blue
+            - type: text
+              value: "LIGHTS"
+              x: "37%"
+              y: "42%"
+              size: 20
+              color: black
             - type: text
               value: "HEATING"
               x: "56%"
