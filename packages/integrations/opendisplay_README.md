@@ -42,6 +42,7 @@ The display refreshes when Home Assistant starts, every 30 minutes, or when the 
 | `climate.hive_receiver_heat` | Current and target heating temperatures. |
 | Growatt SPH energy/power sensors, `sensor.house_grid_import_power`, and grid import/export helpers | Daily solar generation, household use, grid export, battery state of charge, live flow directions, 24-hour power charts, and local statistics sensors for their peak-power labels. |
 | Growatt SPH battery state-of-charge sensor | Battery charge gauge. |
+| `sensor.battery_runtime` | Estimated runtime beneath the battery state-of-charge gauge. |
 
 ## Troubleshooting
 
