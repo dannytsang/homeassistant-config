@@ -544,7 +544,7 @@ automation:
                 {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
                 {%- set active = namespace(count=0) -%}
                 {%- for event in family + children -%}
-                  {%- if as_datetime(event.start) | as_local <= now() and as_datetime(event.end) | as_local > now() -%}
+                  {%- if as_timestamp(as_datetime(event.start) | as_local) <= as_timestamp(now()) and as_timestamp(as_datetime(event.end) | as_local) > as_timestamp(now()) -%}
                     {%- set active.count = active.count + 1 -%}
                   {%- endif -%}
                 {%- endfor -%}
@@ -557,7 +557,7 @@ automation:
                 {%- set children = calendars['calendar.tsang_children'].events | default([], true) -%}
                 {%- set active = namespace(found=false) -%}
                 {%- for event in family + children -%}
-                  {%- if as_datetime(event.start) | as_local <= now() and as_datetime(event.end) | as_local > now() -%}
+                  {%- if as_timestamp(as_datetime(event.start) | as_local) <= as_timestamp(now()) and as_timestamp(as_datetime(event.end) | as_local) > as_timestamp(now()) -%}
                     {%- set active.found = true -%}
                   {%- endif -%}
                 {%- endfor -%}
@@ -570,7 +570,7 @@ automation:
                 {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
                 {%- set active = namespace(events=[]) -%}
                 {%- for event in events -%}
-                  {%- if as_datetime(event.start) | as_local <= now() and as_datetime(event.end) | as_local > now() -%}
+                  {%- if as_timestamp(as_datetime(event.start) | as_local) <= as_timestamp(now()) and as_timestamp(as_datetime(event.end) | as_local) > as_timestamp(now()) -%}
                     {%- set active.events = active.events + [event] -%}
                   {%- endif -%}
                 {%- endfor -%}
@@ -587,7 +587,7 @@ automation:
                 {%- endif -%}
                 {%- for event in events -%}
                   {%- set start = event.start | string -%}
-                  {%- if as_datetime(start) | as_local >= now() and agenda.count < 8 -%}
+                  {%- if as_timestamp(as_datetime(start) | as_local) >= as_timestamp(now()) and agenda.count < 8 -%}
                     {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
                     {%- if event_date != agenda.last_date -%}
                       {%- set agenda.lines = agenda.lines + ['[blue]' ~ event_date ~ '[/blue]'] -%}
@@ -613,7 +613,7 @@ automation:
                 {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
                 {%- set active = namespace(events=[]) -%}
                 {%- for event in events -%}
-                  {%- if as_datetime(event.start) | as_local <= now() and as_datetime(event.end) | as_local > now() -%}
+                  {%- if as_timestamp(as_datetime(event.start) | as_local) <= as_timestamp(now()) and as_timestamp(as_datetime(event.end) | as_local) > as_timestamp(now()) -%}
                     {%- set active.events = active.events + [event] -%}
                   {%- endif -%}
                 {%- endfor -%}
@@ -630,7 +630,7 @@ automation:
                 {%- endif -%}
                 {%- for event in events -%}
                   {%- set start = event.start | string -%}
-                  {%- if as_datetime(start) | as_local >= now() and agenda.count < 8 -%}
+                  {%- if as_timestamp(as_datetime(start) | as_local) >= as_timestamp(now()) and agenda.count < 8 -%}
                     {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
                     {%- if event_date != agenda.last_date -%}
                       {%- set agenda.lines = agenda.lines + [''] -%}
@@ -657,7 +657,7 @@ automation:
                 {%- set agenda = namespace(last_date='', lines=[], count=0) -%}
                 {%- set active = namespace(events=[]) -%}
                 {%- for event in events -%}
-                  {%- if as_datetime(event.start) | as_local <= now() and as_datetime(event.end) | as_local > now() -%}
+                  {%- if as_timestamp(as_datetime(event.start) | as_local) <= as_timestamp(now()) and as_timestamp(as_datetime(event.end) | as_local) > as_timestamp(now()) -%}
                     {%- set active.events = active.events + [event] -%}
                   {%- endif -%}
                 {%- endfor -%}
@@ -672,7 +672,7 @@ automation:
                 {%- endif -%}
                 {%- for event in events -%}
                   {%- set start = event.start | string -%}
-                  {%- if as_datetime(start) | as_local >= now() and agenda.count < 8 -%}
+                  {%- if as_timestamp(as_datetime(start) | as_local) >= as_timestamp(now()) and agenda.count < 8 -%}
                     {%- set event_date = as_datetime(start).strftime('%A %-d %B') -%}
                     {%- if event_date != agenda.last_date -%}
                       {%- set agenda.lines = agenda.lines + [''] -%}
