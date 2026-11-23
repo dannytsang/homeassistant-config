@@ -48,6 +48,7 @@ automation:
           render_solar_power_unit: "{{ state_attr('sensor.growatt_sph_pv_power', 'unit_of_measurement') | default('W', true) }}"
           render_home_power_unit: "{{ state_attr('sensor.growatt_sph_load_power', 'unit_of_measurement') | default('W', true) }}"
           render_grid_power_unit: "{{ state_attr('sensor.house_grid_import_power', 'unit_of_measurement') | default('W', true) }}"
+          render_battery_runtime: "{{ state_attr('sensor.battery_runtime', 'duration') | default('—', true) }}"
       - action: opendisplay.drawcustom
         target:
           device_id: 662305b757f9b07a501f19d4f34c723b
@@ -81,10 +82,10 @@ automation:
                   'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
                 } -%}
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
-              x: "41.9%"
+              x: "27.9%"
               y: "2.9%"
               size: 88
-              color: black
+              color: "{{ 'white' if is_state('weather.home', 'clear-night') else 'black' }}"
             - type: icon
               value: >-
                 {%- set icons = {
@@ -97,10 +98,10 @@ automation:
                   'windy': 'weather-windy', 'windy-variant': 'weather-windy-variant'
                 } -%}
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
-              x: "42.1%"
+              x: "28.1%"
               y: "3.1%"
               size: 88
-              color: black
+              color: "{{ 'white' if is_state('weather.home', 'clear-night') else 'black' }}"
             - type: icon
               value: >-
                 {%- set icons = {
@@ -120,7 +121,7 @@ automation:
                   'windy-variant': 'weather-windy-variant'
                 } -%}
                 mdi:{{ icons.get(states('weather.home'), 'weather-cloudy') }}
-              x: "42%"
+              x: "28%"
               y: "3%"
               size: 88
               color: >-
@@ -128,21 +129,21 @@ automation:
                 {{ 'yellow' if condition in ['sunny', 'partlycloudy'] else 'gray' if condition in ['cloudy', 'fog', 'windy', 'windy-variant'] else 'black' }}
             - type: icon
               value: mdi:weather-cloudy
-              x: "42%"
+              x: "28%"
               y: "4.2%"
               size: 88
               color: "{{ 'gray' if is_state('weather.home', 'partlycloudy') else 'white' }}"
             - type: text
               value: >-
                 {{ states('sensor.gw2000a_outdoor_temperature') | float(0) | round(1) }}{{ state_attr('sensor.gw2000a_outdoor_temperature', 'unit_of_measurement') | default('°C', true) }}
-              x: "64%"
+              x: "56%"
               y: "5%"
               size: 92
               anchor: rt
               color: black
             - type: text
               value: "{{ states('weather.home') | replace('_', ' ') | title }}"
-              x: "64%"
+              x: "56%"
               y: "14%"
               size: 36
               anchor: rt
@@ -151,7 +152,7 @@ automation:
               value: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 H {{ forecast[0].temperature | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[0].templow | float(0) | round(0) | int if forecast | count else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} · W {{ state_attr('weather.home', 'wind_speed') | float(0) | round(0) | int }} {{ state_attr('weather.home', 'wind_speed_unit') | default('mph', true) }}
-              x: "64%"
+              x: "56%"
               y: "19%"
               size: 20
               anchor: rt
@@ -171,7 +172,7 @@ automation:
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
               x: "68.7%"
               y: "2.4%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -188,7 +189,7 @@ automation:
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
               x: "68.9%"
               y: "2.6%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -212,7 +213,7 @@ automation:
                 mdi:{{ icons.get(forecast[1].condition, 'weather-cloudy') if forecast | count > 1 else 'weather-cloudy' }}
               x: "68.8%"
               y: "2.5%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {% set condition = forecast[1].condition if forecast | count > 1 else '' %}
@@ -221,7 +222,7 @@ automation:
               value: mdi:weather-cloudy
               x: "68.8%"
               y: "3.7%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {{ 'gray' if forecast | count > 1 and forecast[1].condition == 'partlycloudy' else 'white' }}
@@ -231,7 +232,7 @@ automation:
                 {{ as_datetime(forecast[1].datetime).strftime('%a %-d') if forecast | count > 1 else '—' }}
               x: "70%"
               y: "7.4%"
-              size: 18
+              size: 20
               anchor: mm
               color: black
             - type: text
@@ -240,7 +241,7 @@ automation:
                 H {{ forecast[1].temperature | float(0) | round(0) | int if forecast | count > 1 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[1].templow | float(0) | round(0) | int if forecast | count > 1 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
               x: "70%"
               y: "10.3%"
-              size: 18
+              size: 20
               anchor: mm
               color: blue
             - type: icon
@@ -250,7 +251,7 @@ automation:
                 mdi:{{ icons.get(forecast[2].condition, 'weather-cloudy') if forecast | count > 2 else 'weather-cloudy' }}
               x: "76.7%"
               y: "2.4%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -259,7 +260,7 @@ automation:
                 mdi:{{ icons.get(forecast[2].condition, 'weather-cloudy') if forecast | count > 2 else 'weather-cloudy' }}
               x: "76.9%"
               y: "2.6%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -268,7 +269,7 @@ automation:
                 mdi:{{ icons.get(forecast[2].condition, 'weather-cloudy') if forecast | count > 2 else 'weather-cloudy' }}
               x: "76.8%"
               y: "2.5%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {% set condition = forecast[2].condition if forecast | count > 2 else '' %}
@@ -277,7 +278,7 @@ automation:
               value: mdi:weather-cloudy
               x: "76.8%"
               y: "3.7%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {{ 'gray' if forecast | count > 2 and forecast[2].condition == 'partlycloudy' else 'white' }}
@@ -287,7 +288,7 @@ automation:
                 {{ as_datetime(forecast[2].datetime).strftime('%a %-d') if forecast | count > 2 else '—' }}
               x: "78%"
               y: "7.4%"
-              size: 18
+              size: 20
               anchor: mm
               color: black
             - type: text
@@ -296,7 +297,7 @@ automation:
                 H {{ forecast[2].temperature | float(0) | round(0) | int if forecast | count > 2 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[2].templow | float(0) | round(0) | int if forecast | count > 2 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
               x: "78%"
               y: "10.3%"
-              size: 18
+              size: 20
               anchor: mm
               color: blue
             - type: icon
@@ -306,7 +307,7 @@ automation:
                 mdi:{{ icons.get(forecast[3].condition, 'weather-cloudy') if forecast | count > 3 else 'weather-cloudy' }}
               x: "84.7%"
               y: "2.4%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -315,7 +316,7 @@ automation:
                 mdi:{{ icons.get(forecast[3].condition, 'weather-cloudy') if forecast | count > 3 else 'weather-cloudy' }}
               x: "84.9%"
               y: "2.6%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -324,7 +325,7 @@ automation:
                 mdi:{{ icons.get(forecast[3].condition, 'weather-cloudy') if forecast | count > 3 else 'weather-cloudy' }}
               x: "84.8%"
               y: "2.5%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {% set condition = forecast[3].condition if forecast | count > 3 else '' %}
@@ -333,7 +334,7 @@ automation:
               value: mdi:weather-cloudy
               x: "84.8%"
               y: "3.7%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {{ 'gray' if forecast | count > 3 and forecast[3].condition == 'partlycloudy' else 'white' }}
@@ -343,7 +344,7 @@ automation:
                 {{ as_datetime(forecast[3].datetime).strftime('%a %-d') if forecast | count > 3 else '—' }}
               x: "86%"
               y: "7.4%"
-              size: 18
+              size: 20
               anchor: mm
               color: black
             - type: text
@@ -352,7 +353,7 @@ automation:
                 H {{ forecast[3].temperature | float(0) | round(0) | int if forecast | count > 3 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[3].templow | float(0) | round(0) | int if forecast | count > 3 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
               x: "86%"
               y: "10.3%"
-              size: 18
+              size: 20
               anchor: mm
               color: blue
             - type: icon
@@ -362,7 +363,7 @@ automation:
                 mdi:{{ icons.get(forecast[4].condition, 'weather-cloudy') if forecast | count > 4 else 'weather-cloudy' }}
               x: "92.7%"
               y: "2.4%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -371,7 +372,7 @@ automation:
                 mdi:{{ icons.get(forecast[4].condition, 'weather-cloudy') if forecast | count > 4 else 'weather-cloudy' }}
               x: "92.9%"
               y: "2.6%"
-              size: 28
+              size: 42
               color: black
             - type: icon
               value: >-
@@ -380,7 +381,7 @@ automation:
                 mdi:{{ icons.get(forecast[4].condition, 'weather-cloudy') if forecast | count > 4 else 'weather-cloudy' }}
               x: "92.8%"
               y: "2.5%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {% set condition = forecast[4].condition if forecast | count > 4 else '' %}
@@ -389,7 +390,7 @@ automation:
               value: mdi:weather-cloudy
               x: "92.8%"
               y: "3.7%"
-              size: 28
+              size: 42
               color: >-
                 {% set forecast = forecasts['weather.home'].forecast | default([], true) %}
                 {{ 'gray' if forecast | count > 4 and forecast[4].condition == 'partlycloudy' else 'white' }}
@@ -399,7 +400,7 @@ automation:
                 {{ as_datetime(forecast[4].datetime).strftime('%a %-d') if forecast | count > 4 else '—' }}
               x: "94%"
               y: "7.4%"
-              size: 18
+              size: 20
               anchor: mm
               color: black
             - type: text
@@ -408,7 +409,7 @@ automation:
                 H {{ forecast[4].temperature | float(0) | round(0) | int if forecast | count > 4 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }} / L {{ forecast[4].templow | float(0) | round(0) | int if forecast | count > 4 else '—' }}{{ state_attr('weather.home', 'temperature_unit') | default('°C', true) }}
               x: "94%"
               y: "10.3%"
-              size: 18
+              size: 20
               anchor: mm
               color: blue
             - type: line
@@ -886,7 +887,7 @@ automation:
               anchor: mm
               color: black
             - type: text
-              value: "EST. RUNTIME · {{ state_attr('sensor.battery_runtime', 'duration') | default('—', true) }}"
+              value: "EST. RUNTIME · {{ render_battery_runtime }}"
               x: "86%"
               y: "94%"
               size: 16
