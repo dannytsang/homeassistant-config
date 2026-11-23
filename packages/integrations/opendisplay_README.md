@@ -50,5 +50,6 @@ The display refreshes when Home Assistant starts, every 30 minutes, or when the 
 | Display does not update | Confirm the OpenDisplay device is online and its integration exposes `opendisplay.drawcustom`; check the automation trace for a queued or failed transfer. |
 | Calendar row says no upcoming events | Check that the relevant calendar has an event in the next 24 hours and inspect the `calendar.get_events` action response in the trace. |
 | Weather is unknown or zero | Check the state and `temperature` attribute on `weather.home`. |
+| Energy arrow or peak label is unexpected | Open the automation trace and inspect the `render_*` snapshot variables immediately before `opendisplay.drawcustom`. |
 
 *Last updated: 2026-11-22*

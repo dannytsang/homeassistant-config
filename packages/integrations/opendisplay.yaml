@@ -34,6 +34,20 @@ automation:
         data:
           type: daily
         response_variable: forecasts
+      - variables:
+          render_snapshot_at: "{{ now().isoformat() }}"
+          render_solar_power: "{{ states('sensor.growatt_sph_pv_power') | float(0) }}"
+          render_home_power: "{{ states('sensor.growatt_sph_load_power') | float(0) }}"
+          render_grid_import_power: "{{ states('sensor.grid_import_power') | float(0) }}"
+          render_grid_export_power: "{{ states('sensor.grid_export_power') | float(0) }}"
+          render_solar_peak_power: "{{ states('sensor.open_display_solar_energy_peak') | float(0) }}"
+          render_home_peak_power: "{{ states('sensor.open_display_home_energy_peak') | float(0) }}"
+          render_grid_peak_power: "{{ states('sensor.open_display_grid_export_peak') | float(0) }}"
+          render_battery_charge_power: "{{ states('sensor.growatt_sph_battery_charge_power') | float(0) }}"
+          render_battery_discharge_power: "{{ states('sensor.growatt_sph_battery_discharge_power') | float(0) }}"
+          render_solar_power_unit: "{{ state_attr('sensor.growatt_sph_pv_power', 'unit_of_measurement') | default('W', true) }}"
+          render_home_power_unit: "{{ state_attr('sensor.growatt_sph_load_power', 'unit_of_measurement') | default('W', true) }}"
+          render_grid_power_unit: "{{ state_attr('sensor.house_grid_import_power', 'unit_of_measurement') | default('W', true) }}"
       - action: opendisplay.drawcustom
         target:
           device_id: 662305b757f9b07a501f19d4f34c723b
@@ -708,11 +722,11 @@ automation:
               color: green
             - type: icon
               value: >-
-                {{ 'mdi:arrow-up-bold' if states('sensor.growatt_sph_pv_power') | float(0) > 100 else 'mdi:arrow-right-bold' }}
+                {{ 'mdi:arrow-up-bold' if render_solar_power | float(0) > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "60%"
               size: 34
-              color: "{{ 'green' if states('sensor.growatt_sph_pv_power') | float(0) > 100 else 'black' }}"
+              color: "{{ 'green' if render_solar_power | float(0) > 100 else 'black' }}"
             - type: plot
               x_start: "77%"
               y_start: "64%"
@@ -727,8 +741,8 @@ automation:
                   smooth: true
             - type: text
               value: >-
-                {% set value = states('sensor.open_display_solar_energy_peak') | float(0) %}
-                {% set unit = state_attr('sensor.growatt_sph_pv_power', 'unit_of_measurement') | default('W', true) %}
+                {% set value = render_solar_peak_power | float(0) %}
+                {% set unit = render_solar_power_unit %}
                 {% set watts = value * 1000 if unit == 'kW' else value %}
                 {{ ((watts / 1000) | round(1) | string ~ 'kW') if watts >= 1000 else (watts | round(0) | int | string ~ 'W') }}
               x: "95%"
@@ -765,8 +779,8 @@ automation:
                   smooth: true
             - type: text
               value: >-
-                {% set value = states('sensor.open_display_home_energy_peak') | float(0) %}
-                {% set unit = state_attr('sensor.growatt_sph_load_power', 'unit_of_measurement') | default('W', true) %}
+                {% set value = render_home_peak_power | float(0) %}
+                {% set unit = render_home_power_unit %}
                 {% set watts = value * 1000 if unit == 'kW' else value %}
                 {{ ((watts / 1000) | round(1) | string ~ 'kW') if watts >= 1000 else (watts | round(0) | int | string ~ 'W') }}
               x: "95%"
@@ -791,15 +805,15 @@ automation:
               color: black
             - type: icon
               value: >-
-                {% set importing = states('sensor.grid_import_power') | float(0) %}
-                {% set exporting = states('sensor.grid_export_power') | float(0) %}
+                {% set importing = render_grid_import_power | float(0) %}
+                {% set exporting = render_grid_export_power | float(0) %}
                 {{ 'mdi:arrow-up-bold' if importing > 100 else 'mdi:arrow-down-bold' if exporting > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "80%"
               size: 34
               color: >-
-                {% set importing = states('sensor.grid_import_power') | float(0) %}
-                {% set exporting = states('sensor.grid_export_power') | float(0) %}
+                {% set importing = render_grid_import_power | float(0) %}
+                {% set exporting = render_grid_export_power | float(0) %}
                 {{ 'red' if importing > 100 else 'green' if exporting > 100 else 'black' }}
             - type: plot
               x_start: "77%"
@@ -814,8 +828,8 @@ automation:
                   width: 2
             - type: text
               value: >-
-                {% set value = states('sensor.open_display_grid_export_peak') | float(0) %}
-                {% set unit = state_attr('sensor.house_grid_import_power', 'unit_of_measurement') | default('W', true) %}
+                {% set value = render_grid_peak_power | float(0) %}
+                {% set unit = render_grid_power_unit %}
                 {% set watts = value * 1000 if unit == 'kW' else value %}
                 {{ ((watts / 1000) | round(1) | string ~ 'kW') if watts >= 1000 else (watts | round(0) | int | string ~ 'W') }}
               x: "95%"
@@ -843,15 +857,15 @@ automation:
               color: yellow
             - type: icon
               value: >-
-                {% set charging = states('sensor.growatt_sph_battery_charge_power') | float(0) %}
-                {% set discharging = states('sensor.growatt_sph_battery_discharge_power') | float(0) %}
+                {% set charging = render_battery_charge_power | float(0) %}
+                {% set discharging = render_battery_discharge_power | float(0) %}
                 {{ 'mdi:arrow-up-bold' if charging > 100 else 'mdi:arrow-down-bold' if discharging > 100 else 'mdi:arrow-right-bold' }}
               x: "75%"
               y: "90%"
               size: 32
               color: >-
-                {% set charging = states('sensor.growatt_sph_battery_charge_power') | float(0) %}
-                {% set discharging = states('sensor.growatt_sph_battery_discharge_power') | float(0) %}
+                {% set charging = render_battery_charge_power | float(0) %}
+                {% set discharging = render_battery_discharge_power | float(0) %}
                 {{ 'green' if charging > 100 else 'red' if discharging > 100 else 'black' }}
             - type: progress_bar
               x_start: "77%"
