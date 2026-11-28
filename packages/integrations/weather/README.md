@@ -48,7 +48,6 @@ Sources: OpenWeatherMap, Met Office, and an N8N webhook for weather warnings.
 
 | Automation | Trigger | Result |
 |------------|---------|--------|
-| `Weather: Forecast To Be Hot` | `weather.home` temperature, `sensor.temperature_forecast_next_hour`, or garden illuminance crosses thresholds | If it is summer and the temperature threshold is met, closes front-facing bedroom blinds when the front garden is bright and Leo's blinds when the back garden is bright. |
 | `Weather: Warning Notification` | `sensor.weather_warning` becomes `true` | Sends Danny and Terina a notification using warning title and link attributes. |
 | `Weather: Storm Warning` | `sensor.bedroom_air_pressure_difference` rises above `4` | Sends Danny a storm alert. |
 | `Weather: Morning Check For Hot Day Forecast` | 09:00 on weekdays, unless home mode is `Holiday` | Logs the check and calls `script.set_hot_water_to_off`. |
